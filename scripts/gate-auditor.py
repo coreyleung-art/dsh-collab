@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""gate-auditor v1.0.0 — 纸面门审查器 (R006 十项达标 · Lean4 结构门工具化)
+
+把「纸面门 vs 结构门」教训工具化 (2026-09-07 archify 事故: 清单写了沙箱测试但被跳过):
+  纸面门 = 规则/SOP 声明了「必须/门/强制」但无对应可执行工具 → 靠人执行, 可跳过
+  结构门 = 有代码实现 + lean4-check 自检证明生效 → 不可绕过
+
+功能:
+  gate-auditor scan                     # 扫描全局规则/文档, 识别纸面门 vs 结构门
+  gate-auditor scan --rules <RULES.md>  # 指定规则文件
+  gate-auditor list-tools               # 已知结构门工具注册表
+  gate-auditor --lean4-check            # 自检 (R006-⑩: 证明本工具识别门生效)
+  gate-auditor --version
+
+识别逻辑 (纯函数, 生产与自检同源):
+  is_structural(entry_text)   # 命中结构门工具关键词/lean4-check → 结构门
+  is_paper_gate(entry_text)   # 含门措辞但无工具 → 纸面门
+  报告: 每条纸面门 + 建议升级路径 (对应哪个结构门形态)
+"""
+import json
+import os
+import re
+import sys
+
+VERSION = "1.0.0"
+
+# ═══════════ 已知结构门工具注册表 (有代码实现的门) ═══════════
+STRUCTURAL_TOOLS = {
+    # 工具 → 覆盖领域
+    "bb-gate": ["通讯写入", "bb_gate", "bb-gate.py"],
+    "comm-domains": ["域权矩阵", "comm_domains"],
+    "queue-drain": ["队列治理", "queue-drain", "--lean4-check"],
+    "queue-condense": ["队列浓缩"],
+    "cld-monitor": ["CLD 监控", "cld-monitor"],
+    "restart-gate": ["重启门", "restart-gate", "restart-guard"],
+    "load-gate": ["资源总控", "load-gate"],
+    "schema-gate": ["Schema 校验", "schema-gate", "schema_gate"],
+    "mem-gate": ["内存门", "mem-gate"],
+    "channel-audit": ["通道审计", "channel-audit"],
+    "guard-*": ["守卫工具族", "guard_compliance", "guard_premortem", "guard_check"],
+    "gate-j23": ["node_modules 重建门(J23)", "gate-j23-lean4.py", "--lean4-check"],
+    "gate-j24": ["xberg 演练互斥门(J24)", "gate-j24-lean4.py", "--lean4-check"],
+    "dependency-audit": ["依赖全景分类+peer矩阵", "dependency-audit.py", "--lean4-check"],
+    "rule-audit": ["规则账本全景+冲突", "rule-audit.py", "--lean4-check"],
+    "device-audit": ["设备资产全景+可用矩阵", "device-audit.py", "--lean4-check"],
+    "resource-audit": ["资源登记全景+归属", "resource-audit.py", "--lean4-check"],
+    "channel-audit": ["外链通道全景+覆盖", "channel-audit.py", "--lean4-check"],
+    "coverage-audit": ["文档摄取覆盖+缺口", "coverage-audit.py", "--lean4-check"],
+    "dsh-tools lean4-check": ["工具自检", "lean4-check"],
+    "selfcheck.js": ["插件自查", "selfcheck"],
+    "queue_monitor": ["队列检测"],
+    "bb-connect-execute": ["蓝图执行", "lean4-check"],
+    "bb-schema-gate": ["蓝图 schema", "lean4-check"],
+    "bb-blueprint-dialog": ["蓝图对话", "lean4-check"],
+    "bb-schema-gate": ["schema 校验", "bb-schema-gate"],
+    "bb-blueprint-integrity": ["蓝图完整性", "integrity"],
+    "bb-blueprint-content-check": ["内容检查", "content-check"],
+    "bb-connect-lab": ["连接实验", "connect-lab"],
+    "bb-blueprint-gallery": ["gallery 渲染", "gallery"],
+    "rule-judge": ["规则裁决", "deposit-judge", "rule-judge"],
+    "bb-blueprint-registry": ["蓝图登记", "registry"],
+    "verify-all": ["lean4 巡检", "verify-all"],
+    "restart-intent": ["重启意图", "restart-intent"],
+    # ═══ 校准补 (2026-09-07 v1.1: 覆盖实际已有工具, 降误报) ═══
+    "agent_bus 锁": ["红绿灯", "agent_light", "agent_lock", "agent_unlock", "互斥"],
+    "agent_send 门禁": ["agent_send", "v2.4 门禁"],
+    "bb-sub": ["bb-sub", "订阅器"],
+    "hb-forward": ["hb-forward", "hb-fwd", "心跳转发"],
+    "sync-layer": ["sync-to-central", "sync-from-central", "双轨同步"],
+    "dsh-tools": ["dsh-tools", "queue-drain", "queue-condense", "channel-audit", "load-gate"],
+    "guard 族": ["guard_", "guard-", "pre-mortem", "guard_compliance", "guard_backup"],
+    "waimai 工具": ["waimai_", "外卖"],
+    "repair-report": ["repair-report", "修复报告"],
+    "agent_profiles": ["agent_profile", "能力登记"],
+    "selfcheck": ["selfcheck", "自查", "自检"],
+    "exit-marker": ["exit-marker", "看门狗", "heartbeat"],
+}
+
+# 纸面门措辞 (声明了但需查有无工具)
+GATE_WORDS = ["必须", "强制", "门", "enforced", "gate", "检查", "护栏", "红线", "禁止", "不可绕过"]
+
+# 规则文件默认位置
+RULES_DEFAULT = os.path.expanduser("~/dsh-collab/rules-registry/RULES.md")
+DOCS_CANDIDATES = [
+    os.path.expanduser("~/dsh-collab/comm-server/migration-plan-v1.md"),
+    os.path.expanduser("~/dsh-collab/comm-server/deploy-comm-layer.sh"),
+    os.path.expanduser("~/dsh-collab/comm-server/deploy-comm-server.sh"),
+]
+
+
+def is_structural(text):
+    """判定文本是否引用结构门工具 (纯函数)"""
+    low = text.lower()
+    for tool, _keywords in STRUCTURAL_TOOLS.items():
+        # 检查工具名或其关键词是否出现在文本
+        for kw in [tool] + (_keywords or []):
+            if kw.lower() in low:
+                return True
+    # lean4-check 自检存在 = 结构门强信号
+    if "lean4" in low or "--lean4-check" in low:
+        return True
+    return False
+
+
+def has_gate_intent(text):
+    """文本是否含门/强制措辞 (声明了约束)"""
+    return any(w in text for w in GATE_WORDS)
+
+
+NARRATIVE_WORDS = ["评估", "可行性", "定位", "里程碑", "验收", "叙述", "蓝图 v", "规划", "目标", "参考", "概览", "总结", "结论"]
+
+
+def is_narrative_line(text):
+    """叙述/评估行识别 (老登校准): 含评估/蓝图叙述词的非规则门行 → 降误报"""
+    return any(w in text for w in NARRATIVE_WORDS)
+
+
+def classify_entry(entry_id, title, detail):
+    """单条规则/流程条目分类: structural / paper / doc-only (纯函数)"""
+    combined = f"{title} {detail}"
+    if not has_gate_intent(combined):
+        return "doc-only"  # 无门声明, 纯文档
+    if is_structural(combined):
+        return "structural"  # 声明且有工具实现
+    return "paper"  # 声明了但无工具 = 纸面门
+
+
+def parse_rules(path):
+    """解析 RULES.md → [{id, title, detail, category}]"""
+    entries = []
+    if not os.path.exists(path):
+        return entries, f"❌ 文件不存在: {path}"
+    cur_id, cur_title, cur_detail = None, "", ""
+    with open(path, encoding="utf-8", errors="ignore") as f:
+        lines = f.readlines()
+    for line in lines:
+        m = re.match(r"^## (R\d+|J\d+)", line.strip())
+        if m:
+            if cur_id:
+                entries.append({"id": cur_id, "title": cur_title, "detail": cur_detail})
+            cur_id = m.group(1)
+            cur_title = line.strip().split(" ", 2)[-1] if " " in line.strip() else cur_id
+            cur_detail = ""
+        elif cur_id:
+            cur_detail += line
+    if cur_id:
+        entries.append({"id": cur_id, "title": cur_title, "detail": cur_detail})
+    # 分类
+    for e in entries:
+        e["category"] = classify_entry(e["id"], e["title"], e["detail"])
+    return entries, None
+
+
+def scan_rules(path=RULES_DEFAULT):
+    entries, err = parse_rules(path)
+    if err:
+        return {"error": err, "rules": [], "stats": {}}
+    stats = {"total": len(entries), "structural": 0, "paper": 0, "doc_only": 0}
+    paper_gates = []
+    for e in entries:
+        stats[e["category"] if e["category"] != "doc-only" else "doc_only"] += 1
+        if e["category"] == "paper":
+            paper_gates.append({
+                "id": e["id"], "title": e["title"][:80],
+                "detail_excerpt": e["detail"].strip()[:150],
+                "suggestion": suggest_upgrade(e["title"], e["detail"]),
+            })
+    return {"rules": entries, "paper_gates": paper_gates, "stats": stats, "source": path}
+
+
+def suggest_upgrade(title, detail):
+    """纸面门 → 结构门升级建议 (按领域启发)"""
+    low = (title + " " + detail).lower()
+    domain_map = [
+        (["插件", "plugin", "安装", "升级", "沙箱"], "plugin-install-gate (profile 副本强制冒烟, 成功才放行正式装)"),
+        (["重启", "restart"], "restart-gate (已有结构门, 核对覆盖)"),
+        (["通讯", "黑板", "消息", "跨设备", "bus"], "bb-gate/comm-domains (写入门+域权, 加 lean4-check)"),
+        (["内存", "rss", "oom"], "mem-gate (内存门)"),
+        (["签", "codesign", "原生", "dylib"], "sign-audit-gate (装前查原生 dylib 签名, 防 adhoc 雷)"),
+        (["依赖", "供应链", "npm", "pnpm", "遮蔽"], "guard_deps_scan/供应链门 (依赖一致性+遮蔽扫描)"),
+        (["沙箱", "验证", "测试"], "sandbox-gate (隔离 profile/环境强制验证后才放行)"),
+        (["规则", "广播", "r0"], "R008 规则治理流程 (纸面→工具化 lean4-check)"),
+    ]
+    for kws, gate in domain_map:
+        if any(k in low for k in kws):
+            return f"升级为结构门: {gate}"
+    return "升级为结构门: 补 lean4-check 自检工具 (判定函数+断言矩阵, 同 bb-gate/queue-drain 范式)"
+
+
+def list_tools():
+    out = ["== 已知结构门工具注册表 =="]
+    for tool, (domain, *_) in STRUCTURAL_TOOLS.items():
+        out.append(f"  {tool:<22} {domain}")
+    return "\n".join(out)
+
+
+def lean4_check():
+    """自检: 证明识别逻辑正确 (判定矩阵)"""
+    ok = True
+    out = ["== gate-auditor Lean4 约束门自检 (R006-⑩) =="]
+    checks = [
+        ("① 结构门识别: 含 lean4-check 文本 → structural",
+         is_structural("R006 工具带 --lean4-check 自检")),
+        ("② 结构门识别: 含 bb-gate → structural",
+         is_structural("写入经 bb-gate 门")),
+        ("③ 纸面门识别: '必须沙箱测试' 无工具 → 非 structural(→paper)",
+         not is_structural("插件升级重启前必须沙箱测试")),
+        ("④ 纸面门识别: '必须审核' 无工具 → 非 structural",
+         not is_structural("变更必须人工审核")),
+        ("⑤ 门意图: '必须' 措辞命中",
+         has_gate_intent("必须遵守")),
+        ("⑥ 门意图: 纯描述无门词",
+         not has_gate_intent("这是通讯架构评估")),
+        ("⑦ 分类: 有门词+工具 → structural",
+         classify_entry("R1","测试门","必须过 lean4-check") == "structural"),
+        ("⑧ 分类: 有门词无工具 → paper",
+         classify_entry("R2","沙箱门","必须沙箱测试") == "paper"),
+        ("⑨ 分类: 无门词 → doc-only",
+         classify_entry("R3","概述","通讯架构描述") == "doc-only"),
+    ]
+    for label, cond in checks:
+        out.append(f"  [{'✅' if cond else '❌'}] {label}")
+        ok = ok and cond
+    out.append("")
+    out.append(f"  结果: {'✅ GATE OK — 纸面门识别门生效' if ok else '❌ GATE FAIL'}")
+    return "\n".join(out), ok
+
+
+def render_report(data):
+    lines = [f"== 纸面门审查报告 ({data.get('source', '')}) =="]
+    st = data.get("stats", {})
+    lines.append(f"规则总数: {st.get('total',0)} | 结构门: {st.get('structural',0)} | 纸面门: {st.get('paper',0)} | 纯文档: {st.get('doc_only',0)}")
+    lines.append("")
+    pgs = data.get("paper_gates", [])
+    if not pgs:
+        lines.append("✅ 无纸面门 (全部规则已结构门化)")
+    else:
+        lines.append(f"⚠️ 纸面门 {len(pgs)} 条 (声明但无工具强制 — 人可跳过):")
+        for pg in pgs:
+            lines.append(f"  [{pg['id']}] {pg['title']}")
+            lines.append(f"      建议: {pg['suggestion']}")
+    return "\n".join(lines)
+
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        return 0
+    if args[0] == "--version":
+        print(f"gate-auditor {VERSION}")
+        return 0
+    if args[0] == "--lean4-check":
+        text, ok = lean4_check()
+        print(text)
+        return 0 if ok else 1
+    if args[0] == "list-tools":
+        print(list_tools())
+        return 0
+    if args[0] == "scan-all":
+        # 全量识别: 扫 RULES + 指定目录文档/脚本的门声明
+        import glob as _glob
+        rules_data = scan_rules(RULES_DEFAULT)
+        # 扫描源: SOP 文档目录 (comm-server/docs/scripts 等)
+        # 扩展域扫描 (2026-09-07 用户: 继续跑一轮扩展域对象)
+        base = os.path.expanduser("~/dsh-collab")
+        all_dirs = ["comm-server", "scripts", "rules-registry", "cld-health", "supply-chain",
+                    "devices", "im-reply", "learning", "qa", "research", "external-link-mcp",
+                    "meituan-multi", "docs"]
+        # 已承接历史文档排除 (明鉴校准 v1.3: flowernet 蓝图已被 E2/comm/mcp 承接)
+        EXCLUDE_FILES = ["flowernet-master-blueprint-20260827.md",
+                         "flowernet-master-blueprint-v3-20260827.md",
+                         "flowernet-master-blueprint-v4-20260827.md"]
+        scan_dirs = []
+        for sub in all_dirs:
+            p = os.path.join(base, sub)
+            if os.path.exists(p):
+                scan_dirs.append(p)
+        file_entries = []  # {file, line_no, text, category}
+        gate_pattern = re.compile(r"(必须|强制|enforced|禁止|门|护栏|红线|重启前|检查|审核后|不可绕过)")
+        for d in scan_dirs:
+            if not d:
+                continue
+            for fp in _glob.glob(os.path.join(d, "*.md")) + _glob.glob(os.path.join(d, "*.sh")):
+                # v1.2 精化: 仅扫 md/sh 文档声明——.py 工具实现不列入纸面门(有代码=结构门, 防误报)
+                if os.path.basename(fp) in EXCLUDE_FILES:
+                    continue  # 已承接历史文档排除 (明鉴校准 v1.3)
+                try:
+                    with open(fp, encoding="utf-8", errors="ignore") as f:
+                        lines = f.readlines()
+                except Exception:
+                    continue
+                for i, line in enumerate(lines, 1):
+                    if gate_pattern.search(line) and len(line.strip()) > 8:
+                        text = line.strip()[:150]
+                        cat = classify_entry(os.path.basename(fp), "", text)
+                        if cat == "paper" and is_narrative_line(text):
+                            cat = "narrative"  # 老登校准: 叙述/评估行非规则门
+                        if cat != "doc-only" and cat != "narrative":
+                            file_entries.append({
+                                "file": os.path.basename(fp), "path": fp,
+                                "line": i, "text": text, "category": cat,
+                            })
+        # 聚合
+        st = rules_data.get("stats", {})
+        print("== 全量纸面门识别报告 ==")
+        print(f"[规则账本] 总数:{st.get('total',0)} 结构:{st.get('structural',0)} 纸面:{st.get('paper',0)}")
+        # 按文件聚合
+        by_file = {}
+        for e in file_entries:
+            by_file.setdefault(e["file"], {"structural": 0, "paper": 0, "entries": []})
+            by_file[e["file"]]["entries"].append(e)
+            by_file[e["file"]][e["category"]] += 1
+        print(f"[文档/脚本] 扫描文件 {len(set(e['path'] for e in file_entries))} 个, 门声明 {len(file_entries)} 条")
+        total_paper = 0
+        for fname, info in sorted(by_file.items()):
+            p_ = info.get("paper", 0)
+            s_ = info.get("structural", 0)
+            total_paper += p_
+            if p_ > 0:
+                print(f"  ⚠️ {fname}: 结构门 {s_} / 纸面门 {p_}")
+                for e in info["entries"][:5]:
+                    if e["category"] == "paper":
+                        print(f"      L{e['line']}: {e['text'][:90]}")
+        # 汇总
+        total_structural = st.get('structural', 0) + sum(i["structural"] for i in by_file.values())
+        total_paper_all = st.get('paper', 0) + total_paper
+        print("")
+        print(f"== 全量汇总: 结构门 {total_structural} / 纸面门 {total_paper_all} ==")
+        # 存全量报告
+        out = os.path.expanduser("~/dsh-collab/rules-registry/gate-audit-full-report.json")
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump({"rules": st, "file_entries": file_entries, "summary": {"structural": total_structural, "paper": total_paper_all}}, f, ensure_ascii=False, indent=1)
+        print(f"(完整报告已存 {out})")
+        return 0
+    if args[0] == "scan":
+        rules_path = RULES_DEFAULT
+        if "--rules" in args:
+            i = args.index("--rules")
+            rules_path = os.path.expanduser(args[i+1]) if len(args) > i+1 else RULES_DEFAULT
+        data = scan_rules(rules_path)
+        if "error" in data:
+            print(data["error"])
+            return 1
+        print(render_report(data))
+        # JSON 输出备落盘
+        out = os.path.expanduser("~/dsh-collab/rules-registry/gate-audit-report-latest.json")
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+        print(f"\n(完整报告已存 {out})")
+        return 0
+    print(__doc__)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

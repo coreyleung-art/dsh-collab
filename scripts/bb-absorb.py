@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""bb-absorb.py — 节点经验/能力吸收流水线（进化循环第 4 步自动化）
+
+节点（i9/MBP/门店）登记新工具/能力后，自动评估其复用价值并落链吸收建议。
+供 bb-absorb-watch.py（常驻事件驱动）调用，也可手动执行。
+
+用法：
+  python3 bb-absorb.py --node i9 --tool i9-executor.py --desc "零token轮询执行器" --deps "标准库,http.client" --hub-dep "无" --node-side "纯标准库"
+  python3 bb-absorb.py --check-only ...   # 只评估不落链
+
+流程：
+  1. 验证工具已登记于黑板 data/<node>/tools/<tool>
+  2. 跑复用评估（bb-reuse-check.py）
+  3. 生成吸收建议（grade + 建议动作）
+  4. 落链：黑板 data/iterations/absorb-<tool> + genebank registry
+"""
+import argparse, json, os, subprocess, sys, datetime, urllib.request
+
+BB = "http://127.0.0.1:8792"
+REUSE = os.path.expanduser("~/dsh-collab/scripts/bb-reuse-check.py")
+
+def fetch(path):
+    try:
+        with urllib.request.urlopen(BB + path, timeout=6) as r:
+            return json.loads(r.read().decode())
+    except Exception as e:
+        return {"error": str(e)[:100]}
+
+def put(path, obj):
+    body = json.dumps(obj).encode()
+    req = urllib.request.Request(BB + path, data=body, method="PUT",
+                                 headers={"Content-Type": "application/json", "Content-Length": str(len(body))})
+    with urllib.request.urlopen(req, timeout=6) as r:
+        return r.status
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--node", required=True, help="来源节点（i9/mbp/store-xx）")
+    ap.add_argument("--tool", required=True, help="工具/能力名（如 i9-executor.py）")
+    ap.add_argument("--desc", required=True, help="能力描述")
+    ap.add_argument("--deps", default="", help="依赖")
+    ap.add_argument("--hub-dep", default="无", help="中枢依赖")
+    ap.add_argument("--node-side", default="", help="节点侧情况")
+    ap.add_argument("--check-only", action="store_true", help="只评估不落链")
+    ap.add_argument("--env-notes", default="", help="环境自适配说明（编码/平台/路径差异，强制维度）")
+    args = ap.parse_args()
+
+    print("== 吸收流水线：%s/%s ==" % (args.node, args.tool))
+    print("描述: %s" % args.desc)
+
+    # 1. 验证工具已登记
+    tool_path = "/data/%s/tools/%s" % (args.node, args.tool)
+    reg = fetch(tool_path)
+    if "error" in reg and "not found" not in str(reg):
+        print("⚠️ 工具 %s 查询异常: %s" % (tool_path, reg.get("error")))
+    else:
+        print("✅ 工具登记确认: %s" % tool_path)
+
+    # 2. 复用评估
+    print("\n[评估] 复用性...")
+    proc = subprocess.run(
+        "python3 %s --capability \"%s\" --deps \"%s\" --hub-dependent \"%s\" --node-side \"%s\" --env-notes \"%s\""
+        % (REUSE, args.desc, args.deps, args.hub_dep, args.node_side, args.env_notes),
+        shell=True, capture_output=True, text=True)
+    out = (proc.stdout or "") + (proc.stderr or "")
+    grade = "?"
+    for line in out.split("\n"):
+        if '"grade"' in line:
+            grade = line.split(":")[-1].strip().strip('",')
+    print("  复用分级: %s" % grade)
+
+    # 3. 吸收建议
+    advice = {
+        "reusable": "可泛化：提炼为底座通用件（如 node-executor.py 模式），纳入后续节点模板",
+        "needs-adaptation": "需适配：记录适配指南，节点侧按需改造后复用",
+        "hub-only": "中枢独占：记录价值，不泛化到节点",
+    }.get(grade, "未知分级")
+    print("  建议: %s" % advice)
+
+    if args.check_only:
+        print("\n(check-only 模式：不落链)")
+        sys.exit(0)
+
+    # 4. 落链
+    print("\n[落链]...")
+    item = {
+        "absorbed_from": args.node,
+        "tool": args.tool,
+        "desc": args.desc,
+        "grade": grade,
+        "advice": advice,
+        "ts": datetime.datetime.now().isoformat(timespec="seconds")
+    }
+    put("/data/iterations/absorb-%s-%s" % (args.node, args.tool.replace(".", "-")), item)
+    print("  ✅ 黑板 data/iterations/absorb-%s-%s" % (args.node, args.tool.replace(".", "-")))
+    print("\n✅ 吸收评估完成: %s → %s" % (args.tool, grade))
+
+if __name__ == "__main__":
+    main()

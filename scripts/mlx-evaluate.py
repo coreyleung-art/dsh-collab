@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""mlx-evaluate.py v1.0 — 微调模型二分类准确率评估（在 ~/mlx-venv 里运行）
+
+用法（在 venv 激活后）:
+  python ~/dsh-collab/scripts/mlx-evaluate.py
+
+逻辑：加载基座 + LoRA adapter → 对 test 集 172 条逐条推理 → 解析「沉淀/跳过」→ 算准确率
+       + 输出误判样本（供分析过拟合/边界）。
+"""
+import json, os, sys
+
+MODEL = os.path.expanduser("~/mlx-models/Qwen2.5-3B-Instruct-4bit")
+ADAPTER = os.path.expanduser("~/mlx-adapters/deposit-judge")
+TEST = os.path.expanduser("~/dsh-collab/token-monitor/mlx-data/test.jsonl")
+
+SYSTEM = (
+    "你是沉积判定器。判断任务摘要是否值得「沉淀复用经验」——即是否产生了可复用的产出"
+    "（脚本/插件/文档/规范/知识入库/修复bug/总结SOP/复用模式）。"
+    "只回答「沉淀」或「跳过」两个字，不要解释。"
+)
+
+def main():
+    from mlx_lm import load, generate
+    from mlx_lm.sample_utils import make_sampler
+
+    print("加载基座 + adapter ...")
+    model, tokenizer = load(MODEL, adapter_path=ADAPTER)
+    print("加载完成，开始评估 test 集 ...\n")
+
+    # 温度 0 采样（贪心，确定性输出）
+    sampler = make_sampler(temp=0.0)
+
+    rows = []
+    for line in open(TEST, encoding="utf-8"):
+        line = line.strip()
+        if line:
+            rows.append(json.loads(line))
+
+    correct = 0
+    total = 0
+    wrong = []
+    for r in rows:
+        # 取 user 内容 + assistant 期望
+        user_text = ""
+        expect = ""
+        for m in r["messages"]:
+            if m["role"] == "user":
+                user_text = m["content"]
+            elif m["role"] == "assistant":
+                expect = m["content"]
+
+        # 构造 chat 消息
+        messages = [
+            {"role": "system", "content": SYSTEM},
+            {"role": "user", "content": user_text},
+        ]
+        # 用 chat template
+        prompt = tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False)
+        resp = generate(model, tokenizer, prompt=prompt, max_tokens=4, sampler=sampler)
+        # 解析「沉淀」/「跳过」
+        pred = "沉淀" if "沉淀" in resp else ("跳过" if "跳过" in resp else "?")
+        total += 1
+        if pred == expect:
+            correct += 1
+        else:
+            wrong.append((user_text[:40], expect, pred, resp[:20]))
+
+    acc = correct / total if total else 0
+    print(f"=== 评估结果 ===")
+    print(f"准确率: {correct}/{total} = {acc:.1%}")
+    print(f"\n误判样本（前 20 条）:")
+    for u, e, p, raw in wrong[:20]:
+        print(f"  期望={e:3} 预测={p:3} | {u}")
+    return acc
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""风险穷举工具 v0.1 (HR)
+
+用法：python3 risk-enumeration.py --topic "CAHAC 架构" [--categories a,b,c] [--out path]
+输入：调研/架构主题（+ 可选类别清单）
+输出：风险穷举模板骨架 md（7 类分类/概率×影响矩阵/TOP N 必防/对策列）——由 agent 填充具体风险
+
+类别默认：architecture,communication,cost,governance,implementation,academic,external
+方法（J39 规范）：回溯相关记录→逐类穷举→概率×影响定级→对策→TOP N→结论
+"""
+import argparse, os, sys, datetime
+
+DEFAULT_CATS = ["architecture","communication","cost","governance","implementation","academic","external"]
+CAT_LABEL = {
+    "architecture": "架构", "communication": "通信", "cost": "成本",
+    "governance": "治理", "implementation": "实施", "academic": "学术", "external": "外部",
+}
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--topic", required=True, help="评估主题")
+    ap.add_argument("--categories", default=",".join(DEFAULT_CATS))
+    ap.add_argument("--out", default=None)
+    args = ap.parse_args()
+    cats = [c.strip() for c in args.categories.split(",") if c.strip()]
+    out = args.out or os.path.join(os.path.expanduser("~/dsh-collab/research/cost-governance/risk-" + args.topic.replace(" ", "-") + ".md")
+    lines = [
+        f"# 风险穷举评估 · {args.topic}",
+        "",
+        f"> 工具：risk-enumeration.py v0.1 · 生成：{datetime.date.today()} · 方法：J39 风险穷举规范（回溯→穷举→定级→对策→TOP N→结论）",
+        "> 填写：agent 按以下骨架穷举（每类 ≥2 项），高概率×高影响风险必须给出防线",
+        "",
+        "## 一、风险分类穷举",
+        "",
+    ]
+    for c in cats:
+        label = CAT_LABEL.get(c, c)
+        lines += [f"### {label}（{c}）", "", "| # | 风险 | 触发 | 概率 | 影响 | 对策 |", "|---|---|---|---|---|---|", "| | | | 高/中/低 | 高/中/低 | |", ""]
+    lines += [
+        "## 二、风险矩阵（概率×影响）",
+        "",
+        "| | 低影响 | 中影响 | 高影响 |",
+        "|---|---|---|---|",
+        "| **高概率** | | | |",
+        "| **中概率** | | | |",
+        "| **低概率** | | | |",
+        "",
+        "## 三、TOP N 必防风险（高×高 + 中×高）",
+        "",
+        "| 排名 | 风险 | 防线（已就绪/需补） |",
+        "|---|---|---|",
+        "| 1 | | |",
+        "",
+        "## 四、结论",
+        "",
+        "1. ",
+        "---",
+        f"*风险穷举：{datetime.date.today()} · {args.topic} · 依据：J39 规范*",
+    ]
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "w", encoding="utf-8") as f: f.write("\n".join(lines))
+    print("template:", out)
+
+if __name__ == "__main__":
+    main()
