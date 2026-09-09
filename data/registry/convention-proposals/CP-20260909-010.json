@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-010",
+  "title": "bus 节点投递可见性与离线处理(PR#5): mbp 离线收不到触发",
+  "clause": "§投递可见性(L/M)",
+  "suggest": "L1 节点状态预检(/bus/nodes)/L2 send 离线提示 target-offline/L3 queued 超时 failed(offline-timeout)/L4 重连回放补投; M1 降级黑板双写/M2 文件走共享域+CP-008",
+  "reason": "实证: mbp 守护离线期 i9 两条通知 queued 静默滞留(H3 单查), 发送方无感知; 服务器 ok:true 无离线提示; ttl 超时静默丢。投递对离线无可见性是机制缺陷, 已 v0.3.7 实施 L1/L2/L4。",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T20:39:21.286067",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09(i9 PR#5): 采纳 L1-L4+M1-2。服务器 v0.3.7 已实施并实测: L1 /bus/nodes(三节点在线/积压)、L2 send 响应 offline:true(无订阅者时)、L3 queued 超时 reason=offline-timeout、L4 SSE 重连回放 queued 积压(mbp 两条 9f23164c/5e08d737 实测 delivered)。触发事件=mbp 守护僵死(launchd -15)已重启(20:36 新 PID)并恢复 SSE。"
+}
