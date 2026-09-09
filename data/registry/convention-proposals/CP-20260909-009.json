@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-009",
+  "title": "黑板跨实例一致性: 本地↔中枢 404 根因治理(PR#4)",
+  "clause": "§黑板跨实例一致性(J/K)",
+  "suggest": "J1 共享键双写规范/J2 服务器同步层或中枢单源/J3 404 错误语义区分码/J4 共享键域注册; K1 临时写入只经正式工具/K2 写后验证中枢可达",
+  "reason": "CLD-Voice 交付链实测: 交付键只写本地黑板未双写中枢 → mbp/coordinator 读中枢 404/空, 首轮误判 BOM 空壳白费往返; i9-bb._mirror_central 被临时直写绕过。双实例一致性不能靠各端自觉。",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T20:34:52.835826",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09(i9 PR#4): 采纳 J1(共享键双写)/J3(404 语义: instance-missing/not-found/no-permission+提示)/J4(共享域以中枢为权威读面+scope=local 标注)/K1-K2(临时写入纪律)。服务器侧分期(诚实): J2 中枢 single-source+端侧镜像=拓扑级变更(影响现有写路径/读端点), 并入 backlog 待用户裁定后实施, 不擅动; J3 语义码先在 mac-mini 读 helper(comm-central/sync-down)层落地为过渡, 黑板书架原生区分码列后续。i9 14 键已镜像修复认可。"
+}
