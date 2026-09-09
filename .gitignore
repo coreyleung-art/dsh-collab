@@ -1,0 +1,34 @@
+# dsh-collab 限定仓忽略面 (治理代码面入仓; 大数据/独立工程/运行时产物不入)
+# 大数据与独立工程目录
+datasets/
+learning/
+research/
+cld/
+erp-workspace/
+poc/
+uploads/
+wechat-gateway/
+token-monitor/
+install-playbooks/
+# rust 独立工具(各自成熟部署物, target 巨大)
+rust-*/
+# 运行时/日志
+scripts/logs/
+logs/
+*.log
+data/*
+!data/registry/
+!data/reports/
+# 构建/缓存/密钥
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+DerivedData/
+.DS_Store
+*.token
+*.env
+!*.env.example
+# 旧备份(版本管理后不再堆叠)
+*.bak*

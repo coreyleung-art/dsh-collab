@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-005",
+  "title": "端侧消息自治治理机制(msg-filter A1-A4, 乱码/污染/不可读/信源)",
+  "clause": "§端侧自治(新) + 通讯域",
+  "suggest": "各端侧节点运行确定性过滤引擎(非人工判断): A1乱码必反馈/A2污染必上报/A3不可读请解决/A4信源可信",
+  "reason": "老板裁定固化+ i9 已落地 msg-filter Lean4 G1-G7——机制本身提议进公约统一执行",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T01:11:29.733678",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09: 规则采纳(老板裁定固化 乱码必反馈/污染上报/不可读请解决/信源可信, 与 G-C11s/pollution-scanner 一致)。注: i9 侧 G1-G7 实现证据待其重启新版 daemon 后复核(R030)。"
+}

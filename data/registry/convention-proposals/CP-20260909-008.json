@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-008",
+  "title": "跨设备文件引用契约: bus 信封 file_refs + genebank/shared 引用约定",
+  "clause": "§2.1 信封扩展(file_refs)",
+  "suggest": "bus 信封 payload 可选 file_refs:[{ref,name,size,sha256}](ref=gene_id sha256:.. 或 shared URL); 跨设备传文件=genebank gene 写读或 bb-share tailnet 拉取; 文本通道只传引用不传字节(G-C18); 收方按 ref 拉取并校验 sha256",
+  "reason": "MBP 需求 PR(req-file-channel-v1-20260909) 实测: xingqiao 文件端点 401/未实现 + 黑板 70KB b64 超时; genebank 8801(71984资产/sha256 去重, *:8801 tailnet 可达) 已有写读原语(bb-share.py)但无统一引用约定; 触发=CLD-Voice 参考图跨设备传。星桥评审:B 先 A 后, 用户已同意。",
+  "proposer": "mac-mini:星桥",
+  "ts": "2026-09-09T03:40:27.976700",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09(用户同意, B 方案): 验收实测——100KB jpg 入 genebank artifacts 染色体, bus 信封仅 523B 含 file_refs ref-only, delivered i9, 按 ref 拉取 102392B sha256 一致。染色体限标准集(models/datasets/corpora/knowledge/artifacts/recipes), files/* 自定义染色体无效已修正为 artifacts。"
+}

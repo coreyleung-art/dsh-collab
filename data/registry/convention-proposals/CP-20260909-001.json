@@ -1,0 +1,10 @@
+{
+  "pr_id": "CP-20260909-001",
+  "title": "建议: 同机 agent_send 也加限流",
+  "clause": "§3.1.1-B",
+  "suggest": "同机 agent_send 高峰期加 5 条/分钟限流",
+  "reason": "实测 MBP 同机角色互发高峰时有 burst, 端侧观察",
+  "proposer": "mbp:mbp-bus",
+  "ts": "2026-09-09T00:59:35.629915",
+  "status": "merged"
+}

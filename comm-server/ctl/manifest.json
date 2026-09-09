@@ -1,0 +1,33 @@
+{
+  "deployed_at": "2026-09-06T20:03:00+08:00",
+  "deployed_by": "star-bridge (deploy-comm-layer.sh)",
+  "binaries": [
+    {"name": "dsh-tools (bb-sub)", "version": "1.4.2", "path": "/opt/comm-layer/bin/dsh-tools", "note": "linux x64, bb-sub 子命令 v1.0 起未变, 功能等价本地 v1.25.0 版 bb-sub"},
+    {"name": "node", "version": "24.20.0", "path": "/opt/node/bin/node", "note": "8-26 随 comm-server 部署安装, 复用"},
+    {"name": "bus-bridge.js", "version": "local-snapshot", "path": "/opt/comm-layer/bus-bridge/bus-bridge.js", "note": "mac-mini ~/.dsh/bus-bridge 同源副本, 纯内置模块"}
+  ],
+  "services": [
+    {"name": "comm-bb-sub-coordinator", "desc": "订阅中枢 SSE coordinator 域"},
+    {"name": "comm-bb-sub-device", "desc": "订阅中枢 SSE device 域"},
+    {"name": "comm-bb-sub-hr", "desc": "订阅中枢 SSE hr 域"},
+    {"name": "comm-bb-sub-learning", "desc": "订阅中枢 SSE learning 域"},
+    {"name": "comm-bb-sub-qa", "desc": "订阅中枢 SSE qa 域"},
+    {"name": "comm-bb-sub-recovery", "desc": "订阅中枢 SSE recovery 域"},
+    {"name": "comm-bb-sub-supply", "desc": "订阅中枢 SSE supply 域"},
+    {"name": "comm-bb-sub-xingduo", "desc": "订阅中枢 SSE xingduo 域"},
+    {"name": "comm-bus-bridge", "desc": "跨设备消息总线 8791 (X-Webhook-Token)"},
+    {"name": "comm-server", "desc": "Prod 黑板 8792/8803 rust-blackboard v0.6.0"},
+    {"name": "comm-server-test", "desc": "Test 黑板 8794/8805 rust-blackboard v0.6.0"}
+  ],
+  "data": {
+    "inbox": "/home/ubuntu/.dsh/inbox/bb/<agent>.jsonl (中枢事件留痕)",
+    "bus_queue": "/opt/comm-layer/bus-queue",
+    "bus_token": "/opt/comm-layer/bus-bridge.env (0600 root)",
+    "token_note": "bb-sub SSE 无鉴权(中枢 SSE 开放); bus-bridge X-Webhook-Token 鉴权"
+  },
+  "governance": {
+    "log": "journald + logrotate (log-ctl.sh)",
+    "version": "manifest.json + version-ctl.sh",
+    "health": "health-ctl.sh + comm-health.timer (15min) + 每日报告"
+  }
+}

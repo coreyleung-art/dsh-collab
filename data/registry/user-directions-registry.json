@@ -1,0 +1,342 @@
+{
+ "_meta": {
+  "version": "1.0",
+  "updated": "2026-09-09",
+  "purpose": "用户说过的话 → 落实状态注册表（扫描器 user-direction-scan.py 核验，R030 无证据不陈述）",
+  "sources": [
+   "会话历史",
+   "rules-registry/cld-agent-node-network-convention-v1.md 变更段",
+   "comm-server 设计文档用户标注",
+   "黑板卡/提案 reason"
+  ]
+ },
+ "directions": [
+  {
+   "id": "D01",
+   "date": "2026-09-08",
+   "direction": "服务器不需要装 CLD/最小 LLM 评估——纯消息总线，不装 CLD/LLM",
+   "domain": "服务器架构",
+   "status": "done",
+   "evidence": [
+    "comm-server/device-daemon.py(守护连服务器=纯信封总线, 无 LLM 调用)",
+    "comm-bus-bridge 服务 ExecStart=/opt/node/bin/node(纯 node, 无 dsh/llm 进程)"
+   ]
+  },
+  {
+   "id": "D02",
+   "date": "2026-09-08",
+   "direction": "区分 Tailscale vs 服务器路径；消息管理/分发路由做多设备污染隔离",
+   "domain": "路由架构",
+   "status": "done",
+   "evidence": [
+    "comm-server/channel-map.py",
+    "comm-router-isolation-design-v1.md",
+    "G-C27 域隔离",
+    "v1.4 collab 广播语义门 G-C39/40"
+   ]
+  },
+  {
+   "id": "D03",
+   "date": "2026-09-08",
+   "direction": "智能体别太自作聪明——能力边界做成结构约束(Lean4)，非行为自觉",
+   "domain": "治理",
+   "status": "done",
+   "evidence": [
+    "convention-lean4-check.py 30 项",
+    "G-C11s 防 spoof",
+    "bb-gate 写入门"
+   ]
+  },
+  {
+   "id": "D04",
+   "date": "2026-09-08",
+   "direction": "漏变量加 Lean4 结构门；节点装备标准化作 Windows 节点落地方案",
+   "domain": "部署",
+   "status": "partial",
+   "evidence": [
+    "gate-deploy-check.py G-D1~D3 已生效(漏变量抓出 2 处)",
+    "node-kit P1 已交付",
+    "node-kit E2 设备自报注册 via:self 未做(待 P1 稳定一周)"
+   ]
+  },
+  {
+   "id": "D05",
+   "date": "2026-09-08",
+   "direction": "服务器注册表/路由像 agent 身份证",
+   "domain": "注册表",
+   "status": "partial",
+   "evidence": [
+    "bb-gate cmd_registry(data/discovery/agents 查询存在)",
+    "e2-registry-plan-v1.md",
+    "E2 每设备独立 token/注册未落地"
+   ]
+  },
+  {
+   "id": "D06",
+   "date": "2026-09-08",
+   "direction": "服务器转发时插入上下文给接入设备，规则说清楚；本地 agent 不轮询(SSE 推送)",
+   "domain": "投递",
+   "status": "done",
+   "evidence": [
+    "device-daemon SSE /bus/events?node=",
+    "bus-push-rule-v1.md",
+    "server 主动推送实测"
+   ]
+  },
+  {
+   "id": "D07",
+   "date": "2026-09-08",
+   "direction": "真设备测 S2；再测几遍/关 tailscale 管道测试；确定没问题才报里程碑",
+   "domain": "验证",
+   "status": "done",
+   "evidence": [
+    "channel-map.py 双路径实测",
+    "bus-s2-real-probe 系列卡",
+    "v0.3.5/0.3.6 回归 7+ 项"
+   ]
+  },
+  {
+   "id": "D08",
+   "date": "2026-09-08",
+   "direction": "从成本治理角度：方案 A(无全局注册表) + role@device 透传",
+   "domain": "路由",
+   "status": "done",
+   "evidence": [
+    "公约 §6.1 方案 A",
+    "§6.2 成本治理 Φ4",
+    "payload.to 角色寻址"
+   ]
+  },
+  {
+   "id": "D09",
+   "date": "2026-09-08",
+   "direction": "服务器出错时设备间怎样约束——降级纪律 + 人类求救通道",
+   "domain": "故障",
+   "status": "partial",
+   "evidence": [
+    "server-degrade-discipline-v1.md",
+    "node-sos-template.txt 桌面模板存在",
+    "L3 人工求救实际触发链路未端到端实测"
+   ]
+  },
+  {
+   "id": "D10",
+   "date": "2026-09-09",
+   "direction": "新公约应让 MBP 一同签署；公共文本更新抄送接入设备",
+   "domain": "治理",
+   "status": "partial",
+   "evidence": [
+    "§9.1 签署义务已立",
+    "notify-nodes.sh 抄送 mbp+i9 运行中",
+    "MBP/i9 回签 v1.3/v1.4 未收到(waiting-on 节点)"
+   ]
+  },
+  {
+   "id": "D11",
+   "date": "2026-09-09",
+   "direction": "公约维护走提案通道(PR)，端侧主桥可提交补充意见",
+   "domain": "治理",
+   "status": "done",
+   "evidence": [
+    "convention-pr.py submit/list/review/merge/reject",
+    "CP-003~007 全部经通道",
+    "§10"
+   ]
+  },
+  {
+   "id": "D12",
+   "date": "2026-09-09",
+   "direction": "签署类任务 reply_required 强制 agent 级 done；纯通知显式 notify_only",
+   "domain": "确认语义",
+   "status": "done",
+   "evidence": [
+    "bus-bridge reply_required/notify_only",
+    "G-C36/37",
+    "v0.3.6 自动闭环"
+   ]
+  },
+  {
+   "id": "D13",
+   "date": "2026-09-09",
+   "direction": "两级确认 delivered/done，防「投递=完成」假闭环",
+   "domain": "确认语义",
+   "status": "done",
+   "evidence": [
+    "comm-confirmation-chain-v1.md",
+    "stage=delivered vs done",
+    "i9 PR#3 永挂根治 v0.3.6"
+   ]
+  },
+  {
+   "id": "D14",
+   "date": "2026-09-09",
+   "direction": "端侧共治提炼为自进化逻辑；HR/明鉴评估纳入 SystemGraph",
+   "domain": "治理",
+   "status": "done",
+   "evidence": [
+    "comm-server/node-network-self-evolution-v1.md",
+    "self-evolution-registered-20260909 黑板卡",
+    "协作域 rule-judge 下 R008 并列"
+   ]
+  },
+  {
+   "id": "D15",
+   "date": "2026-09-09",
+   "direction": "target 路由缺口：i9 提交了 PR 我收不到/mbp 提议没泛化给 i9",
+   "domain": "路由",
+   "status": "done",
+   "evidence": [
+    "bus-bridge v0.3.3 协调者别名",
+    "v0.3.4 斜杠多候选",
+    "i9 真实 propose 送达实测"
+   ]
+  },
+  {
+   "id": "D16",
+   "date": "2026-09-09",
+   "direction": "星台 App：角色管理显示主角色+状态点，不是 session 编号",
+   "domain": "产品",
+   "status": "done",
+   "evidence": [
+    "StarBridge v0.9.8.2",
+    "main-roles.json 20 主角色白名单",
+    "roleDisplayName"
+   ]
+  },
+  {
+   "id": "D17",
+   "date": "2026-09-09",
+   "direction": "乱码不得忽略/污染拦截后反馈/不可读请解决/信源可信(端侧自治)",
+   "domain": "端侧自治",
+   "status": "done",
+   "evidence": [
+    "CP-20260909-005 msg-filter A1-A4 (merged)",
+    "i9 msg-filter 实测拦截上报卡",
+    "scripts/pollution-scanner.py (10 类/30min 常驻)"
+   ]
+  },
+  {
+   "id": "D18",
+   "date": "2026-09-09",
+   "direction": "服务器投递过滤：端侧只收本设备定向(D1-D5)，非定向不广播",
+   "domain": "投递",
+   "status": "done",
+   "evidence": [
+    "CP-006",
+    "v0.3.5 封闭 target 集",
+    "G-C7"
+   ]
+  },
+  {
+   "id": "D19",
+   "date": "2026-09-09",
+   "direction": "守护送达≠端侧处理；i9 在等我/我在等 i9 防死等",
+   "domain": "确认语义",
+   "status": "done",
+   "evidence": [
+    "done 责任归属",
+    "v0.3.6 processing 幽灵回收 + delivered 自动闭环",
+    "G-C4 绿"
+   ]
+  },
+  {
+   "id": "D20",
+   "date": "2026-09-09",
+   "direction": "服务器要有类型管理器/错误投递自动拦截分发器(按消息类型/收件人语义管理投递)",
+   "domain": "分发器",
+   "status": "done",
+   "evidence": [
+    "comm_domains v1.2 recipient_home_only",
+    "G-C41",
+    "三层拦截 target/域/收件人归属",
+    "实测 scope=broadcast+to=星桥 拦截"
+   ]
+  },
+  {
+   "id": "D21",
+   "date": "2026-09-09",
+   "direction": "公约为何不是 Lean4 结构门逻辑——语义规则要物化成门",
+   "domain": "治理",
+   "status": "done",
+   "evidence": [
+    "G-C39/40/41 三连门",
+    "sync-up 上行过滤",
+    "bb-gate 写入门 G4/G6",
+    "30/30 PASS"
+   ]
+  },
+  {
+   "id": "D22",
+   "date": "2026-09-09",
+   "direction": "防止我浪费 token/别把该查证的当开放题问/别逐条重复回执",
+   "domain": "行为纪律",
+   "status": "partial",
+   "evidence": [
+    "本会话已改：整类归并、不逐条 ack、自我回声不回复",
+    "持续纪律, 无法机器断言"
+   ]
+  },
+  {
+   "id": "D23",
+   "date": "2026-09-09",
+   "direction": "星桥治理卡应写本机域(notes/mac-mini/)而非 collab(v1.4 §12.2 约定)",
+   "domain": "域纪律",
+   "status": "partial",
+   "evidence": [
+    "v1.4 门后 sync-up 已拦上行(i9 不再见)",
+    "但 02:1x 的 mvp-gate 等卡仍写本地 collab 未迁 notes/mac-mini/",
+    "后续卡默认改 notes/mac-mini/"
+   ]
+  }
+ ],
+ "backlog": [
+  {
+   "id": "B01",
+   "item": "E2 每设备独立 token + 服务端 token→from 绑定(N3 完全防伪)",
+   "blocked_on": "计划 E2, 未排期",
+   "evidence": "MBP A2-from-spoof 唯一 FAIL"
+  },
+  {
+   "id": "B02",
+   "item": "node-kit E2: 设备自报注册(via:self)",
+   "blocked_on": "P1 稳定一周后启动",
+   "evidence": "e2-registry-plan-v1.md"
+  },
+  {
+   "id": "B03",
+   "item": "i9 新版守护(含 msg-filter G1-G7/is_test_only)拉取重启确认",
+   "blocked_on": "i9 侧(daemon-i9-update 卡在途)",
+   "evidence": "notes/i9/daemon-i9-update-*"
+  },
+  {
+   "id": "B04",
+   "item": "MBP/i9 公约 v1.3/v1.4 回签",
+   "blocked_on": "节点回签(请求已 delivered)",
+   "evidence": "§9.1"
+  },
+  {
+   "id": "B05",
+   "item": "RSS 高频波峰 + web 复发超时 → 预防性重启",
+   "blocked_on": "用户窗口",
+   "evidence": "cld-rss-ack-* 升级态"
+  },
+  {
+   "id": "B06",
+   "item": "central-inbox 回退注入自我回声治理(纯抄送卡静默归档)",
+   "blocked_on": "治理候选未排期",
+   "evidence": "本会话多次自我回声"
+  },
+  {
+   "id": "B07",
+   "item": "『node』唤醒器对已删键重复唤醒去重缺陷",
+   "blocked_on": "唤醒器归属未定位",
+   "evidence": "gate-test 卡 3 次回声"
+  },
+  {
+   "id": "B08",
+   "item": "mac-mini 守护对 notify_only 直回 done(F1 对齐)",
+   "blocked_on": "守护下次部署",
+   "evidence": "CP-007 review_note"
+  }
+ ]
+}

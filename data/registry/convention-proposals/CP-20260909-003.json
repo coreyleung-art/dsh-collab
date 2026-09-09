@@ -1,0 +1,10 @@
+{
+  "pr_id": "CP-20260909-003",
+  "title": "服务器 bus 三处输入校验缺口",
+  "clause": "G-C7 target精确 + §2.1 信封",
+  "suggest": "①缺 target 拒收(不默认any) ②target 白名单(mac-mini|mbp|i9|any) ③payload 上限(业务层4KB走黑板引用)",
+  "reason": "端侧扫描实证: 缺target被受理+非法target字符+100KB无业务层限制(违G-C7/防DoS)",
+  "proposer": "mbp:mbp-bus",
+  "ts": "2026-09-09T01:04:23.948480",
+  "status": "merged"
+}

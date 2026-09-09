@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-002",
+  "title": "测试 reject",
+  "clause": "G-C30",
+  "suggest": "x",
+  "reason": "验证 reject 流程",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T00:59:43.179935",
+  "status": "rejected",
+  "review_note": "测试驳回"
+}

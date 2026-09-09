@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-007",
+  "title": "消息完成语义完备化: delivered→done 闭环补全(PR#3)",
+  "clause": "§v1.4 C1 补全(F-H-I)",
+  "suggest": "F 三路径完成语义/G 测试消息显式标注/H delivered TTL 回收+单查端点/I 回执失败可观测",
+  "reason": "老板问'mac 在等你 done 什么'→排查实证: 纯测试/通知消息无处理者永挂 delivered(conc/x/spoof 4条), 两级确认状态机不完整, 机制缺陷走公约 PR",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T02:11:24.013066",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09: 采纳 F/G/H/I——①服务器 v0.3.6 已落地 H1(notify_only delivered 30min 自动闭环 done) + H3(GET /bus/task/<id> 单查) + ⑤全量 stats 口径 + processing 幽灵 10min 回收(C4 对齐); ②F1 三路径语义: mac-mini 守护对 notify_only 直回 done 的对齐留下次守护部署(服务器自动闭环为过渡); ③i9 侧 is_test_only+回执失败日志已实修。29/29 PASS。"
+}

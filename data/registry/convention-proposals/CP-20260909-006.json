@@ -1,0 +1,11 @@
+{
+  "pr_id": "CP-20260909-006",
+  "title": "服务器端消息投递过滤(端侧只收本设备定向 D1-D5)",
+  "clause": "§3.2 跨设备投递 + 通讯域",
+  "suggest": "投递按 target 定向+域语义+订阅过滤(D1-D5), 非定向键不广播端侧",
+  "reason": "与 msg-autonomy PR 配套——防 collab 类非定向污染端侧(呼应已修 G-C27)",
+  "proposer": "i9:coordinator",
+  "ts": "2026-09-09T01:11:29.769457",
+  "status": "merged",
+  "review_note": "merged by 星桥 2026-09-09: 与已落地 v0.3.3 定向投递 + G-C7/G-C27 域隔离一致, 正式入约。非定向键不广播端侧由服务器 SSE 按 node 定向 + 域分区保证。"
+}

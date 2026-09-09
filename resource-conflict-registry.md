@@ -1,0 +1,106 @@
+# 资源冲突问题台账与治理规范 · 汇总
+
+> 维护：session-e7bfeea8（资源管理者）· 2026-08-17 · v1.1
+> 触发：用户要求主动排查资源冲突线索、归纳问题、制定规范、解决冲突
+> 方法：主动盘点登记表仲裁历史 + 向核心会话征集隐性冲突 + 归纳制定规范
+> 规范集：~/dsh-collab/resource-conflict-policy.md v1.1（25 冲突面 9 大类，全员执行）
+> 补充：v1.0 收官后协调者转达 8 条追加反馈（45f89009/3d490920/6e49710e/6ed4daf2/5a5368af/582093dd/9910d4b2/a3bc8cba）
+
+---
+
+## 一、已知资源冲突问题（归纳）
+
+### A. 浏览器/窗口类（已规范）
+| 问题 | 现象 | 规范 |
+|---|---|---|
+| A1 通用窗口互抢 | GitHub PR 随手开子窗口，影响其他任务 | browser-window-policy.md v1.1：B 通用通道主+C 独立实例兜底 |
+| A2 IM 窗口导航冲突 | 采集 vs 抓取抢 im_window:N | 三层保障（查灯避让+短锁+看门狗）+ 单写者原则 |
+| A3 headless 不回收 | 4 组占 ~1GB 存活 12h+ | v1.0.88 不常驻纪律，用后即关 |
+
+### B. 文件/配置类
+| 问题 | 现象 | 规范 |
+|---|---|---|
+| B1 profiles/web 并发改 | 多会话同时改，00:25 事故 | 子文件属主细分 + 热点资源锁 file:profiles/web |
+| B2 登记表并发写 | 多会话申报同改 | file:resource-registry.md 锁 |
+| B3 CLD.app 触碰 | 重签/补丁影响运行 GUI | agent:CLD.app 锁 |
+| B4 ~/.dsh 配置并发写 | agent-bus.json/profiles/*.json 覆盖风险 | file:.dsh-config 锁或单写者 |
+| B5 共享文档写作 | 多会话协作写同一文档 | 统一 file: 红绿灯锁 + 写前通知属主 |
+| B6 meituan-multi/data 目录共享 | kb_sync 写 manifest/kb_outbox + a3bc8cba 写 comm.db + 面板写 app.db | 分文件无写竞争；整体操作（移动/归档/清理）前 agent_light(dir:meituan-multi/data)（45f89009 反馈） |
+| B7 exit-marker/heartbeat 看门狗写 | CLD-002 看门狗写 exit-marker.json + heartbeat.json（待安装） | 写归看门狗（原子写+30s 心跳），其他会话只读避免双写（3d490920 反馈） |
+| B8 plugin-smoke 临时文件隔离 | /tmp/plugin-smoke-build.log + sinceboot.log 固定路径，并发冒烟互相覆盖串读 | **已落地**：PID 隔离补丁（6ed4daf2 实施）+ file:plugin-smoke 锁内操作（6ed4daf2 反馈） |
+| B9 登记属主文件静默多写 | dsh-health.py 属主登记但多方写入（无归属注释） | 「写前通知属主」通用规范（agent_light 查灯或属主同意）（6e49710e/582093dd 反馈合并） |
+
+### C. 数据/集合类
+| 问题 | 现象 | 规范 |
+|---|---|---|
+| C1 ChromaDB research 交集 | 属主/共享写冲突 | 属主 b241741f + 3b5efeef 共享写 + 增量 upsert + 重建护栏 |
+| C2 crawler-lab 写权 | 属主 vs worker | 属主 4787d717 + 任务期 lock + 写 report-N 前确认编号 |
+| C3 凭据类 | 号码/Token 多会话可见 | 登记归属不登记内容 + 0600 私有 |
+| C4 知识库并发写 | 多会话写同一 base/集合覆盖 chunk | 按 baseId 加锁，读共享 |
+| C5 app.db 并发访问 | a3bc8cba 只读导入 + de7b29de 写 events/im_sessions | WAL 低风险；可加 shared 读锁（a3bc8cba 反馈） |
+| C6 docs 与 kb_outbox 共享读 | 未来多会话读 meituan-multi/docs | 登记 file:meituan-multi/docs 共享读（a3bc8cba 反馈） |
+
+### D. 服务/端口/算力类
+| 问题 | 现象 | 规范 |
+|---|---|---|
+| D1 外链 webhook 8790 | 专属端口 | port:8790 专属外链，启动前 pkill 防 EADDRINUSE |
+| D2 端口撞车 | 会话各自启动本地服务撞端口 | port: 登记 + 启动前 agent_light(port:N) |
+| D3 内存/算力互抢 | headless/浏览器/模型加载 | 设备协调监控 + task:heavy 锁 + 错峰 |
+| D4 cld-health 读竞争 | 写独占 9910d4b2，724614ce/6ed4daf2 只读复核高频 | 标注「读并发高频」+ offset 缓存（9910d4b2 反馈） |
+| D5 health-check --log 追加竞态 | sysops 集成后与手动巡检并发写 tsv 行交错 | 单点调度或文件锁（9910d4b2 反馈） |
+| D6 双巡检重叠告警 | health-check vs sysops health 重复告警 | 去重（--cld 扩展已缓解仍建议收口）（9910d4b2 反馈） |
+| D7 向日葵 MCP 会话独占 | PC-i9/MBP cmd2/forward 会话当前独占 | 前瞻：登记 device-remote 资源类型走红绿灯；SSH 需用先查灯（5a5368af 反馈） |
+| D8 插件目录 node_modules 重建 | dsh-plugin-repo-pipeline 目录「零 node_modules」硬约束被违反（6ed4daf2 冒烟 npm install 遗留 + 08-17 18:48 重建来源不明），本地副本遮蔽宿主注入 peer deps 致插件 inject 失效 | 该目录**禁止 npm install**（构建走临时目录/CI）；依赖审计/冒烟验证走 CI 或临时目录（dcac2308 反馈） |
+| D9 session-storage 全量读域 | QA 回归/检查脚本全量扫描 90+ session.jsonl.zstd（数秒级大范围读），与活跃会话写并发可能读到写中文件；多会话同跑互为读放大 | 登记 **store:session-storage-read 共享读域**：检查脚本执行前 agent_light 查此域，写方持锁时检查方等待；频率受控（仅 post-restart/QA 回归/明确委派，不常驻）（b278baab 反馈） |
+| D10 ChromaDB research 三方写标注 | 3b5efeef（调研索引）+ b241741f（情报）+ 55d4d1bd（ingest 管道）三方并发增量写，偶发争用（幂等哈希去重兜底） | **登记 multi-writer 事实**：§5.5 共享写者裁定维持；未来写入延迟优先查此面（3b5efeef 反馈） |
+| D11 追加类共享文件无锁 | wiki/log.md append-only 无红绿灯惯例，实测并发追加交错（heredoc 失败/内容覆盖风险） | **「追加类共享文件」规范**：可加 shared 读锁或约定串行（原子 append 或用锁包裹）（3b5efeef 反馈） |
+| D12 端口 3081 归属冲突 | launchd com.dsh.remote（dsh-tailnet-proxy 远程入口，当前占用）vs CLD 服务器模式 spawn inject-proxy（CLD_BIND_HOST=0.0.0.0 也绑 3081，每次启动 EADDRINUSE 崩溃，dsh-web.log 实证） | **决议（582093dd 确认）**：3081 **保持 com.dsh.remote 归属**（tailnet-only 绑定+健康监控覆盖）；CLD 服务器模式若恢复启用改用 **3082**（显式 CLD_PORT=3082）；冲突 fallback 告警待补（43b1a2d3 反馈+582093dd 决议） |
+| D13 健康/巡检三角 | 6e49710e（健康体检）/9910d4b2（健康审查）/724614ce（重启复核）职能相近——~/.cld/logs 与 health-check 脚本读取争抢 + 重复巡检风险 | 理清三角分工（各司巡检维度：体检/审查/复核）；读取错峰+共享读锁；与 J7/J9（cld-health 读竞争/双巡检去重）关联跟踪（b3778a1e 观察） |
+| D14 vault 多写者文件碰撞 | b241741f/3b5efeef/55d4d1bd/2fe61625 四写者并存（前缀隔离已约定），高并发写同一 vault 目录树仍可能文件级碰撞 | file:vault 锁纪律严格执行（写前查灯/声明/即关）；前缀隔离维持；与 G3/J13 关联（b3778a1e 观察） |
+| D15 profiles/web 读未持锁 | c1111ffe/eb5ee9cc/1e54d56d/0e84e65c 均涉 profile 操作——「读时未持锁」（dump-config 校验 vs 并发写）仍可能撕裂 | **读校验也声明 shared 锁**（低成本高价值，升级 F1 规范）；与 J4「写前通知属主」互补（b3778a1e 观察） |
+| D16 ~/.dsh/sessions 读共享标注 | e032fb77 冒烟模板 logGlob 曾指向（实测 zstd 转录已降级提示性不写）；多会话持久化写此目录 | 登记为「**多会话读共享、无写冲突预期**」避免误报（检查方只读共享；与 J12 store:session-storage-read 关联）（e032fb77 自查） |
+| D17 media 读写 vs 摄取并发 | file:~/dsh-collab/media 读写与摄取管道读取并发——当前 file:media 红绿灯+摄取幂等兜底无实际冲突；若摄取频次提高有轻微争用风险 | 错峰约定：摄取避开媒体写稿高峰（低风险，54e809ed 自查） |
+| D18 hub 静态服务属主边界 | service:media-hub（8090）服务归 54e809ed，launchd plist/健康探测归 582093dd | **属主边界确认登记**：服务=54e809ed / 基建=582093dd；变更需双方协调（已登记 service:media-hub）（54e809ed 自查） |
+| D19 node_modules 重建 vs 运行映射 | 供应链加固（0e84e65c/c1111ffe）重建 node_modules 时，运行中 CLD 实例已映射旧产物（node-pty/ssh2 dylib）——运行期不一致或需重启才稳定 | **已知冲突类型登记**：重建前广播 + 完成后统一重启窗口验证（缓解=窗口化）；与 F3/J11 关联（eb5ee9cc 反馈） |
+| D20 xberg 恢复演练 vs 运行态 | file:profile-assets/xberg 恢复演练与运行态并发读写竞争（低概率） | **潜在冲突项登记**：演练窗口化规避（避开运行态读写时段）；与 F4 xberg 双维护关联（0e84e65c 自查） |
+| D21 ~/.claude.json MCP 配置源 | 多会话写 mcpServers（MCP 配置源），并发双写风险 | **明确写权归属**：统一经 mcp-station 管理或单一写者（file:~/.claude.json 锁）；与 E2/D1 配置类关联（1e54d56d 反馈） |
+| D22 内存紧张并发构建 | 0.1GB 空闲下多会话并发构建/服务竞争（设备协调路由已缓解） | 设备协调排程维持 + 重型构建错峰（与 D3/E4 关联）（1e54d56d 反馈） |
+| D23 profiles/web bundles 行共存 | profiles/web 仅动插件 bundles 行与供应链共存 | 红绿灯纪律维持（与 F1/J19 关联，1e54d56d 反馈） |
+| D24 IM 窗口导航冲突（已解决） | 页面抓取曾 fallback 导航 IM 工作台（找不到商家页时） | **已修复**：严格排除 imworkbench 找不到商家页报错不降级 + im_window:N 归 de7b29de 导航专属——**修复经验入规范防复发**（关联 I1/B2；aa528267 登记） |
+| D25 测试守白约定 | 用户指示：测试用守白 8 店，4 主力店不做测试 | **用户指示固化**：测试操作仅限守白 8；主力店（4 店）不做测试（aa528267 登记） |
+| D26 重启窗口集中协调 | 多会话重启生效的变更（插件 bundles/依赖加固/mcp-station 挂载等）各自重启互相打断 | **统一走重启窗口批次执行** + 重启后集中复核；与重启挂起清单衔接（协调者 fa1f9150 补充） |
+| D27 R3 插件代码产物共享读 | ~/dsh-plugin-local-projects/external-link-policy/ 代码产物与其他会话读取 | 代码产物登记共享读；R3 插件域（属主 e0c391f7 等）写改走红绿灯（e0c391f7 复查补录） |
+| D28 dsh-collab 写权限代写依赖 | ~/dsh-collab 写权限代写 vs 属主 | 代写需属主授权/知会（写前通知属主 J4 延伸）；属主边界登记（e0c391f7 复查补录） |
+| D29 登录提醒时间纪律 | 「登录提醒/聚焦」类指令非营业时间（22:00-08:00）执行=无效打扰（店里无人收验证码） | **用户确认全员规范**：非营业时间一律延迟至营业时间 08:00-22:00 执行；登录补登提醒=运营、focus 执行=开发；与 dev-ops-boundary.md 一致（协调者转达） |
+| D30 广播约束 | 多次全量广播（agent_broadcast all=true）唤醒大量子代理/worker/历史会话造成噪音；真实主力仅 20 前台角色 | **用户确认全员规范（J34）**：默认定向发送 agent_send；全广播仅限三类（重启窗口/制度发布/重大事件，需协调者认可）；例外=外链对外通道（92623479） |
+| D31 本地模型互斥 | LM Studio（1234）与 Ollama（11434）**同时开模型会重复拖慢**（两份推理引擎争内存/算力） | **用户明确纪律（2026-08-18）**：两个服务**不同时开模型**，用完及时关（LM Studio unload / Ollama 停）；开新模型前先查对方是否在跑；与 E5 lm:model 锁/G2 并发嵌入关联 |
+| D32 总线内容堆积 | 345 线程承载大量内容型对话（确认回执/内容往来），总线又当路由又当聊天室 | **架构 v2 规范（J36）**：总线瘦身=只组局通知/资源声明/结束提醒；协作层直连（跨线程 agent_send）；结论落广场三轨（论坛/research/登记表）；bus-capture 自动捕捉分级 |
+
+## 二、规范体系（已建立）
+
+| 规范 | 文件 | 覆盖 |
+|---|---|---|
+| 优先调研 | research-first-policy.md v1.1 | 不重复造轮子+论文筑基 |
+| 角色创建 | role-creation-process.md v1.0 | 重合评估+五步创建 |
+| 交互规范 | user-interaction-policy.md v1.0 | 审批卡片/不刷屏 |
+| 浏览器窗口 | browser-window-policy.md v1.1 | 窗口互抢/分层模型 |
+| 红绿灯协议 | 登记表 §5/§5.5 | 锁/仲裁/热点资源 |
+| headless 纪律 | 登记表 v1.0.88 | 不常驻 |
+| 冲突治理规范集 | resource-conflict-policy.md v1.1 | 25 冲突面 9 大类全规范 |
+| 写前通知属主 | 规范集 §十（v1.1 新增） | 登记属主文件防静默多写 |
+
+## 三、征集状态
+
+- ✅ 6 核心会话回执全收（de7b29de/b241741f/4787d717/92623479/c1111ffe/6f7c739c）→ 25 冲突面归档
+- ✅ 收官后追加 8 条反馈归档（45f89009/3d490920/6e49710e/6ed4daf2/5a5368af/582093dd/9910d4b2/a3bc8cba）→ 台账 v1.1
+- 🔄 已落地 1 项：plugin-smoke PID 隔离（6ed4daf2，锁日志实证）
+
+## 四、下一步
+
+1. 新反馈面（B6-B9/C5-C6/D4-D7）随日常运维验证 → 需规范化的并入规范集
+2. 月度资源冲突审计（HR）：检查新冲突面 → 补台账 → 更新规范
+3. 新角色/新能力上线前：HR 评估资源冲突面
+
+---
+
+*台账 v1.1 —— 主动治理收官 + 8 条追加反馈归档*
