@@ -1,5 +1,5 @@
 {
-  "version": "2.19.0",
+  "version": "2.19.1",
   "lastUpdated": "2026-10-04",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
@@ -824,13 +824,15 @@
       "status": "enforced",
       "version": "1.0",
       "source": "2026-10-04 MBP 事故 #6（G35）+ 星桥 1.5.18/asar v5 落码",
-      "summary": "拉起/重启类动作必须读回验证（exit-marker pid/startedAt 更新+进程存活），有界重试；单发 open 不验证=失败零信号（事故 #6：新实例被陈旧单实例锁静默自杀 1.4s、exit 0、三处零痕迹）；无进程时清陈旧 Singleton 锁；!gotLock 分支必须留日志",
+      "summary": "拉起/重启类动作必须读回验证（exit-marker pid/startedAt 更新+进程存活），窗口≥90s、间隔≥5s、开火须等目标进程真正消失；诊断指纹：115-131ms 秒退+exit 0+零输出=单实例锁拒绝启动（锁释放随尝试/时间衰减，实测成功点≈35s）；失败必须留日志",
       "details": [
-        "事故 #6：quick-restart 守护单发 open → 新实例 1.4s 静默自杀（requestSingleInstanceLock 失败 → app.quit 无日志）",
-        "修法：读回验证（marker 更新+进程存活）→ 5 轮重试 → 无进程才清 Singleton{Lock,Socket,Cookie} → 全程日志",
-        "壳修复④：!gotLock 分支留一行日志（原路径完全静默是排查最大障碍）",
-        "配套：tools/relaunch-cld.sh（S1-S6 自测含负控）+ agent-way 1.5.18 守护升级",
-        "根治方向：插件热更优先壳 v4 POST /reload（不重启应用）；壳变更才整机重启"
+        "机制更正（MBP 6823）：非「老实例仍活着占锁」也非「锁文件残留」——老实例彻底终止后，单实例锁在数十秒内仍判占用且随尝试/时间衰减（13s 内 4 次 open 全秒退 115-126ms，+35s 成功）",
+        "开火时刻绝不固定 countdown+2：实测重启申请→老实例真正退出相隔 25.6s，固定开火=no-op/秒退",
+        "窗口判据：≥90s / 间隔≥5s（旧 19s 窗口在成功点前 16s 放弃=假阴性误报需人工）",
+        "诊断指纹共享：115-131ms 秒退+exit 0+零输出+零 trace ⇒ 直接判单实例锁拒绝启动",
+        "失败留日志：stdio ignore 让排查只能靠 macOS 系统日志，代价极高",
+        "根治方向：插件热更走壳 v4 POST /reload；整机重启只留给壳变更",
+        "落码：agent-way 1.5.19 + tools/relaunch-cld.sh 10×5s"
       ]
     }
   ],
