@@ -1,5 +1,5 @@
 {
-  "version": "2.18.0",
+  "version": "2.19.0",
   "lastUpdated": "2026-10-04",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
@@ -814,6 +814,23 @@
         "修法 1→2→3：失败出声(lastError+logLight) → idle 主动 flushQueue → agentBus.flush 暴露（1.5.13，selfcheck delivery-guard 判据）",
         "判据：delivered 必达、queued 标注未达；verify-delivery 读对端日志结局行闭环；重投换键（同内容判 dup）",
         "「要对方提醒才看到」=提醒触发 flush 的巧合，非送达保证（G18：ok:true+queued 误记已发）"
+      ]
+    },
+    {
+      "id": "R043",
+      "name": "拉起/重启类动作必须读回验证",
+      "category": "工程",
+      "scope": "all-bus-devices",
+      "status": "enforced",
+      "version": "1.0",
+      "source": "2026-10-04 MBP 事故 #6（G35）+ 星桥 1.5.18/asar v5 落码",
+      "summary": "拉起/重启类动作必须读回验证（exit-marker pid/startedAt 更新+进程存活），有界重试；单发 open 不验证=失败零信号（事故 #6：新实例被陈旧单实例锁静默自杀 1.4s、exit 0、三处零痕迹）；无进程时清陈旧 Singleton 锁；!gotLock 分支必须留日志",
+      "details": [
+        "事故 #6：quick-restart 守护单发 open → 新实例 1.4s 静默自杀（requestSingleInstanceLock 失败 → app.quit 无日志）",
+        "修法：读回验证（marker 更新+进程存活）→ 5 轮重试 → 无进程才清 Singleton{Lock,Socket,Cookie} → 全程日志",
+        "壳修复④：!gotLock 分支留一行日志（原路径完全静默是排查最大障碍）",
+        "配套：tools/relaunch-cld.sh（S1-S6 自测含负控）+ agent-way 1.5.18 守护升级",
+        "根治方向：插件热更优先壳 v4 POST /reload（不重启应用）；壳变更才整机重启"
       ]
     }
   ],

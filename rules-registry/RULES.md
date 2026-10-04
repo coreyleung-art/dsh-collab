@@ -1,8 +1,8 @@
 # 规则账本（完整规则本）
 
-> v2.18.0 | 59 条 | 所有总线设备必须服从
+> v2.19.0 | 60 条 | 所有总线设备必须服从
 >
-> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R42 · J13 · R-ERR4 = 59`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
+> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R43 · J13 · R-ERR4 = 60`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
 > 此前声明「76 条」与 `rules-cli audit` 的 78、实际标题数均不符 ⇒ **计数不可核 = 声明无效**（R030）。核验：`rules-integrity.py`。
 > ⚠️ **格式约束（HR 自纠 2026-09-11）**：首行**必须保留 `N 条` 形式**（如 `83 条`）—— 改动声明格式而不同步消费方解析器，会让门读成「v? | ? 条」。分区明细写在下方注里，不替换首行。
 >
@@ -375,6 +375,13 @@
 - 摘要: delivered=官方回执已收（真达率 100%）；queued=未达（实测真达率 15%，事实上是终态）；发卡后必须 verify-delivery 闭环，未达换键重投 ≤3 次；deliver 失败必须出声（lastError+deliverFail），禁止静默降级
 - 详情: ①根因：deliver() 吞异常静默降级 queued（类别 B）+ autoWake 反风暴空实现后无 idle 触发点 ⇒ queued 终态 ②修法 1→2→3：失败出声 → idle 主动 flushQueue → agentBus.flush 暴露（1.5.13，selfcheck delivery-guard 判据）③判据：delivered 必达、queued 标注未达；verify-delivery 读对端日志结局行闭环；重投换键（同内容判 dup）④「要对方提醒才看到」=提醒触发 flush 的巧合，非送达保证（G18）
 - 关联: R005（CCEP）/ R034（探照灯）/ R036（变更门）
+
+
+## R043 ✅ 拉起/重启类动作必须读回验证（2026-10-04 MBP 事故 #6 · G35 · 星桥落码）
+- 分类: 工程 | 范围: all-bus-devices | 状态: enforced
+- 摘要: 拉起/重启类动作必须读回验证（exit-marker pid/startedAt 更新+进程存活），有界重试；单发 open 不验证=失败零信号（事故 #6：新实例被陈旧单实例锁静默自杀 1.4s、exit 0、三处零痕迹）；无进程时清陈旧 Singleton 锁；!gotLock 分支必须留日志
+- 详情: ①事故 #6 证据链：守护 open 拉起 pid 46749 → 1.4s 后 launchd service inactive（exit 0、无 boot banner、无 exit-trace）⇒ requestSingleInstanceLock 失败路径完全静默 ②修法：读回验证+5 轮重试+无进程才清 Singleton{Lock,Socket,Cookie}+全程日志（agent-way 1.5.18 守护 / tools/relaunch-cld.sh S1-S6 自测）③壳修复④：!gotLock 分支留一行日志（asar v5）④根治方向：插件热更优先壳 v4 POST /reload，壳变更才整机重启
+- 关联: R035（热重启优先）/ R030（无验证不陈述）/ G35 / M3（重启竞态族）
 
 ## retiredEntries（R041 退役索引 · 数据搬出账本留痕，溯源不悬空）
 - J31 | retiredAt:2026-10-04 | retiredBy:R041 | movedTo:ledgerIndex.keys | 原名:R3 插件代码产物共享读
