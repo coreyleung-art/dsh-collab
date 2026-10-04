@@ -131,6 +131,30 @@ def main():
         check("身份决策表 12 例断言（normalizeIdentity 单一决策点）", False, str(e))
         check("agent-way 真挂载冒烟独立化", False, str(e))
 
+    # ── P7 装载时序判据（MBP 8100 采纳）：运行态不暴露插件版本 ⇒ 用「插件文件 mtime < 最新 dsh 诞生时刻」
+    #    证明装载的是磁盘当前版（可验证推理判据，配合版本号+投递实测）。──
+    try:
+        import datetime as _dt
+        _log = os.path.expanduser("~/.cld/logs/dsh-web.log")
+        _boots = []
+        for _l in open(_log, encoding="utf-8", errors="replace"):
+            _m = _re.match(r"===== CLD boot (\S+) =====$", _l.strip())
+            if _m: _boots.append(_m.group(1))
+        if _boots:
+            _birth = _dt.datetime.fromisoformat(_boots[-1].replace("Z", "+00:00")).astimezone()
+            _ok_all = True; _detail = []
+            for _pkg, _frag in (("agent-way", "dsh-plugin-agent-bus"), ("central-inbox", "dsh-plugin-central-inbox")):
+                _f = os.path.join(HOME, _frag, "lib", "index.js")
+                _mt = _dt.datetime.fromtimestamp(os.path.getmtime(_f)).astimezone()
+                _good = _mt < _birth
+                _ok_all = _ok_all and _good
+                _detail.append("%s mtime %s %s dsh 诞生 %s" % (_pkg, _mt.strftime("%H:%M:%S"), "<" if _good else "≥", _birth.strftime("%H:%M:%S")))
+            check("P7 装载时序（插件 mtime < 最新 dsh 诞生 ⇒ 装载的是磁盘当前版）", _ok_all, " | ".join(_detail))
+        else:
+            check("P7 装载时序", False, "dsh-web.log 无 CLD boot 行")
+    except Exception as e:
+        check("P7 装载时序", False, str(e))
+
     # ── 壳 v4 宽限定时器修复（2026-10-04 壳修复③）：oldChild 实例捕获源码标记 ──
     #   10:51 实测 v3 竞态：POST /reload → 宽限定时器(t0+3000ms)读模块级 child 误杀新 child
     #   → 判 dsh 崩溃 → 自动重启 1/3…壳以 dsh-crash-after-child 退出（pid 41341）。
