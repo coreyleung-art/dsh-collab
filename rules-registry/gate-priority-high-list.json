@@ -1,0 +1,716 @@
+[
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 3,
+  "text": "> 用户设想: SystemGraph 是否可扩展为「面向所有智能体/设备/工具插件/功能的强制注册表 + 门和锁的编排登记表系统」",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 6,
+  "text": "mechanism.json 原生结构 = {protocols, gates(7门), locks, links}——**SystemGraph 设计时已内置门锁编排骨架**",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 7,
+  "text": "hardware-nodes.json（设备注册 70 节点）+ business-asset-map.json（能力/工具资产）+ mechanism.gates（门健康，刚加）",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 22,
+  "text": "3. **强制注册协议**：新增设备/插件/能力 → 注册 SystemGraph → 全局可见可查（E2 已证注册模式可行）",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 45,
+  "text": "- E3(远): 强制注册协议——插件安装/新设备/新能力自动注册 SystemGraph + 校验(R006)",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-eval.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+  "line": 48,
+  "text": "✅ **方向成立且底子已有**(mechanism 原生 gates/locks)——SystemGraph 生来是\"注册+编排\"型(明鉴设计时就内置门锁概念)",
+  "category": "paper"
+ },
+ {
+  "file": "e2-registry-plan-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/e2-registry-plan-v1.md",
+  "line": 27,
+  "text": "4. 违背分布式：各端自治 → 消息不该强制过中心",
+  "category": "paper"
+ },
+ {
+  "file": "server-governance-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/server-governance-v1.md",
+  "line": 88,
+  "text": "升级门：Test 验证通过 → 停 Prod → 换二进制 → 起 Prod → 数据完整性校验",
+  "category": "paper"
+ },
+ {
+  "file": "cross-device-arch-eval-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/comm-server/cross-device-arch-eval-v1.md",
+  "line": 15,
+  "text": "| P4 | 无统一跨设备传输语义 | 消息走黑板键（task 卡+回写键约定不一）| 「完成」语义/ack 格式漂移（G4 门补）|",
+  "category": "paper"
+ },
+ {
+  "file": "pre-transfer-check-README.md",
+  "path": "/Users/coreyleung/dsh-collab/scripts/pre-transfer-check-README.md",
+  "line": 1,
+  "text": "# pre-transfer-check · 传输前磁盘余量检查器",
+  "category": "paper"
+ },
+ {
+  "file": "pre-transfer-check-README.md",
+  "path": "/Users/coreyleung/dsh-collab/scripts/pre-transfer-check-README.md",
+  "line": 4,
+  "text": "> 定位：传输文件到目标设备（i9/MBP）前的**传输门**——防「传输挤爆磁盘导致崩溃」（i9 C 盘事故教训）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 5,
+  "text": "> 定位：企业级（复用到所有门店 + 付费订阅花店商家）——完整、稳定、可靠。",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 16,
+  "text": "├── P2 插件层 · dsh 插件家族（+peerDeps 补全 11 个 / npm 发布 / 门店插件）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 38,
+  "text": "- [ ] P0-2: v1.1 能力发现（门店注册时上报 capabilities，黑板 /capabilities 查询）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 113,
+  "text": "- [ ] P2-5: 门店插件（FlowerNet 接入：device-id 注册 + 消息收发）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 176,
+  "text": "- [ ] P5-3: 门店端到端验证（注册 → 隔离 → 数据 → 订阅）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 180,
+  "text": "- 首个付费订阅门店接入",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v3-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v3-20260827.md",
+  "line": 191,
+  "text": "| **M4** | 多租户（门店隔离 + 订阅逻辑）| P0-1/P4-4 | 门店 PoC（A 看不到 B）|",
+  "category": "paper"
+ },
+ {
+  "file": "connect-protocol-engine-design-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/connect-protocol-engine-design-v1.md",
+  "line": 94,
+  "text": "- 护栏实证: runner AST 检查无任何 im_send/发送调用; 全程零真实客户消息",
+  "category": "paper"
+ },
+ {
+  "file": "return-photos-lifecycle-plan.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/return-photos-lifecycle-plan.md",
+  "line": 59,
+  "text": "| 磁盘挤爆（i9 C 盘教训） | pre-transfer-check 传输门 |",
+  "category": "paper"
+ },
+ {
+  "file": "tech-choice-evaluator-sop.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/tech-choice-evaluator-sop.md",
+  "line": 62,
+  "text": "- 官方 SDK 锁定场景（Node 插件/wecom 等）：D4 架构契合会自然加分，无需强制 Rust",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-reliability-audit-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-reliability-audit-20260827.md",
+  "line": 103,
+  "text": "1. **最严重**：P2 peerDeps 缺 8 个——**这是 MBP/i9 无法安装的直接根因**，也是插件「独立可安装」的硬阻塞。必须最先修。",
+  "category": "paper"
+ },
+ {
+  "file": "governance-philosophy-archeology.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/governance-philosophy-archeology.md",
+  "line": 21,
+  "text": "- 关联：J45 分级门控 L2/L3、agent-bus 角色边界（客服/运营/洞察不互踩）",
+  "category": "paper"
+ },
+ {
+  "file": "governance-philosophy-archeology.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/governance-philosophy-archeology.md",
+  "line": 77,
+  "text": "- **哲学藏在事故教训里**（R027←自动化越权担忧、R030←恒 true、门锁分离←8-18 批量插件崩溃）",
+  "category": "paper"
+ },
+ {
+  "file": "vectorization-for-comm-eval-2026-09-06.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/vectorization-for-comm-eval-2026-09-06.md",
+  "line": 3,
+  "text": "> 评估: HR 司库(成本监察) · 2026-09-06 · 命题: 「所有通讯层形成文件, 传输前必须向量化, 传输向量格式文件——是否更省资源?」",
+  "category": "paper"
+ },
+ {
+  "file": "vectorization-for-comm-eval-2026-09-06.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/vectorization-for-comm-eval-2026-09-06.md",
+  "line": 48,
+  "text": "2. **分级**: STATUS/ACK 走黑板不走消息, v2.3 门禁(已做)——内容按通道权重分流",
+  "category": "paper"
+ },
+ {
+  "file": "plugin-eval-rule-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/plugin-eval-rule-v1.md",
+  "line": 3,
+  "text": "> 2026-08-29 ｜ 用户确立：新插件需求必须与现有插件对比，避免重复浪费资源",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 5,
+  "text": "> 企业级定位：复用到所有门店 + 开放给付费订阅花店商家（可整合其他智能体套壳收费）——完整、稳定、可靠。",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 11,
+  "text": "**以自研 FlowerNet 协议为语义核心，构建「HubBridge Server（注册地节点）+ 各端插件 + genebank 资产层」的分布式智能体网络，服务花店数字化（1.0→4.0），最终开放为企业级订阅平台（多门店 + 付费商家）。**",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 35,
+  "text": "│     └── 子项 2.4 门店端插件（FlowerNet 接入）⏳",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 50,
+  "text": "└── 子项 5.3 订阅平台（门店 SaaS + 付费商家）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 60,
+  "text": "P2 端侧插件（agent-way/central-inbox/门店插件）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 102,
+  "text": "| 目标 | dsh 插件可独立安装（npm）+ 门店端接入 |",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 103,
+  "text": "| 状态 | agent-way ✅ v1.2.0 / central-inbox ✅ v0.1.0 / 通用安装包 ⏳ / 门店插件 ⏳ |",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 104,
+  "text": "| 子任务 | 2.1 ✅ · 2.2 ✅ · **2.3 peerDeps 补全 + npm 发布（关键，修复 MBP/i9）** · 2.4 门店插件 |",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 124,
+  "text": "| 验收 | 企业级安全（门店隔离/订阅计费）|",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 133,
+  "text": "| 验收 | 首个付费订阅门店接入 |",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-20260827.md",
+  "line": 146,
+  "text": "| **M4** | 多租户：门店隔离 + 订阅逻辑 | P4.4/P5.3 | 门店 PoC（A 店看不到 B 店）|",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-official-doc-references.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-official-doc-references.md",
+  "line": 32,
+  "text": "- 教训引用：cordis 4.x 移除 `definePlugin`（官方文档注明）→ 必须用约定式",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-official-doc-references.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-official-doc-references.md",
+  "line": 47,
+  "text": "- 插件必须：①双锚点可解析（installAnchor/profileDir）②profile `dsh.profile.bundles` 列出 ③声明 `dsh.bundle.patch`",
+  "category": "paper"
+ },
+ {
+  "file": "mingjian-v3-memory-inheritance-2026-09-06.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mingjian-v3-memory-inheritance-2026-09-06.md",
+  "line": 166,
+  "text": "- **壳层升级:通道门自动选择(哪个能用用哪个)+本地缓存(离线可用)+每次打开/周期自动拉取最新数据对齐**(用户选:三级通道门+CloudBase 自动镜像;双层缓存都做;全量推进 M1-M4;CloudBase 推送经星桥请 MBP 配合)",
+  "category": "paper"
+ },
+ {
+  "file": "mingjian-v3-memory-inheritance-2026-09-06.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mingjian-v3-memory-inheritance-2026-09-06.md",
+  "line": 243,
+  "text": "- **壳层升级:通道门自动选择(哪个能用用哪个)+本地缓存(离线可用)+每次打开/周期自动拉取最新数据对齐**(用户选:三级通道门+CloudBase 自动镜像;双层缓存都做;全量推进 M1-M4;CloudBase 推送经星桥请 MBP 配合)",
+  "category": "paper"
+ },
+ {
+  "file": "complete-artifact-transfer-contract-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/complete-artifact-transfer-contract-v1.md",
+  "line": 71,
+  "text": "- 与 R006（插件化 9 项）配套：插件交付必须满足 CHECKS（文档/版本/日志/校验）",
+  "category": "paper"
+ },
+ {
+  "file": "complete-artifact-transfer-contract-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/complete-artifact-transfer-contract-v1.md",
+  "line": 123,
+  "text": "- checks-transfer.py 的 C（Context）要素：检查配套黑板描述文档存在（key 含 intent 或 design）",
+  "category": "paper"
+ },
+ {
+  "file": "error-to-sop-feedback-loop-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/error-to-sop-feedback-loop-v1.md",
+  "line": 68,
+  "text": "| 插件更新不重启 | CLD 启动后改插件文件，旧代码在跑 | 改插件后必须重启 CLD 验证 |",
+  "category": "paper"
+ },
+ {
+  "file": "bidirectional-injection-fix-report-20260828.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/bidirectional-injection-fix-report-20260828.md",
+  "line": 94,
+  "text": "1. **SSE 广播是跨设备注入的命门**：写入端必须广播，订阅端才有事件。写端只存不广播 = 订阅端静默失联（连错误都没有）。",
+  "category": "paper"
+ },
+ {
+  "file": "upgrade-standby-channel-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/upgrade-standby-channel-protocol-v1.md",
+  "line": 11,
+  "text": "**失联的本质**：CLD 内插件失效，但 CLD 外 launchd 守护层全程在线——备用通道必须建在守护层。",
+  "category": "paper"
+ },
+ {
+  "file": "mbp-collab-rules-sync.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mbp-collab-rules-sync.md",
+  "line": 35,
+  "text": "- STATUS/ACK **禁止**走消息通道（强制黑板）",
+  "category": "paper"
+ },
+ {
+  "file": "mbp-collab-rules-sync.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mbp-collab-rules-sync.md",
+  "line": 147,
+  "text": "8. **边界**：系统级变更（CLD/DSH 本体/签名/目录迁移/插件热重载）不经用户批准不得执行；提案依据必须本地向量化来源",
+  "category": "paper"
+ },
+ {
+  "file": "windows-store-deployment-eval-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/windows-store-deployment-eval-v1.md",
+  "line": 53,
+  "text": "4. **护栏跨设备**: R026/R027 只在集中层生效, 门店节点=只读传感器",
+  "category": "paper"
+ },
+ {
+  "file": "windows-store-deployment-eval-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/windows-store-deployment-eval-v1.md",
+  "line": 63,
+  "text": "| 门店断网 | 采集器本地缓存 + 黑板离线队列 |",
+  "category": "paper"
+ },
+ {
+  "file": "windows-store-deployment-eval-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/windows-store-deployment-eval-v1.md",
+  "line": 93,
+  "text": "│ ② 门店采集器 = MCP 客户端(E2 注册 + 心跳)      │  ← 节点身份(非裸脚本)",
+  "category": "paper"
+ },
+ {
+  "file": "windows-store-deployment-eval-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/windows-store-deployment-eval-v1.md",
+  "line": 110,
+  "text": "4. **与妙记1 通讯桥呼应**: 分布式节点 + token 差价逻辑 = 门店节点本就是 MCP 网的一环",
+  "category": "paper"
+ },
+ {
+  "file": "restart-rescue-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
+  "line": 3,
+  "text": "> 2026-08-29 星桥-mac-mini-协调者 · 用户指示：互为救援设备，重启前准备标准化——重启方留准备信息给救援方观察，有问题再救援；先约定救援过程和方式，禁止破坏性操作",
+  "category": "paper"
+ },
+ {
+  "file": "restart-rescue-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
+  "line": 4,
+  "text": "> 依据：既有「互为外部救援设备」约定 + CCEP 永续通讯 + R011 强制门 + R012 完整体 + verify-watch 单向观察经验",
+  "category": "paper"
+ },
+ {
+  "file": "restart-rescue-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
+  "line": 95,
+  "text": "- 环境检查：磁盘/内存/网络（只读）",
+  "category": "paper"
+ },
+ {
+  "file": "restart-rescue-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
+  "line": 134,
+  "text": "| CCEP 沙箱先行 | 重启前必须沙箱验证（R011 强制门）|",
+  "category": "paper"
+ },
+ {
+  "file": "restart-rescue-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
+  "line": 152,
+  "text": "- **R013「重启救援协议」enforced**：重启前留准备信息 + 救援方观察 + 非破坏性救援 + 禁止破坏性",
+  "category": "paper"
+ },
+ {
+  "file": "restart-verify-sop-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-verify-sop-20260827.md",
+  "line": 81,
+  "text": "| 无 [agent-bus] 日志 | 插件未加载 | 检查 profile bundles + cordis.patch.yml |",
+  "category": "paper"
+ },
+ {
+  "file": "restart-verify-sop-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-verify-sop-20260827.md",
+  "line": 83,
+  "text": "| 心跳中断 | node-bridge 未启动 | 检查 launchd/服务 |",
+  "category": "paper"
+ },
+ {
+  "file": "mechanism-inventory-protocols-gates-locks.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
+  "line": 1,
+  "text": "# 机制资产盘点：通讯协议 / 门 / 锁（Mechanism Inventory）",
+  "category": "paper"
+ },
+ {
+  "file": "mechanism-inventory-protocols-gates-locks.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
+  "line": 3,
+  "text": "> 明鉴 v2 · 2026-09-02 · 用户指示：把自研的通讯协议、门和锁的关系独立出来展示",
+  "category": "paper"
+ },
+ {
+  "file": "mechanism-inventory-protocols-gates-locks.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
+  "line": 22,
+  "text": "| CCEP 永续通讯 | docs/CCEP-continuity-protocol-v1.md | 通道迭代 5 步：准备→投递→端侧验证→就绪确认→切换+回滚 | 禁止单端先行切换；回滚秒级 |",
+  "category": "paper"
+ },
+ {
+  "file": "mechanism-inventory-protocols-gates-locks.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
+  "line": 37,
+  "text": "| J37 插件安装验证门 | J37（2026-08-18 崩溃教训） | 装后 dump-config 验证/隔离副本/一批一批 | 硬 |",
+  "category": "paper"
+ },
+ {
+  "file": "mechanism-inventory-protocols-gates-locks.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
+  "line": 64,
+  "text": "插件安装 ──→ J37 验证门 ─────→ dev-sandbox 锁 ─→ 挂载生产",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-principles.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-principles.md",
+  "line": 113,
+  "text": "**v2.4 最短提示门禁**（工具层注入，2026-08-30 升级 warn→deny，阈值 200→50）：",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-principles.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-principles.md",
+  "line": 151,
+  "text": "每个新 dsh 插件上线前必须：",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-principles.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-principles.md",
+  "line": 162,
+  "text": "写黑板消息（含换行/特殊字符/中文标点）必须用 python json.dumps 生成 JSON 文件再 curl 发送：",
+  "category": "paper"
+ },
+ {
+  "file": "agent-bus-principles.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agent-bus-principles.md",
+  "line": 173,
+  "text": "**插件化工具化标准**（2026-08-28 用户确立，强制规则）：",
+  "category": "paper"
+ },
+ {
+  "file": "i9-collab-rules-sync.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/i9-collab-rules-sync.md",
+  "line": 36,
+  "text": "- STATUS/ACK **禁止**走消息通道（强制黑板）",
+  "category": "paper"
+ },
+ {
+  "file": "i9-collab-rules-sync.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/i9-collab-rules-sync.md",
+  "line": 156,
+  "text": "6. **高危**：L3/L4 系统级操作必须走 aibus 评估门（协调者裁决）；12 条硬性升级命中即 L3",
+  "category": "paper"
+ },
+ {
+  "file": "i9-collab-rules-sync.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/i9-collab-rules-sync.md",
+  "line": 159,
+  "text": "9. **边界**：系统级变更（CLD/DSH 本体/签名/目录迁移/插件热重载）不经用户批准不得执行；提案依据必须本地向量化来源",
+  "category": "paper"
+ },
+ {
+  "file": "cross-device-reconciliation-protocol-v2.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/cross-device-reconciliation-protocol-v2.md",
+  "line": 23,
+  "text": "4. **★ 回报方必须 agent-msg 反向通知发起方「已回报, 看黑板 <reply-key>」**",
+  "category": "paper"
+ },
+ {
+  "file": "health-check-absorption-20260830.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/health-check-absorption-20260830.md",
+  "line": 11,
+  "text": "| `plugin_health` | 插件健康检查（dsh 版本/插件加载/dump-config/SSE/注入/总线） | health-check.sh（11 项）+ dsh-health.py，但无插件加载检查 | ✅ Rust 化 `health health-check`（动态扫描 pr",
+  "category": "paper"
+ },
+ {
+  "file": "health-check-absorption-20260830.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/health-check-absorption-20260830.md",
+  "line": 14,
+  "text": "| `ops_upgrade_status` | 升级链路状态（沙箱/runner/健康日志+版本） | 无专门工具 | ✅ Rust 化 `health upgrade-status` |",
+  "category": "paper"
+ },
+ {
+  "file": "concept-dictionary.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/concept-dictionary.md",
+  "line": 17,
+  "text": "| 健康巡检 | CLD 宿主健康审查例行检查：磁盘/负载/swap/内存/日志错误/bundles/哨兵/会话日志完整性等指标巡检，守灯负责 | cld-health | - | active |",
+  "category": "paper"
+ },
+ {
+  "file": "concept-dictionary.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/concept-dictionary.md",
+  "line": 37,
+  "text": "| 确认卡 | 超时提审推送的企微卡片：含门店/会话/客户消息/拟稿/操作选项（1/2/3），用户确认后才发送——天然门禁防误发 | 回声-mac-mini-智能客服 | confirm-card | active |",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-review-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/sysgraph-universal-registry-review-v1.md",
+  "line": 32,
+  "text": "- E3(远): 强制注册协议 —— 真正大工程(schema/端侧), 建议 E1+E2 价值验证后再启动, 且强注册需配回滚/豁免(非全强制, 分类型: 工具/插件强制, 一次性脚本豁免)",
+  "category": "paper"
+ },
+ {
+  "file": "sysgraph-universal-registry-review-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/sysgraph-universal-registry-review-v1.md",
+  "line": 39,
+  "text": "- tool/plugin(工具): business-asset-map → 名/域/门状态",
+  "category": "paper"
+ },
+ {
+  "file": "constraint-frontloaded-philosophy.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/constraint-frontloaded-philosophy.md",
+  "line": 59,
+  "text": "├─ 有, 运行时 if 检查 → 问: 能被漏写/绕过吗? 能→升级",
+  "category": "paper"
+ },
+ {
+  "file": "restart-guard-sop.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-guard-sop.md",
+  "line": 3,
+  "text": "> 建立：2026-08-29 · 星桥-mac-mini-协调者 · 用户指示「重启前先跑沙箱模拟确认不崩溃，插件化工具化自动化，纳入规则本作为强制门」",
+  "category": "paper"
+ },
+ {
+  "file": "restart-guard-sop.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-guard-sop.md",
+  "line": 4,
+  "text": "> 触发：**任何** CLD/DSH 重启、插件更新、宿主升级之前（强制门，R011 enforced）",
+  "category": "paper"
+ },
+ {
+  "file": "restart-guard-sop.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/restart-guard-sop.md",
+  "line": 127,
+  "text": "**重启前唯一入口**：一键跑完整验证链（隔离小样本 → 静态 → 动态压测），任一 FAIL 禁止重启。",
+  "category": "paper"
+ },
+ {
+  "file": "edge-asset-absorption-flow-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/edge-asset-absorption-flow-v1.md",
+  "line": 11,
+  "text": "**规律**：黑板描述是「摘要」，评估需要「实体」——端侧资产必须打包挂网盘，中枢拉实体评估。",
+  "category": "paper"
+ },
+ {
+  "file": "CCEP-continuity-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/CCEP-continuity-protocol-v1.md",
+  "line": 4,
+  "text": "> **一句话**：通讯通道的任何迭代，都必须用旧通道投递新通道、验证可行才切换——除死机等极端情况外，保持永续通讯，永不需要人类手工重新打通。",
+  "category": "paper"
+ },
+ {
+  "file": "CCEP-continuity-protocol-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/CCEP-continuity-protocol-v1.md",
+  "line": 11,
+  "text": "2. **通道自举**：新版本必须通过旧通道投递（genebank/黑板 notes/playbook 提示词），端侧在旧通道上收到完整迭代信息并验证，才切换。",
+  "category": "paper"
+ },
+ {
+  "file": "memory-chain-vs-openchronicle-20260828.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/memory-chain-vs-openchronicle-20260828.md",
+  "line": 83,
+  "text": "**吸收建议（呼应评估报告方案 X1）**：dsh-plugin-openchronicle 桥接 MCP，mac 端部署；数据归一化到 ~/.openchronicle（不并入 ~/.chroma，避免双轨）；AX 捕获加敏感过滤门控。",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 6,
+  "text": "> 定位：企业级（复用到所有门店 + 付费订阅花店商家）——完整、稳定、可靠。",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 16,
+  "text": "├── P2 插件层 · dsh 插件家族（+peerDeps 11/npm/门店插件/清理）",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 115,
+  "text": "- [ ] **P2-5**: 门店插件（FlowerNet 接入）→ #8",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 159,
+  "text": "- [ ] **P5-3**: 门店端到端（注册→隔离→数据→订阅）→ #8",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 163,
+  "text": "- 首个付费订阅门店接入",
+  "category": "paper"
+ },
+ {
+  "file": "flowernet-master-blueprint-v4-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/flowernet-master-blueprint-v4-20260827.md",
+  "line": 203,
+  "text": "**M1 完成门禁**：MBP/i9 用 `git+...#v1.3.0` 安装成功并确认加载 + 双向注入 → **MBP 已达成（注入验证 ✅）**；i9 确认后 M1 完成 → 进入 M2",
+  "category": "paper"
+ },
+ {
+  "file": "hubbridge-protocol-research-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/hubbridge-protocol-research-20260827.md",
+  "line": 4,
+  "text": "> 定位升级：**企业级**（复用到所有门店 + 开放给付费订阅花店商家）——不考虑开发时间成本，产品要完整、稳定、可靠。",
+  "category": "paper"
+ },
+ {
+  "file": "hubbridge-protocol-research-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/hubbridge-protocol-research-20260827.md",
+  "line": 139,
+  "text": "### 多租户（门店/商家订阅）",
+  "category": "paper"
+ },
+ {
+  "file": "agentsend-gate-audit-alignment-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agentsend-gate-audit-alignment-v1.md",
+  "line": 5,
+  "text": "> 关联：v2.4 token 治理门禁（agent-bus v1.4.0）· R018 噪声治理 · R006 工具化标准",
+  "category": "paper"
+ },
+ {
+  "file": "agentsend-gate-audit-alignment-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agentsend-gate-audit-alignment-v1.md",
+  "line": 14,
+  "text": "| 维度 | 运行时门禁 v2.4（agent-bus lib/index.js） | 审计器 agentsend-gate.py（launchd 常驻） |",
+  "category": "paper"
+ },
+ {
+  "file": "agentsend-gate-audit-alignment-v1.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/agentsend-gate-audit-alignment-v1.md",
+  "line": 25,
+  "text": "| 消息类型 | 数量 | 两套门禁判定 |",
+  "category": "paper"
+ },
+ {
+  "file": "cross-device-bridge-postmortem-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/cross-device-bridge-postmortem-20260827.md",
+  "line": 45,
+  "text": "- **固化**：运维硬约束文档《禁止起服务测试》——验证只用编译 + 单测 + 静态审查 + 黑板只读",
+  "category": "paper"
+ },
+ {
+  "file": "cross-device-bridge-postmortem-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/cross-device-bridge-postmortem-20260827.md",
+  "line": 153,
+  "text": "早期把「轮询」说成「注入」（MBP 感知机制澄清时被用户纠正）。**注入=agentBus.send 进上下文 / 轮询=node-bridge 落盘 / 链路=消息可达**——三个概念必须严格区分。",
+  "category": "paper"
+ },
+ {
+  "file": "m1-user-actions-pending-20260827.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/m1-user-actions-pending-20260827.md",
+  "line": 45,
+  "text": "- M4：多租户（门店隔离 + 订阅）",
+  "category": "paper"
+ },
+ {
+  "file": "queue-governance-design.md",
+  "path": "/Users/coreyleung/dsh-collab/docs/queue-governance-design.md",
+  "line": 27,
+  "text": "- **堆积失真**：超过 50 条 queued 即触发门禁误判（新消息被 deny）",
+  "category": "paper"
+ }
+]

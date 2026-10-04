@@ -1,0 +1,48 @@
+{
+ "claim": "门店域 68 条核查结果 (2026-09-07)",
+ "domain": "flowernet/windows-store(门店)",
+ "summary": {
+  "total_reported": 68,
+  "误报_架构评估或蓝图叙述行": 39,
+  "待实现规划_SCAFFOLD候选": 9,
+  "核查后仍为叙述行": 14,
+  "可ANNOTATE到现有工具": 6
+ },
+ "verdict_detail": "门店域 68 条(ws39+fl29) 经逐条对照源文档：绝大多数是架构评估文档(windows-store-deployment-eval 1.0/1.1)与蓝图(v3/v4)的定位/可行性表/里程碑/验收叙述行，含'门'字但非'声明强制却无工具'的规则门——属审计器低精度误报。真正需要动作的很少：windows-store L53 '门店只读传感器'(=现有 waimai 采集架构已如此：采集脚本只读+写操作在集中层 operate.js)；flowernet peerDeps/里程碑 = 蓝图规划未实现，非当前运行门。",
+ "annotate_candidates": [
+  {
+   "where": "windows-store L53 护栏跨设备(R026/R027 门店只读)",
+   "tool": "operate.js lean4Check(写操作集中层) + waimai 采集脚本只读",
+   "action": "可 annotate 引用现有集中层写门"
+  },
+  {
+   "where": "windows-store L85/108 waimai-mcp-core",
+   "tool": "mtm/mtm.js waimai 工具族",
+   "action": "叙述行引用, 非规则门"
+  },
+  {
+   "where": "flowernet M1 门禁(MBP/i9 安装+注入)",
+   "tool": "repo-pipeline / dsh plugin add + verify",
+   "action": "里程碑门禁已有等价结构门"
+  }
+ ],
+ "scaffold_candidates": [
+  {
+   "what": "门店端插件 device-id 注册 + 消息收发",
+   "file": "flowernet v3 L113 / v4 L115 P2-5",
+   "status": "蓝图待实现(⏳) — 实现时新建结构门"
+  },
+  {
+   "what": "v1.1 能力发现(门店上报 capabilities)",
+   "file": "flowernet v3 L38 P0-2",
+   "status": "蓝图待实现"
+  },
+  {
+   "what": "多租户隔离(A店看不到B店)",
+   "file": "flowernet M4",
+   "status": "蓝图验收项, 未实现"
+  }
+ ],
+ "recommendation": "门店域当前无'声明强制却可被绕过'的运行门需要立即加固——68 条绝大多数是蓝图/评估文本。建议: ① gate-auditor 提升精度(叙述行识别)减少误报 ② 蓝图待实现项(P2-5/能力发现/隔离)在其真正落地时以 Lean4 结构门实现(scaffold) ③ windows-store 若推进到试点阶段, 门店采集器按 L53/L96 lean4 无写门约束实现。",
+ "ts": "2026-09-07"
+}

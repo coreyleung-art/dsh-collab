@@ -1,0 +1,36 @@
+{
+ "claim": "罗盘/设备协调域 4 条 paper 门候选核查 (2026-09-07 gate-extended-round2)",
+ "domain": "devices/设备协调",
+ "summary": {
+  "total_reported": 4,
+  "可ANNOTATE(已有等价结构门)": 4,
+  "SCAFFOLD需新建": 0,
+  "误报": 0
+ },
+ "verdict_detail": "分派候选出自 devices 域纪律/决策文档。经与现行机制核对：4 条声明全部已被对应结构门/既有流程覆盖实现——agent-send 自查由 agent_send v2.4 门禁自动执行（非纯纸面）；禁止起服务测试由 R026 审批门 + launchd 托管约定约束；视觉模型禁用由 i9 视觉路由决策 + mac-mini 禁本地执行落地；docker 迁移 fi-dify 健康检查为明确检查命令的执行清单（非声明门）。罗盘域无『声明强制却可被绕过』的运行门需立即加固。",
+ "annotate_candidates": [
+  {
+   "where": "agent-send-发送前自查清单.md L20 「回报/待办提醒内容必须写黑板」",
+   "tool": "agent_send 门禁 v2.4（>50字需先落黑板，gate 自动拦截）+ bb-gate G2 JSON 门",
+   "action": "ANNOTATE——已由 agent_send v2.4 门禁结构化覆盖（非纯纸面，发送时自动执行）"
+  },
+  {
+   "where": "运维硬约束-禁止起服务测试-20260827.md L7/L27 「禁止起服务绑定端口测试」",
+   "tool": "R026 审批门（批量/合规操作强制 L3）+ launchd 托管约定（真测用已托管服务）",
+   "action": "ANNOTATE——已由 R026 审批门 + launchd 托管纪律覆盖（服务测试走审批）"
+  },
+  {
+   "where": "视觉模型-禁用决策-20260827.md L6 「mac-mini 禁本地跑视觉/多模态模型」",
+   "tool": "i9 视觉路由决策（视觉跑 i9 qwen2.5vl:3b）+ 本地模型路由 task-env-map §五.5",
+   "action": "ANNOTATE——已由 i9 视觉路由决策落地（视觉重定向 i9，mac-mini 禁本地执行）"
+  },
+  {
+   "where": "docker-migration-plan.md L80 「fi-dify 健康检查（web/api/pg）」",
+   "tool": "docker-migration-plan v2 执行清单（fi-dify 健康检查为明确可执行命令步骤）",
+   "action": "ANNOTATE——为执行清单的可验证步骤（非声明门），无绕过风险"
+  }
+ ],
+ "scaffold_candidates": [],
+ "recommendation": "罗盘/设备协调域 4 条候选全部 ANNOTATE（已有等价结构门/流程覆盖），无 scaffold 需要，无误报。建议标记为已闭环，不进入 repair。注：docker 迁移 fi-dify 健康检查步骤待 Docker daemon 恢复（用户 GUI Reset）后实测闭环。",
+ "ts": "2026-09-07"
+}

@@ -1,0 +1,48 @@
+{
+ "claim": "数据调查员域 32 条纸面门核查结果 (2026-09-07)",
+ "domain": "research(调研文档: ai-judge-pattern/lean4-full-chain/source-channels/radar)",
+ "auditor": "session-4787d717",
+ "summary": {
+  "total_reported": 32,
+  "误报_方法论或架构叙述行": 22,
+  "核查后仍为叙述行_非规则门": 5,
+  "可ANNOTATE到现有工具": 5,
+  "需SCAFFOLD新建": 0
+ },
+ "verdict_detail": "我域候选集中在 ai-judge-pattern(17)+lean4-full-chain(7)，均为 R025 深度调研报告的方法论/架构建议——描述'硬门/软门/类型锁/准入分离'是设计模式建议，非'声明强制却无工具'的规则门，属审计器低精度误报。真正的规则门在 RULES.md(星桥/明鉴域)，非调研文档。",
+ "annotate_candidates": [
+  {
+   "where": "lean4-full-chain L4/L70 R027 开关锁类型锁",
+   "tool": "automation_switch.rs lean4-check(已有 Lean4 锁, GATE OK)",
+   "action": "annotate 引用 automation-switch"
+  },
+  {
+   "where": "ai-judge-pattern L126 Fail-closed+准入分离(高成本动作双门)",
+   "tool": "guard 体系 + approval 审批(已有)",
+   "action": "annotate 引用现有 guard/approval"
+  },
+  {
+   "where": "ai-judge-pattern L129 分级放大(高价值改价/下架强制验证+风险门)",
+   "tool": "waimai L2/L3 门控 + primitive-check(R029)",
+   "action": "annotate 引用原语级锁"
+  },
+  {
+   "where": "ai-judge-pattern L79 真值vs准入分离 POST/verify",
+   "tool": "gate-repairer/lean4-check 骨架模式",
+   "action": "方法论文档建议, 非当前运行门"
+  },
+  {
+   "where": "source-channels-2026 L119 摘要级落链处置",
+   "tool": "paper-cache fetch_alphaxiv + source-trust",
+   "action": "annotate 引用落链管道"
+  }
+ ],
+ "scaffold_candidates": [],
+ "misreport_examples": [
+  "ai-judge-pattern L15-18 L1/L2/L3 硬门软门 = 分层验证方法论建议",
+  "lean4-full-chain L19/L62/L64 最小可信内核/证明不可伪造 = Lean 语言特性叙述",
+  "source-channels L23/L65 禁止盗版/SEO聚合 = 信源分级策略非工具门",
+  "research-radar L36/L41 盯违规红线 = 雷达关注点清单非规则门"
+ ],
+ "note": "我域为调研文档无'声明强制却无工具'的规则门；方法论中提及的门多数已有等价工具(automation-switch/guard/primitive-check)可 annotate；无需 scaffold。"
+}

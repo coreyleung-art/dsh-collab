@@ -1,0 +1,461 @@
+{
+ "R003": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 黑板消息发送规范",
+  "ts": 1788766624.2831
+ },
+ "R004": {
+  "status": "classified",
+  "type": "dependency",
+  "gate": "供应链门 + guard_deps_scan (遮蔽扫描)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ central-inbox 注入目标显式配置",
+  "ts": 1788766624.283128
+ },
+ "R005": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 永续通讯协议 CCEP",
+  "ts": 1788766624.283149
+ },
+ "R007": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 删前考古纪律",
+  "ts": 1788766624.2831712
+ },
+ "R008": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ 规则治理流程",
+  "ts": 1788766624.2831922
+ },
+ "J32": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ dsh-collab 写权限代写依赖",
+  "ts": 1788766624.283212
+ },
+ "J3": {
+  "status": "staged",
+  "type": "plugin_install",
+  "gate": "plugin-install-gate (profile 副本强制冒烟)",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **plugin-smoke 临时文件隔离**",
+  "ts": 1788766634.289137
+ },
+ "J5": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ app.db 并发访问",
+  "ts": 1788766624.283253
+ },
+ "J6": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ docs 与 kb_outbox 共享读",
+  "ts": 1788766624.283273
+ },
+ "J7": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ cld-health 读竞争",
+  "ts": 1788766624.2832918
+ },
+ "J8": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ health-check --log 追加竞态",
+  "ts": 1788766624.2833111
+ },
+ "J9": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ 双巡检重叠告警",
+  "ts": 1788766624.283332
+ },
+ "J11": {
+  "status": "classified",
+  "type": "dependency",
+  "gate": "供应链门 + guard_deps_scan (遮蔽扫描)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ 插件目录 node_modules 重建",
+  "ts": 1788766624.283354
+ },
+ "J13": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ ChromaDB research 三方写",
+  "ts": 1788766624.283377
+ },
+ "J14": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ Ollama bge-m3 嵌入并发",
+  "ts": 1788766624.283398
+ },
+ "J16": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 端口 3081 归属冲突",
+  "ts": 1788766624.283419
+ },
+ "J17": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ 健康/巡检三角",
+  "ts": 1788766624.28344
+ },
+ "J18": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ vault 多写者文件碰撞",
+  "ts": 1788766624.2834601
+ },
+ "J19": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ profiles/web 读未持锁",
+  "ts": 1788766624.283482
+ },
+ "J20": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ ~/.dsh/sessions 读共享标注",
+  "ts": 1788766624.283504
+ },
+ "J22": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ hub 静态服务属主边界",
+  "ts": 1788766624.2835252
+ },
+ "J23": {
+  "status": "classified",
+  "type": "signature",
+  "gate": "sign-audit-gate (装前原生 dylib 签名审计)",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ node_modules 重建 vs 运行映射",
+  "ts": 1788766624.283547
+ },
+ "J24": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ xberg 恢复演练 vs 运行态",
+  "ts": 1788766624.2835698
+ },
+ "J25": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ ~/.claude.json MCP 配置源",
+  "ts": 1788766624.2835908
+ },
+ "J26": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ 内存紧张并发构建",
+  "ts": 1788766624.2836108
+ },
+ "J28": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ IM 窗口导航冲突（已解决）",
+  "ts": 1788766624.283631
+ },
+ "J29": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ 测试守白约定",
+  "ts": 1788766624.2836502
+ },
+ "J30": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ 重启窗口集中协调",
+  "ts": 1788766624.2836711
+ },
+ "J33": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **登录提醒/聚焦时间纪律**（用户确认，全员执行）",
+  "ts": 1788766624.283693
+ },
+ "J37": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ **插件安装验证流程**（2026-08-18 崩溃复盘，用户提出 + 6ed4daf2/前任 e7bfeea8/媒体 54e809ed 补充增强）",
+  "ts": 1788766624.2837179
+ },
+ "J39": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **调研/架构风险穷举规范**（2026-08-19 用户指示，全员执行）",
+  "ts": 1788766624.283762
+ },
+ "J40": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **技术决策论文支撑规范**（2026-08-19 用户评估纳入）",
+  "ts": 1788766624.2837849
+ },
+ "J41": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **沟通与事实纪律**（用户指示 2026-08-19，全网络）",
+  "ts": 1788766624.283807
+ },
+ "J43": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **记忆与检索纪律**（用户指示，全网络）",
+  "ts": 1788766624.283828
+ },
+ "J44": {
+  "status": "classified",
+  "type": "plugin_install",
+  "gate": "plugin-install-gate (profile 副本强制冒烟)",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **资源复用纪律**（用户指示，全网络）",
+  "ts": 1788766624.28385
+ },
+ "J38": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ **外链入向即时反馈规范**（用户提出 2026-08-18，92623479 提案，HR 评估登记）",
+  "ts": 1788766624.283873
+ },
+ "R009": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 角色命名标准（智能体自命名-设备-角色）",
+  "ts": 1788766624.283895
+ },
+ "R017": {
+  "status": "classified",
+  "type": "process",
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低",
+  "case": null,
+  "title": "✅ 抽象事务图形化表达（visualization）",
+  "ts": 1788766624.283916
+ },
+ "R018": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 无关消息反馈链（noise-feedback）",
+  "ts": 1788766624.283937
+ },
+ "R019": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 概念精确性纪律（不可混淆·不可猜测）",
+  "ts": 1788766624.2839549
+ },
+ "R020": {
+  "status": "classified",
+  "type": "plugin_install",
+  "gate": "plugin-install-gate (profile 副本强制冒烟)",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 新工具蓝图适配闭环（tool-blueprint-loop）",
+  "ts": 1788766624.2839758
+ },
+ "R021": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ 行为验证优先，日志缺失≠功能缺失",
+  "ts": 1788766624.283995
+ },
+ "R022": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 治理工具不得制造同类问题（抽出必浓缩去重再注入）",
+  "ts": 1788766624.2840161
+ },
+ "R023": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 沙箱必须隔离所有共享资源（不只文件），清理只删测试前缀",
+  "ts": 1788766624.284039
+ },
+ "R025": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 学习调查类任务提前并行（prep-ahead）",
+  "ts": 1788766624.2840588
+ },
+ "R026": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 批量/合规操作强制 L3 用户确认（J45 强化）",
+  "ts": 1788766624.284079
+ },
+ "R027": {
+  "status": "classified",
+  "type": "data_write",
+  "gate": "域权门 + 红绿灯 (agent_lock)",
+  "urgency": "中",
+  "case": null,
+  "title": "✅ 自动化人类开关锁（Human Kill-Switch）",
+  "ts": 1788766624.284101
+ },
+ "R028": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 批量/高险操作决策依据六问前置（J45 扩展）",
+  "ts": 1788766624.2841222
+ },
+ "R029": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 操作原语外部性分级锁（J45 深化）",
+  "ts": 1788766624.2841432
+ },
+ "R030": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 自动化结果真实性原则（无验证的成功=未成功）",
+  "ts": 1788766624.284163
+ },
+ "J45": {
+  "status": "classified",
+  "type": "communication",
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高",
+  "case": null,
+  "title": "✅ 操作分级门控框架（L0 自动/L2 确认/L3 人工）",
+  "ts": 1788766624.284184
+ }
+}

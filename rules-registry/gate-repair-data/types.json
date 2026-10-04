@@ -1,0 +1,105 @@
+{
+ "plugin_install": {
+  "kws": [
+   "插件",
+   "安装",
+   "升级",
+   "plugin",
+   "add",
+   "沙箱测试",
+   "重启前",
+   "slot",
+   "loader"
+  ],
+  "gate": "plugin-install-gate (profile 副本强制冒烟+slot 校验)",
+  "urgency": "高"
+ },
+ "signature": {
+  "kws": [
+   "签名",
+   "codesign",
+   "dylib",
+   "原生",
+   "adhoc",
+   "dylib"
+  ],
+  "gate": "sign-audit-gate (装前原生 dylib 签名审计)",
+  "urgency": "高"
+ },
+ "dependency": {
+  "kws": [
+   "依赖",
+   "遮蔽",
+   "pnpm",
+   "npm",
+   "xberg",
+   "@deepseek",
+   "供应链",
+   "node_modules",
+   "auto-index"
+  ],
+  "gate": "供应链门 + guard_deps_scan (遮蔽扫描)",
+  "urgency": "中"
+ },
+ "communication": {
+  "kws": [
+   "通讯",
+   "黑板",
+   "消息",
+   "跨设备",
+   "bus",
+   "心跳",
+   "订阅"
+  ],
+  "gate": "bb-gate/comm-domains + lean4-check",
+  "urgency": "高"
+ },
+ "resource": {
+  "kws": [
+   "内存",
+   "rss",
+   "oom",
+   "磁盘",
+   "容量",
+   "heap"
+  ],
+  "gate": "mem-gate/load-gate",
+  "urgency": "高"
+ },
+ "data_write": {
+  "kws": [
+   "写",
+   "并发",
+   "竞争",
+   "越权",
+   "权限",
+   "域",
+   "slot"
+  ],
+  "gate": "域权门 + 红绿灯 (agent_lock) + slot 注册校验",
+  "urgency": "中"
+ },
+ "process": {
+  "kws": [
+   "流程",
+   "审批",
+   "清单",
+   "轮值",
+   "巡检",
+   "sop"
+  ],
+  "gate": "gate-auditor 结构门化 (判定函数+自检)",
+  "urgency": "低"
+ },
+ "lean4_tooling": {
+  "kws": [
+   "lean4",
+   "约束门",
+   "自检",
+   "断言",
+   "proof"
+  ],
+  "gate": "lean4-check 结构门 (判定函数+断言矩阵)",
+  "urgency": "中"
+ }
+}

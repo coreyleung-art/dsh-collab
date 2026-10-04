@@ -1,0 +1,36 @@
+{
+ "claim": "回声/灯塔域 4 条 paper 门候选核查 (2026-09-07 gate-extended-round2)",
+ "domain": "echo/beacon (IM 发送防污染)",
+ "summary": {
+  "total_reported": 4,
+  "可ANNOTATE(已有等价结构门)": 4,
+  "SCAFFOLD需新建": 0,
+  "误报": 0
+ },
+ "verdict_detail": "分派候选均出自 2026-08-17 anti-pollution 复盘与 im-send 设计文档中标注'待排期'的发送护栏声明。经与运行代码核对：4 条声明全部已被 lib/im-send.js 六道闸门实现为结构门，且 2026-09-06 已按 R006 v2 补 --lean4-check 自检（7/7 过）。回声域确认卡机制有独立工具族（sse-sub/im-duty/wecom-reply-watch）。",
+ "annotate_candidates": [
+  {
+   "where": "anti-pollution L106 发送 API 加 approval_token 强制校验(de7b29de 待排期)",
+   "tool": "lib/im-send.js 闸门3 verifyApprovalToken(HMAC 内容绑定) + lean4-check",
+   "action": "ANNOTATE——已实现(2026-08-17 落地, 2026-09-06 抽纯函数+自检)"
+  },
+  {
+   "where": "anti-pollution L107 内容白名单+禁止词拦截(de7b29de+老登 待排期)",
+   "tool": "lib/im-send.js 闸门2 classifyContent(TEST_BLOCK_RE 测试标记拦截)",
+   "action": "ANNOTATE——已实现"
+  },
+  {
+   "where": "anti-pollution L60/L67 已审批话术库 hash 匹配 + 用户逐条确认",
+   "tool": "im-reply/tools/im-guard.js + sse-sub.js(事件驱动提审) + wecom-reply-watch.js(确认卡 1/2/3 裁决)",
+   "action": "ANNOTATE——回声域工具族已覆盖(属回声 b193c782, 灯塔管道侧配合)"
+  },
+  {
+   "where": "auto-controlled-send-design L7 发送内容必须等于期望文本 + 总线 agent 审核",
+   "tool": "lib/im-send.js 硬闸(DOM 实时校验) + 闸门4 watcher 独立验收(watcher_replied)",
+   "action": "ANNOTATE——已实现双层确认(硬闸+watcher 验收)"
+  }
+ ],
+ "scaffold_candidates": [],
+ "recommendation": "回声/灯塔域无'声明强制却可被绕过'的运行门需要立即加固：4 条已全部是结构门(六道闸门+硬闸+watcher 验收)，并带 lean4-check 自检。建议标记为已闭环，不进入 repair。",
+ "ts": "2026-09-07"
+}

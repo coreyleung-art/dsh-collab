@@ -1,0 +1,25 @@
+{
+ "case-archify-20260907": {
+  "title": "archify 插件升级致 CLD 崩溃",
+  "symptom": [
+   "插件升级未沙箱重启",
+   "CLD 无法启动",
+   "Timed out waiting"
+  ],
+  "root_cause": [
+   "L1 插件层: 5 坏插件(含 archify)",
+   "L2 依赖层: xberg 丢失+33 遮蔽包",
+   "L3 签名层: adhoc dylib CODESIGNING"
+  ],
+  "fix": [
+   "移除坏插件",
+   "恢复 xberg",
+   "symlink",
+   "移除 dsh-doc",
+   "清遮蔽包"
+  ],
+  "gate_upgrade": "plugin-install-gate (profile 副本强制冒烟) + sign-audit-gate + 遮蔽扫描",
+  "lesson": "清单写了沙箱但被跳过 = 纸面门——需结构门防跳过",
+  "ts": "2026-09-07"
+ }
+}
