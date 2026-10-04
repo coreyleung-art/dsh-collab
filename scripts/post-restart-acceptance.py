@@ -146,9 +146,15 @@ def main():
             for _pkg, _frag in (("agent-way", "dsh-plugin-agent-bus"), ("central-inbox", "dsh-plugin-central-inbox")):
                 _f = os.path.join(HOME, _frag, "lib", "index.js")
                 _mt = _dt.datetime.fromtimestamp(os.path.getmtime(_f)).astimezone()
-                _good = _mt < _birth
+                # ★ 2026-10-04 i9 假绿修复：可复现打包把 tar mtime 归一化 epoch 0 ⇒ mtime<boot 恒真=假绿。
+                #   证据有效性守卫：mtime 早于 2020-01-01 视为「证据无效」⇒ 判 FAIL（安装方必须 touch 为安装时刻）。
+                if _mt < _dt.datetime(2020, 1, 1, tzinfo=_dt.timezone.utc).astimezone():
+                    _good = False
+                    _detail.append("%s mtime=%s（epoch 级=证据无效，安装方须 touch 为安装时刻）" % (_pkg, _mt.strftime("%Y-%m-%d")))
+                else:
+                    _good = _mt < _birth
+                    _detail.append("%s mtime %s %s dsh 诞生 %s" % (_pkg, _mt.strftime("%H:%M:%S"), "<" if _good else "≥", _birth.strftime("%H:%M:%S")))
                 _ok_all = _ok_all and _good
-                _detail.append("%s mtime %s %s dsh 诞生 %s" % (_pkg, _mt.strftime("%H:%M:%S"), "<" if _good else "≥", _birth.strftime("%H:%M:%S")))
             check("P7 装载时序（插件 mtime < 最新 dsh 诞生 ⇒ 装载的是磁盘当前版）", _ok_all, " | ".join(_detail))
         else:
             check("P7 装载时序", False, "dsh-web.log 无 CLD boot 行")
