@@ -51,7 +51,7 @@ def main():
     for m in msgs:
         st[m.get("status") or "-"] = st.get(m.get("status") or "-", 0) + 1
 
-    print("\n  重启后验收 · agent-way v1.5.13 + central-inbox v0.2.13 · comm-standard v1.3 · 2026-10-04")
+    print("\n  重启后验收 · agent-way v1.5.14 + central-inbox v0.2.14 · comm-standard v1.3 · 2026-10-04")
     print("  " + "-" * 76)
 
     # ── A2 过期回收 ──
@@ -118,11 +118,14 @@ def main():
         ok_dg = "delivery-guard: PASS" in r2.stdout
         check("agent-way delivery-guard PASS（deliver 失败出声/idle flush/flush 暴露）", ok_dg,
               r2.stdout.splitlines()[-2:] if not ok_dg else "")
+        ok_rs = "reexport-silentcatch: PASS" in r2.stdout
+        check("agent-way reexport-silentcatch PASS（再导出当本地用=0 · 静默 catch=0）", ok_rs,
+              r2.stdout.splitlines()[-2:] if not ok_rs else "")
         try:
             _awpkg = json.load(open(os.path.join(HOME, "dsh-plugin-agent-bus", "package.json")))
-            check("agent-way 版本 == 1.5.13", _awpkg.get("version") == "1.5.13", str(_awpkg.get("version")))
+            check("agent-way 版本 == 1.5.14", _awpkg.get("version") == "1.5.14", str(_awpkg.get("version")))
         except Exception as _e:
-            check("agent-way 版本 == 1.5.13", False, str(_e))
+            check("agent-way 版本 == 1.5.14", False, str(_e))
     except Exception as e:
         check("A6-variants 表 0 分裂+裸标签解析", False, str(e))
         check("身份决策表 12 例断言（normalizeIdentity 单一决策点）", False, str(e))
@@ -153,7 +156,7 @@ def main():
               r3.stdout.splitlines()[-3:] if not ok_smoke_ci else "")
         try:
             _cipkg = json.load(open(os.path.join(HOME, "dsh-plugin-central-inbox", "package.json")))
-            check("central-inbox 版本 == 0.2.13", _cipkg.get("version") == "0.2.13", str(_cipkg.get("version")))
+            check("central-inbox 版本 == 0.2.14", _cipkg.get("version") == "0.2.14", str(_cipkg.get("version")))
         except Exception as _e:
             check("central-inbox 版本 == 0.2.12", False, str(_e))
         # G30 boot 窗口有界缓冲重放 + R43 三级时间源（源码标记断言；行为验收另走 S6 真实回放）
@@ -165,6 +168,8 @@ def main():
             check("R43 三级时间源（sent_at_epoch_ms/cardAgeMs 在位）", _r43, "")
             _r44 = "ensureCentralLive" in _cisrc and "resumeSessionId" in _cisrc
             check("0.2.13 注入目标自动续活（ensureCentralLive/resumeSessionId 在位）", _r44, "")
+            _r45 = "Date.parse(raw)" in _cisrc and "/^\\d{10,13}$/" in _cisrc
+            check("0.2.14 cardAgeMs ISO 三态解析（Date.parse 在位）", _r45, "")
         except Exception as _e:
             check("G30/R43 源码标记断言", False, str(_e))
     except Exception as e:
