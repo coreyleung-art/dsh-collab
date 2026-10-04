@@ -51,7 +51,7 @@ def main():
     for m in msgs:
         st[m.get("status") or "-"] = st.get(m.get("status") or "-", 0) + 1
 
-    print("\n  重启后验收 · agent-way v1.5.13 + central-inbox v0.2.12 · comm-standard v1.3 · 2026-10-04")
+    print("\n  重启后验收 · agent-way v1.5.13 + central-inbox v0.2.13 · comm-standard v1.3 · 2026-10-04")
     print("  " + "-" * 76)
 
     # ── A2 过期回收 ──
@@ -153,7 +153,7 @@ def main():
               r3.stdout.splitlines()[-3:] if not ok_smoke_ci else "")
         try:
             _cipkg = json.load(open(os.path.join(HOME, "dsh-plugin-central-inbox", "package.json")))
-            check("central-inbox 版本 == 0.2.12", _cipkg.get("version") == "0.2.12", str(_cipkg.get("version")))
+            check("central-inbox 版本 == 0.2.13", _cipkg.get("version") == "0.2.13", str(_cipkg.get("version")))
         except Exception as _e:
             check("central-inbox 版本 == 0.2.12", False, str(_e))
         # G30 boot 窗口有界缓冲重放 + R43 三级时间源（源码标记断言；行为验收另走 S6 真实回放）
@@ -163,6 +163,8 @@ def main():
             check("G30 boot 窗口有界缓冲重放（_pending/bufferPending/flushPending 在位）", _g30, "")
             _r43 = "sent_at_epoch_ms" in _cisrc and "cardAgeMs" in _cisrc
             check("R43 三级时间源（sent_at_epoch_ms/cardAgeMs 在位）", _r43, "")
+            _r44 = "ensureCentralLive" in _cisrc and "resumeSessionId" in _cisrc
+            check("0.2.13 注入目标自动续活（ensureCentralLive/resumeSessionId 在位）", _r44, "")
         except Exception as _e:
             check("G30/R43 源码标记断言", False, str(_e))
     except Exception as e:
