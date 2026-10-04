@@ -128,6 +128,22 @@ def main():
         check("身份决策表 12 例断言（normalizeIdentity 单一决策点）", False, str(e))
         check("agent-way 真挂载冒烟独立化", False, str(e))
 
+    # ── 壳 v4 宽限定时器修复（2026-10-04 壳修复③）：oldChild 实例捕获源码标记 ──
+    #   10:51 实测 v3 竞态：POST /reload → 宽限定时器(t0+3000ms)读模块级 child 误杀新 child
+    #   → 判 dsh 崩溃 → 自动重启 1/3…壳以 dsh-crash-after-child 退出（pid 41341）。
+    #   判据：从 asar 提取 main.js 断言 oldChild 捕获（不采信磁盘副本，防手改未入包）。
+    try:
+        import subprocess as _sp2, tempfile as _tf
+        _d = _tf.mkdtemp(prefix="asar-v4-check-")
+        _sp2.run(["/opt/homebrew/bin/npx", "--yes", "@electron/asar", "extract-file",
+                  "/Applications/CLD.app/Contents/Resources/app.asar", "main.js"],
+                 capture_output=True, text=True, timeout=120, cwd=_d)
+        _m = open(os.path.join(_d, "main.js"), encoding="utf-8").read()
+        check("壳 v4 宽限定时器 oldChild 实例捕获（重载不误杀新代）", "const oldChild = child" in _m,
+              "asar 内 main.js 未找到 oldChild 捕获")
+    except Exception as e:
+        check("壳 v4 宽限定时器 oldChild 实例捕获", False, str(e))
+
     # ── central-inbox 0.2.12 冒烟 + 版本判据（2026-10-04 批次：R43 三级时间源 + G30 缓冲重放）──
     try:
         r3 = subprocess.run(["/opt/homebrew/bin/node", os.path.join(HOME, "dsh-plugin-central-inbox", "cli.js"), "--selfcheck"],
