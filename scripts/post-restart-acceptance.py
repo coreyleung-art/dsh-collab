@@ -146,8 +146,9 @@ def main():
               "asar 内 main.js 未找到 watchedChild 捕获")
         check("壳 v4 ③ 宽限定时器 oldChild 实例捕获（重载不误杀新代）", "const oldChild = child" in _m,
               "asar 内 main.js 未找到 oldChild 捕获")
-        check("壳 v1 笔误 c !== child 已清除", "c !== child" not in _m,
-              "asar 内 main.js 仍含 v1 笔误 c !== child")
+        _typo = _re.search(r"if\s*\(\s*c\s*!==\s*child\s*\)", _m) is not None
+        check("壳 v1 笔误 if(c !== child) 代码形态已清除", not _typo,
+              "asar 内 main.js 仍含 v1 笔误代码形态（注释提及不算）")
     except Exception as e:
         check("壳 v4 宽限定时器 oldChild 实例捕获", False, str(e))
 
