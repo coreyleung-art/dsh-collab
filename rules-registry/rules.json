@@ -1,5 +1,5 @@
 {
-  "version": "2.19.1",
+  "version": "2.20.0",
   "lastUpdated": "2026-10-04",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
@@ -833,6 +833,22 @@
         "失败留日志：stdio ignore 让排查只能靠 macOS 系统日志，代价极高",
         "根治方向：插件热更走壳 v4 POST /reload；整机重启只留给壳变更",
         "落码：agent-way 1.5.19 + tools/relaunch-cld.sh 10×5s"
+      ]
+    },
+    {
+      "id": "R044",
+      "name": "服务器操作规范门（五问必答）",
+      "category": "工程",
+      "scope": "all-bus-devices",
+      "status": "enforced",
+      "version": "1.0",
+      "source": "2026-10-04 星桥起草 · MBP 同源入账（v2.20.0 先行）",
+      "summary": "涉及 xingqiao 服务器（106.53.214.108）的任何操作，动手前必读 AGENT NETWORK CHARTER 第二部分 + 回答五问（锁/门/备份/回滚/验收）；红线：不复活 comm-server-test/不经 ufw 开端口/不删 .bak/不手改 token/不擅动暂停项；做完双板登记 data/registry/<变更名>-<日期>",
+      "details": [
+        "规范板载键 data/registry/agent-network-charter（协作网络基线，含服务器运维部分）与 data/registry/server-ops-agent-prompt",
+        "五问：agent_light/agent_lock → channel_gate → 备份 → 回滚命令 → 验收矩阵留证",
+        "服务地图变更必须回改规范文件并 bump version",
+        "验收矩阵必须打公网面（板端回环信任，localhost 必假红/假绿）"
       ]
     }
   ],
