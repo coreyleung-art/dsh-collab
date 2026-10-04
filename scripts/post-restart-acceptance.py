@@ -142,8 +142,12 @@ def main():
                   "/Applications/CLD.app/Contents/Resources/app.asar", "main.js"],
                  capture_output=True, text=True, timeout=120, cwd=_d)
         _m = open(os.path.join(_d, "main.js"), encoding="utf-8").read()
-        check("壳 v4 宽限定时器 oldChild 实例捕获（重载不误杀新代）", "const oldChild = child" in _m,
+        check("壳 v4 ① 代际守卫 watchedChild 实例捕获", "const watchedChild = child" in _m,
+              "asar 内 main.js 未找到 watchedChild 捕获")
+        check("壳 v4 ③ 宽限定时器 oldChild 实例捕获（重载不误杀新代）", "const oldChild = child" in _m,
               "asar 内 main.js 未找到 oldChild 捕获")
+        check("壳 v1 笔误 c !== child 已清除", "c !== child" not in _m,
+              "asar 内 main.js 仍含 v1 笔误 c !== child")
     except Exception as e:
         check("壳 v4 宽限定时器 oldChild 实例捕获", False, str(e))
 
