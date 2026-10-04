@@ -1,6 +1,6 @@
 # 规则账本（完整规则本）
 
-> v2.20.0 | 61 条 | 所有总线设备必须服从
+> v2.21.0 | 61 条 | 所有总线设备必须服从
 >
 > ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R44 · J13 · R-ERR4 = 61`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
 > 此前声明「76 条」与 `rules-cli audit` 的 78、实际标题数均不符 ⇒ **计数不可核 = 声明无效**（R030）。核验：`rules-integrity.py`。
@@ -372,7 +372,7 @@
 
 ## R042 ✅ 投递状态诚实语义（queued≠送达）（2026-10-04 MBP 对等自查决定性数据 · 星桥 1.5.13 落码）
 - 分类: 通讯 | 范围: all-bus-devices | 状态: enforced
-- 摘要: delivered=官方回执已收（真达率 100%）；queued=未达（实测真达率 15%，事实上是终态）；发卡后必须 verify-delivery 闭环，未达换键重投 ≤3 次；deliver 失败必须出声（lastError+deliverFail），禁止静默降级
+- 摘要: delivered=官方回执已收且实测进入对端上下文；queued=发送时刻未达但修复版(1.5.13+)上延迟可达（idle-flush 补投，实测延迟≈6-10 分钟），不是终态、但不得记作已发；queued 不立即换键重投（会制造重复投递），确需重投必须改内容
 - 详情: ①根因：deliver() 吞异常静默降级 queued（类别 B）+ autoWake 反风暴空实现后无 idle 触发点 ⇒ queued 终态 ②修法 1→2→3：失败出声 → idle 主动 flushQueue → agentBus.flush 暴露（1.5.13，selfcheck delivery-guard 判据）③判据：delivered 必达、queued 标注未达；verify-delivery 读对端日志结局行闭环；重投换键（同内容判 dup）④「要对方提醒才看到」=提醒触发 flush 的巧合，非送达保证（G18）
 - 关联: R005（CCEP）/ R034（探照灯）/ R036（变更门）
 

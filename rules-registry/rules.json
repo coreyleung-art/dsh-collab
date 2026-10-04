@@ -1,5 +1,5 @@
 {
-  "version": "2.20.0",
+  "version": "2.21.0",
   "lastUpdated": "2026-10-04",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
@@ -807,13 +807,12 @@
       "status": "enforced",
       "version": "1.0",
       "source": "2026-10-04 MBP 对等自查决定性数据（delivered 真达率 100% / queued 15%）· 星桥 1.5.13 落码",
-      "summary": "delivered=官方回执已收（真达率 100%）；queued=未达（实测真达率 15%，事实上是终态）；发卡后必须 verify-delivery 闭环，未达换键重投 ≤3 次；deliver 失败必须出声（lastError+deliverFail），禁止静默降级",
+      "summary": "delivered=官方回执已收且实测进入对端上下文；queued=发送时刻未达但修复版(1.5.13+)上延迟可达（idle-flush 补投，实测延迟≈6-10 分钟），不是终态、但不得记作已发；queued 不立即换键重投（会制造重复投递），确需重投必须改内容",
       "details": [
-        "根因①：deliver() 吞异常静默降级 queued（类别 B 教科书形态），targetLive:true+queued 自相矛盾零信号",
-        "根因②：autoWake 反风暴空实现后无任何 idle 触发点，queued 除非新消息顺带 flush 否则终态",
-        "修法 1→2→3：失败出声(lastError+logLight) → idle 主动 flushQueue → agentBus.flush 暴露（1.5.13，selfcheck delivery-guard 判据）",
-        "判据：delivered 必达、queued 标注未达；verify-delivery 读对端日志结局行闭环；重投换键（同内容判 dup）",
-        "「要对方提醒才看到」=提醒触发 flush 的巧合，非送达保证（G18：ok:true+queued 误记已发）"
+        "v2 修订（MBP 双样本实证）：queued→delivered 延迟 6/10 分钟且真进对端上下文，acked=claimed+claimedTurn 可查",
+        "1.5.12 的「queued 15% 真达」是 ReferenceError 故障态（G32/G33 闭环），非 queued 固有性质",
+        "操作口径：queued 先判目标是否只是不在线（等 idle 窗口/verify-delivery），不立即换键重投",
+        "失败必须出声（lastError+deliverFail）——1.5.13 起的强制"
       ]
     },
     {
