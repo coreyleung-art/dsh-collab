@@ -51,7 +51,7 @@ def main():
     for m in msgs:
         st[m.get("status") or "-"] = st.get(m.get("status") or "-", 0) + 1
 
-    print("\n  重启后验收 · agent-way v1.5.16 + central-inbox v0.2.14 · comm-standard v1.3 · 2026-10-04")
+    print("\n  重启后验收 · agent-way v1.5.17 + central-inbox v0.2.14 · comm-standard v1.3 · 2026-10-04")
     print("  " + "-" * 76)
 
     # ── A2 过期回收 ──
@@ -123,9 +123,9 @@ def main():
               r2.stdout.splitlines()[-2:] if not ok_rs else "")
         try:
             _awpkg = json.load(open(os.path.join(HOME, "dsh-plugin-agent-bus", "package.json")))
-            check("agent-way 版本 == 1.5.16", _awpkg.get("version") == "1.5.16", str(_awpkg.get("version")))
+            check("agent-way 版本 == 1.5.17", _awpkg.get("version") == "1.5.17", str(_awpkg.get("version")))
         except Exception as _e:
-            check("agent-way 版本 == 1.5.16", False, str(_e))
+            check("agent-way 版本 == 1.5.17", False, str(_e))
     except Exception as e:
         check("A6-variants 表 0 分裂+裸标签解析", False, str(e))
         check("身份决策表 12 例断言（normalizeIdentity 单一决策点）", False, str(e))
