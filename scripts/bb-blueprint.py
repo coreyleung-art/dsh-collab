@@ -12,6 +12,8 @@
   子阶段: python3 bb-blueprint.py --stage-status d25-3 --status done
   同步: python3 bb-blueprint.py --sync                    # 从黑板 data/ 域扫描自动映射
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, ast, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

@@ -22,6 +22,8 @@
   · 匹配前缀 → 追加写入 inbox/bb/<agent>-<key 摘要>.jsonl（append-only）
   · 每条带 [NEW] 标记，会话轮询可见；重连不丢事件（连接期间收到即写）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, time, datetime, urllib.request
 
 def now():

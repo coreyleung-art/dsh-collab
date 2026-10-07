@@ -19,6 +19,8 @@
   dev-sandbox --list                                 # 列出类型
   --dry-run 只分析不执行
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, subprocess, sys, tempfile, datetime, shutil
 
 def log(msg):

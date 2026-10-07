@@ -14,6 +14,8 @@ role-scan v1 —— 专业角色需求扫描（数据驱动）
 
 纪律：只读分析，不写文件、不广播（J34）；秒级时间观可随时跑。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re

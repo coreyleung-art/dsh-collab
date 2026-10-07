@@ -27,6 +27,8 @@
   BLACKBOARD_TOKEN 黑板 token（如启用则自动带 X-Blackboard-Token）
   SSH_TARGET       目标节点 ssh 别名/IP（用于归档，如 coreyleung@192.168.1.28）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re
@@ -37,6 +39,21 @@ import urllib.request
 BB = os.environ.get("BB", "http://127.0.0.1:8792")
 TOKEN = os.environ.get("BLACKBOARD_TOKEN", "")
 SSH_TARGET = os.environ.get("SSH_TARGET", "")
+
+# ★ 2026-10-01 修复伪造署名（与 guard 插件 doRepairReport 同根因、同修法；官方不变量 I1）
+#   原实现把 `from` / `X-Writer` 写死成 "mbp-ops" ⇒ 卡片永远声称作者是 mbp-ops，
+#   而 central-inbox 的**接收侧自回声守卫本身是正确的**（route.js shouldInject：
+#   normalizeTo(value.from) ∩ {nodeId, ownSession, 'coordinator'} 非空则跳过），
+#   却因被喂了伪造的 from 而恒不命中 ⇒ 每写一份报告就注入回作者自己的上下文。
+#   现取真实作者：AUTHOR_SESSION > DSH_SESSION_ID；都没有时记 'unattributed' **并显式标注**——
+#   绝不臆造一个"看起来像身份"的标签（臆造正是原缺陷本身）。
+AUTHOR_SESSION = os.environ.get("AUTHOR_SESSION") or os.environ.get("DSH_SESSION_ID") or ""
+
+
+def author_label(node):
+    """展示用标签（与身份字段分离）；沿用 bus-send.sh 的 `node:短id` 形态。"""
+    m = re.search(r"session-([0-9a-f]{8})", AUTHOR_SESSION, re.I)
+    return "%s:%s" % (node, m.group(1).lower()) if m else "unattributed"
 
 
 def slugify(s):
@@ -49,7 +66,7 @@ def slugify(s):
 def put(key, value):
     headers = {
         "Content-Type": "application/json",
-        "X-Writer": "mbp-ops",
+        "X-Writer": author_label(value.get("node", "unknown")),
     }
     if TOKEN:
         headers["X-Blackboard-Token"] = TOKEN
@@ -76,7 +93,10 @@ def main():
     value.setdefault("title", title)
     value.setdefault("node", node)
     value.setdefault("ts", ts)
-    value.setdefault("from", "mbp-ops")
+    # I1：身份字段只放可验证的持久身份；解析不到时显式标注，不臆造
+    value.setdefault("from", AUTHOR_SESSION or "unattributed")
+    value.setdefault("writerLabel", author_label(node))
+    value.setdefault("authorResolved", bool(AUTHOR_SESSION))
 
     try:
         resp = put(key, value)

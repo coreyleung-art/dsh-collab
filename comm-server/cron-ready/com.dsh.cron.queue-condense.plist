@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.dsh.cron.queue-condense</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/coreyleung/dsh-collab/rust-tools/dist/dsh-tools-macos-arm64-v1.25.0</string>
+    <string>queue-condense</string>
+    <string>--condense</string>
+    <string>--to</string>
+    <string>session-fa1f9150-c949-401f-ba8c-d265f6221676</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Day</key><integer>1</integer><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>/Users/coreyleung/dsh-collab/logs/queue-condense-cron.log</string>
+  <key>StandardErrorPath</key><string>/Users/coreyleung/dsh-collab/logs/queue-condense-cron.err.log</string>
+</dict>
+</plist>

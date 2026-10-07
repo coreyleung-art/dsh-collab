@@ -8,6 +8,8 @@
 输出：wakeup-queue/YYYY-MM-DD.jsonl（应唤醒项）+ blackboard-subscribe-state.json（上次 hash 快照）
 验收目标：无广播；每变更每订阅者 ≤1 条；唤醒延迟 <5min（launchd 每 5 分钟）；成本 ≈0.05×读。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, hashlib, datetime
 
 COLLAB = os.path.expanduser("~/dsh-collab")

@@ -17,6 +17,8 @@ AI 网盘（基因库）的注册层：基因（资产）注册/查询/列表 + 
 
 黑板同步: 注册/变更时写黑板 notes/genebank/<gene_id>（通知总线）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, sys, hashlib, datetime, urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

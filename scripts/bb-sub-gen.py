@@ -12,6 +12,8 @@
 
 前置：xingduo 实例已手工补建（~/Library/LaunchAgents/com.dsh.bb-sub.xingduo.plist）可作模板参考。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, subprocess, re, glob, json
 
 LAUNCH_AGENTS = os.path.expanduser('~/Library/LaunchAgents')

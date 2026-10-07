@@ -17,6 +17,8 @@ R006 九标准：CLI 形态 / TCC(--selfcheck) / 文档化 / 版本管理(--tool
   python3 bb-blueprint-registry.py --refs aistartup              # 谁引用了该蓝图（反向查）
   python3 bb-blueprint-registry.py --selfcheck                   # TCC
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, ast
 
 BB = "http://127.0.0.1:8792"
@@ -44,7 +46,10 @@ def get_blueprint(bp_id):
         v = d["value"]
         if isinstance(v, dict) and "id" in v:
             return v
-    # flowernet 主蓝图在 stages
+    # flowernet 主蓝图在 stages —— ★ 仅当 bp_id 就是 flowernet 时才回退，
+    # 否则未知 id 会静默显示 flowernet 的数据（本次发现的 bug）
+    if bp_id != "flowernet":
+        return None
     s = fetch("data/blueprint/stages")
     if "error" not in s and s.get("value"):
         sv = s["value"]
@@ -86,7 +91,10 @@ def cmd_list():
                "agent-network": "底座", "blueprint-platform": "元层", "rule-judge": "验证",
                "banking": "业务", "flowernet-erp": "子蓝图", "flowernet-miniapp": "子蓝图",
                "flowernet-website": "子蓝图", "memory-governance": "子蓝图", "gene-bank": "底座", "distributed-network": "底座",
-               "mtm": "工具", "laodeng-app": "产品"}.get(bp_id, "?")
+               "mtm": "工具", "laodeng-app": "产品",
+               "mingjian-toolchain": "工具", "flowernet-jv": "公司级",
+               "flowernet-citywar": "子蓝图", "flowernet-supply": "子蓝图",
+               "flowernet-ops": "子蓝图", "merchant-ops-ai": "子蓝图"}.get(bp_id, "?")
         st = bp.get("status", "")
         if not st and bp_id == "flowernet":
             st = "active"  # flowernet 主蓝图从 stages 推断

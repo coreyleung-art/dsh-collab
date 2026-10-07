@@ -5,6 +5,8 @@ Scans agent profile exports for Agent Card fields (channels/budget/topics/comm_s
 reports adoption rate. Weekly run with agent_profiles export.
 Usage: python3 cahac-compliance-check.py --profiles profiles.json
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, datetime
 
 CARD_FIELDS = ["channels", "budget", "topics", "comm_style"]

@@ -10,6 +10,8 @@
   python3 bb-protocol-runner.py --selfcheck / --tool-version / --lean4-check
 护栏(硬): 本工具永不含任何 /api/im/send 或真实发送调用 —— 只做计数/任务卡/黑板通知
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request
 
 VERSION = "v1.0.0"

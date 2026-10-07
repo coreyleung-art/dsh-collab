@@ -13,6 +13,8 @@ R006 九标准：① CLI 形态 ② TCC 检测（--selfcheck）③ CLD 自适应
   python3 bb-prep-research.py --selfcheck          # TCC 自检
   python3 bb-prep-research.py --tool-version       # 版本
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, ast
 
 BB = "http://127.0.0.1:8792"

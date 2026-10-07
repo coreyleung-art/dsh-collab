@@ -1,0 +1,5 @@
+/System/Volumes/Data/Users               237268324      (find/du 退出=1)
+/System/Volumes/Data/private             85971040       (find/du 退出=1)
+/System/Volumes/Data/Library             9560536        (find/du 退出=1)
+/System/Volumes/Data/Applications        28503800       (find/du 退出=0)
+done

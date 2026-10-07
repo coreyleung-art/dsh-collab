@@ -21,6 +21,8 @@
 
 零 LLM 原则：与 sedimentation-chain-scan.py 同构——规则判定，不调模型。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, collections
 
 VALUE_NOISE = re.compile(r'(timeout|DEBUG|path required|n_cache_reuse|GET /|POST /|keep-alive)', re.I)

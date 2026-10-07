@@ -1,8 +1,8 @@
 {
  "rules": {
-  "total": 79,
-  "structural": 33,
-  "paper": 46,
+  "total": 59,
+  "structural": 32,
+  "paper": 27,
   "doc_only": 0
  },
  "file_entries": [
@@ -1101,85 +1101,99 @@
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 2,
+   "line": 3,
    "text": "# bb-gallery-gate.sh — 架构管理器提交前门禁(Φ9 约束前置 · R006 TCC)",
    "category": "structural"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 20,
+   "line": 21,
    "text": "echo \"══ bb-gallery-gate · 提交前门禁 ══\"",
    "category": "structural"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 45,
+   "line": 46,
    "text": "# 页面 JS 无错(headless) — 容忍 chrome 退出码; NO_BROWSER=1 跳过(发布门禁用, 避免无头环境挂起)",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 47,
+   "line": 48,
    "text": "ok \"页面 JS 检查跳过(NO_BROWSER 发布模式)\"",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 56,
+   "line": 57,
    "text": "ok \"页面 JS 检查跳过(无 headless chrome)\"",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 64,
+   "line": 65,
    "text": "# 检查 dist app 是否含 css/js/audit 等(打包缺陷如 css 丢失在此拦截)",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 77,
+   "line": 78,
    "text": "# 清理测试服务(防残留占用端口, 致下次 release 门禁卡死)",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 80,
+   "line": 81,
    "text": "[ $FAIL = 0 ] || echo \"❌ 门禁未过 —— 修复后再发布(Φ9)\"",
    "category": "paper"
   },
   {
    "file": "bb-gallery-gate.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bb-gallery-gate.sh",
-   "line": 81,
+   "line": 82,
    "text": "[ $FAIL = 0 ] && echo \"✅ 门禁全过, 可发布\"",
    "category": "paper"
   },
   {
    "file": "systemgraph-publish.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/systemgraph-publish.sh",
-   "line": 11,
+   "line": 12,
    "text": "#   · **不比对不发布**：上传完成 ≠ 发布成功；必须比对服务端与本地 sha256",
    "category": "paper"
   },
   {
    "file": "systemgraph-publish.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/systemgraph-publish.sh",
-   "line": 13,
+   "line": 14,
    "text": "#   · 发布前先做**本地自洽检查**（manifest 记录的哈希 vs 实物）—— manifest 曾出现\"写完又改文件\"导致记录哈希恒陈旧",
    "category": "paper"
   },
   {
    "file": "systemgraph-publish.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/systemgraph-publish.sh",
-   "line": 78,
+   "line": 42,
+   "text": "# ⇒ 两者必须分开算：同一个字符串无法既是本地路径又是 URL 路径。",
+   "category": "paper"
+  },
+  {
+   "file": "systemgraph-publish.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/systemgraph-publish.sh",
+   "line": 105,
    "text": "say \"  c. **服务端**逐文件比对 sha256（与本地必须一致）\"",
+   "category": "paper"
+  },
+  {
+   "file": "systemgraph-publish.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/systemgraph-publish.sh",
+   "line": 154,
+   "text": "# ★ 2026-09-28 补：图库资产**必须走一次真实 HTTP 取图**。",
    "category": "paper"
   },
   {
@@ -1220,85 +1234,113 @@
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 5,
+   "line": 6,
    "text": "#             v0.6.8 改为 fail loud（400）+ X-Body-Text:1 纯文本逃生门",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 12,
+   "line": 13,
    "text": "#   · 默认 dry-run，必须显式 --go 才动（避免误触发共享基础设施重启）",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 37,
+   "line": 38,
    "text": "# ---------- 前置检查 ----------",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 38,
+   "line": 39,
    "text": "say \"[1/6] 前置检查\"",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 60,
+   "line": 61,
    "text": "# SSE 订阅端盘点：重启会断开全部连接，必须能确认它们重新连上",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 76,
+   "line": 77,
    "text": "say \"  c. launchctl bootout + bootstrap（**必须重新加载**：kickstart -k 不重读 plist，改动不生效）\"",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 102,
+   "line": 103,
    "text": "launchctl bootstrap \"gui/$UID\" \"$PLIST\" 2>/dev/null || say \"  ⚠️ bootstrap 返回非零，请检查 plist\"",
    "category": "paper"
   },
   {
    "file": "blackboard-deploy-068.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "line": 164,
+   "line": 165,
    "text": "# ★ 2026-09-13 加固：版本校验从\"看一眼日志（软警告）\"改为**硬门**——",
    "category": "paper"
   },
   {
    "file": "backup-chain-retest.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/backup-chain-retest.sh",
-   "line": 8,
+   "line": 9,
    "text": "# 四级强度声明：**门**（任一 FAIL ⇒ 退出码 1）",
    "category": "paper"
   },
   {
    "file": "backup-chain-retest.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/backup-chain-retest.sh",
-   "line": 16,
+   "line": 17,
    "text": "LIVE_DB_DEF=\"$HOME/Library/Application Support/外卖门店多平台管理/data/app.db\"",
    "category": "structural"
   },
   {
    "file": "backup-chain-retest.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/backup-chain-retest.sh",
-   "line": 45,
+   "line": 46,
    "text": "if grep -q 'LIVE_DIR=\"\\$HOME/Library/Application Support/外卖门店多平台管理\"' \"$WB\" 2>/dev/null; then",
    "category": "structural"
   },
   {
    "file": "bus-send.sh",
    "path": "/Users/coreyleung/dsh-collab/scripts/bus-send.sh",
-   "line": 2,
+   "line": 3,
    "text": "# bus-send.sh v1.0 — 跨设备 bus 信封便捷发送 (门3: 让正确通道成为顺手通道, 防退回 agent-msg 老路)",
+   "category": "paper"
+  },
+  {
+   "file": "mbp-log-guard.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/mbp-log-guard.sh",
+   "line": 28,
+   "text": "# 安全判据（截断前必须全部满足）：",
+   "category": "paper"
+  },
+  {
+   "file": "mbp-log-guard.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/mbp-log-guard.sh",
+   "line": 76,
+   "text": "# ★ 归一化：/tmp 与 /private/tmp 是同一文件，必须 realpath 后再比",
+   "category": "paper"
+  },
+  {
+   "file": "mbp-log-guard.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/mbp-log-guard.sh",
+   "line": 93,
+   "text": "#       空间不释放。必须用 truncate（截断）；截断后若 fd 是追加语义则下次写回到 offset 0。",
+   "category": "paper"
+  },
+  {
+   "file": "mbp-log-guard.sh",
+   "path": "/Users/coreyleung/dsh-collab/scripts/mbp-log-guard.sh",
+   "line": 103,
+   "text": "# ★ 清单必须与摘要对得上：-list 模式先印（含零字节），再按体积过滤",
    "category": "paper"
   },
   {
@@ -1446,6 +1488,69 @@
    "path": "/Users/coreyleung/dsh-collab/rules-registry/sysgraph-registry-schema-v1-final.md",
    "line": 53,
    "text": "- HR: 治理合规检查+签字 ✅",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 10,
+   "text": "## 1. 语义撞车（**10 条**）——跨端引用**必须**带命名空间",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 14,
+   "text": "| `R032` | 蓝图登记三写 + 知识向量化归档 | 跨设备受控停机（禁止未确认的远程关闭/重启他人设备） |",
+   "category": "structural"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 15,
+   "text": "| `R033` | 通讯通道治理 | 闸门有效性验证（四象限 + fail-closed + 判别器自校） |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 16,
+   "text": "| `R034` | 送达与状态确认·探照灯 | 静默失败必须可见（跳过/拒绝/丢弃/失败须对相关方可见） |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 18,
+   "text": "| `R036` | 通道变更治理门 | 黑板双实例写入不传播 —— 必须逐板显式写 + 逐板回读断言 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 21,
+   "text": "| `R039` | 工具中文描述文档 | 跨端通讯须按统一规范择优判断，且发送前过门（字段/通道/双板/唤醒语义） |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 22,
+   "text": "| `R040` | 自查不得自指 + 出包前真实 boot 预演 | 重启前必须过插件兼容性审查（restart_audit），有阻断项不得重启 |",
+   "category": "structural"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 27,
+   "text": "- `R042` — xq: 投递状态诚实语义（queued≠送达） ｜ mbp: 投递状态诚实语义：queued ≠ 送达（未达须换键重投，且失败必须出声）",
+   "category": "paper"
+  },
+  {
+   "file": "rules-id-collision-map.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/rules-id-collision-map.md",
+   "line": 34,
+   "text": "1. **交叉引用一律带命名空间**：`mbp:R040` / `xq:R040`（章程 §8 已有此意，建议升级为强制）；",
    "category": "paper"
   },
   {
@@ -1613,748 +1718,888 @@
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 3,
-   "text": "> v2.16.0 | 83 条 | 所有总线设备必须服从",
+   "text": "> ★ 跨端引用强制命名空间（2026-10-04 MBP 双向 diff 发现 R032-R041 十处同号不同义）：",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 7,
+   "text": "> v2.23.1 | 63 条 | 所有总线设备必须服从",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 11,
    "text": "> ⚠️ **格式约束（HR 自纠 2026-09-11）**：首行**必须保留 `N 条` 形式**（如 `83 条`）—— 改动声明格式而不同步消费方解析器，会让门读成「v? | ? 条」。分区明细写在下方注里，不替换首行。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 9,
+   "line": 13,
    "text": "> ✅ **门侧不一致已修复（2026-09-11，属主星桥修复；HR 复验通过）**：`rules-integrity.py` 曾把「声明条数」与「全部 `## ` 标题数」比较（而声明数不含非规则小节）⇒ 恒差 1，报出「声明83/实际84」的**假问题**。",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 12,
+   "line": 16,
    "text": "> ★ **本条更正的意义（HR 自记）**：我原先在此写下「待其属主修为…」—— **对他人缺陷的声明，必须在其修复后同步更新，否则它就从「记录」变成「持续的误指」**。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 15,
+   "line": 18,
+   "text": "> ★ **反例保留（2026-10-03，MBP 检查器 v2 要求）**：「错值引用」= 工具 D 项局部约定被硬编码为通用判据的**假阳性**案例（23 真+1 假 事件，详见 INVARIANTS 变更纪要）——此语义标记作反例保留防再犯，**勿删**。",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 21,
    "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 16,
+   "line": 22,
    "text": "- 摘要: 同源操作（同文件/后台/任务）前必须 agent_light 查询 → agent_lock 独占 → 操作完 agent_unlock",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 20,
+   "line": 26,
    "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 25,
+   "line": 31,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 26,
-   "text": "- 摘要: 写黑板消息必须用 python json.dumps 生成 JSON 文件再 curl 发送（--data-binary @file）",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 27,
-   "text": "- 详情: 禁止 heredoc -d 和 printf（转义坑导致 value 空）；写入后立即回读验证 value 非空；**body 必须是合法 JSON**（serde_json 解析，纯文本/非 JSON → value 存 {} 空壳）——python http.client 直连亦需 ",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 28,
-   "text": "- **key 语法（2026-09-10 实测）**: 首段命名空间必须**纯小写字母** `[a-z]+`（`data`/`notes`/`tasks`/`health`/`mbp` ✅；`cld-health`/`mac-mini`/`i9`/`foo_bar`/`abc123`/`ABC` ",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 29,
-   "text": "- **400 vs 404 语义区分**: 400=写法非法（键错）；404=格式合法但不存在（内容缺失）——**写入必须回读确认**（今日已有 4 次「报告指向不存在的落盘物」事故）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 32,
-   "text": "- **★ 回读判据的完整层级（81344270 建议 + HR 实测升级 2026-09-11）**: 回读必须验到「**内容与预期语义相等**」，不是 HTTP 200，也不是「value 非空」——",
+   "text": "- 摘要: 写黑板消息必须用 python json.dumps 生成 JSON 文件再 curl 发送（--data-binary @file）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 33,
+   "text": "- 详情: 禁止 heredoc -d 和 printf（转义坑导致 value 空）；写入后立即回读验证 value 非空；**body 必须是合法 JSON**（serde_json 解析，纯文本/非 JSON → value 存 {} 空壳）——python http.client 直连亦需 ",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 34,
+   "text": "- **key 语法（2026-09-10 实测）**: 首段命名空间必须**纯小写字母** `[a-z]+`（`data`/`notes`/`tasks`/`health`/`mbp` ✅；`cld-health`/`mac-mini`/`i9`/`foo_bar`/`abc123`/`ABC` ",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 35,
-   "text": "· 验 **内容与预期语义相等** → 两者都挡住。**比对必须规范化键序**（黑板对嵌套对象做键排序，字符比对会把成功判成失败＝假失败）。",
+   "text": "- **400 vs 404 语义区分**: 400=写法非法（键错）；404=格式合法但不存在（内容缺失）——**写入必须回读确认**（今日已有 4 次「报告指向不存在的落盘物」事故）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 39,
-   "text": "· 后果三：**单次回读 35 MB** —— 小工具会 OOM（与 G-C18 大 payload 门相关）；",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 40,
-   "text": "· 后果四：`validate` 必须**拒尾斜杠与空段**，否则写不进去却让判据全绿（bb-write v1.0.3 已修）。",
+   "line": 38,
+   "text": "- **★ 回读判据的完整层级（81344270 建议 + HR 实测升级 2026-09-11）**: 回读必须验到「**内容与预期语义相等**」，不是 HTTP 200，也不是「value 非空」——",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 41,
+   "text": "· 验 **内容与预期语义相等** → 两者都挡住。**比对必须规范化键序**（黑板对嵌套对象做键排序，字符比对会把成功判成失败＝假失败）。",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 45,
+   "text": "· 后果三：**单次回读 35 MB** —— 小工具会 OOM（与 G-C18 大 payload 门相关）；",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 46,
+   "text": "· 后果四：`validate` 必须**拒尾斜杠与空段**，否则写不进去却让判据全绿（bb-write v1.0.3 已修）。",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 47,
    "text": "· 后果五（**统一操作建议** · reflect-collect 实测 2026-09-11）：**探活/枚举必须带 `?limit=N`**。实测 `/data/`（无 limit）→ **34.90 MB**；`?limit=1` → **120 字节**；`?limit=5` → 1681",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 43,
+   "line": 49,
    "text": "· **后果七（★ 比「必须带 limit」更可落地 · reflect-collect 实测 2026-09-11）**：服务端**支持 `offset` 与 `total`**，故**枚举必须有界分页**，而非「带 limit 拿前 N 个」。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 49,
+   "line": 55,
    "text": "- **★ key 非法字符的失败模式分级（HR 实测 2026-09-11，按危险度递增）**—— 三类必须分开理解，因为**排查方向完全不同**：",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 52,
+   "line": 58,
    "text": "- **★ 判漏必须双向 · 三重口径（明鉴贡献 2026-09-11，通用不限于键）**—— 三个**独立**的失效面，只查一个必然漏另两个：",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 54,
+   "line": 60,
    "text": "· **过严**：`validate 拒` 但 `board 接受` → **合法用法被本地拦住**（R006 §6 坑1「门太宽砍自己人」的镜像）。**代价：误伤自己人**。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 62,
+   "line": 68,
    "text": "· **★ `.` / `..` 段必须一并拒**（a5f4432a 加测发现，bb-write v1.0.6 已修）：客户端会做 **dot-segment 消解**（RFC 3986），实测 curl 请求 `data/x/..` 时直接返回 34MB 全库列举；服务端侧 `data/..` →",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 63,
+   "line": 69,
    "text": "- **★ 规则安全证明（rule safety proof · a5f4432a 提出，HR 采纳为强制步骤）**: **任何校验规则的收紧，改完必须对全量真实键试算一遍**，公布「被拒数 / 零误伤」。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 64,
+   "line": 70,
    "text": "· 理由：这是 R006 §6 坑1「门太宽砍自己人」的**唯一实测防线** —— 不试算就只能靠直觉，而直觉会把合法用法一起砍掉。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 69,
+   "line": 75,
    "text": "正解：**`validate` 必须在写前拒掉 `#` 及一切非 `[A-Za-z0-9._-]` 字符**，不能指望服务端拦（服务端根本收不到正确的键）。",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 72,
+   "line": 78,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 73,
+   "line": 79,
    "text": "- 摘要: 每台设备 central-inbox 必须显式设 CENTRAL_AGENT=<本机中枢会话id>，禁止依赖自动找第一个会话",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 77,
+   "line": 83,
    "text": "- 分类: 架构 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 78,
+   "line": 84,
    "text": "- 摘要: 通道迭代必须用旧通道投递新通道，验证可行才切换；除死机外永续通讯",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 82,
+   "line": 88,
    "text": "- 分类: 工程 | 范围: all-bus-devices + 服务器化 comm-layer(工具/服务) | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 83,
+   "line": 89,
    "text": "- 摘要: 凡插件化/工具化默认按 10 项：① dsh 插件形态 ② TCC 检测 ③ CLD 自适应 ④ dsh 版本自适应 ⑤ 文档化 ⑥ 版本管理 ⑦ 统一日志 ⑧ 自动落链 ⑨ CLI 治理 ⑩ 约束前置·不可绕过（Lean4 逻辑门，2026-09-06 用户批准扩十）",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 84,
+   "line": 90,
    "text": "- 详情: 新插件/工具必须 10 项全达标才交付；第10项=涉及\"不该发生路径\"(违规写/越权/跳步/非法引用)的工具，约束须结构上不可绕过(类型锁/入口门/schema门/状态机) + 带 --lean4-check 自检证明门生效；存量工具逐步补(按 todo-eval 排)。**范围 v2.",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 87,
+   "line": 93,
    "text": "- 分类: 数据 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 92,
+   "line": 98,
    "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 97,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 102,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 107,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 111,
-   "text": "## J2 ✅ exit-marker/heartbeat 看门狗",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 112,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 113,
-   "text": "- 摘要: 写归看门狗（原子写+30s 心跳）；其他会话只读避免双写",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 117,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 122,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 127,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 132,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 137,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 142,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 147,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 152,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 157,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 158,
-   "text": "- 摘要: file:~/dsh-plugin-repo-pipeline **禁止 npm install**（零 node_modules 硬约束，本地副本遮蔽宿主 peer deps 致 inject 失效）；构建/冒烟/依赖审计走临时目录或 CI",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 162,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 163,
-   "text": "- 摘要: 登记 **store:session-storage-read 共享读域**：检查脚本（session-storage-check.js/post-restart 复核）执行前 agent_light 查此域，写方持锁时检查方等待；频率受控（post-restart/QA 回归/明确委派",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 167,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 172,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 177,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 182,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 187,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 192,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 197,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 202,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 203,
-   "text": "- 摘要: 登记「**多会话读共享、无写冲突预期**」（zstd 转录已降级不写；多会话持久化写由宿主管理）——避免检查方误报冲突；与 J12 store:session-storage-read 关联",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 204,
-   "text": "- 详情: 属主: 检查方（e032fb77/b278baab/QA 等，只读共享）",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 207,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 212,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 217,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 220,
-   "text": "- 结构门: **gate-j23**（~/dsh-collab/scripts/gate-j23-lean4.py，--lean4-check 自检）——重建前检测宿主进程 + lockfile 一致性，阻塞运行映射悬空（2026-09-07 建门）",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 223,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 226,
-   "text": "- 结构门: **gate-j24**（~/dsh-collab/scripts/gate-j24-lean4.py，--lean4-check 自检）——演练前检测宿主进程 + xberg 资产 8/8 + restore 探针，防并发读写（2026-09-07 建门）",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 230,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 235,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 240,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 245,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 250,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 255,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 260,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 265,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 266,
-   "text": "- 摘要: ① **默认定向发送**（agent_send 相关方），禁止默认全广播 ② 全广播仅限三类：重启窗口公告/全员制度发布/重大事件安全告警（需协调者认可）③ 前台角色名单 20（17 正式 + 3 治理必需），其余后台按需点开 ④ 信息分发=先想「谁需要知道」⑤ 例外：外链通讯员 926",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 270,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 275,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 276,
-   "text": "- 摘要: ① **总线瘦身**：只做组局通知（对象+资源）、资源声明、结束提醒沉淀——不做内容搬运 ② **协作层直连**：跨线程 agent_send 直接对话，不经协调者转发 ③ **沉淀三轨**：论坛（共识/决策）· research/（知识）· 登记表（权威/资源）④ **沉淀闸门**：规",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 280,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 285,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 290,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 291,
-   "text": "- 摘要: **重大技术决策**（新架构/协议/技术路线/方案选型）立项前：① 必须调研并**获取论文原文入库**（knowledge_import_url/paper-fetch 直入库，内容不占对话）作为理论支撑 ② 决策文档注明论文支撑（规则表+引用）③ 付费墙论文用摘要+注明「待补全文」；*",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 295,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 300,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 305,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 310,
-   "text": "- 分类: 资源冲突 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 315,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 320,
+   "line": 103,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 324,
-   "text": "## R011 ✅ 重启沙箱强制门（restart-gate 三级）",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 325,
-   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 326,
-   "text": "- 摘要: CLD/DSH 重启前必须跑 dsh-tools restart-gate 三级验证：①隔离小样本（不动生产）②静态检查 ③动态压测，全 PASS 才允许重启",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 327,
-   "text": "- 详情: 统一入口 dsh-tools restart-gate [--rounds N] [--hold S] [--skip-sandbox] [--skip-stress]：阶段0 隔离小样本验证（cld-shell-sandbox-test：壳行为/模式对话框阻塞/launchd Keep",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 328,
-   "text": "- **结构门**: restart-gate (经 gate-repairer 3.0.0 加固标注, 2026-09-07, 守望认领)",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 331,
+   "line": 108,
    "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 332,
-   "text": "- 摘要: 所有端对端/总线对端侧传输必须是完整体（开箱即用零二次开发）：内容完整/校验和/可执行/上下文/版本可溯/自检/可回滚",
+   "line": 113,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 114,
+   "text": "- 摘要: ① **默认定向发送**（agent_send 相关方），禁止默认全广播 ② 全广播仅限三类：重启窗口公告/全员制度发布/重大事件安全告警（需协调者认可）③ 前台角色名单 20（17 正式 + 3 治理必需），其余后台按需点开 ④ 信息分发=先想「谁需要知道」⑤ 例外：外链通讯员 926",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 336,
+   "line": 118,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 123,
    "text": "- 分类: 架构 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 337,
+   "line": 124,
+   "text": "- 摘要: ① **总线瘦身**：只做组局通知（对象+资源）、资源声明、结束提醒沉淀——不做内容搬运 ② **协作层直连**：跨线程 agent_send 直接对话，不经协调者转发 ③ **沉淀三轨**：论坛（共识/决策）· research/（知识）· 登记表（权威/资源）④ **沉淀闸门**：规",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 128,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 133,
+   "text": "- 分类: 方法论 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 138,
+   "text": "- 分类: 方法论 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 139,
+   "text": "- 摘要: **重大技术决策**（新架构/协议/技术路线/方案选型）立项前：① 必须调研并**获取论文原文入库**（knowledge_import_url/paper-fetch 直入库，内容不占对话）作为理论支撑 ② 决策文档注明论文支撑（规则表+引用）③ 付费墙论文用摘要+注明「待补全文」；*",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 143,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 148,
+   "text": "- 分类: 方法论 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 153,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 158,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 163,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 168,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 172,
+   "text": "## R011 ✅ 重启沙箱强制门（restart-gate 三级）",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 173,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 174,
+   "text": "- 摘要: CLD/DSH 重启前必须跑 dsh-tools restart-gate 三级验证：①隔离小样本（不动生产）②静态检查 ③动态压测，全 PASS 才允许重启",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 175,
+   "text": "- 详情: 统一入口 dsh-tools restart-gate [--rounds N] [--hold S] [--skip-sandbox] [--skip-stress]：阶段0 隔离小样本验证（cld-shell-sandbox-test：壳行为/模式对话框阻塞/launchd Keep",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 176,
+   "text": "- **结构门**: restart-gate (经 gate-repairer 3.0.0 加固标注, 2026-09-07, 守望认领)",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 179,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 180,
+   "text": "- 摘要: 所有端对端/总线对端侧传输必须是完整体（开箱即用零二次开发）：内容完整/校验和/可执行/上下文/版本可溯/自检/可回滚",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 184,
+   "text": "- 分类: 架构 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 185,
    "text": "- 摘要: 互为救援设备：重启方留准备信息给救援方观察，异常发救援信号，仅非破坏性救援，禁止破坏性操作",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 338,
+   "line": 186,
    "text": "- 详情: 重启方（Restarter）重启前必做：①R011 强制门 0 FAIL ②写黑板 restart-intent（准备重启信息：原因/影响/救援联系/回滚）③通知救援方。救援方（Rescuer）必做：①观察心跳+intent 状态迁移 ②超时/离线发救援信号 rescue-<node>-",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 340,
+   "line": 188,
    "text": "## R014 ✅ 插件自查门（依赖完整性）",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 341,
+   "line": 189,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 342,
+   "line": 190,
    "text": "- 摘要: 每个 dsh 插件必须内置 selfcheck.js 自查门：apply 最前检查 peerDeps 可解析/关键符号导入/type:module 匹配，缺模块写黑板告警 data/ops/plugin-selfcheck/，不等到崩溃或被外部检查发现",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 344,
+   "line": 192,
    "text": "- **结构门**: selfcheck (经 gate-repairer 3.0.0 加固标注, 2026-09-07 · 明鉴应用)",
    "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 347,
+   "line": 195,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 350,
+   "line": 198,
    "text": "- **结构门**: dev-sandbox (经 gate-repairer 3.0.0 加固标注, 2026-09-07 · 明鉴应用)",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 201,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 206,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 210,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 214,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 218,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 222,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 223,
+   "text": "- 摘要: 诊断系统故障时先行为验证（能用吗/文件在写吗/数据在涨吗），再用日志考古；禁止用『日志里没有某条字符串』推断『功能不存在』",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 226,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 227,
+   "text": "- 摘要: 队列/上下文治理工具的『抽出→浓缩→去重→合并→精简注入』全链路必须完整执行，禁止跳过浓缩去重直接原样回灌（否则制造比原风暴更糟的历史上下文回灌）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 229,
+   "text": "## R023 ✅ 沙箱必须隔离所有共享资源（不只文件），清理只删测试前缀",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 230,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 231,
+   "text": "- 摘要: 沙箱测试必须隔离所有共享资源（文件 + 黑板 + 数据库等），不能只备份文件就称沙箱；清理操作只能删明确测试前缀（如 data/sandbox/），禁止宽泛关键词匹配（如 agentbus/queue 等）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 234,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 238,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 241,
+   "text": "## R026 ✅ 批量/合规操作强制 L3 用户确认（J45 强化）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 242,
+   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 243,
+   "text": "- 摘要: 批量操作（≥2 店）或合规边界操作（平台活动/报名/上下架）命中 L3 必须弹用户确认，无确认拒绝执行；手册行动项须标注档位；执行后必须同步用户本人",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 246,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 247,
+   "text": "- 摘要: 能力（能不能）与权限（该不该/敢不敢）永远分离：测试区验证能力，生产区人类掌权；AGI 获用户认可前，所有 AI 自动化蓝图生产区必须有『人类开关锁』（默认 OFF + 人类授权 ON + 一键熔断 + 审计留痕）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 250,
+   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 251,
+   "text": "- 摘要: 批量/高险操作（L3）确认前必须附决策依据六问核查：①款式（SPU）②商品（可售）③库存（备货）④人力（履约）⑤价格（盈亏平衡）⑥资材周转（非标不备/复用/预售）——approval_request 带决策依据字段",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 254,
+   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 255,
+   "text": "- 摘要: 行为原语按外部性分级设锁：L3（外部性≥8）→ automation-switch Unlocked(Authorization) 类型级锁；L2（4-7）→ VerifiedGate 验证门；L0 → 自由执行",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 258,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 259,
+   "text": "- 摘要: 自动化操作的成功判定必须基于业务权威字段验证（API响应/状态复查），禁止用 UI 文本/元素存在性判定成功；无验证的成功=未成功禁止上报；L3 结果须独立复核",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 260,
+   "text": "- 详情（2026-09-11 补 · 明鉴首报 + 星桥同型 3 次）: **测什么就断言什么，中间不得有代理** —— 断言对象与被测对象必须是同一个东西。典型陷阱：`cmd | head -6; echo $?` 取到的是**管道最后一段（head）**的退出码，不是 `cmd` 的；实测把「",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 262,
+   "text": "## J45 ✅ 操作分级门控框架（L0 自动/L2 确认/L3 人工）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 263,
+   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 267,
+   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 271,
+   "text": "- 分类: 治理 | 范围: mac-mini+蓝图登记执行者 | 状态: enforced",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 272,
+   "text": "- 摘要: 蓝图/重大产出登记必须三写齐备（①本地 data/blueprint ②黑板 data/blueprint 结构化 dict ③知识向量化入 KB）；登记后 SystemGraph 自检（:8798/api/blueprints 非空）——防 supply/citywar 未同步教训复发",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 277,
+   "text": "> **合并说明（HR 2026-09-11）**：本条曾有**两版并存**（早版偏「推送/身份/队列」细节，晚版偏「通道分级/群聊/50字门」），**两版互不为超集** → 按属主合裁并为其**并集**，晚版重复条目已删。依据：`rules-integrity.py` 检出重复编号 R033。",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 278,
+   "text": "- 分类: 通讯 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 282,
+   "text": "- 关联: R031 / R034 / R006#10（Lean4 约束门）",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 286,
+   "text": "- 分类: 通讯 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 298,
+   "text": "- **Φ1-Φ7**：能力权限分离 / 门锁分离 / 无验证成功=未成功 / 成本意识（算力是钱）等（v2.0 考古扩至 7 条）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 300,
+   "text": "- **Φ9 ✅ 约束前置 · 不可绕过**（2026-09-05 用户提出，Lean4 跨项目洞察抽象）——约束在设计前置声明，执行不可绕过",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 304,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 309,
+   "text": "- 分类: 通道 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 311,
+   "text": "- 详情: 域错配致消息丢失（E1 实证，重复 >10 次）；collab 域仅作 mac 内部；工具层加域检查告警",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 314,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 319,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 325,
+   "text": "- 分类: 工程 | 范围: all-bus-devices + 服务器化 comm-layer | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 328,
+   "text": "- 关联: R006#10（约束前置·不可绕过）/ R034（探照灯·红不挂硬发）/ R030（无验证不陈述）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 330,
+   "text": "## R036 ✅ 通道变更治理门（2026-10-02 用户指示「Lean4 机械门而非头痛医头」· 星桥实现 · 业界调研对齐）",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 332,
+   "text": "- 分类: 工程 | 范围: all-bus-devices + 服务器化 comm-layer | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 333,
+   "text": "- 摘要: **通道变更必须经结构门（channel-gate），通道漂移必须被检测（drift-scan）**——用户观察「端侧为通讯无限爆破、换通道把好通道改坏」的机械化解法，对齐业界（AWS Well-Architected 重试上限 / GitOps 漂移检测 / K8s admission",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 334,
+   "text": "- 详情: ①变更门 channel-gate：变更单必填 5 字段（channel/action/evidence/rollback/blast_radius）缺一解析期 GateError；通道枚举冻结（枚举外不可表达）；24h 同通道变更 >2 次熔断冻结；回滚点路径形态必须真实存在（Nyga",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 335,
+   "text": "- 自动检查: `node ~/dsh-plugin-channel-gate/cli.js --lean4-check` exit 0 + `node ~/dsh-plugin-drift-scan/cli.js` exit 0（无漂移）+ 留痕 `~/dsh-collab/logs/channe",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 340,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 341,
+   "text": "- 摘要: **L3（Tailscale/Funnel）从「只在 R031 提一句」升级为有规则、有检测的一等通道**——对端 active 与公网入口可达性纳入 drift-scan 矩阵机械检查",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 343,
+   "text": "- 自动检查: 并入 G-C44（drift-scan 0 漂移，现 11 项）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 344,
+   "text": "- 关联: R036（变更门）/ R031（通讯永续）/ 通道规则 v2 §2（矩阵）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 348,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 351,
+   "text": "- 自动检查: drift-scan 12 项矩阵（含 e2-registry-services，0 漂移 exit 0）",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 353,
+   "text": "- 关联: R-ERR4（注册表写入权）/ R036（变更门）/ R037（L3 规则）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 355,
+   "text": "## R039 ✅ 工具中文描述文档（2026-10-03 用户指示「做任何工具必须要加中文描述文档」· 星桥录入）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 357,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
@@ -2362,27 +2607,62 @@
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 358,
-   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 摘要: **做任何工具必须附中文描述文档**——读者（人，不限于作者）能独立复现；正文必须中文，代码/命令/英文术语除外",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 362,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "line": 360,
+   "text": "- 自动检查: convention-lean4-check.py **G-C48 doc-cn**（冻结清单 tool-doc-manifest.json 逐项核验，6 工具已登记）+ `doc-cn-check.py --selfcheck` 正反控自证 + 交付时 `doc-cn-check.",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 363,
+   "text": "## R040 ✅ 自查不得自指 + 出包前真实 boot 预演（2026-10-03 MBP 原链路反馈「两代门都不可靠」· 星桥录入）",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 365,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 366,
-   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 摘要: **任何在 apply() 调用链上执行的检查，禁止再调用 apply()**；真挂载冒烟/集成验证只能由 CLI/CI 入口驱动；**出包前必须真实 boot 预演一次**（dsh web --port 0 看到启动行），发布卡附证据（输出行号/hash）而非声明",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 370,
+   "line": 367,
+   "text": "- 详情: ①事故链：0.2.8 白名单式 selfcheck 只查列名符号 ⇒ 新符号（os）必然绿（判别力=0，崩溃同刻日志仍写「✅自查通过」）；0.2.9 真冒烟挂在 apply 链 ⇒ 检查者成被检查者下游 ⇒ 自递归死循环（无异常行、只烧 CPU，最难发现一类）②落包规则：apply 链上",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 368,
+   "text": "- 自动检查: central-inbox cli.js --selfcheck（selftest 16 + 同步自检 + 冒烟三态）/ agent-way selfcheck.js（variants + identity-table + 冒烟）/ post-restart-acceptance.p",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 369,
+   "text": "- 关联: R006（⑩ 约束前置）/ R030（无验证不陈述）/ R035（热重启优先）/ R036（变更门）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 373,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
@@ -2390,274 +2670,127 @@
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 374,
-   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 375,
-   "text": "- 摘要: 诊断系统故障时先行为验证（能用吗/文件在写吗/数据在涨吗），再用日志考古；禁止用『日志里没有某条字符串』推断『功能不存在』",
-   "category": "paper"
+   "text": "- 摘要: 对象级资源冲突数据（31 条）迁出账本至 resource-conflict-registry.md；账本只留跨对象行为准则；ruleId 判据改为必须命中「现役 rules ∪ retiredEntries」，防溯源断裂",
+   "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 378,
-   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 分类: 通讯 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 379,
-   "text": "- 摘要: 队列/上下文治理工具的『抽出→浓缩→去重→合并→精简注入』全链路必须完整执行，禁止跳过浓缩去重直接原样回灌（否则制造比原风暴更糟的历史上下文回灌）",
+   "text": "- 摘要: delivered=官方回执已收且实测进入对端上下文；queued=发送时刻未达但修复版(1.5.13+)上延迟可达（idle-flush 补投，实测延迟≈6-10 分钟），不是终态、但不得记作已发；queued 不立即换键重投（会制造重复投递），确需重投必须改内容",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 381,
-   "text": "## R023 ✅ 沙箱必须隔离所有共享资源（不只文件），清理只删测试前缀",
+   "text": "- 关联: R005（CCEP）/ R034（探照灯）/ R036（变更门）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 382,
+   "line": 384,
+   "text": "## R043 ✅ 拉起/重启类动作必须读回验证（2026-10-04 MBP 事故 #6 · G35 · 6823 更正 · 星桥落码）",
+   "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 385,
    "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 383,
-   "text": "- 摘要: 沙箱测试必须隔离所有共享资源（文件 + 黑板 + 数据库等），不能只备份文件就称沙箱；清理操作只能删明确测试前缀（如 data/sandbox/），禁止宽泛关键词匹配（如 agentbus/queue 等）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 386,
-   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 摘要: 拉起/重启类动作必须读回验证（exit-marker pid/startedAt 更新+进程存活），窗口≥90s、间隔≥5s、开火须等目标进程真正消失；诊断指纹：115-131ms 秒退+exit 0+零输出=单实例锁拒绝启动（锁释放随尝试/时间衰减，实测成功点≈35s）；失败必须留日志",
+   "category": "structural"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 391,
+   "text": "## R044 ✅ 服务器操作规范门（五问必答）（2026-10-04 星桥起草 · MBP 同源）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 390,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 393,
-   "text": "## R026 ✅ 批量/合规操作强制 L3 用户确认（J45 强化）",
+   "line": 392,
+   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 394,
-   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
+   "text": "- 详情: ①规范板载键 data/registry/agent-network-charter（含服务器运维部分）②五问：agent_light/agent_lock → channel_gate → 备份 → 回滚 → 验收矩阵留证 ③服务地图变更回改规范并 bump version ④验收矩阵",
+   "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 395,
-   "text": "- 摘要: 批量操作（≥2 店）或合规边界操作（平台活动/报名/上下架）命中 L3 必须弹用户确认，无确认拒绝执行；手册行动项须标注档位；执行后必须同步用户本人",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 398,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 关联: R036（变更门）/ R043（拉起读回验证）/ R030（无验证不陈述）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 399,
-   "text": "- 摘要: 能力（能不能）与权限（该不该/敢不敢）永远分离：测试区验证能力，生产区人类掌权；AGI 获用户认可前，所有 AI 自动化蓝图生产区必须有『人类开关锁』（默认 OFF + 人类授权 ON + 一键熔断 + 审计留痕）",
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
+  },
+  {
+   "file": "RULES.md",
+   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
+   "line": 401,
+   "text": "- 详情: ①章程=协作规则共识（黑板/通讯/红绿灯/变更门/验证纪律/R042/R043/索引/运营状态）+服务器运维规范 ②镜像判据：逐字取板载原文+sha256 留证 ③冲突上报义务：条款与实测冲突必须上报等修订（例：8634 卡 §6 queued 过期条款）④预检指针单一入口=章程",
+   "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 402,
-   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
+   "text": "- 关联: R044（服务器操作门）/ R030（无验证不陈述）",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 403,
-   "text": "- 摘要: 批量/高险操作（L3）确认前必须附决策依据六问核查：①款式（SPU）②商品（可售）③库存（备货）④人力（履约）⑤价格（盈亏平衡）⑥资材周转（非标不备/复用/预售）——approval_request 带决策依据字段",
+   "line": 405,
+   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
    "category": "paper"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 406,
-   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
+   "text": "- 摘要: 任何「验收通过」不得自说自话：提出判据方不得同时是执行方与裁定方；通过由第三方裁定；裁定须显式声明裁定面 + 附原始证据；自我更正同样受门约束；新接入端侧自检清单必含本门",
+   "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 407,
-   "text": "- 摘要: 行为原语按外部性分级设锁：L3（外部性≥8）→ automation-switch Unlocked(Authorization) 类型级锁；L2（4-7）→ VerifiedGate 验证门；L0 → 自由执行",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 410,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 411,
-   "text": "- 摘要: 自动化操作的成功判定必须基于业务权威字段验证（API响应/状态复查），禁止用 UI 文本/元素存在性判定成功；无验证的成功=未成功禁止上报；L3 结果须独立复核",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 412,
-   "text": "- 详情（2026-09-11 补 · 明鉴首报 + 星桥同型 3 次）: **测什么就断言什么，中间不得有代理** —— 断言对象与被测对象必须是同一个东西。典型陷阱：`cmd | head -6; echo $?` 取到的是**管道最后一段（head）**的退出码，不是 `cmd` 的；实测把「",
-   "category": "paper"
+   "text": "- 详情: ①运行门 tools/acceptance-gate.py v1.1（--check/--selftest 1正6负/--lean4-check；v1.1 补证据解析：board: 双板 200、board-local/central: 单板、file:/log:/marker: 存在+",
+   "category": "structural"
   },
   {
    "file": "RULES.md",
    "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
    "line": 414,
-   "text": "## J45 ✅ 操作分级门控框架（L0 自动/L2 确认/L3 人工）",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 415,
-   "text": "- 分类: 运营 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 419,
-   "text": "- 分类: 协作 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 423,
-   "text": "- 分类: 协作/知识 | 范围: mac-mini+蓝图登记执行者 | 状态: enforced",
+   "text": "- J2 | retiredAt:2026-10-04 | retiredBy:R041 | movedTo:ledgerIndex.keys | 原名:exit-marker/heartbeat 看门狗",
    "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 424,
-   "text": "- 摘要: 蓝图/重大产出登记必须三写齐备（①本地 data/blueprint ②黑板 data/blueprint 结构化 dict ③知识向量化入 KB）；登记后 SystemGraph 自检（:8798/api/blueprints 非空）——防 supply/citywar 未同步教训复发",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 429,
-   "text": "> **合并说明（HR 2026-09-11）**：本条曾有**两版并存**（早版偏「推送/身份/队列」细节，晚版偏「通道分级/群聊/50字门」），**两版互不为超集** → 按属主合裁并为其**并集**，晚版重复条目已删。依据：`rules-integrity.py` 检出重复编号 R033。",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 430,
-   "text": "- 分类: 通讯 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 434,
-   "text": "- 关联: R031 / R034 / R006#10（Lean4 约束门）",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 438,
-   "text": "- 分类: 通讯 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 450,
-   "text": "- **Φ1-Φ7**：能力权限分离 / 门锁分离 / 无验证成功=未成功 / 成本意识（算力是钱）等（v2.0 考古扩至 7 条）",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 452,
-   "text": "- **Φ9 ✅ 约束前置 · 不可绕过**（2026-09-05 用户提出，Lean4 跨项目洞察抽象）——约束在设计前置声明，执行不可绕过",
-   "category": "structural"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 456,
-   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 461,
-   "text": "- 分类: 通道 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 463,
-   "text": "- 详情: 域错配致消息丢失（E1 实证，重复 >10 次）；collab 域仅作 mac 内部；工具层加域检查告警",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 466,
-   "text": "- 分类: 治理 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 471,
-   "text": "- 分类: 工程 | 范围: all-bus-devices | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 477,
-   "text": "- 分类: 工程 | 范围: all-bus-devices + 服务器化 comm-layer | 状态: enforced",
-   "category": "paper"
-  },
-  {
-   "file": "RULES.md",
-   "path": "/Users/coreyleung/dsh-collab/rules-registry/RULES.md",
-   "line": 480,
-   "text": "- 关联: R006#10（约束前置·不可绕过）/ R034（探照灯·红不挂硬发）/ R030（无验证不陈述）",
-   "category": "paper"
   },
   {
    "file": "gate-flowernet-claim-report.md",
@@ -3630,6 +3763,20 @@
    "path": "/Users/coreyleung/dsh-collab/devices/flower-intel-index-summary.md",
    "line": 36,
    "text": "│   └── 240-决策日志/         （每次改价后必须落盘，作 Agent 学习样本）",
+   "category": "paper"
+  },
+  {
+   "file": "SOP-星台签名续期-7天.md",
+   "path": "/Users/coreyleung/dsh-collab/devices/SOP-星台签名续期-7天.md",
+   "line": 31,
+   "text": "- 构建/安装命令的 scheme、bundle-id、工程目录必须当场 `ls` 确认，不凭记忆（M5）。",
+   "category": "paper"
+  },
+  {
+   "file": "SOP-星台签名续期-7天.md",
+   "path": "/Users/coreyleung/dsh-collab/devices/SOP-星台签名续期-7天.md",
+   "line": 35,
+   "text": "- 免费签名 7 天到期是**静默型**故障（App 无提示直接打不开）——到期日必须日历化（launchd/黑板书签），不靠人记。",
    "category": "paper"
   },
   {
@@ -7504,6 +7651,20 @@
    "category": "paper"
   },
   {
+   "file": "table-integrity-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/table-integrity-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：收敛表完整性检查：议题 ↔ 卡键 是否指向同一对象。；由来（HR 2026-09-22）：明鉴的拟行存在【系统性偏移】——；【议题】取自他当下正在讨论的新题目，【卡键/标识】取自当时已落的那张卡，；两者天然错开一轮 ⇒ 议题被下一张卡「占用」。；HR 建议的机械检查：议题关键词须能在该",
+   "category": "paper"
+  },
+  {
+   "file": "profile-sync-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/profile-sync-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：profile-sync-check v1 —— 档案/登记表一致性检查（资源登记 watcher）；作用：比对「总线 agent_profiles（事实）」与「登记表 §3（登记）」差异，；提示 HR 哪些档案变更未同步到登记表——省手工比对，秒级执行。；用法：；python3 pr",
+   "category": "structural"
+  },
+  {
    "file": "gallery-audit-tool-and-report-20260905.md",
    "path": "/Users/coreyleung/dsh-collab/docs/gallery-audit-tool-and-report-20260905.md",
    "line": 21,
@@ -7532,6 +7693,27 @@
    "category": "paper"
   },
   {
+   "file": "bb-todo-eval-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-todo-eval-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-todo-eval.py v2 — 蓝图 todo 价值评估 · Lean4 化 + R006 全合规；Lean4 逻辑门: 判定不靠关键词猜(启发式), 靠\"工具能力表\"结构化匹配(类型化) + 人工 Confirm 才可 done；两级判定:；I门(完整性): 查 tool-",
+   "category": "structural"
+  },
+  {
+   "file": "comm-architecture-phase4-plan-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-phase4-plan-20261003.md",
+   "line": 49,
+   "text": "3. retiredEntries 索引 + 一致性门接入 + rules-integrity.py 复跑 + 计数口径更新",
+   "category": "structural"
+  },
+  {
+   "file": "comm-architecture-phase4-plan-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-phase4-plan-20261003.md",
+   "line": 100,
+   "text": "- 判据必须有「应该判失败的输入」用例（MBP R31 教训）",
+   "category": "paper"
+  },
+  {
    "file": "competitor-monitor-taskpack-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/competitor-monitor-taskpack-v1.md",
    "line": 33,
@@ -7551,6 +7733,363 @@
    "line": 64,
    "text": "## 三、鉴权门流程（Φ9 越权拒绝）",
    "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 64,
+   "text": "> 一个次要但稳定的观察：**B（长描述）的整体置信度更低**（正确均置信 0.400 vs A 的 0.500），因此在同一门槛下自动化比例更低（34% vs 46%）——**长描述会稀释置信度**，但这不改变准确率。",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 111,
+   "text": "| 这条工单该由哪个部门处理？ | billing | 0.883 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 114,
+   "text": "| 请判断该工单的归属部门。 | billing | 0.897 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 137,
+   "text": "### 1.6 ⚠️ 必须再修正一次：不是\"长度\"，是\"长度 × 判定难度\"",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 224,
+   "text": "**新的是「协议化」——但这个判断必须加限定**：",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 248,
+   "text": "### 2.6 关键矛盾（必须记录）",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 382,
+   "text": "**非 Transformer 的尝试**：**扩散路线**（DiffusionGemma；vLLM PR #57250）与 **encoder 路线**（Laya、jevlike）。**状态空间模型（SSM）的专门尝试未查到。**",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 406,
+   "text": "| **\"自动化选项集设计\"**（让模型自己决定问哪些问题） | ❌ **未见成熟方案** —— 这是当前最大的未解问题，也意味着**选项集设计目前仍必须由人来做** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 410,
+   "text": "| SSM 架构的专门尝试 | 未查到 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 416,
+   "text": "| **这个方向大概率收敛为 agent 的标准组件**，而非独立产品品类 | ① Ollama 已原生支持其协议（基础设施级采纳）② 五条复现路线把训练门槛压到 $95/1h ③ 接口极简（一个 HTTP 端点） | 中 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-生态扩展与学术谱系-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-生态扩展与学术谱系-v1.md",
+   "line": 441,
+   "text": "| 2 | \"Laya 128/200 条德语（64%）被路由到英语检查点\" | ⚠️ **数字降级**：**语言路由机制本身已核实**（纯启发式脚本 + 停用词），但该**具体数字未找到原始来源** | 同上 |",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 6,
+   "text": "> 更新纪律：改动必须 bump `version` 字段并双板重发（对端按 version 差异重取，MBP 约定）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 17,
+   "text": "- 双板语义：本机板与中央板**不自动互传**——要两板都有，必须显式双写+逐板回读。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 19,
+   "text": "- 板端**回环连接受信任**（localhost 无头写 200 是设计行为）；鉴权矩阵必须打公网/非回环面。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 22,
+   "text": "不得内联凭证**；需要凭据的获取方式写成「读 ~/.dsh/<file>」或「走 ssh 带外」。掩码占位符必须模式中性",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 25,
+   "text": "## 2. 通讯：三种语义，卡必须显式声明",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 27,
+   "text": "- **身份字段约定（2026-10-04 i9 I1 归因实测）**：所有写入必须带 `from` = **机器身份**（会话 id 或注册节点名），人类标签另置 `from_label`/`producer_label` 字段。缺 `from` 是 **I1 违规与自回声的共同根因**（实测：近",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 29,
+   "text": "- 发卡：`reply_required:true + awaiting:<对端>`（要求行动）或 `notify_only:true`（纯通知）——二选一必带，否则门拒绝。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 32,
+   "text": "- 同内容重投判 dup ⇒ 重投必须改内容（去重键=内容指纹）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 38,
+   "text": "## 4. 变更门",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 39,
+   "text": "- 通道变更必须先 `channel_gate register`（channel/action/evidence/rollback/blast_radius 五字段）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 45,
+   "text": "- **负控必跑**：新判据/新修复必须证明「坏样本上会 fail/会报错」——没有判别力的判据只是装饰。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 48,
+   "text": "- **修一个形态 ≠ 修一类**：判据必须覆盖同类的其它形态。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 51,
+   "text": "对 epoch 级时间戳**恒真=假绿**。规则：安装/采纳脚本必须把提取文件 **touch 为安装时刻**；判据侧对 mtime 早于 2020 的",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 53,
+   "text": "- **判据自问两问**（i9 归纳，今日三方同型三例：R31 假绿 / i9 健康检查假红 / i9 校验假红）：",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 58,
+   "text": "- **自审无效、第三方必须在场（老板 2026-10-04 22:5x 指令）**：提出判据的一方**不得同时是执行方与裁定方**；「通过/不通过」由未参与提出的第三方（或星桥总线）裁定。提出方只交付：①可独立复跑的判据清单 ②原始证据 ③自己的读数。第三方面受限时**必须声明「只审了 X 面」*",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 59,
+   "text": "- **验收门（Lean4 形式化 + 运行镜像，2026-10-04 建成）**：本条款已建成机器可判的门——形式化规范 `rules-registry/lean4/acceptance-gate.lean`（定理 1-5：提出=裁定/执行=裁定/三方合一/未声明面均无效；三方分明+声明面正例）；",
+   "category": "structural"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 61,
+   "text": "## 5a. 清理即公告纪律（删除 = 事件，必须留痕）",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 63,
+   "text": "- **任何清理动作必须与清理同一时刻、同一通道留一条「已清理」通知**：键名清单 + 时刻 + 执行者 + 方式（DELETE/覆写）+ 逐板回读确认。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 66,
+   "text": "## 5b. 凭证硬门（2026-10-04 星桥自漏事件）",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 70,
+   "text": "- 发布侧必须跑 **fail-closed 断言**：命中凭证形态即拒绝写板（MBP publish-and-point.py / i9 publish_note_dual.py --selftest 均已上线，星桥侧同步跟进）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 72,
+   "text": "- 泄露即作废：在公开可读面停留过的凭证按定义视为已泄露，必须重新生成（同值轮换无效）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 76,
+   "text": "③ 判定「某值是否具备写权限」必须**逐头隔离测试**（`X-Blackboard-Token` / `X-Webhook-Token` / `Authorization: Bearer` 各单独一次）**且带正控**（用已知可用凭证跑同一段代码）——禁止用单一头的 401 推断「不可写」；任何 4",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 80,
+   "text": "- **幽灵指针纪律**：探针类唤醒消息必须**自包含结果**（键 + 双板 HTTP 码 + version + 时刻），禁止只发「看黑板 <key>」裸指针；探针键**保留至接收方 ack 再删**，或指针带 TTL/失效标记。短命探针键落 `data/ops/test-*`（非监听前缀），清理",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 81,
+   "text": "- **两级词汇（i9 锚点强度实测：严 0 / 松 149，全部为掩码）**：① 占位符（指某个具体值）必须**逐字中性** `[已脱敏-凭证]`——不得保留词根、不得保留前 N/后 M 字符（部分值预言机）；② 模式引用（讨论形态而非某值）需显式标记 `pattern-not-value`。扫描",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 83,
+   "text": "- **撤换时限成对约定（i9 补正）**：「写凭证泄露须立即撤换」必须与「替代凭证交付时限」**成对约定**，否则执行方会在「违规保留」与「自断能力」之间二选一。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 84,
+   "text": "- **指针延迟规则（MBP 实测 ~30min）**：需要对方参与验证的键，存活期必须 **> 指针延迟上界**，或把结果直接写在消息里；「无事件」≠「未落板」（事件面有分钟级延迟），不得据此推断键未创建。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 85,
+   "text": "- **写板必须走 bb_put（回读断言 + 发送门禁），禁止 ad-hoc 裸 PUT**：方向B 事故——裸 PUT 脚本把键写错位置仍报 200，属于 R030「无验证不陈述」的直接违反；凡报「已写」必须附回读证据。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 89,
+   "text": "- **探活不得实例化活实例（i9 取证 2026-10-04）**：健康检查/自检类探针**不得**在与常驻实例同一进程内 `import()` 后真调 `apply()`——会造出并存插件实例（连 SSE、开 watch、开始注入），直接产生重复指针。探活要么只做 module import 不",
+   "category": "structural"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 90,
+   "text": "- **提醒/巡检通知三要素（MBP 64 条根因报告 2026-10-04）**：任何周期提醒/巡检类通知必须同时具备 ①**增量正文**（只写本次新增，不重播全量清单）②**频率上限** ③**每日硬上限**——否则发送侧觉得信息量不大、接收侧看到的是几十条注入（MBP 53 条真投递 + 我侧",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 99,
+   "text": "- 失败必须出声（lastError + logLight，禁止静默降级）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 103,
+   "text": "- 拉起/重启类动作必须**读回验证**：exit-marker startedAt 更新 + 进程存活（argv0 精确相等）；窗口 ≥90s、间隔 ≥5s；开火等目标进程**真正消失**。",
+   "category": "structural"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 105,
+   "text": "- 跨代存活进程必须 **setsid**（nohup& 与旧 dsh 同进程组会被连坐杀）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 107,
+   "text": "- 延迟回调/定时器引用的对象必须在注册时**实例捕获**（P9 族）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 111,
+   "text": "- **跨端引用规则号强制命名空间**：`xq:Rxx`（mac-mini 账本）/ `mbp:Rxx`（MBP 账本）——2026-10-04 实测 R032-R041 **十处同号不同义**，",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 123,
+   "text": "- 测试实例 comm-server-test 已清理，**禁止复活**。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 133,
+   "text": "2. **门**：服务/通道变更 → 先 `channel_gate register`。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 138,
+   "text": "## 服务地图（改动后必须同步）",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 140,
+   "text": "- comm-server-test.service：**已禁用**，禁止 enable/start 复活。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 141,
+   "text": "- comm-health（5 分钟）：改服务清单必须同步 health-ctl.sh 的 SERVICES 与计数。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-NETWORK-CHARTER.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-NETWORK-CHARTER.md",
+   "line": 162,
+   "text": "**禁止替远端节点写发现层键**（把「观测不到」写成 absent = 违规，实测案例：hb-fwd 代写 mbp services=absent）。",
+   "category": "structural"
   },
   {
    "file": "mcp-four-stack-masterplan-v1.md",
@@ -8001,6 +8540,34 @@
    "category": "paper"
   },
   {
+   "file": "deliver-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/deliver-README.md",
+   "line": 11,
+   "text": "> 脚本自述：deliver.py — 交付链编排（11 步一条命令）；明鉴 · 2026-09-10 · v1.0.0；背景；----；一条完整交付链有 11 步：改文档 → 立场自检 → 全载体扫描 → 红队 → 派生 → 受众检查 →；生成 HTML → 界面验证 → 落标记 → 外部推送 →",
+   "category": "structural"
+  },
+  {
+   "file": "server-change-window-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-change-window-plan-20261002.md",
+   "line": 26,
+   "text": "- 窗口期：服务器 1G 内存，禁止同时跑重活；变更一步一验（R030）。",
+   "category": "paper"
+  },
+  {
+   "file": "server-change-window-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-change-window-plan-20261002.md",
+   "line": 60,
+   "text": "| 门 | board-central 通道变更 2/24h 配额（10-03 已被 flip 用满）→ 10-04 00:00 后配额滚动方可 register；变更前跑 drift_scan + channel_gate register |",
+   "category": "paper"
+  },
+  {
+   "file": "server-change-window-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-change-window-plan-20261002.md",
+   "line": 69,
+   "text": "| 门状态（★10-03 16:5x 读门状态文件实测） | launchd-daemons / board-central / bus-8791 的 24h 窗口起点=1790937770（10-03 01:22:50Z）⇒ **配额 10-04 09:22 CST 才滚动**；tailscale",
+   "category": "paper"
+  },
+  {
    "file": "self-health-check-embed-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/self-health-check-embed-v1.md",
    "line": 1,
@@ -8043,6 +8610,153 @@
    "category": "paper"
   },
   {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 3,
+   "text": "> 定稿：星桥（协调者）2026-10-03（v1.3：铁律6「自查不得自指+出包预演」+ §4.2 rsync 陷阱，吸收 MBP 原链路反馈「两代门都不可靠」与 1.5.10 部署实测）｜ 依据：用户顶层要求 + 当日 14 类实测失败清单 + MBP 5 小时 7 包 3 次异常复盘",
+   "category": "structural"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 5,
+   "text": "> 落地：各端本地 `~/dsh-collab/docs/comm-standard-v1.md`（或经板同步）；本文件改动=协调者定稿→广播→各端更新→门校验。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 12,
+   "text": "| 1 | 要求行动的卡必须带 `reply_required: true` + `awaiting: <对端>` | 指针不唤醒 ⇒ 对方不知情 ⇒ 互相等待死锁（11.5h 空档） |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 13,
+   "text": "| 2 | 不要求行动的卡必须显式 `notify_only: true`（或 type: notification） | 无声明=语义不明，门不放行 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 15,
+   "text": "| 4 | 收件人 `to` 必须完整 session id（跨机消息用节点别名或黑板键，不用对端 session id 直发）；**回复卡写 `notes/<对端节点>/`（如 notes/mac-mini/、notes/mbp/），禁写 notes/<session-id>/ 前缀**（实测该前",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 16,
+   "text": "| 5 | 送达状态只信「boarded/双板回读」，不信乐观 delivered；卡片必须带 from（缺 from 由工具补 `restore-<端>` 标记） | 假 delivered 比静默失败更糟；unattributed 不可归属不可去重 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 17,
+   "text": "| 6 | **自查不得自指**：apply() 调用链上的检查禁止再调用 apply()；真挂载冒烟/集成验证只能由 CLI/CI 入口驱动（独立入口+防重入守卫）；**出包前必须真实 boot 预演一次**，发布卡附证据（输出行号/hash），不带证据的「验收达成」视为未验证 | 0.2.8 白",
+   "category": "structural"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 21,
+   "text": "| 场景 | 唯一正确通道 | 禁止 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 29,
+   "text": "## 3. 发卡字段规范（bb-card-send 门强制）",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 34,
+   "text": "键语法：首段 `[a-z]+`；写后必须回读（200 且内容一致）。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 39,
+   "text": "2. 禁带 `.bak`/旧副本；升级目录先清旧再放新（rsync 加 `--delete` 或先 rm）。★ **rsync `--delete` 必须同时 `--exclude=node_modules`**：发布包不含 node_modules（插件 node_modules 是 profil",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 47,
+   "text": "1. SSE 事件必须带递增 `id:`；重连支持 `Last-Event-ID` 有界重放。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 48,
+   "text": "2. 写端鉴权：非回环写必须 token（多端白名单/指纹比对）；GET 与 SSE 公开；豁免只按来源（回环/白名单 IP），**不按路径**（i9 过渡期豁免除外，接 token 后移除）。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 49,
+   "text": "3. 持久化：audit/snapshot 写失败必须告警（不静默）；目录属主与服务用户一致。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 50,
+   "text": "4. 广播单点：每写恰好一次广播（禁止自指订阅回调打回）。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 52,
+   "text": "## 6. 门管理（④：不满足不放行）",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 54,
+   "text": "| 门 | 载体 | 判据 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 56,
+   "text": "| 发卡门 | bb-card-send gate.js（v1.1.1 起） | 字段规范 §3 全满足才 PUT（含 subject 必带）；违反=拒绝并给修正提示 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 57,
+   "text": "| 服务端门 | 板端 v0.6.16+ / bus-bridge 白名单+审计 | §5 各项 |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 58,
+   "text": "| 部署门 | 各端 selfcheck（同步纯检查）+ 独立冒烟（CLI/CI 驱动）+ 负控 + boot 预演 | §4 各项 + 铁律6 |",
+   "category": "structural"
+  },
+  {
+   "file": "comm-standard-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-standard-v1.md",
+   "line": 63,
+   "text": "本文件由协调者单点定稿；变更 → 黑板广播（data/registry/comm-standard-<ver>）→ 各端 48h 内落本地并声明版本。门校验以服务器登记的最新版本为准。",
+   "category": "structural"
+  },
+  {
    "file": "tech-choice-evaluator-sop.md",
    "path": "/Users/coreyleung/dsh-collab/docs/tech-choice-evaluator-sop.md",
    "line": 16,
@@ -8062,6 +8776,20 @@
    "line": 62,
    "text": "- 官方 SDK 锁定场景（Node 插件/wecom 等）：D4 架构契合会自然加分，无需强制 Rust",
    "category": "paper"
+  },
+  {
+   "file": "restart-runbook-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/restart-runbook-v2-20261002.md",
+   "line": 4,
+   "text": "> 覆盖：A6 第 4 层 / I7a 唤醒 / D2 镜像防回声 / 两工具挂载（挂载待你授权红线）/ 11 个 launchd 恢复。",
+   "category": "paper"
+  },
+  {
+   "file": "restart-runbook-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/restart-runbook-v2-20261002.md",
+   "line": 15,
+   "text": "| 两工具挂载 | dsh-plugin-bb-card-send / dsh-plugin-launchd-scan | 各自 --selfcheck/--lean4-check A-F 全绿 | profile 挂载后会话可见两工具（挂载动作待你授权红线文件写入） |",
+   "category": "structural"
   },
   {
    "file": "meeting-verify-r006-ten.md",
@@ -8400,6 +9128,34 @@
    "category": "paper"
   },
   {
+   "file": "comm-channel-rules-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-channel-rules-v2-20261002.md",
+   "line": 15,
+   "text": "| E1（今日·我侧） | 测试脚本 shell 变量未 export ⇒ 读空 token ⇒ 401 ⇒ 误判「服务器 send 通道坏了」，差点去改服务器鉴权 | **误判会驱动对健康通道的破坏性变更**；负向证据（401）逼出复测才避免。判据：动手修通道前，必须有「对照探测证明它坏」+「排除",
+   "category": "paper"
+  },
+  {
+   "file": "comm-channel-rules-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-channel-rules-v2-20261002.md",
+   "line": 29,
+   "text": "| 跨设备内容卡 | 黑板双写（mac-mini 127.0.0.1:8792 经 Tailscale + 中枢 xingqiao:8792） | 仅中枢（断 TS 时；sync v1.1 镜像收口） | 不得只写单板（collab 类必须双写+回读断言） |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-channel-rules-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-channel-rules-v2-20261002.md",
+   "line": 38,
+   "text": "**R-C1 变更前自证损坏**：对任何通道/守护动手前，必须同时具备——①一条对照探测证明「现在确实坏」（同一动作对已知健康对象做对照）；②排除了自己侧的错误（测试脚本/环境变量/本地配置）。两者缺一 ⇒ **禁止变更**。「感觉慢了/换一个试试/重启一下再说」不构成动手依据。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-channel-rules-v2-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-channel-rules-v2-20261002.md",
+   "line": 42,
+   "text": "**R-C3 变更必可回滚**：任何变更前留回滚点（备份/旧二进制/旧配置路径），回滚点写进公告。无回滚点的变更禁止执行。",
+   "category": "paper"
+  },
+  {
    "file": "deadlock-resource-audit-2026-09-06.md",
    "path": "/Users/coreyleung/dsh-collab/docs/deadlock-resource-audit-2026-09-06.md",
    "line": 22,
@@ -8484,6 +9240,139 @@
    "category": "paper"
   },
   {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 5,
+   "text": "> 状态：主账 R036 已含通道变更治理门；本图是「规则×架构」的覆盖矩阵，含 gap 清单。",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 26,
+   "text": "R2[\"R002 通道分级<br/>I1–I7 不变量<br/>R036 变更门\"]",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 28,
+   "text": "R4[\"R004 注入目标·R005 CCEP<br/>R014 自查门·R035 热重启<br/>R034 探照灯·降级纪律 v1<br/>R036+launchd-scan\"]",
+   "category": "structural"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 30,
+   "text": "R6[\"R031 通讯永续（部分）<br/>⚠️ 无专门规则\"]",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 32,
+   "text": "subgraph VFY[\"验证层（机械检查）\"]",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 50,
+   "text": "## 2. 覆盖矩阵（规则 → 架构节点 → 检查器）",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 52,
+   "text": "| 规则 | 约束对象 | 架构节点/边 | 机械检查器 | 状态 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 56,
+   "text": "| R002 通道分级 | 消息通道选择 | 会话→L0 边 | 无独立检查器（纪律+去重） | ⚠️ 靠自觉 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 57,
+   "text": "| R003 写板规范 | 黑板写入 | L1 | 无（靠 bb-card-send G4 key 语法门） | ⚠️ 部分 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 61,
+   "text": "| R014 | 插件自查门 | 插件 | selfcheck CLI | ✅ |",
+   "category": "structural"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 63,
+   "text": "| R031 | 通讯永续/本地优先 | L0–L3 全链路 | 无独立检查器 | ⚠️ 靠架构 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 66,
+   "text": "| R035 | 热重启优先 | 守护/框架 | cldvoice-activate 门 | ✅ |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 67,
+   "text": "| **R036** | **通道变更治理门** | **全部通道** | **G-C43 channel-gate + G-C44 drift-scan** | ✅ 今日新增 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 68,
+   "text": "| 降级纪律 v1 | 服务器故障时行为 | L2 故障面 | 无机械检查（纪律+求救通道） | ⚠️ 纪律 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 69,
+   "text": "| 通道规则 v2 | 矩阵+变更语义 | 全部通道 | channel-gate + drift-scan | ✅（门已结构） |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 70,
+   "text": "| 发送纪律 v2.4 | 全文发送拦截 | agent-way 工具 | 工具内闸门 | ⚠️ 未入规则账本 |",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 74,
+   "text": "1. **L3 Tailscale/Funnel 无专门规则**：只有 R031 提及。通道矩阵 v2 已把它列为通道，但无「L3 故障/降级」规则（现状依赖「服务器兜底」的隐式假设）。",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 75,
+   "text": "2. **发送侧门禁未入账**：agent-way 的 v2.4 全文拦截（>50 字需先写黑板）是强闸门但无规则编号——建议并入 R002 详情或独立条目。",
+   "category": "paper"
+  },
+  {
+   "file": "rules-architecture-map-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-architecture-map-20261002.md",
+   "line": 77,
+   "text": "4. **R002/R003/降级纪律缺机械检查器**：三条靠纪律自觉，与 R036「结构门」标准不一致——补课方向：bb-card-send 已覆盖 R003 的 key 门，R002/降级纪律可参照 R036 模式工具化。",
+   "category": "paper"
+  },
+  {
    "file": "queue-tool-design-review-v2.md",
    "path": "/Users/coreyleung/dsh-collab/docs/queue-tool-design-review-v2.md",
    "line": 35,
@@ -8502,6 +9391,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/queue-tool-design-review-v2.md",
    "line": 99,
    "text": "1. **注入前必须量校验**：`注入条数 >= 原队列条数` 则拒绝注入",
+   "category": "paper"
+  },
+  {
+   "file": "inplace-pointer-audit-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/inplace-pointer-audit-README.md",
+   "line": 11,
+   "text": "> 脚本自述：扫全库：找「有更正卡指向 X，而 X 本身无更正指针」的卡。；由来（2026-09-14，HR 采纳的机制性补法）：；「就地标注」若靠人记得回原位，它只是一条规则；把它变成原位卡的【必填字段】；（更正指针 + 截至时刻），它才成为一个步骤 —— 因为字段的有无是可机械检查的，；而这个查",
    "category": "paper"
   },
   {
@@ -8531,6 +9427,76 @@
    "line": 49,
    "text": "- 两个方向都要有，否则该自检本身是\"会撒谎的检查\"",
    "category": "structural"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 29,
+   "text": "System One 模型之所以能做到\"并行采样 + 校准概率\"，靠的是**单次前向 + 读候选 token 的 logits/logprobs**，跳过自回归解码循环。要复现这套机制，必须同时满足三个条件：",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 35,
+   "text": "条件 1 是硬门槛。没有它，后面两条无从谈起。",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 104,
+   "text": "**\"被重复扣费 + 威胁退订\" → 账单部门、阻塞级紧急、流失风险 0.92** —— 三个判断一次调用、各自独立、都带校准概率。",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 133,
+   "text": "### 2.5 一个必须知道的环境坑【实测】",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 211,
+   "text": "| 自动化门槛 | 自动化比例 | 被自动化部分的准确率 | 转人工比例 |",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 220,
+   "text": "**读法**：门槛设 0.6，**一半的决策可以全自动、且准确率 94%**，另一半转人工。",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 250,
+   "text": "| `guard_*` 门控 | 布尔通过/不通过 | **Score 原语**（风险分级，可落在刻度之间） | 从两态升级为分级 |",
+   "category": "structural"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 258,
+   "text": "## 7. 风险与约束（必须一并给出）",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 267,
+   "text": "| 6 | **必须用官方训练的模型** | 随便拿个 Qwen 走 GGUF 路线不work——OPENDECIDER 的提示词是为其专用 checkpoint 训练的 | 只用 `opendecider-*` 权重 |",
+   "category": "paper"
+  },
+  {
+   "file": "DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/DeepSeek-x-SystemOne-整合可行性分析-v1.md",
+   "line": 268,
+   "text": "| 7 | **校准是本机表现，不是通用保证** | 官方基准的标签来自教师模型，本身不完美 | **必须在自己几百条已标注数据上重测阈值** |",
+   "category": "paper"
   },
   {
    "file": "governance-philosophy-archeology.md",
@@ -8631,6 +9597,104 @@
    "category": "paper"
   },
   {
+   "file": "gate-deploy-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gate-deploy-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gate-deploy-check.py — 部署结构门（Lean4 逻辑门，防漏变量/漏配置类 bug）；用户 2026-09-08 三问之①：漏变量(如 DSH_NODE_ID 硬编码日志) 加结构门防复发；静态检查部署脚本/守护的硬编码与 env 契约：；G-D1 字面量门: 不",
+   "category": "structural"
+  },
+  {
+   "file": "bb-gate-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-gate-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-gate.py — 机制前置门禁（全局规则，所有动作推进前先过）；用户指示（2026-08-23）：机制前置过程工具化/插件化/自动化/落链为底层规则——；任何工作未完成机制前置评估，先跑评估再推进。；用法：；python3 bb-gate.py --action send --",
+   "category": "structural"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 31,
+   "text": "| 内容审核护栏 | Jev | — | 社区 | C |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 38,
+   "text": "> **对我们的含义**：社区场景清单**与我们 §1 盘出的场景高度相似**（分类、路由、护栏、审核），说明我们的场景选择方向没有跑偏。但**没有一个社区案例做了\"分档路由 + 本域校准标定\"的完整闭环**——这正是社区留下的空白。",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 74,
+   "text": "**一条特别值得注意的对照**：**\"状态盲\"基线**——只给选项、去掉问题，模型仍能拿 **0.38–0.46**（机会水平约 0.15）。**任何在该模型上做基准的人都必须包含这个对照**。",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 90,
+   "text": "| **必须在本域重新标定** | 50 条标注可砍 62% 误差；**低于 30 条会变差** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 91,
+   "text": "| **必须看误差方向** | 欠自信 → 高阈值安全；过度自信 → 高阈值危险 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 103,
+   "text": "> **读法**：自评高分 ≈ 背下了训练域。**这与我方实测吻合**——我在中文意图路由上拿到 65.9%，而模型自称的通用 benchmark 是 0.796。**域外性能必须自己测。**",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 133,
+   "text": "| **移除弃权选项 → 准确率 0.950→0.000** | 我方：越界输入置信度**从 0.392 降到 0.236**，仅 1/12 越过 0.4 门槛 | ⚠️ **不一致——我们这边更好** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 159,
+   "text": "**这意味着一个必须回答的问题**：既然选项是预先枚举的，**为什么不直接微调一个小 BERT / 逻辑回归 / 嵌入相似度？**",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 190,
+   "text": "### 8.1 必须下调的三项预期",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 194,
+   "text": "| \"校准置信度\"是核心增量 | ⚠️ **仅在域内成立，且必须自己重新标定；50 条标注是下限** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 196,
+   "text": "| 可用 nan 直接部署 | ⚠️ **必须先在本域标定，并验证误差方向** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-社区深度调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-社区深度调研-v1.md",
+   "line": 227,
+   "text": "| 我方本机实测 | 中文意图路由 n=41（65.9% / 门槛 0.4 → 94.7%）、越界实验、确定性、选项措辞 |",
+   "category": "paper"
+  },
+  {
    "file": "mac-docker-coze-ios-review-20260911.md",
    "path": "/Users/coreyleung/dsh-collab/docs/mac-docker-coze-ios-review-20260911.md",
    "line": 10,
@@ -8680,6 +9744,188 @@
    "category": "paper"
   },
   {
+   "file": "review-group-daily-retirement-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/review-group-daily-retirement-20261003.md",
+   "line": 18,
+   "text": "- 门：R036 通道变更治理门",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 11,
+   "text": "Raven 值得抄的**不是自进化**，而是**\"如何证明一次改进是真的\"这套验证协议**——而我们的 `guard_archaeology` + `repair-reports` 已经是这套协议需要的原料，只差 (WHERE × WHY) 坐标和两道缺失的门。",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 29,
+   "text": "| **Evolver**（离线门控进化） | `guard_compliance` 五道闸 + `guard_archaeology` | ⚠️ 形似，缺统计门 |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 40,
+   "text": "- **WHY = 失败病理类** — LLM 假设，**非真值**；因为 WHY 只决定\"试哪个候选\"，信用完全来自门控，所以**标错标签最多浪费一个候选，永不产生坏 harness**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 48,
+   "text": "| `guard_compliance`（P2 红线→P0 预查→P1 备份→P4 沙箱→P5 有界→pre-mortem） | 形似门控，但**没有一道是统计门**，全靠纪律 |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 54,
+   "text": "## 3. 四道门：我们缺的正好是第 2 和第 3 道",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 56,
+   "text": "HarnessBank 的 Gated Harness Screening 按顺序过四道门（论文公式见 arXiv 2607.13683 §3.3）：",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 58,
+   "text": "| # | 门 | 判据 | 我们的现状 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 60,
+   "text": "| 1 | **有效性门** Gate-valid | 评估产出协议完整；基础设施故障（沙箱崩溃/验证器超时）触发**修复重试**而非计为 agent 失败 | ✅ `cld_health_check` + `guard_deps_scan` + `session_recovery_check` |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 61,
+   "text": "| 2 | **激活门** Gate-act | 候选改动必须携带 `activation_beacon()`，运行时确定性上报\"这段代码真的执行过了\"；**从未触发的改动 = inert（惰性）** | ❌ **完全空白** |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 62,
+   "text": "| 3 | **显著性门** Gate-sig | 配对差 δᵢ = s(候选) − s(父代) 逐任务算，z = Δ̂/(σ̂_δ/√n)，**z ≥ 1.96** | ❌ **完全空白** |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 63,
+   "text": "| 4 | **增益门** Gate-gain | 必须超过**固定的 vanilla 基线**（不是上一个父代） | ⚠️ 部分（我们比\"上一版\"） |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 65,
+   "text": "**消融证据（这是最该记住的数字）**：去掉显著性检验门后，**收敛后轮次中 62%–76% 是\"幻影进展\"**，循环只能在轮次上限处停下；而带完整门控的版本能在 10 轮下限干净退出。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 68,
+   "text": "- 激活门是**\"存在级归因\"**——只能证明*某个*信标执行过，**不能**证明该机制是增益原因；**无条件放置的信标会让激活门退化为空操作**。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 78,
+   "text": "**A1. 给 Guard 加\"激活门\"⭐ 最高杠杆**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 81,
+   "text": "- 修复类改动必须声明并植入可检索的信标（如一个特定的日志标记 / 一个计数器键）",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 82,
+   "text": "- 验证阶段检查信标是否**在真实运行中被触发**，未触发 = `pruned_inert`，**不得入库**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 83,
+   "text": "- 必须同时记录其局限：存在级归因 ≠ 因果归因；无条件信标 = 空操作",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 95,
+   "text": "Raven 原话：**\"一个正常的进程返回本身并不充分\"**。我们目前 subagent 完成即算完成。建议：对关键派发加一层模型裁决（检查返回结果是否真的完成了 prompt），异常走 continue / abandon / replan 三选一。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 107,
+   "text": "- **不可变内核 K**：`guard_*` 全部门控 + 验证器 + RULES 执行器 + archaeology 记账 + `repair_report`",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 109,
+   "text": "- 落地方式：`guard_check_writable` 从\"红线清单\"升级为**内核路径白名单 + 写入拒绝**；参考 Raven 的 *candidate edits are constrained to a per-bench path whitelist, an immutable ker",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 116,
+   "text": "**B3. 配对显著性门（统计工具化）**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 128,
+   "text": "- 诚实条款：小 n 下真实效应也可能不过 2σ 门槛（论文 SWE-bench n=26 时 +5.1% 仍 z=0.78，被标为 preliminary）",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 138,
+   "text": "| **Curator 式运行时自进化** | 概念值得借鉴，但我们的插件 + 热重启（R035 热重启优先）已能承载半自动版本。**建议先做\"人工在环的 Persona 编译器\"**：自然语言描述 → 生成 preset（主角色 + 从已有 agent 抽专家 + 工具范围 + 行动前检查），落盘",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 164,
+   "text": "| P0 | A1 激活门 + A3 Verdict | 无 | 堵住\"改了个寂寞\"与\"假完成\"两类漏洞 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v1.md",
+   "line": 178,
+   "text": "- [HarnessBank 论文 arXiv 2607.13683](https://ar5iv.labs.arxiv.org/html/2607.13683) — 四道门公式、消融、跨模型匹配律",
+   "category": "paper"
+  },
+  {
    "file": "flowernet-industry-map-baseline-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-industry-map-baseline-v1.md",
    "line": 34,
@@ -8698,6 +9944,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-industry-map-baseline-v1.md",
    "line": 76,
    "text": "| 风险层 | 宜花/花加/爱尚死于重供应链+节日价格过山车(锁店红线) | ⚠️ |",
+   "category": "paper"
+  },
+  {
+   "file": "ts-not-future-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/ts-not-future-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：时点不得晚于生成时点 —— HR 2026-09-14 提出的【可作门】的检查。；由来：HR 裁定「时点不得晚于生成时点」（时点 > 当前机器时间 ⇒ 拒收），；理由是它【纯算术、不需语义判断】⇒ 故可作门（must_reject），不必降级为候选。；我采纳；但补一个它没写出的前提，并",
    "category": "paper"
   },
   {
@@ -8806,6 +10059,27 @@
    "category": "paper"
   },
   {
+   "file": "bb-gallery-export-selftest-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-gallery-export-selftest-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-gallery-export-selftest.py — bb-gallery-export.py 的 assets/ 载荷闸门自测；为什么要它：；2026-09-28 实测发现线上 /systemgraph/assets/ 10 条指针里 8 条 200、2 条 404，；缺的",
+   "category": "structural"
+  },
+  {
+   "file": "pollution-scanner-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/pollution-scanner-README.md",
+   "line": 11,
+   "text": "> 脚本自述：pollution-scanner.py — 通讯污染持续识别与根治（R006 十项标准结构门）；用户 2026-09-09：collab 污染是显性一例，应按 R006 十项设计工具识别全部污染类型，动态持续根治。；检测 10 类污染（每类=一个检测器，输出溯源+修复建议）：；P1 ",
+   "category": "paper"
+  },
+  {
+   "file": "agent-send-gate-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-send-gate-README.md",
+   "line": 11,
+   "text": "> 脚本自述：agent-send-gate.py — agent_send 审计门禁守护（v2.5，对齐 v2.4 语义）；扫描跨会话消息，审计「全文未落黑板」违规（>50 字且无黑板引用）：；① 记录违规（黑板 data/audit/agentsend-violations.jsonl + 本地",
+   "category": "structural"
+  },
+  {
    "file": "wargame-engine-r006-ten.md",
    "path": "/Users/coreyleung/dsh-collab/docs/wargame-engine-r006-ten.md",
    "line": 12,
@@ -8832,6 +10106,13 @@
    "line": 56,
    "text": "python3 ~/dsh-collab/scripts/wargame-engine.py --lean4-check   # 反向污染门",
    "category": "structural"
+  },
+  {
+   "file": "concept-dict-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/concept-dict-README.md",
+   "line": 11,
+   "text": "> 脚本自述：concept-dict v1.0.0 (HR) — 概念数据字典工具（R019 落地，R006 九标准全达标）；职责：概念精确性纪律的落地载体——登记/查证/用词检查/新概念提取/字典健康。；解决「概念混淆」（2026-08-30 特征库事件教训）：返图特征库 vs 物品特征库。；═",
+   "category": "paper"
   },
   {
    "file": "automation-human-switch-philosophy.md",
@@ -9132,6 +10413,97 @@
    "path": "/Users/coreyleung/dsh-collab/docs/island-workflow-tool-design.md",
    "line": 80,
    "text": "**防幻觉护栏**：",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 19,
+   "text": "### ⚠️ 同名歧义（已排除，但必须记下）",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 75,
+   "text": "2. **RLCD 是唯一塑造权重的东西**——\"Jev does not fine-tune or LoRA-adapt on customer data… the same weights serve every account\"。**领域适配发生在请求里，不在每个客户的检查点里**。",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 87,
+   "text": "> **为什么\"便宜 + 校准\"必须成对出现**：假设你要一条流水线自动处理有把握的大多数、把其余升级给更大模型或人。**升级的决定总得来自某处**。如果那个便宜模型对一切都报告 0.98（包括它在猜的时候），这个分支就**无从检验**，你只能全自动或全不自动。只有置信度**有信息量**的模型才能让",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 118,
+   "text": "**TypeSafe 指认的 RLHF 故障模式**（官方入门指南原文）：",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 319,
+   "text": "> **实践含义**：Laya 的**选项名称必须谨慎选择**。一个误导性或含糊的名称会**覆盖掉正确的描述**。",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 329,
+   "text": "- **128/200 条德语话语（64%）被路由到英语检查点**",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 337,
+   "text": "| 上游 typed-decisions 基准，**通用检查点** | **0.362 / 0.342** |",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 342,
+   "text": "> **通用检查点低于多数类基线。** Laya 的 CoreML 端口把通用 FP16 检查点转了过去，而 **4.98 ms 那个数是用某个 bundle 测的、准确率是用上游检查点测的——没有人把两列接起来**。",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 362,
+   "text": "- \"差别在量化方案，不在检查点，这同时也是二十倍速度差的来源\"",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 381,
+   "text": "其 CoreML 端口的验证段落很值得学：ANE FP16 通过 59/59 拟合题，最大校准概率漂移 0.002925；W8 通过同一子集漂移 0.014393（门槛 0.02）；6-bit/4-bit 实验未过门槛、**从未作为权重发布**。紧接着同一段：",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 511,
+   "text": "| **jev-test** | Jev × LexGLUE 七任务零样本，全测试集 23,607 例；`uv` 工程；逐请求检查点；micro/macro-F1、用量、成本报告 | 代码 | github.com/chepyle/jev-test |",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 530,
+   "text": "5. **Laya 的 0.766 是微调数，通用检查点低于多数类基线**",
+   "category": "paper"
+  },
+  {
+   "file": "system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/system-one-models-Jev-Laya-CLM-调研-v1.md",
+   "line": 572,
+   "text": "3. **校准必须在自己数据上验证**：取几百个已标注案例，按模型报告的置信度分桶，检查各桶准确率是否达到声称水平——**这是少数不需要任何 ML 基础设施就能检验的模型属性**",
    "category": "paper"
   },
   {
@@ -9492,6 +10864,13 @@
    "category": "paper"
   },
   {
+   "file": "xingqiao-server-hardening-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/xingqiao-server-hardening-20261004.md",
+   "line": 15,
+   "text": "| 6 | 最小端口面 | 只开业务端口 | ✅ 8791/8792/8803（业务必须公网）+ 80/443（nginx） | 维持；新端口上线必须过 ufw |",
+   "category": "paper"
+  },
+  {
    "file": "plugin-selfcheck-spec-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/plugin-selfcheck-spec-v1.md",
    "line": 1,
@@ -9590,6 +10969,13 @@
    "category": "structural"
   },
   {
+   "file": "task-card-validator-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/task-card-validator-README.md",
+   "line": 11,
+   "text": "> 脚本自述：task-card-validator.py v1.0 — 任务卡 schema 校验器（纯规则零 LLM）；mac总线 → 黑板 → i9总线 的任务卡，必须过此校验才能挂黑板。；任务卡是「执行指令」不是「聊天文本」——本地模型展开可能出错，；schema 校验是生死线：action",
+   "category": "structural"
+  },
+  {
    "file": "comms-cost-governance-unified-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/comms-cost-governance-unified-v1.md",
    "line": 65,
@@ -9618,6 +11004,90 @@
    "category": "paper"
   },
   {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 92,
+   "text": "★★★ **前缀歧义实证（决定了 A4b 必须 fail-closed）**：会话 id 是**时间序 UUID**，8 位高位前缀会跨会话碰撞。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 163,
+   "text": "### 3.6 闸门体系与其空转（**组织层面的机制缺陷**）",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 165,
+   "text": "R006 十项标准 + R014 自查门是这套体系的\"防呆\"，今日实测**三处空转**：",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 167,
+   "text": "| 闸门 | 缺陷 | 证据 | 状态 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 169,
+   "text": "| `selfcheck.js` ①② | 守卫用 `typeof require === 'function'` 与 `typeof __filename !== 'undefined'`——**在 ESM 下恒为 undefined** ⇒ peerDeps 探测与关键符号检查**双双被跳过**",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 172,
+   "text": "| `plugin-preflight.py` B 项 | 真挂载冒烟**真的执行 `apply()`** ⇒ 在**生产日志**写入痕迹、调 `runSelfCheck`（失败时写黑板告警）、连 SSE。**闸门的探针污染它要测量的对象** | ★★★ 对照实验：`central-inbox.lo",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 183,
+   "text": "| 09-14 | `agent-bus` 形态闸门 v2.5 | 裸 UUID 形态检查（`^[0-9a-f-]{36}$`） | ✔ 对——但挡的是**形态**不是**身份**（不同问题，修得对） |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 189,
+   "text": "> **I-Identity**：每条消息必须携带**可验证的真实作者身份**；所有身份相关判定（自回声 / 自注入 / 去重 / @提及 / 审计）",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 232,
+   "text": "| **事件总线** | arXiv:2602.23193 ESAA（append-only + 哈希校验回放）；**2501.05207 CoDe**：异步延迟会误导协作、**甚至差于不通信** ⇒ 事件必须带 ts 并显式处理乱序 | 事件桥 8803 SSE；HLC 时间轴 | 无断点续读契约",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 249,
+   "text": "| D2 | 重启窗口 | A 批（A4/A4b/A4c/A6 + 两处空转闸门）已验证 GO，**待重启生效**；回路 2 抑制要不要并进同一次 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 313,
+   "text": "> **R-New-1（探针无副作用）**：任何\"真挂载/真运行\"型验证，必须把副作用**隔离到临时载体**",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md",
+   "line": 318,
+   "text": "> **必须先用一个已知阳性对照确认观测通道本身可信**（如：先验证\"旧码会写 X、新码会写 Y\"，",
+   "category": "paper"
+  },
+  {
    "file": "blueprint-dialog-bp24-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/blueprint-dialog-bp24-v1.md",
    "line": 23,
@@ -9643,6 +11113,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/island-connect-lab-v1.md",
    "line": 43,
    "text": "| A6 | 门禁 bb-gallery-gate 全绿 |",
+   "category": "structural"
+  },
+  {
+   "file": "assertion-set-consistency-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/assertion-set-consistency-README.md",
+   "line": 11,
+   "text": "> 脚本自述：assertion-set-consistency.py — 断言集的「整集一致性」检查；★ 为什么需要它（2026-09-10，由 HR 司库的实际发现逼出来）：；HR 把我交付的键语法断言集接入 lean4-check 后，「跑」出一个我「读」不出来的问题：；`data/x/a#b",
    "category": "structural"
   },
   {
@@ -9685,6 +11162,27 @@
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-tech-path-moat-revision-v1.md",
    "line": 74,
    "text": "> - L2平台自留 = **护城河必须建在\"我们自己的垂类数据/能力\"上**, 不是靠平台API",
+   "category": "paper"
+  },
+  {
+   "file": "deliver-gate-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/deliver-gate-README.md",
+   "line": 11,
+   "text": "> 脚本自述：deliver-gate.py — 交付总闸（阻断项 vs 报告项）；★ 为什么需要它（2026-09-10，由 HR 司库的第 ⑤ 项逼出来）：；HR 的原话：「**R006 十项里每一项都要标注它是「阻断项」还是「报告项」；阻断项未达标 = 禁止交付，；而不是「记录一条问题」。**",
+   "category": "paper"
+  },
+  {
+   "file": "r006-retrofit-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/r006-retrofit-README.md",
+   "line": 40,
+   "text": "1. **空集通过**：inject tools 但源码抽不到工具名 → 报 `fail-to-verify` 拒绝假绿（本工具自己的门）。",
+   "category": "paper"
+  },
+  {
+   "file": "r006-retrofit-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/r006-retrofit-README.md",
+   "line": 42,
+   "text": "（误抓过 `dsh-typert-protocol`）——此类插件必须人工核对注册形态，生成器只负责暴露。",
    "category": "paper"
   },
   {
@@ -9762,6 +11260,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/i9-capability-audit-20260909.md",
    "line": 65,
    "text": "- G-C42 门 = 防止反复空投的长期成本守护",
+   "category": "paper"
+  },
+  {
+   "file": "gateway-security-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gateway-security-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gateway-security-check v1.0 (HR) — 外部网关防护自动检查（checklist A/B/C 自动项）；模拟外部 token 调用分级网关逻辑，验证：白名单快照/无内部路径/配额/零写/脱敏/401/TLS。；用法：python3 gateway-secu",
    "category": "paper"
   },
   {
@@ -9909,6 +11414,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/bidirectional-injection-fix-report-20260828.md",
    "line": 97,
    "text": "4. **自注入防护是每个节点必备**：central-inbox 必须跳过本节点自写消息（`value.from===NODE_ID`），否则 LLM 自动应答形成无限回声。",
+   "category": "paper"
+  },
+  {
+   "file": "verification-level-lint-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/verification-level-lint-README.md",
+   "line": 11,
+   "text": "> 脚本自述：核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级。；由来（HR 2026-09-14 排序：第 1 位）：；可机械检查 ✓ · 后果最重 —— 虚假的「已落盘」会让下游在错误前提上行动。；今晚多起事故都源于此：HR 报「写入成功两次」· 我报「已落盘",
    "category": "paper"
   },
   {
@@ -10339,6 +11851,27 @@
    "category": "paper"
   },
   {
+   "file": "plugin-mount-checklist-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/plugin-mount-checklist-20261002.md",
+   "line": 4,
+   "text": "> 本清单 = 新插件挂载进 profile 前必须逐项核验的三要素（对照生产基准 dsh-plugin-guard）。",
+   "category": "paper"
+  },
+  {
+   "file": "plugin-mount-checklist-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/plugin-mount-checklist-20261002.md",
+   "line": 18,
+   "text": "grep \"name:\" <plugin>/cordis.patch.yml   # 必须 = 完整包名 dsh-plugin-<x>",
+   "category": "paper"
+  },
+  {
+   "file": "plugin-mount-checklist-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/plugin-mount-checklist-20261002.md",
+   "line": 34,
+   "text": "- 验证时建**临时** symlink 跑通后删除 → 真实宿主仍然解析不到（崩溃#2）——symlink 是运行时依赖，必须常驻。",
+   "category": "paper"
+  },
+  {
    "file": "flowernet-agent-prompt-standard-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-agent-prompt-standard-v1.md",
    "line": 63,
@@ -10372,6 +11905,13 @@
    "line": 150,
    "text": "- **不信任 LLM 自我审查**作为安全边界——护栏(NeMo Guardrails/输入输出过滤)跑在**模型外**",
    "category": "paper"
+  },
+  {
+   "file": "restart-stress-test-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/restart-stress-test-README.md",
+   "line": 11,
+   "text": "> 脚本自述：restart-stress-test.py — 自动化重启压力测试（沙箱隔离端口，不碰生产 CLD）；目的：反复启动 dsh web（隔离端口），验证：；· 每次启动不崩溃（稳定性）；· 三插件自查门每次通过（selfcheck.log 增量 ✅）；· central-inbox 注",
+   "category": "structural"
   },
   {
    "file": "first-phase-plan-fourlines-execution-v1.md",
@@ -10500,6 +12040,146 @@
    "category": "paper"
   },
   {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 32,
+   "text": "| **N ≤ 4** | 甜点区（>82%） | 可适度放宽门槛 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 33,
+   "text": "| **N = 6** | 拐点（76%） | 必须配分档 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 34,
+   "text": "| **N ≥ 9** | 需分档才可用（~70%） | **强烈建议拆分选项集**或提高门槛 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 109,
+   "text": "| 门槛 | 自动化比例 | 准确率 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 129,
+   "text": "**未被规则覆盖的恰是语义判断密集区**：把繁花入梦改成7.5折 / 玫瑰涨价5块 / 上架新品 / 停售这个商品 / 出餐慢不慢 / 指标正常吗 / 检查下运营问题……",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 135,
+   "text": "| 门槛 | 全链路自动化 | 构成 | **模型段准确率** | 落到 LLM |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 142,
+   "text": "> **⭐ 核心收益：三分法在真实数据上可把 LLM 调用量砍掉约 71%**（门槛 0.5 时模型段准确率 100%）。",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-四方向实证轮-R6R10.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-四方向实证轮-R6R10.md",
+   "line": 156,
+   "text": "| **③ 校准流水线** | ✅ **独立复现 + 有门槛数据** | ECE 2.03× 噪声下限；**17 条标注 → 改善 35%** |",
+   "category": "paper"
+  },
+  {
+   "file": "lock-audit-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/lock-audit-README.md",
+   "line": 11,
+   "text": "> 脚本自述：lock-audit v1 —— 锁审计自动化（残留锁/异常锁检测）；作用：agent_light 全量锁检查的自动化版本——检测异常残留锁（进程中断未释放），；并对照登记表快照判断「该解锁未解锁」。前任 b3778a1e 遗留锁教训的固化。；用法：；python3 lock-audi",
+   "category": "structural"
+  },
+  {
+   "file": "audience-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/audience-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：audience-check.py — 按受众检查文档里「不该出现」的内容；为什么存在；----------；一个项目反复调整「什么内容给谁看」：给平台的材料要删掉 AI 工具实测数据、；数据回流、账号线、合规技术细节、四跑法推演；股东版则保留股权/对赌/资金。；给平台的 = 只说「做",
+   "category": "paper"
+  },
+  {
+   "file": "rules-integrity-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/rules-integrity-README.md",
+   "line": 11,
+   "text": "> 脚本自述：rules-integrity.py — 规则账本完整性检查（只读 · 不修改账本）；为什么要它（2026-09-11 星桥实测发现）：；RULES.md 是全局纪律账本，所有设备查规则都读它。但账本**自身的完整性此前无人校验**，；实测同日发现三处互相矛盾的计数 + 两个重复编号：",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 38,
+   "text": "**已完成三批改动（A 批修复 / D2.1 署名 / 两处空转闸门 + I1-I7 契约），全部通过闸门但尚未重启生效；",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 54,
+   "text": "| **D2.3** | 预检冒烟**隔离副作用** + 硬断言「该插件生产日志字节增量必须为 0」 | 已改 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 56,
+   "text": "| **闸门** | `selfcheck.js` ESM 死码修复 + 两个自检模块补 CLI 入口 + 预检 A 项假 NO-GO 修复 | 已改 |",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 59,
+   "text": "**闸门**：三插件预检 **全 GO**；五个自检 **exit=0**（共享 59 / 审计 10 / 预检 14 / central-inbox 15 / selfcheck PASS）",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 71,
+   "text": "✅ I6 闸门必须能被证伪          符号探针检出 + CLI 退出码=1",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 95,
+   "text": "| F8 | 官方文档在 **GitHub docs/ 75 项 + 196/202 包内 README**；**`~/tech-research` 镜像为空** ⇒ P0 闸门无数据源 | ★★★ |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 127,
+   "text": "337|  if is_llm_msg && processed_path.exists() { continue; }  // ← 闸门只覆盖 llm 消息",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 161,
+   "text": "| P2 | I7 通知类走 `inject`（不唤醒） | 直接消除 17.0% 的\"通知强制开轮次\" |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-status-overview-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-status-overview-20261001.md",
+   "line": 180,
+   "text": "| **检查器的判据错了，比被测对象错了更隐蔽** | 验证 A4d 时我的检查器只认完整 UUID，把合法短 id 判为无效 ⇒ 输出「救回 1/11」，真实 **9/11** |",
+   "category": "paper"
+  },
+  {
    "file": "opportunity-engine-generalize-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/opportunity-engine-generalize-v1.md",
    "line": 14,
@@ -10519,6 +12199,20 @@
    "line": 29,
    "text": "- **通用**: 孤岛计算、穷举、5特征打分、价值叙事、五步门状态机",
    "category": "paper"
+  },
+  {
+   "file": "session-rebirth-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/session-rebirth-README.md",
+   "line": 11,
+   "text": "> 脚本自述：session-rebirth v1.0.0 (HR) - 旧会话死锁重建工具 (R006 十项标准 / 2026-09-06 明鉴 v2->v3 案例沉淀)；职责: 会话上下文死锁 (CONTEXT_WINDOW_EXCEEDED + 压缩门控失败) 时, 一键完成；[诊断 -> 冷",
+   "category": "paper"
+  },
+  {
+   "file": "bb-send-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-send-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-send-check.py — agent_send 发送前审查校验器（v3.0.0：新增「引用完整性」门禁）；在调用 agent_send 之前运行，判断该消息应该怎么发：；✅ 放行（短提示/紧急/已落黑板且引用可解析）；⚠️ 建议（全文未落黑板 → 先写黑板再发短提示）；❌ ",
+   "category": "structural"
   },
   {
    "file": "windows-store-deployment-eval-v1.md",
@@ -10927,6 +12621,20 @@
    "category": "paper"
   },
   {
+   "file": "gate-j23-lean4-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gate-j23-lean4-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gate-j23 v0.2 (结构门) — J23 node_modules 重建 vs 运行映射；对应规则: ✅ node_modules 重建 vs 运行映射 (重建时运行中实例已映射旧 dylib node-pty/ssh2)；门语义: 重建 node_modules 前验证无运",
+   "category": "structural"
+  },
+  {
+   "file": "bb-upgrade-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-upgrade-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-upgrade.py — 底座升级流水线（进化循环第 2 步，半自动）；标准化底座升级流程：版本递增 → 注入变更 → 语法检查 → 起测试实例 → 冒烟测试 →；切换 plist → 验证生产 → 落链（黑板+registry）→ 复用评估（自动调 bb-reuse-check",
+   "category": "structural"
+  },
+  {
    "file": "wargame-r006-ten.md",
    "path": "/Users/coreyleung/dsh-collab/docs/wargame-r006-ten.md",
    "line": 20,
@@ -10962,10 +12670,73 @@
    "category": "structural"
   },
   {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 11,
+   "text": "| 治理面实测（门/扫描/launchd/健康/红绿灯） | 协调者本人 | ✅ 完成 |",
+   "category": "structural"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 23,
+   "text": "- 🔴 **现行事故（已处置）**：星舵退役后 `xingduo-wake.py` 每 15min 继续向死会话投递（383 条 queued + 979 条 expired 的根因 + 每天 96 张黑板卡）。已修 v5 活性门。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 35,
+   "text": "### 2.2 通道变更门（channel_gate）",
+   "category": "paper"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 78,
+   "text": "- 🟢 rules 双载体 86 条完全一致（R38·J44·R-ERR4）；四插件 R006 十项达标 + lean4 门 A-F 全绿；launchd 治理 cron 全部注册；台账含 10-03 收口条目。",
+   "category": "structural"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 133,
+   "text": "| 1 | xingduo-wake v5 活性门（星舵泄漏） | 脚本 v5 | 手动运行输出跳过 ✓ |",
+   "category": "paper"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 138,
+   "text": "| 6 | **新工具 bus-queue-triage v1.0.0**（i9 类积压分诊清理） | 独立 CLI | selfcheck PASS + lean4 A-F 绿 + 副本 apply 193 条 + 幂等 + 护栏（插件运行时拒绝写实时文件）✓ |",
+   "category": "structural"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 143,
+   "text": "- 实测中发现两个新事实：**/agent-bus/api/state 响应 8.37MB**（全量快照，通讯面待优化项）；**插件防抖写盘与外部工具写文件的竞态**（工具内置护栏：活性 API 可达时拒绝 --apply 实时文件）。",
+   "category": "paper"
+  },
+  {
+   "file": "comm-architecture-audit-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/comm-architecture-audit-20261003.md",
+   "line": 151,
+   "text": "| P1 | bb-token plist 明文暴露 | ✅ 三份 plist 已 chmod 600（blackboard-server/central-wake/comm-device-daemon；argv 可见性属设计固有，已记录）。变更门 launchd-daemons 配额 2/2 满未",
+   "category": "paper"
+  },
+  {
    "file": "flowernet-capital-axis-funding-path-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-capital-axis-funding-path-v1.md",
    "line": 108,
    "text": "4. **现金红线**——账上<6个月成本即启动下一轮路演，永不枯竭式融资",
+   "category": "paper"
+  },
+  {
+   "file": "channel-gate-weekly-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/channel-gate-weekly-README.md",
+   "line": 11,
+   "text": "> 脚本自述：channel-gate-weekly.py — 通道变更留痕周审（com.dsh.cron.channel-gate-weekly）；读 ~/dsh-collab/logs/channel-changes.jsonl → 统计：每通道变更数/漂移修复数、；熔断拒绝记录、缺字段单 → ",
    "category": "paper"
   },
   {
@@ -11235,6 +13006,41 @@
    "category": "structural"
   },
   {
+   "file": "bb-blueprint-content-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-blueprint-content-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-blueprint-content-check.py — 蓝图空呈现检查修复器 v1.0(R006 九标准)；检查: 每蓝图详情/图谱数据是否\"空呈现\"(mainlines/stages/svg 内容密度)；用法:；--scan            全部蓝图健康度表；--che",
+   "category": "structural"
+  },
+  {
+   "file": "bus-queue-triage-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-queue-triage-README.md",
+   "line": 11,
+   "text": "- 前身：rust-tools `queue-drain`（2026-08-30，决策表之前）只做「抽走/归档」，无身份形态分类、无 DLQ 语义、无 R006 门。本工具是**决策表代**的系统性升级。",
+   "category": "structural"
+  },
+  {
+   "file": "bus-queue-triage-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-queue-triage-README.md",
+   "line": 21,
+   "text": "node bus-queue-triage.js --lean4-check    # 约束门 A–F 六项",
+   "category": "structural"
+  },
+  {
+   "file": "bus-queue-triage-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-queue-triage-README.md",
+   "line": 25,
+   "text": "退出码：`0` 成功 · `1` 失败/门失效 · `2` 用法或 IO 错误。未知旗标 → 用法错误（exit 2）。",
+   "category": "paper"
+  },
+  {
+   "file": "bus-queue-triage-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-queue-triage-README.md",
+   "line": 56,
+   "text": "| ⑩ 约束前置 | ✓ | `--lean4-check` A–F 全绿（类型锁：无删除旗标可表达；入口门：--apply 唯一写入口） |",
+   "category": "structural"
+  },
+  {
    "file": "restart-rescue-protocol-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
    "line": 3,
@@ -11323,6 +13129,13 @@
    "path": "/Users/coreyleung/dsh-collab/docs/restart-rescue-protocol-v1.md",
    "line": 152,
    "text": "- **R013「重启救援协议」enforced**：重启前留准备信息 + 救援方观察 + 非破坏性救援 + 禁止破坏性",
+   "category": "paper"
+  },
+  {
+   "file": "arch-phase2-decision-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/arch-phase2-decision-plan-20261002.md",
+   "line": 23,
+   "text": "| 3 | launchd 命名规范 + 审查器 + 恢复执行 | 命名规范文档 + launchd-scan 增命名检查项 + 恢复动作 | 扫描器报出命名违规清单；恢复后 71=67+4 |",
    "category": "paper"
   },
   {
@@ -11627,6 +13440,13 @@
    "category": "paper"
   },
   {
+   "file": "gate-j24-lean4-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gate-j24-lean4-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gate-j24 v0.2 (结构门) — J24 xberg 恢复演练 vs 运行态；对应规则: ✅ xberg 恢复演练 vs 运行态 (file:profile-assets/xberg 并发读写竞争, 低概率)；门语义: 演练/恢复动作前验证运行态未占用 xberg——有加载则",
+   "category": "structural"
+  },
+  {
    "file": "mechanism-inventory-protocols-gates-locks.md",
    "path": "/Users/coreyleung/dsh-collab/docs/mechanism-inventory-protocols-gates-locks.md",
    "line": 1,
@@ -11872,6 +13692,13 @@
    "category": "paper"
   },
   {
+   "file": "bb-connect-execute-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-connect-execute-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-connect-execute.py — 连接真实执行器(Φ8/R006 合规 · v1.0)；五步门\"执行\"的真实动作: 确认边后 ①黑板投递通知两端相关方 ②协作任务登记 ③幂等留痕；用法:；python3 bb-connect-execute.py --run --grap",
+   "category": "structural"
+  },
+  {
    "file": "flowernet-monopoly-strategy-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/flowernet-monopoly-strategy-v1.md",
    "line": 43,
@@ -11914,6 +13741,111 @@
    "category": "paper"
   },
   {
+   "file": "bb-schema-gate-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-schema-gate-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-schema-gate.py — 数据写入契约门(Φ9/Lean4 结构强制 · R006)；任何对蓝图/规则/关系的写操作前必过此门: 字段契约 + 引用完整 + 重复检测；用法:；--check-rules          校验 rule-mapping.json(规则引用",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 4,
+   "text": "> 走错的路径会被结构门（channel-gate / bb-card-send / drift-scan / launchd-scan）拒绝，**拒绝消息里也带回到本页的指引**。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 5,
+   "text": "> 双轨原则（用户 2026-10-02 指示）：**堵截（门）+ 引导（本端口）缺一不可**——只有堵截，AI 会反复撞门；只有引导，AI 不知道哪条路是对的。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 11,
+   "text": "| 同机会话间发消息 | agent_send（≤50 字 + 内容落黑板再发「看黑板」指针） | agent_send 工具 | 全文 >50 字被 v2.4 门禁拒绝 |",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 15,
+   "text": "| 变更任何通道/守护 | 先登记变更单（5 字段+回滚点真实存在）→ 人工执行 → 后跑 drift-scan | channel-gate register → 执行 → drift-scan | 不过门=变更不可表达；熔断中=机械拒绝 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 24,
+   "text": "| 通知（不要求回复） | 内容落黑板 → 发「看黑板 <key>」短指针 | 全文直发（被门禁拒）；要求回复却用通知（对方不唤醒） |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 36,
+   "text": "门规则：to 必须完整 session id（短 id/别名会被 G2 拒）；payload 不得含 from/from_label/to（防伪造署名）；key 首段纯小写；写后自动双写两板+回读断言。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 40,
+   "text": "★ 即刻协议（2026-10-03 通讯连续性事故，运行代码即生效）：**凡要求对方行动的卡，必须带 `reply_required: true` + `awaiting: <对方>`**——I7a 唤醒已在运行代码中生效，缺 reply_required 的「看黑板」指针不唤醒收方，是 11.5h",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 42,
+   "text": "★ 球权字段（2026-10-03 死锁事故采纳，MBP 提议）：**凡要求对方行动的卡，必须带 `awaiting` 字段**（如 `awaiting: \"mbp\"` / `awaiting: \"mac-mini\"`），显式声明球在谁手上；发送方设了它就不许再自行「等」。判据：无 awaiting",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 71,
+   "text": "2. 注册：`data/discovery/agents/<dev>` 含你的完整 session id（不在册 → 告诉协调者，由心跳代理写入，禁止会话直写 R-ERR4）。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 84,
+   "text": "请求: <期望动作：重启服务器/检查xingqiao/恢复黑板/人工转发>",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 87,
+   "text": "## 附录 A. 门拒绝消息 → 正确姿势对照",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 89,
+   "text": "| 门拒绝（error） | 正确姿势 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-portal-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-portal-20261002.md",
+   "line": 94,
+   "text": "| CHANNEL_FROZEN / MELT_DOWN | 等解冻或找协调者裁决，勿绕门 |",
+   "category": "paper"
+  },
+  {
+   "file": "bb-put-verify-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-put-verify-README.md",
+   "line": 11,
+   "text": "> 脚本自述：黑板落卡 + 强制回读确认（指称完整性域内落地）；用法: bb-put-verify.py <key> <json文件|-> [--writer id] [--strict]；- PUT 后立即 GET 回读；非 200 或 key 不符 → 退出码 1（调用方不得声称\"已落盘\"）；-",
+   "category": "paper"
+  },
+  {
    "file": "mingjian-v2-session-prompt.md",
    "path": "/Users/coreyleung/dsh-collab/docs/mingjian-v2-session-prompt.md",
    "line": 50,
@@ -11925,6 +13857,237 @@
    "path": "/Users/coreyleung/dsh-collab/docs/mingjian-v2-session-prompt.md",
    "line": 53,
    "text": "- 提案依据必须本地向量化来源（禁止凭印象猜测）",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 20,
+   "text": "| 1 | **改进必须过三道门** | 有效 → 激活 → 显著，三者回答三个不同问题，**不可合并成单一分数** |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 21,
+   "text": "| 2 | **激活门** | 改完要证明\"这段代码真的执行过\"；从未触发的改动 = 惰性，不得入库 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 33,
+   "text": "- **思路**：**允许改的位置、保护的位置、接口合法性——三者必须先声明**，否则\"自我修改\"无因果可言。不可变内核 `K` 装评测、记账、自进化、接口关键代码。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 36,
+   "text": "### 2. 三道门，而非一个分数　📄报告",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 41,
+   "text": "- **思路精髓**：三门回答三个**不同**问题——\"干预改造了吗 / 训练集上排第几 / 未见任务上有用吗\"。合并成单一分数就失去可审计性。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 50,
+   "text": "- **落地**：`assert_no_test_leak` 检查任务切分不重叠，**泄漏在启动时直接 raise**（不是靠自觉）",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 57,
+   "text": "- **思路**：**导航信号**和**信用信号**必须分开。导航可以宽松（否则搜不动），信用必须严格（否则自欺）。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 65,
+   "text": "- **思路**：WHY 只决定\"**试哪个候选**\"，信用完全来自门控。因此**标错标签最多浪费一个候选，永不产生坏 harness**。这是一个极优雅的失效隔离设计。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 68,
+   "text": "### 8. 激活门是弱证据——照抄它的诚实　📄报告 + 📄docs",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 70,
+   "text": "- **思路**：**主动声明自己证据的等级**。一个门控机制如果不敢说清自己证明了什么、没证明什么，就不该被信任。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 73,
+   "text": "### 9. 消融：没有显著性门会发生什么　📄报告",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 74,
+   "text": "- 去掉显著性门后，**收敛后轮次中 62%–76% 是\"幻影进展\"**，循环只能在轮次上限（>20）停下；带完整门控的版本能在 **10 轮下限**干净退出",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 75,
+   "text": "- 反例：**无门控的 DGM 在 Omni-MATH 上部署了比 vanilla 更差的版本（−1.1%）**——\"an ungated loop can deploy a regression\"",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 78,
+   "text": "### 10. 增益必须对固定基线，不是对上一版　📄docs",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 94,
+   "text": "- **思路**：**归档坐标等记账类元数据，必须从客观事实机械推导**。自我声明只留作审计。这与我们 R030「无验证不陈述」同源。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 144,
+   "text": "- **机制**：判官读「渲染后的 prompt + 输出 + 轨迹尾部」；**负判必须给出类别与证据**；判官失败/超时则**按可用性回退视为完成**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 156,
+   "text": "- **思路**：subagent 反复问\"要什么格式\"是最常见的 token 浪费——但**代答的权限边界必须画死**。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 163,
+   "text": "| Charter | **一次派发的 worker turn** | 收窄的指令/工具/检查/deadline |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 187,
+   "text": "- **思路**：**召回内容必须被标记为\"不可信历史证据\"**，否则历史记录会变成注入通道。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 265,
+   "text": "- **思路**：**host 的闸门只管自己的注册表调用**。跨进程委派要单独配策略与隔离。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 278,
+   "text": "### 44. Assembly Root + Kernel 边界靠 import 契约强制　📄docs",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 281,
+   "text": "- **机制**：`pyproject.toml` 定义 import contracts **强制**这些边界",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 282,
+   "text": "- **思路**：**边界不靠口头约定，靠构建时静态强制**。这对我们「插件 node_modules 遮蔽 runtime 包」（M1 遮蔽）这类问题是对症解法。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 292,
+   "text": "- **思路**：**实验的配置必须冻结**，否则前后数据不可比。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 298,
+   "text": "### 48. 启动前置检查（Gate0）　📄docs",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 303,
+   "text": "文档站有专门的 \"**honest list**\" 章节，逐条登记**故意偏离**与**已实现但未接线**的部分：",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 329,
+   "text": "| **激活门（无条件信标）** | \"an unconditionally-placed beacon **degrades Gate-b to a no-op**\" | ⚠️ 易失效 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-思路提取汇总-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-思路提取汇总-v1.md",
+   "line": 350,
+   "text": "3. **验证**——三道门各答一问、分母不缩水、测试集封存且**机械断言**、晋级与信用分离、增益对固定基线。",
+   "category": "paper"
+  },
+  {
+   "file": "doc-cn-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/doc-cn-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：doc-cn-check.py — R039 工具中文描述文档机械门（2026-10-03 用户指示）；判据（R039 ④）：文档文件存在 + UTF-8 可读 + 中文字符数 > 100。；用法:；doc-cn-check.py <docs文件...>       # 交付时自检（任",
+   "category": "structural"
+  },
+  {
+   "file": "route-learner-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/route-learner-README.md",
+   "line": 11,
+   "text": "> 脚本自述：route-learner.py v2.0 — 级联学习型判定器（词频权重主判 + qwen:1.8b 模糊区兜底）；升级自 v1.0（纯词频）：；v1.0 词频权重准确率 96.1%，但「查状态 vs 状态登记」类无语义区分会误判。；v2.0 采用「置信度门控级联」（FrugalGP",
+   "category": "paper"
+  },
+  {
+   "file": "bus-wake-semantics-spec-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-wake-semantics-spec-20261003.md",
+   "line": 3,
+   "text": "> 2026-10-03 星桥起草 · 依据：死锁机制链复盘 + 7 天流量基线（日均 205、常态 50-100、设门时代 ~8652/天）",
+   "category": "paper"
+  },
+  {
+   "file": "bus-wake-semantics-spec-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-wake-semantics-spec-20261003.md",
+   "line": 21,
+   "text": "### A-3 全文门禁阈值重校准",
+   "category": "paper"
+  },
+  {
+   "file": "bus-wake-semantics-spec-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bus-wake-semantics-spec-20261003.md",
+   "line": 45,
+   "text": "bb-card-send 工具门：`to` 完整 id 且 payload 无 `reply_required` 且无 `notify_only` 且卡类型非纯通知 ⇒ 拒绝并提示（把 opt-in 变结构强制）。不碰唤醒语义本身。",
    "category": "paper"
   },
   {
@@ -11946,6 +14109,20 @@
    "path": "/Users/coreyleung/dsh-collab/docs/philosophy-advice-shadow-first-proposal-v1.md",
    "line": 51,
    "text": "- 蓝图 gate 模板: 同步 bb-blueprint-create.py 的 BP-9 门禁生成模板",
+   "category": "paper"
+  },
+  {
+   "file": "dup-skeleton-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/dup-skeleton-README.md",
+   "line": 11,
+   "text": "> 脚本自述：找「同一个知识被写了两遍」—— 即 HR 那条判据的违反面。；HR 2026-09-14 的可判定形式：；「知识→检查的转换 ＝ 把该事实编码进一个【被多处共用的实现】；；判据：若某处绕过该实现，该事实即失效 ⇒『共用』是转换的标志（而不是『我记住了』）」；⇒ 于是「绕过」是可检测的：",
+   "category": "paper"
+  },
+  {
+   "file": "server-topology-dual-track-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-topology-dual-track-v1.md",
+   "line": 28,
+   "text": "3. **信封带凭据**：bus-8791 发送必须带 token（0600 文件/环境变量）；401 是可观测失败，不得静默吞（1.5.9 起读状态码）。",
    "category": "paper"
   },
   {
@@ -12166,6 +14343,125 @@
    "category": "paper"
   },
   {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 33,
+   "text": "| R6 | **存在\"无正确选项\"的情况却必须给答案** | 覆盖失效——没有正确答案时它仍会给一个高置信度答案（除非把\"以上都不是\"也列进选项） |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 43,
+   "text": "（拒单率红线、  │   （规则难写但答案可枚举：",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 90,
+   "text": "### 1.2 守护 / 门控域",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 101,
+   "text": "| 30 | 健康检查项是否异常 | noul ×18 | — | 脚本判定 | ❌（脚本可判，象限①） |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 168,
+   "text": "| 健康检查项判定（18 项） | 脚本可精确判定（象限①） |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 183,
+   "text": "三类原语在我们场景里的分布（这是**设计选项集时的检查表**）：",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 205,
+   "text": "| **超长状态**不检查截断 | Laya 实测：静默截断后仍返回分布且无警告 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 234,
+   "text": "| 4 | **选项集质量审查** | B 级场景的枚举需要重新设计 | 逐场景写选项集，检查是否有近义项/覆盖漏洞 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 251,
+   "text": "> **这正是分档路由的价值**：门槛设 0.35 时，自动化 3 条、**全部正确**。",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 275,
+   "text": "| 自动化门槛 | 自动化比例 | 其中准确率 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 283,
+   "text": "> **读法**：裸用 65.9% 不可接受；但**门槛 0.4 时，46% 的指令可全自动且准确率 94.7%**，其余 54% 回流给 LLM 或人工。**这就是 System One 在我们场景里唯一站得住的用法。**",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 303,
+   "text": "| 裸中文名（\"查询门店状态\"…） | **6/10**（在 n=41 上为 65.9%） |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 316,
+   "text": "| **choice** | 65.9%（n=41，12 类）；分档后 94.7% | ✅ 可用，但**必须配分档** |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 320,
+   "text": "**noul 的失效细节（必须记录）**：",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 338,
+   "text": "| 语音指令意图路由 = A 级甜点 | ⚠️ **降为 B 级**：裸用 65.9% 不够；**必须配分档路由**才有价值 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 342,
+   "text": "| 所有场景 | 🔺 **新增门槛**：**输入长度**成为独立判据——短中文不可靠 |",
+   "category": "paper"
+  },
+  {
+   "file": "SystemOne-场景覆盖调研-v1.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/SystemOne-场景覆盖调研-v1.md",
+   "line": 350,
+   "text": "3. **实测证明分档是真的有用**：中文意图路由裸用 65.9%，**门槛 0.4 时 46% 自动化 @ 94.7%**。**这是唯一站得住的用法。**",
+   "category": "paper"
+  },
+  {
    "file": "i9-collab-rules-sync.md",
    "path": "/Users/coreyleung/dsh-collab/docs/i9-collab-rules-sync.md",
    "line": 1,
@@ -12285,6 +14581,20 @@
    "category": "paper"
   },
   {
+   "file": "cld-restart-autotest-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/cld-restart-autotest-README.md",
+   "line": 11,
+   "text": "> 脚本自述：cld-restart-autotest.py — CLD 自动重启 + 自动化动作测试（R011 v2 + R013）；流程:；1. 预检: restart-gate（静态+压测）→ 通过才继续；2. 自动拉起注册: launchctl bootstrap com.dsh.cld-a",
+   "category": "structural"
+  },
+  {
+   "file": "cordis-crash-audit-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/cordis-crash-audit-README.md",
+   "line": 11,
+   "text": "> 脚本自述：cordis-crash-audit.py v1.0 — Cordis 插件 client 端「无崩溃风险」一键审查；用法: python3 cordis-crash-audit.py <lib/client.js 路径>；检查项（对应安全审查 SOP v1.0）:；1. slots.",
+   "category": "paper"
+  },
+  {
    "file": "health-check-absorption-20260830.md",
    "path": "/Users/coreyleung/dsh-collab/docs/health-check-absorption-20260830.md",
    "line": 11,
@@ -12310,6 +14620,237 @@
    "path": "/Users/coreyleung/dsh-collab/docs/health-check-absorption-20260830.md",
    "line": 54,
    "text": "- health-check 的 dump-config 检查（i9 版 execSync 跑 bin.js）未移植（本机 profile 校验走 deploy-check，避免重复）",
+   "category": "paper"
+  },
+  {
+   "file": "bb-channel-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-channel-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-channel.py — 通道选择器（分级制度机制化，cahac 分级可执行版）；用户指示（2026-08-23）：让通道分级制度真正有效，而非靠自觉。；本工具在『发消息前』强制裁决通道——把 cahac 分级从文档变成可执行机制。；用法：；# 自动判定类型（基于内容启发式）；p",
+   "category": "paper"
+  },
+  {
+   "file": "gate-repairer-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gate-repairer-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gate-repairer v3.0.0 — 纸面门修复器 (R006 十项达标 · Lean4 工程加固)；配套 gate-auditor (审查器识别纸面门) → gate-repairer (把纸面门工程加固为结构门):；加固两种路径:；A. annotate — 规则实际已有工",
+   "category": "structural"
+  },
+  {
+   "file": "startai-funnel-verify-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/startai-funnel-verify-plan-20261002.md",
+   "line": 57,
+   "text": "- ★ 包必须含 cordis.patch.yml（package.json files 声明了它；漏带=事故#3/#4 形态：rsync --delete 会删线上那份 → 下次重启 boot fatal）。",
+   "category": "paper"
+  },
+  {
+   "file": "startai-funnel-verify-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/startai-funnel-verify-plan-20261002.md",
+   "line": 63,
+   "text": "- ★ tar 必须可复现：TarInfo 规范化（mtime=0/uid=gid=0/uname/gname 空/条目排序）+ gzip mtime=0 ⇒ 同内容同 sha256（普通 tar czf 哈希不可复现=哈希校验被架空）。",
+   "category": "paper"
+  },
+  {
+   "file": "startai-funnel-verify-plan-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/startai-funnel-verify-plan-20261002.md",
+   "line": 64,
+   "text": "- 交付协议：PUT 后冻结不再重发；重发必须标 version=N，对端按 version 取；卡文哈希与板值必须一致。",
+   "category": "paper"
+  },
+  {
+   "file": "gate-auditor-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/gate-auditor-README.md",
+   "line": 11,
+   "text": "> 脚本自述：gate-auditor v1.0.0 — 纸面门审查器 (R006 十项达标 · Lean4 结构门工具化)；把「纸面门 vs 结构门」教训工具化 (2026-09-07 archify 事故: 清单写了沙箱测试但被跳过):；纸面门 = 规则/SOP 声明了「必须/门/强制」但无对应",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 15,
+   "text": "| **C1** | \"四道门：有效性 → 激活 → 显著性 → 增益\" | 论文 §3.3 是**三道门** `g_scn = g_valid × g_act × g_sig`，增益门是**通过后进完整训练集再比**，不在同一合成式里。\"四道门\"是媒体通俗转述 | 中：协议本体不变，数字要改 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 26,
+   "text": "Raven 经得起检验的不是\"agent 自己改自己\"，而是三件事：**① 把 harness 形式化成可寻址的策略空间；② 把多 agent 协作变成带准入检查的显式 DAG；③ 把每次\"改进\"都压在「分母不缩水 + 测试集封存 + 配对显著性」三道门上**。而我们的 `guard_archaeo",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 34,
+   "text": "——**允许改的位置、保护的位置、接口合法性，三者必须先声明**，否则\"自我修改\"无因果可言。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 45,
+   "text": "| 不可变内核 K | `guard_*` 红线清单 | ⚠️ 是纪律，非机制 |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 46,
+   "text": "| **Evolver**（离线门控） | `guard_compliance` 五道闸 + `guard_archaeology` | ⚠️ 形似，**缺统计门** |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 58,
+   "text": "- **WHY = 失败病理类** —— **\"Pathology labels remain hypotheses, not established causes\"**（§4.3 p26）。因为 WHY 只决定\"试哪个候选\"，信用完全来自门控，**标错标签最多浪费一个候选，永不产生坏 harnes",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 68,
+   "text": "| `guard_compliance`（P2 红线→P0 预查→P1 备份→P4 沙箱→P5 有界→pre-mortem） | **没有一道是统计门**，全靠纪律 |",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 74,
+   "text": "## 4. 三道门：我们缺的正好是第 2 和第 3 道",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 76,
+   "text": "论文 §3.3–4.4 的三道门（**不是四道**，见 C1）：",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 78,
+   "text": "| # | 门 | 判据（论文原式） | 我们的现状 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 80,
+   "text": "| 1 | **有效性门** `g_valid` | `I[Log 协议合法]`；基础设施故障（沙箱崩溃/验证器超时）触发**修复重试**，而非计为 agent 失败 | ✅ `cld_health_check` + `guard_deps_scan` + `session_recovery_che",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 82,
+   "text": "| 3 | **显著性门** `g_sig` | 配对差 `γᵢ = s̄ᵢ(候选) − s̄ᵢ(父代)`，`t_pair = γ̄/(se) ≥ 1.96`；**先对 K 次取平均，测量单位是\"任务\"，样本量 n 而非 n·K** | ❌ **完全空白** |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 84,
+   "text": "**增益要求**（不在合成式内，在完整训练集阶段）：必须胜过**固定的 vanilla 基线**，不是上一个父代。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 86,
+   "text": "**消融证据（最该记住的数字）**：去掉显著性门后，**收敛后轮次中 62%–76% 是\"幻影进展\"**，循环只能在轮次上限处停下；带完整门控的版本能在 **10 轮下限**干净退出。另有反例：**无门控的 DGM 在 Omni-MATH 上部署了比 vanilla 更差的版本（−1.1%）**——",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 88,
+   "text": "**四条必须照抄的纪律**：",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 92,
+   "text": "4. **激活门是弱证据（照抄其诚实）**：这是**存在级、呈现级归因**——只证明\"某段被插桩的代码跑过\"，**不证明它位于机制的触发条件内，也不建立因果贡献**；\"an **unconditionally-placed beacon degrades Gate-b to a no-op**\"。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 104,
+   "text": "| **判官（Verdict）外置** | §3.2 p16 | \"An **independent model call** therefore judges each finished node\"；负判**必须给出类别与证据**；判官失败按可用性回退视为完成（官方承认这是**可用性权衡而非正确性",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 127,
+   "text": "**A1. 给 Guard 加\"激活门\"⭐ 最高杠杆**",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 128,
+   "text": "`guard_compliance` 增 `guard_activation_check`：修复类改动声明并植入可检索信标 → 验证阶段检查**运行中是否真的触发** → 未触发 = `pruned_inert`，**不得入库**。必须同时记录其局限（存在级归因 ≠ 因果；无条件信标 = 空操作）。",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 134,
+   "text": "我们目前\"subagent 返回即算完成\"。对关键派发加独立模型裁决（读「渲染后 prompt + 输出 + 轨迹尾部」），负判必须给类别与证据；异常走 continue / abandon / replan。",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 143,
+   "text": "- **内核 K**：`guard_*` 全部门控 + 验证器 + RULES 执行器 + archaeology 记账 + `repair_report`",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 145,
+   "text": "- `guard_check_writable` 从\"红线清单\"升级为**内核路径白名单 + 写入拒绝**",
+   "category": "structural"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 154,
+   "text": "train/test 不交叠 + **机械化断言在启动时 raise**；**最终交付物按训练分选，绝不在候选里挑测试分最高的**；报告 `retention = test lift ÷ train lift`；照抄诚实条款——小 n 下真实效应也可能不过门（论文 SWE-bench n=26 时 ",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 195,
+   "text": "| **P0** | A1 激活门 + A3 Verdict | 堵住\"改了个寂寞\"与\"假完成\"两类漏洞 |",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 208,
+   "text": "- [HarnessBank 论文 arXiv 2607.13683](https://ar5iv.labs.arxiv.org/html/2607.13683) — 三门的公式、消融、跨模型匹配律",
+   "category": "paper"
+  },
+  {
+   "file": "Raven-借鉴分析-v2.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/Raven-借鉴分析-v2.md",
+   "line": 213,
+   "text": "**一句话**：Raven 真正经得起检验的是 **① harness 形式化为可寻址策略空间、② 多 agent 协作变成带准入检查的显式 DAG、③ 每次晋级都压在「分母不缩水 + 测试集封存 + 配对显著性」三道门上**。Curator / Persona 是产品层叙事，**报告本身没有为其提",
+   "category": "paper"
+  },
+  {
+   "file": "work-progress-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/work-progress-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：work-progress-check.py — 派发工作的存活检查（候选A「指称完整性」的镜像落地）；★ 核心设计（为什么这样设计）：；不查「你完成了吗」（那是信对方的话），只查「产物在变化吗」（客观证据）。；这是候选A 的镜像：**把「我派发了」当成「它在执行」** 是同一族错误，",
    "category": "paper"
   },
   {
@@ -12628,6 +15169,55 @@
    "category": "paper"
   },
   {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 7,
+   "text": "| 模式 | 复发次数 | 最新实例 | 防复发门 |",
+   "category": "paper"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 15,
+   "text": "| P7 环境漂移 | 5 | 端口 4 次漂移 Funnel 502 | drift_scan/门状态读文件/Funnel drift-fix 流程 |",
+   "category": "paper"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 20,
+   "text": "| P12 单实例锁陈旧态静默自杀 | 1（MBP 事故 #6） | 10-04 新实例被陈旧 Singleton 锁 1.4s 静默自杀（exit 0 三处零痕迹） | 拉起必须读回验证（R043）+ !gotLock 留日志 + 有界重试 + 无进程才清锁 |",
+   "category": "paper"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 28,
+   "text": "排查新故障时先查本库 P1-P7 归类；命中已有模式 → 按该模式的防复发门执行，并登记新实例；不命中 → 建新模式档。",
+   "category": "paper"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 43,
+   "text": "verify-delivery · verify-r041-migration（8 不变量）· merge-r041 · safe-write-guard · comm-preflight（B7/P1 门）· check-rules-consistency · check-hazards-consi",
+   "category": "paper"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 58,
+   "text": "九月防线体系：C1-C7 检查 + repair-report 纪律 + labforge 实验卡 5 张（memory-crash-oom-repro 等）+ 崩溃实验室 + P0 doc-check 门。补卡候选 4 张（plugin-load-fail-regression/deps-shad",
+   "category": "structural"
+  },
+  {
+   "file": "failure-pattern-library-20261004.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/failure-pattern-library-20261004.md",
+   "line": 63,
+   "text": "- **G36（MBP 编号·我侧同款实证）**：跨代存活的进程必须 setsid——nohup& 与旧 dsh 同进程组，/reload 时被连坐杀掉（我侧 10:51 探针日志停在 reload 响应行；改 python start_new_session 后 11:31 完整跑完）。",
+   "category": "paper"
+  },
+  {
    "file": "sysgraph-universal-registry-review-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/sysgraph-universal-registry-review-v1.md",
    "line": 3,
@@ -12842,6 +15432,20 @@
    "path": "/Users/coreyleung/dsh-collab/docs/constraint-frontloaded-philosophy.md",
    "line": 79,
    "text": "*Φ9 约束前置·不可绕过 v1.0 · 明鉴 v2 · 2026-09-05 · 用户提出*",
+   "category": "paper"
+  },
+  {
+   "file": "card-json-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/card-json-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：卡 JSON 检查器：解析 + 内容类/结构类手误。；用法：python3 card-json-check.py <file.json>；退出码 0=通过 1=有问题",
+   "category": "paper"
+  },
+  {
+   "file": "checks-transfer-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/checks-transfer-README.md",
+   "line": 11,
+   "text": "> 脚本自述：checks-transfer.py — 完整体传输契约检查器（R012 CHECKS 七要素）；用途：验证传输物（资产包/升级包/报告/消息）是否为「完整体」——；接收方可直接使用，零二次开发。半成品 → FAIL 阻止传输。；用法:；checks-transfer.py <包路径>",
    "category": "paper"
   },
   {
@@ -13104,6 +15708,13 @@
    "category": "structural"
   },
   {
+   "file": "msg-count-lint-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/msg-count-lint-README.md",
+   "line": 11,
+   "text": "> 脚本自述：发送前检查：消息里的计数有没有带时点/口径。；由来（星桥 2026-09-14 的诊断）：我「报数可靠性 < 核数可靠性」不是能力差而是结构差 ——；核数只需对照（人有天然优势），报数却要求把「窗口/分母/端点」绑进产物，而绑定这件事；工具能做、人记不住。所以修法不是「下次注意」，而是",
+   "category": "paper"
+  },
+  {
    "file": "evidence-has-timestamp-philosophy.md",
    "path": "/Users/coreyleung/dsh-collab/docs/evidence-has-timestamp-philosophy.md",
    "line": 4,
@@ -13255,6 +15866,69 @@
    "path": "/Users/coreyleung/dsh-collab/docs/evidence-has-timestamp-philosophy.md",
    "line": 236,
    "text": "**同一轮的卡片与标记，其关键字段必须一致**（本日已用于收敛：卡片与标记同为准 15:53:04）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 4,
+   "text": "> 角色=通讯中枢黑板）上做操作的 agent。动手前先读完本文件；违反门规的操作会被拒或事后追责。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 13,
+   "text": "2. **门**：这是通道/服务变更吗？是 → 先 `channel_gate register`（channel/action/evidence/rollback/blast_radius）。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 18,
+   "text": "## 3. 服务地图（现状快照 · 改动后必须同步本文件）",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 23,
+   "text": "| comm-health.timer / service | 每 5 分钟 | 巡检 10 项服务+内存+磁盘；**改了服务清单必须同步 /opt/comm-layer/ctl/health-ctl.sh 的 SERVICES 与计数** |",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 25,
+   "text": "| ufw | active | 默认拒绝；仅 22/80/443/8791/8792/8803 tcp。**新端口上线必须先 `sudo ufw allow`** |",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 32,
+   "text": "- 板端边界：`/notes` 列表只列 notes/*；data/* 键必须直连 GET；跨板取包双头必带",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 35,
+   "text": "## 5. 变更门规（红线）",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 44,
+   "text": "> 鉴权矩阵必须打公网端点（https://xingqiao.meetfunbp.com/...），打 localhost 必假绿/假红。",
+   "category": "paper"
+  },
+  {
+   "file": "AGENT-SERVER-OPS-PROMPT.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/AGENT-SERVER-OPS-PROMPT.md",
+   "line": 47,
+   "text": "无头 PUT（公网）→ 401；三 token 写 → 200            # 鉴权矩阵（必须公网面）",
    "category": "paper"
   },
   {
@@ -13454,6 +16128,13 @@
    "category": "paper"
   },
   {
+   "file": "blackboard-server-v0.6-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/blackboard-server-v0.6-README.md",
+   "line": 11,
+   "text": "> 脚本自述：blackboard-server v0.6 (coordinator) — 黑板进化版（:8792 兼容升级）；v0.5 → v0.6 变更（2026-08-23 · 协调者，用户指示：门店规模化前补齐归属机制）：；1. 【写者签名】PUT/DELETE 支持 X-Writer 头，",
+   "category": "paper"
+  },
+  {
    "file": "session-lineage-registry.md",
    "path": "/Users/coreyleung/dsh-collab/docs/session-lineage-registry.md",
    "line": 12,
@@ -13521,6 +16202,20 @@
    "path": "/Users/coreyleung/dsh-collab/docs/CCEP-continuity-protocol-v1.md",
    "line": 70,
    "text": "## 五、禁止事项",
+   "category": "paper"
+  },
+  {
+   "file": "restart-runbook-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/restart-runbook-20261002.md",
+   "line": 4,
+   "text": "> 代码已全部就位并过闸门（三插件预检 GO、五个自检 exit=0），**只差一次 CLD 重启生效**。",
+   "category": "structural"
+  },
+  {
+   "file": "restart-runbook-20261002.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/restart-runbook-20261002.md",
+   "line": 8,
+   "text": "## 1. 为什么必须重启",
    "category": "paper"
   },
   {
@@ -13678,6 +16373,20 @@
    "category": "structural"
   },
   {
+   "file": "server-arch-optimization-plan-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-arch-optimization-plan-20261003.md",
+   "line": 3,
+   "text": "> 依据：业界基准调研（Mercure SSE 重放 / Redis AOF 持久化 / token 轮换三原则 / systemd 护栏）+ 服务器专项复审实测。",
+   "category": "paper"
+  },
+  {
+   "file": "server-arch-optimization-plan-20261003.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/server-arch-optimization-plan-20261003.md",
+   "line": 40,
+   "text": "每步：实测证据 + 回滚点 + 变更门登记（配额满则协调者裁决留痕，如 2026-10-03 前例）。",
+   "category": "paper"
+  },
+  {
    "file": "hubbridge-protocol-research-20260827.md",
    "path": "/Users/coreyleung/dsh-collab/docs/hubbridge-protocol-research-20260827.md",
    "line": 20,
@@ -13746,6 +16455,104 @@
    "line": 25,
    "text": "| 消息类型 | 数量 | 两套门禁判定 |",
    "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 7,
+   "text": "> **v1 仍有效**：`docs/agent-comm-substrate-mechanisms-and-archaeology-20261001.md`（机制细节、三回路证据链、闸门空转实证）；",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 55,
+   "text": "| 2026-08-29 | `docs/plugin-selfcheck-spec-v1.md`（72 行）+ `scripts/send-repair-report.py` | **自查门规格 + 修复报告投递脚本（`from:\"mbp-ops\"` 硬编码源头）** | ✅ 规格在；**实现是空",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 59,
+   "text": "| **2026-10-01** | v1 机制文档 + 本文 | 三回路 / from 完整性 / 载体 / 闸门空转 + **官方基准** | 见 §6 |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 112,
+   "text": "### 3.5 闸门层其实非常厚，问题不在\"没建闸门\"",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 114,
+   "text": "`~/dsh-collab/scripts/` 原型期至今的闸门工具（仅按名字即可见规模）：",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 117,
+   "text": "**⇒ R006 十项标准不是凭空来的，是从这一层长出来的。** 所以 v1 §3.6 发现的\"三处空转\"**不是\"缺闸门\"，而是\"闸门多到自己都测不过来\"**——这本身就是架构信号：**闸门层已经大到无法被自身覆盖**（没有任何闸门在检查闸门）。",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 132,
+   "text": "| ⚠️ `~/tech-research` | 家目录 | **空的（0 文件）** ⇒ `guard_doc_check` 这条 P0 闸门**无数据源** |",
+   "category": "structural"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 151,
+   "text": "**⚠️ 但必须同时记录两点，否则会误导决策**：",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 171,
+   "text": "| **「异步状态不是同步状态」**：「`agent.followup()` **没有逐消息的完成状态或结果**；**切勿把 `agent/status` 或 `whenIdle()` 当作某次 `followup()` 的结果**……真正拥有一次运行的自动化调用方必须显式定义其区间——例如**从消",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 175,
+   "text": "**另有两条直接否掉我们的闸门做法**：",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 208,
+   "text": "| **I6** | 不变式断言**只允许**基于权威事件流或可变数据；**禁止**断言\"服务/方法是否存在\" | dsh-invariants |",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 219,
+   "text": "### D1（必须先定）：**继续自研，还是对齐官方不变量？**",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 236,
+   "text": "- 重启窗口：A 批（A4/A4b/A4c/A6 + 两处空转闸门）已 GO 待生效；是否与 D2 合批",
+   "category": "paper"
+  },
+  {
+   "file": "agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/agent-comm-substrate-archaeology-official-baseline-v2-20261001.md",
+   "line": 271,
+   "text": "**建议**：把 `docs/` 重新克隆到 `~/tech-research/`（恢复 `guard_doc_check` 的 P0 数据源），并纳入版本管理——**一个空的官方镜像等于这条闸门不存在**。",
+   "category": "structural"
   },
   {
    "file": "cross-device-bridge-postmortem-20260827.md",
@@ -13853,6 +16660,13 @@
    "category": "paper"
   },
   {
+   "file": "bb-blueprint-integrity-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/bb-blueprint-integrity-README.md",
+   "line": 11,
+   "text": "> 脚本自述：bb-blueprint-integrity.py — 蓝图完整度检查器 v1.0(R006 九标准)；按 BP-9 九字段契约 + 关系 + 可渲染性, 给每蓝图完整度评分(0-100)；维度: 身份/主线/阶段/工作/门禁/状态/关系/可渲染/时间戳；用法:；--scan     ",
+   "category": "structural"
+  },
+  {
    "file": "meeting-0909-ip-deepdive-v1.md",
    "path": "/Users/coreyleung/dsh-collab/docs/meeting-0909-ip-deepdive-v1.md",
    "line": 29,
@@ -13893,6 +16707,13 @@
    "line": 31,
    "text": "**急迫性**：3·31 返佣红利窗口（12→6点，错过腰斩）；平台考核\"新签门店+GMV\"，我方可帮平台达标。",
    "category": "paper"
+  },
+  {
+   "file": "l3-semantic-check-README.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/l3-semantic-check-README.md",
+   "line": 11,
+   "text": "> 脚本自述：l3-semantic-check.py — rule-judge L3 语义层检查器（本地模型软门）；用户指示（2026-09-02）：推进 rule-judge L3 原型实现。；功能：AI 提议的语义把关（软门）——事实核查 / groundedness / 策略合理性 / 独立",
+   "category": "structural"
   },
   {
    "file": "queue-governance-design.md",
@@ -13966,7 +16787,7 @@
   }
  ],
  "summary": {
-  "structural": 396,
-  "paper": 1677
+  "structural": 475,
+  "paper": 1981
  }
 }

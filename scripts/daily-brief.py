@@ -11,6 +11,8 @@
 输出：reports/daily-brief-YYYY-MM-DD.md（简报）
 用法：python3 daily-brief.py [--days 1] [--days7]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, glob
 
 COLLAB = os.path.expanduser("~/dsh-collab")

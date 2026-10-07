@@ -12,6 +12,8 @@ mac总线 机械指令 → 本地模型 qwen2.5:3b 展开成任务卡 → schema
 
 配套：scripts/task-card-validator.py（schema 校验器，复用其校验逻辑）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, subprocess, sys, urllib.request
 
 OLLAMA = "http://localhost:11434/api/generate"

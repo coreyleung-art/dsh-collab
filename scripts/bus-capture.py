@@ -22,6 +22,8 @@ bus-capture v1 —— 协作记忆自动捕捉管道（OpenChronicle 机制复�
   - 秒级时间观：本工具可随时执行，秒级完成
   - 硬件守卫：内存空闲 <2GB 时降级（跳过纪要生成，只做捕捉标注）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import sys

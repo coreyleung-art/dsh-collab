@@ -14,6 +14,8 @@ R006 九标准：CLI 形态 / TCC / 文档化 / 版本管理 / 自动落链 / CL
   python3 bb-blueprint-shell.py --version              # 版本
   交互命令: list / ls <bp> / go <bp> / stage <id> / refs / back / help / exit
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, ast, re
 
 BB = "http://127.0.0.1:8792"

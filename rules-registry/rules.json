@@ -1,6 +1,6 @@
 {
-  "version": "2.22.0",
-  "lastUpdated": "2026-10-04",
+  "version": "2.23.5",
+  "lastUpdated": "2026-10-06",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
     "ruleCount": 87,
@@ -864,6 +864,35 @@
         "镜像判据：逐字取板载原文 + sha256 前缀留证",
         "冲突上报义务：本章程的条款若与实测冲突（如 8634 卡 §6 queued 过期条款），必须上报并等修订，不照做",
         "预检指针单一入口=章程（不依赖模型记忆）"
+      ]
+    },
+    {
+      "id": "R046",
+      "name": "验收门（自审无效、第三方必须在场）",
+      "category": "治理",
+      "scope": "all-bus-devices",
+      "status": "enforced",
+      "version": "1.1.4",
+      "source": "老板 2026-10-04 22:5x 指令 · 星桥入账",
+      "summary": "任何「验收通过」不得自说自话：提出判据方不得同时是执行方与裁定方；通过由第三方裁定；裁定须显式声明裁定面 + 附原始证据且证据引用必须可解（v1.1：board: 双板 200 / file: 存在 / ::contains: 断言；MBP 负控复现后补；v1.1.1 裁判 preset 首审再补：仅内联 evidence 无 evidence_refs 的旁路已封（1正7负））；自我更正同门；新接入端侧自检必含本门。运行门 tools/acceptance-gate.py（--selftest / --check / --lean4-check）。v1.1.2 版本单一来源（--tool-version）+ 空 contains needle 判用法错（裁判第三方复验两条遗留）；v1.1.3 空 needle 拒绝信息与 exit 1 语义对齐（裁判口径裁决）；v1.1.4（2026-10-06 PSTD v5 教训「范围必须由实测划定、不能由假设划定」正式化，用户点头）：新增 surfaceMeasured 判据——surface_measured 非空且全部可解 + surface_unmeasured 字段必须在场（缺字段=未测边界由假设划定）；selftest 1 正 10 负（新增负8/9/10）",
+      "artifacts": [
+        "tools/acceptance-gate.py",
+        "rules-registry/lean4/acceptance-gate.lean"
+      ]
+    },
+    {
+      "id": "R047",
+      "name": "插件/工具命名准入门（N1–N8）",
+      "category": "治理",
+      "scope": "all-bus-devices",
+      "status": "enforced",
+      "version": "1.0.4",
+      "source": "星桥 2026-10-05 裁定 · PSTD 管理员提请（notes/mac-mini/pstd-naming-review-20261005）",
+      "summary": "新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.3），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名（R006 §8 归属优先）；豁免须显式声明，禁止声明即豁免。v1.0.1（PSTD 第三方复核收敛）：负例数取运行时实测 15；执行点 P2 落盘前进程内提供、重启即消失；scope 注明各设备各自运行 PSTD 或由本机分发落盘包；登记（黑板卡）无命名门，如需覆盖另立件。v1.0.2：N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 verify-naming-standard.py（星桥机械实测 PASS，19 向量/8 负控）；PSTD 第三方复核通过。v1.0.3：P2 落盘 ~/dsh-plugin-pstd v1.0.3，经 dsh plugin add 挂载（deps+bundles+符号链接齐备，dump-config 合成验证 2026-10-06 01:4x）；重启存活待最近受控窗口验证后改常驻。v1.0.4：存量清单补登 4 例 N3（bb-card-send/channel-gate/drift-scan/launchd-scan 插件行 id 写全包名；裁判 2026-10-06 审计发现，星桥机械复核属实）",
+      "artifacts": [
+        "docs/R006-插件化工具化标准-v3.0.md",
+        "rules-registry/naming-standard-N1-N8-v1.md",
+        "rules-registry/verify-naming-standard.py"
       ]
     }
   ],

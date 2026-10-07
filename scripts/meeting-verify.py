@@ -23,6 +23,8 @@ R006: CLI(argparse) · TCC(--selfcheck) · CLD 自适应(纯 stdlib) · 版本(-
   python3 meeting-verify.py --audit "8000万GMV/月" "8000万,双平台,2000万" --out /tmp/audit.md
   python3 meeting-verify.py --selfcheck | --lean4-check | --tool-version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, re, glob, datetime, fnmatch
 
 VERSION = "v1.0.0"

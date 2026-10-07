@@ -11,6 +11,8 @@
   python3 scan-to-genebank.py --genebank http://127.0.0.1:8801
   python3 scan-to-genebank.py --dry-run          # 只生成 manifest 不注册
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, hashlib, urllib.request
 
 BLACKBOARD = "http://127.0.0.1:8792"

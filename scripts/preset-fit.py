@@ -19,6 +19,8 @@ preset-fit v1 —— 角色专用模式评估器（模式评估工具化）
 
 纪律：只读分析，不写文件、不广播（J34）；秒级时间观可随时跑。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re

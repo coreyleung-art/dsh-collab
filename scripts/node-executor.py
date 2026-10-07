@@ -23,6 +23,8 @@ i9 的 i9-executor.py 证明了「秒级全天候零 token 值守」：纯 HTTP 
 
 动作白名单（可扩展）：shell/info/status/ollama/scan/自定义
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, time, subprocess, datetime, platform
 import urllib.parse, http.client
 from concurrent.futures import ThreadPoolExecutor

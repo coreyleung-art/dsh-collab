@@ -12,6 +12,8 @@
   python3 bb-request-watch.py --status        # 查水位与未处理请求
 常驻：launchd（周期 60s 或事件驱动）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, os, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

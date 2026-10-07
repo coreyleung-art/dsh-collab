@@ -31,6 +31,8 @@ v2.5 变更（2026-08-31 星桥评估落地，方案 docs/agentsend-gate-audit-a
 
 输出: 黑板 data/audit/agentsend-violations.jsonl（append-only）+ 本地 logs/
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

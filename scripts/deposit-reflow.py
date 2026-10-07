@@ -13,6 +13,8 @@
 
 输出: 生成的清单文档路径（落盘后由协调者/HR 入库 KB）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request
 
 BLACKBOARD = "http://127.0.0.1:8792"

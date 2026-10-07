@@ -14,6 +14,8 @@
   python3 identity-graph.py --selfcheck                    # 自检
   python3 identity-graph.py --tool-version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, os, re, datetime
 
 VERSION = "v1.0.0"

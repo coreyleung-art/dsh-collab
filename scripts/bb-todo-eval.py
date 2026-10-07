@@ -11,6 +11,8 @@ Lean4 逻辑门: 判定不靠关键词猜(启发式), 靠"工具能力表"结构
 用法: --scan / --eval BP / --confirm BP STAGE  (人工确认 suspected→done)
      --list-tools / --selfcheck / --tool-version / --json
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request, glob, re
 
 VERSION = "v2.0.0"

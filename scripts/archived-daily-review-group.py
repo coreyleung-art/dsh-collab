@@ -6,6 +6,8 @@
 用法：python3 daily-review-group.py [--data-dir <dir>] [--chat-id <id>] [--dry-run]
 群 chat_id（外联确认）：wrObL9WAAAmpV27LFG0NMGX4dZHAXngQ（新群）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, glob, datetime, urllib.request, re
 
 GROUP_CHAT = "wrObL9WAAAmpV27LFG0NMGX4dZHAXngQ"

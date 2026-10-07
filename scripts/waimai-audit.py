@@ -11,6 +11,8 @@
 熔断：拒单率>20% 或 操作异常率>10% 或 时均操作>50 → 写 token-monitor/replays/alerts.md（FUSED 标记）
 零 LLM 成本。用法：python3 waimai-audit.py [--date YYYY-MM-DD] [--panel-url http://127.0.0.1:8787]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, glob, urllib.request
 
 TM = os.path.expanduser("~/dsh-collab/token-monitor")

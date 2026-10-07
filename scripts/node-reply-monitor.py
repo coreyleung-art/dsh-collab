@@ -12,6 +12,8 @@
   · 端侧 node-bridge outbox（节点写 outbox 即发信）
   · 黑板 SSE 事件桥 :8803（可选事件驱动，更快）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

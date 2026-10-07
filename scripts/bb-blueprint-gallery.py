@@ -19,6 +19,8 @@
   python3 bb-blueprint-gallery.py --selfcheck
 访问：http://127.0.0.1:8798/
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, urllib.request, datetime, html, os, math, re, sys, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -1587,6 +1589,7 @@ def build_index(port):
 <div class="tab" data-tab="systems" data-dom="CARRIER">🗄 系统资产</div>
 <div class="tab" data-tab="hardware" data-dom="CARRIER">🖥 硬件载体</div>
 <div class="tab" data-tab="bizmap" data-dom="CARRIER">🌍 跨节点资产</div>
+<div class="tab" data-tab="bp" data-dom="SYS">📙 商业计划书</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1605,6 +1608,7 @@ def build_index(port):
 <div class="main" id="view-systems"></div>
 <div class="main" id="view-hardware"></div>
 <div class="main" id="view-bizmap"></div>
+<div class="main" id="view-bp"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>

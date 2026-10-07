@@ -18,6 +18,8 @@
   python3 route-feedback-replay.py               # 生成 route-feedback-train.jsonl
   python3 route-feedback-replay.py --balance      # 正负样本均衡采样（deposit/skip 等比）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, random, datetime
 
 COLLAB = os.path.expanduser("~/dsh-collab")

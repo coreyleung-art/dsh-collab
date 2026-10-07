@@ -10,6 +10,8 @@
   人类版 http://127.0.0.1:8798/
   AI 版  http://127.0.0.1:8798/ai
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, urllib.request, datetime, html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

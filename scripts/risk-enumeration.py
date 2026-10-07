@@ -9,6 +9,8 @@
 类别默认：architecture,communication,cost,governance,implementation,academic,external
 方法（J39 规范）：回溯相关记录→逐类穷举→概率×影响定级→对策→TOP N→结论
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, sys, datetime
 
 DEFAULT_CATS = ["architecture","communication","cost","governance","implementation","academic","external"]

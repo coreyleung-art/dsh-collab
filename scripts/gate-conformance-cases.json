@@ -1,0 +1,41 @@
+{
+  "schema": "gate-conformance-cases/v1",
+  "purpose": "门的验收回归集（HR 2026-09-14 门三件套：所需值的类型/条数 · 最小满足样本 · 真实样本）。对偶：数的反例是边界例；门的反例是最小满足例。",
+  "★_关键约定_基线不等于规格": "每条同时记 expect_baseline（当前实际输出，仅作回归基线）与 expect_should（**应为**的输出）。运行器把两者分开报；**禁止把 baseline 当规格** —— 否则回归集会保护缺陷。",
+  "subject": "~/dsh-collab/scripts/absence-claim-lint.py（'否定性结论须附观测面声明' 门）",
+  "required_values_declared": "含项 ≥1 · 排除项 ≥1 · 工具（含参数）≥1 · 计数单位 ≥1 · 时刻 ≥1（共 5 类，每类至少一个具体值）",
+  "cases": [
+    {
+      "id": "M1",
+      "name": "最小满足样本（只有名字、没有任何值）",
+      "card": {"结论": "某物不存在", "观测面": "含项 排除项 工具 单位 时刻"},
+      "expect_baseline": "pass",
+      "expect_should": "warn-or-fail",
+      "rationale": "五类名全给但零个具体值 ⇒ 若 pass，说明 pass 条件是名级的（字段名 + 排除项词）。★实测：当前 = pass，与 expect_should **不符** ⇒ 已知缺口。"
+    },
+    {
+      "id": "M2",
+      "name": "名 + 占位伪值（形似值但不可解析）",
+      "card": {"结论": "某物不存在", "观测面": "已查 a；未查 b；工具 grep；单位 行；时刻 T"},
+      "expect_baseline": "pass",
+      "expect_should": "warn-or-fail",
+      "rationale": "`a/b/T` 不是可解析路径/时间戳 ⇒ 若 pass，说明值层未做可解析性判断。"
+    },
+    {
+      "id": "M3",
+      "name": "真实样本（五类值具体且可解析）",
+      "card": {"结论": "某物不存在", "观测面": "已查 /Users/x；未查 /Users/y；工具 grep -rnw；单位 行；时刻 2026-09-14T16:00"},
+      "expect_baseline": "pass",
+      "expect_should": "pass",
+      "rationale": "正控：真实证据必须通过。若此例 fail/warn，则门过严（会误伤合规卡）。"
+    },
+    {
+      "id": "M4",
+      "name": "纯英文支持面（语言边界）",
+      "card": {"结论": "某物不存在", "观测面": "scope: include/exclude/tool/unit/time"},
+      "expect_baseline": "warn",
+      "expect_should": "unsupported（显式报不支持）",
+      "rationale": "HR 裁定：不补英文词（语言无界 ⇒ 增长型枚举面），改为**显式声明支持面 + 不支持的输入显式报「不支持」**。★当前 = warn「缺排除项」 ⇒ **实质满足却因语言被判不满足**，属静默误判。"
+    }
+  ]
+}

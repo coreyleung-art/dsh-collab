@@ -23,6 +23,8 @@
 
 学习就绪度：攒够 ~500 条（且 review 占比下降趋势可见）即可进 v1.2 学习型路由。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, glob, datetime
 
 COLLAB = os.path.expanduser("~/dsh-collab")

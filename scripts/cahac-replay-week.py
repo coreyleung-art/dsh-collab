@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """CAHAC full-week offline replay v0.3 (HR) — real weekly billing x attribution x CAHAC counterfactual"""
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import csv, os, datetime, glob, argparse
 
 SAVE = {"comm": 0.90, "exec": 0.50, "auto": 0.90}

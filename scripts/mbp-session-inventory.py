@@ -6,6 +6,8 @@
 每会话：工作区 / 会话ID / 标题 / 时间范围 / 消息数 / 角色分布 / 首条用户消息 / 主题关键词
 用法: python3 mbp-session-inventory.py [out_dir]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, sys, glob, re
 import zstandard as zstd
 from collections import Counter

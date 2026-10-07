@@ -1,0 +1,694 @@
+{
+  "frame": {
+    "sampled_at": "2026-09-11T06:35Z",
+    "key_source": "本机黑板 /data/ 全量列举",
+    "write_source": "11 个轮转 audit 文件",
+    "span": "2026-08-29T20:13 → 2026-09-11T06:29",
+    "ops_keys": 4211,
+    "ops_writes": 10197
+  },
+  "exempt_candidates_auto_telemetry": {
+    "resource-gate": {
+      "keys": 3243,
+      "writes": 6362
+    },
+    "queue-monitor": {
+      "keys": 1,
+      "writes": 2946
+    },
+    "queue-condense": {
+      "keys": 675,
+      "writes": 648
+    },
+    "pollution": {
+      "keys": 58,
+      "writes": 58
+    }
+  },
+  "registry_candidates_flat": {
+    "keys": 232,
+    "writes": 182,
+    "list": [
+      {
+        "key": "data/ops/i9-annotate-result",
+        "writes": 7
+      },
+      {
+        "key": "data/ops/bom-batch-progress",
+        "writes": 3
+      },
+      {
+        "key": "data/ops/upgrade-isolated-b241741f",
+        "writes": 3
+      },
+      {
+        "key": "data/ops/mbp-rules-sync",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/i9-rules-sync",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/paper-dual-track-audit-20260831",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/r006-v2-generalization-check-20260906",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/r006-v2-closure-summary-20260906",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/hr-lean4-progress-20260906",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/hr-r006-lean4-global-registered-20260906",
+        "writes": 2
+      },
+      {
+        "key": "data/ops/loopback-test",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/blackboard-loopback-exempt",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/return-photos-received",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/jd-dy-adapt-request",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/full-redo-meituan",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/health-check-absorption-eval",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/i9-task-delivery-guide",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/return-photos-i9-delivered",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/full-meituan-delta-batch2",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/nodebridge-v133-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/return-photos-batch2-delivered",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/blueprint-v2-2-ops-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/chat-backfill-stuck",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/imworkbench-404",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/chat-backfill-return-learning",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/concept-dict-trial-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/rules-registry-v2.2.0",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/i9-pending-check-20260831",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/paper-dual-track-audit-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/paper-audit-tool-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/agentsend-violation-governance-20260831",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/d25-3-data-delivered",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/erp-iter-001-notice",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/queue-cleanup-result",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/erp-channel-mapping-5items",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/shipping-annotate-rule",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/blueprint-v2-3-ops-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/erp-history-mapping-confirmed",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/channel-bind-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-signup-stuck",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-signup-request",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-signup-v2-confirm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-skupricing-plan",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-t7-sku-audit",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-signup-audit-complete",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-signup-readiness-audit",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/j45-precheck-4questions",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-zicai-turnover",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/r027-answer-registry",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/r027-batch-registry",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/decision-eval-coordinate",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-cost-market-price",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/r029-integration-answer",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/data-handoff-return-photos-6stores",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/data-handoff-received-aa528267",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-zicai-cost",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/bom-gap-confirmed",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/landed-cost-correction",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/signup-irreversible",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/minimax-vision-research",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/lark-notes-mount-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/cron-load-status-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/signup-reversal-20260901",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/bom-via-minimax",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/minimax-token-cost",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/bom-library-shoubai",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/minimax-vision-proposal",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-subrules-authoritative",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-bom-official",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-zicai-research",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-1688-imagesearch",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-1688-real-prices",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-full-cost-margin",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-abandon-final",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/teacherday-abandon-notify",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/aa528267-online-20260901",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/voice-fix-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/promo-shell-migration-diagnosis",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/aa528267-online-v2",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/test-session-6f7c739c-probe",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/updater-ready-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/star-bridge-restart-sop",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mg1-mg2-done-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/jd-relogin-done-20260902",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/jd-relogin-correction",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/login-registry-norms",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/jd-account-coord-to-mtm",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/voice-research-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/prompt-engine-p1-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-mobile-plan",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-mobile-cbenv",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/christmas-plan-archive-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mbp-gap-handling",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/research-memory-optimization-20260902",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/trae-design-doc-for-laodeng",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/funnel-8798-done",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-13pages-gap-audit",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-demo-protocol-v1.1",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-four-lines-done",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-vs-mtm-positioning-v1",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/product-positioning-coord-register",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-funnel-migration",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-real-asr-live",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-voice-ui-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-tts-live",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-buttons-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-male-voice-live",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-all-voice-nodes",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-vad-live",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-flow-audit",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-back-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-iphone-installed",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-ios-audio-mic-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-wake-word-live",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-version-log-mgmt",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-deliverable-register",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-roadmap",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-v03-v04-plans",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-brand-policy",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-multichannel-narrative",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-blueprint-ack",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-voice-state-machine",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-wx-ptt",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-cache-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mbp-ios-build-request",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mbp-ios-rebuild-request",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-wx-inputbar",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mbp-ios-rebuild-request2",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-orb-fix",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/central-inbox-v2-eval-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-inbox-v2-ack",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-inbox-v2-deploy-verify",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-ios-v4-redispatch",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-ios-v4-installed",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-reboot-selfcheck-20260904",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-r026-window-remind-20260904",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-r026-window-confirm-20260904",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-r026-window-close-20260905",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-xingduo-registered-20260905",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/panel-launchd-guard-decision-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mbp-memory-gov-pull-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mtm-memory-lean4-plan-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mingjian-v3-switch-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/mingjian-v3-close-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/sysops-cron-lean4-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/r006-v2-laodeng-backfill-done-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-zl-registered-ack-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/hr-luopan-registered-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/laodeng-json-body-selfcheck-20260906",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/competitor-scan-mounted-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/store-gate-falsepositive-registry-20260907",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/gate-audit-cld-backlog-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/gate-weekly-audit-20260907",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/cld-mem-20260908",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/r033r034-eval-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/md-open-notion-eval-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/cloudbase-content-block",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/phi12-13-review-b241741f",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe-plaintext-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe-jsoncontrol-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe3-cjson-rawbody-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe4-noct-jsonbody-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe5-string-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe5-null-20260911",
+        "writes": 1
+      },
+      {
+        "key": "data/ops/__probe5-array-20260911",
+        "writes": 1
+      }
+    ]
+  }
+}

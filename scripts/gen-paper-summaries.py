@@ -8,6 +8,8 @@
 输出: data/blueprint/gallery/paper-summaries.json（pid → {summary, source}）
 用法: python3 gen-paper-summaries.py [--only-missing] [--limit N] [--force]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import os, re, json, glob, sys, time, urllib.request
 
 GALLERY = os.path.expanduser("~/dsh-collab/data/blueprint/gallery")

@@ -5,6 +5,8 @@
 验证：① KB embedded 状态 ② doc/chunk 计数 ③ 索引文件同步（research-paper-library-index.md）
 异常 → 写 alerts.md（不打扰用户）。用法：python3 kb-health.py
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, datetime, re
 
 KB = "afa7de13-011a-4c73-a9d6-13492c05cdf7"

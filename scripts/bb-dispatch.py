@@ -16,6 +16,8 @@
   协作者：应加入评估/协作的角色（如涉及成本→HR、涉及质量→QA、涉及设备→设备协调）
   决策沉淀：写黑板 data/dispatch/<seq>（可追溯）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, re, urllib.request, time
 
 BB = "http://127.0.0.1:8792"

@@ -8,6 +8,8 @@
 逻辑：加载基座 + LoRA adapter → 对 test 集 172 条逐条推理 → 解析「沉淀/跳过」→ 算准确率
        + 输出误判样本（供分析过拟合/边界）。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, sys
 
 MODEL = os.path.expanduser("~/mlx-models/Qwen2.5-3B-Instruct-4bit")

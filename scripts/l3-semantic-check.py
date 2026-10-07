@@ -15,6 +15,8 @@ R006 九标准：CLI 形态 / TCC(--selfcheck) / 文档化 / 版本管理(--tool
   python3 l3-semantic-check.py --selfcheck
   python3 l3-semantic-check.py --tool-version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, ast, os
 
 VERSION = "v1.0.0"

@@ -1,0 +1,7 @@
+# 全卷扫描：近 20 分钟内修改的 >100MB 文件  2026-09-11T00:32:49Z
+# find 退出=1（0=完整；非0=异常）  命中=       4
+78749944221 /System/Volumes/Data/private/tmp/node-bridge-mac-mini.log
+11374362624 /System/Volumes/Data/Users/coreyleung/.local/share/file-index/chromadb/chroma.sqlite3
+1599710156 /System/Volumes/Data/Users/coreyleung/.local/share/file-index/chromadb/1a3f1074-e940-42dc-8709-2f582d3f8221/data_level0.bin
+178014766 /System/Volumes/Data/Users/coreyleung/.dsh/sessions/--Users-coreyleung--/session-fa1f9150-c949-401f-ba8c-d265f6221676/session.jsonl.zstd
+done

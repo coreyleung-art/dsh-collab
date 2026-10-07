@@ -7,6 +7,8 @@
 零 LLM 成本。用法：
   python3 waimai-replay.py --since 2026-08-19 --until 2026-08-20 [--store 客村店] [--out report.md]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, glob, datetime
 
 OUT = os.path.expanduser("~/dsh-collab/token-monitor/waimai-audit")

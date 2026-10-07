@@ -1,0 +1,144 @@
+#!/bin/bash
+# passcodes — 本机口令取用入口（bash 3.2 兼容；macOS 自带 bash 即 3.2）
+#   前提（用户 2026-09-11 口径）：对真正的合作伙伴不设防；但「值不进入无关系统」保留。
+#   因而不写日志、不把值当参数传给外部程序。
+#
+# ★ 两道结构防线（2026-09-11 事故后加）：
+#   F1  pw_of 只接受 1..MAXSLOT 的整数；任何空/非法参数一律拒绝
+#       —— 事故成因：旧版用 ${1^^}（bash4 语法，在本机失败）⇒ 行号变空 ⇒
+#          pw_of "" 退化成 `sed -n "p"` ⇒ 打印整个口令文件。
+#   F2  调用点必须处理失败分支，不得把失败值直接当命令参数
+set -uo pipefail
+
+PASSFILE="${PASSCODES_FILE:-$HOME/dsh-collab/data/device/access-passwords-v2.txt}"
+TABLE="${PASSCODES_TABLE:-$HOME/dsh-collab/data/device/PASSCODE-SLOTS-AUTHORITATIVE.md}"
+MAXSLOT="${PASSCODES_MAX:-20}"
+
+die(){ printf '%s\n' "$1" >&2; exit 1; }
+upper(){ printf '%s' "${1:-}" | tr '[:lower:]' '[:upper:]'; }
+lower(){ printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]'; }
+
+[ -r "$PASSFILE" ] || die "读不到口令文件: $PASSFILE"
+[ -r "$TABLE" ]    || die "读不到槽位表: $TABLE"
+
+# 口令文件实际行数（用于判断某槽位是否真的定义过）
+nlines(){ wc -l < "$PASSFILE" | tr -d ' '; }
+
+# F1：槽位 -> 行号；非法 / 越过文件实际行数 / 超过上限，一律返回非 0
+line_of(){
+  local s; s=$(upper "${1:-}"); s="${s#S}"
+  case "$s" in ''|*[!0-9]*) return 1 ;; esac
+  local n=$((10#$s)) L; L=$(nlines)
+  [ "$n" -ge 1 ]       || return 1
+  [ "$n" -le "$L" ]    || return 1     # ★ 不越过文件实际行数（防「空口令」）
+  [ "$n" -le "$MAXSLOT" ] || return 1
+  printf '%s' "$n"
+}
+
+# F1：没拿到合法行号就不碰文件；拿到了也要非空才认（双保险）
+pw_of(){
+  local n; n=$(line_of "${1:-}") || return 1
+  local v; v=$(sed -n "${n}p" "$PASSFILE")
+  [ -n "$v" ] || return 1              # ★ 空 ⇒ 视为该槽位未定义，绝不返回空值
+  printf '%s' "$v"
+}
+
+# 槽位 -> 收件人（从权威表解析；范围行 S05-S08 / S09-S20 不含 **S**，自动跳过）
+recipients(){
+  grep -oE '^\| \*\*S[0-9]{2}\*\* \| [^|]+\|' "$TABLE" \
+  | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/,"",$2); gsub(/\*/,"",$2);
+                gsub(/^[ \t]+|[ \t]+$/,"",$3); print $2"\t"$3}'
+}
+
+cmd_list(){
+  local s rc pw
+  echo "# 值只在本终端显示；不要粘贴进对话 / 日志 / 卡片"
+  printf '%-6s %-20s %s\n' 槽位 收件人 口令
+  while IFS=$'\t' read -r s rc; do
+    if pw=$(pw_of "$s"); then
+      printf '%-6s %-20s %s\n' "$s" "$rc" "$pw"
+    else
+      printf '%-6s %-20s %s\n' "$s" "$rc" "(未定义：口令表只有 $(nlines) 行)"
+    fi
+  done < <(recipients)
+  echo "# 备用槽位（未分配，可直接给新人）: S05-S08"
+}
+
+cmd_show(){
+  local s="${1:-}"; [ -n "$s" ] || die "用法: passcodes show <S03>"
+  local up; up=$(upper "$s")
+  local rc; rc=$(recipients | awk -F'\t' -v k="$up" '$1==k{print $2}')
+  local pw; pw=$(pw_of "$up") || die "取不到 $up：口令表只有 $(nlines) 行（或该行为空）——未定义即不给空值"
+  printf '%s  %s  %s\n' "$up" "${rc:-（未在表中）}" "$pw"
+}
+
+cmd_copy(){
+  local s="${1:-}"; [ -n "$s" ] || die "用法: passcodes copy <S03>"
+  local pw; pw=$(pw_of "$(upper "$s")") || die "槽位无效: $s"
+  printf '%s' "$pw" | pbcopy && echo "已复制 ${s} 到剪贴板（未在终端回显）"
+}
+
+cmd_who(){
+  local q="${1:-}"; [ -n "$q" ] || die "用法: passcodes who <名字>"
+  local ql; ql=$(lower "$q")
+  local s
+  s=$(recipients | awk -F'\t' -v q="$ql" 'index(tolower($2), q)>0{print $1; f=1} END{if(!f)exit 1}') \
+    || die "表中没有匹配 \"$q\" 的收件人"
+  cmd_show "$s"
+}
+
+cmd_pending(){
+  local s rc pw line
+  while IFS=$'\t' read -r s rc; do
+    line=$(grep -E "^\| \*\*$s\*\* " "$TABLE" || true)
+    case "$line" in *"已发出"*) continue ;; esac
+    [ -n "$line" ] || continue
+    if pw=$(pw_of "$s"); then printf '%-6s %-20s %s\n' "$s" "$rc" "$pw"
+    else printf '%-6s %-20s %s\n' "$s" "$rc" "(取不到)"; fi
+  done < <(recipients)
+  echo "# 以上是表中尚未标「已发出」的槽位"
+}
+
+cmd_mark(){
+  local s="${1:-}" act="${2:-}"
+  [ -n "$s" ] && [ -n "$act" ] || die "用法: passcodes mark <S03> sent|hold"
+  local up; up=$(upper "$s")
+  line_of "$up" >/dev/null || die "槽位无效: $s"
+  local d; d="$(date +%F)"
+  case "$act" in
+    sent) sed -i '' -E "s@^(\| \*\*$up\*\* \| [^|]*\| [^|]*\| )待发( \| )—( \|)@\1**已发出**\2$d\3@" "$TABLE" ;;
+    hold) sed -i '' -E "s@^(\| \*\*$up\*\* \| [^|]*\| [^|]*\| )\*\*已发出\*\*( \| )[0-9-]+( \|)@\1待发\2—\3@" "$TABLE" ;;
+    *) die "第二参数应是 sent 或 hold" ;;
+  esac
+  grep -E "^\| \*\*$up\*\* " "$TABLE"
+}
+
+usage(){
+  cat <<'EOF'
+passcodes — 本机口令取用（值只在本终端/剪贴板，不进对话或日志）
+
+  passcodes list              列出 槽位 / 收件人 / 口令
+  passcodes show S03          只显示一条
+  passcodes copy S03          复制到剪贴板（不回显）
+  passcodes who oscar         按收件人名找槽位
+  passcodes pending           列出表中非「已发出」的槽位
+  passcodes mark S03 sent     标记为已发出（改权威表）
+  passcodes mark S03 hold     退回待发
+
+文件（可用环境变量覆盖）:
+  口令: $PASSCODES_FILE   （默认 ~/dsh-collab/data/device/access-passwords-v2.txt）
+  表  : $PASSCODES_TABLE  （默认 ~/dsh-collab/data/device/PASSCODE-SLOTS-AUTHORITATIVE.md）
+  上限: $PASSCODES_MAX    （默认 20；超出即拒绝读值）
+EOF
+}
+
+case "${1:-}" in
+  list)    cmd_list ;;
+  show)    cmd_show "${2:-}" ;;
+  copy)    cmd_copy "${2:-}" ;;
+  who)     cmd_who  "${2:-}" ;;
+  pending) cmd_pending ;;
+  mark)    cmd_mark "${2:-}" "${3:-}" ;;
+  ""|-h|--help|help) usage ;;
+  *) die "未知子命令: $1（试 passcodes --help）" ;;
+esac

@@ -5,6 +5,8 @@ Input: KB document list JSON (agent exports via knowledge_list_documents + stats
 Output: research-paper-library-index.md (auto-updated on every ingestion)
 Usage: python3 kb-index-gen.py --docs docs.json [--stats stats.json] [--out PATH]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, datetime
 
 def main():

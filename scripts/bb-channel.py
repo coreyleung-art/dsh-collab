@@ -19,6 +19,8 @@
   channel=thread     → action 指示走线程
   channel=eventbus   → action 指示发事件
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, re, sys, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

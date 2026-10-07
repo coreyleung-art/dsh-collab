@@ -18,6 +18,8 @@
       --add-work "供应链支线" --work-stage p2 --work-owner 明鉴 --work-status todo
   python3 bb-workbench.py deploy --check-only   # 只校验 BP-9 字段完整性
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os
 
 BB = "http://127.0.0.1:8792"

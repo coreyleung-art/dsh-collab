@@ -4,9 +4,9 @@
 >   xq:Rxx = 本账本（mac-mini）｜ mbp:Rxx = MBP 账本｜编号冻结不重编。
 >   消歧表：本目录 rules-id-collision-map.md（与双板 data/registry/rules-id-collision-map 同源）。
 
-> v2.22.0 | 62 条 | 所有总线设备必须服从
+> v2.23.5 | 64 条 | 所有总线设备必须服从
 >
-> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R45 · J13 · R-ERR4 = 62`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
+> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R47 · J13 · R-ERR4 = 64`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
 > 此前声明「76 条」与 `rules-cli audit` 的 78、实际标题数均不符 ⇒ **计数不可核 = 声明无效**（R030）。核验：`rules-integrity.py`。
 > ⚠️ **格式约束（HR 自纠 2026-09-11）**：首行**必须保留 `N 条` 形式**（如 `83 条`）—— 改动声明格式而不同步消费方解析器，会让门读成「v? | ? 条」。分区明细写在下方注里，不替换首行。
 >
@@ -400,6 +400,18 @@
 - 摘要: AGENT NETWORK CHARTER（data/registry/agent-network-charter）为全员协作基线：本地镜像 + 预检指针 + version 同步纪律 + 冲突上报义务（发现章程与实测冲突先上报，不照做）
 - 详情: ①章程=协作规则共识（黑板/通讯/红绿灯/变更门/验证纪律/R042/R043/索引/运营状态）+服务器运维规范 ②镜像判据：逐字取板载原文+sha256 留证 ③冲突上报义务：条款与实测冲突必须上报等修订（例：8634 卡 §6 queued 过期条款）④预检指针单一入口=章程
 - 关联: R044（服务器操作门）/ R030（无验证不陈述）
+
+## R046 ✅ 验收门（自审无效、第三方必须在场）（2026-10-04 老板指令 · 星桥入账 · v1.1.4）
+- 分类: 治理 | 范围: all-bus-devices | 状态: enforced
+- 摘要: 任何「验收通过」不得自说自话：提出判据方不得同时是执行方与裁定方；通过由第三方裁定；裁定须显式声明裁定面 + 附原始证据；自我更正同样受门约束；新接入端侧自检清单必含本门
+- 详情: ①运行门 tools/acceptance-gate.py v1.1（--check/--selftest/--lean4-check；v1.1 补证据解析；v1.1.1 封「仅内联 evidence」旁路（裁判 preset 首审）；v1.1.2 版本单一来源+空 needle 用法错；v1.1.3 拒绝信息与 exit 1 语义对齐：board: 双板 200、board-local/central: 单板、file:/log:/marker: 存在+可选 ::contains: 断言——MBP 负控复现「凭空证据过门=假绿」后封死；v1.1.4 新增 surfaceMeasured 判据：裁定面必须由实测划定——surface_measured 非空且全部可解 + surface_unmeasured 字段必须在场（缺字段=未测边界由假设划定），selftest 1 正 10 负（新增负8/9/10），来源=PSTD v5 教训「范围由实测划定不能由假设划定」+ 用户点头正式化）②形式化规范 rules-registry/lean4/acceptance-gate.lean（定理 1-6：提出=裁定无效 / 执行=裁定无效 / 三方合一无效 / 未声明面无效 / 面未实测划定无效 / 三方分明正例）③valid(c) := 第三方在场 ∧ 声明裁定面 ∧ 面由实测划定 ∧ 证据在场 ④自我更正=同门（correctionValid := valid）
+- 关联: R030（无验证不陈述）/ 章程 §5（自审无效条款）/ R045（章程基线）
+
+## R047 ✅ 插件/工具命名准入门（N1–N8）（2026-10-05 星桥裁定 · PSTD 提请 · v1.0.4）
+- 分类: 治理 | 范围: all-bus-devices | 状态: enforced
+- 摘要: 新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.3），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名；豁免须显式声明，禁止声明即豁免
+- 详情: ①执行点=plugin_name_gate check（新名校验）/allocate（用途→规范标识）——P2 已落盘 ~/dsh-plugin-pstd v1.0.3 并经 dsh plugin add 挂载（deps+bundles+符号链接三件齐备，dump-config 合成验证 2026-10-06 01:4x）；重启存活待最近受控窗口验证后改常驻 ②执行面在本机（workspaceRoot/~ + ~/dsh-collab/devices），跨设备由各设备各自运行 PSTD 或由本机分发落盘包 ③2026-10-05 全机命名审计存量：agent-bus 包名漂移（属主星桥，重启窗口内改）/ files·md-preview·ui-spec·openpencil 包名≠目录名（属主各自，openpencil 走 R047 豁免声明（对应 N2）或改名前确认）/ devices cldvoice.bak-* 4 目录（属主星桥，归档保留）/ workflow 缺 cordis.patch.yml 插件行（CLI 形态豁免声明待属主补）/ bb-card-send·channel-gate·drift-scan·launchd-scan 插件行 id 写全包名（N3：id===slug 违规，2026-10-06 裁判审计补登，早于 10-05 审计即存在，7 天宽限后如未改将静默存活）④PSTD 自证矩阵负例 15 条全拒+正例 12 条全可用（运行时 selfproof 实测）⑤登记（黑板卡/data/registry 卡）暂无命名门；如需覆盖由 PSTD 另立件 ⑥N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 rules-registry/verify-naming-standard.py（星桥机械实测 PASS：19/19 向量、8/8 负控红、6 字段变异自检全覆盖；登记卡 data/registry/naming-standard-n1-n8；PSTD 第三方复核 v1.0.2 通过：三 artifacts 可解析、pending 已清）
+- 关联: R006（插件化工具化标准）/ R046（验收门：命名门自证须第三方在场）
 
 ## retiredEntries（R041 退役索引 · 数据搬出账本留痕，溯源不悬空）
 - J31 | retiredAt:2026-10-04 | retiredBy:R041 | movedTo:ledgerIndex.keys | 原名:R3 插件代码产物共享读

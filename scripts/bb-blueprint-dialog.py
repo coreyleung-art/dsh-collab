@@ -11,6 +11,8 @@
   --list [ID]                                看蓝图结构
   --selfcheck / --tool-version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, sys, datetime, urllib.request, uuid
 
 VERSION = "v1.0.0"

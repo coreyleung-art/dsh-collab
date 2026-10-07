@@ -28,8 +28,13 @@ def save_seen(s):
 def bb_put(url, val):
     try:
         body = json.dumps(val).encode()
-        req = urllib.request.Request(url, data=body, method="PUT",
-            headers={"Content-Type": "application/json"})
+        headers = {"Content-Type": "application/json"}
+        try:
+            with open(os.path.expanduser("~/.dsh/blackboard-token")) as f:
+                headers["Authorization"] = "Bearer " + f.read().strip()  # ★ A1 写端鉴权预备
+        except Exception:
+            pass
+        req = urllib.request.Request(url, data=body, method="PUT", headers=headers)
         with urllib.request.urlopen(req, timeout=8) as r:
             return r.status == 200
     except Exception as e:

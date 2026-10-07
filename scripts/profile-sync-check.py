@@ -12,6 +12,8 @@ profile-sync-check v1 —— 档案/登记表一致性检查（资源登记 watc
 
 纪律：只读检查，不写文件、不广播（J34）；秒级时间观可随时跑。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re

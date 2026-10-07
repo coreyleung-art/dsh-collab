@@ -29,6 +29,8 @@ R006 十项标准对照:
 
 零 LLM 原则: 纯规则 + 文件系统/JSONL 解析 (记忆用会话内已有 compaction 摘要, 不另耗 token)。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, shutil, datetime, subprocess, sys, glob
 
 VERSION = '1.0.0'

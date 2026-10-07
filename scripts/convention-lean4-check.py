@@ -10,6 +10,8 @@
   python3 convention-lean4-check.py --gates C4,C8  # 只跑指定断言
 退出码: 0=全过 1=有 FAIL 2=运行错误
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, subprocess, sys, time, datetime
 
 NODES = {"mac-mini", "mbp", "i9"}
@@ -348,6 +350,105 @@ def g_c42_cross_device_bus_only():
         return False, f"bb 查失败: {str(e)[:50]}"
 
 
+def g_c43_channel_gate():
+    """G-C43：channel-gate 结构门自证全绿（R036 自动检查）"""
+    import subprocess, os
+    r = subprocess.run(["/opt/homebrew/bin/node", os.path.expanduser("~/dsh-plugin-channel-gate/cli.js"), "--lean4-check"],
+                       capture_output=True, text=True, timeout=60)
+    ok = r.returncode == 0
+    return ok, ("门 A-F 全绿" if ok else f"门红: {(r.stdout or r.stderr)[-120:]}")
+
+def g_c44_drift_scan_clean():
+    """G-C44：通道漂移扫描 0 漂移（R036 自动检查）"""
+    import subprocess, os
+    r = subprocess.run(["/opt/homebrew/bin/node", os.path.expanduser("~/dsh-plugin-drift-scan/cli.js"), "--json"],
+                       capture_output=True, text=True, timeout=90)
+    if r.returncode != 0:
+        return False, f"exit {r.returncode}"
+    try:
+        import json
+        d = json.loads(r.stdout)
+        return d["driftCount"] == 0, f"漂移 {d['driftCount']}/{d['total']}"
+    except Exception as e:
+        return False, f"输出解析失败 {e}"
+
+
+def g_c45_send_gate():
+    """G-C45：agent-way 发送门禁存在（R002⑥ v2.4 结构闸门，Gap 2 闭环）"""
+    import os
+    p = os.path.expanduser("~/dsh-plugin-agent-bus/lib/index.js")
+    try:
+        src = open(p).read()
+        has_threshold = "THRESHOLD = 50" in src or "const THRESHOLD" in src
+        has_deny = "deny" in src and "写黑板" in src
+        return has_threshold and has_deny, ("门禁常量+拒绝路径在位" if (has_threshold and has_deny) else f"threshold={has_threshold} deny={has_deny}")
+    except Exception as e:
+        return False, str(e)
+
+def g_c46_no_agent_retry():
+    """G-C46：agent 侧发送封装无循环重试路径（降级纪律 v1 G-C20 落地，Gap 4）"""
+    import os
+    p = os.path.expanduser("~/dsh-plugin-agent-bus/lib/index.js")
+    try:
+        src = open(p).read()
+        # 发送函数体内不允许 while/for 重试环（粗略静态断言：sendMessage 函数体无 retry/while 循环）
+        import re
+        m = re.search(r"function sendMessage\([^)]*\) \{(.*?)\n  \}", src, re.S)
+        body = m.group(1) if m else src
+        has_retry_loop = bool(re.search(r"while\s*\(|for\s*\(.*retry", body))
+        return not has_retry_loop, ("发送路径无重试环" if not has_retry_loop else "疑似重试环")
+    except Exception as e:
+        return False, str(e)
+
+def g_c48_doc_cn():
+    """G-C48：R039 工具中文描述文档机械门（冻结清单逐项核验，2026-10-03 用户指示）"""
+    import subprocess, os
+    r = subprocess.run(["python3", os.path.expanduser("~/dsh-collab/scripts/doc-cn-check.py"), "--manifest",
+                        os.path.expanduser("~/dsh-collab/scripts/tool-doc-manifest.json")],
+                       capture_output=True, text=True, timeout=60)
+    if r.returncode not in (0, 1):
+        return False, f"exit {r.returncode}: {(r.stdout or r.stderr)[-100:]}"
+    try:
+        import json
+        d = json.loads(r.stdout)
+        ok = d["ok"] and d["passed"] == d["checked"]
+        pend = "; ".join(d.get("pending") or []) or "无"
+        return ok, (f"清单 {d['passed']}/{d['checked']} 达标 · 待补课: {pend}" if ok else f"未达标 {d['checked']-d['passed']} 项")
+    except Exception as e:
+        return False, f"输出解析失败 {e}"
+
+
+def g_c47_single_proxy():
+    """G-C47：跨设备发送仅经守护，agent 插件无服务器直连（降级纪律 v1 G-C21 落地，Gap 4）"""
+    import os
+    hits = []
+    for plug in ["dsh-plugin-agent-bus", "dsh-plugin-central-inbox", "dsh-plugin-guard"]:
+        p = os.path.expanduser(f"~/{plug}/lib/index.js")
+        try:
+            src = open(p).read()
+            if "xingqiao.meetfunbp.com" in src or "106.53.214.108" in src:
+                hits.append(plug)
+        except Exception:
+            pass
+    ok = len(hits) == 0
+    return ok, ("agent 插件无服务器直连（守护是唯一代理）" if ok else f"直连发现: {hits}")
+
+
+def g_c19_degrade_state():
+    """G-C19：守护含探照灯状态机（降级纪律 v1 机械化，2026-10-02 三期）"""
+    import os
+    p = os.path.expanduser("~/dsh-collab/comm-server/device-daemon.py")
+    try:
+        src = open(p).read()
+        has_judge = "def judge_degrade" in src
+        has_backoff = "DEGRADE_BACKOFF_S" in src
+        has_alert = "def degrade_alert" in src
+        ok = has_judge and has_backoff and has_alert
+        return ok, ("探照灯状态机在位（判定+退避+告警卡）" if ok else f"judge={has_judge} backoff={has_backoff} alert={has_alert}")
+    except Exception as e:
+        return False, str(e)
+
+
 GATES = {
     "C1": ("identity-self", g_c1_identity_self),
     "C2": ("daemon-alive", g_c2_daemon_alive),
@@ -380,7 +481,19 @@ GATES = {
     "C40": ("collab-semantic-source", g_c40_collab_semantic_source),
     "C41": ("recipient-home-gate", g_c41_recipient_home_gate),
     "C42": ("cross-device-bus-only", g_c42_cross_device_bus_only),
+    # R036 通道变更治理门（2026-10-02）
+    "C43": ("channel-gate-lean4", g_c43_channel_gate),
+    "C44": ("drift-scan-clean", g_c44_drift_scan_clean),
+    "C19": ("degrade-state", g_c19_degrade_state),
+    "C45": ("send-gate", g_c45_send_gate),
+    "C46": ("no-agent-retry", g_c46_no_agent_retry),
+    "C47": ("single-proxy", g_c47_single_proxy),
+    "C48": ("doc-cn", g_c48_doc_cn),
 }
+
+
+
+
 
 def main():
     ap = argparse.ArgumentParser()

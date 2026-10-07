@@ -1348,6 +1348,7 @@ function switchTab(name){
   else if(name==='systems'&&!window.__sysDone){window.__sysDone=true;renderSystems()}
   else if(name==='hardware'){renderHardware()}
   else if(name==='bizmap'&&!window.__bizDone){window.__bizDone=true;renderBizMap()}
+  else if(name==='bp'&&!window.__bpDone){window.__bpDone=true;renderBP()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}
@@ -1489,6 +1490,37 @@ function renderRelations(){
   gb.addEventListener('click',ev=>{
     // hover 弹层已由 buildForceGraph 管理——子树信息加到 tooltip
   });
+}
+function renderBP(){
+  const box=$('view-bp'); if(!box)return;
+  // ★ 动态基址：线上（CloudBase/Funnel）走同级 bp/ 目录，本地走 8812 的 /bp/ 路由
+  const _isPublic = /(\.ts\.net|\.trycloudflare\.com)$/.test(location.hostname) || location.protocol==='https:';
+  const BP = _isPublic ? 'bp' : 'http://127.0.0.1:8812/bp';
+  const views=[
+    {k:'bpall',t:'📄 总入口（四板块一页切换）',u:BP+'/index.html',d:'单文件入口：商业计划书 / 相关方文件 / 启动资金与各轮计划 / 平台格局图，顶部 tab 切换，含全部图表'},
+    {k:'bpplan',t:'📘 商业计划书（带图）',u:BP+'/plan.html',d:'六部分：开篇 / 对外表述（红杉十模块）/ 对内表述（BP9+组织与技术架构）/ 启动资金与各轮 / 股权与治理+引擎结论 / 推理依据；含 15 张图表'},
+    {k:'bpstake',t:'🤝 相关方文件（带图）',u:BP+'/stakeholder.html',d:'各方投入·获得·承担；公司结构（两股东+声通在橙果内）；治理四层；对赌两层结构；各轮选项；谈判清单；含 6 张图表'},
+    {k:'bpcap',t:'💰 启动资金与各轮计划（带图）',u:BP+'/capital.html',d:'1000 万元九类明细（含单位成本与依据）/ 季度分布 / 验收 8 项 / Pre-A·A·B·Pre-IPO 各轮 / 估值跃升依据 / 条款演变；含 7 张图表'},
+    {k:'bpmap',t:'🗺 平台格局与战位图',u:BP+'/map.html',d:'13 面板：组合拳 / 靠 AI 赢 / 全国城市双层 / 预算九类 / 八条线总纲 / 引擎推演图谱'}
+  ];
+  box.innerHTML='<div style="max-width:1500px;margin:0 auto">'
+    +'<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap">'
+    +'<h2 style="font-size:19px;margin:0">📙 商业计划书</h2>'
+    +'<span style="font-size:12px;color:#8b90a3">明鉴 2026-09-10 · 六部分统稿（开篇/对外红杉十模块/对内BP9+架构/轮次预算+行动计划/股权治理+引擎结论/推理依据与路径得失）</span></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
+    + views.map((v,i)=>'<button class="bpv'+(i===0?' on':'')+'" data-u="'+v.u+'" data-t="'+v.t+'" data-d="'+v.d+'" style="cursor:pointer;padding:7px 13px;border-radius:8px;border:1px solid #2a3245;background:#161b26;color:#e7ecf5;font-size:12.5px">'+v.t+'</button>').join('')
+    +'</div>'
+    +'<div id="bpdesc" style="font-size:11.5px;color:#6f7686;margin-bottom:8px">'+views[0].d+'</div>'
+    +'<iframe id="bpframe" src="'+views[0].u+'" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:0;border-radius:12px;background:#0e1117"></iframe>'
+    +'</div>';
+  box.querySelectorAll('button.bpv').forEach(b=>{
+    b.onclick=()=>{
+      box.querySelectorAll('button.bpv').forEach(x=>{x.classList.remove('on');x.style.background='#161b26';x.style.borderColor='#2a3245';});
+      b.classList.add('on'); b.style.background='#1c2233'; b.style.borderColor='#4f8cff';
+      $('bpframe').src=b.dataset.u; $('bpdesc').textContent=b.dataset.d;
+    };
+  });
+  const f=box.querySelector('button.bpv'); if(f){f.style.background='#1c2233';f.style.borderColor='#4f8cff';}
 }
 function renderDash(){
   // 🏠 总览 = 指挥台: 全景统计 + 导览 + 状态速览(各区块 emoji 已去重)

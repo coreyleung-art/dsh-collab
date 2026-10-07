@@ -10,6 +10,8 @@ upsert 准备。蓝图 2.5 数据打通核心（数据已就绪：commodityData 
   python3 waimai-erp-import.py --csv '<路径>' --out map.json   # 输出映射
   python3 waimai-erp-import.py --list-exports                  # 列出现有导出
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import csv, json, sys, glob, os, argparse, datetime
 from collections import defaultdict
 

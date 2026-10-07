@@ -7,6 +7,8 @@
 用法：python3 rules-sync.py [--force]
 launchd：com.dsh.hr.rules-sync（每日 09:35）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, hashlib, datetime, sys
 sys.path.insert(0, "/Users/coreyleung/.claude/automation")
 from lib import chroma_index

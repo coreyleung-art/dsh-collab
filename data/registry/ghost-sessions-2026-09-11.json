@@ -1,0 +1,1165 @@
+{
+ "summary": {
+  "scanned": 379,
+  "primary": 82,
+  "subagent": 297,
+  "orphan_subagent": 0,
+  "primary_mb": 743.4,
+  "subagent_mb": 156.7,
+  "ghosts": 65,
+  "ghost_mb": 267.5,
+  "g1_unregistered": 42,
+  "g2_roleless": 41,
+  "g4_residue": 65,
+  "sudden_recent": 65,
+  "total_mb": 267.5,
+  "days": 30,
+  "ts": "2026-09-11T00:42:17"
+ },
+ "ghosts": [
+  {
+   "session": "e1944c8a",
+   "full_id": "session-e1944c8a-350d-45aa-8532-a2fe4a4ad6be",
+   "kind": "primary",
+   "mtime": "2026-08-18",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 24,
+   "score": 120
+  },
+  {
+   "session": "614ac79c",
+   "full_id": "session-614ac79c-a81e-4886-8488-487186d60846",
+   "kind": "primary",
+   "mtime": "2026-08-29",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 13,
+   "score": 120
+  },
+  {
+   "session": "bc3d5a0f",
+   "full_id": "session-bc3d5a0f-bef2-486a-8c4c-397332731206",
+   "kind": "primary",
+   "mtime": "2026-08-29",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 13,
+   "score": 120
+  },
+  {
+   "session": "3536c075",
+   "full_id": "session-3536c075-c350-4f37-8b2a-eafdd7459056",
+   "kind": "primary",
+   "mtime": "2026-08-27",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 15,
+   "score": 120
+  },
+  {
+   "session": "85c46b31",
+   "full_id": "session-85c46b31-2c84-4e22-b8a9-0dc31f7dc52b",
+   "kind": "primary",
+   "mtime": "2026-08-18",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 24,
+   "score": 120
+  },
+  {
+   "session": "fdeeb3e4",
+   "full_id": "session-fdeeb3e4-2911-43e7-9aa6-bd6a18fe1abd",
+   "kind": "primary",
+   "mtime": "2026-08-29",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 13,
+   "score": 120
+  },
+  {
+   "session": "5f4f3795",
+   "full_id": "session-5f4f3795-4560-4f21-8298-3a10227dd3d9",
+   "kind": "primary",
+   "mtime": "2026-09-08",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 3,
+   "score": 120
+  },
+  {
+   "session": "288848db",
+   "full_id": "session-288848db-0aa2-44d3-a5e1-26dd30cc8aa1",
+   "kind": "primary",
+   "mtime": "2026-08-27",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 15,
+   "score": 120
+  },
+  {
+   "session": "9cb82993",
+   "full_id": "session-9cb82993-d6cc-45b3-9eac-481aa929d2c4",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 27,
+   "score": 120
+  },
+  {
+   "session": "776f81c7",
+   "full_id": "session-776f81c7-ec74-4879-a800-6c5af2f37318",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 27,
+   "score": 120
+  },
+  {
+   "session": "9276e5ee",
+   "full_id": "session-9276e5ee-ade6-4466-8359-075ecca8426e",
+   "kind": "primary",
+   "mtime": "2026-08-30",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 12,
+   "score": 120
+  },
+  {
+   "session": "44e18748",
+   "full_id": "session-44e18748-39a0-4736-96d0-974b7dc01d11",
+   "kind": "primary",
+   "mtime": "2026-09-04",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 7,
+   "score": 120
+  },
+  {
+   "session": "2ae77706",
+   "full_id": "session-2ae77706-c92e-4c57-bd8c-9d79c28d2187",
+   "kind": "primary",
+   "mtime": "2026-08-18",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 24,
+   "score": 120
+  },
+  {
+   "session": "89cb5c61",
+   "full_id": "session-89cb5c61-f1db-4258-826a-c793032cc31f",
+   "kind": "primary",
+   "mtime": "2026-09-09",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 2,
+   "score": 120
+  },
+  {
+   "session": "78ab905e",
+   "full_id": "session-78ab905e-8a4b-4af6-be53-45b69aeaf851",
+   "kind": "primary",
+   "mtime": "2026-08-28",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 14,
+   "score": 120
+  },
+  {
+   "session": "16d41743",
+   "full_id": "session-16d41743-aece-49fc-adb0-deb188ccdc4e",
+   "kind": "primary",
+   "mtime": "2026-08-23",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 19,
+   "score": 120
+  },
+  {
+   "session": "17d6767b",
+   "full_id": "session-17d6767b-7567-4fd6-bb3c-ea4b89d0213b",
+   "kind": "primary",
+   "mtime": "2026-09-08",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 3,
+   "score": 120
+  },
+  {
+   "session": "0e0edb48",
+   "full_id": "session-0e0edb48-75d1-4c8c-8752-28f88a6fb639",
+   "kind": "primary",
+   "mtime": "2026-09-10",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 1,
+   "score": 120
+  },
+  {
+   "session": "ec31502a",
+   "full_id": "session-ec31502a-82cc-47eb-bdf6-521e5fe8beaa",
+   "kind": "primary",
+   "mtime": "2026-09-09",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 2,
+   "score": 120
+  },
+  {
+   "session": "a120f18c",
+   "full_id": "session-a120f18c-6e95-48ff-b672-6e1aec4562fd",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 25,
+   "score": 120
+  },
+  {
+   "session": "f85757a6",
+   "full_id": "session-f85757a6-e96a-4ef3-9b63-a32854a53824",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.0,
+   "size_kb": 0.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4",
+    "G5"
+   ],
+   "age_days": 25,
+   "score": 120
+  },
+  {
+   "session": "ce836fb7",
+   "full_id": "session-ce836fb7-9c2c-4b68-b60b-2e239294046a",
+   "kind": "primary",
+   "mtime": "2026-08-22",
+   "size_mb": 8.4,
+   "size_kb": 8601.6,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 20,
+   "score": 110
+  },
+  {
+   "session": "28ca132e",
+   "full_id": "session-28ca132e-c04f-4f51-af60-db95404a21a8",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 7.1,
+   "size_kb": 7270.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 110
+  },
+  {
+   "session": "908749c1",
+   "full_id": "session-908749c1-8cd8-424f-b91c-7418cb198715",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 2.4,
+   "size_kb": 2457.6,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 100
+  },
+  {
+   "session": "c73d4226",
+   "full_id": "session-c73d4226-e60a-4cad-8ca2-00bcee3fe8ae",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 2.2,
+   "size_kb": 2252.8,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 100
+  },
+  {
+   "session": "50493b10",
+   "full_id": "session-50493b10-7ac5-4eb4-96de-7f7f8964b032",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 1.1,
+   "size_kb": 1126.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "2432af3a",
+   "full_id": "session-2432af3a-5f07-4617-9719-7a2824102b85",
+   "kind": "primary",
+   "mtime": "2026-08-22",
+   "size_mb": 0.5,
+   "size_kb": 512.0,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 20,
+   "score": 100
+  },
+  {
+   "session": "d92bc239",
+   "full_id": "session-d92bc239-b40e-4ce7-8c3b-6736471d2fc9",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 0.3,
+   "size_kb": 307.2,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 100
+  },
+  {
+   "session": "6b392e81",
+   "full_id": "session-6b392e81-5719-490f-971d-b613db2e3363",
+   "kind": "primary",
+   "mtime": "2026-08-23",
+   "size_mb": 0.2,
+   "size_kb": 204.8,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 19,
+   "score": 100
+  },
+  {
+   "session": "106565ce",
+   "full_id": "session-106565ce-5586-4ea4-982c-c09a124bc68c",
+   "kind": "primary",
+   "mtime": "2026-08-22",
+   "size_mb": 0.2,
+   "size_kb": 204.8,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 20,
+   "score": 100
+  },
+  {
+   "session": "3091a465",
+   "full_id": "session-3091a465-5692-4034-954b-fa44f65bc3ad",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "b3285ee3",
+   "full_id": "session-b3285ee3-0491-4a2c-8efc-998e3c36160f",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "c489df0f",
+   "full_id": "session-c489df0f-6ec8-4826-93fd-a905c04d3f07",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "f36ba2da",
+   "full_id": "session-f36ba2da-664c-465a-930b-4c631da31b6d",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "31710be6",
+   "full_id": "session-31710be6-2cae-449b-bb23-b291c1baed5c",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "d6978f90",
+   "full_id": "session-d6978f90-1b76-403a-91da-eb4c8c118003",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "686cf8d2",
+   "full_id": "session-686cf8d2-791e-4770-9816-cd9f300f1f10",
+   "kind": "primary",
+   "mtime": "2026-09-04",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 7,
+   "score": 100
+  },
+  {
+   "session": "f54ec817",
+   "full_id": "session-f54ec817-5773-4d3c-b7ba-400bf0b62b5e",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "a0911964",
+   "full_id": "session-a0911964-4cef-457b-8d4a-44eb4fdd5174",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "c12a698c",
+   "full_id": "session-c12a698c-1f4b-4018-a4f2-83f844b080c2",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "3dc19a40",
+   "full_id": "session-3dc19a40-c3d9-4868-af8d-b46cc57cb578",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 0.1,
+   "size_kb": 102.4,
+   "role": "(无档案)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G2",
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 100
+  },
+  {
+   "session": "f38244df",
+   "full_id": "session-f38244df-9225-42ba-ba33-91d1e689edcf",
+   "kind": "primary",
+   "mtime": "2026-08-30",
+   "size_mb": 28.2,
+   "size_kb": 28876.8,
+   "role": "明鉴 v2 · SystemGraph 主源架构师与迭代主理(mac-mini 主源; MBP 副本归罗盘设备登记)",
+   "registered": false,
+   "archived": true,
+   "types": [
+    "G1",
+    "G4"
+   ],
+   "age_days": 12,
+   "score": 80
+  },
+  {
+   "session": "a17a52f8",
+   "full_id": "session-a17a52f8-eee6-4a4e-a3a7-dfcf4bec44e0",
+   "kind": "primary",
+   "mtime": "2026-08-23",
+   "size_mb": 103.6,
+   "size_kb": 106086.4,
+   "role": "HR 驾驶舱（资源管理者 + 成本监察专员）· CAHAC 示范 Agent Card",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 19,
+   "score": 55
+  },
+  {
+   "session": "e7bfeea8",
+   "full_id": "session-e7bfeea8-fa2e-4677-9859-e64394a853f5",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 14.1,
+   "size_kb": 14438.4,
+   "role": "前任资源管理者（已交接给 session-a17a52f8，2026-08-18）· 后备支援",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 45
+  },
+  {
+   "session": "2fe61625",
+   "full_id": "session-2fe61625-40a9-438f-b422-96be55c85cb6",
+   "kind": "primary",
+   "mtime": "2026-08-22",
+   "size_mb": 13.0,
+   "size_kb": 13312.0,
+   "role": "用户洞察分析智能体：用户私人的经营参谋 + AI 增长顾问，持续学习生意全景并输出降本增效与收入增长建议（首期 5 件已收官）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 20,
+   "score": 45
+  },
+  {
+   "session": "1e54d56d",
+   "full_id": "session-1e54d56d-b0b7-4991-8f33-e5625f5a0389",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 11.5,
+   "size_kb": 11776.0,
+   "role": "GUI 插件开发：MCP 工作站 + 工作流捕获 + 仓库流水线 + 定时调度",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 45
+  },
+  {
+   "session": "582093dd",
+   "full_id": "session-582093dd-d421-4c3a-b5e0-5f9e982ce90b",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 6.4,
+   "size_kb": 6553.6,
+   "role": "dsh 平台/知识库/远程访问会话：维护 dsh 生态知识库与远程访问链路",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 45
+  },
+  {
+   "session": "43b1a2d3",
+   "full_id": "session-43b1a2d3-3b77-41ed-aa9e-effcef446af3",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 5.6,
+   "size_kb": 5734.4,
+   "role": "DSH/CLD 桌面应用运维与远程访问专家：负责 DSH Web GUI、CLD 壳进程、tailnet 代理与 Tailscale 远程访问拓扑的诊断与修复",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 45
+  },
+  {
+   "session": "3b5efeef",
+   "full_id": "session-3b5efeef-03b9-4ba6-8278-c9e04d08a5e8",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 5.3,
+   "size_kb": 5427.2,
+   "role": "文件/文档管理增强与调研流水线：DSH 文件工具面（read_document/解析/OCR/办公文档）与文档知识面（知识库/RAG/索引）的安装、配置、验证与排障",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 45
+  },
+  {
+   "session": "dcac2308",
+   "full_id": "session-dcac2308-ab60-4db7-a9c1-9bdd65e15cb3",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 5.1,
+   "size_kb": 5222.4,
+   "role": "repo-pipeline / 双仓 CI/CD 搭建：GitHub+Gitee 仓库接入与流水线一键搭建",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 45
+  },
+  {
+   "session": "3221f810",
+   "full_id": "session-3221f810-25a6-442d-b09c-78fc3c810a9c",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 4.9,
+   "size_kb": 5017.6,
+   "role": "语音输入与 CLD 插件开发：DSH 语音输入/会议模式/唤醒词静态插件 + 系统级语音输入助手（Swift）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 35
+  },
+  {
+   "session": "e0c391f7",
+   "full_id": "session-e0c391f7-25ba-47d0-8329-636177be84ea",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 4.6,
+   "size_kb": 4710.4,
+   "role": "DSH 插件本地开发/验证会话（dsh-plugin-local-projects）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 35
+  },
+  {
+   "session": "3d490920",
+   "full_id": "session-3d490920-860c-4c5c-8d93-c6041834a8c6",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 4.5,
+   "size_kb": 4608.0,
+   "role": "dsh/CLD 运维排障智能体：负责 DeepSeek Harness 桌面壳（CLD.app）与 dsh web 服务器模式的故障定位、修复与补丁落地",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 35
+  },
+  {
+   "session": "75815fa9",
+   "full_id": "session-75815fa9-76d9-4229-bb51-66395035d0e3",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 4.2,
+   "size_kb": 4300.8,
+   "role": "DSH web 插件机制与 GUI 定制运维会话（按需启用）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 35
+  },
+  {
+   "session": "b3778a1e",
+   "full_id": "session-b3778a1e-7f4c-46d0-ba3d-8103fc4f646f",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 4.1,
+   "size_kb": 4198.4,
+   "role": "通用成员/前任资源管理者（已交接给 session-e7bfeea8）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 35
+  },
+  {
+   "session": "6e49710e",
+   "full_id": "session-6e49710e-f3bb-4cee-972a-91fb8e311f0b",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 3.9,
+   "size_kb": 3993.6,
+   "role": "DSH mac mini 运维会话：崩溃预防/健康体检/窗口协调",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 35
+  },
+  {
+   "session": "c1111ffe",
+   "full_id": "session-c1111ffe-7d11-48e7-8b54-6cf6adc2cf42",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 3.9,
+   "size_kb": 3993.6,
+   "role": "DSH/CLD 系统故障诊断与修复（mac mini 侧运维）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 35
+  },
+  {
+   "session": "45f89009",
+   "full_id": "session-45f89009-d1b7-4169-9a44-c84c98cdcba3",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 3.7,
+   "size_kb": 3788.8,
+   "role": "外卖门店多平台运营智能体：多平台（美团/京东/淘宝/抖音/快手）门店经营监控与运营动作执行",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 35
+  },
+  {
+   "session": "b278baab",
+   "full_id": "session-b278baab-25cb-4369-8819-335e4638012a",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 3.5,
+   "size_kb": 3584.0,
+   "role": "DSH 基础设施根因研究与协作会话（会话持久化/CLD/插件问题定位）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 35
+  },
+  {
+   "session": "eb5ee9cc",
+   "full_id": "session-eb5ee9cc-7662-4b7d-8ccb-70ebab06a80d",
+   "kind": "primary",
+   "mtime": "2026-08-16",
+   "size_mb": 3.4,
+   "size_kb": 3481.6,
+   "role": "DSH 插件加载/运维（插件运维）—— 社区插件发现、安装、验证与 profile 管理",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 26,
+   "score": 35
+  },
+  {
+   "session": "e032fb77",
+   "full_id": "session-e032fb77-7fe0-48c7-a6a3-2125c71fb10b",
+   "kind": "primary",
+   "mtime": "2026-08-15",
+   "size_mb": 2.7,
+   "size_kb": 2764.8,
+   "role": "DSH 插件开发 / 外卖运营智能体",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 27,
+   "score": 35
+  },
+  {
+   "session": "8c2494e0",
+   "full_id": "session-8c2494e0-3772-4a62-9789-b7adc3123ccc",
+   "kind": "primary",
+   "mtime": "2026-08-30",
+   "size_mb": 2.2,
+   "size_kb": 2252.8,
+   "role": "星舵-mac-mini-进度监督员（主线推进引擎 v1.1）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 12,
+   "score": 35
+  },
+  {
+   "session": "6f7c739c",
+   "full_id": "session-6f7c739c-6fb7-4b93-ab69-346ac49b2d61",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 2.0,
+   "size_kb": 2048.0,
+   "role": "软件工程助手：代码编写/调试/文件操作/仓库与流水线维护",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 35
+  },
+  {
+   "session": "3f34113d",
+   "full_id": "session-3f34113d-ede0-4af2-a0b9-0bf035d65b44",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 2.0,
+   "size_kb": 2048.0,
+   "role": "通用成员 · 协作执行（无专属资源）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 35
+  },
+  {
+   "session": "d20ab960",
+   "full_id": "session-d20ab960-5eed-49b2-81b1-708cf76a4a66",
+   "kind": "primary",
+   "mtime": "2026-08-17",
+   "size_mb": 1.6,
+   "size_kb": 1638.4,
+   "role": "通用成员（inactive · 后备待命，仅定向唤醒响应）",
+   "registered": true,
+   "archived": true,
+   "types": [
+    "G4"
+   ],
+   "age_days": 25,
+   "score": 35
+  }
+ ]
+}

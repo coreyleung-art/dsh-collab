@@ -20,6 +20,8 @@
   python3 cld-restart-autotest.py [--dry-run]   # dry-run 只预检不真关
   python3 cld-restart-autotest.py --confirm     # 真执行（需用户确认，R013）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, signal, subprocess, sys, time, datetime, urllib.request
 
 NODE = "/opt/homebrew/bin/node"

@@ -24,6 +24,8 @@
 输出: 每类 {污染?, 证据, 溯源, 修复建议} + 汇总分
 R006#10: 本工具自身带 --lean4-check 自检(约束不可绕过)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, subprocess, sys, time, datetime
 
 # ===== 配置 =====

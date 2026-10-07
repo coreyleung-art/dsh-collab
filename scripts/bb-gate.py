@@ -17,6 +17,8 @@
   status=passed   → 已满足前置，可推进
   status=required → 未满足，先跑 next 命令再回来
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, os, subprocess, urllib.request
 
 BB = "http://127.0.0.1:8792"

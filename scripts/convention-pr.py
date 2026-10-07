@@ -12,6 +12,8 @@
   python3 convention-pr.py reject <pr_id> --reason "..."
 Lean4: 提案格式强制校验(字段齐全); G-C34/C35
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime
 
 PROPOSALS_DIR = os.path.expanduser("~/dsh-collab/data/registry/convention-proposals")

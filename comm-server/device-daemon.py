@@ -39,6 +39,42 @@ LOG_FILE = os.path.expanduser("~/.dsh/logs/device-daemon.log")
 # 本机角色名白名单（唤醒目标来自 agent-role-map；coordinator=星桥中枢）
 BB_TOKEN = os.environ.get("BLACKBOARD_TOKEN", "")
 CENTRAL_BB = os.environ.get("CENTRAL_BB", "http://106.53.214.108:8792")  # 中枢黑板（双写用）
+
+# v0.3.5: 信封文本提取——**禁止静默截断**
+# 旧实现：`payload.get("text") or payload.get("msg") or json.dumps(payload, ensure_ascii=False)[:500]`
+#   → 无 text/msg 的信封（如 MBP 的 note 型）会把**序列化后的 JSON 从中间砍断**：
+#     · 内嵌 JSON 未闭合，接收方无法解析
+#     · 尾部内容无声丢失，且**无任何截断标记**——接收方会以为消息是完整的
+#   实测（2026-09-11）：卡 `notes/mac-mini/bus-subagent-burst-supplement-v2-6a542782`
+#   尾部正好断在「会话固定开销 」，丢掉的恰是「未核验项（诚实标注）」整段。
+# 新实现：① 限值放宽到 4000（黑板本身能存数千字符，实测 2382 字符卡完整落盘）
+#         ② 确需截断时**在字符串内部截断并附显式标记**，保证落盘 JSON 始终可解析、且读者看得出被截断。
+_ENV_TEXT_LIMIT = 4000
+
+
+def _envelope_text(payload):
+    """提取信封正文；不静默截断（详见上方说明）。"""
+    t = payload.get("text")
+    if t is None:
+        t = payload.get("msg")
+    if t is not None:
+        return t
+    try:
+        dump = json.dumps(payload, ensure_ascii=False)
+    except Exception:
+        dump = str(payload)
+    if len(dump) <= _ENV_TEXT_LIMIT:
+        return dump
+    marker = f"…[★已截断: 原文 {len(dump)} 字符, 此处仅存前 {_ENV_TEXT_LIMIT}, 请向发送方索要全文]"
+    p2 = dict(payload)
+    if isinstance(p2.get("note"), str) and p2["note"]:
+        p2["note"] = p2["note"][:max(0, _ENV_TEXT_LIMIT - len(marker))] + marker
+    else:
+        p2["_truncated_dump"] = dump[:_ENV_TEXT_LIMIT] + marker
+    try:
+        return json.dumps(p2, ensure_ascii=False)
+    except Exception:
+        return dump[:_ENV_TEXT_LIMIT] + marker
 RELAY_TARGETS = tuple(os.environ.get("RELAY_TARGETS", "").split(","))  # 代收黑板域设备(默认空=i9已自守护, 防双写)
 
 def log(m):
@@ -193,6 +229,142 @@ def _pick_target(to):
             return cand
     return to
 
+# ===== 受控停机安全闸（deploy-safety-scheme §8，用户明令 2026-09-10）=====
+# 背景：MBP 曾未经确认两次远程重启 mac-mini 的 CLD，打断了那边的活跃会话。
+# 设计：
+#   本机【忙】  → 立即回 allow:false（fail-closed，不写黑板、不唤醒 agent）
+#   本机【不忙】→ 走正常链路唤醒本机 agent，由 agent 表态
+# 守护**永不代答 allow:true** —— 只有该设备的 agent/人有权说"可以关我"。
+RESTART_ACTIONS = ("controlled-restart-request", "shutdown-request", "cld-restart-request")
+RESTART_BUSY_MIN = float(os.environ.get("RESTART_BUSY_MIN", "3"))
+
+
+def _local_activity():
+    """本机活跃度探测。返回 (busy, recent, ok)
+
+    **ok 是关键**：ok=False 表示"无法确定"（读不到会话目录/mtime 取不到），
+    与"确实没有活跃会话"是两件完全不同的事。
+    早期版本把二者混为一谈（读不到就返回空列表）→ 被 guard-verify-gate 查出
+    **静默 fail-open**：探测失败反而放行。故显式区分，由调用方 fail-closed。
+    """
+    import glob
+    home = os.path.expanduser("~")
+    now = time.time()
+    busy, recent = [], []
+    sdir = os.path.join(home, ".dsh", "sessions")
+    if not os.path.isdir(sdir):
+        return [], [], False          # 会话目录都没有 = 环境异常 = 不确定
+    ok = True
+    try:
+        pat = os.path.join(sdir, "*", "*", "session.jsonl.zstd")
+        for f in glob.glob(pat):
+            try:
+                age = (now - os.path.getmtime(f)) / 60.0
+            except Exception:
+                ok = False            # 拿不到某个 mtime → 整体判为不确定
+                continue
+            sid = os.path.basename(os.path.dirname(f))
+            if age <= 240:
+                item = {"id": sid, "age_min": round(age, 1)}
+                recent.append(item)
+                if age <= RESTART_BUSY_MIN:
+                    busy.append(item)
+    except Exception:
+        ok = False
+    recent.sort(key=lambda x: x["age_min"])
+    return busy, recent[:8], ok
+
+
+def _safe_reply(tid, result, stage):
+    """回执发送的容错包装。
+
+    回执发不出去（token 坏/网络断/服务异常）**不得影响"拦下"这个决定** ——
+    闸门该拦还是要拦，只是通知不到对方而已。早期版本会让异常穿透出去，
+    导致闸门既没拦成、也没回执（guard-verify-gate 用例 X3 查出）。
+    """
+    try:
+        reply_task(tid, True, result=result, stage=stage)
+        return True
+    except Exception as e:
+        log(f"⚠️ 受控停机车闸回执发送失败(不影响拦截): {str(e)[:100]}")
+        return False
+
+
+def restart_gate(task):
+    """受控停机安全闸【外层保险】。返回 True=已处理(拦截) / False=放行给 agent 表态
+
+    外层只做两件事：① 非停机类动作一律不干预 ② **内部任何异常都 fail-closed**。
+    绝不因闸门自身出错而静默放行 —— 这正是 guard-verify-gate 用例 X2/X3 查出的缺陷。
+    """
+    if task.get("action", "") not in RESTART_ACTIONS:
+        return False
+    try:
+        return _restart_gate_inner(task)
+    except Exception as e:
+        tid = task.get("task_id", "")
+        log(f"⛔ 受控停机车闸内部异常 → fail-closed 拦下: {str(e)[:100]} (task {tid[:8]})")
+        _safe_reply(tid, {
+            "allow": False, "node": NODE,
+            "reason": f"闸门内部异常，按 fail-closed 拒绝: {str(e)[:80]}",
+            "internal_error": True,
+            "hint": "请在本机排查 device-daemon 日志后再决定",
+        }, "denied")
+        return True
+
+
+def _restart_gate_inner(task):
+    """受控停机安全闸【主体】
+
+    设计原则（全部经 guard-verify-gate 四象限验证）：
+      · 本机【忙】        → 拦下 + 回 allow:false
+      · 本机【确定不忙】  → 放行给本机 agent 表态（守护永不代答 allow:true）
+      · 本机【无法确定】  → **fail-closed 拦下**（读不到 ≠ 不忙）
+      · 闸门自身出任何错  → **fail-closed 拦下**（见外层 restart_gate）
+    """
+    tid = task.get("task_id", "")
+    payload = task.get("payload") or {}
+    frm = task.get("from") or payload.get("from") or ""
+    action = task.get("action", "")
+
+    # ① 无法确定活跃度 → fail-closed
+    try:
+        busy, recent, ok = _local_activity()
+    except Exception as e:
+        ok, busy, recent = False, [], []
+        log(f"⚠️ 受控停机车闸活跃度探测异常: {str(e)[:80]}")
+
+    if not ok:
+        _safe_reply(tid, {
+            "allow": False,
+            "node": NODE,
+            "reason": "无法确定本机活跃度（会话目录或 mtime 读取失败），按 fail-closed 拒绝",
+            "busy": [], "recent_sessions": recent, "unknown_activity": True,
+            "hint": "请在本机确认后再决定，或稍后重试",
+        }, "denied")
+        log(f"🛑 受控停机车闸【拒绝·无法确定活跃度】fail-closed "
+            f"(task {tid[:8]}, from={frm}, action={action})")
+        return True
+
+    # ② 确定忙 → 拦下
+    if busy:
+        _safe_reply(tid, {
+            "allow": False,
+            "node": NODE,
+            "reason": f"本机有活跃会话（近 {RESTART_BUSY_MIN} 分钟内仍有写入），拒绝受控重启",
+            "busy": busy[:6],
+            "recent_sessions": recent,
+            "hint": "请等本机空闲后重试，或由用户在本机前手动决定",
+        }, "denied")
+        log(f"🛑 受控停机车闸【拒绝】{len(busy)} 个活跃会话 "
+            f"(task {tid[:8]}, from={frm}, action={action})")
+        return True
+
+    # ③ 确定不忙 → 放行给本机 agent 表态（不代答）
+    log(f"🛑 受控停机征询【放行待agent表态】本机无明显活跃 "
+        f"(task {tid[:8]}, from={frm}) — 守护不代答 allow:true")
+    return False
+
+
 def dispatch(task, retry=2):
     """把服务器信封转写为黑板卡（触发 central-inbox 唤醒）
     S3: 黑板写失败 → 重试 retry 次 → 仍失败则 ACK failed + 死信告警（不静默丢）
@@ -210,7 +382,7 @@ def dispatch(task, retry=2):
     # v0.3.1 确认语义: reply_required(须agent级done) / notify_only(纯通知delivered即终态)
     reply_required = bool(task.get("reply_required") or payload.get("reply_required"))
     notify_only = bool(task.get("notify_only") or payload.get("notify_only"))
-    text = payload.get("text") or payload.get("msg") or json.dumps(payload, ensure_ascii=False)[:500]
+    text = _envelope_text(payload)
     ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     # G-C27: 域隔离——跨设备信封统一写本机 notes/mac-mini/（隔离域，不上中枢不灌跨设备）
     # 仅当信封显式 target=collab 或 action 以 collab- 开头才写 notes/collab/
@@ -238,6 +410,9 @@ def dispatch(task, retry=2):
     if not _target_ok(to):
         reply_task(tid, False, error=f"unknown-target:{str(to)[:30]}")
         log(f"⛔ 拒路由 未知目标 to={str(to)[:30]} (task {tid[:8]})")
+        return None
+    # 受控停机安全闸（§8）：本机忙 → 立即拒绝；不忙 → 放行给本机 agent 表态
+    if restart_gate(task):
         return None
     # S3 重试：黑板写失败重试 retry 次（bb_put 返回非 None=成功）
     wrote = False
@@ -290,7 +465,7 @@ def dispatch_to_domain(task, domain):
     tid = task.get("task_id", "")
     payload = task.get("payload") or {}
     action = task.get("action", "msg")
-    text = payload.get("text") or payload.get("msg") or json.dumps(payload, ensure_ascii=False)[:500]
+    text = _envelope_text(payload)
     ts = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
     key = f"notes/{domain}/bus-{action}-{tid[:8]}"
     val = {
@@ -337,6 +512,37 @@ def process_task(t, seen):
         # 已处理过但服务器还挂着 → 补 ACK 防积压
         reply_task(tid, True, result={"note": "duplicate-acked"})
 
+# ═══ 探照灯状态机（2026-10-02 架构三期 G-C19：降级纪律 v1 机械化）═══
+# 最小实现：SSE/轮询连续失败计数 → >=3 次红灯（告警+写降级卡+退避 60s）→ 成功恢复清零+恢复卡。
+# 黄灯（超时但黑板可用）暂并红灯同处理；判据可机械核验：纯函数 judge_degrade(count, fail) 可单测。
+DEGRADE_THRESHOLD = 3
+DEGRADE_BACKOFF_S = 60
+
+def judge_degrade(consecutive_fails, this_failed, threshold=DEGRADE_THRESHOLD):
+    """探照灯判定（纯函数）：返回 (next_count, state)
+    state: 'green' | 'red'（红灯=连续失败>=阈值；本次失败且达阈值=刚进红灯）"""
+    if this_failed:
+        n = consecutive_fails + 1
+        return n, ("red" if n >= threshold else "green")
+    return 0, "green"
+
+def degrade_alert(action, count):
+    """写降级/恢复卡到黑板（双板），失败仅记日志（降级卡本身失败不阻断守护）"""
+    try:
+        ts = int(time.time())
+        key = f"data/ops/server-degrade/{ts}"
+        val = {"type": "server-degrade" if action == "red" else "server-recover",
+               "from": "device-daemon", "node": NODE, "ts": ts,
+               "consecutive_fails": count, "threshold": DEGRADE_THRESHOLD}
+        body = json.dumps(val).encode()
+        # ★ 修复（2026-10-03 审计 P1）：原引用未定义变量 BB ⇒ 降级/恢复卡 NameError 永不落板
+        for name, base in (("local", LOCAL_BB), ("central", CENTRAL_BB)):
+            req = urllib.request.Request(base + "/" + key, data=body, method="PUT",
+                                         headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=5).read()
+    except Exception as e:
+        log(f"降级卡写入失败: {str(e)[:60]}")
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--once", action="store_true")
@@ -366,8 +572,11 @@ def main():
     rt.start()
     log(f"relay 线程启动（30s 低频兜底代收 {RELAY_TARGETS}——守护在线时其 SSE 实时优先）")
 
+    fails = 0
+    was_red = False
     while True:
         resp = None
+        failed_this = False
         try:
             resp = sse_subscribe()
             # SSE 流：逐行读（data: {...}\n\n）
@@ -395,6 +604,7 @@ def main():
                     event_buf = line[6:].strip()
         except Exception as e:
             log(f"SSE 异常: {str(e)[:80]} —— 兜底补拉一次后重连")
+            failed_this = True
             try:
                 t = receive_once()
                 if t: process_task(t, seen)
@@ -404,7 +614,19 @@ def main():
             try:
                 if resp: resp.close()
             except Exception: pass
+        # ★ 探照灯状态机（G-C19）：连续失败≥3 → 红灯（告警+退避）；恢复 → 绿灯+恢复卡
+        fails, state = judge_degrade(fails, failed_this)
+        if state == "red" and not was_red:
+            log(f"🚦 探照灯红灯：连续失败 {fails} 次（阈值 {DEGRADE_THRESHOLD}），写降级卡 + 退避 {DEGRADE_BACKOFF_S}s")
+            degrade_alert("red", fails)
+            was_red = True
+        if state == "green" and was_red:
+            log("🚦 探照灯恢复绿灯：服务器重连成功，写恢复卡")
+            degrade_alert("recover", 0)
+            was_red = False
         wait = args.interval if args.interval > 0 else 3
+        if was_red:
+            wait = DEGRADE_BACKOFF_S  # 红灯退避，防重试风暴（降级纪律 v1 2.1）
         time.sleep(wait)
 
 if __name__ == "__main__":

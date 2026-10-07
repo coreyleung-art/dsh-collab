@@ -25,6 +25,8 @@ CLD 重启/升级期间，CLD 内插件（central-inbox/agent-way）失联，但
   · 黑板 data/central/replay-<batch_ts>/<n> 归档每条未处理消息
   · 打印回放清单（key/ts/from），供中枢会话逐条登记
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

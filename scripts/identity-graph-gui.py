@@ -11,6 +11,8 @@
 
 R006: CLI(--port/--host) · TCC(--selfcheck) · 版本(--tool-version) · 只读图谱(防越写) · 写走 API 门控
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request, urllib.parse, re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

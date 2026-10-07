@@ -8,6 +8,8 @@
 
 说明：vault 路径=iCloud Obsidian；本脚本只生成/更新骨架与清单，编译由 agent 负责（LLM 提炼）。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, glob, os
 
 VAULT = os.path.expanduser("~/Library/Mobile Documents/iCloud~md~obsidian/Documents")

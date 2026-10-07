@@ -24,6 +24,8 @@ R006 十项:
   python3 user-direction-scan.py --lean4-check   # 工具自身门自检
   python3 user-direction-scan.py --version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, datetime, json, os, re, subprocess, sys, urllib.request
 
 __VERSION__ = "v1.0.0"

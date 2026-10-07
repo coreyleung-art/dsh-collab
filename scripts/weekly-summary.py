@@ -4,6 +4,8 @@
 Aggregates daily-trend into weekly summary + lists alerts (if any).
 launchd template: com.dsh.hr.cahac-replay.weekly (Sunday 10:00)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import os, datetime
 
 BASE = os.path.expanduser("~/dsh-collab/token-monitor/replays")

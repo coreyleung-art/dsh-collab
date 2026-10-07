@@ -18,6 +18,8 @@
   is_paper_gate(entry_text)   # 含门措辞但无工具 → 纸面门
   报告: 每条纸面门 + 建议升级路径 (对应哪个结构门形态)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re

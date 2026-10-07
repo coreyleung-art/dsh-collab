@@ -13,6 +13,8 @@
   python3 bb-asset-relations.py --selfcheck
   python3 bb-asset-relations.py --suggest
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, re
 
 MAP = os.path.expanduser("~/dsh-collab/data/blueprint/gallery/business-asset-map.json")

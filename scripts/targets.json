@@ -1,0 +1,15 @@
+{
+  "schema": "declared-targets/v1",
+  "why_separate": "★ 目标必须**先于测量**存在，且**不在测量输出里**。否则目标的声明时点无法与测量时点区分 ⇒ 它是拟合而非判据（HR 2026-09-14）。",
+  "targets": {
+    "credential-residual": {
+      "metric": "未作废凭据的携带者会话数 / 最老携带者年龄(天)",
+      "max_carrier_sessions": 0,
+      "max_oldest_carrier_days": 0,
+      "declared_at": "2026-09-14T16:42:46",
+      "declared_by": "session-aa528267",
+      "rationale": "泄漏处置终点＝值被作废（HR 裁定）；作废后不应有任何会话仍携带可用凭据 ⇒ 达标线为 0。",
+      "note": "★ 我首次填的是 17:10（一个**未来**时点）⇒ 被本探针的「目标先于测量」检查当场判 False。这正是「事后拟合」的形态：声明时点由我编造，而非真实先于测量。现改为真实声明时刻。"
+    }
+  }
+}

@@ -9,6 +9,8 @@
   python3 i9-monitor-sub.py                      # 常驻（后台）
   python3 i9-monitor-sub.py --log /tmp/i9-monitor.log
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, time, datetime, urllib.request
 
 EVENTS_URL = "http://127.0.0.1:8803/events"

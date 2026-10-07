@@ -8,6 +8,8 @@
   python3 approval-tier.py --history              # 历史定档：registry 全量 v1.0.x 回填
   python3 approval-tier.py --daily                # 每日巡检：今日 registry 行 + doc/ 新确认文档
 零 LLM 成本。"""
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime
 
 COLLAB = os.path.expanduser("~/dsh-collab")

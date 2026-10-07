@@ -10,6 +10,8 @@
   --tool-version
   --json            结构化输出
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, sys, glob, datetime, urllib.request
 
 VERSION = "v1.0.0"

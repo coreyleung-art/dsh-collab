@@ -10,6 +10,8 @@
   python3 bb-reuse-check.py --capability "result 自动镜像" --hub-dependent "黑板server核心" --node-side "无需改造"
   python3 bb-reuse-check.py --list-known        # 列出已知能力分级
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime
 
 # 已知能力分级库（每次评估后沉淀，供后续复用）

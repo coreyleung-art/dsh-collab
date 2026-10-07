@@ -1,0 +1,172 @@
+{
+  "_comment": "R039 工具中文描述文档 · 冻结清单（convention-lean4-check G-C48 逐项核验）。新增交付物必须先过 doc-cn-check.py --selfcheck 与对自身文档的检查，再登记进 tools。pending = 已交付但文档未达标、待补课的存量。",
+  "version": 1,
+  "tools": [
+    {
+      "name": "bus-queue-triage",
+      "docs": "~/dsh-plugin-bus-queue-triage/docs/README.md"
+    },
+    {
+      "name": "agent-way",
+      "docs": "~/dsh-plugin-agent-bus/README.md"
+    },
+    {
+      "name": "channel-gate",
+      "docs": "~/dsh-plugin-channel-gate/docs/README.md"
+    },
+    {
+      "name": "drift-scan",
+      "docs": "~/dsh-plugin-drift-scan/docs/README.md"
+    },
+    {
+      "name": "launchd-scan",
+      "docs": "~/dsh-plugin-launchd-scan/docs/README.md"
+    },
+    {
+      "name": "bb-card-send",
+      "docs": "~/dsh-plugin-bb-card-send/docs/README.md"
+    },
+    {
+      "name": "central-inbox",
+      "docs": "~/dsh-plugin-central-inbox/README.md"
+    },
+    {
+      "name": "guard",
+      "docs": "~/dsh-plugin-guard/docs/README.md"
+    },
+    {
+      "name": "r006-retrofit",
+      "docs": "~/dsh-collab/docs/r006-retrofit-README.md"
+    },
+    {
+      "name": "failure-pattern-lookup",
+      "path": "dsh-collab/scripts/failure-pattern-lookup.py",
+      "doc": "dsh-collab/docs/failure-pattern-library-20261004.md（本库镜像+自含 docstring）",
+      "cn": true,
+      "note": "三轨故障模式查询 P/M/G 码"
+    },
+    {
+      "name": "mbp-tools(83件)",
+      "path": "dsh-collab/scripts/mbp-tools/",
+      "doc": "dsh-collab/mbp-side-export-20261004/MANIFEST.md",
+      "cn": true,
+      "note": "MBP 三件套工具吸收"
+    },
+    {
+      "name": "restart-audit.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "sandbox-agent-way.mjs",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "sandbox-central-inbox.mjs",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "verify-delivery.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "redeliver-card.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "publish-and-point.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "cardfmt.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "comm-preflight.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "adopt-agentway.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "fetch-plugin-from-mac.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "install-from-board.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "check-hazards-consistency.py",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "plugin-boot-sandbox.mjs",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "relaunch-cld.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "restart-with-guard.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "spawn-detached.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "quick-restart-delayed.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "verify-post-reload.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    },
+    {
+      "name": "test-hot-reload.sh",
+      "source": "mbp-tools-20261004 对齐包",
+      "selftest": "见 MANIFEST.md",
+      "note": "2026-10-04 吸收"
+    }
+  ],
+  "pending": [],
+  "lastUpdated": "2026-10-04"
+}

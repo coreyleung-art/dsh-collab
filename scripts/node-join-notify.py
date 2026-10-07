@@ -6,6 +6,8 @@
 → 发布事件总线 agent.online / agent.offline → 值班消费后定向 agent_send 告知 HR/协调者/设备协调。
 零 LLM。用法：python3 node-join-notify.py [--blackboard http://127.0.0.1:8792] [--once]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, urllib.request, hashlib
 
 BB = "http://127.0.0.1:8792"

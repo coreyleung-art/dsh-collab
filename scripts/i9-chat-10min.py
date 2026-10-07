@@ -2,6 +2,8 @@
 """i9 持续对话测试（10 分钟）— 每 ~12s 发一个任务，秒级轮询抓回报，记录对话轮次
 模拟「持续聊天」：发任务=说一句，收回报=回一句
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, sys, time, datetime, urllib.request, http.client, urllib.parse
 
 BB = "http://127.0.0.1:8792"

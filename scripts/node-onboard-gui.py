@@ -12,6 +12,8 @@
   python3 node-onboard-gui.py --port 8805
 浏览器打开 http://127.0.0.1:8805
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, http.server, socketserver, urllib.request, datetime
 
 BB = "http://127.0.0.1:8792"  # 本机黑板（GUI 跑在 mac-mini）

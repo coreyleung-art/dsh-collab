@@ -15,6 +15,8 @@
   3. 生成吸收建议（grade + 建议动作）
   4. 落链：黑板 data/iterations/absorb-<tool> + genebank registry
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, subprocess, sys, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

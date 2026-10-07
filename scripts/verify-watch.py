@@ -18,6 +18,8 @@ v3.2（2026-08-28）：探针改为【不写黑板】——双向注入链路已
 用法:
   python3 verify-watch.py --once           # 单次检查（launchd 每 5 分钟）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

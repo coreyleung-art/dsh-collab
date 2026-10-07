@@ -13,6 +13,8 @@
   python3 bb-dispatch-learn.py --dry-run    # 只报告不改
 常驻：可并入 bb-absorb-watch 或 launchd 周期（如每 6h）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

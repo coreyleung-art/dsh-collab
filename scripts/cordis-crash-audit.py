@@ -12,6 +12,8 @@
 
 退出码: 0=无风险 / 1=发现风险
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import re, sys
 
 def audit(path):

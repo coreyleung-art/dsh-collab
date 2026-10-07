@@ -20,6 +20,8 @@
   python3 route-learner.py --eval                 # 留出评估
   python3 route-learner.py --eval-semantic        # 评估「词频+qwen兜底」vs 纯词频
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, random, urllib.request
 from collections import Counter, defaultdict
 

@@ -8,6 +8,8 @@
   python3 mbp-memory-vectorize.py query '<问题>' [topK]      # 查询
   python3 mbp-memory-vectorize.py status                     # 库状态
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, sys, glob, re, urllib.request, time
 
 OLLAMA = "http://127.0.0.1:11434"

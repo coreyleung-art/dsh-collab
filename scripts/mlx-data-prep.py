@@ -16,6 +16,8 @@
   python3 mlx-data-prep.py --dry-run          # 只看统计不落盘
   python3 mlx-data-prep.py --balance          # 负样本过采样/正样本降采样均衡（deposit:skip 平衡）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, random
 
 COLLAB = os.path.expanduser("~/dsh-collab")

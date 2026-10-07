@@ -38,6 +38,8 @@
   python3 bb-taskboard.py --list [--stage d25-3] [--status todo]
   python3 bb-taskboard.py --graph
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, re
 
 BB = "http://127.0.0.1:8792"

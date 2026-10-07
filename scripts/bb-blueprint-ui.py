@@ -9,6 +9,8 @@
 访问：http://127.0.0.1:8797/  （独立蓝图 GUI）
 数据源：黑板 data/blueprint/stages + works（bb-blueprint.py 工具维护）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, urllib.request, datetime, html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

@@ -14,6 +14,8 @@ R006: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version 7日�
   group-gate.py lean4-check / selfcheck / version / cld-check / version-check
 零 LLM: 纯规则。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, sys
 
 VERSION = '1.0.0'

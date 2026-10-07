@@ -21,6 +21,8 @@ CHECKS 七要素:
 
 依赖: 纯 stdlib（os/sys/tarfile/hashlib/argparse）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, hashlib, os, sys, tarfile, zipfile, glob
 
 PLACEHOLDERS = ["TODO", "FIXME", "TBD", "占位", "待补", "待完成", "coming soon", "placeholder"]

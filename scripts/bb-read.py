@@ -25,6 +25,8 @@
   · 上下文开销：仅摘要文本进上下文（~30 tokens），不是全文（~1200 tokens）
   · --full 仅用于明确需要全文决策的场景（谨慎使用）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, urllib.request
 
 BB = "http://127.0.0.1:8792"

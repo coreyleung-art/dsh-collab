@@ -9,6 +9,8 @@ Scenarios:
   p2-papers paper-library ingestion (model: 29 papers = 58 scheduling ops)
 Weights: p2p=1.0 collab=0.8 blackboard-write=0.1 blackboard-read=0.05 event=0.5 broadcast=10
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, datetime
 
 W = {"p2p": 1.0, "collab": 0.8, "bw": 0.1, "br": 0.05, "event": 0.5, "broadcast": 10.0}

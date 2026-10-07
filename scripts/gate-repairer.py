@@ -18,6 +18,8 @@
   gate-repairer --lean4-check                 # 自检
   gate-repairer --version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import re

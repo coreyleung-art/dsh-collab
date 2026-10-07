@@ -11,6 +11,8 @@
 护栏(P0): 只读封装, 不含任何写/动作工具(accept/price 等 P2 再加带 R027门)
 数据源: 127.0.0.1:8787 (只读 GET)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, urllib.request, datetime
 
 VERSION = "v1.0.0"

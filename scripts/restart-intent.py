@@ -11,6 +11,8 @@
 流程: 重启前 prepare → 重启后 status --set recovered（或 failed）
 救援方读 notes/collab/restart-intent-<node>-<ts> 观察状态迁移。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

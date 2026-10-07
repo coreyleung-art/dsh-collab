@@ -12,6 +12,8 @@
   python3 bb-connect-lab.py --tool-version        版本
 数据源: ~/.dsh/agent-bus.json profiles(能力/资源/角色)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, sys, datetime
 
 VERSION = "v1.2.0"

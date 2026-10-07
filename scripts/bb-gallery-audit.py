@@ -12,6 +12,8 @@
   python3 bb-gallery-audit.py --selfcheck     同 --scan(exit code: 有严重问题=1)
   python3 bb-gallery-audit.py --json          输出 JSON(供落链)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, re, os, sys
 
 DEFAULT = os.path.expanduser("~/dsh-collab/scripts/bb-blueprint-gallery.py")

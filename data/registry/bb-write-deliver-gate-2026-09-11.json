@@ -1,0 +1,24 @@
+{
+ "tool": "bb-write",
+ "version": "1.7.2",
+ "kind": "deliver-gate",
+ "ran_at": "2026-09-11T08:35:11",
+ "result": {
+  "gates_failed": [],
+  "verdict": "PASS"
+ },
+ "inherited_limits": [
+  "断言集 = key-syntax-assertions-v1(41 键, 从实测样本归纳, 非服务端规格推导) ⇒ 本门只保证这 41 条, 不保证「没有第 42 条」",
+  "本工具键规则的真实性 = 全量真实键安全证明(20,221 键时点), 而该库在增长 ⇒ 结论带时点",
+  "R006 ①(插件挂载冒烟) 对本工具不适用(纯 CLI, 非插件形态; 星桥 v3.1.0 已明确)"
+ ],
+ "subject_identity": {
+  "tool": "bb-write",
+  "code_version": "1.7.2",
+  "probed_at": "2026-09-11T08:35:11",
+  "tz_note": "probed_at 为本机本地时间、无时区偏移（与黑板 ts 同形）",
+  "subject_key": "data/registry/bb-write-tool-20260911",
+  "subject_version": 22
+ },
+ "tz_note": "ran_at 为**本机本地时间、无时区偏移**（与黑板 ts 同形）。跨设备比较前须先确认两端时区；★ 本字段属「潜伏缺陷」——今天不出错，故不会有人去修。★ 且按纪律：**指纹/时间戳只用于「我这一刻看到的是这个」，不能用于「它现在还是这个」**（实证：某指纹 00:48:48 记 34413260… → 00:55 已 5c6bb1ef…，2 分钟即过期）。"
+}

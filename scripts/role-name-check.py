@@ -18,6 +18,8 @@
 
 零 LLM 原则：纯规则，与 pre-delete-archaeology.py 同构。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime
 
 BUS_FILE = os.path.expanduser('~/.dsh/agent-bus.json')

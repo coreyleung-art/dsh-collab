@@ -17,6 +17,8 @@
   ✅ 只读诊断 / 守护重启 / 状态记录
   ⛔ 删数据 / 改配置 / 覆盖文件 / 破坏性项目
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

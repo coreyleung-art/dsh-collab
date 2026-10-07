@@ -8,6 +8,8 @@
   ④ 防重复：24h 内同 key 不重复；有新活动自动取消信号
 用法：launchd 每 5 分钟跑（com.dsh.progress-idle-watch）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, sys, time, urllib.request
 
 BB = "http://127.0.0.1:8792"

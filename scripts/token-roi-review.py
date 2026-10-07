@@ -8,6 +8,8 @@
 
 设计：每日 09:00 触发（launchd 模板 com.dsh.hr.token-roi，成本治理恢复后启用）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, csv, glob, os, sys
 from collections import defaultdict
 from datetime import datetime, date

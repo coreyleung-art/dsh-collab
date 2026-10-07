@@ -2,6 +2,8 @@
 """i9 秒级轮询 v2 — 监控 tasks/i9/result + tasks/i9/cmd + notes/i9/*（i9 消息键）
 v2 修复：之前只查 result/cmd，漏了 notes/i9（i9 发消息的键）——这就是『秒级还收不到』的根因
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, sys, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

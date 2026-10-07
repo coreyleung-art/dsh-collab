@@ -10,6 +10,8 @@ v0.4 → v0.5 变更（2026-08-23 · 协调者，吸收推广反馈升级底座�
 
 用法：BLACKBOARD_TOKEN=xxx python3 blackboard-server-v0.5.py --port 8792
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, threading, urllib.request, datetime, gzip, shutil
 from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

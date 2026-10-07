@@ -1,0 +1,106 @@
+{
+  "schema": "scan-exclusion-registry/v2",
+  "purpose": "已知碰撞形态 / 自测样本 / 工具自身源码 的**机器可读**排除清单。扫描工具应加载本清单并排除这些项，而不是依赖文件头注释。",
+  "why_machine_readable": "立据（HR 2026-09-14）：登记若写在**注释**里，则不在**匹配器的读取路径**上 ⇒ 属于假门。登记必须落在扫描器会读的地方。",
+  "updated_at": "2026-09-14T17:05:00",
+  "entries": [
+    {
+      "id": "selftest-synthetic-credential",
+      "kind": "prefix",
+      "value": "app-ZZZZSELFTEST",
+      "reason": "credential-residual-probe.py 的 selftest 合成正例；非凭据",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T16:12:00",
+      "applies_to": [
+        "credential-scan"
+      ],
+      "verify": "该前缀在真实语料中应出现 0 次（除本工具源码外）"
+    },
+    {
+      "id": "bus-thread-id-collision",
+      "kind": "substring",
+      "value": "mtujuapp-",
+      "reason": "总线消息/线程 id 形态（mtuju + app- + id），与 app- 凭据前缀碰撞；实测产生 2 个假凭据",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T15:20:00",
+      "applies_to": [
+        "credential-scan"
+      ]
+    },
+    {
+      "id": "backup-filename-collision",
+      "kind": "regex",
+      "value": "app-\\d{4}-\\d{2}-\\d{2}\\.[a-z]+",
+      "reason": "备份文件名形态（app-<日期>.ext），与 app- 凭据前缀碰撞",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T15:20:00",
+      "applies_to": [
+        "credential-scan"
+      ]
+    },
+    {
+      "id": "blackboard-card-key-collision",
+      "kind": "substring",
+      "value": "dify-app-key-",
+      "reason": "黑板卡键 slug（app- 后接连字符单词），与凭据前缀碰撞",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T15:20:00",
+      "applies_to": [
+        "credential-scan"
+      ]
+    },
+    {
+      "id": "cld-artifact-path",
+      "kind": "substring",
+      "value": "app.asar",
+      "reason": "CLD 工件路径片段，与 app- 前缀碰撞",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T15:20:00",
+      "applies_to": [
+        "credential-scan"
+      ]
+    }
+  ],
+  "third_requirement": "★ 第三要件（老登 2026-09-14 实测补充）：清单须**自检每条是否被消费者读取**；含自指项但自指项无人读，等于没有。",
+  "known_scanners": {
+    "credential-scan": {
+      "impl": "~/dsh-collab/scripts/credential-residual-probe.py"
+    },
+    "datadir-scan": {
+      "impl": "~/dsh-collab/scripts/datadir-audit.py"
+    },
+    "repo-wide-hardcoded-path-scan": {
+      "impl": null
+    }
+  },
+  "four_link_gates": "环①存在（写后回读）· 环②读取路径（加载断言，缺失即 fail-closed）· 环③消费（kind 覆盖）· 环④作用域（applies_to 对应的消费者须在 known_scanners 中且已实现）",
+  "pending_registrations": [
+    {
+      "id": "exclusion-registry-self",
+      "kind": "path",
+      "value": "scan-exclusions.json",
+      "reason": "本清单自身必然包含上述碰撞串（它就是登记它们的地方）",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T16:30:00",
+      "applies_to": [
+        "credential-scan"
+      ],
+      "note": "本清单自身；但注意：kind=path 目前**无消费者实现**（见消费自检）",
+      "consumer_status": "未实现"
+    },
+    {
+      "id": "audit-tool-own-source",
+      "kind": "path",
+      "value": "~/.dsh-collab/scripts/datadir-audit.py|~/dsh-collab/scripts/datadir-audit.py",
+      "reason": "该审计工具源码内含实盘路径**标记常量**（供匹配用），会被硬编码路径扫描误判为缺陷；是工具自身，非被审对象",
+      "added_by": "aa528267",
+      "added_at": "2026-09-14T16:30:00",
+      "applies_to": [
+        "repo-wide-hardcoded-path-scan"
+      ],
+      "consumer_status": "未实现"
+    }
+  ],
+  "pending_note": "★ 这两条**不是登记**，是「待消费者实现后再登记」的待办：登记一个尚不存在的消费者，会让清单假装已覆盖（2026-09-14 老登认领）。",
+  "known_scanners_note": "★ 消费者的「已实现」**不再由声明决定**，而是由 `impl` 指向的**文件是否存在**决定（存在性不可由改声明伪造）。立据：HR 2026-09-14「门的强度＝输入项中最弱一项的级别」+ 老登输入变异检验（改一个声明字段即可让门放行 ⇒ 该输入是声明级）。"
+}

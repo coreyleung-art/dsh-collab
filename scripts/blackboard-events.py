@@ -19,6 +19,8 @@
 事件格式（SSE data）:
   {"key":"tasks/i9/queue/123","value":{...},"version":1,"ts":"..."}
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, queue, threading, time, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

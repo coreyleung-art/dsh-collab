@@ -9,6 +9,8 @@
   python3 bb-mgr-events.py --clear    # 清 seen(重读全部)
 状态: ~/.dsh/inbox/mgr-events.seen
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, urllib.request, datetime
 
 BB="http://127.0.0.1:8792"

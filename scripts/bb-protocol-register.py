@@ -11,6 +11,8 @@
 数据: data/protocols/<id>/config.json(输入) → 黑板 data/protocols/<id>/config(镜像)
 护栏: 协议仅登记/编排, 绝不调用任何真实发送通道(im/send 等) —— 抽检对象=已发送历史回复
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request
 
 VERSION = "v1.0.0"

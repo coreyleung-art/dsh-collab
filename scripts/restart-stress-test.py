@@ -14,6 +14,8 @@
 
 输出: 每轮结果 + 汇总统计（成功率/平均启动/内存趋势/错误）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, signal, subprocess, sys, time, datetime
 
 NODE = "/opt/homebrew/bin/node"

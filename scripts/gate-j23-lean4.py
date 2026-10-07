@@ -5,6 +5,8 @@
 门语义: 重建 node_modules 前验证无运行实例持有旧映射——有则阻塞/要求维护窗口
 补逻辑: 守链 0e84e65c 2026-09-07 (纸面门→结构门)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import sys
 import subprocess
 import os

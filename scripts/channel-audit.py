@@ -14,6 +14,8 @@
   channel-audit.py --version
 安全: 不读凭据内容, 只读状态/绑定元数据 (凭据纪律 0600/keychain)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json
 import os
 import sys

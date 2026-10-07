@@ -14,6 +14,8 @@
   python3 bb-blueprint2.py --gate                           # 门禁链检查（当前是否达标）
   python3 bb-blueprint2.py --full "变更摘要" --stages d25-3 --out /path   # 一键全流程
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, re
 
 BB = "http://127.0.0.1:8792"

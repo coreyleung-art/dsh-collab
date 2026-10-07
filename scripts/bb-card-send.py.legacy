@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""bb-card-send.py — 跨设备发卡封装 v1.0
+
+内置规范（2026-10-02 实测教训固化）：
+  1) to 必填：完整 session id。实测教训——发卡漏写 to ⇒ 对端 central-inbox
+     白名单（to/target/mentions 含本节点才注入）不命中 ⇒ 不注入 ⇒ 对方收不到。
+  2) from 默认本会话完整 id。
+  3) 双写两板（mac-mini 127.0.0.1:8792 + 中枢 xingqiao:8792）+ 逐板回读断言（145-c）。
+  4) key 首段必须纯小写字母（黑板 key 语法）。
+
+用法：
+  python3 bb-card-send.py <key> <to> <payload.json>
+  echo '{"a":1}' | python3 bb-card-send.py <key> <to> --stdin
+"""
+import json, sys, time, urllib.request
+
+LOCAL_BB = "http://127.0.0.1:8792"
+CENTRAL_BB = "http://xingqiao.meetfunbp.com:8792"
+SELF = "session-fa1f9150-c949-401f-ba8c-d265f6221676"
+SELF_LABEL = "星桥(协调者) mac-mini"
+
+
+def log(m):
+    print(m, flush=True)
+
+
+def main():
+    stdin_mode = "--stdin" in sys.argv[1:]
+    args = [a for a in sys.argv[1:] if a != "--stdin"]
+    if len(args) != 3:
+        print(__doc__)
+        sys.exit(2)
+    key, to, payload_path = args
+    first = key.split("/")[0]
+    if not (first.isalpha() and first.islower()):
+        log("❌ key 首段必须纯小写字母（黑板 key 语法）")
+        sys.exit(2)
+    if not to or not to.strip():
+        log("❌ to 必填（完整 session id）——漏写会导致对端白名单不注入")
+        sys.exit(2)
+    if stdin_mode:
+        val = json.load(sys.stdin)
+    else:
+        with open(payload_path) as f:
+            val = json.load(f)
+    if isinstance(val, dict):
+        val.setdefault("from", SELF)
+        val.setdefault("from_label", SELF_LABEL)
+        val["to"] = to
+        val.setdefault("sent_at_epoch_ms", int(time.time() * 1000))
+    body = json.dumps(val).encode()
+    readbacks = {}
+    for name, base in (("local", LOCAL_BB), ("central", CENTRAL_BB)):
+        req = urllib.request.Request(base + "/" + key, data=body, method="PUT",
+                                     headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=6) as r:
+            st = r.status
+        with urllib.request.urlopen(base + "/" + key, timeout=6) as r:
+            readbacks[name] = json.loads(r.read())
+        log(f"{name}: PUT {st} version={readbacks[name]['version']}")
+    assert readbacks["local"]["value"] == readbacks["central"]["value"], "❌ 两板 value 不一致"
+    log(f"✓ {key} 双写两板回读一致 · to={to}")
+
+
+if __name__ == "__main__":
+    main()

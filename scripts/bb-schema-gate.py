@@ -9,6 +9,8 @@
   --validate-write TYPE JSON  通用: 提交写入前验证(type=rules|relations|bp|link)
   --selfcheck / --tool-version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, sys, datetime, urllib.request
 
 VERSION = "v1.0.0"

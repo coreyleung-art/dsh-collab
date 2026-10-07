@@ -23,6 +23,8 @@ R006 合规：CLI 形态 / TCC(--selfcheck) / 文档化 / 版本管理(--tool-ve
 
 依赖：黑板 http://127.0.0.1:8792（PUT/GET）；本地 ~/dsh-collab/data/blueprint/
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, re, glob, subprocess, time
 
 VERSION = "v1.0.0"

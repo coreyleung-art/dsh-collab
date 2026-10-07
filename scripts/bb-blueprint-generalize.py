@@ -15,6 +15,8 @@ R006 九标准：CLI 形态 / TCC(--selfcheck) / 文档化 / 版本管理(--tool
   python3 bb-blueprint-generalize.py --report [--out 路径]  # ⑤ 生成完整评估报告（黑板+本地）
   python3 bb-blueprint-generalize.py --selfcheck
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, ast
 
 BB = "http://127.0.0.1:8792"

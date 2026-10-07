@@ -31,6 +31,8 @@ pre-transfer-check v1.0.0 (HR) — 传输前目标设备磁盘余量检查器（
 
 零 LLM 原则：纯规则 + 黑板/文件系统查询。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, urllib.request, sys
 
 VERSION = '1.0.0'

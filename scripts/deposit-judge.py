@@ -20,6 +20,8 @@
     由调用方 route-learner 决定阈值兜底）
   - 与 route-learner.py 的级联衔接：本脚本是「主判」，词频权重是「兜底」
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys
 
 MODEL = "/Users/coreyleung/mlx-models/deposit-judge-fused"

@@ -15,6 +15,8 @@
   python3 kb-genebank-watch.py                      # 常驻（事件驱动 + 6h 兜底）
   python3 kb-genebank-watch.py --log /tmp/kb-gb-watch.log
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, time, datetime, subprocess, urllib.request
 
 EVENTS_URL = "http://127.0.0.1:8803/events"

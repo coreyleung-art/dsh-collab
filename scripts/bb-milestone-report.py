@@ -23,6 +23,8 @@ R006 十项合规：
   python3 bb-milestone-report.py --lean4-check         # 约束门自检(第10项)
   python3 bb-milestone-report.py --tool-version        # 版本
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, os, re, glob
 
 VERSION = "v1.0.0"

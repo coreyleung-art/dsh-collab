@@ -12,6 +12,8 @@
   graph: agents(默认)/servers(R006 v2.1 comm-layer 服务器域)/rules|bp 域
 数据: confirmed-links.json(输入) → 黑板投递 + 协作登记(输出)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request, urllib.error
 
 VERSION = "v1.0.0"

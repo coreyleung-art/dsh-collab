@@ -5,6 +5,8 @@ User-directed daily automation (2026-08-19). Reads billing CSV + panel 8787,
 computes yesterday actual vs CAHAC counterfactual, appends to trend file.
 No LLM calls: csv + urllib + local compute only.
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import csv, glob, os, datetime, json, urllib.request
 
 CSV_DIR = os.path.expanduser("~/dsh-collab/token-monitor/deepseek-export")

@@ -8,6 +8,8 @@
 用法：python3 bb-blueprint-ui2.py --port 8797
 访问：http://127.0.0.1:8797/
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, urllib.request, datetime, html
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 

@@ -16,6 +16,8 @@
   python3 cld-shell-sandbox-test.py            # 跑 A+B+C 全部分支
   python3 cld-shell-sandbox-test.py --test a   # 只跑 A
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, signal, subprocess, sys, time, datetime, shutil
 
 NODE = "/opt/homebrew/bin/node"

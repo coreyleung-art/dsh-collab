@@ -1,0 +1,2223 @@
+{
+ "tool": "central-availability-probe.py",
+ "ts": "2026-09-11T00:18:13Z",
+ "frame": {
+  "keys": [
+   "data/cld-health/blackboard-key-route-rootcause-20260911",
+   "data/cld-health/item18-disk-top-consumer-20260911",
+   "data/registry/hr-reply-shoudeng-quantifier-20260911",
+   "data/cld-health/__probe-absent__",
+   "cld-health/foo"
+  ],
+  "n_per_replica": 120,
+  "route": "direct path /<key> (same read form on both replicas)",
+  "origin_node": "mac-mini (守灯)",
+  "readonly": true
+ },
+ "limits": [
+  "只测从本机到两副本的 GET 可达性",
+  "不测写路径/鉴权门/schema 门",
+  "4xx 计入『可达』（板子有应答）⇒ 本指标不含鉴权语义",
+  "单节点视角，不代表其他节点"
+ ],
+ "results": [
+  {
+   "replica": "local",
+   "base": "http://127.0.0.1:8792",
+   "n": 120,
+   "class": {
+    "ok": 72,
+    "answered": 48
+   },
+   "unreachable_examples": [],
+   "latency_ms": {
+    "p50": 0.3,
+    "p95": 0.9,
+    "max": 6.8,
+    "min": 0.2
+   },
+   "availability": 1.0,
+   "rows": [
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      6.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.6,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      2.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.7,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.6,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      1.0,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      2.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      2.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      0.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      0.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      0.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      0.3,
+      null
+     ]
+    }
+   ]
+  },
+  {
+   "replica": "central",
+   "base": "http://106.53.214.108:8792",
+   "n": 120,
+   "class": {
+    "ok": 72,
+    "answered": 48
+   },
+   "unreachable_examples": [],
+   "latency_ms": {
+    "p50": 195.9,
+    "p95": 726.1,
+    "max": 1544.4,
+    "min": 35.9
+   },
+   "availability": 1.0,
+   "rows": [
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      126.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      128.9,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      63.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      143.0,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      266.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      37.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      121.5,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      92.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      72.2,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      315.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      43.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      126.8,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      561.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      205.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      222.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      309.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      84.1,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      69.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      37.0,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      78.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      142.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      100.6,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      96.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      149.8,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      113.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      143.0,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      368.9,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      297.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      63.1,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      94.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      256.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      137.8,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      367.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      365.7,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      91.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      96.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      183.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      850.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      159.7,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      404.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      102.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      359.7,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      111.7,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      367.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      201.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      112.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      98.0,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      71.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      35.9,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      214.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      192.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      851.5,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      194.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      422.4,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      81.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      279.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      398.7,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      48.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      63.6,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      389.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      115.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      138.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      701.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      393.7,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      304.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      351.7,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      101.7,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      736.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      57.6,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      90.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      350.7,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      118.5,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      661.0,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      108.5,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      344.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      166.0,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      448.6,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      396.0,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      321.0,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      441.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      135.2,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      331.7,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      357.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      220.3,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      198.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      168.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      109.3,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      429.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      413.1,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      107.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      403.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      117.0,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      148.3,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      241.9,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      354.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      102.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      100.1,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      203.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      613.9,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      835.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      321.6,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      699.1,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      296.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      213.9,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      121.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      194.7,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      110.9,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      110.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      195.9,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      366.9,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      223.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      312.4,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      567.8,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      140.5,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      418.5,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/blackboard-key-route-rootcause-20260911",
+     "result": [
+      "ok",
+      200,
+      1544.4,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/item18-disk-top-consumer-20260911",
+     "result": [
+      "ok",
+      200,
+      196.2,
+      null
+     ]
+    },
+    {
+     "key": "data/registry/hr-reply-shoudeng-quantifier-20260911",
+     "result": [
+      "ok",
+      200,
+      726.1,
+      null
+     ]
+    },
+    {
+     "key": "data/cld-health/__probe-absent__",
+     "result": [
+      "answered",
+      404,
+      597.0,
+      null
+     ]
+    },
+    {
+     "key": "cld-health/foo",
+     "result": [
+      "answered",
+      400,
+      102.1,
+      null
+     ]
+    }
+   ]
+  }
+ ]
+}

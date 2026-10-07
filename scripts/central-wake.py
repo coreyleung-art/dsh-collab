@@ -17,6 +17,8 @@
   · 黑板 127.0.0.1:8792（写触发标记）
   · agent_wake 工具（DSH 宿主，可选唤醒）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, urllib.request, subprocess
 
 BB = "http://127.0.0.1:8792"
@@ -44,6 +46,12 @@ def put_bb(path, value):
         headers = {"Content-Type": "application/json"}
         if bb_token:
             headers["X-Blackboard-Token"] = bb_token
+        # ★ A1 写端鉴权预备（2026-10-03）：~/.dsh/blackboard-token 存在则带 Bearer（flip 后必需）
+        try:
+            with open(os.path.expanduser("~/.dsh/blackboard-token")) as _f:
+                headers["Authorization"] = "Bearer " + _f.read().strip()
+        except Exception:
+            pass
         req = urllib.request.Request(BB + "/" + path.lstrip("/"),
             data=json.dumps(value, ensure_ascii=False).encode(), method="PUT", headers=headers)
         with urllib.request.urlopen(req, timeout=8) as r:

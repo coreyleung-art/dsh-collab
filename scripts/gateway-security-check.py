@@ -5,6 +5,8 @@
 模拟外部 token 调用分级网关逻辑，验证：白名单快照/无内部路径/配额/零写/脱敏/401/TLS。
 用法：python3 gateway-security-check.py [--role-config <path>]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, sys, re
 
 CFG = os.path.expanduser("~/dsh-collab/token-monitor/role-config.json")

@@ -12,6 +12,8 @@
   rule-audit.py --lean4-check              # 自检 (只读)
   rule-audit.py --version
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import os
 import re
 import sys

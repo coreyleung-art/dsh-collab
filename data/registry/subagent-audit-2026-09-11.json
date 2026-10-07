@@ -1,0 +1,93 @@
+{
+ "ts": "2026-09-11T04:56:12",
+ "S1": {
+  "primary": 82,
+  "subagent": 297,
+  "total": 379,
+  "primary_mb": 755.5,
+  "subagent_mb": 160.3,
+  "subagent_share_pct": 78.4
+ },
+ "S2": [
+  [
+   "session-4787d717-d243-403e-9880-f1a83e65e004",
+   152
+  ],
+  [
+   "session-a190c54c-ca73-4845-9a65-9dc002d45044",
+   90
+  ],
+  [
+   "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   40
+  ]
+ ],
+ "S2_total_parents": 7,
+ "S3": [
+  [
+   "2026-09-09",
+   27
+  ],
+  [
+   "2026-09-10",
+   145
+  ]
+ ],
+ "S4": [
+  {
+   "parent": "session-4787d717-d243-403e-9880-f1a83e65e004",
+   "date": "2026-09-10",
+   "count": 83,
+   "cap": 50,
+   "over_by": 1.7
+  },
+  {
+   "parent": "session-a190c54c-ca73-4845-9a65-9dc002d45044",
+   "date": "2026-09-10",
+   "count": 62,
+   "cap": 50,
+   "over_by": 1.2
+  }
+ ],
+ "S5": {
+  "avg_kb": 552.7,
+  "subagent_share_mb_pct": 17.5
+ },
+ "S6": {
+  "count": 114,
+  "mb": 86.5,
+  "after_days": 7
+ },
+ "S7": {
+  "count": 0,
+  "samples": []
+ },
+ "S8": {
+  "status": "OK",
+  "nodes": {
+   "mac-mini": {
+    "online": true,
+    "clients": 1,
+    "queued": 0
+   },
+   "i9": {
+    "online": false,
+    "clients": 0,
+    "queued": 4
+   }
+  },
+  "note": "对端会话库规模需对端自报; 本工具只能给出节点在线/排队状态"
+ },
+ "presets": {
+  "cordis": 174,
+  "standard": 96,
+  "liangshen": 27
+ },
+ "depths": {
+  "1": 297
+ },
+ "caps": {
+  "per_parent_per_day": 50,
+  "concurrent": 8
+ }
+}

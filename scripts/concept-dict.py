@@ -34,6 +34,8 @@ concept-dict v1.0.0 (HR) — 概念数据字典工具（R019 落地，R006 九�
 
 零 LLM 原则：登记/查证/检查纯规则；suggest 词频+上下文启发式（非模型）。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, glob, collections, sys, traceback
 
 VERSION = '1.0.0'

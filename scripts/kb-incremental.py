@@ -6,6 +6,8 @@
 零 LLM 成本。用法：python3 kb-incremental.py [--hours 24] [--dry-run]
 输出：新增索引文件数 + 总 chunks（写 ~/dsh-collab/token-monitor/kb-incremental-YYYY-MM-DD.json）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, pathlib
 sys_path = "/Users/coreyleung/.claude/automation"
 import sys; sys.path.insert(0, sys_path)

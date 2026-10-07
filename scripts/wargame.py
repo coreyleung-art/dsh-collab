@@ -26,6 +26,8 @@ R006: CLI(argparse) · TCC(--selfcheck) · CLD自适应(纯stdlib) · 版本(--t
   python3 wargame.py --domain flowernet report               # 沙盘报告 md
   python3 wargame.py --domain flowernet run                  # 一键全流程(score→adversary→converge→graph→report)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, re, copy
 
 VERSION = "v1.0.0"

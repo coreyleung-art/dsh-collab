@@ -9,6 +9,8 @@ Usage:
 Scenes: classify|keywords|summarize|extract_json|draft (model-routing-rules v1.1)
 Gating: conf>=0.9 adopt / 0.7-0.9 review / <0.7 escalate to cloud
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, datetime, urllib.request, hashlib
 
 OLLAMA = "http://127.0.0.1:11434/api/generate"

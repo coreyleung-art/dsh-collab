@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """CAHAC offline replay v0.1 (HR) — apply CAHAC channel selector to real Aug aggregates"""
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, datetime
 
 AGG = {"agent_send": 13585, "run_code": 5702, "bash": 1318, "other": 1391}

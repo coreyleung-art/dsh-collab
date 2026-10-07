@@ -19,6 +19,8 @@
   查水位: python3 bb-handshake.py --watermark --for <recipient>
   补漏检查: python3 bb-handshake.py --check --for <recipient>
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, hashlib, sys, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

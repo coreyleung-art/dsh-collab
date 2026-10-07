@@ -232,6 +232,19 @@ else
   RED=1
 fi
 
+# 18 磁盘最大占用者（CLD-022 防复发 · 守灯 2026-09-11 立）
+#    旧巡检只报「Data 卷 ≥85%」= 报占用率，报不出「是谁在吃」⇒ 无法处置。
+#    本项补：大文件枚举 + 存活时长(birthtime，非 mtime) + 轮转兄弟 + 持有者 + 增长速率/ETA。
+ITEM18=~/dsh-collab/cld-health/health-item18-disk.sh
+if [ -x "$ITEM18" ]; then
+  I18=$(bash "$ITEM18" 2>/dev/null); I18RC=$?
+  say "{\"disk_top_consumer\":\"$([ $I18RC -eq 0 ] && echo none || echo action)\"}" "$(echo "$I18" | grep -E '^  (18a|18b|18d)|^    - ' | head -4)"
+  [ $I18RC -ne 0 ] && RED=1 && say "{\"disk_top_action\":true}" "  ⚠ 磁盘存在无轮转大文件（见 health-item18-disk.sh 明细）"
+else
+  say "{\"disk_top_consumer\":\"missing\"}" "磁盘最大占用者: 脚本缺失（$ITEM18）"
+  RED=1
+fi
+
 # --log: 追加时间序列记录（趋势/基线对比用）
 if [ "${1:-}" = "--log" ]; then
   LOG=~/dsh-collab/cld-health/health-log.tsv

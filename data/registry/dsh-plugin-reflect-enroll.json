@@ -1,0 +1,93 @@
+{
+ "key": "data/registry/dsh-plugin-reflect-enroll",
+ "kind": "tool-registry-card",
+ "ts": "2026-09-10T16:54:08.467Z",
+ "ts_local": "Fri Sep 11 2026 00:54:08 GMT+0800 (China Standard Time)",
+ "name": "dsh-plugin-reflect-enroll",
+ "version": "1.3.0",
+ "device": "mac-mini",
+ "role": "反思入册 · 反馈闭环 —— 每日反思流水线的唯一写库环节 + 数据飞轮闭环点",
+ "location": "~/dsh-collab/devices/dsh-plugin-reflect-enroll/",
+ "cli": "reflect-enroll",
+ "tool_registered": "reflect_enroll",
+ "r006": {
+  "status": "enforced",
+  "items": {
+   "①插件形态": "package.json + cordis.patch.yml + lib/index.js(inject=[tools], tools.register reflect_enroll)",
+   "②TCC": "cli.js --selfcheck 三段（能力/不该发生路径/依赖）· selfcheck ok=true",
+   "③CLD自适应": "仅 node 内置模块（fs/path/os/http/crypto/url/util/module）",
+   "④dsh版本自适应": "peerDependencies 正式声明；两级解析（self → profile/node_modules）",
+   "⑤文档化": "docs/README.md（含十项矩阵/坑/复现命令）· r006.documented",
+   "⑥版本管理": "版本单一来源 package.json；lib/version.js 运行时读取",
+   "⑦统一日志": "~/dsh-collab/logs/dsh-plugin-reflect-enroll.log（失败也留痕）",
+   "⑧自动落链": "本登记卡 + 黑板 data/registry/reflect-feedback-<date> + docs/README.md",
+   "⑨CLI治理": "严格 parseArgs（未知旗标 exit 2）+ --rule 语法与冻结枚举解析期校验 + 退出码 0/1/2 + --dry-run 零变更 + --json",
+   "⑩约束前置": "lib/gate.js：冻结枚举 + 源码零删除原语 + 幂等/编号唯一 + 原子写回滚 + 凭据门 + 命名空间门 + --lean4-check A–F"
+  }
+ },
+ "gates": {
+  "decisions": [
+   "approve",
+   "reject",
+   "modify",
+   "defer"
+  ],
+  "targets": [
+   "philosophy",
+   "rule",
+   "spec",
+   "archive"
+  ],
+  "negatives_rejected": "79/79",
+  "positives_ok": "30/30",
+  "lean4": "A 源码无删除原语 · B 负例全拒 · C 正例可用 · D dry-run 零变更(文件+黑板双侧) · E 白名单冻结 · F 出站白名单+零 shell 出站",
+  "no_auto_decide": "裁定只能来自用户（裁定文件 / --rule）；本模块无任何生成裁定的函数",
+  "no_delete": "源码零删除原语；写形态只有\"读取→追加→原子覆盖\"；写入后断言条目数严格 +N",
+  "cross_device": "跨设备：只写自己命名空间（data/reflect/ · data/registry/ · notes/ 仅短指引≤50字）；落盘/上黑板前先跑凭据扫描脱敏",
+  "bb_protocol": "R003 补充对齐：key 首段 [a-z]+（非法键本机即拦）· 400=键错/404=不存在 · 落地判定=回读200+value非空+标记命中（空壳键不算落地）",
+  "cross_impl": "与 scripts/bb-write.py v1.0.2 逐条对账：23 键 18 一致 / 5 分歧（分歧均为本工具更严且经黑板实测裁定：尾斜杠→200+{list,total} 会骗过标记判据 · 空段→404 · 空格→400）",
+  "r001_lock": "写前只读 ~/.dsh/agent-bus.json locks[]：他人独占（未过期）→ LOCKED_BY_OTHER 拒写；过期放行；无状态文件降级。工具不抢锁（取锁=调用方动作）",
+  "phi13_releasedAt": "改写 releasedAt 前把原值留档到文件内 releasedAtHistory[]（from/to/at/cause），回读校验断言原值已留档 + 事件时点/写入时点分列",
+  "bb_charset": "实测字符类（只读 GET 真黑板，20195 真实键零误伤）：允许 字母数字 . - _ ? #；拒 % & ; + = : 与非 ASCII（400）、拒 ./.. 段（路径归一化→命名空间列举）",
+  "cross_impl_reverified": "bb-write.py v1.0.4 复验：23 键一致 23/23、分歧 0",
+  "version_monotonic": "当前 version 不得低于同文件内旁证版本（changelog/versionHistory/audit.previousVersions）→ VERSION_REGRESSION 拒写；只拒绝不自动修复。动因：明鉴 2.4→1.4 降级事故（本工具原会 1.4→1.5 固化它）"
+ },
+ "cross_device": {
+  "boards": {
+   "local": "http://127.0.0.1:8792",
+   "central": "http://106.53.214.108:8792"
+  },
+  "keys": {
+   "full_card": "data/reflect/feedback/<date>",
+   "notice": "data/registry/reflect-feedback-<date>",
+   "pointer": "notes/<device>/reflect-feedback-<date>"
+  },
+  "related_agents": "<device>:<agent>（提案 related_agents → 资源归属 → 设备发现表；判不出如实说）",
+  "offline": "其他设备的短指引写中央黑板待投递队列（离线设备上线自取）"
+ },
+ "evidence": {
+  "selftest_root": "/tmp/enroll-test/collab（真库零写入；日志可证 root 分布）",
+  "dry_run_zero_change": "副本全量 sha256 前后 0 行差异 + 两黑板 PUT/GET 计数前后一致",
+  "rollback": "chflags uchg 注入真实 IO 故障 → 首文件已写后被回滚，sha256 还原一致、台账无残留",
+  "idempotency": "DUPLICATE_ENROLL / ID_CONFLICT 实测被拒（exit 1）",
+  "central_board": "bbPutVerified 真实写入 106.53.214.108:8792 → 回读 200 一致（landed=true）",
+  "credential_redaction": "sk-/password= 探针：卡与黑板值共脱敏 2 处，三处产物原文 grep 0 命中"
+ },
+ "notes": [
+  "本工具无删除能力：失败现场的 .bak-* / .tmp-* 由人清理",
+  "v1.1.1：修两处会撒谎的检查（回滚自检用不存在字段 / 失败标签不分层）+ 补齐回读校验失败路径测试（part5）",
+  "CLI 语法 vs 外部数据的两类非法值语义分开：解析期拒=exit 2，门拒绝=exit 1",
+  "v1.1.2：对齐 R003 补充通告（400/404 语义分类 + 空壳键判据 + assertLanded）",
+  "v1.1.3：修 key 段数判据 + 回读内容深比对（防截断/并发覆盖）；对账 bb-write.py 并定位其 3 类宽松点",
+  "三条遗留已由明鉴裁定（2026-09-10 回执）：均暂不登记/保留，见 rulings_20260910",
+  "v1.2.0：按 HR 回执自查发现本工具同样存在两处缺陷（静默改写 releasedAt · 不与 R001 红绿灯交互），均已修并有 part8 实测",
+  "v1.2.1：与 bb-write.py v1.0.4 独立复验（23/23 一致）+ 加测字符类堵双方共有盲区；另发现活的 write-only 黑洞实例 data/reflect/",
+  "v1.3.0：版本单调性门（旁证校验）—— 明鉴的版本降级暴露了本工具会从错误基准继续加，已修并有正反两向实测"
+ ],
+ "rulings_20260910": {
+  "by": "明鉴(a190c54c) 回执 notes/mac-mini/ack-enroll-builder-20260910",
+  "R006 §7/§9 登记": "暂不登记 —— R006 是用户拥有的 enforced 规格（改动需用户明示）；且后续还有 4 个同族插件，建议 5 个齐后一次性登记",
+  "RULES.md 规则号": "暂不登记 —— 本工具不定义新规则（执行已有规则），按 R006 ⑧「若定义规则则登记」口径，不定义即不登记；data/registry 登记卡已足以落链",
+  "失败现场 .bak/.tmp": "保留不删 —— 是回滚测试真实产物、也是结构门起作用的证据；纳入 HR 资源审查范围（符合「工具无删除能力，删除由人决定」的设计）"
+ }
+}

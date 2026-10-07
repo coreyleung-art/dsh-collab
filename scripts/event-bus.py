@@ -10,6 +10,8 @@
   python3 event-bus.py --mark-sent <id>     # agent 发送后标记
   python3 event-bus.py --status
 零 LLM 成本。"""
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, datetime, hashlib, glob
 
 COLLAB = os.path.expanduser("~/dsh-collab")

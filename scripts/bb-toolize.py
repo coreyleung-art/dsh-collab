@@ -8,6 +8,8 @@
   python3 bb-toolize.py --selfcheck       TCC 自检
   python3 bb-toolize.py --tool-version    版本
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, re, json, sys, glob
 from collections import Counter
 

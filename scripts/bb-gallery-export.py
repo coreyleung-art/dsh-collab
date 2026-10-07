@@ -6,6 +6,8 @@
   python3 bb-gallery-export.py [--base http://127.0.0.1:8798] [--out DIR]
   --serve-out 同时起本地静态服务验证(DIR 可直接被静态托管)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, urllib.request, re, sys, time
 
 BASE = "http://127.0.0.1:8798"
@@ -54,15 +56,73 @@ def export(out, base=BASE):
         elif '<script src="vendor/d3.min.js">' in s:
             s = s.replace('<script src="vendor/d3.min.js">',
                           marker + '<script src="vendor/d3.min.js">')
-        with open(os.path.join(out, "index.html"), "w", encoding="utf-8") as f:
+        idx_path = os.path.join(out, "index.html")
+        with open(idx_path, "w", encoding="utf-8") as f:
             f.write(s)
-        manifest["html"] = {"file": "index.html", "bytes": len(s)}
+        # ★★ 2026-09-28 修（明鉴 实测发现根因，我独立复算吻合）：
+        #   原为 `"bytes": len(s)`，而 `s` 是**字符串**（第 48 行 `html.decode()` 的产物）
+        #   ⇒ `len(s)` = **字符数**，不是字节数 ⇒ 线上实测声明 138762 而真实 **150200**，
+        #     差 **11438** = 汉字的额外字节，与 `len(s.encode('utf-8')) - len(s)` 完全相等 ✓
+        #   ⇒ ★ 同一份文件里第 42 行 `len(data)`（`data` 是 bytes）是**对的**
+        #     ⇒ 根因精确为：**同一个 `len()` 在同一份代码里量了两种不同的量**（字符 / 字节）
+        #   ⇒ 判据：**「这个 `len()` 量的是字节还是字符？」—— 无单位声明的计数不可核** ✓
+        #   ★ 修法选择：**量写出去的那个文件**（`getsize`），而不是补一次 `encode()`
+        #     —— 后者仍是一个**代理量**（换了编码/换行转换就又会错），
+        #       前者量的是**真实产物的字节**，不可能错位 ✓
+        manifest["html"] = {"file": "index.html", "bytes": os.path.getsize(idx_path)}
     # 静态资源 vendor(d3)
     os.makedirs(os.path.join(out, "vendor"), exist_ok=True)
     for v in ["d3.min.js"]:
         d, _ = fetch(f"/vendor/{v}")
         if d:
             with open(os.path.join(out, "vendor", v), "wb") as f: f.write(d)
+    # ★★ 2026-09-28 补（明鉴 实测发现）：图库资产 assets/ —— **此前从未复制**
+    #   前端取图路径（index.html:724）：`__BASE+'/assets/'+encodeURIComponent(a.file)`
+    #   ⇒ 指针的基准命名空间是 **assets/**，**不是 snapshots/**。
+    #     snapshots/ 供「蓝图三视图」用（index.html:1865 四处 __BASE+'/snapshots/'），是**另一个消费者**。
+    #     ★ 我先前把两者并成一轴说「83 份只有 1 份可解析」—— 那是**假一轴**：
+    #       两个命名空间之间**本来就互不引用**，api/*.json 里 svg 引用共 4 条，全部来自 assets.json。
+    #   线上实测（2026-09-28，tm.meetfunbp.com/systemgraph/）：
+    #     assets/ 下 10 条指针 → **8 条 200 且与本地逐字节相同**，缺的 2 条是
+    #       distributed-agent-network-arch-20260909.svg / distributed-network-erd-20260909.svg
+    #       （以及未列入 assets.json 的 meeting-identity-graph.json）—— 全是 **09-09 新增**的文件
+    #     ⇒ 根因：assets/ **只有一次性手工推送，没有任何自动通道**
+    #        （线上存在的文件内容 T ∈ (2026-09-02 21:53, 2026-09-09 00:07)），此后新增的永远上不去
+    #   ⇒ 修法：**载荷由索引派生** —— 以刚抓下来的 api/assets.json 枚举为准**逐条**复制，
+    #     而不是让「索引」和「载荷」各自独立枚举目录（独立枚举必然出现「索引里有、载荷里没有」）✓
+    #   ⇒ 且源文件缺失时**硬失败 exit 2**，不静默跳过 —— 静默跳过正是那 2 个死指针的成因 ✓
+    assets_meta = os.path.join(api_dir, "assets.json")
+    n_assets = 0
+    if os.path.exists(assets_meta):
+        try:
+            entries = json.load(open(assets_meta, encoding="utf-8"))
+        except Exception as e:
+            print(f"❌ assets.json 解析失败: {e} ⇒ 拒绝导出（否则载荷与索引会静默错位）")
+            sys.exit(2)
+        # 源目录可被环境变量覆盖（默认不变）—— 供自测注入 fixture，从而**能证明这条硬失败真的会失败**；
+        # 不可注入的闸门只能靠读代码相信它 ⇒ 那是「假的 selftest」
+        asset_src = os.environ.get("GALLERY_ASSETS_SRC",
+                                   os.path.expanduser("~/dsh-collab/data/blueprint/gallery/assets"))
+        asset_dst = os.path.join(out, "assets")
+        os.makedirs(asset_dst, exist_ok=True)
+        import shutil as _sh
+        # 分母 = **索引里真正带 file 的条数**（不是 entries 总长）—— 计数必须与判据同口径
+        want = [e for e in entries if isinstance(e, dict) and e.get("file")]
+        missing = []
+        for e in want:
+            fn = e["file"]
+            sp = os.path.join(asset_src, fn)
+            if not os.path.exists(sp):
+                missing.append(fn)
+                continue
+            _sh.copy(sp, os.path.join(asset_dst, fn))
+            n_assets += 1
+        if missing:
+            print(f"❌ assets.json 索引了 {len(missing)} 个本地不存在的文件 ⇒ 拒绝导出（会产出死指针）:")
+            for m in missing:
+                print(f"     ✗ {m}")
+            sys.exit(2)
+        print(f"③ 复制图库资产 {n_assets}/{len(want)} 份 → assets/")
     # 快照 svg(蓝图三视图) — 从本地 snapshots 目录复制
     snap_src = os.path.expanduser("~/dsh-collab/data/blueprint/gallery/snapshots")
     if os.path.isdir(snap_src):
@@ -73,7 +133,7 @@ def export(out, base=BASE):
         for f in os.listdir(snap_src):
             if f.endswith(".svg"):
                 shutil.copy(os.path.join(snap_src, f), os.path.join(snap_dst, f)); n += 1
-        print(f"③ 复制快照 SVG {n} 份")
+        print(f"④ 复制快照 SVG {n} 份")
     with open(os.path.join(out, "manifest.json"), "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=1)
     # 统计目录大小

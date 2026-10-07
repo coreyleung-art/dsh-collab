@@ -25,6 +25,8 @@ API:
 
 R006: CLI/TCC/版本/日志/Lean4门(反向污染门)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, copy, re, urllib.request
 import logging
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer

@@ -32,6 +32,8 @@ subagent-govern v1.0.0 (HR) — 子代理资源治理工具（R006 九标准）
 
 零 LLM 原则：纯规则 + agent-bus 数据，不调模型。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, collections, shutil, sys
 
 VERSION = '1.0.0'

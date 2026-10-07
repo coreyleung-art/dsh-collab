@@ -6,6 +6,8 @@ applies CAHAC classification (new_order/delivery/refund -> EVENT; handled -> STA
 Zero LLM cost. Manual or scheduled (S2a post-approval).
 Usage: python3 panel-event-adapter.py [--panel-url http://127.0.0.1:8787]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, datetime, urllib.request
 
 BASE = os.path.expanduser("~/dsh-collab/token-monitor/events")

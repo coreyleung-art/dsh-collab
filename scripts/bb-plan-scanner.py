@@ -8,6 +8,8 @@
   python3 bb-plan-scanner.py --list      打印汇总
   python3 bb-plan-scanner.py --selfcheck 校验(重复id/孤儿引用)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, re, datetime, hashlib, glob
 
 BASE = os.path.expanduser("~/dsh-collab")

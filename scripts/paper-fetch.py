@@ -8,6 +8,8 @@
 
 说明：只抓 arXiv abs 页（开放）；付费墙论文由 agent 用 knowledge_import_url 或摘要兜底。
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, os, re, sys, urllib.request
 
 def fetch_abs(aid):

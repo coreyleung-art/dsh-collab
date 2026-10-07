@@ -19,6 +19,8 @@
 
 作者: 明鉴 v3 · 2026-09-07
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os, re, sys, datetime
 
 LIB = os.path.expanduser("~/dsh-collab/data/speech-fix-library.json")

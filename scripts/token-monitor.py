@@ -4,6 +4,8 @@
 读 ~/dsh-collab/token-monitor/audit-snapshot.json → 输出 overview.md 统计面板
 用法: python3 ~/dsh-collab/scripts/token-monitor.py
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os
 
 BASE = os.path.expanduser("~/dsh-collab/token-monitor")

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const VERSION = '1.0.0'; // ★ R006 ⑥ 唯一版本声明处（补课生成）
 /**
  * 会话存储健康检查脚本（回归基线素材 v1）
  * 作者：session-b278baab（DSH 基础设施根因研究与协作）

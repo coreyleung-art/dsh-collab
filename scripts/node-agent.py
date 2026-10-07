@@ -5,6 +5,8 @@
 注册→心跳(60s)→命令轮询→本地探针→回报。黑板 :8792 为状态中枢。
 用法：python3 node-agent.py --node-id mbp [--blackboard http://127.0.0.1:8792] [--once]
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, time, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

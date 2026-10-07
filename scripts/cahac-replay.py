@@ -15,6 +15,8 @@ Usage:
   python3 cahac-replay.py stream --panel-url http://127.0.0.1:8787
   python3 cahac-replay.py compare --a A.md --b B.md
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, csv, glob, os, datetime, sys, json, urllib.request
 
 W = {"p2p": 1.0, "collab": 0.8, "bw": 0.1, "br": 0.05, "event": 0.5, "broadcast": 10.0}

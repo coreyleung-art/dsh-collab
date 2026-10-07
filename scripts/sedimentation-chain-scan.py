@@ -25,6 +25,8 @@ B+ / C 两用：
 输出：token-monitor/sedimentation-queue/YYYY-MM-DD.json（待沉淀清单）
       + 打印到 stdout（值班人可读）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, glob, datetime
 
 COLLAB = os.path.expanduser("~/dsh-collab")

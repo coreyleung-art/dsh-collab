@@ -1,4 +1,5 @@
 #!/bin/bash
+VERSION=1.0.0 # ★ R006 ⑥ 唯一版本声明处（补课生成）
 # bb-gallery-gate.sh — 架构管理器提交前门禁(Φ9 约束前置 · R006 TCC)
 # 改 bb-blueprint-gallery.py / bb-gallery-ui.js / bb-gallery-ui.css 后必跑, 不过不发布
 # 检查:

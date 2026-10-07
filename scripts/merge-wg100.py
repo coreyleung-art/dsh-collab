@@ -4,6 +4,8 @@
 读: /tmp/wg100/T*.json → 汇总分析 + 生成可入引擎的 simulation 轮次
 写: docs/flowernet-wargame-100-master-v1.md + data/wargame/flowernet/simulation.json 追加(模拟域)
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, glob, os, sys, datetime, re
 
 OUT_MD = "/Users/coreyleung/dsh-collab/docs/flowernet-wargame-100-master-v1.md"

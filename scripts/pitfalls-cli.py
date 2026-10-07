@@ -21,6 +21,8 @@
 
 依赖: 纯 stdlib（json/os/sys/argparse/urllib）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, sys, datetime, urllib.request
 
 PITFALLS_FILE = os.path.expanduser("~/dsh-collab/docs/pitfalls/pitfalls.json")

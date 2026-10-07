@@ -13,6 +13,8 @@ schema 校验是生死线：action 白名单 + payload 类型 + 路径白名单 
 
 命名约定：mac总线（mac-mini 中枢/派单）→ i9总线（PC-i9 节点/执行）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, re
 
 # ===== action 白名单（i9 总线 5 类 + GeneBank 基因操作）=====

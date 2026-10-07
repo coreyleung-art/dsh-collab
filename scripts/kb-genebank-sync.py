@@ -15,6 +15,8 @@
 
 常驻：launchd 周期 or 事件驱动（论文落链完成触发）——由调用方决定
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, os, glob, hashlib, datetime, urllib.request
 
 GB = "http://127.0.0.1:8801"

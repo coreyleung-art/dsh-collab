@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "description": "受众可见性矩阵：规定哪类内容能给哪个受众看。配合 audience-check.py 使用。",
+  "audiences": ["shareholder", "partner", "platform", "public"],
+  "audience_labels": {
+    "shareholder": "股东 / 出资方",
+    "partner": "合作方 / 渠道",
+    "platform": "平台方（美团、饿了么等）",
+    "public": "公开 / 对外宣传"
+  },
+  "insight": {
+    "one_line": "给平台的 = 只说「做什么、给谁带来什么、要什么」",
+    "never_to_platform": [
+      "① 我们内部怎么干活（操作方式、账号、设备、排班）",
+      "② 我们怎么想这件事（推演、可能性评估、自我怀疑、跑法）",
+      "③ 我们的技术细节（采集、通道、指纹、工具实测）"
+    ],
+    "common_reason": "共同点：平台不需要知道；知道了可能有害。",
+    "how_to_use": "删掉不是「藏事」，而是把材料收敛到平台真正需要判断的三件事：做什么、给谁带来什么、要什么。越界内容挪到股东版/内部版，不在这份材料里出现。",
+    "review_hint": "关键词法漏报率极高。矩阵只做兜底闸门，正式审查请用 unit-review.py 逐单元语义审查（同一份文档，关键词法报「12 项全通过」，逐单元审查会发现 570 项）。"
+  },
+  "rules": [
+    {
+      "id": "equity",
+      "label": "股权 / 对赌 / 资金细节",
+      "pattern": ["股权", "股份", "出让", "对赌", "估值", "融资额", "融资", "启动资金", "分红", "投资人", "投后"],
+      "allow": ["shareholder"],
+      "deny": ["partner", "platform", "public"],
+      "note": "只给股东：出资结构是股东之间的事，对外披露会牵扯权属与合规问题"
+    },
+    {
+      "id": "internal-ops",
+      "label": "我方内部操作方式",
+      "pattern": ["单台设备", "批量登录", "操作日志", "设备清单", "多账号", "账号切换", "人工值守", "排班", "SOP", "执行流程", "后台操作"],
+      "allow": ["shareholder", "partner"],
+      "deny": ["platform", "public"],
+      "note": "平台知道了可能引发警惕：这些描述读起来像「规模化人工操作」，构成风控关注点"
+    },
+    {
+      "id": "tech-detail",
+      "label": "技术细节",
+      "pattern": ["数据采集", "采集通道", "数据通道", "端口", "指纹", "接口", "爬取", "自动化脚本", "代理池", "技术架构", "API", "抓取"],
+      "allow": ["shareholder"],
+      "deny": ["partner", "platform", "public"],
+      "note": "技术细节 = 把底牌摊开；平台拿到后可据此反制，合作方可能自行复制"
+    },
+    {
+      "id": "self-analysis",
+      "label": "我方自我推演 / 可能性评估",
+      "pattern": ["可能性评估", "推演", "样本量", "不可控", "不确定", "风险敞口", "假设", "低估", "高估", "不一定成"],
+      "allow": ["shareholder"],
+      "deny": ["partner", "platform", "public"],
+      "note": "自曝短板：这类句子在内部是清醒，对平台是「你自己都没把握」"
+    },
+    {
+      "id": "commitment",
+      "label": "目标数字 / 承诺",
+      "pattern": ["承诺", "对赌表", "未达标", "熔断", "保底", "保证完成", "KPI", "考核指标"],
+      "allow": ["shareholder", "partner"],
+      "deny": ["platform", "public"],
+      "note": "对股东是目标，对平台就是承诺；做不到即失信，且会被写进考核"
+    },
+    {
+      "id": "ai-tooling",
+      "label": "AI 工具实测数据",
+      "pattern": ["AI 工具", "AI工具", "大模型", "提示词", "实测", "跑测", "token", "自动化生成", "智能体", "LLM", "GPT"],
+      "allow": ["shareholder"],
+      "deny": ["platform", "public"],
+      "note": "平台材料要删掉 AI 工具实测数据：暴露「可批量生成」等于自证非真实经营"
+    },
+    {
+      "id": "data-return",
+      "label": "数据回流 / 数据闭环",
+      "pattern": ["数据回流", "回流", "数据闭环", "数据链路", "沉淀数据", "打通数据", "数据资产归属"],
+      "allow": ["shareholder"],
+      "deny": ["platform", "public"],
+      "note": "平台材料要删掉数据回流：平台对自己数据的去向极敏感"
+    },
+    {
+      "id": "account-line",
+      "label": "账号线 / 账号体系",
+      "pattern": ["账号线", "养号", "账号矩阵", "主号", "小号", "注册账号", "店铺账号", "关联账号"],
+      "allow": ["shareholder"],
+      "deny": ["platform", "public"],
+      "note": "平台材料要删掉账号线：多账号体系通常直接触碰平台规则"
+    },
+    {
+      "id": "compliance-tech",
+      "label": "合规 / 风控技术细节",
+      "pattern": ["合规技术", "风控", "规避", "绕过", "封号", "处罚记录", "审核规则", "规则漏洞", "灰度"],
+      "allow": ["shareholder"],
+      "deny": ["platform", "public"],
+      "note": "合规技术细节只进内部材料；对平台等于自证风险，还可能被当作违规意图"
+    },
+    {
+      "id": "four-playbook",
+      "label": "四跑法 / 内部推演路径",
+      "pattern": ["四跑法", "跑法", "并行跑", "试跑", "灰度跑", "第一跑", "第二跑"],
+      "allow": ["shareholder", "partner"],
+      "deny": ["platform", "public"],
+      "note": "跑法是内部推演，不是平台需要判断的事实"
+    },
+    {
+      "id": "cost-margin",
+      "label": "成本 / 毛利 / 报价结构",
+      "pattern": ["毛利", "成本结构", "利润率", "净利", "底价", "抽成上限", "佣金上限", "我们的成本", "可接受的最低"],
+      "allow": ["shareholder", "partner"],
+      "deny": ["platform", "public"],
+      "note": "对平台谈价时自曝底价，等于把议价空间先交出去。注意：求平台降抽成（「希望降低抽成比例」）是正当诉求，不该报；只有「我们接受的抽成上限/底价/毛利结构」这类自曝才有问题"
+    },
+    {
+      "id": "unpublished-plan",
+      "label": "未公开的扩张 / 合作计划",
+      "pattern": ["尚未公开", "内部计划", "下一步扩张", "拟收购", "秘密推进", "未定事项"],
+      "allow": ["shareholder"],
+      "deny": ["partner", "platform", "public"],
+      "note": "未定事项外泄会反过来绑住自己：说出口就成了要兑现的承诺"
+    }
+  ]
+}

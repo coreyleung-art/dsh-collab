@@ -5,6 +5,8 @@
 认证(token)→角色(role/tenant)→网关过滤(工具白名单/数据边界/写权限/审批)→PASS/FAIL。
 零 LLM。用法：python3 tier-gate-test.py
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import json, os
 
 CFG = os.path.expanduser("~/dsh-collab/token-monitor/role-config.json")

@@ -18,6 +18,8 @@
   4. 派单通知节点下载（任务卡）
   5. 验证可达（HTTP 200）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, os, shutil, subprocess, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"

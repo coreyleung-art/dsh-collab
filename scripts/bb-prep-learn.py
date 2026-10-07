@@ -13,6 +13,8 @@ R006 九标准：① CLI 形态（dsh 插件化预留）② TCC 检测（--selfc
   python3 bb-prep-learn.py --selfcheck           # TCC 自检（语法+依赖）
   python3 bb-prep-learn.py --tool-version        # 版本
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, sys, datetime, urllib.request, ast, os
 
 BB = "http://127.0.0.1:8792"

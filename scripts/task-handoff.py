@@ -27,6 +27,8 @@
   · genebank 8801 /shared/ 目录（~/dsh-collab/datasets/shared/）
   · 目标节点 node-bridge 在线（tasks/{node}/queue 消费）
 """
+__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
+
 import argparse, json, os, shutil, subprocess, tarfile, datetime, urllib.request
 
 BB = "http://127.0.0.1:8792"
