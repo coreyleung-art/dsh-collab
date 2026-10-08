@@ -362,9 +362,57 @@ CHECKS = [
     ("I5 载体原子性", lambda b, m: i5(m)),
     ("I6 闸门只断言数据（非服务存在性）", lambda b, m: i6()),
     ("I7 投递模式（通知不唤醒）", lambda b, m: i7(m)),
+    ("I8 CAHAC 落地合规（缺席可判别）", lambda b, m: i8(b, m)),
 ]
 
 MARK = {"PASS": "✅", "FAIL": "❌", "GAP": "🟡", "PENDING": "🟠", "SKIP": "⚪"}
+
+
+
+# ── I8 CAHAC 落地合规：**规范有、工具在、launchd 在跑，都不算落地** ──────────────
+#   依据：G3 §5 规则一「进度只能是【被验证过的工作】；活着、在输出、有心跳都不算」；
+#         G1 §2.1「把报警从【存在报警】反转为【缺席报警】」。
+#   ⇒ 本项判据【不提 CAHAC 是否存在】，只问两件事：
+#       (a) 上报是否【新鲜】（缺席 ⇒ FAIL，因为它本该在跑）
+#       (b) 合规率是否 > 0（新鲜但 0 ⇒ **GAP**：机制尚不存在，不是"做错了"）
+def i8(bus=None, msgs=None):
+    """读 data/health/cahac-compliance（由 cahac-compliance-report.py 周期写入）。"""
+    key = "data/health/cahac-compliance"
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:8792/" + key, timeout=8) as r:
+            d = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        return "SKIP", "读不到黑板键 %s（%s）⇒ 无从判定" % (key, type(e).__name__), {"key": key}
+    v = d.get("value", d)
+    ts = v.get("ts") if isinstance(v, dict) else None
+    ev = {"key": key, "version": d.get("version"), "ts": ts,
+          "rate_legal": (v or {}).get("rate_legal"),
+          "legal_state": (v or {}).get("legal_state"),
+          "total": (v or {}).get("total"),
+          "refresh_seconds": (v or {}).get("refresh_seconds"),
+          "threshold_seconds": (v or {}).get("stale_threshold_seconds")}
+    if ts is None:
+        return ("SKIP",
+                "上报体缺 ts ⇒ **未核**（不得当作通过）—— 这是三态纪律：缺字段记未核",
+                ev)
+    import time as _t3
+    age = int(_t3.time()) - int(ts)
+    thr = (v or {}).get("stale_threshold_seconds") or 1800
+    ev["age_seconds"] = age
+    if age > thr:
+        return ("FAIL",
+                "★ **缺席**：合规率上报已 %d 秒未更新（阈值 %d 秒）⇒ "
+                "**该协议的落地情况不可知**（这正是『静默兼容条款』的后果）" % (age, thr),
+                ev)
+    rate = (v or {}).get("rate_legal")
+    if not rate:
+        return ("GAP",
+                "上报新鲜（%d 秒前），但**合规率 = %s**（合法 state 条目 %s / 总 %s）⇒ "
+                "**协议机制尚未落地**——这是 GAP（还没有），不是 FAIL（做错了）"
+                % (age, rate, (v or {}).get("legal_state"), (v or {}).get("total")),
+                ev)
+    return ("PASS", "上报新鲜（%d 秒前）且合规率 = %s" % (age, rate), ev)
 
 
 def audit():
@@ -433,7 +481,7 @@ def selftest():
     c("I3 负控：只有 delivered/queued ⇒ GAP", st == "GAP", st)
     # 真实数据可跑
     rows = audit()
-    c("审计器对现网跑通且 7 项齐备", len(rows) == 7, len(rows))
+    c("审计器对现网跑通且 %d 项齐备（★ 动态，不硬编码）" % len(CHECKS), len(rows) == len(CHECKS), len(rows))
     c("每项都有 why 说明（防空壳）", all(r["why"] for r in rows), "")
     print(f"\n  selftest: {ok} PASS / {fail} FAIL")
     return 0 if fail == 0 else 1
