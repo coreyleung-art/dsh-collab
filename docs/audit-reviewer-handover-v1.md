@@ -498,6 +498,10 @@
 
 ## 9 · 变更记录
 
+- **v2.1 · 2026-10-08（补证）**：新增**附录 A · 外部成熟规范对应**（5 个方向的调研）。
+  - **补强了 5 条本件判据**：阴性带检出限（EPA MDL，含 7 加标/7 空白/3 批次 3 日期可直接抄）· 三态与第三方复现（ACM 徽章三层，`Available`＝未证）· 「盘上≠在役」（SPDX `SupportType.deployed`，`noAssertion` 是默认值）· 测/算（SLSA provenance + in-toto）· 审查者独立性（ISO 19011:2026 客观·独立·公正条款）。
+  - **★ 一条自我界定（重要）**：**「三态」在软件评审标准中无明文出处**（IEEE 1028-2008 已停活且范围自限；ISO/IEC 25010 无三态）⇒ **属本场景自行扩展，引用时不得伪称有标准背书。**
+  - **未证实项已逐条列出**（附录 A.6）：IUPAC 原文、NIST 证据链原文、ISO 27037 不含分析阶段、NTIA 最小元素逐条、ACM 官网直连被拦等。
 - **v2.0 · 2026-10-08（重构）· 完整声明**：本版**只做结构重组，未改任何判据内容**。
   - **① 移出了什么**：原 §4「复现命令」**整节约 1093 行**（占当时全文约 68%）⇒ 移出为档案 `~/dsh-collab/audits/20261008/handover-v1-repro-archive.md`（1102 行，含其来源、性质与归档时刻）。
     · **性质**：那是**证据档案**（逐条判据配套的命令与实测输出），**只对当日环境与案例成立**，不是规范。
@@ -541,6 +545,82 @@
   补入 ③ 的现有佐证（`std=1.0.1` + uptime 12.35h > 包龄 ~2h ⇒ 装后未重启 ⇒ 维持未验）。
 - **v1 · 2026-10-06**：建立。移交裁定职责；记录工具面、判据取法、13+1 条坑、当前状态、裁定契约。
   来源：PSTD 交付与三轮复核（R047 提请 → v1.0.1 收敛 → v1.0.2/v1.0.3 复验 → 挂载核实 v2 收口）。
+
+## 附录 A · 外部成熟规范对应（2026-10-08 调研 · 用于补强本件判据）
+
+> **定性**：本件的判据多数是**自行总结**出来的；本节给出**外部成熟规范**中更完整或更权威的表述，供引用与对齐。
+> **★ 一条必须先说的自我界定**：**「三态（通过 / 不通过 / 未证）」在软件评审标准中【没有明文出处】**
+> ⇒ 它属**本场景自行扩展**，**引用时不得伪称有标准背书**。最近的正式对应物在**合格评定**领域（见 A.1 / A.5）。
+> **取用纪律**：引用本节任何规范前，**先核官网当前版本**（本调研有数条因 Cloudflare / 付费墙只能取存档，已逐条标注）。
+
+### A.1 阴性结论必须带检出限 → **US EPA 40 CFR Part 136, Appendix B（MDL, Revision 2）**
+- **出处**：US EPA，载于 eCFR（**调研已取回全文**）：https://www.ecfr.gov/current/title-40/chapter-I/subchapter-D/part-136/appendix-Appendix%20B%20to%20Part%20136
+- **核心原文（逐字可核）**：MDL = 「the **minimum measured concentration** of a substance that can be reported with **99% confidence** that the measured concentration is **distinguishable from method blank results**」
+  ⇒ **「未检出」在规范上等价于「低于某个数」，而那个数必须报出来。**
+- **硬要求（可直接抄成审查清单）**：**≥7 份加标样 + ≥7 份方法空白**，**过方法的全部步骤**；**跨 3 个批次、3 个不同日历日期**制备与分析；
+  **离群点不宜剔除**，若剔除**须逐例记录理由并存档**；并**逐条枚举该方法不适用的场景**（非连续分布的方法等）。
+- **⇒ 可写进手册的判据**：
+  > **任何「未发现 / 未检出 / 无异常」的表述，必须等价于「低于本方法在本次条件下的检出限 X（X 必须报出，附方法、批次与日期）」；未附检出限的「未发现」一律判 `未证`。**
+- **补强了哪条**：本件 pit 29 与「0 的两种成因」；并**一次补齐**「阴性带条件量 + 阳性/阴性对照 + 读数带时刻」三条。
+
+### A.2 三态与第三方复现 → **ACM Artifact Review and Badging**（Version 1.1, 2020-08-24）
+- **出处**：ACM 出版政策；官网被拦截，调研取 Wayback 存档：https://web.archive.org/web/2024/https://www.acm.org/publications/policies/artifact-review-and-badging-current
+- **核心要求**：**三类徽章相互独立** —— `Artifacts Available`（可取得，**未评估**）· `Artifacts Evaluated`（**经独立审计**）· `Results Validated`（**他人获得结果**）；
+  Functional 级四判据：**`Documented` / `Consistent` / `Complete` / `Exercisable`**（脚本能成功执行），并要求 **evidence of verification and validation**；
+  **明文**：「exact replication or reproduction of results is **not required**」⇒ **落在可接受容差内即可**；
+  术语用 **VIM** 定义：Reproducibility = 不同团队 / **同一装置**；Replicability = 不同团队 / **不同装置**。
+- **⇒ 可写进手册的判据**：
+  > **结论按三级：仅可取得 = `Available`（＝ `未证`）；能独立跑通并复核判据 = `Evaluated`（＝ `通过`）；由非作者方按容差重新取得关键结果 = `Validated`（＝ `通过·已复现`）。结果落在声明容差内即视为通过，不要求逐位相同。**
+- **补强了哪条**：**「未证」不是失败** —— ACM 把它做成**一个独立的、正当的徽章**，这就是本场景三态的国际通用表达。
+
+### A.3 「盘上 ≠ 在役」→ **SPDX 3.0.1 `SupportType.deployed`**（ISO/IEC 5962 家族）
+- **出处**：Linux Foundation / SPDX（**已取回官方规范原文**）：https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Vocabularies/SupportType/
+- **核心原文**：`deployed` = 「in addition to being supported by the supplier, the software is **known to have been deployed and is in use**」；
+  与之并列的有 `development` / `support` / `limitedSupport` / `endOfSupport` / `noSupport` / **`noAssertion`**，
+  **而 `noAssertion` 是默认值 ⇒「不知道」是一等公民，不是失败态。**
+- **⇒ 可写进手册的判据**：
+  > **「已在役」须以制品级 `SupportType=deployed` 形式的断言提交；只有磁盘/仓库存在制品、但无该断言者，一律记 `未证（not deployed asserted）`，不得表述为「已上线」。**
+- **补强了哪条**：本件 pit 27 与「运行态读数」诸条 —— 把「在役」从**推断**变成**可断言、可机器校验**的值。
+
+### A.4 「这是测的还是算的」→ **SLSA Provenance + in-toto Attestation**
+- **出处**：SLSA（OpenSSF）https://slsa.dev/spec/v1.2/build-provenance ；in-toto（CNCF）https://github.com/in-toto/attestation/blob/main/spec/README.md
+- **核心原文**：provenance = 「the **verifiable information** about software artifacts describing **where, when and how** something was produced」；
+  SLSA 等级即**证明强度**分级（L1 provenance 存在 / L2 **签名 provenance，由托管构建平台生成** / L3 加固构建平台）；
+  in-toto 三层：`Statement`（subject + predicateType）/ `Envelope`（认证与序列化）/ `Bundle`（聚合）；**强烈建议用密码学摘要**。
+- **⇒ 可写进手册的判据**：
+  > **每条证据须标注类型：`测`（observed/executed，附命令与输出摘要）或 `算`（derived/asserted，附推导或来源）；凡引用 provenance 者须写明 builder.id 与实际验证动作，未经验证的外部参数不得作「已核」。**
+- **补强了哪条**：本件 pit 25「数值来源必须可答：测的还是算的」—— SLSA 给这句话一个**标准封装**。
+
+### A.5 审查者独立性 → **ISO 19011:2026**（Guidelines for auditing management systems）
+- **出处**：ISO，2026-08-04 新版（调研取回发布公告原文）：https://standard.md/?p=14974&lang=en
+- **核心原文**：强化「integrity of the audit process, emphasizing the importance of planning and managing the audit programme in an **objective, independent and impartial manner, free from undue influence**」；
+  并新增「审计团队须具备与审计目标与范围相称的 **competencies**」。
+- **⇒ 可写进手册的判据**：
+  > **审查须以客观、独立、公正且不受不当影响的方式开展；审查者不得审查自己参与产出的交付物；确无独立审查者可用时，结论只能记 `未证`，不得记 `通过`。**
+- **补强了哪条**：本件「R046 三方分离（提出者 ≠ 执行者 ≠ 裁定者）」与「工具不得自证」—— 它们此前只有内部依据，现有一条**最新且可引用的独立性条款**。
+
+### A.0 取权威原文的优先路径（调研方法提示 · 2026-10-08）
+**ISO / IUPAC / ANSI 等站点直连普遍被 Cloudflare 拦截**；本次能取回**原文**的路径依次是：
+1. **eCFR**（美国政府法规库，**全文免费直连**）—— 本次 EPA MDL 全文由此取得；
+2. **开放官方站**：W3C（PROV）· SPDX · SLSA · CycloneDX · Google eng-practices；
+3. **国家级标准机构的公开摘要页**（BSI / NSAI / Standard Norge 等）—— 可得定义与范围原文；
+4. **Wayback 存档** —— 仅当官网被拦时使用，**并须注明「取自存档、版本以官网为准」**。
+⇒ **纪律**：**取不到原文的，一律标「未证实」，不得以搜索摘要冒充原文**（本次即据此把 IUPAC / NIST 两条列为未证实）。
+
+### A.6 调研的诚实边界（**未找到 / 未证实**，不得当作有出处）
+1. **「三态」无软件评审标准出处**：**IEEE 1028-2008 与 ISO/IEC 25010:2023 均无明文三态**（已核标准页）。
+   最近的正式对应物是 **ISO/IEC 17025 §7.8.6 的 decision rule / statement of conformity** 与 **ISO 11843-1 的 critical value**（低于临界值只能报「未检出」）。
+   ⇒ **本场景的三态属自行扩展。**
+2. **IEEE 1028-2008 已停活**（Inactive-Reserved，2019-11-07；该工作组无在役项目）⇒ 引用须注明状态。
+   且其**范围自限**：「procedures for determining the **necessity** of a review or audit are **not defined**, and the **disposition of the results** … is **not specified**」
+   ⇒ **它管「怎么审」，不管「审完怎么判」** —— 这正解释了本场景为何需要**自行**定义三态与输出格式。
+3. **IUPAC 检出限原文未取回**（Gold Book L03540 被 Cloudflare 403）⇒ 本次**不引用 IUPAC**，以 EPA MDL（已取全文）为锚点。
+4. **NIST SP 800-86 / 800-101r1 的 chain of custody 原文未取回**（PDF 文本层不可提取）⇒ 证据链出处以 **ISO/IEC 27037:2012 摘要 + UNODC E4J 模块**为准（均已取回）。
+5. **ISO/IEC 27037 只覆盖识别/收集/获取/保存四阶段，不含分析**（UNODC 原文佐证）⇒ **引用「证据链」时须限定范围**。
+6. **NTIA SBOM 七个最小元素的逐条措辞未证实**（PDF 已下载、未逐条提取）。
+7. **ACM 官网直连被拦**，本条取自 Wayback 存档（Version 1.1, 2020-08-24）⇒ **引用前请自行访问官网核对版本号。**
+
+---
 
 ## 环境风险（不在本包范围，但必须知道 · 2026-10-08 实测）
 
