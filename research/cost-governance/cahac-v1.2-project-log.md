@@ -80,6 +80,13 @@
 
 ---
 
+| 2026-10-09 | **批 3** | **★★ S15「缺席可判别」+ S12「检查下探」落地并验证** —— 新建 `scripts/cahac-compliance-report.py`：**① 上报**（算【数据层】合规率 = inbox 里带合法 `state` 的条目比例 ⇒ 写黑板 `data/health/cahac-compliance`）**② 缺席检查**（`--check`：超阈值 ⇒ exit 1；**缺 ts ⇒ 判「未核」而非通过**）**③ 防漂移**（`--verify-plist`：plist 的 `StartInterval` 必须 == 脚本 `REFRESH_SECONDS`，落实 HR 2026-09-22 原则「阈值须与刷新周期同阶，否则报警恒真」）**④ selftest 0 FAIL（反例 3 / 正例 6）**。
+★ **周期已装载**：`com.dsh.cahac-compliance-report`（每 900s · 退出码 0 · **err.log 0 字节** · 黑板 version 递增）。plist 唯一副本已存 `devices/launchd-replicas/`。
+★★★★ **首个真实数字**：`total 2672 / legal_state 0 / rate_legal 0.0` ⇒ **⇒ CAHAC 落地率 = 0，而这个数从此每 15 分钟刷新、超 30 分钟未刷新即报警** ⇒ **⇒ 「42 天零落地」从此不可能再静默为零。**
+★ **过程中修掉一个真 bug**：`bb_put` 原写成 `{"value": …}` ⇒ 值多包一层 ⇒ **写入返回 HTTP 200（假成功）而回读 ts/rate_* 全为 None** ⇒ **⇒ 「200 ≠ 写对了，必须回读比对内容」**（与本体系既有「非 200 被当成成功」的教训**对称**）—— **而抓到它靠的正是「写后必读」纪律**。 | `scripts/cahac-compliance-report.py` + plist | ✅ | 批 3 继续 |
+
+---
+
 ## 待办（本日志的「下一步」汇总）
 
 | # | 阶段 | 内容 | 状态 |
