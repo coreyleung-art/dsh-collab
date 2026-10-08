@@ -1,0 +1,61 @@
+{
+  "version": "1.2.2",
+  "generated_at": "2026-10-08T18:20:27Z",
+  "dir": "/Users/coreyleung/.dsh/inbox",
+  "total": 2642,
+  "tally": {
+    "unknown": 843,
+    "n/a": 1390,
+    "open": 400,
+    "closed": 3,
+    "stale": 6
+  },
+  "note": "本索引用途：**以后先查此处** —— 命中者不必再逐条查看。stale 不是「已关闭」而是「疑似过期，须核依赖后才能关闭」。",
+  "items": [
+    {
+      "file": "ack-collect-correction-20260910.json",
+      "state": "closed",
+      "why": "状态字命中「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "ack-collect-paging-20260910.json",
+      "state": "closed",
+      "why": "状态字命中「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "ack-dispatch-correction-20260910.json",
+      "state": "closed",
+      "why": "状态字命中「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "ack-hr-docking-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待其余方回」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "ack-hr-item6-scoped-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待裁」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "ack-hr-p1-basis-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待裁」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "ack-hr-recursion-terminus-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待裁」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "ack-star-second-review-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待回」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "ack-star-third-review-20260910.json",
+      "state": "stale",
+      "why": "待处理标记（「待其余方回」）已存在 28.8 天（> 7 天窗）⇒ **疑似过期**；须核其依赖是否已解决后才可关闭"
+    }
+  ]
+}
