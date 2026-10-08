@@ -41,7 +41,7 @@
 | CostCap | 任务级成本上限 |
 | **Agent Card** | **★v1.2 补**：会话能力声明（结构见 §11）——`cahac_version` / `agent_id` / `channels` / `topics` / `budget` / `comm_style` / `capabilities` |
 | **thread** | **★v1.2 补**：进程间会话级聚合标识（§3 信封字段；与 `task_id` 的关系见 §7.2 的「v1.2 关系声明」） |
-| **dedup_key** | **★v1.2 补**：幂等键（§3 信封字段「幂等」；**★v1.2 待裁**：v1.0 在 §8.3 用「源事件指纹（如 `SHA256(payload)`）」、附录 A 又用结构化命名式 `task:<name>[:status]` ⇒ **两套构造并存、适用域未划清**） |
+| **dedup_key** | **★ v1.2.1 已裁（所有者：要对齐）**：**统一为【内容指纹】**（如 `SHA256(payload)`），依据 `AGENT-NETWORK-CHARTER.md` L33「**同内容重投判 dup ⇒ 去重键=内容指纹**」⇒ **指纹式是权威口径**。★ **结构化命名式（`task:<name>[:status]`）降级为【关联键】**（见 §3）：它解决的是「同一任务的多次消息要能**关联**」，**不是「去重」** ⇒ **二者用途不同，不得互相替代**。|
 | **urgency** | **★v1.2 补**：广播紧迫度（§5.1 决策算法使用；取值 `emergency` / `policy` / `restart`，见 §4 硬规则） |
 | **retry / max_retries** | **★v1.2 补**：重试次数与上限（§7.2 任务卡字段；状态机见 §7.3） |
 
@@ -87,7 +87,7 @@ graph LR
 | 类型 | 代码 | 语义 | 通道 | 必答 | 生命周期 | 成本权重 |
 |---|---|---|---|---|---|---|
 | 实质任务 | TASK | 委派执行并回报 | p2p | 是 | **见 §7.3（唯一来源）** | 见 §5.2 |
-| 协作协商 | COLLAB | 多轮对齐 | p2p（线程内） | 是 | SESSION（线程） | 见 §5.2 |
+| 协作协商 | COLLAB | 多轮对齐 | **线程**（★ v1.2.1 对齐 `AGENT-NETWORK-CHARTER.md` L29「COLLAB→线程」；v1.0 误写「p2p（线程内）」）| 是 | SESSION（线程） | 见 §5.2 |
 | 状态更新 | STATUS | 进度/资源/告警 | blackboard | 否 | 状态带 version+ttl | 0.1(写)/0.05(读) |
 | 确认回执 | ACK | 「收到✓」 | blackboard | 否 | 无（写入即达） | 见 §5.2 |
 | 事件通知 | EVENT | 触发式告警 | eventbus | 否 | 持久化可重放 | 见 §5.2 |
@@ -121,11 +121,19 @@ CHANNEL(msg):
 | blackboard 写 | 0.1 | 一次写入 |
 | blackboard 读 | 0.05 | 按需拉取 |
 | mailbox | 0.05 | 增量文件处理 |
-| **COLLAB** | **0.8** | **★v1.2 补**：v1.0 只在 §4 给 COLLAB 权重 0.8，§5.2 无对应通道 ⇒ 现移入本节作为**唯一来源**。**★v1.2 待裁**：COLLAB 走 p2p（通道价 1.0），为何 0.8？是「线程内多轮摊薄」还是笔误？ |
+| **COLLAB** | **0.8** | **★ v1.2.1 裁定（所有者：要对齐 + 保留）**：COLLAB 走**线程**（章程口径）而非 p2p，故**不适用 p2p 的 1.0**；0.8 = **线程内多轮协商的单次摊薄成本**（草案 v0.1 原把它列在成本档「中」，v1.0 精确化为 0.8 ⇒ **本值保留，并补此理由**）。|
 
-**★v1.2 标注的一处成本冲突（待裁 · 依裁判节点① 复核）**：
-`ACK` 按 **0.05** 计，而它走 **blackboard 写**（§5.2 通道价 **0.1**）⇒ **成本低估 2×**。
-⇒ 二选一（**本版不替裁**）：(a) 承认 ACK 走黑板写 ⇒ 改 0.1；(b) 为 ACK 定义独立的轻量写路径 ⇒ 保留 0.05 并说明该路径的成本依据。
+**★ v1.2.1 已裁（所有者裁 ③A）：为 ACK 定义独立轻量写路径**
+
+| 通道 | 权重 | 含义 |
+|---|---|---|
+| **`ack_write`** | **0.05** | ★ **v1.2.1 新增**：**ACK 专用轻量写** —— 只写固定短键（如 `ack/<msg-id>`）、**无 payload 解析、无索引更新、不触发订阅** ⇒ 成本约为黑板常规写的 1/2 |
+
+**裁决依据**：
+- **意向来源**：草案 v0.1 对 ACK 写的是「**极低（目标消灭）**」；`AGENT-NETWORK-CHARTER.md` L27 有明确的「**反 ack 乒乓**」设计意图 ⇒ **ACK 的低价是【设计目标】而非实测值** ⇒ **应予保留**
+- **原缺陷**：v1.0 给 ACK 的 **0.05 恰等于「黑板读」的价**，而 ACK **走写** ⇒ 那是**对照失误**，不是定价
+- **⇒ 修法**：**保留 0.05 的意图，但给它一条【名副其实的路径】** —— 不再是「按黑板读计费」，而是「ack_write 这条轻量路径的真实成本」
+- **账目自洽**：ACK 走 `ack_write`（0.05）而非 `blackboard 写`（0.1）⇒ **价格与操作一致**，同时保住「抑制 ack 风暴」的激励
 
 ### 5.3 默认安全
 - 通道不确定/规则冲突 → 走 p2p（宁可多花不可漏达）
@@ -160,25 +168,35 @@ CHANNEL(msg):
 
 ### 7.2 任务卡 Schema
 ```json
-// ★v1.2 关系声明（暂定 · 待批 2 确认）：
-//   `thread`（§3 信封字段，进程间会话级聚合标识） 与 `task_id`（§7.2 任务卡唯一标识）**不是同一物**。
-//   推定关系：**一个 thread 可含多个 task**（依据：§7.2 的 `envelope` 内含 §3 信封 ⇒ 可携带 thread）。
-//   ⇒ **本版只声明关系、不改变任何字段语义**；若批 2 认定为「同一物」或「多对多」，请按裁决改此处。
+// ★ v1.2.1 已裁（所有者：要对齐）：
+//   `thread`（§3 信封字段）= **跨会话历史容器** —— 依据 `docs/agent-bus-principles.md` L260
+//       「agent_thread | 读线程 | **跨会话历史**」⇒ 该语义【业已存在】，本协议直接采用。
+//   `task_id`（§7.2）= **任务卡唯一标识**（任务体系）。
+//   ⇒ **关系：一个 thread 可含多个 task**（task 从属于 thread）。
+//   依据：§7.2 的 `envelope` 内含 §3 信封 ⇒ 可携带 `thread` ⇒ 结构上已支持该从属关系。
 { "task_id": "t-<uuid>", "envelope": {...}, "priority": "P0", "deadline": "...",
-  "state": "CREATED|ASSIGNED|QUEUED|RUNNING|DONE|FAILED|TIMEOUT", "retries": 0, "max_retries": 2 }
+  "state": "todo|claimed|done|verified|blocked|failed|timeout", "retries": 0, "max_retries": 2 }
 ```
 
 ### 7.3 状态机
-**唯一来源（v1.2 合并 · 取 §12 的超集）**：
+**唯一来源（v1.2.1 · ★ 已按所有者裁决「与既有权威文档对齐」重写）**：
 ```
-CREATED → ASSIGNED → RUNNING → DONE
-                              → FAILED → (retry ≤ max_retries) → QUEUED → RUNNING
-                              → TIMEOUT
-QUEUED 的出口：RUNNING（v1.2 补 · 修正 v1.0 中 `QUEUED` 只有入边、无出边 ⇒ retry 进入即永久挂起）
+todo（待领/待处理）→ claimed（已领/执行中）→ done（完成待验收）→ verified（验收通过）
+                          ↑↓ blocked（阻塞，可解阻回 claimed）
+                          └→ failed（失败）→ (retry ≤ max_retries) → claimed
+                          └→ timeout（超时）
 ```
-**v1.0 的三处不一致已在此合并**：§4 用 `CREATED→ASSIGNED→RUNNING→…`（无 `QUEUED`）、§7.2 用 `QUEUED→…`（无 `CREATED`/`ASSIGNED`）、§12 用 `CREATED→ASSIGNED→…` 且 `FAILED→QUEUED`。
-**选择依据（机械、非语义判断）**：本枚举为三处的**并集超集**；余两处均为其真子集 ⇒ **不引入任何新状态**。
-⇒ **★v1.2 待裁（批 2）**：`CREATED` 与 `QUEUED` 是否应合并（v1.0 实际上混用了两者）。
+**对齐依据（既有权威 · 在役）**：`scripts/bb-taskboard.py`
+```python
+STAGES = ["todo", "claimed", "done", "verified", "blocked"]
+# todo（待领）→ claimed（已领/执行中）→ done（完成待验收）→ verified（验收通过）
+#                      └──→ blocked（阻塞，可解阻回 claimed）
+```
+**★ 本次对齐的三处实质改动**：
+1. **`CREATED` 与 `QUEUED` 均并入 `todo`** —— v1.0 混用两者且三处不一致；对齐后统一为 `todo`（**权益者裁决：要对齐**）
+2. **新增 `verified`（验收通过）与 `blocked`（阻塞·可解阻）** —— **v1.0 完全缺失这两个状态**，而它们在**在役系统里是实际使用的**
+3. **保留 `failed`/`timeout`** —— 在役 `bb-taskboard` 无对应（它以 `blocked` 表达阻塞）⇒ **本协议特有，不删**
+⇒ **⚠ 映射声明**：CAHAC 的 `failed`/`timeout` 与 `bb-taskboard` 的 `blocked` **语义不同**（前者终态、后者可恢复）⇒ **两系统联调时须显式转换，不得直接比对状态值。**
 
 ### 7.4 容量与防积压
 - inbox 上限 100 文件/agent；超限投递返回 MAILBOX_FULL
@@ -199,7 +217,8 @@ QUEUED 的出口：RUNNING（v1.2 补 · 修正 v1.0 中 `QUEUED` 只有入边�
 | risk.detected | 风控信号 | HR/合规 |
 
 ### 8.3 幂等与重放
-- dedup_key = 源事件指纹（如 SHA256(payload)），重复事件直接丢弃
+- `dedup_key` = **源事件内容指纹**（如 `SHA256(payload)`），重复事件直接丢弃 —— ★ **v1.2.1 裁定**：此为本协议**唯一去重键**，依据 `AGENT-NETWORK-CHARTER.md` L33「同内容重投判 dup ⇒ **去重键=内容指纹**」。
+- **★ 关联键（≠ 去重键）**：形如 `task:<name>[:status]` 的结构化命名用于**关联**同一任务的多条消息（可读、可查）；**不得用作去重依据** —— 同一任务的不同消息**内容不同但关联键相同** ⇒ 若拿去重会**误杀**。
 - 事件日志 append-only；消费者断点续读（offset 记录）
 
 ## 9. 预算协议（Budget Protocol）
@@ -249,16 +268,17 @@ TASK.cost_cap 必填（除 P0）；超限→拒绝或降级本地模型；BATCH 
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CREATED
-    CREATED --> ASSIGNED : 委派
-    ASSIGNED --> RUNNING : 开始
-    RUNNING --> DONE : 完成+回报(黑板)
-    RUNNING --> FAILED : 错误
-    FAILED --> QUEUED : retry<max
-    QUEUED --> RUNNING : 重新入队(v1.2 补 · 修正 v1.0 中 QUEUED 无出边)
-    RUNNING --> TIMEOUT : 超时(expires)
-    DONE --> [*]
-    TIMEOUT --> [*]
+    [*] --> todo
+    todo --> claimed : 领卡
+    claimed --> done : 完成+回报(黑板)
+    claimed --> blocked : 阻塞
+    blocked --> claimed : 解阻
+    done --> verified : 验收通过
+    claimed --> failed : 错误
+    failed --> claimed : retry<max
+    claimed --> timeout : 超时(expires)
+    verified --> [*]
+    timeout --> [*]
 ```
 
 ## 13. 错误码
