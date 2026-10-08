@@ -1,0 +1,428 @@
+{
+  "_meta": {
+    "标准": "CAHAC v1.2 · S0 偏离归属条款",
+    "规则": "凡本协议条款，均须为其『偏离正常路径』的情形指定【唯一责任方】；未指定责任方的条款，不得标为 enforced，只能标 advisory。",
+    "判据": "遍历全部条款，每条能回答『偏离时谁负责』；答不出的条款标 advisory 并计入缺口数。",
+    "生成": "2026-10-09 · session-b250bf9d（所有者授权）· 依据 cahac-protocol-v1.2.md",
+    "status_含义": {
+      "enforced": "已指定唯一责任方 ⇒ 可机械核",
+      "advisory": "★ 未指定责任方 ⇒ 只能作为建议，不计入 enforced 条款数"
+    }
+  },
+  "clauses": [
+    {
+      "id": "C3-1",
+      "sec": "§3",
+      "clause": "id 全局唯一",
+      "normal": "每个信封的 id 唯一",
+      "deviation": "id 重复",
+      "owner": "发送方（生成 id 者）",
+      "status": "enforced"
+    },
+    {
+      "id": "C3-2",
+      "sec": "§3",
+      "clause": "dedup_key 幂等（内容指纹）",
+      "normal": "同窗口内同 dedup_key ⇒ 丢弃后者",
+      "deviation": "同键不同内容 / 同内容不同键",
+      "owner": "接收方（消费侧去重）",
+      "status": "enforced"
+    },
+    {
+      "id": "C3-3",
+      "sec": "§3",
+      "clause": "cost_cap 任务级预算（0=无限制）",
+      "normal": "超限则拒绝并回 BUDGET_EXCEEDED",
+      "deviation": "填 0 绕过必填（★ 裁判 P4 发现）",
+      "owner": "★ advisory：未指定『谁检查 0 是否被滥用』",
+      "status": "advisory"
+    },
+    {
+      "id": "C3-4",
+      "sec": "§3",
+      "clause": "expires 可选（TTL）",
+      "normal": "过期即失效",
+      "deviation": "不填 ⇒ 永不过期（实测 inbox 2672 条累积）",
+      "owner": "★ advisory：未指定『谁负责清理无 expires 的条目』",
+      "status": "advisory"
+    },
+    {
+      "id": "C3-5",
+      "sec": "§3",
+      "clause": "signature（v1.0 标为可选、未启用）",
+      "normal": "—",
+      "deviation": "未启用",
+      "owner": "★ advisory：字段存在但未定义启用责任方",
+      "status": "advisory"
+    },
+    {
+      "id": "C4-1",
+      "sec": "§4",
+      "clause": "STATUS/ACK 禁止走消息通道（强制黑板）",
+      "normal": "通道选择器强制回 blackboard",
+      "deviation": "被发到消息通道",
+      "owner": "通道选择器（§5.1）—— 它负责改道；发送方不得绕过",
+      "status": "enforced"
+    },
+    {
+      "id": "C4-2",
+      "sec": "§4",
+      "clause": "BROADCAST 仅三类白名单（emergency/policy/restart）",
+      "normal": "白名单内且频控通过 ⇒ broadcast",
+      "deviation": "白名单外 ⇒ FORBIDDEN_BROADCAST",
+      "owner": "通道选择器（§5.1）· 拒绝即回码",
+      "status": "enforced"
+    },
+    {
+      "id": "C4-3",
+      "sec": "§4",
+      "clause": "「必答=是」的消息类型（TASK/COLLAB/BROADCAST）",
+      "normal": "对方应答",
+      "deviation": "未答（II-1 缺口）",
+      "owner": "★ advisory：v1.0 只声明『必答』，**未定义『多久催/谁催/催不动谁升级』**",
+      "status": "advisory"
+    },
+    {
+      "id": "C5-1",
+      "sec": "§5.1",
+      "clause": "通道决策算法（type→channel 确定性映射）",
+      "normal": "按规则返回通道",
+      "deviation": "规则冲突/不确定",
+      "owner": "§5.3 兜底：走 p2p（宁可多花不可漏达）",
+      "status": "enforced"
+    },
+    {
+      "id": "C5-2",
+      "sec": "§5.1",
+      "clause": "cost_estimate > cost_cap ⇒ 拒绝",
+      "normal": "回 BUDGET_EXCEEDED",
+      "deviation": "估算本身无依据（§9.1『上下文估算』未定义取值）",
+      "owner": "★ advisory：估算方法与校准责任方未定（裁判 P9）",
+      "status": "advisory"
+    },
+    {
+      "id": "C5-3",
+      "sec": "§5.3",
+      "clause": "默认安全：通道不确定/规则冲突 ⇒ 走 p2p",
+      "normal": "降级到 p2p",
+      "deviation": "★ 这是**静默回退**（L115）—— 走 p2p 不报错、不告警",
+      "owner": "★ advisory：**无告警责任方** ⇒ 正是 42 天零落地的成因之一",
+      "status": "advisory"
+    },
+    {
+      "id": "C6-1",
+      "sec": "§6.1",
+      "clause": "topic := <domain>.<name>",
+      "normal": "按命名空间写",
+      "deviation": "单段 topic（如 `alert`，与规则不符 · 裁判 P3）",
+      "owner": "黑板属主（topic 属主制）",
+      "status": "enforced"
+    },
+    {
+      "id": "C6-2",
+      "sec": "§6.2",
+      "clause": "PUT/GET/LIST/SUBSCRIBE/DELETE/AUDIT 六操作各自权限",
+      "normal": "属主可写、读默认开放",
+      "deviation": "越权写",
+      "owner": "黑板服务端（鉴权矩阵）",
+      "status": "enforced"
+    },
+    {
+      "id": "C6-3",
+      "sec": "§6.3",
+      "clause": "写前查灯 → 加锁 → 写完释放",
+      "normal": "红绿灯互斥",
+      "deviation": "绕过锁直写",
+      "owner": "R001 红绿灯协议（agent_light/agent_lock）",
+      "status": "enforced"
+    },
+    {
+      "id": "C6-4",
+      "sec": "§6.3",
+      "clause": "冲突解决：last-writer-wins + version；高价值 topic 用 CAS",
+      "normal": "LWW/CAS",
+      "deviation": "★ 状态字段被 LWW 覆盖 ⇒ **状态倒退**（II-3）",
+      "owner": "★ advisory：v1.0 未规定『状态字段是否排除在 LWW 之外』",
+      "status": "advisory"
+    },
+    {
+      "id": "C6-5",
+      "sec": "§6.4",
+      "clause": "审计格式 append-only 可回放",
+      "normal": "全程留痕",
+      "deviation": "★ **审计自己沉默**（写失败无告警 · IV-2）",
+      "owner": "★ advisory：comm-standard §5.3 要求『写失败必须告警』，但 CAHAC 未指定责任方；**本轮 S13/I8 已部分补上（缺席可判别）**",
+      "status": "advisory"
+    },
+    {
+      "id": "C7-1",
+      "sec": "§7.1",
+      "clause": "mailbox/<agent-id>/{inbox,done,failed}/",
+      "normal": "投递方写 inbox，终态进 done/failed",
+      "deviation": "★ **目录不存在**（实测）⇒ 该规范从未启用",
+      "owner": "★ advisory：**规范有、目录无** ⇒ 启用责任方未定（候选池）",
+      "status": "advisory"
+    },
+    {
+      "id": "C7-2",
+      "sec": "§7.2",
+      "clause": "任务卡 schema（含 state/retries/max_retries）",
+      "normal": "按 schema 写卡",
+      "deviation": "★ 实测 `~/.dsh/inbox` 2672 条**无一条合法 state**",
+      "owner": "★ advisory：**写入者未接** ⇒ S1 已定五时点责任方，但**调用点待授权**",
+      "status": "advisory"
+    },
+    {
+      "id": "C7-3",
+      "sec": "§7.3",
+      "clause": "状态机（todo→claimed→done→verified；+blocked/failed/timeout）",
+      "normal": "按转移推进",
+      "deviation": "状态倒退 / 跳过验收",
+      "owner": "§7.5 五时点责任方（**本轮 S1 新增**）：发出=发卡方 · 收到=收方 · 完成=执行方 · 验收=委派方 · 失败=执行方",
+      "status": "enforced"
+    },
+    {
+      "id": "C7-4",
+      "sec": "§7.4",
+      "clause": "inbox 上限 100 文件/agent；超限返回 MAILBOX_FULL",
+      "normal": "超限拒绝投递",
+      "deviation": "★★ **实测 2672 条（超 26 倍）** ⇒ 上限从未执行",
+      "owner": "★ advisory：**上限的执行责任方未定**（谁计数、谁拒绝、超了怎么办）",
+      "status": "advisory"
+    },
+    {
+      "id": "C7-5",
+      "sec": "§7.4",
+      "clause": "TTL 24h 清理；failed/ 周清理",
+      "normal": "按 TTL 清理",
+      "deviation": "★★ **最老条目跨 8 天、无 TTL 痕迹** ⇒ 清理从未跑",
+      "owner": "★ advisory：**清理的机械执行方未定**（候选：由 cahac-replay 类 launchd 承担）",
+      "status": "advisory"
+    },
+    {
+      "id": "C7-6",
+      "sec": "§7.5",
+      "clause": "五时点状态写入责任（★ 本轮 S1 新增）",
+      "normal": "各时点由唯一责任方写",
+      "deviation": "无人写 ⇒ 合规率 0",
+      "owner": "★ 已指定五个责任方；**但调用点（inbox 写入者）未接 ⇒ 需授权**。判据：I8 持续报 GAP 直到接上",
+      "status": "enforced"
+    },
+    {
+      "id": "C8-1",
+      "sec": "§8.1",
+      "clause": "事件 schema {event_id,ts,source,type,payload,dedup_key,severity}",
+      "normal": "按 schema 发事件",
+      "deviation": "缺字段",
+      "owner": "事件发布方；消费方按 schema 校验",
+      "status": "enforced"
+    },
+    {
+      "id": "C8-2",
+      "sec": "§8.3",
+      "clause": "dedup_key = 源事件内容指纹；重复直接丢弃",
+      "normal": "按内容指纹去重",
+      "deviation": "★ 历史 1320 条真重复（旧键含 thread ⇒ 换 thread 即绕过）",
+      "owner": "接收方（消费侧去重）；**本轮已修**：键不含 thread（审计器 I2 独立印证）",
+      "status": "enforced"
+    },
+    {
+      "id": "C8-3",
+      "sec": "§8.3",
+      "clause": "事件日志 append-only；消费者断点续读（offset）",
+      "normal": "按 offset 增量读",
+      "deviation": "无游标 ⇒ 每次全量读（G3 实例⑤）",
+      "owner": "消费者（自持 offset）；**但 offset 的持久化位置未规定** ⇒ 部分 advisory",
+      "status": "advisory"
+    },
+    {
+      "id": "C9-1",
+      "sec": "§9.1",
+      "clause": "会话日消耗 = Σ(通道权重 × 上下文估算) + 精确账单校准",
+      "normal": "按此核算",
+      "deviation": "『上下文估算』取值未定义（裁判 P9）",
+      "owner": "★ advisory：核算责任方与估算方法均未定",
+      "status": "advisory"
+    },
+    {
+      "id": "C9-2",
+      "sec": "§9.2",
+      "clause": "熔断状态机 NORMAL→FUSED→HALT→人工恢复",
+      "normal": "按阈值熔断",
+      "deviation": "★ **谁监测/谁触发/谁恢复未定义**（II-5）",
+      "owner": "★ advisory：**未指定**谁监测/谁触发/谁恢复（II-5）—— 熔断状态机有转移无责任方",
+      "status": "advisory"
+    },
+    {
+      "id": "C9-3",
+      "sec": "§9.3",
+      "clause": "TASK.cost_cap 必填（除 P0）",
+      "normal": "必填",
+      "deviation": "填 0 = 无限制 ⇒ 绕过必填（裁判 P4）",
+      "owner": "★ advisory：**未指定谁校验『0 是否被滥用』**",
+      "status": "advisory"
+    },
+    {
+      "id": "C9-4",
+      "sec": "§9.4",
+      "clause": "豁免：治理必需上浮 2×；广播白名单不计入单会话配额",
+      "normal": "按豁免执行",
+      "deviation": "★ 是否仍受 ¥100 熔断约束未说明（裁判 P5）",
+      "owner": "★ advisory：**未说明**豁免是否仍受 ¥100 熔断约束（裁判 P5）⇒ 无判据可核",
+      "status": "advisory"
+    },
+    {
+      "id": "C10-1",
+      "sec": "§10",
+      "clause": "认证：sender/recipient 校验（agent-id 白名单）",
+      "normal": "白名单内放行",
+      "deviation": "★ L20/L217『无 Card 默认仅 p2p』⇒ **未注册者也能通信**（I-4）",
+      "owner": "★ advisory：**白名单与默认降级的优先级未定**",
+      "status": "advisory"
+    },
+    {
+      "id": "C10-2",
+      "sec": "§10",
+      "clause": "授权：黑板 topic 属主制；广播白名单；邮箱仅属主读",
+      "normal": "按属主制",
+      "deviation": "越权",
+      "owner": "黑板服务端 · bus-bridge（§14 映射）",
+      "status": "enforced"
+    },
+    {
+      "id": "C10-3",
+      "sec": "§10",
+      "clause": "审计：全通道留痕（消息 ID/黑板版本/事件日志/配额流水）",
+      "normal": "全留痕",
+      "deviation": "★ 留痕缺失无人告警",
+      "owner": "★ advisory（同 C6-5；本轮 S13/I8 补了『合规率缺席』这一路，其余留痕仍无自检）",
+      "status": "advisory"
+    },
+    {
+      "id": "C10-4",
+      "sec": "§10",
+      "clause": "脱敏：输出前 PII/业务数据脱敏",
+      "normal": "脱敏后输出",
+      "deviation": "未脱敏外泄",
+      "owner": "输出方（每个对外写板的动作）",
+      "status": "enforced"
+    },
+    {
+      "id": "C10-5",
+      "sec": "§10",
+      "clause": "最小权限：每会话声明能力（Agent Card），越权拒绝",
+      "normal": "按 Card 授权",
+      "deviation": "无 Card 仍可用",
+      "owner": "★ advisory：**未指定**『谁负责补齐缺失的 Agent Card』（同 C10-1：无 Card 仍可用 p2p）",
+      "status": "advisory"
+    },
+    {
+      "id": "C10-6",
+      "sec": "§10",
+      "clause": "注入防护：外部输入一律按数据对待，不拼 prompt",
+      "normal": "按数据处理",
+      "deviation": "被注入",
+      "owner": "接收方（处理外部输入的会话）",
+      "status": "enforced"
+    },
+    {
+      "id": "C11-1",
+      "sec": "§11",
+      "clause": "Agent Card 结构（channels/topics/budget/comm_style/capabilities）",
+      "normal": "新会话广播 Card",
+      "deviation": "无 Card（⇒ 默认仅 p2p）",
+      "owner": "★ advisory：Card 缺失的后果已定义，但『谁负责补齐缺失 Card』未定",
+      "status": "advisory"
+    },
+    {
+      "id": "C11-2",
+      "sec": "§11",
+      "clause": "渠道枚举（Card 的 channels 字段）",
+      "normal": "—",
+      "deviation": "★ L209 只列 4 个、**缺 broadcast**（裁判节点① 发现）",
+      "owner": "Agent Card 维护方；**本轮已记为 III 的第三处枚举不一致**",
+      "status": "enforced"
+    },
+    {
+      "id": "C12-1",
+      "sec": "§12",
+      "clause": "任务生命周期状态图",
+      "normal": "与 §7.3 一致",
+      "deviation": "★ v1.0 与 §4/§7.2 三处不一致（本轮已合并为唯一来源）",
+      "owner": "§7.3（唯一来源）；§12 改为引用",
+      "status": "enforced"
+    },
+    {
+      "id": "C13-1",
+      "sec": "§13",
+      "clause": "错误码表（7 个）",
+      "normal": "按码回传",
+      "deviation": "回码但无人消费 / 新错误码未登记",
+      "owner": "★ advisory：**v1.0 错误码表无『新增错误码须登记』的规定**；本轮实测该表**实有 7 个**（我曾误判为 2 个）",
+      "status": "advisory"
+    },
+    {
+      "id": "C15-1",
+      "sec": "§15",
+      "clause": "实现指引（软→硬）",
+      "normal": "按阶段落地",
+      "deviation": "★ 停在『软』阶段（42 天空窗）",
+      "owner": "★ advisory：**『谁推进阶段』未定** ⇒ 这正是本轮所有者授权补上的角色缺口",
+      "status": "advisory"
+    },
+    {
+      "id": "C16-1",
+      "sec": "§16",
+      "clause": "版本与演进",
+      "normal": "版本化演进",
+      "deviation": "★ **无 sha256/取值时刻** ⇒ 审查对象版本不可判（本轮补：报告须记 sha256 + 时刻）",
+      "owner": "**本协议维护方**（本轮已定：记 sha256 + 取值时刻）",
+      "status": "enforced"
+    },
+    {
+      "id": "C17-1",
+      "sec": "§17.1",
+      "clause": "治理机制（PDCA 环）",
+      "normal": "按 PDCA 推进",
+      "deviation": "★ 无责任方 ⇒ 空转",
+      "owner": "★ advisory：**未指定** PDCA 环各环节的责任方 ⇒ 无责任方即空转",
+      "status": "advisory"
+    },
+    {
+      "id": "C17-2",
+      "sec": "§17.2",
+      "clause": "韧性设计（降级链）",
+      "normal": "按降级链降级",
+      "deviation": "降级无告警",
+      "owner": "★ advisory：**未指定**降级链的触发与告警责任方（与 C5-3 同族：降级是静默的）",
+      "status": "advisory"
+    },
+    {
+      "id": "C17-3",
+      "sec": "§17.3",
+      "clause": "新调研/架构衔接",
+      "normal": "衔接既有调研",
+      "deviation": "★ 无归属",
+      "owner": "★ advisory：**无归属** —— 新调研与架构衔接由谁负责未定",
+      "status": "advisory"
+    },
+    {
+      "id": "C1.5-1",
+      "sec": "§1.5",
+      "clause": "管辖域声明（★ 本轮 S2 新增）",
+      "normal": "域内域外均显式",
+      "deviation": "域外承载未点名",
+      "owner": "**本协议维护方**（判据：全文能找到清单且点名 `~/.dsh/inbox` 与 `tasks/i9/*`）",
+      "status": "enforced"
+    },
+    {
+      "id": "C1.5-2",
+      "sec": "§1.5.3",
+      "clause": "与 comm-standard-v1 的引用（原 0 ⇒ 现单向）",
+      "normal": "互相引用",
+      "deviation": "★ **反向引用缺失**（comm-standard 未提 CAHAC）",
+      "owner": "★ advisory：**协调者**（本协议无权改其措辞）",
+      "status": "advisory"
+    }
+  ]
+}
