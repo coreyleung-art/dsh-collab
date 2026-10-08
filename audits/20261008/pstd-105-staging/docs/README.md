@@ -6,6 +6,20 @@
 模式化交付生成器落到盘上，随 profile 启动常驻。规范正文的落盘镜像见
 `~/dsh-collab/rules-registry/naming-standard-N1-N8-v1.md`（附独立复核器 `verify-naming-standard.py`）。
 
+## 术语
+
+| 缩写 | 全称 | 含义 |
+|---|---|---|
+| **PSTD** | **Plugin Standard & Toolchain Discipline** | **插件标准与工具链纪律**。两部分合一：<br>· **Standard** —— N1–N8 命名规范与 R006 十项交付标准（**判据本身**）；<br>· **Toolchain Discipline** —— 把判据变成可跑的工具，并让**工具自己的输出也可被复核**（工具面 · 约束门 · 证据格式）。 |
+
+> **★ 定名时刻：2026-10-08（由属主裁定）。**
+> 在此之前，本标识在**全部文件里只有缩写、从未展开** —— `dsh-plugin-pstd`（目录/包名）· `bin: pstd` ·
+> `id: pstd` / `idPrefix=pstd`（插件行）· `STD_ID = 'PSTD/1.0.x'`（标准身份）**都是它**，
+> 但**没有任何一处写过它是什么的缩写**。
+> ⇒ **后果**：第三方引用 `PSTD/1.0.x`（例如 `plugin_standard action=norms` 返回的 `std` 读数）时，
+> **无法从这个标识本身知道它指什么**。⇒ 本节即为补齐该定义；**本节的加入使「引用可解析」这一条对【术语】也成立**
+> （此前本仓的引用解析器只扫**路径**，不扫**术语**，故这类缺口它看不见）。
+
 ## 为什么需要（事故/证据）
 
 1. **R006 事故表首行**：插件缺 `type: module` → CLD 启动崩溃。本包 `package.json` 必有 `type: module`。
