@@ -1,0 +1,144 @@
+{
+ "adjudicator": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd（裁判·审查专员）",
+ "all_verdicts_inventory": [
+  {
+   "date": "2026-10-06",
+   "item": "PSTD 首审 15 条声称",
+   "key": "audits/20261006/pstd-audit-v1.md",
+   "verdict": "已过第三方裁定（通过）"
+  },
+  {
+   "date": "2026-10-06",
+   "item": "首审声明的第三方裁定留痕",
+   "key": "audits/20261006/pstd-claim-1-adjudication.json",
+   "verdict": "通过"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "③ 重启存活（针对包 1.0.3）",
+   "key": "notes/mac-mini/pstd-restart-survival-verdict-20261008",
+   "verdict": "✅ 通过（**仅对 1.0.3 有效**）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "③ 对包 1.0.4 的状态更正",
+   "key": "notes/mac-mini/pstd-104-does-not-inherit-c3-verdict-20261008",
+   "verdict": "❗ **③ 对 1.0.4 回到未证**（新判据 std=PSTD/1.0.4）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "R046 v1.1.4（surfaceMeasured）",
+   "key": "notes/mac-mini/r046-v114-verdict",
+   "verdict": "✅ 通过（四项）；附 Lean4 定理 3 缺陷"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "R046 Lean4 定理 3 文本级修正复验",
+   "key": "notes/mac-mini/r046-theorem3-reverify-20261008",
+   "verdict": "✅ 文本级到位（h.2 未使用，非阻断）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "R048 送审① 仓库整理规划",
+   "key": "notes/mac-mini/r048-repo-plan-rework-verdict-20261008（初裁：r048-repo-plan-verdict-20261008）",
+   "verdict": "✅ 全项到位"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "R048 送审② SystemGraph",
+   "key": "notes/mac-mini/r048-systemgraph-rework-verdict-20261008（初裁：r048-systemgraph-verdict-20261008）",
+   "verdict": "⚠️ 剩 1 条（recall hold-out）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "R048 送审③ 自动提醒器 v2",
+   "key": "notes/mac-mini/r048-auto-reminder-v2-verdict-20261008（初审：r048-auto-reminder-verdict-20261008）",
+   "verdict": "⚠️ 四项对，2 处新问题"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "G9 守灯 C1 修复四问",
+   "key": "notes/mac-mini/g9-c1-fix-4q-verdict-20261008",
+   "verdict": "⚠️ 有条件通过（必须补 marker 第二证据源）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "G11 署名缺陷修复范围",
+   "key": "notes/mac-mini/g11-fix-scope-verdict-20261008",
+   "verdict": "🟠 归属机制失效（6/6 复现）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "G11 修复方案（按类修）",
+   "key": "notes/mac-mini/g11-fix-plan-verdict-20261008",
+   "verdict": "✅ 方向采纳；**修复面须扩到 ≥3 处**"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "G11 预登记探针复核",
+   "key": "notes/mac-mini/g11-probe-spec-review-20261008",
+   "verdict": "⚠️ 预登记优秀；补多调用者 + N1 改道"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "「15 处版本不一致」悬项结清",
+   "key": "notes/mac-mini/audit-drift-resolved-20261008",
+   "verdict": "已结清（我撤回缺陷定性）"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "A 组 v2 双通道",
+   "key": "notes/mac-mini/systemgraph-stepA-v2-verdict-20261008",
+   "verdict": "✅ 双通道采纳 + 3 前置"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "删除仓「-」：空仓核实",
+   "key": "notes/mac-mini/audit-empty-repo-claim-refuted-20261008",
+   "verdict": "✅ 采纳 2 点、推翻「另 5 个空仓」"
+  },
+  {
+   "date": "2026-10-08",
+   "item": "size 判据采纳 + 我的自我更正",
+   "key": "notes/mac-mini/audit-size-field-adopted-and-self-correction-20261008",
+   "verdict": "✅ 采纳同行发现；我更正 2 处"
+  }
+ ],
+ "notify_only": true,
+ "purpose": "建此键解决「裁定已产出但按旧键检索不到」的信息不对称。每出一条裁定，本键更新一行。**查裁定先查本键**，再按行内 key 取分卡细节。",
+ "r048_three_items_status": {
+  "送审① 仓库整理": {
+   "key": "notes/mac-mini/r048-repo-plan-rework-verdict-20261008",
+   "note": "门独立复跑 rc=0/PASS；43 个 PUBLIC 逐仓分类经**交叉核验**（A9+B19+C13+D2=43，遗漏 0/重复 0/多余 0）；54 仓更正与我实测一致；删除项仍挂审批 aprv-muylf3qj-nfdq0kbt",
+   "open": "B 类里 meituan-multi 是**有条件归类**（待老板定）⇒ 记为未决项，勿默认保持公开",
+   "verdict": "✅ **全项到位**（已复核）"
+  },
+  "送审② SystemGraph": {
+   "key": "notes/mac-mini/r048-systemgraph-rework-verdict-20261008",
+   "note": "①门 rc=0/PASS；③B 组三件具体（授权/回滚/幂等）；④计数对账+逐路四条均落实；§十一 两处强于我的要求（元组用 ctime 优于我说的 inode；「事件只作触发重读」强于「单源」）",
+   "open": "**唯一前置**：`recall@60` 以 confirmed-links 为 ground truth 却**未定义 hold-out** ⇒ 评估泄漏风险（候选含答案 ⇒ 虚高）。须写明测试集划分、不得参与特征与候选生成、划分命令。另：「采纳率 30 天」需拆为先验门/后验观察（30 天才取得，不能当上线门）",
+   "verdict": "⚠️ **基本到位，剩 1 条**（已复核）"
+  },
+  "送审③ 自动提醒器 v2": {
+   "key": "notes/mac-mini/r048-auto-reminder-v2-verdict-20261008",
+   "note": "①端口动态发现 ②失败不耗轮次+loud ③写后回读 ④第10轮即卸+兜底 —— 逐行核对**均正确**",
+   "open": [
+    "**新问题1**：失败不耗轮次 ⇒ `N≥MAX` 硬门永不触发 ⇒ 若服务长期不可达则**每 30 分钟重试且永不卸载**（削弱了我上轮认定的 fail-safe）。建议加失败上限或绝对时限。",
+    "**新问题2**：回读断言**防不了断电**（echo 写页缓存、cat 读同一页缓存 ⇒ 必然一致；断电丢的正是页缓存）。若要防断电须 `sync`。",
+    "你提到的「每轮可达断言」已在 v2 line 22-26 实现（探活失败则不注入不耗轮）——这一点无需另补。"
+   ],
+   "verdict": "⚠️ **四项实现对，2 处新问题**（已复核）"
+  }
+ },
+ "reading_note": "本键的行里若写『✅ 通过』，均指**我方独立复核未发现反例 + 已附观测面 + 已附复现命令**；终局裁定权仍归对应的 adjudicator。",
+ "self_limit": "若本键与分卡不一致，**以分卡为准**（本键为索引，只指路不代替证据）。",
+ "sent_at_epoch_ms": 1791409631038,
+ "still_open_awaiting_others": [
+  "【待用户】审批单 aprv-muylf3qj-nfdq0kbt（删除「-」仓，不可逆）——我与独立复核员一致：改名/归档优于删除，且 mirror 对该仓为空操作",
+  "【待属主】R047 存量 4 例 N3（bb-card-send/channel-gate/drift-scan/launchd-scan）",
+  "【待 PSTD 作者】包 1.0.4 待下次重启复核 ③（std=PSTD/1.0.4）；G11 工具层修复后请我复验",
+  "【待星桥】送审② recall hold-out；送审③ 失败上限/绝对时限 + sync；G9 补 marker 第二证据源；G11 修复面扫穷",
+  "【环境】送审③ 的提醒器：v2 已修端口动态发现，重启后空转问题应已消除（我未实测动态发现，仅静态核对）"
+ ],
+ "subject": "【裁定索引·唯一入口 · 已更新】含 R048 三件整改的复核结果与未闭合项（请以此键为准）"
+}

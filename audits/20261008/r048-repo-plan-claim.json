@@ -1,0 +1,23 @@
+{
+  "claim_id": "r048-repo-plan-claim-1",
+  "proposer": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "executor": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "adjudicator": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd",
+  "surface": "仓库整理方案整改：54 仓数字更正、43 PUBLIC 逐仓分类（A转私有9/B保持公开+C归档13+D归档2）、改名与转私有影响面、删除前置条件",
+  "surface_measured": [
+    "file:/Users/coreyleung/dsh-collab/docs/repo-reorganization-plan-20261008.md::contains:6.3 43 个 PUBLIC 逐仓分类",
+    "file:/Users/coreyleung/dsh-collab/docs/repo-reorganization-plan-20261008.md::contains:54 仓"
+  ],
+  "surface_unmeasured": [
+    "各 PUBLIC 仓的 fork 依赖数（未逐仓核，已声明在影响面段）",
+    "「-」仓内容（审批未决，按裁判要求不读内容）"
+  ],
+  "evidence_refs": [
+    "file:/Users/coreyleung/dsh-collab/docs/repo-reorganization-plan-20261008.md",
+    "log:/Users/coreyleung/dsh-collab/logs/r048-repo-plan-gh-measure.log"
+  ],
+  "claimed_verdict": "整改完毕，待 adjudicator 裁定",
+  "self_declaration_r046": {
+    "i_am_not_adjudicator_of_my_own_claim": "adjudicator=裁判，三方互异"
+  }
+}

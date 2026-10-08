@@ -1,0 +1,21 @@
+{
+  "claim_id": "r048-systemgraph-claim-1",
+  "proposer": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "executor": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "adjudicator": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd",
+  "surface": "SystemGraph 补全方案 4 项前置整改：声明体、C 组机器可核下界、B 组写端点三件、A 组计数对账",
+  "surface_measured": [
+    "file:/Users/coreyleung/dsh-collab/docs/systemgraph-internal-completion-plan-20261008.md::contains:十、裁判有条件通过的 4 项前置整改"
+  ],
+  "surface_unmeasured": [
+    "各组实施细节（属主明鉴实施阶段另行送审）",
+    "B 组写端点授权实现方式（board-token 方案待实施验证）"
+  ],
+  "evidence_refs": [
+    "file:/Users/coreyleung/dsh-collab/docs/systemgraph-internal-completion-plan-20261008.md"
+  ],
+  "claimed_verdict": "4 项整改已补，待 adjudicator 裁定",
+  "self_declaration_r046": {
+    "i_am_not_adjudicator_of_my_own_claim": "adjudicator=裁判，三方互异"
+  }
+}
