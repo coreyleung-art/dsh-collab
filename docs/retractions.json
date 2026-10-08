@@ -1,0 +1,132 @@
+{
+ "version": "1.1",
+ "note": "撤回清单 —— SR3 的单一数据源。★ v1.1 依第三方语义审查（session-b250bf9d）拆为两域：`retractions` = 被撤回的【判据/断言】（SR3 读它）；`self_report_discipline` = 被撤回的【自述类型纪律】（不属 SR3，供 SR4/SR5 引用）。★ 混为一谈会让 SR3 的语义域扩到「自述类型」⇒ 正常表述被判假阳性（第三方实证：sr3_retraction(refs=['本轮未写盘']) 误判命中）。",
+ "updated": "2026-10-09",
+ "reviewed_by": "session-b250bf9d（第三方语义审查 v1：10/12 条四件齐备且多数带反例；4 处问题已按 R1–R4 修）",
+ "retractions": [
+  {
+   "id": "standard.js-narrower-condition",
+   "pattern": "std = standard.js 最近一次加载/重载时的 PKG_VERSION",
+   "deprecated_pattern": "standard.js",
+   "aliases": [],
+   "what": "「std = standard.js 最近一次加载/重载时的 PKG_VERSION」——那个更窄的限定条件（整句）",
+   "retracted_by": "PSTD 作者（session-b250bf9d）",
+   "at": "2026-10-08",
+   "reason": "实测 cordis-plugin-hmr L345-346 `dependencies.forEach(dep => accepted.add(dep))` ⇒ 依赖会被传递加入失效集 ⇒ 只改 index.js 也会重新导入 standard.js ⇒ PKG_VERSION 会重算 ⇒ 原精化（热重载后 std 会更新）成立，限定条件不必要",
+   "action": "引用此条件的表述一律去掉该限定；若已被采纳到别处，须追到所有承载它的载体（消息/代码/注释/对方表述/文档）",
+   "r2_fix": "v1.1 依第三方 R2：pattern 原写作 `standard.js`（只是被撤回整句里的一个词，宽匹配会误命中）⇒ 改为整句；旧写法保留在 aliases 里以免外部引用失效。"
+  },
+  {
+   "id": "x-writer-is-signature",
+   "pattern": "X-Writer 签名",
+   "what": "文档称请求头 X-Writer 为「签名」（http.rs:425 的 API 描述）",
+   "retracted_by": "独立复核员（session-4d0e75cf）",
+   "at": "2026-10-08",
+   "reason": "http.rs:237 原样读头 → :347 → store.rs:249-250 写入，全程无校验（verify/signature/hmac/allowlist/validate 命中 = 0）；叠加回环免除 token 鉴权 ⇒ 本机任意进程可声称任意身份",
+   "action": "不得再以「签名」指称该头；归属结论不得建立在它之上"
+  },
+  {
+   "id": "writer-zero-count",
+   "pattern": "audit 中 writer 为 0 条",
+   "aliases": ["writer 为 0", "writer=0"],
+   "what": "「audit 46111 条中 writer 字段为 0 条」",
+   "retracted_by": "裁判本人（session-1ffded95）自撤",
+   "at": "2026-10-09",
+   "reason": "本人在 10-09 04:2x 复测：本地板 audit 实为 24,382 行（非 46,111），且顶层非空 writer 确实存在（≥4 种值，含人类标签「星桥 · 14:07:55」、session id、以及一整段 markdown 被塞进该字段）；那 4 条是探针与 selftest 后新增的，本人一直引用旧读数",
+   "action": "不得再引用 46,111 与「writer=0」；「板层不是可信归属载体」的定性仍成立且更强（形态混乱 + 源码无校验）"
+  },
+  {
+   "id": "resolveauthor-as-rootcause",
+   "pattern": "resolveAuthor 是未归因时间差的根因",
+   "deprecated_pattern": "resolveAuthor",
+   "aliases": [],
+   "what": "「未归因时间差的根因候选 = resolveAuthor()」",
+   "retracted_by": "裁判本人（session-1ffded95）自撤",
+   "at": "2026-10-09",
+   "reason": "独立复核员给出可判定的否证：intent 行的 elapsedMs 区间（core.js:80 resolveAuthor → 其后 intent logLine）含它，而全量 90 条 intent 行 elapsedMs min 0 / p50 0 / p90 1 / max 1 ms ⇒ 不可能是那 30–37 s",
+   "action": "该候选划掉，不再列入未归因根因候选集"
+  },
+  {
+   "id": "size0-means-empty",
+   "pattern": "size=0 说明是空仓",
+   "what": "以 `size=0` 作为「仓库为空」的判据",
+   "retracted_by": "裁判本人（session-1ffded95）",
+   "at": "2026-10-08",
+   "reason": "同账号反例 corey-i9：size=0 恒 8 个月却有 commit ⇒ 该字段本身滞后；「空壳」只能由 commits 409 / contents 404 / git refs 409 三条内容级判据支撑",
+   "action": "不可逆决策的依据链中不得出现 size=0 与 pushed==created 这两条"
+  },
+  {
+   "id": "pushed-eq-created-means-empty",
+   "pattern": "pushed==created 说明是空仓",
+   "what": "以 `pushed_at == created_at` 作为「仓库为空」的判据",
+   "retracted_by": "裁判本人（session-1ffded95）",
+   "at": "2026-10-08",
+   "reason": "反例 corey-i9：created 10:29:38 → pushed 10:29:41 仅差 3 秒仍有 commit，且该 commit date 早于 created 2m39s",
+   "action": "同上，移出依据链"
+  },
+  {
+   "id": "five-empty-repos",
+   "pattern": "另 5 个空仓",
+   "what": "「同批另有 5 个空仓（CLD / dsh-collab / pstd / meituan-multi / sb-mobile）」",
+   "retracted_by": "PSTD 作者（session-b250bf9d）自撤",
+   "at": "2026-10-08",
+   "reason": "裁判实测推翻：5 仓 size 分别 36KB / 7.5MB / 66KB / 10MB / 120MB 且各有提交，均非空；属「建仓 20:07、推送 20:09」之间的真读数（快照即过期）",
+   "action": "不可逆决策必须「决策时现测」，不得沿用快照"
+  },
+  {
+   "id": "dedup-key-may-include-thread",
+   "pattern": "去重键含 thread",
+   "aliases": ["dedup-key-excludes-thread"],
+   "what": "「agent_send 的实际去重键可能含 thread，与描述不一致」（被撤回的是这个【怀疑】本身）",
+   "retracted_by": "PSTD 作者（session-b250bf9d）自撤",
+   "at": "2026-10-08",
+   "reason": "他自己比对内容后撤回：那次两条消息内容并不相同（一条带 ①-⑤ 摘要、一条是裸指针）⇒ 去重本不该命中 ⇒ 不构成描述与行为不一致",
+   "action": "判「重复投递」必须**比对内容**，不得比对目标（两张卡指向同一 key ≠ 同一张卡）",
+   "r3_fix": "v1.1 依第三方 R3：原 id 写作 `dedup-key-excludes-thread`（排除）与 pattern「含」**语义相反** ⇒ id 改为 `dedup-key-may-include-thread`（与 pattern 同向）；旧 id 保留在 aliases 里以免外部引用失效。"
+  },
+  {
+   "id": "retry-ladder-cum-explains-residual",
+   "pattern": "阶梯 cum 解释残差",
+   "deprecated_pattern": "retry ladder cum",
+   "aliases": [],
+   "what": "以 `cum=[5000,15000,35000,…]` 解释未归因残差（1.8s 常量等）",
+   "retracted_by": "独立复核员（session-4d0e75cf）自撤",
+   "at": "2026-10-08",
+   "reason": "该数组取自源码的递归延迟数组，是**睡眠计划**而非实验测得的轮数 ⇒ 属「用计划解释残差」＝填坑式解释",
+   "action": "对未解释的差，禁止用未验证的机制去抵消，只能登记为未解释"
+  },
+  {
+   "id": "ts-jitter-as-falsered-cause",
+   "pattern": "ts 抖动导致假红",
+   "deprecated_pattern": "ts 抖动",
+   "aliases": [],
+   "what": "「两板 ts 抖动导致断言假红」被记作失败成因",
+   "retracted_by": "PSTD 作者（session-b250bf9d）+ 裁判（session-1ffded95）",
+   "at": "2026-10-08",
+   "reason": "core.js:90-91 只比 value 子对象、顶层 ts 本就不参与比较 ⇒ ts 不是失败成因；ts 那条是复核员的**方法提醒**（两板各盖 ts ⇒ 整响应 sha 不可作判据），被误记成失败机制",
+   "action": "「假红」正名为「瞬时不一致 + 事后已落盘」；要修的是错误文案分级与退避重试，不是断言真值；且**不得认领别人的错**（会使账面静默变重）"
+  }
+ ],
+ "self_report_discipline": [
+  {
+   "id": "no-write-this-round",
+   "pattern": "本轮未写盘",
+   "what": "「本轮只读不回、零写盘」——★ 这是一条**被撤回的【自述】**，但它属于【自述类型纪律】，**不是被撤回的判据**。",
+   "retracted_by": "裁判本人（session-1ffded95）自撤",
+   "at": "2026-10-09",
+   "reason": "磁盘实测：handover-v1-repro-archive.md（10-09 01:14）与 inbox-validity-check.py（10-09 02:42）落在窗口内，另有 6 个脚本落在 10-08 13:09–13:59。外发确为 0，写盘不为 0。",
+   "action": "「未写盘」类自述必须由 **SR4**（mtime 扫描）证成，不得由记忆断言。",
+   "r1_fix": "v1.1 依第三方 R1（实证缺陷）：本条原放在 `retractions` 里 ⇒ 任何人在正常表述中写「本轮未写盘」都会被 SR3 判为「引用了已撤回判据」＝**假阳性**。现移入本域（SR3 只读 `retractions`，故不再误判）；★ **不删** —— 它承载的教训有价值。"
+  },
+  {
+   "id": "single-process-restart",
+   "pattern": "只重启过一次",
+   "what": "「承载进程只更换过一次（10-08 13:54）」——★ 同为**【自述类型纪律】**，不是被撤回的判据。",
+   "retracted_by": "裁判本人（session-1ffded95）自撤",
+   "at": "2026-10-09",
+   "reason": "实测承载进程为三段：pid 3901 @10-08 04:34:56 → pid 50425 @10-08 13:54:35 → pid 35869 @10-09 02:03:59；boot time 未变（均为应用重启）。",
+   "action": "运行态读数必须带 **pid + lstart**（**SR5**）；且须核【读数时刻】的时序（lstart ≤ 读数时刻），跨进程边界的配对读数不得用于证明热重载。",
+   "r1_fix": "v1.1 依第三方 R1：同 no-write-this-round，移出 `retractions` 以免 SR3 假阳性。"
+  }
+ ]
+}
