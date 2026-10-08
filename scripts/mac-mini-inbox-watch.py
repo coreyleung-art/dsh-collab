@@ -132,7 +132,10 @@ def handle_new(fresh, seen, dry_run=False):
         inbox_file = os.path.join(INBOX_DIR, topic + ".json")
         try:
             with open(inbox_file, "a") as f:
-                f.write(json.dumps({"key": key, "ts": now(), "value": val}, ensure_ascii=False) + "\n")
+                # ★ S1（2026-10-09 所有者授权）：落盘条目带 CAHAC `state`
+                #   §7.5 时点①「发出」由发卡方写 todo；此处是【落盘副本】，随同标注。
+                #   兼容性：仅新增字段，不改 `key`/`ts`/`value` ⇒ 旧消费者不受影响。
+                f.write(json.dumps({"key": key, "ts": now(), "state": "todo", "value": val}, ensure_ascii=False) + "\n")
         except Exception as ex:
             print("[%s] inbox 落盘失败: %s" % (now(), str(ex)[:60]), flush=True)
         with open(LOG_FILE, "a") as f:
@@ -177,7 +180,10 @@ def scan(seen, backfill=False):
         inbox_file = os.path.join(INBOX_DIR, topic + ".json")
         try:
             with open(inbox_file, "a") as f:
-                f.write(json.dumps({"key": key, "ts": now(), "value": val}, ensure_ascii=False) + "\n")
+                # ★ S1（2026-10-09 所有者授权）：落盘条目带 CAHAC `state`
+                #   §7.5 时点①「发出」由发卡方写 todo；此处是【落盘副本】，随同标注。
+                #   兼容性：仅新增字段，不改 `key`/`ts`/`value` ⇒ 旧消费者不受影响。
+                f.write(json.dumps({"key": key, "ts": now(), "state": "todo", "value": val}, ensure_ascii=False) + "\n")
         except Exception as ex:
             print("[%s] inbox 落盘失败: %s" % (now(), str(ex)[:60]), flush=True)
         with open(LOG_FILE, "a") as f:

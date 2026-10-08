@@ -90,33 +90,47 @@ def compute_compliance(inbox_dir=None):
     """★ 原则 ②：合规率必须来自【数据层】（条目真的带了合法 state），
        而不是【声明层】（某工具声称支持 CAHAC）。
        —— 前者是「被验证过的工作」，后者是 liveness。"""
+    # ★ 2026-10-09 修口径：`~/.dsh/inbox/*.json` 是 **JSONL**（每行一条），
+    #   不是「一文件一条」—— 实证：文件数 2672 而总行数 5514（collab-inbox.json 单文件 580 行）。
+    #   ⇒ 原来的「按文件遍历」把【文件数】当成了【条目数】⇒ 分母错。
+    #   ⇒ 现按【行】计；非 JSON 行计入 total 但不算 with_state（诚实计入分母）。
     d = inbox_dir or INBOX_DIR
     total = 0
     with_state = 0
     legal = 0
+    files = 0
     for name in sorted(os.listdir(d)):
         if not name.endswith(".json"):
             continue
         # ★ 排除流程文件（不是条目）
         if name.startswith(".") or name in ("llm-ledger.json",):
             continue
-        total += 1
+        files += 1
         try:
-            with open(os.path.join(d, name), encoding="utf-8") as f:
-                obj = json.load(f)
+            fh = open(os.path.join(d, name), encoding="utf-8")
         except Exception:
             continue
-        if not isinstance(obj, dict):
-            continue
-        if "state" in obj:
-            with_state += 1
-            if str(obj.get("state")) in LEGAL_STATES:
-                legal += 1
+        with fh:
+            for line in fh:
+                if not line.strip():
+                    continue
+                total += 1
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                if not isinstance(obj, dict):
+                    continue
+                if "state" in obj:
+                    with_state += 1
+                    if str(obj.get("state")) in LEGAL_STATES:
+                        legal += 1
     rate_with_state = (with_state / total) if total else 0.0
     rate_legal = (legal / total) if total else 0.0
     return {
         "ts": int(time.time()),
         "node": os.environ.get("DSH_NODE_ID", "mac-mini"),
+        "files": files,          # ★ 文件数（供对照；条目数 = total）
         "total": total,
         "with_state": with_state,
         "legal_state": legal,

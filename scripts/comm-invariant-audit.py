@@ -405,14 +405,33 @@ def i8(bus=None, msgs=None):
                 "★ **缺席**：合规率上报已 %d 秒未更新（阈值 %d 秒）⇒ "
                 "**该协议的落地情况不可知**（这正是『静默兼容条款』的后果）" % (age, thr),
                 ev)
-    rate = (v or {}).get("rate_legal")
-    if not rate:
+    rate = (v or {}).get("rate_legal") or 0.0
+    # ★ 2026-10-09 修判据：原版是「rate > 0 ⇒ PASS」——
+    #   而实测 1 条合法 state（rate=0.000181）就能让它 PASS ⇒ **判据无判别力**
+    #   （与「恒真报警 ⟺ 恒假读数对称」同族：低量级下「> 0」与「任何值」信息量都近零）。
+    #   ⇒ 改为【分级 + 有依据的阈值】：
+    #     0        ⇒ GAP      （机制尚未落地）
+    #     0 < r<1% ⇒ PENDING  （起步：仅零星条目，远未成规模）
+    #     1%≤r≤60% ⇒ PENDING  （落地中）
+    #     > 60%    ⇒ PASS     （已落地；60% 参照本协议 §18.1 实测缺口比 58.7% 的量级）
+    ev["rate_legal"] = rate
+    if rate <= 0:
         return ("GAP",
-                "上报新鲜（%d 秒前），但**合规率 = %s**（合法 state 条目 %s / 总 %s）⇒ "
+                "上报新鲜（%d 秒前），但**合规率 = 0**（合法 state 条目 %s / 总 %s）⇒ "
                 "**协议机制尚未落地**——这是 GAP（还没有），不是 FAIL（做错了）"
+                % (age, (v or {}).get("legal_state"), (v or {}).get("total")),
+                ev)
+    if rate < 0.01:
+        return ("PENDING",
+                "上报新鲜（%d 秒前），合规率 = **%.6f**（合法 state 仅 %s / 总 %s）⇒ "
+                "**起步**：调用点已接但远未成规模 ⇒ 判 PENDING（落地中），**不是 PASS**"
                 % (age, rate, (v or {}).get("legal_state"), (v or {}).get("total")),
                 ev)
-    return ("PASS", "上报新鲜（%d 秒前）且合规率 = %s" % (age, rate), ev)
+    if rate <= 0.60:
+        return ("PENDING",
+                "上报新鲜（%d 秒前），合规率 = **%.4f** ⇒ **落地中**（未达 60%% 阈值）"
+                % (age, rate), ev)
+    return ("PASS", "上报新鲜（%d 秒前）且合规率 = %.4f（> 60%% 阈值）" % (age, rate), ev)
 
 
 def audit():
