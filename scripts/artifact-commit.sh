@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# artifact-commit.sh v1.0.2 — 「唯一副本止损」的【持续化机制】
+# artifact-commit.sh v1.0.3 — 「唯一副本止损」的【持续化机制】
 # 起因（2026-10-09 裁判节点② 复核指出）：一次性 `git add -f` 不是机制 ——
 #   「唯一副本止损是持续动作、不是一次动作」。
 # 用法：artifact-commit.sh <路径...> -m "说明"
@@ -26,3 +26,22 @@ done
 if git diff --cached --quiet; then echo "无改动（幂等退出）"; exit 0; fi
 git commit -q -m "$MSG"
 echo "已提交 $(git rev-parse --short HEAD) · 文件: ${PATHS[*]}"
+
+# ★ v1.0.3（裁判 2026-10-09 指出「commit-not-pushed」）：
+#   commit 只落到【本机磁盘上的本地仓库】⇒ 而「唯一副本」风险的载体正是本机磁盘
+#   ⇒ 不 push 则止损【未完成】。必须 add → commit → push 三步齐。
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if git remote get-url origin >/dev/null 2>&1; then
+  if git push -q origin "$BRANCH" 2>/dev/null; then
+    R="$(git rev-parse --short "origin/$BRANCH" 2>/dev/null || echo '?')"
+    if [ "$R" = "$(git rev-parse --short HEAD)" ]; then
+      echo "已推送 origin/$BRANCH ⇒ $R ✓（止损完成：本地=远端）"
+    else
+      echo "★ 推送后远端($R) ≠ 本地($(git rev-parse --short HEAD)) —— 请查" >&2
+    fi
+  else
+    echo "★ push 失败 —— 【止损未完成】：commit 已落在本地磁盘，远端未更新" >&2
+  fi
+else
+  echo "★ 无 origin ⇒ 【无远端止损点】，唯一副本风险未解除" >&2
+fi
