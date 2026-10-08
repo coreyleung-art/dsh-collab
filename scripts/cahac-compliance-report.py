@@ -123,7 +123,11 @@ def compute_compliance(inbox_dir=None):
         "rate_with_state": round(rate_with_state, 6),
         "rate_legal": round(rate_legal, 6),
         # ★ 两个数必须同时报（S12 判据：声明层与数据层的差必须可见）
-        "note": "rate_* 均基于【数据层】；本协议不存在声明层指标 ⇒ 差距即上二者之差",
+        # ★ 2026-10-09 实测发现：# with_state 会把【字段名叫 state 的内容字段】也算进去
+        #   （实例：裁判卡片里有 {"state": {"demo": …, "gate": …}} ⇒ with_state=1 而 legal=0）
+        #   ⇒ **唯一合规率是 rate_legal**（值须在合法枚举内），rate_with_state 只作参考。
+        "rate_is": "rate_legal（唯一合规率：state 值须在合法枚举内）",
+        "note": "rate_with_state 仅作参考（会含同名字段）；协议合规率 = rate_legal",
     }
 
 
