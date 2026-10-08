@@ -31,7 +31,7 @@ import sys
 import time
 from datetime import datetime, timezone
 
-VERSION = "1.2.2"
+VERSION = "1.2.3"
 DEFAULT_DIR = os.path.expanduser("~/.dsh/inbox")
 CLOSED_INDEX = os.path.expanduser("~/dsh-collab/docs/inbox-closed-index.json")
 
@@ -291,7 +291,9 @@ def main():
     print("      ⇒ 故 `open` 的含义是【无显式关闭声明】，**不等于【仍有未决待办】**。")
     print("    ⇒ closed + stale = 可不再重复查看的：%d"
           % (tally.get("closed", 0) + tally.get("stale", 0)))
-    print("    ⇒ open = 真正仍需处理的：%d" % tally.get("open", 0))
+    print("    ⇒ open = 【无显式关闭声明】的：%d —— **不等于【仍有未决待办】**（见上方盲区）"
+          % tally.get("open", 0))
+    print("      ⇒ 要判「是否真待办」，须再看它的 thread 里有没有回复 —— **本工具看不到，故标未证**")
     print("    ⚠ unknown 不是「没有」：它是【判不了】（缺状态字或缺时刻）⇒ 须补字段，不得当已关闭")
 
     if a.write_index:
