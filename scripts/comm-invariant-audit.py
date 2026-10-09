@@ -400,9 +400,16 @@ def i8(bus=None, msgs=None):
     age = int(_t3.time()) - int(ts)
     thr = (v or {}).get("stale_threshold_seconds") or 1800
     ev["age_seconds"] = age
+    # ★ 2026-10-09 修（依裁判第六轮 N-23 的可执行建议）：
+    #   本项的 rate_legal / legal_state / total 是【流动的】（实测 185 秒内 19→24）⇒
+    #   若 why 不带【源取值时刻】，同一份报告里的分子·分母·比率会被后来者按【同一时刻】汇总，
+    #   从而算出「不自洽」的假缺陷（实证：19/5554=0.003421 而 19/5276=0.003601 ⇒ 分母错配）。
+    #   ⇒ 故 why 每次都附源 ts（并给 ISO 便于人读）；判据同 N-07「数字须带取值时刻」。
+    _tsi = _t3.strftime("%Y-%m-%dT%H:%M:%SZ", _t3.gmtime(int(ts)))
+    SRC = "［源时刻 %s（age %ds）］ " % (_tsi, age)
     if age > thr:
         return ("FAIL",
-                "★ **缺席**：合规率上报已 %d 秒未更新（阈值 %d 秒）⇒ "
+                SRC + "★ **缺席**：合规率上报已 %d 秒未更新（阈值 %d 秒）⇒ "
                 "**该协议的落地情况不可知**（这正是『静默兼容条款』的后果）" % (age, thr),
                 ev)
     rate = (v or {}).get("rate_legal") or 0.0
@@ -417,21 +424,21 @@ def i8(bus=None, msgs=None):
     ev["rate_legal"] = rate
     if rate <= 0:
         return ("GAP",
-                "上报新鲜（%d 秒前），但**合规率 = 0**（合法 state 条目 %s / 总 %s）⇒ "
+                SRC + "上报新鲜，**合规率 = 0**（合法 state 条目 %s / 总 %s）⇒ "
                 "**协议机制尚未落地**——这是 GAP（还没有），不是 FAIL（做错了）"
-                % (age, (v or {}).get("legal_state"), (v or {}).get("total")),
+                % ((v or {}).get("legal_state"), (v or {}).get("total")),
                 ev)
     if rate < 0.01:
         return ("PENDING",
-                "上报新鲜（%d 秒前），合规率 = **%.6f**（合法 state 仅 %s / 总 %s）⇒ "
+                SRC + "合规率 = **%.6f**（合法 state 仅 %s / 总 %s）⇒ "
                 "**起步**：调用点已接但远未成规模 ⇒ 判 PENDING（落地中），**不是 PASS**"
-                % (age, rate, (v or {}).get("legal_state"), (v or {}).get("total")),
+                % (rate, (v or {}).get("legal_state"), (v or {}).get("total")),
                 ev)
     if rate <= 0.60:
         return ("PENDING",
-                "上报新鲜（%d 秒前），合规率 = **%.4f** ⇒ **落地中**（未达 60%% 阈值）"
-                % (age, rate), ev)
-    return ("PASS", "上报新鲜（%d 秒前）且合规率 = %.4f（> 60%% 阈值）" % (age, rate), ev)
+                SRC + "合规率 = **%.4f** ⇒ **落地中**（未达 60%% 阈值）"
+                % (rate,), ev)
+    return ("PASS", SRC + "合规率 = %.4f（> 60%% 阈值）" % (rate,), ev)
 
 
 def audit():
