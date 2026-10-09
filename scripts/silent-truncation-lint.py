@@ -352,6 +352,29 @@ def main():
         return lean4_check()
     if not a.paths:
         ap.print_help(); return 2
+    # === 2026-10-10 补契约：非法输入（不存在的目标）须【如实报错、不静默降级】 ===
+    #   裁判裁定 A（2026-10-10）：「没跑看起来像跑过」的危害【在自动化管道里】
+    #     => stderr 警告只做到【人可区分】，做不到【机器可区分】=> 必须动退出码。
+    #   理由二：「不改行为契约」指【正常输入】的输出语义；「不存在的目录」是【非法输入】，
+    #     其退出码【本就没有契约】=> 「契约未声明 != 契约允许任何行为」=> 补上该声明。
+    #   => 与 gate-canfail 同类情形对齐（其现为 rc=1）。
+    _missing = []
+    for _x in a.paths:
+        _e = os.path.expanduser(_x)
+        if any(c in _x for c in "*?["):     # glob 模式：以展开结果判定
+            import glob as _g2
+            if not _g2.glob(_e):
+                _missing.append(_x)
+        elif not os.path.exists(_e):
+            _missing.append(_x)
+    if _missing:
+        sys.stderr.write("★ 前置缺失：以下目标不存在 => 未扫描（rc=1；不静默降级）\n")
+        for _m in _missing[:20]:
+            sys.stderr.write("  · " + _m + "\n")
+        if len(_missing) > 20:
+            sys.stderr.write("  ...（共 " + str(len(_missing)) + " 个）\n")
+        log("prerequisite-missing targets=" + str(len(_missing)) + " rc=1")
+        return 1
     owners = [(pat, re.compile(pat)) for pat in a.by_owner]
     return run(a.paths, owners, a.json)
 
