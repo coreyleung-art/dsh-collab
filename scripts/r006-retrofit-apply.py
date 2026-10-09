@@ -235,8 +235,11 @@ def safe_apply(path, new_src):
                 rr = _sp.run([sys.executable, path, "--lean4-check"],
                              capture_output=True, text=True, timeout=25)
                 out = (rr.stdout or "") + (rr.stderr or "")
-                if "A" not in out or "FAIL" not in out and "pass" not in out:
-                    raise RuntimeError("功能验证失败：--lean4-check 未生效")
+                # ★ 判据须严（原写法有 and/or 优先级 bug ⇒ 漏判 bb-card-put）
+                #   要求：① 出现断言表标题 ② 出现 pass/FAIL 结语 ③ 【不含】argparse 报错
+                if ("六项" not in out) or ("pass" not in out and "FAIL" not in out) \
+                        or ("arguments are required" in out) or ("unrecognized arguments" in out):
+                    raise RuntimeError("功能验证失败：--lean4-check 未生效（%s）" % out.strip().splitlines()[-1][:60] if out.strip() else "无输出")
             except _sp.TimeoutExpired:
                 raise RuntimeError("功能验证超时")
     except Exception as e:
@@ -427,9 +430,18 @@ def gen_lean4_for(src, toolname):
     m_pa = _re.search(r"(\n(\s*)args = " + _re.escape(apv) + r"\.parse_args\(\))", new)
     if not m_pa:
         return None, "找不到 parse_args ⇒ 须人工接入"
+    # ★ 2026-10-09 修：分流【不能放在 parse_args 之后】——
+    #   实证 bb-card-put.py 有 required 位置参数 ⇒ parse_args 先校验 required ⇒
+    #   `--lean4-check` 单独跑会报 "the following arguments are required: key"。
+    #   ⇒ 改为【在 parse_args 之前预扫描 sys.argv】：命中即先返回，不进入参数校验。
     ind = m_pa.group(2)
-    branch = "\n" + ind + "if getattr(args, \"lean4_check\", False):\n" + ind + "    return lean4_check()"
-    new = new[:m_pa.end(1)] + branch + new[m_pa.end(1):]
+    pre = ("\n" + ind + 'if "--lean4-check" in sys.argv:' + "\n"
+           + ind + "    return lean4_check()")
+    # 插到 parse_args 那一行【之前】
+    new = new[:m_pa.start(1)] + pre + new[m_pa.start(1):]
+    # 确保 import sys
+    if not _re.search(r"^import .*\bsys\b|^import sys", new, _re.M):
+        new = _re.sub(r"(^import [^\n]*)$", r"\1\nimport sys", new, count=1, flags=_re.M)
     return new, None
 
 def candidates(action):
