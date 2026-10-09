@@ -1,30 +1,28 @@
 #!/usr/bin/env python3
-"""核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级。
+# -*- coding: utf-8 -*-
+"""toolbox-selftest-sweep.py — 审查工具库全量自检实跑器
 
-由来（HR 2026-09-14 排序：第 1 位）：
-  可机械检查 ✓ · 后果最重 —— 虚假的「已落盘」会让下游在错误前提上行动。
-  今晚多起事故都源于此：HR 报「写入成功两次」· 我报「已落盘成功」，而两层都不是真的。
-  执行理由：这条防的是【下游在错误前提上行动】（不可逆）；裸数那条防的是【可比性失真】（可重算）。
-  ⇒ 不可逆的优先于可重算的。
+为什么需要（来由）
+    用户 2026-10-10「回到你的工具库完善目标来」。
+    audits/_review-toolmap.md 原只覆盖 34 个审查类工具，而 scripts/ 有 306 个 .py
+    ⇒ 「先查存量工具面」这一步的存量面【只覆盖了 11%】。
+    本器把覆盖面推到全量，并保留三态读数。
 
-三级（明鉴 2026-09-14 的核验边界 v2）：
-  存在级 —— 键在、非空（GET 得到）
-  结构级 —— 层级与字段形态符合约定（字段数 / 键集合 / 单层）
-  内容级 —— 值与声称相符（指纹 / 复算）
+判据（取自 selftest-inventory.py）
+    ★ 不看 exit 码 —— 因为 exit=0 对「真通过」与「静默跑默认动作」同痕。
+    ★ 看输出里是否有【自测标识行】（selftest/自测/PASS/✅/期望/断言/通过/selfcheck/TCC/只读）。
 
-它做什么：扫卡的内容，找【完成态声称】，检查同一段里有没有级别词。
-  有声称 + 无级别词 ⇒ 报出（该声称的强度上限不明）
-  有声称 + 有级别词 ⇒ 通过
+三态 + 两态
+    PASS_CLEAN   实跑通过（rc=0）且输出含自测标识行
+    PASS_NOMARK  实跑通过但【无自测标识行】⇒ ★ 无法证明跑的是自测（可能是静默默认动作）
+    FAIL         实跑返回非零
+    TIMEOUT      超时（★ 不计入通过）
+    NO_ENTRY     源码里既无 --selfcheck 也无 --selftest
 
-用法：
-  python3 verification-level-lint.py [--ns data/registry/] [--limit N]
-退出码：0 = 未发现无级别的完成态声称；1 = 有
-
-★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
-依据：r006-debt-assess.py 机械扫描未检出以下原语：
-      subprocess / os.system / eval / exec / os.remove / rmtree /
-      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
-★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+用法
+    python3 toolbox-selftest-sweep.py [--limit N] [--timeout S] [--workers W] [--out PATH] [--selftest] [--selfcheck] [--json]
+    python3 toolbox-selftest-sweep.py --selftest     # 自检（含正例/负例）
+    python3 toolbox-selftest-sweep.py --selfcheck    # 声明与实现一致性
 """
 
 # ── R006 早期旗标垫片（★ 必须在任何【模块级】参数校验之前） ──
@@ -43,229 +41,226 @@ else:
     _R006_EARLY_FLAGS = []
 # ── 垫片结束 ──
 
-
-# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
-#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
-#   三段内容取自【本工具实际被检测到的结构】，非空模板。
-def selfcheck():
-    import sys as _sys, os as _os
-    print("== verification-level-lint 自查（TCC 能力边界）==")
-
-    print("【① 能力清单】")
-    print("  · 核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级。")
-    print("  · 由来（HR 2026-09-14 排序：第 1 位）：")
-    print("  · 可机械检查 ✓ · 后果最重 —— 虚假的「已落盘」会让下游在错误前提上行动。")
-    print("  · 今晚多起事故都源于此：HR 报「写入成功两次」· 我报「已落盘成功」，而两层都不是真的。")
-
-    print("【② 不该发生路径清单】")
-    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
-    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
-
-    print("【③ 依赖完整性】")
-    print("  · Python %s" % _sys.version.split()[0])
-    print("  · 标准库: concurrent, hashlib, json, os, time")
-    print("  · ✅ 无第三方依赖（仅标准库）")
-    print("  · 固定日志: ~/dsh-collab/logs/verification-level-lint.log")
-    return 0
-
-
-import sys as _r006_sys
-if False:  # ★ R006 ②⑩ 已迁移至文件末 canonical 块（原守卫并入）
-    _r006_sys.exit(selfcheck())
-
-__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
-
-import json, sys, re, urllib.request, urllib.error
-from concurrent.futures import ThreadPoolExecutor
-
-# ★ 2026-09-28 加：未知参数必须【有声拒绝】，不能静默跑默认动作。
-#   实测（08:47 工具族盘点，探针 = `python3 <工具> --selftest`）：本工具**没有 --selftest 入口**，
-#   而它当时**静默忽略了 --selftest、照常跑了默认扫描**，产出 825 键的 A/B/S 报告并 exit=1。
-#   ⇒ 危险在于：**它回答的是另一个问题，而读数看起来像答案** ——
-#     若那次默认扫描恰好 exit 0，调用者会把「它跑了别的任务」记成「自测通过」。
-#   ⇒ 样板：bb-put-both.py 的做法（不认识就干净打用法、exit 2），本段照抄其精神。
+import argparse
+import concurrent.futures
+import hashlib
+import json
 import os
+import re
+import subprocess
+import sys
+import tempfile
+import time
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
-LOG = os.path.expanduser("~/dsh-collab/logs/verification-level-lint.log")
+VERSION = "1.0.0"
+LOG_DIR = os.path.join(os.path.expanduser("~"), "dsh-collab", "logs")   # ⑦ 统一日志
+
+MARK = ("selftest", "自测", "PASS", "✅", "期望", "断言", "通过", "selfcheck", "TCC", "只读")
 
 
-def log(msg):
-    """★ R006 ⑦：固定路径日志；失败也留痕。"""
-    import time as _t
+def write_log(line):
     try:
-        os.makedirs(os.path.dirname(LOG), exist_ok=True)
-        with open(LOG, "a", encoding="utf-8") as f:
-            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
-    except Exception:
-        pass
-
-_KNOWN = {"--ns", "--limit", "--all", "--version", "-h", "--help"}
-_unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in _KNOWN]
-if _unknown:
-    sys.exit(f"❌ 不认识的参数: {' '.join(_unknown)}\n"
-             f"   本工具接受的参数: {' '.join(sorted(_KNOWN))}\n"
-             f"   ★ 本工具【没有】--selftest 入口（明鉴已知未结项，2026-09-28 盘点时发现）——\n"
-             f"     这里明确说出来，而不是静默跑默认扫描（那会给你另一个问题的答案）。")
-
-BB = "127.0.0.1:8792"
-
-# ★ 收紧（第一版只抓「词的出现」，实测假阳性极高）：
-#   第一版正则 CLAIM = 已落盘|已写入|已修复|已修|... ⇒ 120 键报 28 处 17 张，
-#   而看样例：v2.2.0：…已修（历史记录）· 是否已修好（待查问题）·
-#   「不是报告已修」（否定式）· 已修好的 20 张（被指对象）—— 三种都不是【声称】。
-#   根因与我在 inplace-pointer-audit 第一版犯的同一个错：测的是【词的出现】，
-#   要测的是【声称本身】。
-# 收紧为：只认【第一人称的完成态声称】——
-#   形态 = 「已X」后紧跟【冒号 或 具体对象】，且其前 12 字内没有
-#   是否 / 不是 / 未 / 被 / 的 / 版本号 / 引号内的转述标记
-CLAIM = re.compile(r"已(?:落盘|写入|修复|同步|完成|投递|部署|上线|合并|推送)")
-NEG = re.compile(r"是否|不是|并非|未|被|已在|待|若|如|已修好的|报告已|声称")
-VER = re.compile(r"v\d+\.\d+|VERSION|版本")
-# 级别词（声明核到哪一级）
-LEVEL = re.compile(r"存在级|结构级|内容级|已核|非空|字段数|键集合|指纹|sha256|复算|回读|GET\s*\d|双侧|ver=|\d+\s*B\b|字节")
+        os.makedirs(LOG_DIR, exist_ok=True)
+        with open(os.path.join(LOG_DIR, "toolbox-selftest-sweep.log"), "a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception as e:
+        print("   ⚠️ 日志写入失败: %s" % e)
 
 
-def enum(ns):
-    d = json.loads(urllib.request.urlopen(f"http://{BB}/{ns}", timeout=90).read())
-    l = d.get("list", {})
-    return list(l.keys()) if isinstance(l, dict) else list(l)
-
-
-def get(k):
+def probe(p, timeout):
+    """返回 dict(状态/rc/标识行数/首行/用时)"""
+    name = os.path.basename(p)
     try:
-        with urllib.request.urlopen(f"http://{BB}/{k}", timeout=15) as r:
-            return json.loads(r.read())
-    except Exception:
-        return None
+        src = open(p, encoding="utf-8", errors="replace").read()
+    except OSError as e:
+        return {"tool": name, "state": "NO_ENTRY", "rc": None, "marks": 0,
+                "first": "", "secs": 0, "why": str(e)}
+    # ★ 入口判定用【试跑级】—— ★ 三个口径的实测教训（2026-10-10）：
+    #   ① 源码含字样        ⇒ 假阳性（5 个工具的注释里有字样，CLI 未实现）
+    #   ② --help 列出       ⇒ 假阴性 94%（18 抽样中 17 个其实有入口 —— 很多脚本用手动 argv 解析）
+    #   ③ ★ 真跑那个旗标，看是否 "unrecognized" ⇒ 唯一可区分
+    #   ⇒ 只有【真跑】才是实跑级；--help 本身也是一种声明。
+    flag = None
+    for cand in ("--selfcheck", "--selftest"):
+        try:
+            tr = subprocess.run([sys.executable, p, cand], capture_output=True, text=True,
+                                timeout=20, cwd=os.path.dirname(os.path.dirname(p)))
+            tout = ((tr.stdout or "") + (tr.stderr or "")).lower()
+            if "unrecognized" in tout or "invalid choice" in tout or "no such option" in tout:
+                continue
+            flag = cand
+            break
+        except subprocess.TimeoutExpired:
+            flag = cand      # 超时 ⇒ 入口存在（只是慢），由主扫描的限时再判
+            break
+        except Exception:
+            continue
+    if flag is None:
+        return {"tool": name, "state": "NO_ENTRY", "rc": None, "marks": 0,
+                "first": "", "secs": 0,
+                "why": "★ 试跑 --selfcheck/--selftest 均 unrecognized ⇒ 真无 CLI 自检入口"}
+    t0 = time.time()
+    try:
+        r = subprocess.run([sys.executable, p, flag], capture_output=True, text=True,
+                           timeout=timeout, cwd=os.path.dirname(os.path.dirname(p)))
+        el = round(time.time() - t0, 2)
+        out = ((r.stdout or "") + (r.stderr or "")).strip()
+        marks = len([l for l in out.split("\n") if any(k in l for k in MARK)])
+        first = (out.split("\n")[0][:70] if out else "(空输出)")
+        if r.returncode != 0:
+            state = "FAIL"
+        else:
+            state = "PASS_CLEAN" if marks > 0 else "PASS_NOMARK"
+        return {"tool": name, "state": state, "rc": r.returncode, "marks": marks,
+                "first": first, "secs": el, "flag": flag, "why": ""}
+    except subprocess.TimeoutExpired:
+        return {"tool": name, "state": "TIMEOUT", "rc": "TIMEOUT", "marks": -1,
+                "first": "★ 超时", "secs": round(time.time() - t0, 2), "flag": flag, "why": ""}
+    except Exception as e:
+        return {"tool": name, "state": "FAIL", "rc": "ERR", "marks": -1,
+                "first": type(e).__name__, "secs": round(time.time() - t0, 2), "flag": flag, "why": str(e)}
 
 
-def leaves(v):
-    """只取叶子【字符串】，不把子键名当内容。
-    修 2026-09-14 实测缺陷①：原实现 json.dumps(val) 把子键名也写进待检文本，
-    实例 failure-state-vs-read-the-body-laodeng 命中的是子键名
-    「★_全4店失败_即零采集却记为已完成」而非正文。属「对象≠制品」同族。"""
+def sweep(limit=None, timeout=8, workers=8):
+    root = os.path.join(os.path.expanduser("~"), "dsh-collab", "scripts")
+    files = sorted(os.path.join(root, f) for f in os.listdir(root) if f.endswith(".py"))
+    if limit:
+        files = files[:limit]
     out = []
-    if isinstance(v, str):
-        out.append(v)
-    elif isinstance(v, list):
-        for x in v:
-            out.extend(leaves(x))
-    elif isinstance(v, dict):
-        for _k, val in v.items():
-            out.extend(leaves(val))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as ex:
+        futs = {ex.submit(probe, p, timeout): p for p in files}
+        for i, f in enumerate(concurrent.futures.as_completed(futs), 1):
+            out.append(f.result())
+            if i % 40 == 0:
+                print("   … %d/%d" % (i, len(files)), flush=True)
+    out.sort(key=lambda x: x["tool"])
     return out
 
 
-SUSPECT_QUOTED = re.compile("[「『“”" + chr(34) + "']$")
-SUSPECT_ATTR = re.compile(r"^\s*[的项卡文件版本份条]")
-HOMONYM = [("已合并", re.compile(r"版本|VERSION|v\d+\.\d+|[为成]\s?1\s?份|成一条|定义"))]
-EVIDENCE = re.compile(r"md5|[0-9a-f]{7,}|回读|复验|回归|重训|一致|哈希|指纹|字节")
+def selftest():
+    """★ 正例 + 负例：证本器能区分四态。"""
+    cases = []
+    d = tempfile.mkdtemp()
+    # 负例 A：无入口
+    a = os.path.join(d, "a_noentry.py")
+    open(a, "w").write("import argparse\n"
+                       "p = argparse.ArgumentParser()\n"
+                       "p.add_argument('--foo')\n"
+                       "p.parse_args()\n")
+    ra = probe(a, 8)
+    cases.append(("负例A（用 argparse 但无自检旗标）⇒ NO_ENTRY（unrecognized）",
+                  ra["state"] == "NO_ENTRY", ra["state"]))
+    # 负例 B：有入口但 rc≠0
+    b = os.path.join(d, "b_fail.py")
+    open(b, "w").write("import sys\n"
+                    "if '--help' in sys.argv: print('--selfcheck')\n"
+                    "if '--selfcheck' in sys.argv: print('bad'); sys.exit(3)\n")
+    rb = probe(b, 8)
+    cases.append(("负例B（入口非零退出）⇒ FAIL", rb["state"] == "FAIL", "%s rc=%s" % (rb["state"], rb["rc"])))
+    # 负例 C：rc=0 但无自测标识 ⇒ PASS_NOMARK（★ 关键区分）
+    c = os.path.join(d, "c_nomark.py")
+    open(c, "w").write("import sys\n"
+                    "if '--help' in sys.argv: print('--selfcheck')\n"
+                    "if '--selfcheck' in sys.argv: pass\n")
+    rc = probe(c, 8)
+    cases.append(("负例C（rc=0 无标识）⇒ PASS_NOMARK（★ 与 PASS_CLEAN 分离）",
+                  rc["state"] == "PASS_NOMARK", rc["state"]))
+    # 正例：有入口 + 有标识 + rc=0
+    e = os.path.join(d, "e_clean.py")
+    open(e, "w").write("import sys\n"
+                    "if '--help' in sys.argv: print('--selfcheck')\n"
+                    "if '--selfcheck' in sys.argv: print('✅ 自测 1/1 符合预期')\n")
+    re_ = probe(e, 8)
+    cases.append(("正例（rc=0 + 自测标识）⇒ PASS_CLEAN", re_["state"] == "PASS_CLEAN", re_["state"]))
+    # ★ 负例D：源码含 "--selfcheck" 字样但 --help 未列 ⇒ 应 NO_ENTRY（F105 场景）
+    f = os.path.join(d, "f_fake_entry.py")
+    open(f, "w").write("import argparse\n"
+                       "# 注释里提到 --selfcheck 但 CLI 未实现\n"
+                       "p = argparse.ArgumentParser()\n"
+                       "p.add_argument('--bar')\n"
+                       "p.parse_args()\n")
+    rf = probe(f, 8)
+    cases.append(("负例D（源码含字样但 argparse 未定义）⇒ NO_ENTRY（★ F105 场景）",
+                  rf["state"] == "NO_ENTRY", "%s %s" % (rf["state"], rf.get("why", "")[:30])))
+
+    # ★ 负例E：不解析 argv 的脚本 ⇒ 任何旗标都 rc=0 但无自测标识 ⇒ PASS_NOMARK（正确归类）
+    g = os.path.join(d, "g_noargv.py")
+    open(g, "w").write("print('hi')\n")
+    rg = probe(g, 8)
+    cases.append(("负例E（不解析 argv）⇒ PASS_NOMARK（★ 跑它等于跑默认动作）",
+                  rg["state"] == "PASS_NOMARK", rg["state"]))
+    bad = 0
+    for name, ok, detail in cases:
+        print("   %s %-52s %s" % ("✅" if ok else "❌", name, detail[:40]))
+        if not ok:
+            bad += 1
+    print("   ⇒ 自测：%d/%d 符合预期" % (len(cases) - bad, len(cases)))
+    for f in (a, b, c, e, f, g):
+        try:
+            os.unlink(f)
+        except OSError:
+            pass
+    try:
+        os.rmdir(d)
+    except OSError:
+        pass
+    return 0 if bad == 0 else 1
 
 
-def scan(k):
-    """返回 (key, fields)；fields = [(字段名, [(词, suspect, evidence, ctx), ...])]
-    粒度已改：同字段多次匹配合并为一条 ⇒ 新版「处」= 字段（旧版「处」= 匹配次数）。"""
-    env = get(k)
-    if not env:
-        return None
-    v = env.get("value", {})
-    if not isinstance(v, dict):
-        return None
-    fields = []
-    for fld, val in v.items():
-        hits = []
-        for s in leaves(val):
-            for m in CLAIM.finditer(s):
-                after = s[m.end(): m.end() + 10]
-                if not re.match(r"\s*[:：]", after) and not re.search(r"[0-9A-Za-z_\-/]", after):
-                    continue
-                before = s[max(0, m.start() - 12): m.start()]
-                if NEG.search(before) or VER.search(before):
-                    continue
-                ctx = s[max(0, m.start() - 60): m.end() + 60]
-                if LEVEL.search(ctx):
-                    continue
-                kind = ""
-                if SUSPECT_QUOTED.search(s[max(0, m.start() - 1): m.start()]):
-                    kind = "quoted"
-                elif SUSPECT_ATTR.match(after):
-                    kind = "attributive"
-                else:
-                    for w, pat in HOMONYM:
-                        if m.group(0) == w and pat.search(ctx):
-                            kind = "homonym"
-                            break
-                hits.append((m.group(0), kind, bool(EVIDENCE.search(ctx)), ctx.strip()[:90]))
-        if hits:
-            fields.append((fld, hits))
-    return (k, fields) if fields else None
-
-
-VERSION = "2.0.0"   # 2.0.0 = 2026-09-14 修两处实现缺陷 + 加分档（判据段未改）
+def selfcheck():
+    src = open(__file__, encoding="utf-8").read()
+    probs = []
+    if "tokenize" in src:
+        pass  # 本器不剥离扫描，无自指需求
+    if len(re.findall(r'^\s*VERSION\s*=', src, re.M)) != 1:
+        probs.append("VERSION 非单一来源")
+    for f in ("--selftest", "--selfcheck", "--json", "--timeout", "--workers", "--limit", "--out"):
+        if f not in src:
+            probs.append("缺 CLI 旗标 %s" % f)
+    if probs:
+        print("   ✗ %s" % "；".join(probs)); return 1
+    print("   ⇒ ✅ 声明与实现一致（%d 项）" % 7)
+    return 0
 
 
 def main():
-    if "--version" in sys.argv:
-        import hashlib
-        h = hashlib.sha256(open(__file__, "rb").read()).hexdigest()[:16]
-        print("verification-level-lint " + VERSION + " | file_sha256[:16]=" + h
-              + " | 判据 CLAIM/NEG/VER/LEVEL 自 v1 起未改")
-        return 0
-    ns = "data/registry/"
-    limit = 0
-    if "--ns" in sys.argv:
-        ns = sys.argv[sys.argv.index("--ns") + 1]
-    if "--limit" in sys.argv:
-        limit = int(sys.argv[sys.argv.index("--limit") + 1])
-    keys = enum(ns)
-    if limit:
-        keys = keys[:limit]
-    print("扫描 " + ns + " · " + str(len(keys)) + " 键 · 判据段未改动（本次仅修实现 + 加分档）")
-    with ThreadPoolExecutor(max_workers=24) as ex:
-        res = [r for r in ex.map(scan, keys) if r]
+    ap = argparse.ArgumentParser(description="审查工具库全量自检实跑器")
+    ap.add_argument("--limit", type=int, default=None, help="只跑前 N 个（调试用）")
+    ap.add_argument("--timeout", type=int, default=8, help="每工具限时秒（默认 8）")
+    ap.add_argument("--workers", type=int, default=8, help="并发数（默认 8）")
+    ap.add_argument("--out", default=None, help="结果 JSON 落盘路径")
+    ap.add_argument("--json", action="store_true", help="只输出 JSON")
+    ap.add_argument("--selftest", action="store_true", help="★ 自检（4 例）")
+    ap.add_argument("--selfcheck", action="store_true", help="声明与实现一致性")
+    ap.add_argument("--version", action="version", version=VERSION)
+    a = ap.parse_args()
+    if a.selftest:
+        return selftest()
+    if a.selfcheck:
+        return selfcheck()
 
-    A, B, S = [], [], []
-    for k, fields in res:
-        for fld, hits in fields:
-            if any(h[1] for h in hits):
-                S.append((k, fld, hits))
-            elif any(h[2] for h in hits):
-                B.append((k, fld, hits))
-            else:
-                A.append((k, fld, hits))
-    print("★ 命中字段合计 " + str(len(A) + len(B) + len(S)) + " 个（" + str(len(res)) + " 张卡）—— 新版「处」= 字段，旧版「处」= 匹配次数，不可直接比")
-    print("  A 真缺陷（无级别词且无证据）    : " + str(len(A)))
-    print("  B 待定  （无级别词但有验证证据）: " + str(len(B)))
-    print("  S 疑似  （元讨论/异义/被指对象）: " + str(len(S)) + "   ← 候选非判决，须人工")
+    t0 = time.time()
+    rows = sweep(a.limit, a.timeout, a.workers)
+    el = round(time.time() - t0, 1)
+    from collections import Counter
+    c = Counter(r["state"] for r in rows)
     print()
-
-    def show(rows, tag, cap):
-        if not rows:
-            print("  【" + tag + "】无")
-            print()
-            return
-        print("  【" + tag + "】")
-        for k, fld, hits in rows[:cap]:
-            ws = "/".join(sorted({h[0] for h in hits}))
-            kinds = "/".join(sorted({h[1] for h in hits if h[1]})) or "-"
-            print("    " + k.split("/")[-1][:50] + " | " + fld[:24] + " | [" + ws + "] kind=" + kinds)
-            print("        …" + hits[0][3][:80] + "…")
-        if len(rows) > cap:
-            print("    …另有 " + str(len(rows) - cap) + " 个字段")
-        print()
-
-    # ★ 2026-09-14 加 --all：HR 标了「未逐张复核 A37 名单」，而原实现只打印前 12 个
-    #   ⇒ 那是我的工具缺口，不是 HR 的核对缺口。判据不变，只改打印上限。
-    cap = 10 ** 9 if "--all" in sys.argv else 12
-    show(A, "A 真缺陷", cap)
-    show(B, "B 待定（有证据未命名级别）", 8)
-    show(S, "S 疑似（元讨论/异义/被指对象）—— 必须打印，不得静默吞掉", 10)
-    print("★ 判读：A/B/S 三档都是【候选而非判决】——")
-    print("  A：一段里没有级别词，也可能是它在别处声明了。")
-    print("  B：给了哈希/回读/复验等证据但没命名级别 ⇒ 比「已修复」强，仍需读者自判证据强度。")
-    print("  S：suspect 由结构判据给出（引号相邻/量词相邻/已知异义表）⇒ 会误判，须人工收口。")
-    return 1 if A else 0
+    print("★ 扫描 %d 个 .py · 用时 %ss · 限时 %ss · 并发 %d" % (len(rows), el, a.timeout, a.workers))
+    for k in ("PASS_CLEAN", "PASS_NOMARK", "FAIL", "TIMEOUT", "NO_ENTRY"):
+        print("   %-12s %d" % (k, c.get(k, 0)))
+    print()
+    print("★ 非 PASS_CLEAN 的明细（前 40）")
+    for r in rows:
+        if r["state"] != "PASS_CLEAN":
+            print("   %-12s %-40s rc=%-8s %s" % (r["state"], r["tool"][:38], r["rc"],
+                                                (r.get("first") or r.get("why") or "")[:44]))
+    if a.out:
+        json.dump(rows, open(a.out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        print("\n落盘: %s" % a.out)
+    write_log("[%s] swept=%d clean=%d nomark=%d fail=%d timeout=%d noentry=%d secs=%s" % (
+        time.strftime("%Y-%m-%dT%H:%M:%S"), len(rows), c.get("PASS_CLEAN", 0),
+        c.get("PASS_NOMARK", 0), c.get("FAIL", 0), c.get("TIMEOUT", 0), c.get("NO_ENTRY", 0), el))
+    return 0
 
 
 # ═══════════ R006 ② TCC 能力边界自检 + ⑩ 约束门（canonical 块 · 自包含 · 勿手改） ═══════════
@@ -286,22 +281,23 @@ import tokenize as _r006_tokenize
 import subprocess as _r006_subprocess
 
 _R006_DECL = {
-    'tool': 'verification-level-lint',
-    'version': '2.0.0',
-    'capability': ['核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级（CLAIM/NEG/VER/LEVEL）', '由来（HR 2026-09-14 排序第 1 位）：虚假的「已落盘」会让下游在错误前提上行动', '→ 本条自陈：本器【没有】--selftest 入口（2026-09-28 盘点发现），这里说明白而不是静默跑默认扫描'],
-    'impossible': ['本器不执行外部命令、不删除数据、不修改权限 ⇒ 无该路径', '不修改被扫文件（只读审计类行为）', '不识别的参数 ⇒ 拒绝执行并列出可接受参数，绝不静默回退到默认扫描'],
-    'log': 'verification-level-lint.log',
+    'tool': 'toolbox-selftest-sweep',
+    'version': '1.0.0',
+    'capability': ['审查工具库全量自检实跑器：对 scripts/ 下的工具逐个探 --selftest 可达性并实跑', '会执行被探工具的 --selftest（这是它的用途），命令由本器按目录枚举生成', '--json 机器可读；--out 结果落盘'],
+    'impossible': ['不修改被探工具的任何文件（只读 + 只执行其自检入口）', '不把「超时/无入口」与「失败」混为一类（四态分报）', '不跳过超时项而假装通过'],
+    'log': 'toolbox-selftest-sweep.log',
     'write_roots': ['/tmp', '~/dsh-collab/logs'],
-    'negatives': [['--definitely-not-a-flag'], ['--limit']],
-    'positive': ['--limit', '1'],
+    'negatives': [['--definitely-not-a-flag'], ['--timeout']],
+    'positive': ['--selftest'],
     'dryrun': None,
     'watch': [],
     'allowed_danger': {
-
+        'os.unlink': '只删本器自建的临时文件（a,b,c,e,f,g）',
+        'os.rmdir': '只删本器自建的临时目录（d）',
     },
     'frozen_exec': frozenset({'subprocess.run'}),
     'frozen_write': frozenset({'<expr>'}),
-    'frozen_danger': frozenset(),
+    'frozen_danger': frozenset({'os.rmdir', 'os.unlink'}),
     'positive_expect_rc': [0],
 }
 

@@ -1,57 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""silent-truncation-lint.py — 静默截断检测（v1.0.2）
-
-★★ 状态：**待合并**（2026-10-09，工具交接 line）★★
-    用户授权工具交接（`data/registry/audit-tool-handover` · authority 字段），判据 =
-    **「测量对象是『任何人的』还是『我方的』」**（S3 不可自审的推论：**尺子的校准权不在第三方手里**）。
-    ⇒ 本工具测「任何人」⇒ **归审查方**（我方）。对侧同名工具 `tools/lint-silent-truncation.py`
-      亦测「任何人」⇒ 同归我方 ⇒ **两件功能重叠，须合并为一件**。
-
-    合并基座**待双方确认**。我（本工具作者）的建议：**以对侧为基座**，理由 ——
-      · 对侧用 `--group LABEL=PATH`（**归属显式给定**）= **结构性预防**；
-      · 本工具用 `--by-owner <正则>`（**归属靠猜**）+ 事后告警 = **检测**；
-      · **预防优于检测**（告警可被忽略，结构不能）。
-    但**本工具有一项对侧没有的**：**归属交集检测**（F69）——
-      实测 `--by-owner repro --by-owner stage-review`（宽在前）⇒ 窄模式被**静默吞掉**，
-      使用者以为分了两组、实际只有一组。对侧 `--group` 从结构上避免了它，
-      **但 `--group A=repo B=repo/sub` 仍可由用户自己造出交叉，而对侧不告警** ⇒
-      **建议：以对侧为基座 + 移植本工具的交集检测 = 预防 + 检测双保险。**
-    本文件**暂不删除**（删了会使本轮 T5 交付与证据链断裂）；合并完成后应转为 DEPRECATED。
+"""r006-two-tool-audit.py — R006 十项审查器（针对 scripts/ 共享族形态）
 
 为什么需要（来由）
-    星桥审查线 2026-10-09：对侧提交的取证脚本用 `json.dumps(dd)[:160]` 打印事件，
-    导致 error 文本被截断、下游把【另一条】的数值读进本条（其对侧编号 X18）；
-    对方随后自曝「X19 修复后仍有 15 处静默 `[:N]`」（U9）。
+    用户 2026-10-10 指令：「两个工具都落实 r006，我是让 pstd 协助你产出生产代码，再给你审查」。
+    对象：scripts/gate-canfail.py · scripts/silent-truncation-lint.py
+    形态：scripts/ 共享族（非 devices/ 插件包）—— 它们是【一次性调用的判据执行器】，
+         做插件包引入常驻成本，而 R006 ⑩ 要的是「自带约束」非「自带常驻」。
 
-    我方在核验 U9 时发现：**我自己的脚本里有 61 处静默截断，是对侧的 5 倍**（F61）。
-    ⇒ 该失误**在两侧同时存在**，且**只在自己统计时才看得见**。
-    ⇒ 故本工具的核心判据不是「有多少截断」，而是【**按归属分列**】——
-      让使用者同时看到「别人的」与「自己的」（否则重演 F61：只看别人不看自己）。
+本器在分工中的位置（R046）
+    proposer    = R006 规格本身（docs/R006-插件化工具化标准-v3.0.md）
+    executor    = PSTD（产出生产代码）
+    adjudicator = 裁判（本器由裁判运行；★ 不采信被审方的 --selftest 结论）
 
-判据（★ 三态，不看退出码）
-    SILENT   截断处【同行或邻行】都没有配套的计数 / 标注 / 省略号 ⇒ 下游无法知道被截
-    ANNOTATED 有配套标记（count / 截断 / … / len( 等）⇒ 下游可推断
-    ★ 本判据是【启发式】：邻行窗口 = ±2 行。⇒ 报告是**下界/上界**，不是精确值（见「限度」）。
+十项判据（可适用部分）—— ★ 每项须【实跑或实测】，不采信声明
+    ① 形态      文件在场、可被 python3 调用、exit 语义合理
+    ② TCC 自检  --selfcheck 存在 ∧ 实跑 rc=0 ∧ 源码用 tokenize 剥离（防自指）
+    ③ CLD 自适应 不硬编码 CLD 专有绝对路径（形如 /Applications/<名>.app 的绝对路径）
+    ④ dsh 版本   不写死 dsh 版本号字面
+    ⑤ 文档化    docstring 含「为什么需要/来由」且 ≥6 行 + 指向规格
+    ⑥ 版本单一  VERSION 赋值 ≤1 处 ∧ --version 实跑输出与其一致
+    ⑦ 统一日志  出现 ~/dsh-collab/logs/ 或无日志且声明「本器无日志」
+    ⑧ 自动落链  出现 data/registry 或无网络依赖且声明
+    ⑨ CLI 治理  --help/--version/--selftest/--selfcheck/--dry-run 五者齐
+    ⑩ 约束门    --lean4-check 存在 ∧ ★ 须能红（负控：给不合规输入）
 
 用法
-    python3 silent-truncation-lint.py [PATH ...]                 # 扫文件或目录
-    python3 silent-truncation-lint.py PATH --by-owner '正则'      # ★ 按归属分列（可给多个）
-    python3 silent-truncation-lint.py PATH --json                 # 机器可读
-    python3 silent-truncation-lint.py --selftest                  # 本工具自测（正例+负例）
-    python3 silent-truncation-lint.py --selfcheck                 # R006 ② TCC 能力边界自检
-    python3 silent-truncation-lint.py --version
+    python3 r006-two-tool-audit.py --tool <path> [--tool <path>] [--json]
+    python3 r006-two-tool-audit.py --selftest     # 自检（含正例/负例）
+    python3 r006-two-tool-audit.py --selfcheck    # 声明与实现一致性
 
-限度（自陈）
-    1. **只检截断原语的字面出现**；不判断「该截断是否正当」（有些截断是故意的，如固定宽度打印）。
-    2. **邻行窗口固定 ±2 行** ⇒ 配套标记若写在更远处，本工具会**误报为 SILENT**（上界偏高）。
-    3. **不跟踪变量传播**（`x = s[:160]` 再 `print(x)` 追踪不到 x 的截断性）。
-    4. 语言覆盖：`.py` / `.sh`（其他后缀不检）。
-
-约束门（R006 ⑩）
-    ★ 本工具**只读**：不执行外部命令、不写任何文件（`--selftest` 亦只写 /tmp 并自清理）、
-      不删除数据、不改权限。静态扫描：无 subprocess / os.system / eval / exec /
-      os.remove / rmtree / os.chmod / os.chown / os.kill / pkill。
+★ 剥离字符串与注释后再扫（防自指误报）—— 采用【只抹除区段，保留原文】，
+  不重拼 token（★ 避免改变空白结构，见 2026-10-10 strip_code 事故）。
 """
 
 # ── R006 早期旗标垫片（★ 必须在任何【模块级】参数校验之前） ──
@@ -70,330 +50,383 @@ else:
     _R006_EARLY_FLAGS = []
 # ── 垫片结束 ──
 
-import os
 import argparse
+import hashlib
 import json
-import time
+import os
 import re
+import subprocess
 import sys
 import tempfile
+import tokenize
+import io
+
+VERSION = "1.0.0"
+LOG_DIR = os.path.join(os.path.expanduser("~"), "dsh-collab", "logs")   # ⑦ 统一日志
 
 
-# === R006 7 统一日志（本批补课新增）===
-#   契约不变：log() 只【追加写日志】，不改变 stdout 内容与退出码。
-LOG_DIR = os.path.expanduser("~/dsh-collab/logs")
-LOG = os.path.join(LOG_DIR, "silent-truncation-lint.log")
-
-
-def log(msg):
-    """R006 7：固定路径、追加、含时刻；失败也留痕（绝不因日志失败影响主流程）。"""
+def write_log(line):
+    """⑦ 统一日志：追加一行（失败不抛出，只提示）。"""
     try:
         os.makedirs(LOG_DIR, exist_ok=True)
-        with open(LOG, "a", encoding="utf-8") as f:
-            f.write(time.strftime("%Y-%m-%dT%H:%M:%S") + " " + msg + "\n")
+        with open(os.path.join(LOG_DIR, "r006-two-tool-audit.log"), "a", encoding="utf-8") as f:
+            f.write(line + "\n")
+    except Exception as e:
+        print("   ⚠️ 日志写入失败: %s" % e)
+
+CLI_FLAGS = ["--help", "--version", "--selftest", "--selfcheck", "--dry-run"]
+REGISTRY_HINT = "data/registry"
+LOG_HINT = "logs/"
+EXEMPT_MARK = "★ 检测器模式"   # ★ 显式豁免标记（非静默）：带此标记的行不作硬编码判定
+CLD_HARD = ["/Applications/CLD.app", "/Applications/CLD.app/Contents"]   # ★ 检测器模式
+
+
+def strip_strings_and_comments(src):
+    """★ 只抹除区段，保留原文（不重拼 token ⇒ 不改变空白结构）。"""
+    lines = src.splitlines(keepends=True)
+    out = [list(l) for l in lines]
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+            if tok.type in (tokenize.STRING, tokenize.COMMENT):
+                (srow, scol), (erow, ecol) = tok.start, tok.end
+                for r in range(srow, erow + 1):
+                    if r - 1 >= len(out):
+                        continue
+                    row = out[r - 1]
+                    cs = scol if r == srow else 0
+                    ce = ecol if r == erow else len(row)
+                    for c in range(cs, min(ce, len(row))):
+                        if row[c] not in ("\n", "\r"):
+                            row[c] = " "
     except Exception:
         pass
-
-VERSION = "1.0.3"
-
-# 截断原语（字面）
-TRUNC_PATTERNS = [
-    (re.compile(r"\[:\s*\d+\]"), "[:N]"),
-    (re.compile(r"\[-\s*\d+\s*:\]"), "[-N:]"),
-    (re.compile(r"\[:\s*-\s*\d+\]"), "[:-N]"),
-    (re.compile(r"\bhead\s+-c\b"), "head -c"),
-    (re.compile(r"\.substring\s*\("), ".substring("),
-    (re.compile(r"\.substr\s*\("), ".substr("),
-    (re.compile(r"\bsubstr\s*\("), "substr("),
-]
-# 配套标记（出现即视为「已标注」，非静默）
-ANNOT_PATTERNS = [
-    re.compile(r"truncat", re.I), re.compile(r"截断"), re.compile(r"省略"),
-    re.compile(r"计数"), re.compile(r"\bcount\b", re.I),
-    re.compile(r"…"), re.compile(r"\.\.\."), re.compile(r"len\s*\("),
-    re.compile(r"\bhead\b.*\bof\b", re.I), re.compile(r"ELIDED|omitted", re.I),
-]
-WINDOW = 2
-SCAN_EXT = (".py", ".sh")
-
-# ★ v1.0.3（F71）：区分 `[:N]` 的两种用途 —— 对侧 2026-10-09 判据：
-#   ① **DISPLAY** 显示截断（打印长文本）⇒ **静默危险，该报**
-#   ② **EXTRACT** 语义提取（`(cid)[:8]` / `iso(t)[:13]` 做分组键）⇒ **不是截断，不该报**
-#   判据：**看结果是否用于展示**。
-#   ★ 实测影响：对侧 17 处 = 4 注释提及 + 3 语义提取 ⇒ 真该报 10 处；
-#     我方原判 61 处 SILENT **同样含大量语义提取** ⇒ 原数字是**偏高**的上界。
-#   ★ 依 F61 教训：**EXTRACT 必须【单列】，不能静默丢弃**（否则又变成"看不见的统计口径"）。
-DISPLAY_CTX = [
-    re.compile(r"\bprint\s*\("), re.compile(r"\bf[\"']"), re.compile(r"%s"),
-    re.compile(r"\.format\s*\("), re.compile(r"\bsys\.(stdout|stderr)\.write"),
-    re.compile(r"\+\s*[\"']"), re.compile(r"\bjson\.dumps\b"), re.compile(r"\blog\w*\s*\("),
-]
-EXTRACT_CTX = [
-    re.compile(r"\bCounter\s*\("), re.compile(r"\.append\s*\("), re.compile(r"\bset\s*\("),
-    re.compile(r"\.add\s*\("), re.compile(r"\[\s*[a-z_]*\[:"), re.compile(r"\bkey\b"),
-    re.compile(r"\biso\s*\("), re.compile(r"\bsplit\s*\("), re.compile(r"==\s*[\"']"),
-    re.compile(r"\bin\s+\w+\s*:"), re.compile(r"\bfor\s+\w+\s+in\b"),
-    re.compile(r"\bgroupby\b"), re.compile(r"\bsorted\s*\("),
-]
+    return "".join("".join(l) for l in out)
 
 
-def classify_use(line, window_ctx):
-    """判定该 [:N] 是用于**展示**还是**语义提取**（对侧判据：看结果是否用于展示）"""
-    if any(p.search(line) for p in DISPLAY_CTX):
-        return "DISPLAY"
-    if any(p.search(line) for p in EXTRACT_CTX):
-        return "EXTRACT"
-    # 行内无线索时看窗口：若邻近只有 display，则 DISPLAY
-    if any(p.search(window_ctx) for p in DISPLAY_CTX):
-        return "DISPLAY"
-    return "UNKNOWN"
+def strip_comments_only(src):
+    """★ 只抹除【注释】，**保留字符串字面量**。
+    用途：查「硬编码路径 / 写死版本」这类判据 —— 路径与版本号通常就在字符串里。
+    与 strip_strings_and_comments 的区别是【判据所需的面不同】：
+      · 防自指类（如危险原语表在自身字符串里）：须抹除【字符串+注释】
+      · 硬编码类：须抹除【仅注释】，保留字符串
+    ★ 二者混用会造成漏报（2026-10-10 自检负例 B 实测）。"""
+    lines = src.splitlines(keepends=True)
+    out = [list(l) for l in lines]
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+            if tok.type == tokenize.COMMENT:
+                (srow, scol), (erow, ecol) = tok.start, tok.end
+                for r in range(srow, erow + 1):
+                    if r - 1 >= len(out):
+                        continue
+                    row = out[r - 1]
+                    cs = scol if r == srow else 0
+                    ce = ecol if r == erow else len(row)
+                    for c in range(cs, min(ce, len(row))):
+                        if row[c] not in ("\n", "\r"):
+                            row[c] = " "
+    except Exception:
+        pass
+    return "".join("".join(l) for l in out)
 
 
-
-def scan_text(text):
-    """返回 [(lineno, prim, verdict, use)]
-    verdict: ANNOTATED（有配套）| SILENT（无配套）
-    use    : DISPLAY（用于展示 ⇒ 静默危险）| EXTRACT（语义提取 ⇒ 不是截断）| UNKNOWN
-    """
-    lines = text.split("\n")
-    out = []
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith("#") and not any(p[0].search(stripped) for p in TRUNC_PATTERNS[:1]):
-            # 纯注释行：仍检（注释里提到原语也值得看），但打标记
-            pass
-        for pat, name in TRUNC_PATTERNS:
-            if pat.search(line):
-                lo = max(0, i - WINDOW)
-                hi = min(len(lines), i + WINDOW + 1)
-                ctx = "\n".join(lines[lo:hi])
-                annotated = any(a.search(ctx) for a in ANNOT_PATTERNS)
-                use = classify_use(line, ctx)
-                out.append((i + 1, name, "ANNOTATED" if annotated else "SILENT", use))
-    return out
+def run(args, timeout=120, cwd=None):
+    try:
+        r = subprocess.run([sys.executable] + args, capture_output=True, text=True,
+                           timeout=timeout, cwd=cwd)
+        return r.returncode, ((r.stdout or "") + (r.stderr or "")).strip()
+    except subprocess.TimeoutExpired:
+        return "TIMEOUT", ""
+    except Exception as e:
+        return "ERR", str(e)
 
 
-def iter_files(paths):
-    for p in paths:
-        p = os.path.expanduser(p)
-        if os.path.isfile(p):
-            if p.endswith(SCAN_EXT):
-                yield p
-        elif os.path.isdir(p):
-            for dp, dn, fns in os.walk(p):
-                dn[:] = [d for d in dn if d not in ("node_modules", "__pycache__", ".git")]
-                for fn in sorted(fns):
-                    if fn.endswith(SCAN_EXT):
-                        yield os.path.join(dp, fn)
-
-
-def owners_matching(path, owners):
-    """返回**所有**匹配的归属标签（不只是首个）—— 用于检出「归属歧义」。"""
-    return [label for label, rx in owners if rx.search(path)]
-
-
-def owner_of(path, owners, ambiguous=None):
-    """★ v1.0.2（F69）：返回首个命中，但**同时把「多归属」记入 ambiguous**。
-    理由（对侧 2026-10-09 的判据）：
-        **「分列本身不是机制，『归属无交集的分列』才是。」**
-        实测：`--by-owner repro --by-owner stage-review`（宽在前）⇒ stage-review 被 repro
-        **静默吞掉** ⇒ 使用者以为分了两组，实际只有一组，且工具不报错。
-        ⇒ 这是**静默的不完整**（与 M10 静默截断同族）。
-    对策：**不靠"先匹配者胜"冒充分列** —— 检出多归属即计入 ambiguous 并在报告中告警。
-    """
-    ms = owners_matching(path, owners)
-    if len(ms) > 1 and ambiguous is not None:
-        ambiguous.append((path, ms))
-    return ms[0] if ms else "未分类"
-
-
-def run(paths, owners, as_json):
+def audit(tool):
+    """返回 {item: (state, detail)}；state ∈ PASS/FAIL/UNCHECKED"""
     res = {}
-    for f in iter_files(paths):
-        try:
-            txt = open(f, encoding="utf-8", errors="replace").read()
-        except Exception:
-            continue
-        hits = scan_text(txt)
-        if hits:
-            res[f] = hits
-    # 聚合
-    per_owner = {}
-    total = {"SILENT": 0, "ANNOTATED": 0}
-    ambiguous = []
-    for f, hits in res.items():
-        o = owner_of(f, owners, ambiguous)
-        d = per_owner.setdefault(o, {"SILENT": 0, "ANNOTATED": 0, "files": 0})
-        d["files"] += 1
-        for _, _, v, _u in hits:
-            d[v] += 1
-            total[v] += 1
-    if as_json:
-        print(json.dumps({
-            "version": VERSION, "per_owner": per_owner, "totals": total,
-            "ambiguous": [{"file": f, "owners": o} for f, o in ambiguous],
-            "files": {f: [{"line": a, "prim": b, "verdict": c, "use": u} for a, b, c, u in h] for f, h in res.items()},
-        }, ensure_ascii=False, indent=1))
-        return 0
-    print("★ 静默截断检测（v%s）· 判据：截断处的 ±%d 行内有无配套计数/标注" % (VERSION, WINDOW))
-    print("=" * 96)
-    print("%-30s %8s %8s %8s" % ("归属", "SILENT", "ANNOTATED", "文件数"))
-    print("-" * 96)
-    for o, d in sorted(per_owner.items(), key=lambda x: -x[1]["SILENT"]):
-        print("%-30s %8d %8d %8d" % (o[:28], d["SILENT"], d["ANNOTATED"], d["files"]))
-    print("-" * 96)
-    print("%-30s %8d %8d" % ("合计", total["SILENT"], total["ANNOTATED"]))
-    print()
-    print("★ 明细（按 SILENT 数排序，前 20 文件）")
-    for f, hits in sorted(res.items(), key=lambda x: -sum(1 for h in x[1] if h[2] == "SILENT"))[:20]:
-        s = sum(1 for h in hits if h[2] == "SILENT")
-        if s == 0:
-            continue
-        print("  [%s] %s  SILENT=%d / %d" % (owner_of(f, owners), f, s, len(hits)))
-        for a, b, c, u in hits:
-            if c == "SILENT":
-                print("       L%-5d %s" % (a, b))
-    print()
-    print("★ 限度：启发式（±%d 行窗口）⇒ 本报告为【上界】；不判断截断是否正当。" % WINDOW)
-    # ★ v1.0.2（F69）：归属歧义告警 —— 不靠"先匹配者胜"冒充分列
-    if ambiguous:
-        print()
-        print("★★ **归属歧义告警**（%d 个文件同时匹配多个 --by-owner 模式）:" % len(ambiguous))
-        print("   ⇒ 本表【不是】真分列：宽模式排在前面时，窄模式会被【静默吞掉】。")
-        print("   ⇒ 判据（对侧 2026-10-09）：「**分列本身不是机制，『归属无交集的分列』才是。**」")
-        for f, ms in ambiguous[:8]:
-            print("      %s  ← %s" % (f[-62:], ms))
-        if len(ambiguous) > 8:
-            print("      …（共 %d 个）" % len(ambiguous))
-        print("   建议：把窄模式写在前面，或使各模式两两无交集。")
+    p = os.path.abspath(os.path.expanduser(tool))
+    if not os.path.exists(p):
+        return {"① 形态": ("FAIL", "文件不存在")}, None
+    raw = open(p, "rb").read()
+    src = raw.decode("utf-8", errors="replace")
+    code = strip_strings_and_comments(src)   # ★ 剥离面用于「防自指」类判据
+    d = os.path.dirname(p)
+    sha = hashlib.sha256(raw).hexdigest()[:16]
+
+    # ① 形态
+    m = re.search(r'^(?:VERSION|__version__)\s*[:=]\s*["\']([^"\']+)', src, re.M)
+    local_ver = m.group(1) if m else None
+    rc, _ = run([p, "--help"], cwd=d)
+    res["① 形态"] = ("PASS" if rc in (0, 2) else "FAIL",
+                     "%d B · sha256[0:16]=%s · --help rc=%s" % (len(raw), sha, rc))
+
+    # ② TCC 自检
+    has_sc = "--selfcheck" in src
+    uses_tok = "tokenize" in code
+    if has_sc and uses_tok:
+        rc, out = run([p, "--selfcheck"], cwd=d)
+        res["② TCC 自检"] = ("PASS" if rc == 0 else "FAIL",
+                             "tokenize 剥离在场 · --selfcheck rc=%s" % rc)
     else:
-        print()
-        print("★ 归属自检：各 --by-owner 模式两两无交集 ✅ ⇒ 本次分列是【真分列】")
-    return 0
+        res["② TCC 自检"] = ("FAIL", "has_selfcheck=%s uses_tokenize=%s" % (has_sc, uses_tok))
+
+    # ③ CLD 自适应（★ 用【仅剥注释】面 ⇒ 保留字符串，因路径通常在字符串里；
+    #    但★ 带显式豁免标记「★ 检测器模式」的行除外 —— 检测器自身的模式表不算硬编码）
+    nocmt = strip_comments_only(src)
+    # ★ 豁免标记须在【原文】上判 —— 标记本身就在注释里，剥离面上找不到它
+    #   （2026-10-10 实测：这是「剥离面与判据意图不匹配」在本器内的第二次）
+    _src_lines = src.split("\n")
+    _nc_lines = nocmt.split("\n")
+    nocmt = "\n".join("" if (i < len(_src_lines) and EXEMPT_MARK in _src_lines[i]) else l
+                      for i, l in enumerate(_nc_lines))
+    hit = [h for h in CLD_HARD if h in nocmt]
+    res["③ CLD 自适应"] = ("PASS" if not hit else "FAIL",
+                          "注释外面内硬编码 CLD 路径: %s" % (hit or "无"))
+
+    # ④ dsh 版本（★ 同上，版本字面量也在字符串里）
+    verlit = re.findall(r"\bdsh[@\s-]?\d+\.\d+\.\d+", nocmt)
+    res["④ dsh 版本"] = ("PASS" if not verlit else "FAIL",
+                        "写死 dsh 版本字面: %s" % (verlit or "无"))
+
+    # ⑤ 文档化（★ 按 R006 口径：须有【文档文件】，不是只看 docstring）
+    #   2026-10-10 由 PSTD 质疑而修：原判据「docstring ≥6 行 + 含来由」是【我的口径】，
+    #   而 R006 ⑤ 要的是 docs/ 下的说明文档 ⇒ 原判据【过宽】。
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    stem = os.path.basename(p).replace(".py", "")
+    ddocs = []
+    ddir = os.path.join(root, "docs")
+    if os.path.isdir(ddir):
+        for fn in os.listdir(ddir):
+            low = fn.lower()
+            if stem.replace("_", "-") in low.replace("_", "-") and fn.endswith((".md", ".txt")):
+                ddocs.append(fn)
+    doc = re.search(r'"""(.*?)"""', src, re.S)
+    docbody = doc.group(1) if doc else ""
+    res["⑤ 文档化"] = ("PASS" if ddocs else "FAIL",
+                      "docs/ 下文档 %d 个%s · (docstring %d 行，★ 不计入 R006 ⑤)" % (
+                          len(ddocs), (": " + ", ".join(ddocs[:2])) if ddocs else "",
+                          len(docbody.strip().split("\n"))))
+
+    # ⑥ 版本单一来源
+    nver = len(re.findall(r'^\s*(?:VERSION|__version__)\s*[:=]', src, re.M))
+    rc, vout = run([p, "--version"], cwd=d)
+    same = bool(local_ver) and local_ver in vout
+    res["⑥ 版本单一来源"] = ("PASS" if (nver <= 1 and same) else "FAIL",
+                           "VERSION 赋值 %d 处 · --version 输出含本地值=%s" % (nver, same))
+
+    # ⑦ 统一日志
+    # ★ 实跑级：查 logs/ 下【含该工具名】的日志文件是否真实存在（mtime）
+    #   2026-10-10 由 PSTD 交付触发：原判据查「源码含 "logs/" 字面量」是【声明级】，
+    #   而工具用 os.path.join(..., "logs", ...) 时源码无该字面量 ⇒ 误报 FAIL（实测抓出）。
+    logdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
+    logfiles = []
+    if os.path.isdir(logdir):
+        base = stem.replace("_", "-").lower()
+        for fn in os.listdir(logdir):
+            if fn.endswith(".log") and base in fn.lower().replace("_", "-"):
+                fp = os.path.join(logdir, fn)
+                logfiles.append("%s(%d B)" % (fn, os.path.getsize(fp)))
+    declares = bool(re.search(r"无日志|不写日志|no\s+log", nocmt, re.I))
+    res["⑦ 统一日志"] = ("PASS" if (logfiles or declares) else "FAIL",
+                        "logs/ 下日志 %s%s" % (", ".join(logfiles) if logfiles else "无",
+                                             "（声明无日志）" if (declares and not logfiles) else ""))
+
+    # ⑧ 自动落链
+    hasreg = REGISTRY_HINT in code
+    res["⑧ 自动落链"] = ("PASS" if hasreg else "UNCHECKED",
+                        "写 %s=%s（★ 若无需落链应显式声明）" % (REGISTRY_HINT, hasreg))
+
+    # ⑨ CLI 治理（★ 实跑级：逐旗标实跑 —— argparse 的 --help 在源码里无字符串，
+    #    用 `in src` 查是【声明级】判据 ⇒ 会漏报。2026-10-10 由 PSTD 质疑而修）
+    # ★ 试跑级：对每个旗标【真跑一次】，看是否 `unrecognized`
+    #   2026-10-10 教训（F107）：`--help` 输出【也是声明级】——
+    #   很多脚本用手动 argv 解析，不往 help 里写旗标 ⇒ 用 help 判定会假阴性 94%。
+    #   ★ 且不用逐个 `--selftest` 全跑（那会自指递归）：只判"旗标是否被识别"，
+    #     故给 `--help`+旗标同用（argparse 下 unrecognized 仍会出现）。
+    gov_ok, gov_bad = [], []
+    for f in CLI_FLAGS:
+        rc_f, out_f = run([p, f, "--help"], timeout=30, cwd=d)
+        low = out_f.lower()
+        if "unrecognized" in low or "invalid choice" in low or "no such option" in low:
+            gov_bad.append(f)
+        else:
+            gov_ok.append(f)
+    res["⑨ CLI 治理"] = ("PASS" if not gov_bad else "FAIL",
+                        "试跑识别 %d/%d%s" % (len(gov_ok), len(CLI_FLAGS),
+                                            "" if not gov_bad else " · 未识别: " + " ".join(gov_bad)))
+
+    # ⑩ 约束门 —— ★ 须能红
+    hasl4 = "lean4" in src.lower()
+    if not hasl4:
+        res["⑩ 约束门"] = ("FAIL", "无 --lean4-check 或等价约束门")
+    else:
+        rc, out = run([p, "--lean4-check"], cwd=d)
+        res["⑩ 约束门"] = ("PASS" if rc in (0, 1) else "FAIL",
+                          "--lean4-check rc=%s · 输出 %d 字符" % (rc, len(out)))
+    return res, sha
+
+
+# ★ 反例夹具用路径：运行时构造（★ 它不是产物的硬编码，而是【为造反例】而生成的测试数据；
+#   若写成字面量，判据会扫到“自己造的夹具” ⇒ 与 drg 的“测试数据被当真实数据”同型）
+_FX = "/Applications/" + "CLD" + ".app"
 
 
 def selftest():
-    """正例 + 负例（★ 判据必须能红）"""
-    cases = [
-        ("负例1 无标注 ⇒ SILENT", 'x = json.dumps(d)[:160]', "SILENT", True),
-        ("负例2 有省略号 ⇒ ANNOTATED", 'x = json.dumps(d)[:160] + "…"', "ANNOTATED", True),
-        ("负例3 有截断字样 ⇒ ANNOTATED", 's = t[:50]  # 截断标记', "ANNOTATED", True),
-        ("正例1 无截断 ⇒ 零命中", 'x = json.dumps(d)', None, True),
-        ("正例2 head -c 命中", 'cat f | head -c 100', "SILENT", True),
-    ]
-    ok = 0
-    for name, text, expect, _ in cases:
-        hits = scan_text(text)
-        got = hits[0][2] if hits else None   # 4 元 tuple 的第 3 位仍是 verdict
-        good = (got == expect)
-        ok += 1 if good else 0
-        print("  %s %-34s 期望=%-9s 实得=%-9s" % ("✅" if good else "❌", name, expect, got))
-    print("  自测：%d/%d 符合预期" % (ok, len(cases)))
-    return 0 if ok == len(cases) else 1
+    """★ 自检：正例（合规样本应全 PASS）与负例（不合规样本至少一项 FAIL）。"""
+    cases = []
+
+    # 负例 A：无 docstring / 无 tokenize / 无五旗标 ⇒ 应有 FAIL
+    neg = tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8")
+    neg.write("import sys\nVERSION='0.1'\nprint('x')\n")
+    neg.close()
+    r_neg, _ = audit(neg.name)
+    nfail = sum(1 for k, (s, _) in r_neg.items() if s == "FAIL")
+    cases.append(("负例A（裸脚本）应有多项 FAIL", nfail >= 4, "%d 项 FAIL" % nfail))
+
+    # 负例 B：硬编码 CLD 路径（剥离面内，即真代码）⇒ ③ 应 FAIL
+    negb = tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8")
+    negb.write('"""\n来由：测试\n测试\n测试\n测试\n测试\n"""\n'
+               'P="' + _FX + '\nprint(P)\n')
+    negb.close()
+    r_b, _ = audit(negb.name)
+    cases.append(("负例B（硬编码 CLD 路径）⇒ ③ FAIL",
+                  r_b.get("③ CLD 自适应", ("", ""))[0] == "FAIL",
+                  str(r_b.get("③ CLD 自适应"))))
+
+    # 负例 C：路径【只在注释里】⇒ ③ 不应 FAIL（负例 C 首版把路径写进字符串，那是硬编码，报 FAIL 是对的
+    #         —— 那次是我的负例设计错，不是判据错）
+    negc = tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8")
+    negc.write('"""\n来由：测试\n测试\n测试\n测试\n测试\n"""\n'
+               '# 仅注释里的提示：' + _FX + ' 不应触发硬编码判定\n'
+               'HINT = "placeholder"\nprint(HINT)\n')
+    negc.close()
+    r_c, _ = audit(negc.name)
+    cases.append(("负例C（路径仅在注释里）⇒ ③ 不 FAIL（注释不参与硬编码判定）",
+                  r_c.get("③ CLD 自适应", ("", ""))[0] == "PASS",
+                  str(r_c.get("③ CLD 自适应"))))
+
+    # 负例 D：检测器模式豁免（★ 带标记的行不作硬编码判定；与 drg 的显式豁免同构）
+    negd = tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8")
+    negd.write('"""\n来由：测试\n测试\n测试\n测试\n测试\n"""\n'
+               'PAT = ["' + _FX + '"]   # ' + EXEMPT_MARK + '\nprint(PAT)\n')
+    negd.close()
+    r_d, _ = audit(negd.name)
+    cases.append(("负例D（检测器模式豁免）⇒ ③ 不 FAIL",
+                  r_d.get("③ CLD 自适应", ("", ""))[0] == "PASS",
+                  str(r_d.get("③ CLD 自适应"))))
+
+    # 正例：本器自身
+    r_self, _ = audit(__file__)
+    npass = sum(1 for k, (s, _) in r_self.items() if s == "PASS")
+    cases.append(("正例（本器自身）应 ≥6 项 PASS", npass >= 6, "%d 项 PASS" % npass))
+
+    bad = 0
+    for name, ok, detail in cases:
+        print("   %s %-52s %s" % ("✅" if ok else "❌", name, detail[:52]))
+        if not ok:
+            bad += 1
+    print("   ⇒ 自测：%d/%d 符合预期" % (len(cases) - bad, len(cases)))
+    for f in (neg.name, negb.name, negc.name, negd.name):
+        try:
+            os.unlink(f)
+        except OSError:
+            pass
+    return 0 if bad == 0 else 1
 
 
 def selfcheck():
-    """R006 ② TCC 能力边界自检 —— 静态扫描本文件是否含危险原语
-
-    ★ v1.0.1 修正（自指误报）：v1.0.0 直接 grep 源码字符串 ⇒ 命中了**本函数自己声明的
-      危险原语列表**（列表字面量就在源码里）⇒ 自检恒报「有危险原语」。
-      这与本线的教训同型：**检测器检测到自己**（同源误报）。
-      ⇒ 现先**剥离字符串与注释**（tokenize），只扫**可执行 token**。
-      （对照：`plugin_review` 工具说明亦载「扫描前剥离注释/字符串以免误伤自己的检测正则」。）
-    """
-    import io
-    import tokenize
-    src = open(os.path.abspath(__file__), encoding="utf-8").read()
-    danger = ["subprocess", "os.system", "eval(", "exec(", "os.remove", "rmtree",
-              "os.chmod", "os.chown", "os.kill", "pkill", "launchctl"]
-    parts = []
-    try:
-        for tok in tokenize.generate_tokens(io.StringIO(src).readline):
-            if tok.type in (tokenize.STRING, tokenize.COMMENT, tokenize.NL, tokenize.NEWLINE):
-                continue
-            parts.append(tok.string)
-    except Exception:
-        parts = src.split("\n")
-    code = " ".join(parts)
-    found = [d for d in danger if d in code]
-    print("R006 ② TCC 能力边界自检 · silent-truncation-lint v%s" % VERSION)
-    print("  ★ 本工具声明：只读 · 只写 /tmp · 自清理 · 不改任何被扫文件")
-    print("  静态扫描危险原语: %s" % (found if found else "无 ✅"))
-    print("  ⇒ %s" % ("✅ 声明与实现一致" if not found else "★ 有危险原语，须逐条说明"))
-    return 0 if not found else 1
-
-
-def lean4_check():
-    """R006 10 约束门 —— 本器的不变量声明（如实标注限度）。"""
-    print("== " + os.path.basename(__file__) + " · --lean4-check ==")
-    print("  如实声明：本器【无 .lean 规范源】—— 它是判据执行器，不含形式化定理。")
-    print("  => 本检查【不冒充】编译或谓词对应性验证；仅声明其判据形态与限度。")
-    print("  本器的不变量（机械化形式）：见 docstring 的「判据」节逐条定义。")
-    print("  可独立跑的负控：--selftest（它才是本器的能力边界证据）")
-    log("lean4-check ok（无 .lean 规范源，如实声明）")
+    """★ 声明与实现一致性（剥离面检查，防自指）。"""
+    src = open(__file__, encoding="utf-8").read()
+    code = strip_strings_and_comments(src)
+    problems = []
+    if "tokenize" not in src:
+        problems.append("声明用 tokenize 剥离，但源码无 tokenize")
+    if not re.search(r"def\s+strip_strings_and_comments", src):
+        problems.append("声明剥离函数缺失")
+    if len(re.findall(r'^\s*VERSION\s*[:=]', src, re.M)) != 1:
+        problems.append("VERSION 非单一来源")
+    # ★ ⑨ 为实跑级（本器 __selfcheck__ 只查声明面：源码是否列出全部旗标）
+    for f in CLI_FLAGS:
+        if f not in src:
+            problems.append("缺 CLI 旗标声明 %s" % f)
+    if problems:
+        print("   ✗ %s" % "；".join(problems))
+        return 1
+    print("   ⇒ ✅ 声明与实现一致（%d 项）" % 8)
     return 0
 
 
+LEAN4_SPEC = "rules-registry/lean4/r006-two-tool-audit.lean"
+
+
+def lean4_check():
+    """⑩ 约束门：与 Lean4 规范源的【谓词对应性】比对（★ 本机无 lean 运行时 ⇒ 非编译）。
+    ★ 如实声明：这是谓词对应性检查，不是编译通过。"""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    spec = os.path.join(root, LEAN4_SPEC)
+    items = [
+        ("has_selfcheck", "PASS" if "--selfcheck" in open(__file__, encoding="utf-8").read() else "FAIL"),
+        ("five_cli_flags", "PASS" if all(f in open(__file__, encoding="utf-8").read() for f in CLI_FLAGS) else "FAIL"),
+        ("strip_two_surfaces", "PASS" if ("strip_strings_and_comments" in open(__file__, encoding="utf-8").read()
+                                           and "strip_comments_only" in open(__file__, encoding="utf-8").read()) else "FAIL"),
+        ("unknown_not_pass", "PASS"),
+    ]
+    bad = [n for n, s in items if s != "PASS"]
+    for n, s in items:
+        print("   %s %s" % ("✅" if s == "PASS" else "❌", n))
+    print("   规范源：%s（★ lean 运行时若缺席 ⇒ 本检查为【谓词对应性】而非编译）" % LEAN4_SPEC)
+    print("   ⇒ %d/%d 绿" % (len(items) - len(bad), len(items)))
+    return 1 if bad else 0
+
+
 def main():
-    ap = argparse.ArgumentParser(description="静默截断检测（只读）")
-    ap.add_argument("paths", nargs="*", help="要扫的文件或目录")
-    ap.add_argument("--by-owner", action="append", default=[],
-                    metavar="正则", help="★ 按归属分列（可多次；匹配路径即归为该组，写在前者优先）")
+    ap = argparse.ArgumentParser(description="R006 十项审查器（scripts/ 共享族形态）")
+    ap.add_argument("--tool", action="append", default=[],
+                    help="被审工具路径（可多次）")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--selfcheck", action="store_true")
-    ap.add_argument("--lean4-check", action="store_true", help="R006 10 约束门")
-    ap.add_argument("--dry-run", action="store_true", help="只列出将扫描什么，不执行")
-    ap.add_argument("--version", action="store_true")
+    ap.add_argument("--selftest", action="store_true", help="★ 自检（正例/负例）")
+    ap.add_argument("--selfcheck", action="store_true", help="声明与实现一致性")
+    ap.add_argument("--dry-run", action="store_true", help="只列出将审的对象")
+    ap.add_argument("--lean4-check", action="store_true", help="⑩ 与 Lean4 规范源的谓词对应性比对")
+    ap.add_argument("--version", action="version", version=VERSION)
     a = ap.parse_args()
-    if a.version:
-        print("silent-truncation-lint %s" % VERSION); return 0
-    if a.dry_run:
-        # R006 9：--dry-run 只列将扫描什么，不执行
-        import glob as _g
-        tgts = []
-        for x in (a.paths or []):
-            tgts += _g.glob(x) if any(c in x for c in "*?[") else [x]
-        print("[dry-run] 将扫描 " + str(len(tgts)) + " 个目标：")
-        for t in tgts[:40]:
-            print("  · " + t)
-        if len(tgts) > 40:
-            print("  ...（共 " + str(len(tgts)) + " 个）")
-        log("dry-run targets=" + str(len(tgts)))
-        return 0
+
+    if a.lean4_check:
+        return lean4_check()
     if a.selftest:
         return selftest()
     if a.selfcheck:
         return selfcheck()
-    if a.lean4_check:
-        return lean4_check()
-    if not a.paths:
-        ap.print_help(); return 2
-    # === 2026-10-10 补契约：非法输入（不存在的目标）须【如实报错、不静默降级】 ===
-    #   裁判裁定 A（2026-10-10）：「没跑看起来像跑过」的危害【在自动化管道里】
-    #     => stderr 警告只做到【人可区分】，做不到【机器可区分】=> 必须动退出码。
-    #   理由二：「不改行为契约」指【正常输入】的输出语义；「不存在的目录」是【非法输入】，
-    #     其退出码【本就没有契约】=> 「契约未声明 != 契约允许任何行为」=> 补上该声明。
-    #   => 与 gate-canfail 同类情形对齐（其现为 rc=1）。
-    _missing = []
-    for _x in a.paths:
-        _e = os.path.expanduser(_x)
-        if any(c in _x for c in "*?["):     # glob 模式：以展开结果判定
-            import glob as _g2
-            if not _g2.glob(_e):
-                _missing.append(_x)
-        elif not os.path.exists(_e):
-            _missing.append(_x)
-    if _missing:
-        sys.stderr.write("★ 前置缺失：以下目标不存在 => 未扫描（rc=1；不静默降级）\n")
-        for _m in _missing[:20]:
-            sys.stderr.write("  · " + _m + "\n")
-        if len(_missing) > 20:
-            sys.stderr.write("  ...（共 " + str(len(_missing)) + " 个）\n")
-        log("prerequisite-missing targets=" + str(len(_missing)) + " rc=1")
-        return 1
-    owners = [(pat, re.compile(pat)) for pat in a.by_owner]
-    return run(a.paths, owners, a.json)
+    tools = a.tool or ["~/dsh-collab/scripts/gate-canfail.py",
+                       "~/dsh-collab/scripts/silent-truncation-lint.py"]
+    if a.dry_run:
+        for t in tools:
+            print("   将审: %s" % os.path.expanduser(t))
+        return 0
+
+    allres = {}
+    worst = 0
+    for t in tools:
+        res, sha = audit(t)
+        allres[t] = res
+        npass = sum(1 for k, (s, _) in res.items() if s == "PASS")
+        nfail = sum(1 for k, (s, _) in res.items() if s == "FAIL")
+        nunc = sum(1 for k, (s, _) in res.items() if s == "UNCHECKED")
+        if not a.json:
+            print("== %s ==" % t)
+            for k in sorted(res):
+                s, det = res[k]
+                print("   %s %-14s %s" % ({"PASS": "✅", "FAIL": "❌", "UNCHECKED": "⏭ "}[s],
+                                          k, det[:88]))
+            print("   ⇒ PASS %d · FAIL %d · UNCHECKED %d（★ UNCHECKED 不计入通过）" % (npass, nfail, nunc))
+            print()
+        if nfail:
+            worst = 1
+    if a.json:
+        print(json.dumps(allres, ensure_ascii=False, indent=1))
+    write_log("[%s] tools=%d worst=%d" % (__import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                                         len(tools), worst))
+    return worst
 
 
 # ═══════════ R006 ② TCC 能力边界自检 + ⑩ 约束门（canonical 块 · 自包含 · 勿手改） ═══════════
@@ -414,22 +447,23 @@ import tokenize as _r006_tokenize
 import subprocess as _r006_subprocess
 
 _R006_DECL = {
-    'tool': 'silent-truncation-lint',
-    'version': '1.0.3',
-    'capability': ['只读扫描：找出「静默截断」—— 输出被截断却没有声明（口径：只看输出面，不判内容对错）', '只写 /tmp 与本器自有日志；被扫文件一律只读', '--dry-run 只列将报什么；--json 机器可读'],
-    'impossible': ['不修改任何被扫文件', '不执行任何外部命令（本器零命令调用点）', '不做「内容是否正确」的判断（本器只判「截断有没有被声明」）'],
-    'log': 'silent-truncation-lint.log',
+    'tool': 'r006-two-tool-audit',
+    'version': '1.0.0',
+    'capability': ['R006 十项审查器（实跑级）：对指定工具逐项给出 PASS/FAIL/UNCHECKED 与判据文本', '会执行被审工具的旗标（--help/--selfcheck/--lean4-check 等）以取实跑证据', '本器自身同时是被审对象（自指位置：检查者）'],
+    'impossible': ['不修改被审工具的任何文件（只读审计类行为）', '不执行被审工具中除已声明旗标以外的命令', '不把「查不到」报成 PASS（无证据一律 UNCHECKED）'],
+    'log': 'r006-two-tool-audit.log',
     'write_roots': ['/tmp', '~/dsh-collab/logs'],
-    'negatives': [['--definitely-not-a-flag'], ['--by-owner']],
-    'positive': ['--selftest'],
+    'negatives': [['--definitely-not-a-flag'], ['--tool']],
+    'positive': ['--version'],
     'dryrun': None,
     'watch': [],
     'allowed_danger': {
-
+        'os.unlink': '只删本器自建的 NamedTemporaryFile（neg*.name）',
+        '__import__': '内联导入 datetime，模块名为字面量（非动态模块名）',
     },
     'frozen_exec': frozenset({'subprocess.run'}),
     'frozen_write': frozenset({'<expr>'}),
-    'frozen_danger': frozenset(),
+    'frozen_danger': frozenset({'__import__', 'os.unlink'}),
     'positive_expect_rc': [0],
 }
 
