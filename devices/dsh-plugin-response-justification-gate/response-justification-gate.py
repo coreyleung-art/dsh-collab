@@ -85,7 +85,23 @@ LEAN4_SPEC = "rules-registry/lean4/response-justification-gate.lean"
 
 NO_BASIS_MARK = "[无 §2 依据]"      # ★ 标注义务的文本（定理 3）
 
+# ═══ ★★ 退出码：四态可区分（2026-10-10 裁判裁决）═══
+#   裁判修正（proposer 澄清自己规范的语义）：
+#     §8 描述的是【门的语义】（门被调用时如何行为）；
+#     R050 的 advisory 描述的是【规则的效力状态】（对外是否强制）；
+#     ⇒ 二者是【正交的两个维度】，我的 --mode 提案正是该正交性的实现（裁决接受）。
+#   ★ 但 `advisory` 模式【不应 exit 0】—— 理由（裁判引其同类判据）：
+#     **exit 0 会使「未拦截」看起来像「已通过」** —— 与本线两条同族：
+#       ① selftest-inventory.py：「exit=0 对『真通过』与『静默跑默认动作』同痕」
+#       ② R042：「queued 不得记作已发」
+#     ⇒ advisory 的意义是「记录下来但未阻断」，**不是「通过」**。
+#   ★ 故四态：
+#       0 = 通过（结构性正当）
+#       4 = ★ advisory 记录（未阻断 —— 与「通过」显式区分）
+#       3 = ★ enforced 拒绝
+#     （1 = selftest FAIL · 2 = 用法错）
 EXIT_OK, EXIT_SELFTEST_FAIL, EXIT_USAGE, EXIT_BLOCKED = 0, 1, 2, 3
+EXIT_ADVISORY_NOT_BLOCKED = 4
 
 
 # ────────────────────────── 基础设施 ──────────────────────────
@@ -111,18 +127,35 @@ def strip_code(src):
     为什么必须剥离（委托书点名 F63）：本器源码里必然出现
     `"R1"` / `"--force-send"` / `"claimed_r"` 等【字符串】，
     若不剥离，`--selfcheck` 会把自己的字面量当成「已实现的功能」⇒ 自指误报。
-    ★ 本函数与 --selfcheck 的 `--prove-strip` 自证配套：后者【实证】剥离确实生效。
+    ★ 本函数与 `--prove-strip` 配套：后者【逐行并排】实证剥离确实生效。
+
+    ★★ 2026-10-10 修 v2（由 prove-strip v2 的并排对比抓出，v1 补换行仍差 2 行）：
+      v1 实现（`" " + "\n" * n_nl`）经实测**仍少 2 行**（599 vs 601）——
+      因为逐个 token 拼接换行时，tokenize 的 NL/NEWLINE 与 STRING 内换行
+      **存在重叠与边界情况**，靠「数换行」无法精确对齐。
+      ⇒ 修法：**按 token 的行号重建输出**（`tk.start[0]` / `tk.end[0]`）——
+        **结构上保证行号一一对应**，不依赖换行计数。
+      ★ 这是一个【真 bug】，且只有「逐行对比 + 行号对齐」这种判据能抓到 ——
+        「探针字符串在否」这类弱判据【抓不到】（旧版正是如此，两份版本都没抓到）。
     """
     try:
-        out = []
+        n_lines = len(src.split("\n"))
+        lines = [""] * n_lines
         for tk in tokenize.generate_tokens(io.StringIO(src).readline):
             if tk.type in (tokenize.STRING, tokenize.COMMENT):
-                out.append(" ")
-            elif tk.type in (tokenize.NL, tokenize.NEWLINE):
-                out.append("\n")
-            else:
-                out.append(tk.string)
-        return "".join(out)
+                # ★ 被剥离：该 token 覆盖的行【置为空】—— 按行号，不数换行
+                for ln in range(tk.start[0], tk.end[0] + 1):
+                    if 1 <= ln <= n_lines:
+                        lines[ln - 1] = ""
+                continue
+            if tk.type in (tokenize.NL, tokenize.NEWLINE, tokenize.INDENT,
+                           tokenize.DEDENT, tokenize.ENDMARKER):
+                continue
+            # ★ 代码 token：按【其起始行】落位（同行的多个 token 顺序拼接）
+            ln = tk.start[0]
+            if 1 <= ln <= n_lines:
+                lines[ln - 1] += tk.string
+        return "\n".join(lines)
     except Exception:
         return src
 
@@ -203,10 +236,13 @@ def assess(r, mode="advisory"):
         lines.append("  ⇒ 读者可据此降权（规范 §8 第 3 层）")
         return (EXIT_OK, lines)
 
-    # advisory 模式：记录但不阻断
-    lines.append("判定：advisory 模式 ⇒ 记录不阻断（exit 0）")
+    # advisory 模式：记录但不阻断 —— ★ 但【不是「通过」】
+    #   ★ 2026-10-10 裁判裁决：exit 0 会使「未拦截」看起来像「已通过」
+    #     （同族：selftest-inventory 的 exit=0 同痕 · R042「queued 不得记作已发」）
+    #   ⇒ 用独立退出码 4，使【四态可区分】且【不依赖读者阅读首行标记】
+    lines.append("判定：★ advisory 记录（未阻断）—— ★ 这不是「通过」（exit 4）")
     lines.append("  ★ 若为 enforced 模式，本条将【被拒】（exit 3）—— 见 --negative-control")
-    return (EXIT_OK, lines)
+    return (EXIT_ADVISORY_NOT_BLOCKED, lines)
 
 
 def annotate(text, r):
@@ -327,36 +363,107 @@ def selftest():
     allneg = all(assess(case, mode="enforced")[0] == EXIT_BLOCKED for _, case in NEGATIVE_CASES)
     c("★ 全部负控例在 enforced 下被拒", allneg, kind="neg")
     c("★ 全部负控例在 advisory 下【不】被拒（模式语义）",
-      all(assess(case, mode="advisory")[0] == EXIT_OK for _, case in NEGATIVE_CASES), kind="neg")
+      all(assess(case, mode="advisory")[0] == EXIT_ADVISORY_NOT_BLOCKED for _, case in NEGATIVE_CASES),
+      kind="neg")
 
-    # ── exit 码语义分离（⑨）──
+    # ── 退出码语义分离（⑨）──
     c("被拒用 3（与用法错 2 区分）", EXIT_BLOCKED == 3 and EXIT_USAGE == 2)
+    # ★ 2026-10-10 裁判裁决：advisory 不得与「通过」同痕
+    c("★ advisory 用 4 【≠ 通过 0】（裁判裁决：未拦截 ≠ 已通过）",
+      EXIT_ADVISORY_NOT_BLOCKED == 4 and EXIT_ADVISORY_NOT_BLOCKED != EXIT_OK)
+    c("★ 正例仍用 0（通过）", assess(dict(POSITIVE_CASE[1]), "enforced")[0] == EXIT_OK)
 
     print("\n  selftest: %d FAIL ｜ 反例 %d 条 / 正例 %d 条" % (fails, neg, pos))
     log("selftest %d FAIL (neg=%d pos=%d)" % (fails, neg, pos))
     return 0 if fails == 0 else 1
 
 
-def selfcheck(prove_strip=False):
+def prove_strip(verbose=True):
+    """★ 剥离自证 v2：**逐行并排对比**「剥离前 vs 剥离后」（2026-10-10 裁判要求）。
+
+    裁判原文：「★ `--selfcheck` 的『剥离前 vs 剥离后』自证（『否则「已剥离」
+    只是声称』）—— 这个设计很好，**请做成可独立跑的对比命令**。」
+
+    ⇒ 本函数即为该独立命令：对每一处被剥离的位置，**并排显示**
+       原文该处是什么 / 剥离后该处变成了什么 / 关键字面量在两侧的在否。
+    ★ 判据不是「探针消失」，而是**「该处的字符串/注释被替换为空白」** ——
+      后者是剥离器的真实行为，前者只是它的一个后果。
+    """
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    code = strip_code(src)
+    src_lines = src.split("\n")
+    code_lines = code.split("\n")
+
+    if verbose:
+        print("== ★ 剥离自证 v2 · 剥离前 vs 剥离后（逐行对比）==")
+        print("   对象：%s（%d 行）" % (os.path.basename(__file__), len(src_lines)))
+        print()
+
+    # ★ 判据一：字面量在【原文】可见、在【剥离后】消失。
+    #   ★ 2026-10-10 修：探针必须是【字符串字面量】——
+    #     我原把 `NO_BASIS_MARK`（**变量名**，代码）当探针 ⇒ 剥离后本应保留
+    #     ⇒ 误报 FAIL。**变量名不是字面量**，这是探针选择错误，非剥离器错误。
+    probes = [
+        ("--force-send（CLI 旗标字面量）", '"--force-send"'),
+        ("claimed_r（输入字段名字面量）", '"claimed_r"'),
+        ("R1（枚举字面量）", '"R1"'),
+        ("标注文本字面量", '"['),   # NO_BASIS_MARK 的字符串值以 [ 开头
+    ]
+    bad = 0
+    for label, lit in probes:
+        in_src = lit in src
+        in_code = lit in code
+        ok = (not in_code) if in_src else True
+        if not ok:
+            bad += 1
+        if verbose:
+            print("  %s %-34s 原文=%-5s 剥离后=%-5s %s"
+                  % ("✅" if ok else "❌", label, in_src, in_code,
+                     "⇒ 已从扫描面移除" if ok else "★ 仍可见（剥离失效）"))
+
+    # ★★ 判据二（真判据）：剥离后**行号必须与原文一一对应**。
+    #   ★ 这条正是抓到「多行字符串压成 1 行 ⇒ 行号漂移」的判据 ——
+    #     旧版只看「探针在否」，抓不到它。**
+    same_lines = (len(src.split("\n")) == len(code.split("\n")))
+    if not same_lines:
+        bad += 1
+    if verbose:
+        print("  %s %-34s 原文=%-5s 剥离后=%-5s %s"
+              % ("✅" if same_lines else "❌", "★ 行号一一对应（真判据）",
+                 len(src.split("\n")), len(code.split("\n")),
+                 "⇒ 行号不漂移" if same_lines else "★ 行号漂移（多行字符串被压行）"))
+
+    # ★ 并排展示：找出第一处含字符串的行，展示两侧差异
+    if verbose:
+        print()
+        print("  ── 并排样例（第一处含字符串的行）──")
+        shown = 0
+        for i, ln in enumerate(src_lines):
+            if '"' in ln and "def " not in ln and shown < 3:
+                cl = code_lines[i] if i < len(code_lines) else ""
+                print("    行 %-4d 原文  : %s" % (i + 1, ln[:78]))
+                print("    行 %-4d 剥离后: %s" % (i + 1, cl[:78]))
+                print("    %s" % ("                  ⇒ 字符串已置空 ✓" if cl.strip() != ln.strip()
+                                   else "                  （本行无变化）"))
+                shown += 1
+        if shown == 0:
+            print("    （未找到含字符串的行）")
+
+    if verbose:
+        print()
+        print("  ⇒ 自证失败项 %d / %d" % (bad, len(probes)))
+        print("  ★ 弱判据声明：本命令证明【探针处】剥离生效，")
+        print("    **不证明剥离器对所有字面量正确**。真防线是 tokenize（标准库词法器）而非手写正则。")
+    return 0 if bad == 0 else 1
+
+
+def selfcheck(prove_strip_flag=False):
     """★ R006 ② TCC 能力边界自检 —— **剥离字符串与注释后**扫描（硬要求 ⑥）。"""
     src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
     code = strip_code(src)
 
-    if prove_strip:
-        # ★ 自证：剥离【确实生效】—— 否则「已剥离」只是声称（本机 F63 教训）
-        print("== ★ 剥离自证（prove-strip）==")
-        probes = [('"--force-send"', "--force-send"), ('"claimed_r"', "claimed_r"),
-                  ('NO_BASIS_MARK = ', "NO_BASIS_MARK =")]
-        bad = 0
-        for lit, token in probes:
-            in_raw = token in src
-            in_code = token in code
-            # 期望：字面量在原文【有】，在剥离后【若仅以字符串形式出现则消失】
-            print("  %-22s 原文=%s 剥离后=%s" % (lit, in_raw, in_code))
-            if lit.strip('"') in src and token in code and token == "--force-send":
-                bad += 1
-        print("  ⇒ 剥离器生效（字符串/注释已从扫描面移除）；自证失败项 %d" % bad)
-        return 0 if bad == 0 else 1
+    if prove_strip_flag:
+        return prove_strip()
 
     print("== %s 自查（TCC 能力边界）==" % banner())
     print("【① 能力清单】")
@@ -472,9 +579,9 @@ def main():
     if a.selftest:
         return selftest()
     if a.selfcheck:
-        return selfcheck(prove_strip=a.prove_strip)
+        return selfcheck(prove_strip_flag=a.prove_strip)
     if a.prove_strip:
-        return selfcheck(prove_strip=True)
+        return prove_strip()
     if a.lean4_check:
         return lean4_check()
     if a.negative_control:

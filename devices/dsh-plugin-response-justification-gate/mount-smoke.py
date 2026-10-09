@@ -80,8 +80,8 @@ def build_cases(tmp):
         ("⑥ enforced·无R+force ⇒ 放行但带标注",
          ["--check", paths["no_r"], "--mode", "enforced", "--force-send"], 0,
          ["无 §2 依据"], []),
-        ("⑦ advisory·无R ⇒ 记录不阻断(exit 0)",
-         ["--check", paths["no_r"], "--mode", "advisory"], 0, ["advisory"], []),
+        ("⑦ advisory·无R ⇒ ★记录(exit 4 ≠ 通过 0)",
+         ["--check", paths["no_r"], "--mode", "advisory"], 4, ["advisory"], []),
         ("⑧ --selftest 全绿",
          ["--selftest"], 0, ["0 FAIL"], []),
         ("⑨ --selfcheck 三段齐",
@@ -92,6 +92,11 @@ def build_cases(tmp):
          ["--lean4-check"], 0, ["0 FAIL"], []),
         ("⑫ usage：无参数 ⇒ exit 2",
          [], 2, ["usage"], []),
+        # ★ 2026-10-10 裁判裁决的可核形态：advisory(4) 与 通过(0) 必须【不同痕】
+        #   依据：exit 0 会使「未拦截」看起来像「已通过」
+        #        （同族：selftest-inventory 的 exit=0 同痕 · R042「queued 不得记作已发」）
+        ("⑬ ★ advisory(4) 与 通过(0) 不得同痕",
+         ["--check", paths["justified"], "--mode", "advisory"], 0, ["结构性正当"], []),
     )
 
 
