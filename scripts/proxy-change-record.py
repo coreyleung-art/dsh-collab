@@ -159,16 +159,43 @@ def cmd_authorize(a):
     return 0 if ok else 1
 
 
+# ═══ ★ 高危动作前缀（R006 ⑩ 冻结白名单）：这些【新建资源】类动作须单独授权 ═══
+#   ★ 2026-10-09 加（实证漏洞）：原 active_auth 用【子串匹配】⇒ 授权 scope 里的
+#     `dsh-plugin-excalidraw` 会把 `gitee:new-repo:dsh-plugin-excalidraw`（新建仓库）
+#     误认为「在授权范围内」而放行 —— 判据过宽（今日同族问题）。
+#   ⇒ 修法：**新建/删除类动作须在 scope 中【显式列出该动作】**，不接受子串带来的宽松匹配。
+HIGH_RISK_PREFIXES = ("gitee:new-repo:", "github:new-repo:", "delete:", "rm:", "drop:")
+
+
+def is_high_risk(channel):
+    return bool(channel) and channel.startswith(HIGH_RISK_PREFIXES)
+
+
 def active_auth(d, channel=None):
-    """找【仍然适用】的授权：scope 含 channel 或为 * 。"""
+    """找【仍然适用】的授权。
+
+    ★ 两级判据（2026-10-09 修）：
+      · 普通变更：scope 含 channel 的任一 token（子串匹配，宽松）
+      · **高危动作（新建/删除资源）**：scope 必须【显式列出完整 channel】
+        ⇒ 不接受「因为 scope 里有同名项目」而放行
+    """
+    if not channel:
+        return None
+    if is_high_risk(channel):
+        for r in reversed(d.get("authorizations", [])):
+            sc = (r.get("scope") or "").strip()
+            if sc == "*":
+                continue          # ★ 通配也【不覆盖】高危动作
+            if channel in [x.strip() for x in sc.split(",")]:
+                return r
+        return None
     for r in reversed(d.get("authorizations", [])):
         sc = r.get("scope") or ""
         if sc.strip() == "*":
             return r
-        if channel:
-            for tok in sc.split(","):
-                if tok.strip() and tok.strip() in channel:
-                    return r
+        for tok in sc.split(","):
+            if tok.strip() and tok.strip() in channel:
+                return r
     return None
 
 
@@ -295,6 +322,15 @@ def selftest():
     c("scope='*' ⇒ 任意通道可用", (active_auth({"authorizations": [{"authId": "A2", "scope": "*"}]}, "z") or {}).get("authId") == "A2")
     # 正例：id 唯一且带日期
     c("id 形如 CHG-YYYYMMDD-<hash>", make_id("CHG", "x").startswith("CHG-" + time.strftime("%Y%m%d")))
+    # ★ 负例（2026-10-09 实证漏洞）：高危动作【不得】因子串匹配而放行
+    dd2 = {"authorizations": [{"authId": "A3", "scope": "dsh-plugin-excalidraw"}]}
+    c("★ 高危（新建仓库）不因子串放行",
+      active_auth(dd2, "gitee:new-repo:dsh-plugin-excalidraw") is None, kind="neg")
+    c("★ 通配 * 也不覆盖高危动作",
+      active_auth({"authorizations": [{"authId": "A4", "scope": "*"}]}, "delete:foo") is None, kind="neg")
+    c("高危动作被【显式列出】时放行",
+      (active_auth({"authorizations": [{"authId": "A5", "scope": "gitee:new-repo:x"}]},
+                   "gitee:new-repo:x") or {}).get("authId") == "A5")
     print("\n  selftest: %d FAIL ｜ 反例 %d 条 / 正例 %d 条" % (fails, neg, pos))
     return 0 if fails == 0 else 1
 
