@@ -107,7 +107,14 @@ def check_one(name, path, kind):
         r["R6_version"] = len(m) >= 1
         ev["R6"] = ("%d 处版本声明" % len(m)) if m else "无版本常量"
         # R7 统一日志（固定路径）
-        r["R7_log"] = bool(re.search(r"(dsh-collab/logs|scripts/logs|~/dsh-collab/logs)", src))
+        # ★ 2026-10-09 修判据：原只认字面 "dsh-collab/logs"，
+        #   而合法写法还有 os.path.join(COLLAB, "logs", ...) / Path(...)/"logs" 等
+        #   ⇒ 实证：local-registry.py 写了固定日志却被误判为「无」
+        #   ⇒ 「判据的实现细节决定结论」（今日 N-21 同族）
+        r["R7_log"] = bool(re.search(
+            r"(dsh-collab/logs|scripts/logs|~/dsh-collab/logs"
+            r"|join\([^)]*\bCOLLAB\b[^)]*[\"']logs[\"']"
+            r"|join\([^)]*[\"']logs[\"'])", src))
         ev["R7"] = "有固定日志路径" if r["R7_log"] else "无固定日志路径"
         # R9 CLI 治理
         r["R9_cli"] = bool(re.search(r"argparse|getopts|sys\.argv", src))
