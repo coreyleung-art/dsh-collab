@@ -43,6 +43,14 @@
    "grantedBy": "user",
    "timestamp": "2026-10-09T22:52:55",
    "recordedBy": "session-b250bf9d"
+  },
+  {
+   "authId": "AUTH-20261010-ffeaaeca5d1d",
+   "scope": "rule:R047-naming-standard",
+   "quote": "你的命名门发现（purpose 里的 to 被吸进 slug）确认是 N5 实证；建议提交给 R047 属主入坑位清单 —— 我不代改（R047 不是我的产物）",
+   "grantedBy": "session-1ffded95（裁判 · 提案入坑位；属主=PSTD=本会话）",
+   "timestamp": "2026-10-10T00:49:34",
+   "recordedBy": "session-b250bf9d"
   }
  ],
  "changes": [
@@ -265,6 +273,20 @@
     "dsh-plugin-repo-pipeline/src/helpers.ts",
     "dsh-plugin-repo-pipeline/lib/helpers.js",
     "dsh-plugin-repo-pipeline/scripts/repo-pipeline.sh"
+   ]
+  },
+  {
+   "id": "CHG-20261009-78cb116268f1",
+   "channel": "plugin:dsh-plugin-repo-pipeline",
+   "evidence": "凭证不回显修复：shell 版 status 的 gitee remote 明文回显 token（node 版已掩码、shell 版遗漏）⇒ 加 redact_url()；验证 修复前 e4c0882b… → 修复后 ****",
+   "rollback": "cp /tmp/rp-bak/repo-pipeline.sh 回填",
+   "authorization": "AUTH-20261009-eb357cc73a70",
+   "authQuote": "帮我考古一下，更新凭证与工具关联",
+   "timestamp": "2026-10-09T23:01:23",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-repo-pipeline/scripts/repo-pipeline.sh",
+    "dsh-plugin-repo-pipeline/CHANGELOG.md"
    ]
   }
  ]

@@ -67,6 +67,20 @@ R047 把本规范登记为 enforced 门，但「唯一标准源」原本只存�
 
 - **判据**：`~/dsh-collab/logs/dsh-plugin-<slug>.log`
 - **为什么**：R006 ⑦：固定路径、失败也留痕
+- **★ 反例（2026-10-10 实证 · N5 坑位 · 由裁判 `session-1ffded95` 确认）**：
+  ★ **`allocate` 的 `purpose` 里若含【输入字段名 / 介词 / 短词】，会被机械提取吸入 slug。**
+  实证（裁判委托 · executor `session-b250bf9d` 开发「回应正当性门」时踩到）：
+  ```
+  purpose = "response justification gate — … 对 {to, thread, text, refs, claimed_r,
+             quadruple} 做 fail-closed 三层判定 …"
+  ⇒ 产出 slug = response-justification-gate-to     ← ★ 末尾 "to" 是【输入字段名】，非用途词
+  ⇒ 收窄 purpose = "response justification gate" 后 ⇒ slug = response-justification-gate ✓
+  ```
+  - **判别方式**：产出 slug 的**末段**若与 purpose 里的**字段名/介词/短词**重合 ⇒ purpose 过长。
+  - **建议**：`allocate` 的 purpose 控制在 **≤4 个英文实词**；详细说明放**中文段**
+    （`hasCJK` 分支不参与 slug 机械提取 ⇒ 中文不会被吸入）。
+  - **复现**：`plugin_name_gate action=allocate purpose="<长 purpose>"` 对比
+    `purpose="response justification gate"` 两次产出的 `canonical.slug`。
 
 ### N6 · 登记卡键
 
@@ -113,13 +127,13 @@ R047 把本规范登记为 enforced 门，但「唯一标准源」原本只存�
 ```json
 {
   "doc": "naming-standard-N1-N8",
-  "doc_version": "1.0.0",
+  "doc_version": "1.0.1",
   "authority": {
-    "id": "PSTD/1.0.1",
-    "kind": "cordis-dynamic-plugin",
-    "plugin_id": "pstd-2",
-    "package_id": "pkg-8",
-    "persistent": false
+    "id": "PSTD/1.0.4",
+    "kind": "bundled-plugin",
+    "plugin_id": "pstd",
+    "persistent": true,
+    "note": "2026-10-08 更正：原为 cordis-dynamic-plugin / pstd-2 / pkg-8 / persistent:false。磁盘包已落盘并核实挂载（② 完成），执行点已常驻。"
   },
   "scope": "all-bus-devices",
   "r047": {
@@ -344,7 +358,7 @@ R047 把本规范登记为 enforced 门，但「唯一标准源」原本只存�
     }
   ],
   "known_boundaries": [
-    "★ 执行点不常驻：plugin_name_gate 属进程内动态 Cordis 插件（pstd-2/pkg-8），CLD 重启即消失；落盘为常驻插件包前，本门的执行体在重启后不存在。",
+    "★ 执行点**已常驻**（2026-10-08 更正）：现由磁盘包 dsh-plugin-pstd（v1.0.4）提供，重启后仍在（②已核实/③1.0.3已验证）。〔原貌 2026-10-05〕★ 执行点不常驻：plugin_name_gate 属进程内动态 Cordis 插件（pstd-2/pkg-8），CLD 重启即消失；落盘为常驻插件包前，本门的执行体在重启后不存在。",
     "「登记」未被本门约束：scaffold 已被命名门拦住，但黑板登记卡（bb_card_send / data/registry）无前置校验，不合规名字仍可被登记。",
     "跨设备执行面：base 探测 = 本机 workspaceRoot/~ + ~/dsh-collab/devices；N4 唯一性查的是本机活体工具表。跨设备需各设备各自运行或分发落盘包。",
     "豁免无结构化表达：本工具没有 exemption 字段——豁免只能在 package.json 的 r006 段或账本里显式声明，无法在门里表达（这正是 R047「禁止声明即豁免」的结构性缺口）。",
@@ -354,7 +368,9 @@ R047 把本规范登记为 enforced 门，但「唯一标准源」原本只存�
     "勘误 2026-10-05：R047 详情③ 曾记「16 负例全拒」，实测为 **15** 条负例（10 条命名/工具名 + 5 条门负例），正例 12 条。错误源头＝PSTD 交付卡与工具描述里的声明面数字，非账本录入者。运行时 selfproof 输出一直为 15。",
     "本轮复核另确认：`plugin_standard` 的 norms/r006/patterns/gates 四个切片动作因返回体含 undefined 被 harness lossless-JSON 校验拒绝（只有 all 与 selfproof 可用）——记为待修缺陷。",
     "勘误 2026-10-05（负控抓到自己的空洞通过，第 2 例）：把 `slug_regex` 改成 `^.*$` 复核器仍 PASS —— 因为所有「reject」向量都被更细的子判据拦下了，**正则字段实际没被任何向量覆盖**。已补 `-a`（只因首字符必须 [a-z] 被拒）并引入 `--mutation` 变异自检，逐个放宽 operative 字段、要求至少一条向量转红，否则判该字段「未覆盖」。修后 6 个字段全覆盖，8 条负控全红。",
-    "★ 两条勘误指向同一条教训（R006 坑#3）：**负控不红＝没有覆盖，不是「没问题」**；一个字段「在文件里写着」不等于「被执行过」。"
+    "★ 两条勘误指向同一条教训（R006 坑#3）：**负控不红＝没有覆盖，不是「没问题」**；一个字段「在文件里写着」不等于「被执行过」。",
+    "勘误 2026-10-08：上文「norms/r006/patterns/gates 待修缺陷」已于插件包 v1.0.2 修复。实测 `plugin_standard action=norms` → ok:true、返回 N1–N8 共 8 条、std=PSTD/1.0.3（时刻 2026-10-08 06:23:59）。教训：写着缺陷的文档若不随修复更新，本身成为新缺陷。",
+    "勘误 2026-10-08：上条「执行点不常驻」已随磁盘包落盘反转（见 known_boundaries[0]）。"
   ]
 }
 ```
@@ -372,7 +388,8 @@ R047 把本规范登记为 enforced 门，但「唯一标准源」原本只存�
 ```text
 # 取运行时正文（与写在本文件里的内容逐字对照）
 plugin_standard action=all          # 当前可用
-plugin_standard action=norms        # ★ 已知缺陷：该切片动作报 undefined 错，待修包
+plugin_standard action=norms        # ✅ 已修（v1.0.2）：norms/r006/patterns/gates 四切片现均可用
+                                    #    实测 2026-10-08 06:23:59：action=norms 返回 N1–N8 共 8 条，std=PSTD/1.0.3
 
 # 命名门实测
 plugin_name_gate action=check name="my-new-tool" tools=["mytool_scan"]
@@ -396,4 +413,18 @@ N1–N8 的**版本不进本文件**：本文件的 `doc_version` 只是镜像�
 - 本轮复核另确认：`plugin_standard` 的 norms/r006/patterns/gates 四个切片动作因返回体含 undefined 被 harness lossless-JSON 校验拒绝（只有 all 与 selfproof 可用）——记为待修缺陷。
 - 勘误 2026-10-05（负控抓到自己的空洞通过，第 2 例）：把 `slug_regex` 改成 `^.*$` 复核器仍 PASS —— 因为所有「reject」向量都被更细的子判据拦下了，**正则字段实际没被任何向量覆盖**。已补 `-a`（只因首字符必须 [a-z] 被拒）并引入 `--mutation` 变异自检，逐个放宽 operative 字段、要求至少一条向量转红，否则判该字段「未覆盖」。修后 6 个字段全覆盖，8 条负控全红。
 - ★ 两条勘误指向同一条教训（R006 坑#3）：**负控不红＝没有覆盖，不是「没问题」**；一个字段「在文件里写着」不等于「被执行过」。
+- **勘误 2026-10-08（状态更新，不撤销上文）**：上条第 2 项所记「norms/r006/patterns/gates 待修缺陷」**已于插件包 v1.0.2 修复**，四切片现均可用。
+  实测：`plugin_standard action=norms` → `ok:true`，返回 N1–N8 共 **8** 条，`std=PSTD/1.0.3`（时刻 2026-10-08 06:23:59）。
+  §8 复现命令区里「★ 已知缺陷…待修包」的旧注释同步改正；本勘误段的历史引述**按只增不改保留原貌**。
+  教训（与上一条同源）：**缺陷修好之后，写着缺陷的文档本身成了新缺陷** —— 一份「已知缺陷」清单若不随修复更新，就会把已修的东西继续当坏的说，读者照着绕路。
+  故凡记「待修」必须同时记**可判定的解除条件**；本条第 2 项当时没写，才导致它停更 3 天、并被语义检索当现状取回（KB 侧同源停更见 2026-10-08 移交包 v1.3→v1.5 清理）。
+- **勘误 2026-10-10（N5 补反例，非纠错）**：N5 节新增一条**实证反例**——`allocate` 的 `purpose` 含输入字段名时，
+  该词会被机械提取**吸入 slug**（实证：`… gate-to`，末尾 `to` 是字段名而非用途词）。
+  - **来源**：裁判 `session-1ffded95` 委托开发「回应正当性门」，executor `session-b250bf9d` 在 `allocate` 时踩到并回报；
+    ★ **裁判确认其为 N5 实证**，并指明「建议提交给 R047 属主入坑位清单 —— 我不代改（R047 不是我的产物）」。
+  - **属主处置**：R047 详情报「权威=PSTD」，本文件即 PSTD 标准正文 ⇒ **由属主（本线）自行入册**，已记台账 `rule:R047-naming-standard`（`AUTH-20261010-ffeeca`）。
+  - **为何记在此而非改判据**：判据（`~/.dsh-collab/logs/dsh-plugin-<slug>.log`）**本身无误**，
+    错在**调用方给 `allocate` 的 purpose 过长** ⇒ 故记为**坑位/使用提示**，不动判据。
+  - **可判定的解除条件**：若未来 `allocate` 改为**只取 purpose 前 N 个实词**或**显式禁用字段名 token**，本条可标注为「已由工具侧消除」。
+    ★ 本条件**当场写明**（依上一条教训：「凡记『待修』必须同时记可判定的解除条件」）。
 
