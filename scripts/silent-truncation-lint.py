@@ -94,7 +94,7 @@ def log(msg):
     except Exception:
         pass
 
-VERSION = "1.0.3"
+VERSION = "1.0.4"  # 1.0.4 = 2026-10-10 补第四族「面外通过」防线（scanned/excluded/unreadable 显式计数）
 
 # 截断原语（字面）
 TRUNC_PATTERNS = [
@@ -173,18 +173,40 @@ def scan_text(text):
     return out
 
 
-def iter_files(paths):
+SKIP_DIRS = ("node_modules", "__pycache__", ".git")
+
+
+def iter_files(paths, excl=None):
+    """★ 2026-10-10（裁判立第四族「面外通过」）：把【被排除的】也报出来。
+
+    原状：`p.endswith(SCAN_EXT)` 直接丢弃面外文件 ⇒ 调用方拿到 0 命中，
+    与「检查过且没问题」**完全同痕**（本门就因此给 `.js` 木马返回过绿）。
+    ⇒ 现在每一条被排除的路径都记 `(路径, 理由)`，由调用方计数并输出。
+    """
+    def _note(p, why):
+        if excl is not None:
+            excl.append({"path": p, "reason": why})
+
     for p in paths:
         p = os.path.expanduser(p)
         if os.path.isfile(p):
             if p.endswith(SCAN_EXT):
                 yield p
+            else:
+                _note(p, "后缀不在 SCAN_EXT %s" % (SCAN_EXT,))
         elif os.path.isdir(p):
             for dp, dn, fns in os.walk(p):
-                dn[:] = [d for d in dn if d not in ("node_modules", "__pycache__", ".git")]
+                skipped = [d for d in dn if d in SKIP_DIRS]
+                for d in skipped:
+                    _note(os.path.join(dp, d), "目录被排除（%s）" % "/".join(SKIP_DIRS))
+                dn[:] = [d for d in dn if d not in SKIP_DIRS]
                 for fn in sorted(fns):
                     if fn.endswith(SCAN_EXT):
                         yield os.path.join(dp, fn)
+                    else:
+                        _note(os.path.join(dp, fn), "后缀不在 SCAN_EXT %s" % (SCAN_EXT,))
+        else:
+            _note(p, "路径不存在")
 
 
 def owners_matching(path, owners):
@@ -209,10 +231,15 @@ def owner_of(path, owners, ambiguous=None):
 
 def run(paths, owners, as_json):
     res = {}
-    for f in iter_files(paths):
+    excl = []
+    unreadable = []
+    files = list(iter_files(paths, excl))
+    for f in files:
         try:
             txt = open(f, encoding="utf-8", errors="replace").read()
-        except Exception:
+        except Exception as e:
+            # ★ 「读不开」也是一种面外 —— 原状是静默 continue（与「无命中」同痕）
+            unreadable.append({"path": f, "reason": str(e)[:120]})
             continue
         hits = scan_text(txt)
         if hits:
@@ -232,6 +259,12 @@ def run(paths, owners, as_json):
         print(json.dumps({
             "version": VERSION, "per_owner": per_owner, "totals": total,
             "ambiguous": [{"file": f, "owners": o} for f, o in ambiguous],
+            # ★ 第四族防线：面外覆盖声明（scanned / excluded / unreadable）
+            "scan_coverage": {
+                "scanned": len(files), "excluded": len(excl), "unreadable": len(unreadable),
+                "scan_ext": list(SCAN_EXT),
+                "excluded_items": excl, "unreadable_items": unreadable,
+            },
             "files": {f: [{"line": a, "prim": b, "verdict": c, "use": u} for a, b, c, u in h] for f, h in res.items()},
         }, ensure_ascii=False, indent=1))
         return 0
@@ -243,6 +276,23 @@ def run(paths, owners, as_json):
         print("%-30s %8d %8d %8d" % (o[:28], d["SILENT"], d["ANNOTATED"], d["files"]))
     print("-" * 96)
     print("%-30s %8d %8d" % ("合计", total["SILENT"], total["ANNOTATED"]))
+    print()
+    # ★★ 第四族「面外通过」防线（2026-10-10 裁判立 · 形取自 DVSCAN §七）
+    #   动因：本门曾对 `.js`（含真实静默截断）返回 0 命中 —— 扫描真跑了、真扫了东西、真绿了，
+    #   而与「检查过且没问题」同痕。故【面外项必须显式计数并给理由】。
+    print("★ 面外覆盖声明：scanned=%d / excluded=%d / unreadable=%d  （SCAN_EXT=%s）"
+          % (len(files), len(excl), len(unreadable), "/".join(SCAN_EXT)))
+    if excl or unreadable:
+        _shown = (excl + unreadable)[:12]
+        for it in _shown:
+            print("   ⊘ %s — %s" % (it["path"][-70:], it["reason"]))
+        _rest = len(excl) + len(unreadable) - len(_shown)
+        # ★ 自己刚补完的教训：截断必须【显式声明】，不得沉默
+        if _rest > 0:
+            print("   … 另有 %d 项未列出（★ 已声明截断；完整清单见 --json 的 scan_coverage）" % _rest)
+        print("   ⇒ ★ 本表【未覆盖】上述路径；若被测物在其列，本表的绿【不是证据】。")
+    else:
+        print("   ⇒ 无面外项：本次扫描面 = 全部给入路径 ✅")
     print()
     print("★ 明细（按 SILENT 数排序，前 20 文件）")
     for f, hits in sorted(res.items(), key=lambda x: -sum(1 for h in x[1] if h[2] == "SILENT"))[:20]:
