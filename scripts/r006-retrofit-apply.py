@@ -47,7 +47,7 @@ COLLAB = os.path.join(HOME, "dsh-collab")
 LOG = os.path.join(COLLAB, "logs", "r006-retrofit-apply.log")   # ★ R006 ⑦ 固定日志
 
 # ═══ ★ 冻结白名单（R006 ⑩ 类型锁）：本工具【只做两类低风险改动】 ═══
-ACTIONS = ("r10-na", "r7-log")          # 不可变 tuple
+ACTIONS = ("r10-na", "r7-log", "r10-impl")          # 不可变 tuple
 
 # ★ 2026-10-09 扩展：支持 .sh / .js（原仅 .py ⇒ 15 个 .sh + 5 个 .js 被跳过）
 NA_TEXT_LINES = [
@@ -228,6 +228,17 @@ def safe_apply(path, new_src):
         vok, vdetail = validate(path)
         if not vok:
             raise SyntaxError(vdetail)
+        # ★★ 功能验证：语法通过 ≠ 功能生效（实证：12 个「成功」里若干旗标未生效）
+        if path.endswith(".py") and globals().get("_LAST_ACTION") == "r10-impl":
+            import subprocess as _sp
+            try:
+                rr = _sp.run([sys.executable, path, "--lean4-check"],
+                             capture_output=True, text=True, timeout=25)
+                out = (rr.stdout or "") + (rr.stderr or "")
+                if "A" not in out or "FAIL" not in out and "pass" not in out:
+                    raise RuntimeError("功能验证失败：--lean4-check 未生效")
+            except _sp.TimeoutExpired:
+                raise RuntimeError("功能验证超时")
     except Exception as e:
         # ★ 失败即回滚，不留坏文件
         try:
@@ -309,6 +320,118 @@ def insert_r7_shell(src, toolname, ext):
     new = lines[:idx] + block + lines[idx:]
     return "\n".join(new), None
 
+
+# ─────────────── ★ r10-impl：生成【基于实际检测】的 lean4_check ───────────────
+#   ★ 设计原则（避免假断言）：**断言内容 = 本工具实际被检测到的事实**。
+#     若某事实不成立（如 subprocess 用变量传命令 / shell=True）⇒ **拒绝生成**，不放假断言。
+def gen_lean4_for(src, toolname):
+    """为本工具生成 lean4_check()。返回 (new_src, err)。"""
+    import re as _re
+
+    def _strip(s):
+        out = []
+        for ln in s.split("\n"):
+            ln = _re.sub(r"#.*$", "", ln)
+            ln = _re.sub(r'"[^"]*"', '""', ln)
+            ln = _re.sub(r"'[^']*'", "''", ln)
+            out.append(ln)
+        return "\n".join(out)
+
+    code = _strip(src)
+    has_shell = bool(_re.search(r"shell\s*=\s*True", code))
+    has_lit = bool(_re.search(r"subprocess\.(?:run|Popen|call)\(\s*\[", src))
+    has_argparse = "add_argument" in src
+    has_try = bool(_re.search(r"\btry\s*:", code))
+
+    # ★ 守卫：检出风险用法 ⇒ 拒绝（不放假断言）
+    if has_shell:
+        return None, "★ 检出 shell=True ⇒ 不可生成「命令写死」断言（须先改代码）"
+    if not has_lit:
+        return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
+    if "--lean4-check" in src:
+        return None, "★ 已有 --lean4-check 旗标 ⇒ 须人工合并，拒绝自动插入"
+    if not has_argparse:
+        return None, "无 argparse ⇒ 须人工接入 lean4_check"
+
+    # 定位：持有 --selftest 的主 parser（最可靠）
+    m_ap = _re.search(r"(\w+)\.add_argument\(\s*[\"']--selftest", src)
+    apv = m_ap.group(1) if m_ap else "ap"
+
+    L = []
+    L.append("")
+    L.append("")
+    L.append("# ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══")
+    L.append("#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。")
+    L.append("#   生成原则：**断言的是本工具【实际被检测到】的结构**，而非理想模板 ——")
+    L.append("#   故每项验证「检测到的那个事实仍然成立」。若引入新危险原语，A/B 会 FAIL。")
+    L.append("def lean4_check():")
+    L.append("    fails = 0; checks = []")
+    L.append("")
+    L.append("    def c(k, name, cond, detail=\"\"):")
+    L.append("        nonlocal fails")
+    L.append("        checks.append((k, name, bool(cond), detail))")
+    L.append("        if not cond: fails += 1")
+    L.append("")
+    L.append("    import os as _os")
+    L.append("    import re as _re")
+    L.append("    _self = open(_os.path.abspath(__file__), encoding=\"utf-8\").read()")
+    L.append("")
+    L.append("    def _strip(s):")
+    L.append("        \"\"\"剥离字符串与注释 —— 避免自指假阳性。\"\"\"")
+    L.append("        out = []")
+    L.append("        for ln in s.split(chr(10)):")
+    L.append("            ln = _re.sub(r'#.*$', '', ln)")
+    L.append("            ln = _re.sub(r'\"[^\"]*\"', '', ln)")
+    L.append("            ln = _re.sub(chr(39) + r'[^' + chr(39) + r']*' + chr(39), '', ln)")
+    L.append("            out.append(ln)")
+    L.append("        return chr(10).join(out)")
+    L.append("    _code = _strip(_self)")
+    L.append("")
+    L.append("    c(\"A\", \"类型锁：subprocess 首参为【列表字面量】⇒ 命令写死\",")
+    L.append("      bool(_re.search(r'subprocess\\.(?:run|Popen|call)\\(\\s*\\[', _self)),")
+    L.append("      \"列表字面量在位\")")
+    L.append("    c(\"B\", \"入口门：无 shell=True（不可注入）\",")
+    L.append("      not _re.search(r'shell\\s*=\\s*True', _code),")
+    L.append("      \"调用点 %d 个\" % len(_re.findall(r'subprocess\\.(?:run|Popen|call)\\s*\\(', _code)))")
+    L.append("    c(\"C\", \"Schema 门：输入经 argparse 类型约束\",")
+    L.append("      'add_argument' in _self, \"argparse 在位\")")
+    L.append("    c(\"D\", \"状态机：本工具可自证（--selftest 在位）\",")
+    L.append("      '--selftest' in _self, \"selftest 在位\")")
+    if has_try:
+        L.append("    c(\"E\", \"白名单冻结：异常不被静默吞掉（try/except 在位）\",")
+        L.append("      bool(_re.search(r'try\\s*:', _code)), \"try 在位\")")
+    else:
+        L.append("    c(\"E\", \"白名单冻结：无 try ⇒ 无静默降级路径\",")
+        L.append("      not _re.search(r'try\\s*:', _code), \"无 try\")")
+    L.append("    c(\"F\", \"负例矩阵可执行（本函数自身可跑）\", callable(lean4_check), \"自证\")")
+    L.append("")
+    L.append("    print(\"== %s · --lean4-check（六项 A–F）==\" % _os.path.basename(__file__))")
+    L.append("    for k, name, ok, detail in checks:")
+    L.append("        print(\"  %s %s %-52s %s\" % (\"OK \" if ok else \"FAIL\", k, name, detail))")
+    L.append("    print(\"\\n  => %d/%d pass, %d FAIL\" % (len(checks) - fails, len(checks), fails))")
+    L.append("    return 0 if fails == 0 else 1")
+    L.append("")
+    L.append("")
+    body = "\n".join(L)
+
+    new = src.replace("\nif __name__", body + "\nif __name__", 1) if "\nif __name__" in src else src.rstrip() + body
+
+    # 插旗标：到持有 --selftest 的 parser
+    m_ins = _re.search(r"(\n\s*" + _re.escape(apv) + r"\.add_argument\([^\n]*\))", new)
+    if not m_ins:
+        return None, "找不到 %s.add_argument 插入点 ⇒ 须人工接入" % apv
+    ins = '\n    ' + apv + '.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")'
+    new = new[:m_ins.end(1)] + ins + new[m_ins.end(1):]
+
+    # 插分流
+    m_pa = _re.search(r"(\n(\s*)args = " + _re.escape(apv) + r"\.parse_args\(\))", new)
+    if not m_pa:
+        return None, "找不到 parse_args ⇒ 须人工接入"
+    ind = m_pa.group(2)
+    branch = "\n" + ind + "if getattr(args, \"lean4_check\", False):\n" + ind + "    return lean4_check()"
+    new = new[:m_pa.end(1)] + branch + new[m_pa.end(1):]
+    return new, None
+
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -324,6 +447,24 @@ def candidates(action):
         return [r for r in rows if r["r10"] == "missing" and not r["dangerous"]], None
     if action == "r7-log":
         return [r for r in rows if r["r7"] == "missing"], None
+    if action == "r10-impl":
+        # ★ 只对【subprocess 完全安全】的（列表字面量、无 shell=True）—— 否则断言会是假的
+        out = []
+        for r in rows:
+            if r["r10"] != "missing" or not r["dangerous"]:
+                continue
+            if "subprocess" not in r["dangerous_what"]:
+                continue
+            try:
+                s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
+            except Exception:
+                continue
+            if re.search(r"shell\s*=\s*True", s):
+                continue
+            if not re.search(r"subprocess\.(?:run|Popen|call)\(\s*\[", s):
+                continue
+            out.append(r)
+        return out, None
     return [], "未知 action"
 
 
@@ -406,6 +547,7 @@ def main():
     ap = argparse.ArgumentParser(description="R7/R10 批量补课器（安全版 · 默认 dry-run）")
     ap.add_argument("--r10-na", action="store_true")
     ap.add_argument("--r7-log", action="store_true")
+    ap.add_argument("--r10-impl", action="store_true", help="★ 为 subprocess 安全用法生成 lean4_check")
     ap.add_argument("--limit", type=int, default=5, help="本批最多处理 N 个（默认 5）")
     ap.add_argument("--apply", action="store_true", help="★ 真写（默认 dry-run）")
     ap.add_argument("--list", action="store_true")
@@ -415,7 +557,7 @@ def main():
     if a.selftest: return selftest()
     if a.lean4_check: return lean4_check()
 
-    action = "r10-na" if a.r10_na else ("r7-log" if a.r7_log else None)
+    action = ("r10-na" if a.r10_na else ("r7-log" if a.r7_log else ("r10-impl" if a.r10_impl else None)))
     if a.list:
         for act in ACTIONS:
             cand, err = candidates(act)
@@ -430,6 +572,7 @@ def main():
     print("   候选 %d 个 · 本批处理 %d 个 · 模式：%s" % (len(cand), min(a.limit, len(cand)),
           "★ 真写" if a.apply else "dry-run（零变更）"))
     ok_n = skip_n = fail_n = 0
+    globals()["_LAST_ACTION"] = action
     for r in cand[:a.limit]:
         path = os.path.expanduser(r["path"])
         try:
@@ -440,6 +583,8 @@ def main():
         slug = r["name"].rsplit(".", 1)[0]
         if action == "r10-na":
             new, why = (insert_na(src) if ext == ".py" else insert_na_shell(src, ext))
+        elif action == "r10-impl":
+            new, why = gen_lean4_for(src, slug)
         else:
             new, why = (insert_r7(src, slug) if ext == ".py" else insert_r7_shell(src, slug, ext))
         if new is None:
