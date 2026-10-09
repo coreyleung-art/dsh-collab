@@ -105,11 +105,34 @@ def check_r1(plugin_dir):
     yml = os.path.join(plugin_dir, "cordis.patch.yml")
     has_yml = os.path.exists(yml) and "- insert:" in read(yml)
     ev["cordis.patch.yml"] = "有 - insert:" if has_yml else "缺/无 - insert:"
-    idx = os.path.join(plugin_dir, "lib", "index.js")
-    src = read(idx)
+    # ★ 2026-10-09 修：入口文件须按【package.json 的 main / exports】定位，
+    #   而非硬编码 lib/index.js —— 实证 dsh-plugin-agent-bus / central-inbox
+    #   的 apply 在别的文件（main 指向它）⇒ 硬编码会误判 fail。
+    _main = d.get("main") or ""
+    _exp = d.get("exports")
+    if isinstance(_exp, dict):
+        _exp = _exp.get(".") or ""
+    _cands = [x for x in (_main if isinstance(_main, str) else "",
+                          _exp if isinstance(_exp, str) else "",
+                          "lib/index.js", "index.js") if x]
+    idx = None
+    src = ""
+    for c in _cands:
+        cp = os.path.join(plugin_dir, c)
+        if os.path.exists(cp):
+            idx, src = cp, read(cp)
+            break
+    if idx is None:
+        idx = os.path.join(plugin_dir, "lib", "index.js")
     # ★ 剥离后检测 apply 导出（避免注释里的引述）
-    code = re.sub(r"//[^\n]*", "", re.sub(r'/\*[\s\S]*?\*/', "", src))
-    has_apply = bool(re.search(r"export\s+(async\s+)?function\s+apply|export\s*\{[^}]*\bapply\b", code))
+    # ★ 2026-10-09 修：**JS 不做块注释剥离** ——
+    #   实证 dsh-plugin-agent-bus 的 lib/index.js 里含未闭合的 `/*`（在字符串/模板中），
+    #   非贪婪块注释正则会把它之后的全部内容删掉 ⇒ `export function apply`（L204）被判「无」。
+    #   ⇒ 改为【直接在原文上匹配具体形态】：`export function apply` 这类模式足够具体，
+    #     出现在注释里的概率极低；比「剥不干净的剥离」更可靠。
+    has_apply = bool(re.search(
+        r"export\s+(async\s+)?function\s+apply|export\s*\{[^}]*\bapply\b|module\.exports\.apply\s*=",
+        src))
     ev["lib/index.js"] = "导出 apply" if has_apply else "未导出 apply"
     # 客户端能力：声明了 dsh.client 就必须有 ./client 出口
     cli_decl = bool((d.get("dsh") or {}).get("client"))
