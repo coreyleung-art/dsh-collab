@@ -1,0 +1,135 @@
+# silent-truncation-lint.py · 静默截断检测 — 中文文档
+
+> 路径 `~/dsh-collab/scripts/silent-truncation-lint.py` · 形态：**独立 py 脚本**（`scripts/` 共享族，非插件包）
+> 本文档满足 **R006 ⑤ 文档化**（含 ① 为什么需要 ② 用法含退出码 ③ 达标矩阵；每条命令可复制即用）
+> 补课时间：**2026-10-10** · 补课内容：**R006 ⑤ / ⑦ / ⑨ / ⑩**（②③④⑥⑧ 原本已达标）
+
+## ① 为什么需要（事故/证据）
+
+**事故（对侧）**：星桥审查线 2026-10-09 —— 对侧提交的取证脚本用 `json.dumps(dd)[:160]` 打印事件，
+导致 **error 文本被截断，下游把【另一条】的数值读进本条**（其对侧编号 X18）；
+对方随后自曝「X19 修复后**仍有 15 处**静默 `[:N]`」（U9）。
+
+**★★ 而事故在两侧同时存在（本工具的核心判据来源）**：
+我方在核验 U9 时发现 —— **我自己的脚本里有 61 处静默截断，是对侧的 5 倍**（F61）。
+
+> ⇒ 该失误**在两侧同时存在**，且**只在自己统计时才看得见**。
+> ⇒ 故本工具的核心判据**不是「有多少截断」**，而是【**按归属分列**】——
+> 让使用者同时看到「别人的」与「自己的」（否则重演 F61：**只看别人不看自己**）。
+
+---
+
+## ② ★★ 状态：待合并（2026-10-09，工具交接 line）
+
+**用户授权工具交接**（`data/registry/audit-tool-handover` · authority 字段），
+判据 = **「测量对象是『任何人的』还是『我方的』」**
+（S3 不可自审的推论：**尺子的校准权不在第三方手里**）。
+
+⇒ 本工具测「**任何人**」⇒ **归审查方（我方）**。
+对侧同名工具 `tools/lint-silent-truncation.py` **亦测「任何人」** ⇒ 同归我方
+⇒ **两件功能重叠，须合并为一件**。
+
+**合并基座待双方确认**。本工具作者的建议：**以对侧为基座**，理由：
+- 对侧用 `--group LABEL=PATH`（**归属显式给定**）= **结构性预防**
+- 本工具用 `--by-owner <正则>`（**归属靠猜**）+ 事后告警 = **检测**
+- **预防优于检测**（告警可被忽略，结构不能）
+
+**★ 但本工具有一项对侧没有**：**归属交集检测**（F69）——
+实测 `--by-owner repro --by-owner stage-review`（宽在前）⇒ **窄模式被静默吞掉**，
+使用者以为分了两组、实际只有一组。对侧 `--group` 从结构上避免了它，
+但 `--group A=repo B=repo/sub` **仍可由用户自己造出交叉，而对侧不告警**
+⇒ **建议：以对侧为基座 + 移植本工具的交集检测 = 预防 + 检测双保险。**
+
+**★ 本文件暂不删除**（删了会使本轮 T5 交付与证据链断裂）；**合并完成后应转为 DEPRECATED**。
+
+---
+
+## ③ 用法（含实测退出码）
+
+```bash
+cd ~/dsh-collab/scripts
+
+python3 silent-truncation-lint.py <路径...>                      # 扫描
+python3 silent-truncation-lint.py scripts/*.py --json            # 机器可读
+python3 silent-truncation-lint.py --by-owner repro --by-owner stage-review   # 按归属分列
+python3 silent-truncation-lint.py --dry-run <路径...>            # ★ 只列将扫描什么，不执行
+python3 silent-truncation-lint.py --selftest                     # 正例+负例矩阵
+python3 silent-truncation-lint.py --selfcheck                    # R006 ② TCC 能力边界自检
+python3 silent-truncation-lint.py --lean4-check                  # R006 ⑩ 约束门
+python3 silent-truncation-lint.py --help
+python3 silent-truncation-lint.py --version
+```
+
+### 退出码（★ 2026-10-10 实测，非读代码）
+
+| 命令 | 实测 `rc` |
+|---|---|
+| `--selftest` | `0` |
+| `--selfcheck` | `0` |
+| `--version` | `0` |
+| `--lean4-check` | `0` |
+| **`--dry-run`** | `0` |
+| **无参数** | **`2`** |
+
+---
+
+## ④ 判据（★ 三态）
+
+核心判据：**按归属分列** —— 让使用者同时看到「别人的」与「自己的」。
+标签语义：`ANNOTATED`（显式标注了截断理由）/ `SILENT`（静默截断，即缺陷）。
+
+★ **本工具只读**：不执行外部命令、不写任何文件（`--selftest` 亦只写 `/tmp`）。
+
+---
+
+## ⑤ R006 达标矩阵
+
+| 项 | 判定 | 说明 |
+|---|---|---|
+| ① dsh 插件形态 | ✓ | **独立脚本形态**（`scripts/` 共享族）|
+| ② TCC 检测 | ✓ | `--selfcheck` 三段齐（原有）|
+| ③ CLD 自适应 | ✓ | 不依赖 CLD 专有路径 |
+| ④ dsh 版本自适应 | ✓ | 不读 dsh 版本 |
+| ⑤ 文档化 | ✓ | **本文件**（2026-10-10 补课新增）|
+| ⑥ 版本管理 | ✓ | `VERSION` 单一赋值处（原有）|
+| ⑦ 统一日志 | ✓ | `~/dsh-collab/logs/silent-truncation-lint.log`（2026-10-10 补课新增）|
+| ⑧ 自动落链 | ✓ | 已收录本机索引 `local-registry`（`[S1\|script]`）|
+| ⑨ CLI 治理 | ✓ | **实跑 `--help` 输出含全部 5 旗标**；★ `--dry-run` 为 2026-10-10 补课**新增** |
+| ⑩ 约束门 | ✓ | `--lean4-check`（2026-10-10 补课新增；★ **如实声明本工具无 `.lean` 规范源，不冒充编译**）|
+
+---
+
+## ⑥ 本批补课的契约声明（★ 不改行为）
+
+**新增四件，全部【只增不改】**：
+1. `log()` —— **只追加写日志**，不改变 stdout 内容与退出码
+2. `--lean4-check` —— **新增旗标**
+3. `--dry-run` —— **新增旗标**（只列将扫描什么，不执行）
+4. `import os` —— 为 `log()` 所需
+
+**★ 验证方式**：`--version` / `--selftest` 的输出与本批前一致（`自测：5/5 符合预期`）。
+
+---
+
+## ⑦ 坑（如实）
+
+1. **`--by-owner <正则>` 的归属靠猜** —— 这是**本工具相对对侧的结构性弱点**（见 §② 合并建议）。
+2. **归属交集会被静默吞掉**（F69）—— 本工具**有**交集检测，是对侧缺的能力。
+3. ★ **`--dry-run` 的参数形态**：`--dry-run` **可与路径参数并用**；若只给 `--dry-run` 而无路径，则列出 0 个目标。
+4. ★ **本工具的 `log()` 不在每次扫描时调用** —— 只在各**入口**留痕（`--dry-run` 会记一行）。
+   若要记录每次扫描结果，应显式调用（本批**未改业务路径**）。
+
+---
+
+## ⑧ 复现命令（每条可复制即用）
+
+```bash
+cd ~/dsh-collab/scripts
+python3 silent-truncation-lint.py --help                                  # 应列出全部旗标
+python3 silent-truncation-lint.py --selftest; echo "exit=$?"              # 应 0 且报「自测：5/5 符合预期」
+python3 silent-truncation-lint.py --dry-run scripts/*.py | head -1        # 应列「将扫描 N 个目标」
+python3 silent-truncation-lint.py --lean4-check; echo "exit=$?"           # 应 0
+python3 silent-truncation-lint.py --version                               # 应打印版本
+python3 silent-truncation-lint.py; echo "exit=$?"                          # 应 2
+ls -l ~/dsh-collab/logs/silent-truncation-lint.log                        # ⑦ 日志文件
+```
