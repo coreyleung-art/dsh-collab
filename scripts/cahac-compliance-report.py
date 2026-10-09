@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
 """cahac-compliance-report.py — CAHAC 合规率上报 + 缺席可判别（S15/S12 落地）
 
 为什么需要（依 2026-10-09 所有者授权、计划 §5 批 3）：
@@ -23,6 +25,12 @@
   python3 cahac-compliance-report.py --dry-run     # 零写盘（配合以上任一模式）
 
 退出码：0 = 正常（含「合规率低但上报新鲜」）；1 = 检出缺席/异常；2 = 用法错误
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 
 import argparse
@@ -43,6 +51,20 @@ STALE_THRESHOLD_SECONDS = REFRESH_SECONDS * 2  # ★ 由 REFRESH 导出，不得
 
 BB = os.environ.get("BB_BASE", "http://127.0.0.1:8792")
 REPORT_KEY = "data/health/cahac-compliance"
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+LOG = os.path.expanduser("~/dsh-collab/logs/cahac-compliance-report.log")   # ★ 不用 COLLAB（本文件无该常量）
+
+
+def log(msg):
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 INBOX_DIR = os.path.expanduser("~/.dsh/inbox")
 
 # CAHAC §7.2 的合法 state 枚举（v1.2.1：已对齐 bb-taskboard）

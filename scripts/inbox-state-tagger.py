@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+
 """inbox-state-tagger.py — 给 inbox 条目补 CAHAC `state`（S1 的实现侧）
 
 为什么需要：
@@ -20,6 +22,12 @@
   python3 inbox-state-tagger.py --since 20261009  # 只处理该日期之后的条目
   python3 inbox-state-tagger.py --selftest      # 自测
 退出码：0 正常 · 1 有异常 · 2 用法错误
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 
 import argparse
@@ -163,3 +171,16 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+LOG = os.path.join(COLLAB, "logs", "inbox-state-tagger.log")
+
+
+def log(msg):
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass

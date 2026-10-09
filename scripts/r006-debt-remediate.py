@@ -64,7 +64,18 @@ DANGEROUS = (
 DANGEROUS_RE = re.compile("|".join(DANGEROUS))
 
 # N/A 声明的可核判据（须给出依据词）
-NA_RE = re.compile(r"(约束门\s*[:：]?\s*N/?A|无危险原语|无不该发生路径|纯只读|无外部性|R10\s*[:：]?\s*N/?A)", re.I)
+# ★ 2026-10-09 修：N/A 声明的【措辞须按 R10 的定义】——R10 关心的是
+#   「不该发生的路径」（不可逆 / 越界操作），**不是「是否只读」**。
+#   实证：`cahac-compliance-check.py` 会写文件，故「纯只读」这句是【不实的】。
+#   ⇒ 正确的声明措辞：「本工具不执行外部命令 / 不删除数据 / 不修改权限」。
+NA_RE = re.compile(
+    r"(约束门\s*[:：]?\s*N/?A"
+    r"|无危险原语"
+    r"|无不该发生路径"
+    r"|不执行外部命令"
+    r"|无不可逆操作"
+    r"|纯只读)"          # 保留识别（旧声明仍可被承认），但【建议文本不再用它】
+    , re.I)
 
 
 def log(msg):
@@ -98,9 +109,23 @@ def classify_r7(src):
     return "missing", "无固定日志路径"
 
 
+# ★ 2026-10-09 补：**「接受任意写路径」也是越界风险**（R10 的「不该发生的路径」）。
+#   实证：`cahac-replay.py` 有 `--out` 参数且直接写该路径 ⇒ `--out /任意/路径` 可写到任意位置。
+#   而原判据只匹配「命令执行/删除/权限」⇒ **漏了它**（与今日「判据扫不全」同族）。
+#   ★ 精确性：仅在【接受写路径参数且无路径白名单】时判危险 —— 有 default 的不算（相对安全）。
+ARG_WRITE_RE = re.compile(r"add_argument\(\s*[\"']--(out|output|outfile|dest|target|write-to)[\"']")
+PATHGUARD_RE = re.compile(r"(allowed_roots|PATH_WHITELIST|os\.path\.commonpath|startswith\(.*COLLAB|ALLOWED_DIRS)")
+
+
 def has_dangerous(src):
     m = DANGEROUS_RE.search(src)
-    return (True, m.group(0)[:30]) if m else (False, "")
+    if m:
+        return True, m.group(0)[:30]
+    # 任意写路径（无白名单约束）
+    if ARG_WRITE_RE.search(src) and not PATHGUARD_RE.search(src):
+        am = ARG_WRITE_RE.search(src)
+        return True, "任意写路径参数 " + am.group(0)[:26] + "（无路径白名单）"
+    return False, ""
 
 
 def scan(only=None):
@@ -167,10 +192,13 @@ def suggest(name):
             print("       C 证明（--lean4-check 六项全绿）")
             print("       并加 CLI 旗标 --lean4-check")
         else:
-            print("  ── R10 建议（无危险原语 ⇒ 可显式声明 N/A，须给依据）──")
-            print("     在 docstring 末尾加一行，例：")
-            print("       ★ 约束门（⑩）：N/A —— 本工具【纯只读】，无危险原语")
-            print("         （经 r006-debt-remediate.py 机械核，未检出 subprocess/eval/写操作等）")
+            print("  ── R10 建议（无不可逆原语 ⇒ 可显式声明 N/A，须给依据与其限度）──")
+            print("     在 docstring 末尾加一行。★ 措辞须按 R10 定义（不说「只读」，而说「无不不可逆操作」）：")
+            print("       ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。")
+            print("         依据：r006-debt-remediate.py 机械扫描未检出以下原语：")
+            print("               subprocess / os.system / eval / exec / os.remove / rmtree /")
+            print("               os.chmod / os.chown / os.kill / pkill / launchctl unload")
+            print("         ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。")
     return 0
 
 
