@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """i9 秒级轮询 v2 — 监控 tasks/i9/result + tasks/i9/cmd + notes/i9/*（i9 消息键）
 v2 修复：之前只查 result/cmd，漏了 notes/i9（i9 发消息的键）——这就是『秒级还收不到』的根因
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

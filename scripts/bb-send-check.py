@@ -22,8 +22,13 @@ v3.0.0（2026-09-14，采纳明鉴 ③「把约定变成机制」，并直指 HR
   人记得 GET 与不记得 GET 的差别，就是这条规则**在不在流程里**的差别。
   把它写进一次调用内部，第二步就不靠记得（与 bb-put-both 的双写同构）。
   ★ 原则：手段失败不读成通过 —— 黑板不可达判 `unknown`，绝不判 pass。
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
-__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse
 import json
@@ -34,7 +39,8 @@ import time
 import urllib.error
 import urllib.request
 
-VERSION = "3.0.0"
+VERSION = "3.1.0"  # ★ R006 ⑥ 唯一版本源（2026-10-08 合并：此前 __version__=1.0.0 与 VERSION=3.0.0 两处分叉 ⇒ 现只此一处）
+__version__ = VERSION  # 兼容别名（引用同一值，非第二声明）
 THRESHOLD = 200
 DEFAULT_BB = os.environ.get("BB_URL", "http://127.0.0.1:8792")
 # 两档抽取（★ 关键：枚举面必须比分类面更粗）
@@ -163,6 +169,49 @@ def _stale_snapshot_warn(k, body):
     if rec != cur:
         return f" · ⚠**活量快照可能已过期**：卡内记录 {rec[:12]}… ≠ 当前总线 {cur[:12]}…"
     return " · 依据快照与当前总线一致"
+
+
+
+
+# ============================================================================
+# to 字段层闸门（v3.1.0 · 2026-10-08 · 采纳 MBP 五规则草案）
+# ★ 层级声明（必须显式，否则误放行）：本闸门判的是 **agent-way 消息 to 字段层**
+#   （会话查找 agentsSvc.get(to)），**不是**总线 target 层（服务器路由）。
+#   实证：`bus:<node>` 在 target 层可达（服务器路由），在 to 字段层 21/21 不可达
+#   ⇒ 入队即死。若按「可达」放行，这 21 条死信会被判合法（判据层错位）。
+# ============================================================================
+import re as _re
+
+FULL_UUID = _re.compile(r'^session-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', _re.I)
+SHORT_ID = _re.compile(r'(^|\s)session-[0-9a-f]{8}$', _re.I)
+BUS_PREFIX = _re.compile(r'^bus:', _re.I)
+TRUNC_UUID = _re.compile(r'^session-[0-9a-f]{8}-[0-9a-f]{0,11}$', _re.I)   # 截断/不完整
+
+
+def classify_to(to, registered=None):
+    """判 to 字段层可达性。返回 (klass, verdict, advice)。
+    klass ∈ {registered, full-uuid, unreachable-form}；verdict ∈ {pass, warn, refuse, unknown}"""
+    t = String_(to)
+    reg = set(registered or [])
+    if t in reg:
+        return ('registered', 'pass', '命中本机已登记 agentId ⇒ 放行')
+    if FULL_UUID.match(t):
+        return ('full-uuid', 'pass', '当前无 TTL/无死信回收：'
+                '该形态合法，目标离线时入队属「合法排队·未证消费」')
+    if (' ' in t) or SHORT_ID.search(t) or BUS_PREFIX.match(t) or TRUNC_UUID.match(t):
+        return ('unreachable-form', 'refuse',
+                '该形态在**本层（agent-way to 字段层）不可解析** ⇒ 消息将永久滞留。'
+                '跨机请写黑板 notes/collab/（或对方节点 notes/<node>/），不要用节点别名/裸名/bus: 前缀/截断 id')
+    # 裸名字：非 session- 形态且不含空格
+    if not t.startswith('session-'):
+        return ('unreachable-form', 'refuse',
+                f'裸名字「{t}」在 to 字段层不可解析（本层只认完整 session uuid 或已登记 agentId）'
+                ' ⇒ 跨机改用黑板卡')
+    return ('unknown', 'unknown', '形态未覆盖 ⇒ 不读成通过，请人工确认（手段失败≠通过）')
+
+
+def String_(x):
+    return '' if x is None else str(x)
 
 
 def check(text, to=None, bb=DEFAULT_BB, verify=True):

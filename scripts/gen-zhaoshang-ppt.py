@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """生成招商版 PPT（嘉腾版）——基于内容大纲 招商PPT内容大纲-嘉腾版.md
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 纯 python-pptx，无图片依赖。莫兰迪配色：粉/白/绿。"""
 from pptx import Presentation
 from pptx.util import Inches, Pt, Emu

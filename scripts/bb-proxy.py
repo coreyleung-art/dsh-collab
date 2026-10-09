@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 """bb-proxy.py v1.0 — 本地黑板 TCP 代理：127.0.0.1:8792 → 100.120.203.20:8792
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 dsh-tools 硬编码连本机 8792；MBP 黑板在 mac-mini，故需转发。"""
 import socket, threading
 

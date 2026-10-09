@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """i9 持续对话测试（10 分钟）— 每 ~12s 发一个任务，秒级轮询抓回报，记录对话轮次
 模拟「持续聊天」：发任务=说一句，收回报=回一句
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

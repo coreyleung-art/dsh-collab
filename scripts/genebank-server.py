@@ -16,6 +16,12 @@ AI 网盘（基因库）的注册层：基因（资产）注册/查询/列表 + 
   ~/.genebank/genebank.log     # 操作日志
 
 黑板同步: 注册/变更时写黑板 notes/genebank/<gene_id>（通知总线）
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

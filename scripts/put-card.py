@@ -209,13 +209,37 @@ if DRY:
 
 HOSTS = ("127.0.0.1:8792", "106.53.214.108:8792")
 
+# ★ 2026-10-08 加（写端鉴权 flip 后必需）——修的是「双写双回读悄悄退化成单写」：
+#   实测（2026-10-08 04:42）：同一张卡，本机板 PUT → **200**，中央板 PUT → **401 Unauthorized**
+#   （中央板读通道仍 200：/health 200 · /data/ 200 有内容 ⇒ 不是板挂了，是写端要鉴权）。
+#   约定出处**不是猜的**，是同仓两处既有实现：
+#     · central-wake.py:49-52 「A1 写端鉴权预备（2026-10-03）：~/.dsh/blackboard-token 存在则带 Bearer（flip 后必需）」
+#     · post-restart-acceptance.py:233-240 同款 `Authorization: Bearer <token>`
+#   ⇒ 注释写明「flip 后必需」⇒ **flip 已发生**，而本工具此前不带任何鉴权头
+#     ⇒ 卡只落在本机板，**而报告仍逐行打印两个实例**（中央那行是 ERR）——
+#       危险在于：只看「本机 200」会以为双写成功。
+#   ★ 无 token 时不报错、照旧直连（本机板不需要；换机/离线不该被卡住），中央侧 401 保持可见。
+def _auth_headers():
+    h = {"Content-Type": "application/json; charset=utf-8"}
+    for p in ("~/.dsh/blackboard-token", "~/.dsh/board-token"):
+        f = os.path.expanduser(p)
+        try:
+            if os.path.exists(f):
+                tok = open(f, encoding="utf-8").read().strip()
+                if tok:
+                    h["Authorization"] = "Bearer " + tok
+                    break
+        except Exception:
+            pass
+    return h
+
 
 def put(b):
     out = []
     for host in HOSTS:
         req = urllib.request.Request(
             f"http://{host}/{key}", data=b, method="PUT",
-            headers={"Content-Type": "application/json; charset=utf-8"})
+            headers=_auth_headers())
         try:
             with urllib.request.urlopen(req, timeout=20) as r:
                 out.append((host, r.status))

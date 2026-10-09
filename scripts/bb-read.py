@@ -24,6 +24,12 @@
   · 默认摘要模式：本地模型推理（~2s，~10-30 tokens），API 成本 = 0
   · 上下文开销：仅摘要文本进上下文（~30 tokens），不是全文（~1200 tokens）
   · --full 仅用于明确需要全文决策的场景（谨慎使用）
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

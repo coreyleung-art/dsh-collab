@@ -24,6 +24,12 @@ R006 十项: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version
   ghost-session-scan.py scan [--days 3] [--json] [--top 20]
   ghost-session-scan.py classify <session-id>   # 单会话判定
   ghost-session-scan.py selfcheck|lean4-check|version|cld-check|version-check
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

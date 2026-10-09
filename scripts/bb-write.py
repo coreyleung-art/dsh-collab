@@ -6,6 +6,12 @@ bb-write (HR) - 黑板写入/校验工具 (R006 十项标准 / 2026-09-11)
 解决黑板写入三大陷阱(key语法400/纯文本空壳/400伪装成不存在): 写前校验key -> JSON body -> 回读验证非空 -> 明确报错
 R006: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version 7日志 8落链 9CLI 10lean4-check
 用法: bb-write.py put <key> --body "文本" [--from X] [--subject Y] | put <key> --json {...} | get <key> | validate <key> | selfcheck|version|cld-check|version-check|lean4-check [--server local|central]
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
