@@ -26,7 +26,12 @@ def main():
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     cats = [c.strip() for c in args.categories.split(",") if c.strip()]
-    out = args.out or os.path.join(os.path.expanduser("~/dsh-collab/research/cost-governance/risk-" + args.topic.replace(" ", "-") + ".md")
+    # ★ 2026-10-09 修：原行末尾少一个 `)`（闭合 os.path.join）⇒ 该脚本【自 2026-10-03 起无法编译】，
+    #   而它是 J39「立项前风险穷举」（enforced）的执行件、有 3 处引用，
+    #   **6 天内无人发现**（无「语法检查」门）。发现方式：批量补课时跑全量 py_compile。
+    out = args.out or os.path.join(
+        os.path.expanduser("~/dsh-collab/research/cost-governance/risk-"
+                           + args.topic.replace(" ", "-") + ".md"))
     lines = [
         f"# 风险穷举评估 · {args.topic}",
         "",
