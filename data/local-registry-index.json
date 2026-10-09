@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T18:07:03",
+  "built_at": "2026-10-09T21:46:14",
   "sources": {
-   "S1 工具实体": 331,
+   "S1 工具实体": 334,
    "S2 R006 矩阵": 273,
    "S3 资源登记表": 524,
    "S4 规则账本": 52,
-   "S5 黑板登记卡": 935,
+   "S5 黑板登记卡": 1000,
    "S6 skills": 18
   },
-  "total": 2133
+  "total": 2201
  },
  "items": [
   {
@@ -67,7 +67,7 @@
    "kind": "script",
    "name": "bb-milestone-report.py",
    "path": "~/dsh-collab/scripts/bb-milestone-report.py",
-   "desc": "bb-milestone-report.py — 里程碑主动识别 × 蓝图意义映射 × 媒体通报"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -102,7 +102,7 @@
    "kind": "script",
    "name": "bb-blueprint-version.py",
    "path": "~/dsh-collab/scripts/bb-blueprint-version.py",
-   "desc": "版本管理"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -144,7 +144,7 @@
    "kind": "script",
    "name": "inbox-validity-check.py",
    "path": "~/dsh-collab/scripts/inbox-validity-check.py",
-   "desc": "inbox-validity-check.py —— 会话时效·空间 有效性审查器（v1.0.0 · 现为【参考实现】）"
+   "desc": "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）"
   },
   {
    "src": "S1",
@@ -270,7 +270,7 @@
    "kind": "script",
    "name": "subagent-govern.py",
    "path": "~/dsh-collab/scripts/subagent-govern.py",
-   "desc": "subagent-govern v1.0.0 (HR) — 子代理资源治理工具（R006 九标准）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -305,7 +305,7 @@
    "kind": "script",
    "name": "ghost-session-scan.py",
    "path": "~/dsh-collab/scripts/ghost-session-scan.py",
-   "desc": "ghost-session-scan v1.1.0 (HR) — 幽灵会话扫描器 (R006 十项标准 / 2026-09-11)"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -326,7 +326,7 @@
    "kind": "script",
    "name": "pre-transfer-check.py",
    "path": "~/dsh-collab/scripts/pre-transfer-check.py",
-   "desc": "pre-transfer-check v1.0.0 (HR) — 传输前目标设备磁盘余量检查器（R006 九标准）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -361,7 +361,7 @@
    "kind": "script",
    "name": "wargame-engine.py",
    "path": "~/dsh-collab/scripts/wargame-engine.py",
-   "desc": "wargame-engine.py — 商业沙盘模拟器 · 独立引擎 (可操作 APP 后端)"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -452,7 +452,7 @@
    "kind": "script",
    "name": "stance-auditor.py",
    "path": "~/dsh-collab/scripts/stance-auditor.py",
-   "desc": "立场排查器 · Stance Auditor v1.4（16 项标准）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -473,14 +473,14 @@
    "kind": "script",
    "name": "concept-dict.py",
    "path": "~/dsh-collab/scripts/concept-dict.py",
-   "desc": "concept-dict v1.0.0 (HR) — 概念数据字典工具（R019 落地，R006 九标准全达标）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "cahac-replay.py",
    "path": "~/dsh-collab/scripts/cahac-replay.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -562,6 +562,13 @@
   {
    "src": "S1",
    "kind": "script",
+   "name": "r006-assess-rest.py",
+   "path": "~/dsh-collab/scripts/r006-assess-rest.py",
+   "desc": "r006-assess-rest.py — R006 剩余五项核验器（R1 插件形态 · R2 TCC · R3 CLD · R4 版本 · R8 落链）v1.0.0"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
    "name": "pstd-105-gate-probe.py",
    "path": "~/dsh-collab/scripts/pstd-105-gate-probe.py",
    "desc": "本轮取证：① 读作者卡 ② 查 PSTD 包状态（版本/暂存区/CHANGELOG/进程启动时刻）"
@@ -578,14 +585,14 @@
    "kind": "script",
    "name": "cahac-replay-v0.1.py",
    "path": "~/dsh-collab/scripts/cahac-replay-v0.1.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "absence-claim-lint.py",
    "path": "~/dsh-collab/scripts/absence-claim-lint.py",
-   "desc": "absence-claim-lint —— 「否定性结论须附观测面声明」的可机械核验门（v2.0.0）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -634,7 +641,7 @@
    "kind": "script",
    "name": "panel-event-adapter.py",
    "path": "~/dsh-collab/scripts/panel-event-adapter.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -669,7 +676,7 @@
    "kind": "script",
    "name": "red-team.py",
    "path": "~/dsh-collab/scripts/red-team.py",
-   "desc": "红队编排器 · Red Team Orchestrator v1.0"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -725,7 +732,7 @@
    "kind": "script",
    "name": "require-graph.py",
    "path": "~/dsh-collab/scripts/require-graph.py",
-   "desc": "把注释内容串内容替换为空格（**长度严格保持**），保留引号与 ${} 内的表达式。"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -782,6 +789,13 @@
    "name": "bb-blueprint-ui2.py",
    "path": "~/dsh-collab/scripts/bb-blueprint-ui2.py",
    "desc": "bb-blueprint-ui2.py — FlowerNet 蓝图可视化 GUI v2（可缩放/平移/三条主线）"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
+   "name": "r006-debt-assess.py",
+   "path": "~/dsh-collab/scripts/r006-debt-assess.py",
+   "desc": ""
   },
   {
    "src": "S1",
@@ -921,7 +935,7 @@
    "kind": "script",
    "name": "semantic-class-sweep.py",
    "path": "~/dsh-collab/scripts/semantic-class-sweep.py",
-   "desc": "semantic-class-sweep.py — 「语义类」陈旧候选面扫描器"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -970,7 +984,7 @@
    "kind": "script",
    "name": "local-router.py",
    "path": "~/dsh-collab/scripts/local-router.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1040,7 +1054,7 @@
    "kind": "script",
    "name": "r041-two-step-migrate.py",
    "path": "~/dsh-collab/scripts/r041-two-step-migrate.py",
-   "desc": "r041-two-step-migrate.py — 账本 R041 两步法迁移（10-04 09:22 窗口执行；--dry-run 默认只报不改）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -1125,6 +1139,13 @@
    "name": "r048-remediation-verify.py",
    "path": "~/dsh-collab/scripts/r048-remediation-verify.py",
    "desc": "复核星桥的 R048 两项未闭合（按我原先给出的前置条件逐条对，不看他的结论）"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
+   "name": "r006-retrofit-apply.py",
+   "path": "~/dsh-collab/scripts/r006-retrofit-apply.py",
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处"
   },
   {
    "src": "S1",
@@ -1215,7 +1236,7 @@
    "kind": "script",
    "name": "weekly-summary.py",
    "path": "~/dsh-collab/scripts/weekly-summary.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1264,7 +1285,7 @@
    "kind": "script",
    "name": "cahac-replay-daily.py",
    "path": "~/dsh-collab/scripts/cahac-replay-daily.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1355,7 +1376,7 @@
    "kind": "script",
    "name": "datadir-job-audit.py",
    "path": "~/dsh-collab/scripts/datadir-job-audit.py",
-   "desc": "datadir-job-audit —— 逐 job 的数据根生效判定（静态，只读）（v1.0.0）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -1502,7 +1523,7 @@
    "kind": "script",
    "name": "cahac-compliance-check.py",
    "path": "~/dsh-collab/scripts/cahac-compliance-check.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1544,7 +1565,7 @@
    "kind": "script",
    "name": "cahac-replay-v0.2.py",
    "path": "~/dsh-collab/scripts/cahac-replay-v0.2.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1593,7 +1614,7 @@
    "kind": "script",
    "name": "cahac-replay-week.py",
    "path": "~/dsh-collab/scripts/cahac-replay-week.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -1740,7 +1761,7 @@
    "kind": "script",
    "name": "agent-send-gate.py",
    "path": "~/dsh-collab/scripts/agent-send-gate.py",
-   "desc": "agent-send-gate.py — agent_send 审计门禁守护（v2.5，对齐 v2.4 语义）"
+   "desc": "v2.5 判定：与 v2.4 语义一致（精确豁免）"
   },
   {
    "src": "S1",
@@ -1796,7 +1817,7 @@
    "kind": "script",
    "name": "self-report-gate.py",
    "path": "~/dsh-collab/scripts/self-report-gate.py",
-   "desc": "MAX_LINES = 200          # 显示上限：返回/打印时的行数上限（★ 不参与计数）"
+   "desc": "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）"
   },
   {
    "src": "S1",
@@ -1824,7 +1845,7 @@
    "kind": "script",
    "name": "bb-taskboard.py",
    "path": "~/dsh-collab/scripts/bb-taskboard.py",
-   "desc": "bb-taskboard.py — 任务卡执行状态机（领卡/汇报/插卡/看板/进度图）"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
@@ -1922,7 +1943,7 @@
    "kind": "script",
    "name": "deliver.py",
    "path": "~/dsh-collab/scripts/deliver.py",
-   "desc": "返回 (路径 or None, 是否存在)。配置里的 tools 显式覆盖优先（即使不存在也返回该路径）。"
+   "desc": "# ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══"
   },
   {
    "src": "S1",
@@ -1992,14 +2013,14 @@
    "kind": "script",
    "name": "wargame-sim.py",
    "path": "~/dsh-collab/scripts/wargame-sim.py",
-   "desc": "wargame-sim.py — 沙盘推演标准化工具 (战略推演方法 · R006 插件化工具化标准)"
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "kb-index-gen.py",
    "path": "~/dsh-collab/scripts/kb-index-gen.py",
-   "desc": ""
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -2097,7 +2118,7 @@
    "kind": "script",
    "name": "r006-retrofit-scripts.js",
    "path": "~/dsh-collab/scripts/r006-retrofit-scripts.js",
-   "desc": "① 为什么需要（事故/证据）"
+   "desc": ""
   },
   {
    "src": "S1",
@@ -2146,7 +2167,7 @@
    "kind": "script",
    "name": "bb-gallery-gate.sh",
    "path": "~/dsh-collab/scripts/bb-gallery-gate.sh",
-   "desc": "bb-gallery-gate.sh — 架构管理器提交前门禁(Φ9 约束前置 · R006 TCC)"
+   "desc": "★ R006 ⑦ 统一日志：固定路径，失败也留痕"
   },
   {
    "src": "S1",
@@ -2160,7 +2181,7 @@
    "kind": "script",
    "name": "systemgraph-publish.sh",
    "path": "~/dsh-collab/scripts/systemgraph-publish.sh",
-   "desc": "systemgraph-publish.sh — 把 SystemGraph 静态导出发布到通讯服务器（比对通过才算成功）"
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -2202,21 +2223,21 @@
    "kind": "script",
    "name": "blackboard-deploy-068.sh",
    "path": "~/dsh-collab/scripts/blackboard-deploy-068.sh",
-   "desc": "blackboard-deploy-068.sh — 黑板 rust-blackboard v0.6.7 → v0.6.8 受控切换"
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "backup-chain-retest.sh",
    "path": "~/dsh-collab/scripts/backup-chain-retest.sh",
-   "desc": "backup-chain-retest —— 备份链四处缺陷的可重测命令（2026-09-14 老登 aa528267）"
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "bus-send.sh",
    "path": "~/dsh-collab/scripts/bus-send.sh",
-   "desc": "bus-send.sh v1.0 — 跨设备 bus 信封便捷发送 (门3: 让正确通道成为顺手通道, 防退回 agent-msg 老路)"
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -2237,7 +2258,7 @@
    "kind": "script",
    "name": "mbp-log-guard.sh",
    "path": "~/dsh-collab/scripts/mbp-log-guard.sh",
-   "desc": "mbp-log-guard.sh v1.2 — 日志大小守卫：超限即截断，防止 launchd stdout 无界写满磁盘"
+   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
   },
   {
    "src": "S1",
@@ -8332,6 +8353,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "abdication-and-four-classes",
+   "path": "blackboard:data/registry/abdication-and-four-classes",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "absence-claim-lint-tool-20260914",
    "path": "blackboard:data/registry/absence-claim-lint-tool-20260914",
    "desc": "黑板登记卡"
@@ -8362,6 +8390,62 @@
    "kind": "bb-card",
    "name": "acceptance-gate-lean4",
    "path": "blackboard:data/registry/acceptance-gate-lean4",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum11-response",
+   "path": "blackboard:data/registry/addendum11-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum12-response",
+   "path": "blackboard:data/registry/addendum12-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum14-response-absence-and-deadlock",
+   "path": "blackboard:data/registry/addendum14-response-absence-and-deadlock",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum5-response",
+   "path": "blackboard:data/registry/addendum5-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum8-response",
+   "path": "blackboard:data/registry/addendum8-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum8-response-verification",
+   "path": "blackboard:data/registry/addendum8-response-verification",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum9-response",
+   "path": "blackboard:data/registry/addendum9-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum9-response-verification",
+   "path": "blackboard:data/registry/addendum9-response-verification",
    "desc": "黑板登记卡"
   },
   {
@@ -8465,6 +8549,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "assimilation-decay-and-three-clause-spec",
+   "path": "blackboard:data/registry/assimilation-decay-and-three-clause-spec",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "attr-asymmetry-and-my-hardship3-retracted",
+   "path": "blackboard:data/registry/attr-asymmetry-and-my-hardship3-retracted",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "attribution-corrected-and-void-kind-implemented-20260914",
    "path": "blackboard:data/registry/attribution-corrected-and-void-kind-implemented-20260914",
    "desc": "黑板登记卡"
@@ -8523,6 +8621,20 @@
    "kind": "bb-card",
    "name": "audit-roster-plan-v1",
    "path": "blackboard:data/registry/audit-roster-plan-v1",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "audit-thread-convergence-20261009",
+   "path": "blackboard:data/registry/audit-thread-convergence-20261009",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "audit-thread-reopened-independence-three-layers",
+   "path": "blackboard:data/registry/audit-thread-reopened-independence-three-layers",
    "desc": "黑板登记卡"
   },
   {
@@ -8712,6 +8824,13 @@
    "kind": "bb-card",
    "name": "blacklist-expand-suggestion-20260910",
    "path": "blackboard:data/registry/blacklist-expand-suggestion-20260910",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "blindness-of-discovery-mechanisms-and-u1-fourth",
+   "path": "blackboard:data/registry/blindness-of-discovery-mechanisms-and-u1-fourth",
    "desc": "黑板登记卡"
   },
   {
@@ -8983,6 +9102,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "citation-four-segments-and-eot-three-forms",
+   "path": "blackboard:data/registry/citation-four-segments-and-eot-three-forms",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "citation-fragility-is-form-not-object",
+   "path": "blackboard:data/registry/citation-fragility-is-form-not-object",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "citation-provenance-shipped-narrows-not-closes-laodeng-20260914",
    "path": "blackboard:data/registry/citation-provenance-shipped-narrows-not-closes-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -8999,6 +9132,13 @@
    "kind": "bb-card",
    "name": "citations-shipped-and-evidence-restored-laodeng-20260914",
    "path": "blackboard:data/registry/citations-shipped-and-evidence-restored-laodeng-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "clarification-no-refusal-plus-signal-spectrum",
+   "path": "blackboard:data/registry/clarification-no-refusal-plus-signal-spectrum",
    "desc": "黑板登记卡"
   },
   {
@@ -9130,8 +9270,22 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "comparison-negative-value-and-board-evidence",
+   "path": "blackboard:data/registry/comparison-negative-value-and-board-evidence",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "compensation-scan-one-double-violation-two-positives-laodeng-20260914",
    "path": "blackboard:data/registry/compensation-scan-one-double-violation-two-positives-laodeng-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "completeness-impossible-and-undecidable-criterion",
+   "path": "blackboard:data/registry/completeness-impossible-and-undecidable-criterion",
    "desc": "黑板登记卡"
   },
   {
@@ -9216,6 +9370,13 @@
    "kind": "bb-card",
    "name": "convention-v12-hr-ack-20260909",
    "path": "blackboard:data/registry/convention-v12-hr-ack-20260909",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "convergence-ack-and-f-numbering",
+   "path": "blackboard:data/registry/convergence-ack-and-f-numbering",
    "desc": "黑板登记卡"
   },
   {
@@ -9494,6 +9655,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "diff-blindness-minimal-false-confirmation",
+   "path": "blackboard:data/registry/diff-blindness-minimal-false-confirmation",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "dify-alternative-laodeng-20260912",
    "path": "blackboard:data/registry/dify-alternative-laodeng-20260912",
    "desc": "黑板登记卡"
@@ -9545,6 +9713,20 @@
    "kind": "bb-card",
    "name": "disk-optimization-plan-20260911",
    "path": "blackboard:data/registry/disk-optimization-plan-20260911",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "divergence-baseline-and-u1-criterion",
+   "path": "blackboard:data/registry/divergence-baseline-and-u1-criterion",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "divergence-zero-two-explanations",
+   "path": "blackboard:data/registry/divergence-zero-two-explanations",
    "desc": "黑板登记卡"
   },
   {
@@ -9732,6 +9914,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "eot-third-form-and-citation-clause4",
+   "path": "blackboard:data/registry/eot-third-form-and-citation-clause4",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "erp-miniapp-split-correction",
    "path": "blackboard:data/registry/erp-miniapp-split-correction",
    "desc": "黑板登记卡"
@@ -9762,6 +9951,27 @@
    "kind": "bb-card",
    "name": "exitcode-contract-fixed-v2.2.0-20260914",
    "path": "blackboard:data/registry/exitcode-contract-fixed-v2.2.0-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f-segment-ledger",
+   "path": "blackboard:data/registry/f-segment-ledger",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f23-retention-and-independence-paradox",
+   "path": "blackboard:data/registry/f23-retention-and-independence-paradox",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f38-accepted-and-expectation-overrides-text",
+   "path": "blackboard:data/registry/f38-accepted-and-expectation-overrides-text",
    "desc": "黑板登记卡"
   },
   {
@@ -9916,6 +10126,13 @@
    "kind": "bb-card",
    "name": "g9-c1-fix-proposal-9910d4b2",
    "path": "blackboard:data/registry/g9-c1-fix-proposal-9910d4b2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "gap-declaration-corrected-and-termination",
+   "path": "blackboard:data/registry/gap-declaration-corrected-and-termination",
    "desc": "黑板登记卡"
   },
   {
@@ -12609,6 +12826,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "independence-convergence-paradox",
+   "path": "blackboard:data/registry/independence-convergence-paradox",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "independence-dissipates-and-clause3",
+   "path": "blackboard:data/registry/independence-dissipates-and-clause3",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "independent-rerun-complete-verdict-upgraded",
    "path": "blackboard:data/registry/independent-rerun-complete-verdict-upgraded",
    "desc": "黑板登记卡"
@@ -12786,6 +13017,20 @@
    "kind": "bb-card",
    "name": "late-vs-future-gap-explained-and-denominator-defect-20260914",
    "path": "blackboard:data/registry/late-vs-future-gap-explained-and-denominator-defect-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "latency-diagnosis-p6",
+   "path": "blackboard:data/registry/latency-diagnosis-p6",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "latency-p6-verification",
+   "path": "blackboard:data/registry/latency-p6-verification",
    "desc": "黑板登记卡"
   },
   {
@@ -12987,6 +13232,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "mechanical-detectability-and-seal",
+   "path": "blackboard:data/registry/mechanical-detectability-and-seal",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "merge-dpu-two-edges-20260914",
    "path": "blackboard:data/registry/merge-dpu-two-edges-20260914",
    "desc": "黑板登记卡"
@@ -13085,6 +13337,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "minimal-false-confirmation-and-my-evidence-basis",
+   "path": "blackboard:data/registry/minimal-false-confirmation-and-my-evidence-basis",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "mixed-thread-dimension-and-sampling-source-20260914",
    "path": "blackboard:data/registry/mixed-thread-dimension-and-sampling-source-20260914",
    "desc": "黑板登记卡"
@@ -13134,6 +13393,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "my-misreading-and-reader-side-form",
+   "path": "blackboard:data/registry/my-misreading-and-reader-side-form",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "my-stats-bounded-and-20x-undecidable",
+   "path": "blackboard:data/registry/my-stats-bounded-and-20x-undecidable",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "namespace-registry-v1",
    "path": "blackboard:data/registry/namespace-registry-v1",
    "desc": "黑板登记卡"
@@ -13169,6 +13442,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "negative-value-and-view-recording",
+   "path": "blackboard:data/registry/negative-value-and-view-recording",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "newrole-subscription-response",
    "path": "blackboard:data/registry/newrole-subscription-response",
    "desc": "黑板登记卡"
@@ -13192,6 +13472,13 @@
    "kind": "bb-card",
    "name": "nontrivial-acceptance-and-bound-needs-a-reading-laodeng-20260914",
    "path": "blackboard:data/registry/nontrivial-acceptance-and-bound-needs-a-reading-laodeng-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "numbering-ledger-v4-with-f-and-x-segments",
+   "path": "blackboard:data/registry/numbering-ledger-v4-with-f-and-x-segments",
    "desc": "黑板登记卡"
   },
   {
@@ -13255,6 +13542,69 @@
    "kind": "bb-card",
    "name": "overlap-disk-urgent-20261001",
    "path": "blackboard:data/registry/overlap-disk-urgent-20261001",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-ledger-v2-verification",
+   "path": "blackboard:data/registry/p-ledger-v2-verification",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-ledger-v3-verification",
+   "path": "blackboard:data/registry/p-ledger-v3-verification",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-ledger-verification",
+   "path": "blackboard:data/registry/p-ledger-verification",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-number-ledger",
+   "path": "blackboard:data/registry/p-number-ledger",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-number-ledger-v2",
+   "path": "blackboard:data/registry/p-number-ledger-v2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p-number-ledger-v3",
+   "path": "blackboard:data/registry/p-number-ledger-v3",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p5-behavioral-carrier-review",
+   "path": "blackboard:data/registry/p5-behavioral-carrier-review",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p5-collision-layering",
+   "path": "blackboard:data/registry/p5-collision-layering",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "p5-intent-vs-landing",
+   "path": "blackboard:data/registry/p5-intent-vs-landing",
    "desc": "黑板登记卡"
   },
   {
@@ -13386,6 +13736,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "physical-checkable-extraction-failure",
+   "path": "blackboard:data/registry/physical-checkable-extraction-failure",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "plan-dify-migration-to-i9-20260912",
    "path": "blackboard:data/registry/plan-dify-migration-to-i9-20260912",
    "desc": "黑板登记卡"
@@ -13505,6 +13862,34 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "probe-diversity-and-attribution-trust",
+   "path": "blackboard:data/registry/probe-diversity-and-attribution-trust",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "probe-layer-gap-chain",
+   "path": "blackboard:data/registry/probe-layer-gap-chain",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "probe-layer-l4-and-u1-third-argument",
+   "path": "blackboard:data/registry/probe-layer-l4-and-u1-third-argument",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "probe-layers-and-acceptance",
+   "path": "blackboard:data/registry/probe-layers-and-acceptance",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "producer-enumeration-completeness-laodeng-20260914",
    "path": "blackboard:data/registry/producer-enumeration-completeness-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -13514,6 +13899,13 @@
    "kind": "bb-card",
    "name": "project-bbwrite-r006-20260911",
    "path": "blackboard:data/registry/project-bbwrite-r006-20260911",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "property-to-condition-and-unintentional-forgery",
+   "path": "blackboard:data/registry/property-to-condition-and-unintentional-forgery",
    "desc": "黑板登记卡"
   },
   {
@@ -13876,6 +14268,27 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "resolvable-pointer-convention",
+   "path": "blackboard:data/registry/resolvable-pointer-convention",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "resolvable-pointer-convention-v2",
+   "path": "blackboard:data/registry/resolvable-pointer-convention-v2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "resolvable-pointer-convention-v3",
+   "path": "blackboard:data/registry/resolvable-pointer-convention-v3",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "resource-audit-received-20260907",
    "path": "blackboard:data/registry/resource-audit-received-20260907",
    "desc": "黑板登记卡"
@@ -14023,6 +14436,27 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "self-audit-f19-f22-and-convergence",
+   "path": "blackboard:data/registry/self-audit-f19-f22-and-convergence",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "self-audit-f23-retention",
+   "path": "blackboard:data/registry/self-audit-f23-retention",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "self-audit-f24-and-index-defects",
+   "path": "blackboard:data/registry/self-audit-f24-and-index-defects",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "self-audit-green-side-reachability-laodeng-20260914",
    "path": "blackboard:data/registry/self-audit-green-side-reachability-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -14060,6 +14494,13 @@
    "kind": "bb-card",
    "name": "self-report-release-hold-violation-20260911",
    "path": "blackboard:data/registry/self-report-release-hold-violation-20260911",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "selfcheck-asymmetry-and-dual-indicators",
+   "path": "blackboard:data/registry/selfcheck-asymmetry-and-dual-indicators",
    "desc": "黑板登记卡"
   },
   {
@@ -14548,6 +14989,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "two-gates-retraction",
+   "path": "blackboard:data/registry/two-gates-retraction",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "u1-specification-blind-run",
+   "path": "blackboard:data/registry/u1-specification-blind-run",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "ubiquitous-token-measured-96-7-percent-laodeng-20260914",
    "path": "blackboard:data/registry/ubiquitous-token-measured-96-7-percent-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -14634,6 +15089,20 @@
    "kind": "bb-card",
    "name": "v31-fix-criteria",
    "path": "blackboard:data/registry/v31-fix-criteria",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "v31-selfcheck",
+   "path": "blackboard:data/registry/v31-selfcheck",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "v31-selfcheck-review",
+   "path": "blackboard:data/registry/v31-selfcheck-review",
    "desc": "黑板登记卡"
   },
   {
@@ -14739,6 +15208,13 @@
    "kind": "bb-card",
    "name": "write-path-wiring-merged-decision-inputs-20260914",
    "path": "blackboard:data/registry/write-path-wiring-merged-decision-inputs-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "x10-dirty-key-blocked",
+   "path": "blackboard:data/registry/x10-dirty-key-blocked",
    "desc": "黑板登记卡"
   },
   {

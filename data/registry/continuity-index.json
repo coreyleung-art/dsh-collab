@@ -1,0 +1,237 @@
+{
+  "schema": "continuity-index/v1",
+  "state_version": 2,
+  "updated_at": "2026-10-09T06:42:00+08:00",
+  "writer": "外部第三方（Claude Code 会话 · CU 实验台线）· 经用户 2026-10-09 授权建立",
+  "anchor": "docs/distributed-agent-network-governance-plan-v4-20261009.md",
+  "anchor_sha256": "0f62a613cc8d4dc6a699b2879a15bb10e1130091abf1b1198202f95d6afbf613",
+  "_anchor_sha256_note": "由 tools/beacon-check.py --stamp 写入；不一致 ⇒ 锚点被改过但 state_version 未递增",
+  "resume_prompt": "docs/resume-prompt-starbridge-v3.md",
+  "resume_prompt_generator": "tools/mk-resume-prompt.py",
+  "beacon_check": "tools/beacon-check.py",
+  "version_pointer_file": "~/.dsh/continuity-last-version",
+  "last_session": {
+    "id": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+    "status": "bricked",
+    "ended_at": "2026-10-09T05:39:52+08:00",
+    "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
+    "evidence": "docs/compaction-lowerbound-crash-20261009.md",
+    "severity": "P26"
+  },
+  "waves": [
+    {
+      "id": "S",
+      "name": "门（沙箱模拟框架 / 信息包模板 / 独立审查流程 / 官方校对门 / G-CR 校验脚本）",
+      "state": "blocked",
+      "blocked_reason": "只见设计（§5/§6），未见建成证据；各项 DoD 与负控未落盘",
+      "owner": "待定"
+    },
+    {
+      "id": "C",
+      "name": "信标（C1 索引键 / C2 锚点 / C3 续接提示词 / C4 自启动注入 / C5 反遗忘校验 / C6 状态机登记 / C7 证伪门与半修清单）",
+      "state": "in_flight",
+      "note": "C2 早已在位；C1/C3/C5 于 2026-10-09T06:3x 由外部第三方建立；C4/C6/C7 未做",
+      "owner": "外部第三方（C1/C3/C5）+ CLD 新会话（C4/C6/C7）"
+    },
+    {
+      "id": "0",
+      "name": "开关合上 + 可观测（W0.1–W0.6）",
+      "state": "open",
+      "note": "W0.1 判据须按 P26 补负控（见 §7 建议）"
+    },
+    {
+      "id": "1",
+      "name": "P0（W1.1–W1.8）",
+      "state": "open"
+    },
+    {
+      "id": "2",
+      "name": "结构性（W2.1–W2.10，含唯一高危 W2.5 载体换 SQLite）",
+      "state": "open"
+    },
+    {
+      "id": "3",
+      "name": "可信（W3.1–W3.3）",
+      "state": "open"
+    },
+    {
+      "id": "4",
+      "name": "跨设备/载体（W4.1–W4.6）",
+      "state": "open"
+    },
+    {
+      "id": "5",
+      "name": "长期（W5.1–W5.6，含 W5.5 会话改投影）",
+      "state": "open"
+    }
+  ],
+  "milestones": [
+    {
+      "id": "M0",
+      "claim": "审查与校对门可跑；信标四件套在位 ⇒ 新会话 ≤5 分钟恢复计划认知",
+      "state": "open",
+      "gap": "C4 未做；C1/C3/C5 刚建，尚无「新会话按前 3 步复述出当前 wave + 下一步」的实测"
+    },
+    {
+      "id": "M1",
+      "state": "open"
+    },
+    {
+      "id": "M2",
+      "state": "open"
+    },
+    {
+      "id": "M3",
+      "state": "open"
+    }
+  ],
+  "items": [
+    {
+      "id": "C1",
+      "name": "单一索引键",
+      "state": "closed_with_evidence",
+      "evidence": [
+        "blackboard:data/registry/continuity-index"
+      ],
+      "note": "双板写 + 回读断言由 tools/bb_dualwrite.py 保证；判据 = 两板可读且值相等"
+    },
+    {
+      "id": "C2",
+      "name": "锚点文档",
+      "state": "closed_with_evidence",
+      "evidence": [
+        "docs/distributed-agent-network-governance-plan-v4-20261009.md"
+      ]
+    },
+    {
+      "id": "C3",
+      "name": "续接提示词（≤40 行 + 生成脚本）",
+      "state": "closed_with_evidence",
+      "evidence": [
+        "docs/resume-prompt-starbridge-v3.md",
+        "tools/mk-resume-prompt.py"
+      ],
+      "verifier": "待第三方复核（本件由外部第三方自建，按 S3「不可自审」必须另找复核人）"
+    },
+    {
+      "id": "C4",
+      "name": "自启动注入（agent preset prompt section）",
+      "state": "open",
+      "blocked_reason": "需改 CLD preset —— 外部第三方不代做（受约束）"
+    },
+    {
+      "id": "C5",
+      "name": "反遗忘校验",
+      "state": "closed_with_evidence",
+      "evidence": [
+        "tools/beacon-check.py"
+      ],
+      "verifier": "待第三方复核（同上，禁自证）"
+    },
+    {
+      "id": "C6",
+      "name": "状态机登记（对齐 item-validity-review-check 五态）",
+      "state": "open"
+    },
+    {
+      "id": "C7",
+      "name": "证伪门与半修清单",
+      "state": "open",
+      "note": "P26 → 建议列为第 10 条半修「compaction 在位，但在下界以下不可能生效」"
+    },
+    {
+      "id": "P26",
+      "name": "会话硬死锁：compaction 下界 > 被遮内容",
+      "state": "open",
+      "severity": "高（会话级不可恢复；不崩，故不被现有崩溃监控捕获）",
+      "evidence": [
+        "docs/compaction-lowerbound-crash-20261009.md"
+      ],
+      "proposed_gates": [
+        "G-CR16 请求前 token 预算门",
+        "G-CR17 压缩有效性门"
+      ],
+      "fixes_w0_1": "W0.1 判据「触发≥1 且体积降≥50%」须补负控：活跃窗口低于压缩器开销 ⇒ 必须判「不可用」并告警"
+    }
+  ],
+  "dod": {
+    "full_table": null,
+    "_status": "**缺席**",
+    "_note": "§11 原文称「全文表见 data/registry/continuity-index 的 dod 字段」——实测该字段从未建立，即 §11 正文表格只是代表性摘录。**不得凭空补全**（R030）：补全须由各项负责人在沙箱复跑后逐条填入 8 字段（正向判据 / 负控 / 边界 / 测量方法与样本量 / 阈值 / 证据形态 / 审查员 / 沙箱复跑方式）。",
+    "rule": "正向 ∧ 负控红 ∧ 边界不崩 ∧ 阈值达标 ∧ 沙箱复跑一致 ∧ 官方条款无未声明差异 —— 六者缺一不得记 closed_with_evidence"
+  },
+  "open_questions": [
+    {
+      "id": "Q-A",
+      "ask": "去重淘汰语义（建议分层）",
+      "owner": "CLD"
+    },
+    {
+      "id": "Q-B",
+      "ask": "端口固定值",
+      "owner": "用户"
+    },
+    {
+      "id": "Q-C",
+      "ask": "是否引入 NATS（先影子 PoC）",
+      "owner": "用户"
+    },
+    {
+      "id": "Q-D",
+      "ask": "注入器保留哪个（建议 SSE）",
+      "owner": "用户"
+    },
+    {
+      "id": "Q-E",
+      "ask": "HMAC 密钥分发（本机 0600）",
+      "owner": "用户"
+    },
+    {
+      "id": "Q-F",
+      "ask": "挂载 compaction 批准",
+      "owner": "用户",
+      "urgent": true,
+      "note": "P26 已换掉这条问题的前提：问题不再是「要不要挂」，而是「挂了在下界以下也不生效」"
+    },
+    {
+      "id": "Q-G",
+      "ask": "自启动注入批准",
+      "owner": "用户",
+      "note": "= C4"
+    },
+    {
+      "id": "Q-H",
+      "ask": "载体换 SQLite 独立窗口安排",
+      "owner": "用户"
+    },
+    {
+      "id": "Q-I",
+      "ask": "item-validity-review-check 是否收编为闭环判定器",
+      "owner": "裁判"
+    },
+    {
+      "id": "Q-J",
+      "ask": "四项历史决策（板鉴权 / A 类仓 / meituan-multi / 「-」仓）",
+      "owner": "用户"
+    }
+  ],
+  "known_gaps": [
+    "C4 自启动注入未做 ⇒ 新会话不会自动恢复认知，每次需人工指路（M0 因此不成立）",
+    "§11 验收全文表从未落盘（dod.full_table = null）",
+    "Wave S（审查与校对门）只有设计、无建成证据",
+    "P26 仅复现一次；压缩器源码未读，「下界」为推断",
+    "本索引由外部第三方建立，按 S3「不可自审」须另找第三方复核 C1/C3/C5"
+  ],
+  "evidence_index": [
+    "docs/compaction-lowerbound-crash-20261009.md",
+    "docs/prompt-for-new-starbridge-session.md",
+    "docs/distributed-agent-network-governance-plan-v4-20261009.md",
+    "docs/resume-prompt-starbridge-v3.md",
+    "tools/beacon-check.py",
+    "tools/mk-resume-prompt.py",
+    "tools/bb_dualwrite.py",
+    "research/agent-comm-paths/",
+    "docs/item-validity-index.json",
+    "agentsrc:session-fa1f9150-c949-401f-ba8c-d265f6221676/session.jsonl.zstd"
+  ]
+}
