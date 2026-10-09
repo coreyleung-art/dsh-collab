@@ -1,0 +1,464 @@
+{
+ "gate-canfail.py": {
+  "tool": "gate-canfail",
+  "version": "1.0.1",
+  "capability": [
+   "通用判据能红门：对一组 cases 逐条判「期望 vs 实得」是否一致（三态 CAN_FAIL / CANNOT_FAIL / POSITIVE_OK）",
+   "会执行 cases 指定的命令 —— 这是它的用途；命令全部来自显式 --cases，本器不内置任何命令",
+   "--dry-run 只列将执行什么，不执行；--json 机器可读"
+  ],
+  "impossible": [
+   "自身不写任何被检对象文件（只在需要时用 tempfile 自建的 /tmp 临时目录）",
+   "无 --cases 则不执行任何命令",
+   "不判断「期望值本身是否正确」—— 那须人/第三方设定（本门只判判据是否响应）"
+  ],
+  "log": "gate-canfail.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--cases"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {
+   "os.unlink": "只删本器 tempfile.mkdtemp() 自建临时目录内的文件（os.listdir(tmp) 枚举，非用户输入）",
+   "os.rmdir": "只删本器 tempfile.mkdtemp() 自建的临时目录"
+  },
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [
+   "os.rmdir",
+   "os.unlink"
+  ],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "silent-truncation-lint.py": {
+  "tool": "silent-truncation-lint",
+  "version": "1.0.3",
+  "capability": [
+   "只读扫描：找出「静默截断」—— 输出被截断却没有声明（口径：只看输出面，不判内容对错）",
+   "只写 /tmp 与本器自有日志；被扫文件一律只读",
+   "--dry-run 只列将报什么；--json 机器可读"
+  ],
+  "impossible": [
+   "不修改任何被扫文件",
+   "不执行任何外部命令（本器零命令调用点）",
+   "不做「内容是否正确」的判断（本器只判「截断有没有被声明」）"
+  ],
+  "log": "silent-truncation-lint.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--by-owner"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {},
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "r006-two-tool-audit.py": {
+  "tool": "r006-two-tool-audit",
+  "version": "1.0.0",
+  "capability": [
+   "R006 十项审查器（实跑级）：对指定工具逐项给出 PASS/FAIL/UNCHECKED 与判据文本",
+   "会执行被审工具的旗标（--help/--selfcheck/--lean4-check 等）以取实跑证据",
+   "本器自身同时是被审对象（自指位置：检查者）"
+  ],
+  "impossible": [
+   "不修改被审工具的任何文件（只读审计类行为）",
+   "不执行被审工具中除已声明旗标以外的命令",
+   "不把「查不到」报成 PASS（无证据一律 UNCHECKED）"
+  ],
+  "log": "r006-two-tool-audit.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--tool"
+   ]
+  ],
+  "positive": [
+   "--version"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {
+   "os.unlink": "只删本器自建的 NamedTemporaryFile（neg*.name）",
+   "__import__": "内联导入 datetime，模块名为字面量（非动态模块名）"
+  },
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [
+   "__import__",
+   "os.unlink"
+  ],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "gate-auditor.py": {
+  "tool": "gate-auditor",
+  "version": "1.0.0",
+  "capability": [
+   "纸面门审查器：扫规则账本，把「声明了必须/门/强制但无对应可执行工具」的条目判为纸面门",
+   "结构门 = 有代码实现 + lean4-check 自证生效；纸面门 = 靠人执行、可跳过",
+   "由来（2026-09-07 archify 事故）：清单写了沙箱测试却被跳过"
+  ],
+  "impossible": [
+   "本器不执行外部命令、不删除数据、不修改权限 ⇒ 无该路径",
+   "不修改 R006 管辖外的其它工具文件（只读审计类行为）",
+   "不替规则所有者拍板「该不该门化」（只报告，不代改）"
+  ],
+  "log": "gate-auditor.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--rules"
+   ]
+  ],
+  "positive": [
+   "--help"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {},
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "j44-reuse-gate.py": {
+  "tool": "j44-reuse-gate",
+  "version": "1.0.0",
+  "capability": [
+   "J44「资源复用纪律」的执行门：建新工具/脚本/机制前先查本机既有资产",
+   "有命中而不显式裁决（reuse/adapt/no-overlap）⇒ 拒绝（exit 1）并留痕",
+   "会执行外部命令以检索本机资产；命令来自本器内置的固定检索集，不接受用户拼接"
+  ],
+  "impossible": [
+   "不修改被检索的任何产物（只读）",
+   "不接受用户提供的任意命令字符串（无 shell 拼接）",
+   "不在无裁决的情况下放行（失败即停，不退化为警告）"
+  ],
+  "log": "j44-reuse-gate.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs",
+   "~/dsh-collab/data"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--intent"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {},
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "toolbox-selftest-sweep.py": {
+  "tool": "toolbox-selftest-sweep",
+  "version": "1.0.0",
+  "capability": [
+   "审查工具库全量自检实跑器：对 scripts/ 下的工具逐个探 --selftest 可达性并实跑",
+   "会执行被探工具的 --selftest（这是它的用途），命令由本器按目录枚举生成",
+   "--json 机器可读；--out 结果落盘"
+  ],
+  "impossible": [
+   "不修改被探工具的任何文件（只读 + 只执行其自检入口）",
+   "不把「超时/无入口」与「失败」混为一类（四态分报）",
+   "不跳过超时项而假装通过"
+  ],
+  "log": "toolbox-selftest-sweep.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--timeout"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {
+   "os.unlink": "只删本器自建的临时文件（a,b,c,e,f,g）",
+   "os.rmdir": "只删本器自建的临时目录（d）"
+  },
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [
+   "os.rmdir",
+   "os.unlink"
+  ],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "selftest-inventory.py": {
+  "tool": "selftest-inventory",
+  "version": "1.0.0",
+  "capability": [
+   "工具族自测入口盘点：把一次性的手工探针，变成一次调用产出的读数",
+   "由来（2026-09-28）：手工盘点曾把 dup-skeleton.py 判为「有入口且跑通」—— 判错了",
+   "会执行被盘点工具的旗标以取实跑证据"
+  ],
+  "impossible": [
+   "不修改被盘点工具的任何文件（只读审计类行为）",
+   "不把「有入口」等同于「有意义」（首行是否为空/0 命中也纳入读数）",
+   "不静默略过读不到的项（如实报 UNCHECKED）"
+  ],
+  "log": "selftest-inventory.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--dir"
+   ]
+  ],
+  "positive": [
+   "--tools",
+   "gate-canfail.py"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {},
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [],
+  "positive_expect_rc": [
+   0,
+   1
+  ],
+  "positive_expect_reason": "本器是【报告器】而非门：rc=1 = 报告有发现，是合法结果；只有 rc=2（用法错）/124/125（超时/崩溃）才算门失效。★ 同时如实记缺陷：本器【无可表示的成功退出码】—— 任何合法调用都返回 1，故「0=成功」在本器上不可达，属 ⑨② 缺口，留待批次 2 修。"
+ },
+ "absence-claim-lint.py": {
+  "tool": "absence-claim-lint",
+  "version": "3.13.0",
+  "capability": [
+   "「否定性结论须附观测面声明」的可机械核验门（口径 v1.2）",
+   "规则来由：否定性结论（不存在/未提供/从未/零调用/未加载/无远端…）必须同卡附「查了哪些路径、哪条命令、哪些扩展名」",
+   "由来：2026-09-14 当日同形状三例"
+  ],
+  "impossible": [
+   "本器不执行外部命令、不删除数据、不修改权限 ⇒ 无该路径",
+   "不修改被扫文件（只读审计类行为）",
+   "不把「没查到」当作「不存在」（那正是它要抓的错）"
+  ],
+  "log": "absence-claim-lint.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--exit-on"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {
+   "__import__": "若本器以 --selfcheck 调用则走自检分支；模块名字面量 sys"
+  },
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [
+   "__import__"
+  ],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "citation-stale-check.py": {
+  "tool": "citation-stale-check",
+  "version": "2.1.0",
+  "capability": [
+   "引用失效检测：账本登记每个对外引用数字的绑定项（文件 + 行号 + 该行哈希）",
+   "该行变更 ⇒ 引用自动标 stale 并提醒引用者",
+   "三态：FRESH / MOVED / CHANGED"
+  ],
+  "impossible": [
+   "本器不执行外部命令、不删除数据、不修改权限 ⇒ 无该路径",
+   "不改写被引用方的文件（只登记与比对）",
+   "不把「文件不存在」与「行哈希不符」混为一类（MOVED vs CHANGED 分开）"
+  ],
+  "log": "citation-stale-check.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs",
+   "~/dsh-collab/data"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--check"
+   ]
+  ],
+  "positive": [
+   "--selftest"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {
+   "__import__": "若本器以 --selfcheck 调用则走自检分支；模块名字面量 sys"
+  },
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [
+   "__import__"
+  ],
+  "positive_expect_rc": [
+   0
+  ]
+ },
+ "verification-level-lint.py": {
+  "tool": "verification-level-lint",
+  "version": "2.0.0",
+  "capability": [
+   "核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级（CLAIM/NEG/VER/LEVEL）",
+   "由来（HR 2026-09-14 排序第 1 位）：虚假的「已落盘」会让下游在错误前提上行动",
+   "→ 本条自陈：本器【没有】--selftest 入口（2026-09-28 盘点发现），这里说明白而不是静默跑默认扫描"
+  ],
+  "impossible": [
+   "本器不执行外部命令、不删除数据、不修改权限 ⇒ 无该路径",
+   "不修改被扫文件（只读审计类行为）",
+   "不识别的参数 ⇒ 拒绝执行并列出可接受参数，绝不静默回退到默认扫描"
+  ],
+  "log": "verification-level-lint.log",
+  "write_roots": [
+   "/tmp",
+   "~/dsh-collab/logs"
+  ],
+  "negatives": [
+   [
+    "--definitely-not-a-flag"
+   ],
+   [
+    "--limit"
+   ]
+  ],
+  "positive": [
+   "--limit",
+   "1"
+  ],
+  "dryrun": null,
+  "watch": [],
+  "allowed_danger": {},
+  "frozen_exec": [
+   "subprocess.run"
+  ],
+  "frozen_write": [
+   "<expr>"
+  ],
+  "frozen_danger": [],
+  "positive_expect_rc": [
+   0
+  ]
+ }
+}
