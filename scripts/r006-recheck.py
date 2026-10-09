@@ -15,7 +15,7 @@
   R6 版本管理  → 版本常量单一来源（.py: __version__ · .js: VERSION|__version__ · .sh: VERSION=）
   R7 统一日志  → 源码含 `~/dsh-collab/logs/` 或 `scripts/logs/` 固定路径写日志
   R9 CLI 治理  → argparse / getopts 等参数解析 + --help
-  R10 约束门   → 含 lean4-check 类自证
+  R10 约束门   → 真实现（函数+入口+≥3 判据）【或】显式 N/A 声明（须无危险原语）
 
 ★ 口径诚实声明：本器**只核可机械核的 5 项**（R5/R6/R7/R9/R10），
   **不核 R1/R2/R3/R4/R8**（需运行期证据或插件形态判定）——凡未核项在输出里【显式列出】，
@@ -128,8 +128,17 @@ def check_one(name, path, kind):
         _has_fn = bool(re.search(r"def\s+lean4_check|function\s+lean4_check|lean4Check\s*\(", src))
         _has_entry = bool(re.search(r"--lean4-check", src))
         _n_checks = len(re.findall(r"\bc\(\s*[\"']", src))
-        r["R10_lean4"] = bool(_has_fn and _has_entry and _n_checks >= 3)
-        ev["R10"] = "函数=%s 入口=%s 判据数=%d" % (_has_fn, _has_entry, _n_checks)
+        # ★ 2026-10-09 补：承认【显式 N/A 声明】这一达标方式
+        #   依据 `supply-chain/audit-r006-gap-analysis.md` §三 的既有做法：
+        #   「①②③ 豁免声明：docstring 注明『只读工具：②TCC n/a(无外部性) ③CLD n/a(纯脚本)』」
+        #   ⇒ 故 R10 三态：implemented / declared-na / missing。
+        #   ⇒ declared-na 的核验由 `r006-debt-remediate.py` 的机械判据承担（须【无危险原语】）。
+        _na = bool(re.search(r"(约束门\s*[:：]?\s*N/?A|无危险原语|无不该发生路径|纯只读|无外部性|R10\s*[:：]?\s*N/?A)", src, re.I))
+        r["R10_lean4"] = bool((_has_fn and _has_entry and _n_checks >= 3) or _na)
+        _state = ("implemented" if (_has_fn and _has_entry and _n_checks >= 3)
+                  else ("declared-na" if _na else "missing"))
+        ev["R10"] = "%s ｜ 函数=%s 入口=%s 判据数=%d 声明=%s" % (
+            _state, _has_fn, _has_entry, _n_checks, _na)
     else:  # plugin
         pkg = os.path.join(path, "package.json")
         src = read(os.path.join(path, "lib", "selfcheck.js")) or read(os.path.join(path, "index.js"))
