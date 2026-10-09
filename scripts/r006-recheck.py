@@ -241,9 +241,25 @@ def main():
     ap.add_argument("--since", default=None, help="只核该日期(YYYY-MM-DD)之后改动过的")
     ap.add_argument("--compare", action="store_true", help="与 2026-10-03 矩阵对照口径")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--with-rest", action="store_true",
+                    help="★ 同时核 R1/R2/R3/R4/R8（调用 r006-assess-rest.py）")
     a = ap.parse_args()
     if a.selftest:
         return selftest()
+    if getattr(a, "with_rest", False):
+        # ★ 2026-10-09：把【剩余五项】纳入覆盖面 ——
+        #   本器原只核 R5/R6/R7/R9/R10（可机械核的五项）；其余五项由 r006-assess-rest 承担。
+        #   ⇒ 此处串起来调用，使「R006 全十项」有一个入口。
+        import subprocess as _sp
+        rest = os.path.join(os.path.dirname(os.path.abspath(__file__)), "r006-assess-rest.py")
+        print("== 追加：R1/R2/R3/R4/R8（由 r006-assess-rest.py 核验）==")
+        print("   ★ 纪律：unchecked（需运行期/人工）单列，不计入通过 —— 「未核」≠「达标」。")
+        print()
+        r = _sp.run([sys.executable, rest], capture_output=True, text=True)
+        print(r.stdout[-3000:] if r.stdout else "(无输出)")
+        if r.stderr:
+            print("[stderr]", r.stderr[:400])
+        return 1 if r.returncode else 0
     if not os.path.isdir(COLLAB):
         print("环境错误：找不到 " + COLLAB, file=sys.stderr)
         return 2
