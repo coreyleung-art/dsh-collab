@@ -27,7 +27,7 @@ B+ / C 两用：
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
-import argparse, json, os, glob, datetime
+import argparse, json, os, glob, datetime, hashlib
 
 COLLAB = os.path.expanduser("~/dsh-collab")
 EVENTS_DIR = os.path.join(COLLAB, "token-monitor", "event-bus", "events")
@@ -118,8 +118,14 @@ def load_events_from_git(since_days):
         if len(parts) < 3:
             continue
         sha, at, subj = parts[0], parts[1], parts[2]
+        # ★ 2026-10-09 修 bug③：git 事件原【缺 dedup 字段】⇒ ① --mark-consumed 标记 0 条
+        #   ② 扫描侧 `dedup in seen` 永远为假 ⇒ 【git 事件永远无法去重】⇒ 每次重复列同一批提交。
+        #   ⇒ 按本机既有裁定补 dedup：**去重键 = 内容指纹**（CAHAC §8.3 / 章程 L33）。
+        #   ⇒ 取 sha 全文更有辨识度（sha 本身即内容指纹），但为与 event-bus 的形态一致，用 sha256 短哈希。
+        fp = hashlib.sha256((sha + "|" + subj).encode("utf-8")).hexdigest()[:16]
         out.append({"topic": "task.completed", "source": "git",
                     "id": "git-" + sha[:12],
+                    "dedup": fp,
                     "ts": datetime.datetime.fromtimestamp(int(at)).isoformat(),
                     "payload": {"summary": subj, "sha": sha[:12]}})
     return out
@@ -161,6 +167,34 @@ def main():
     ap.add_argument("--auto", action="store_true", help="C 模式：自动执行本地环节（预留，逐步启用）")
     ap.add_argument("--mark-consumed", action="store_true", help="把已沉淀事件标记 consumed（需先人工执行）")
     args = ap.parse_args()
+
+    # ★ 2026-10-09 修 bug②（早返回）：--mark-consumed 必须在【扫描与落盘之前】处理。
+    #   上一版把它放在末尾 ⇒ 扫描已把清单覆盖（不带 --from-git 时 events 空 ⇒ 清单变 0）
+    #   ⇒ 再读「现有清单」已是 0。⇒ 现改为【args 解析后立即分流并 return】。
+    if args.mark_consumed:
+        import glob as _g
+        files = sorted(_g.glob(os.path.join(QUEUE_DIR, "*.json")))
+        src, src_q = None, []
+        if files:
+            src = files[-1]
+            try:
+                src_q = json.load(open(src, encoding="utf-8")).get("queue") or []
+            except Exception as e:
+                print("[warn] 读现有清单失败（%s）" % type(e).__name__)
+        st = load_state()
+        sn = set(st.get("seen", []))
+        n = 0
+        for q in src_q:
+            d = q.get("dedup")
+            if d:
+                sn.add(d); n += 1
+        st["seen"] = sorted(sn)
+        save_state(st)
+        print("✅ 已标记 %d 条为已处理（源：%s · seen=%d）"
+              % (n, os.path.basename(src) if src else "（无清单文件）", len(sn)))
+        if n == 0 and not src_q:
+            print("   ★ 注意：现有清单为空或不可读 ⇒ 未标记任何项（清单未被改动）")
+        return
 
     events = load_events(args.since)
 
@@ -235,11 +269,32 @@ def main():
         print(f"\n📋 待沉淀清单已落盘: {out}")
 
     if args.mark_consumed:
-        for q in queue:
-            seen.add(q["dedup"])
+        # ★ 2026-10-09 修 bug（我的 --from-git 接线引入）：
+        #   原实现【用本次重算的 queue】来标记。而 --mark-consumed 若不带 --from-git，
+        #   events 只剩 event-bus（空）⇒ queue 空 ⇒ ① 标记 0 条 ② 【且落盘把清单覆盖成 0】
+        #   —— 实测：一次 --mark-consumed 把 56 条清单清空。
+        #   ⇒ 删除式修法（而非「记得也传 --from-git」）：**改为从【现有清单文件】读**，
+        #     不重算 ⇒ 「参数不一致导致清空」这一失败模式**不再可表达**。
+        latest = None
+        if os.path.isdir(QUEUE_DIR):
+            files = sorted(f for f in os.listdir(QUEUE_DIR) if f.endswith(".json"))
+            latest = os.path.join(QUEUE_DIR, files[-1]) if files else None
+        src_q = []
+        if latest:
+            try:
+                src_q = json.load(open(latest, encoding="utf-8")).get("queue") or []
+            except Exception as e:
+                print(f"[warn] 读现有清单失败（{type(e).__name__}）⇒ 回退用本次扫描结果")
+        if not src_q:
+            src_q = queue            # 回退：现有清单为空/读不到时，用本次扫描结果
+        n = 0
+        for q in src_q:
+            d = q.get("dedup")
+            if d:
+                seen.add(d); n += 1
         state["seen"] = sorted(seen)
         save_state(state)
-        print(f"✅ 已标记 {len(queue)} 条为已处理（seen={len(seen)}）")
+        print(f"✅ 已标记 {n} 条为已处理（源：{os.path.basename(latest) if latest else '本次扫描'} · seen={len(seen)}）")
 
 if __name__ == "__main__":
     main()
