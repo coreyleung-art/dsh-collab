@@ -536,7 +536,11 @@ def lean4_check():
         if not cond: fails += 1
 
     _self = io.open(os.path.abspath(__file__), encoding="utf-8").read()
-    c("A", "类型锁：动作枚举冻结为不可变 tuple", isinstance(ACTIONS, tuple) and len(ACTIONS) == 2, "ACTIONS=tuple")
+    # ★ 2026-10-09 修：原判据写死 `len(ACTIONS) == 2` ⇒ 加 r10-impl 后恒 FAIL
+    #   （判据未随实现更新 —— 与本机既有做法对照：comm-invariant-audit 用 len(CHECKS) 动态）
+    c("A", "类型锁：动作枚举冻结为不可变 tuple",
+      isinstance(ACTIONS, tuple) and len(ACTIONS) >= 2,
+      "ACTIONS=%s（%d 类）" % (type(ACTIONS).__name__, len(ACTIONS)))
     c("B", "入口门：默认 dry-run（须显式 --apply 才写盘）",
       "a.apply" in _self and "if not a.apply" in _self, "apply 显式门")
     c("C", "Schema 门：插入前先核结构（docstring_span / needs_r7）",
