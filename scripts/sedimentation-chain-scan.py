@@ -260,41 +260,22 @@ def main():
         print(f"── 跳过 {len(skip)} 条（纯执行无复用）──")
 
     # 落盘
+    # ★ 2026-10-09 修 bug④：**空结果不得覆盖已有清单**。
+    #   实证：去重生效后第二次扫描得「未处理 0」⇒ queue 为空 ⇒ 原实现仍然落盘 ⇒
+    #   **把 58 条的清单覆盖成 0**（I9 随即报 GAP「链产出了空清单」）。
+    #   ⇒ 「扫描结果为空」与「确认清空」是两件事 ⇒ 空结果【不落盘】，保留上一次清单。
     if not args.dry_run:
         os.makedirs(QUEUE_DIR, exist_ok=True)
         out = os.path.join(QUEUE_DIR, datetime.date.today().isoformat() + ".json")
-        json.dump({"date": datetime.date.today().isoformat(), "queue": queue,
-                   "deposit": len(deposit), "review": len(review), "skip": len(skip)},
-                  open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-        print(f"\n📋 待沉淀清单已落盘: {out}")
-
-    if args.mark_consumed:
-        # ★ 2026-10-09 修 bug（我的 --from-git 接线引入）：
-        #   原实现【用本次重算的 queue】来标记。而 --mark-consumed 若不带 --from-git，
-        #   events 只剩 event-bus（空）⇒ queue 空 ⇒ ① 标记 0 条 ② 【且落盘把清单覆盖成 0】
-        #   —— 实测：一次 --mark-consumed 把 56 条清单清空。
-        #   ⇒ 删除式修法（而非「记得也传 --from-git」）：**改为从【现有清单文件】读**，
-        #     不重算 ⇒ 「参数不一致导致清空」这一失败模式**不再可表达**。
-        latest = None
-        if os.path.isdir(QUEUE_DIR):
-            files = sorted(f for f in os.listdir(QUEUE_DIR) if f.endswith(".json"))
-            latest = os.path.join(QUEUE_DIR, files[-1]) if files else None
-        src_q = []
-        if latest:
-            try:
-                src_q = json.load(open(latest, encoding="utf-8")).get("queue") or []
-            except Exception as e:
-                print(f"[warn] 读现有清单失败（{type(e).__name__}）⇒ 回退用本次扫描结果")
-        if not src_q:
-            src_q = queue            # 回退：现有清单为空/读不到时，用本次扫描结果
-        n = 0
-        for q in src_q:
-            d = q.get("dedup")
-            if d:
-                seen.add(d); n += 1
-        state["seen"] = sorted(seen)
-        save_state(state)
-        print(f"✅ 已标记 {n} 条为已处理（源：{os.path.basename(latest) if latest else '本次扫描'} · seen={len(seen)}）")
+        if not queue:
+            print(f"\n⚠️ 本次未处理数为 0 ⇒ **不落盘**（避免空结果覆盖已有清单）")
+            if os.path.exists(out):
+                print(f"   已有清单保留: {out}")
+        else:
+            json.dump({"date": datetime.date.today().isoformat(), "queue": queue,
+                       "deposit": len(deposit), "review": len(review), "skip": len(skip)},
+                      open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+            print(f"\n📋 待沉淀清单已落盘: {out}")
 
 if __name__ == "__main__":
     main()
