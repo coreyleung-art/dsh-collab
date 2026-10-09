@@ -34,8 +34,12 @@ def sha(p):
 
 
 def run(cmd, cwd=None, timeout=120):
+    # ★ 2026-10-09 R10 修复：**支持列表传参**（不传 shell ⇒ 参数不经 shell 解析）。
+    #   仍保留字符串+shell 的兼容（本文件里确有需要管道/重定向的调用），
+    #   但【新增调用一律用列表】。
+    _use_shell = isinstance(cmd, str)
     try:
-        r = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+        r = subprocess.run(cmd, shell=_use_shell, cwd=cwd, capture_output=True, text=True, timeout=timeout)
         return r.returncode, (r.stdout or "") + (r.stderr or "")
     except Exception as e:
         return f"ERR:{type(e).__name__}", str(e)
@@ -81,7 +85,8 @@ print()
 print("=" * 74)
 print("【③】pit 计数自检")
 print("=" * 74)
-rc, out = run("bash ~/dsh-collab/scripts/pit-count-check.sh")
+# ★ 2026-10-09 R10 修复：命令写死 ⇒ 改列表传参
+rc, out = run(["bash", os.path.expanduser("~/dsh-collab/scripts/pit-count-check.sh")])
 print("  exit =", rc)
 for l in out.splitlines()[-8:]:
     print("   ", l[:150])
@@ -91,11 +96,11 @@ print("=" * 74)
 print("【④】暂存区自测（只读运行）")
 print("=" * 74)
 if os.path.isdir(STG):
-    rc, out = run("node tests/audit-tally.mjs", cwd=STG, timeout=180)
+    rc, out = run(["node", "tests/audit-tally.mjs"], cwd=STG, timeout=180)
     print("  node tests/audit-tally.mjs exit =", rc)
     for l in out.splitlines()[-15:]:
         print("   ", l[:150])
-    rc2, out2 = run("node cli.js --selfcheck", cwd=STG, timeout=180)
+    rc2, out2 = run(["node", "cli.js", "--selfcheck"], cwd=STG, timeout=180)
     print("\n  node cli.js --selfcheck exit =", rc2)
     for l in out2.splitlines()[-8:]:
         print("   ", l[:150])

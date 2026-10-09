@@ -22,3 +22,7 @@
 **/*.bak*
 *.log
 *.token
+
+# ★ 2026-10-09：scripts/logs 曾被误跟踪（含 985MB 的 agentsend-violations.jsonl）
+#   注意：.gitignore 只对【未跟踪】文件生效 ⇒ 已跟踪者须先 git rm --cached
+scripts/logs/

@@ -35,7 +35,8 @@ print("=" * 74)
 print("【②】进程与端口")
 print("=" * 74)
 try:
-    ps = subprocess.run("ps -eo pid,lstart,command", shell=True, capture_output=True, text=True).stdout
+    # ★ 2026-10-09 R10 修复：命令写死 ⇒ 改列表传参（去 shell）
+    ps = subprocess.run(["ps", "-eo", "pid,lstart,command"], capture_output=True, text=True).stdout
     hits = [l.strip() for l in ps.splitlines() if "genebank" in l.lower() and "grep" not in l]
     if hits:
         for l in hits:
@@ -45,7 +46,8 @@ try:
 except Exception as e:
     print("  ps 失败", e)
 try:
-    lsof = subprocess.run("lsof -nP -iTCP:8801 -sTCP:LISTEN", shell=True, capture_output=True, text=True).stdout
+    # ★ 2026-10-09 R10 修复：命令写死 ⇒ 改列表传参（去 shell）
+    lsof = subprocess.run(["lsof", "-nP", "-iTCP:8801", "-sTCP:LISTEN"], capture_output=True, text=True).stdout
     print("  端口 8801:", lsof.strip()[:200] or "（未监听）")
 except Exception as e:
     print("  lsof 失败", e)

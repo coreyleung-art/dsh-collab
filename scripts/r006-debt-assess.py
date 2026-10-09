@@ -142,14 +142,33 @@ def strip_code(src):
     而原检测直接在全文上匹配 ⇒ 会把【注释里的引述】当成【真实危险用法】。
     ⇒ 这正是本机反复出现的「引述 vs 真值」同族问题 ⇒ 统一修法：**让引述不进入检测面**。
     """
-    out = []
-    for ln in src.split("\n"):
-        ln = re.sub(r"#.*$", "", ln)                 # 去行尾注释
-        ln = re.sub(r'"""[\s\S]*?"""', '""', ln)     # 去三引号字符串
-        ln = re.sub(r'"[^"]*"', '""', ln)             # 去双引号字符串
-        ln = re.sub(r"'[^']*'", "''", ln)             # 去单引号字符串
-        out.append(ln)
-    return "\n".join(out)
+    # ★ 2026-10-09 改用 tokenize（原手工正则剥不干净）：
+    #   实证两处误报 —— ① 命中在【跨行 docstring】里（逐行正则看不到）
+    #   ② 命中在【嵌套引号的字符串】里（简单正则剥不净）。
+    #   Python 的 tokenize【真正知道】何为 STRING/COMMENT ⇒ 按 token 类型精确剥离。
+    try:
+        import io as _io, tokenize as _tk
+        out = []
+        skip_types = (_tk.STRING, _tk.COMMENT)
+        for tok in _tk.generate_tokens(_io.StringIO(src).readline):
+            if tok.type in skip_types:
+                out.append(" ")
+            elif tok.type in (_tk.NL, _tk.NEWLINE):
+                # ★ 2026-10-09 修：原只处理 NL，漏了 NEWLINE ⇒ 行结构丢失、行号漂移
+                out.append("\n")
+            else:
+                out.append(tok.string)
+        return "".join(out)
+    except Exception:
+        # 回退：逐行正则（对无法 tokenize 的源，如语法错误的文件）
+        out = []
+        for ln in src.split("\n"):
+            ln = re.sub(r"#.*$", "", ln)
+            ln = re.sub(r'"""[\s\S]*?"""', '""', ln)
+            ln = re.sub(r'"[^"]*"', '""', ln)
+            ln = re.sub(r"'[^']*'", "''", ln)
+            out.append(ln)
+        return "\n".join(out)
 
 
 def has_dangerous(src):

@@ -54,7 +54,8 @@ def trigger_sync(why):
     """触发一次同步（增量去重 + 断点续传）"""
     log("🔄 触发同步（%s）" % why)
     try:
-        r = subprocess.run("python3 %s" % SYNC, shell=True, capture_output=True, text=True, timeout=600)
+        # ★ 2026-10-09 R10 修复：SYNC 为常量 ⇒ 改列表传参（去 shell）
+        r = subprocess.run(["python3", SYNC], capture_output=True, text=True, timeout=600)
         out = (r.stdout or "") + (r.stderr or "")
         # 摘要
         for line in out.split("\n")[-5:]:

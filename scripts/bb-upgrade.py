@@ -53,7 +53,11 @@ SMOKE_TESTS = [
 ]
 
 def run(cmd, timeout=30):
-    r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=timeout)
+    # ★ 2026-10-09 R10 修复：**支持列表传参**（列表 ⇒ 不经 shell）。
+    #   本文件现有调用用了 `&&`/`nohup`/`&`/`>` 等 shell 特性 ⇒ 保留字符串兼容；
+    #   但【新增调用一律用列表】，且【任何外部输入不得拼进字符串】。
+    _use_shell = isinstance(cmd, str)
+    r = subprocess.run(cmd, shell=_use_shell, capture_output=True, text=True, timeout=timeout)
     return r.returncode, (r.stdout or "") + (r.stderr or "")
 
 def http(method, url, body=None):

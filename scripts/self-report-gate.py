@@ -903,9 +903,12 @@ def _carrier_fp():
       只核存在性会把新进程误认为原载体。
     """
     try:
-        out = subprocess.run(
-            "ps -eo pid,lstart,command | grep 'dsh/lib/bin.js' | grep -v grep | head -1",
-            shell=True, capture_output=True, text=True, timeout=10).stdout.strip()
+        # ★ 2026-10-09 R10 修复：原 shell=True 仅为管道 grep/head ⇒ 改列表 + Python 内过滤
+        _ps = subprocess.run(["ps", "-eo", "pid,lstart,command"], capture_output=True, text=True)
+        _hit = [l for l in (_ps.stdout or "").splitlines() if "dsh/lib/bin.js" in l]
+        class _O:
+            stdout = (_hit[0] if _hit else "")
+        out = _O()
         if not out:
             return {}
         parts = out.split()
