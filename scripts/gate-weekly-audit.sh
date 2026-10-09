@@ -12,6 +12,30 @@
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== gate-weekly-audit 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · gate-weekly-audit — 纸面门→结构门全链周度自动巡检 (2026-09-07 用户指示)"
+  echo "  · 每周跑: gate-auditor scan-all → 与上次基线对比 → 新增纸面门候选登记 → 黑板周报"
+  echo "  · 用法: bash gate-weekly-audit.sh [--once-only]"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「终止进程」⇒ 该路径须受控"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "  · 本工具涉及「访问网络」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/gate-weekly-audit.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/gate-weekly-audit.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

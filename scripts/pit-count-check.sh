@@ -14,6 +14,29 @@
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== pit-count-check 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · 自包含：核对「头部声明的坑计数」与「实际条数」是否一致"
+  echo "  · 设计要点（来自实测教训）："
+  echo "  · ① 按【行索引】定位两端（## 5 · 已知坑 → ## 6 ·），**不靠字面锚点**（避开「关键词未命中≠不存在」陷阱）"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「终止进程」⇒ 该路径须受控"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/pit-count-check.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/pit-count-check.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

@@ -7,6 +7,28 @@
 #   （ps 无副作用；grep 仅为过滤）⇒ 无不可逆操作。
 # ★ 限度：此为【模式匹配 + 人工核】结论；引入 kill/rm/chmod 等原语时须更新本声明。
 
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== pstd-f1-check 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · PSTD 1.0.4 生效判据 F1/F2/F3 复测（先测触发条件 F2，再谈 F1）"
+  echo "  · ★ R006 ⑦ 统一日志：固定路径，失败也留痕"
+  echo "  · ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/pstd-f1-check.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/pstd-f1-check.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

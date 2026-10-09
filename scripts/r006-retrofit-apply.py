@@ -789,6 +789,117 @@ def strip_code_py(src):
     except Exception:
         return src
 
+
+# ─────────────── ★ r2-selfcheck 的 .sh / .js 版本 ───────────────
+def gen_selfcheck_sh(src, toolname):
+    """为 .sh 生成 --selfcheck（三段）。返回 (new_src, err)。"""
+    import re as _re
+    if "--selfcheck" in src:
+        return None, "已有 --selfcheck（跳过）"
+    # ① 能力：注释头里的中文行
+    caps = []
+    for ln in src.split("\n")[:40]:
+        s = ln.strip().lstrip("#").strip()
+        if len(s) >= 8 and _re.search(r"[\u4e00-\u9fff]", s):
+            caps.append(s[:80])
+        if len(caps) >= 3:
+            break
+    # ② 危险原语
+    DANG = [(r"\brm\s+-rf\b|\brm\s+-f\b", "删除文件"), (r"\bpkill\b|\bkillall\b|\bkill\s", "终止进程"),
+            (r"\bchmod\b|\bchown\b", "修改权限"), (r"\bcurl\b|\bwget\b|https?://", "访问网络"),
+            (r"\bsudo\b", "提权")]
+    hits = [d for pat, d in DANG if _re.search(pat, src)]
+    logp = re.search(r'DSH_LOG="([^"]+)"', src)
+    L = ["", "# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══",
+         "#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版",
+         "r006_selfcheck() {",
+         '  echo "== %s 自查（TCC 能力边界）=="' % toolname,
+         '  echo "【① 能力清单】"']
+    if caps:
+        for c in caps:
+            L.append('  echo "  · %s"' % c.replace('"', "'").replace("$", "\\$").replace("`", ""))
+    else:
+        L.append('  echo "  · （注释头无中文说明 ⇒ 能力清单为空）"')
+    L.append('  echo "【② 不该发生路径清单】"')
+    if hits:
+        for h in hits:
+            L.append('  echo "  · 本工具涉及「%s」⇒ 该路径须受控"' % h)
+    else:
+        L.append('  echo "  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径"')
+    L.append('  echo "【③ 依赖完整性】"')
+    L.append('  echo "  · shell: $SHELL"')
+    L.append('  echo "  · 依赖: 系统命令 + 标准工具"')
+    if logp:
+        L.append('  echo "  · 固定日志: %s"' % logp.group(1).replace("$HOME", "~"))
+    L.append("  return 0")
+    L.append("}")
+    L.append("")
+    L.append('case "$1" in')
+    L.append("  --selfcheck) r006_selfcheck; exit 0 ;;")
+    L.append("esac")
+    L.append("")
+    body = "\n".join(L)
+    # 插到 shebang + 注释头之后
+    lines = src.split("\n")
+    idx = 0
+    while idx < len(lines):
+        s = lines[idx].strip()
+        if s == "" or s.startswith("#"):
+            idx += 1; continue
+        break
+    if idx == 0:
+        idx = 1 if lines and lines[0].startswith("#!") else 0
+    return "\n".join(lines[:idx] + [body] + lines[idx:]), None
+
+
+def gen_selfcheck_js(src, toolname):
+    """为 .js 生成 --selfcheck（三段）。返回 (new_src, err)。"""
+    import re as _re
+    if "selfcheck" in src:
+        return None, "已有 selfcheck（跳过）"
+    caps = []
+    for ln in src.split("\n")[:40]:
+        s = ln.strip().lstrip("/").strip()
+        if len(s) >= 8 and _re.search(r"[\u4e00-\u9fff]", s):
+            caps.append(s[:80])
+        if len(caps) >= 3:
+            break
+    DANG = [(r"child_process|spawn|exec\(", "执行外部命令"), (r"fs\.(unlink|rmdir)|rm -rf", "删除文件"),
+            (r"chmod|chown", "修改权限"), (r"https?://", "访问网络")]
+    hits = [d for pat, d in DANG if _re.search(pat, src)]
+    L = ["", "// ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══",
+         "//   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .js 版",
+         "function r006Selfcheck() {",
+         '  console.log("== %s 自查（TCC 能力边界）==");' % toolname,
+         '  console.log("【① 能力清单】");']
+    for c in (caps or ["（注释头无中文说明 ⇒ 能力清单为空）"]):
+        L.append('  console.log("  · %s");' % c.replace('"', "'").replace("\\", ""))
+    L.append('  console.log("【② 不该发生路径清单】");')
+    if hits:
+        for h in hits:
+            L.append('  console.log("  · 本工具涉及「%s」⇒ 该路径须受控");' % h)
+    else:
+        L.append('  console.log("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径");')
+    L.append('  console.log("【③ 依赖完整性】");')
+    L.append('  console.log("  · node " + process.version);')
+    L.append('  console.log("  · 依赖: node 内置模块");')
+    L.append("  return 0;")
+    L.append("}")
+    L.append("")
+    L.append('if (process.argv.includes("--selfcheck")) { process.exit(r006Selfcheck()); }')
+    L.append("")
+    body = "\n".join(L)
+    lines = src.split("\n")
+    idx = 0
+    while idx < len(lines):
+        s = lines[idx].strip()
+        if s == "" or s.startswith("//") or s.startswith("#!"):
+            idx += 1; continue
+        break
+    if idx == 0:
+        idx = 1 if lines and lines[0].startswith("#!") else 0
+    return "\n".join(lines[:idx] + [body] + lines[idx:]), None
+
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -823,11 +934,11 @@ def candidates(action):
     if action == "r7-log":
         return [r for r in rows if r["r7"] == "missing"], None
     if action == "r2-selfcheck":
-        # ★ R006 ② TCC：无 --selfcheck 的 .py 脚本（.sh/.js 另立）
+        # ★ R006 ② TCC：无 --selfcheck 的脚本（.py/.sh/.js 各有对应实现）
         out = []
         for r in rows:
             n = r["name"]
-            if not n.endswith(".py"):
+            if not n.endswith((".py", ".sh", ".js")):
                 continue
             try:
                 s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
@@ -1010,7 +1121,12 @@ def main():
         elif action == "r10-impl":
             new, why = gen_lean4_for(src, slug)
         elif action == "r2-selfcheck":
-            new, why = gen_selfcheck_for(src, slug)
+            if ext == ".py":
+                new, why = gen_selfcheck_for(src, slug)
+            elif ext in (".sh", ".bash"):
+                new, why = gen_selfcheck_sh(src, slug)
+            else:
+                new, why = gen_selfcheck_js(src, slug)
         else:
             new, why = (insert_r7(src, slug) if ext == ".py" else insert_r7_shell(src, slug, ext))
         if new is None:

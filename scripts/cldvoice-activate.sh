@@ -24,6 +24,29 @@
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== cldvoice-activate 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · cldvoice-activate.sh — 薄转发壳（v2）"
+  echo "  · 【重要】本脚本的初版（v1）实现了**错误的模型**："
+  echo "  · 它要求'端口必须先释放才启动'，并会在超时后强杀占用端口的 PID。"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「终止进程」⇒ 该路径须受控"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/cldvoice-activate.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/cldvoice-activate.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

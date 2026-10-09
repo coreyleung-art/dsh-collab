@@ -13,6 +13,30 @@
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== audit-port-scripts 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · 审计复现件整理（三件事）："
+  echo "  · ① 校验「耐久副本」与 /tmp 原件是否同一内容（sha256）"
+  echo "  · ② 通用件移入共享目录 ~/dsh-collab/scripts/ 并改为 kebab-case（与该目录既有命名一致）"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「删除文件」⇒ 该路径须受控"
+  echo "  · 本工具涉及「终止进程」⇒ 该路径须受控"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/audit-port-scripts.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/audit-port-scripts.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

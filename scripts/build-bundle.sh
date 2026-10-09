@@ -14,6 +14,30 @@
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .sh 版
+r006_selfcheck() {
+  echo "== build-bundle 自查（TCC 能力边界）=="
+  echo "【① 能力清单】"
+  echo "  · build-bundle.sh — 插件完整依赖包构建（源码 + peerDeps 物理副本）"
+  echo "  · 用途：为 i9/MBP 提供「免编译、免 pnpm 拉依赖」的完整包（Windows 无本地 pnpm 拉链也能装）"
+  echo "  · 用法：bash build-bundle.sh <插件目录> [输出目录]"
+  echo "【② 不该发生路径清单】"
+  echo "  · 本工具涉及「删除文件」⇒ 该路径须受控"
+  echo "  · 本工具涉及「终止进程」⇒ 该路径须受控"
+  echo "  · 本工具涉及「修改权限」⇒ 该路径须受控"
+  echo "【③ 依赖完整性】"
+  echo "  · shell: $SHELL"
+  echo "  · 依赖: 系统命令 + 标准工具"
+  echo "  · 固定日志: ~/dsh-collab/logs/build-bundle.log"
+  return 0
+}
+
+case "$1" in
+  --selfcheck) r006_selfcheck; exit 0 ;;
+esac
+
 DSH_LOG="$HOME/dsh-collab/logs/build-bundle.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

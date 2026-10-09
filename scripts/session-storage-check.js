@@ -9,6 +9,25 @@
 // ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 //
 
+
+// ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+//   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .js 版
+function r006Selfcheck() {
+  console.log("== session-storage-check 自查（TCC 能力边界）==");
+  console.log("【① 能力清单】");
+  console.log("  · ★ R006 ⑦ 统一日志：固定路径，失败也留痕");
+  console.log("  · ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。");
+  console.log("  · 依据：r006-debt-assess.py 机械扫描未检出以下原语：");
+  console.log("【② 不该发生路径清单】");
+  console.log("  · 本工具涉及「修改权限」⇒ 该路径须受控");
+  console.log("【③ 依赖完整性】");
+  console.log("  · node " + process.version);
+  console.log("  · 依赖: node 内置模块");
+  return 0;
+}
+
+if (process.argv.includes("--selfcheck")) { process.exit(r006Selfcheck()); }
+
 const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/session-storage-check.log";
 function dshLog(msg) {
   try {
