@@ -392,8 +392,12 @@ def gen_lean4_for(src, toolname):
         return None, "★ 检出 shell=True ⇒ 不可生成「命令写死」断言（须先改代码）"
     if not has_lit:
         return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
-    if "--lean4-check" in src:
-        return None, "★ 已有 --lean4-check 旗标 ⇒ 须人工合并，拒绝自动插入"
+    # ★ 2026-10-09 修：旗标检测须【剥离注释/字符串后】判断 ——
+    #   实证 3 个工具（convention-lean4-check / pollution-scanner / session-rebirth）
+    #   只在【文档字符串】里提到 `--lean4-check`，实跑却报 `unrecognized arguments`
+    #   ⇒ 原判据在全文搜索 ⇒ 误判「已有旗标」而拒绝（又是「引述 vs 真值」同族）。
+    if "--lean4-check" in _strip(src):
+        return None, "★ 已有 --lean4-check 旗标（代码中）⇒ 须人工合并，拒绝自动插入"
     # ★ 2026-10-09 放开：无 argparse 的脚本也可生成（旗标分流走 __main__ 预扫描）
     #   原守卫「无 argparse ⇒ 拒绝」使 23 个脚本被跳过，而它们只要有 __main__ 即可接入。
 
