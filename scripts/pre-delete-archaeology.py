@@ -20,10 +20,31 @@
   二进制判断：.gguf/.safetensors/.bin/.pth/.onnx/.model/.mlx → 元数据留档（名称/大小/来源）
 
 零 LLM 原则：与 sedimentation-chain-scan.py 同构——规则判定，不调模型。
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, datetime, collections
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/pre-delete-archaeology.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
 
 VALUE_NOISE = re.compile(r'(timeout|DEBUG|path required|n_cache_reuse|GET /|POST /|keep-alive)', re.I)
 VALUE_SIGNAL = re.compile(r'(model_load_failed|exception|failed|错误|失败|配置|config|version|版本|踩坑|修复|root cause|OOM|out of memory|CUDA|port conflict|端口冲突)', re.I)

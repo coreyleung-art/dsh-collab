@@ -12,6 +12,21 @@ import subprocess
 import os
 import json
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/gate-j23-lean4.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 WEB = os.path.expanduser("~/.dsh/profiles/web")
 # 重建会替换的原生绑定目标（运行实例可能映射旧版）
 NATIVE_LIBS = ["node_modules/sharp", "node_modules/@xberg-io/xberg",

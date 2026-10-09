@@ -23,6 +23,21 @@ except Exception as e:
     print("导入 comm_domains 失败:", e)
     PREFIXES = ()
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/central-whitelist-verify.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 CENTRAL = "http://106.53.214.108:8792/"
 
 

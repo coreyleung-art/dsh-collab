@@ -5,6 +5,12 @@
  B) 服务端链路存在性 —— 源码三行：读 header → 传参 → 写进 audit
 两半合起来 ⇒ “46111 条为 0” 更可能是“真的没有”，而非“手段失效”
 仍缺：端到端真实正例（需一次带 X-Writer 的真实写入 ⇒ 需授权，本轮不做）
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 import json, os, tempfile, re
 
@@ -41,6 +47,21 @@ print()
 print("=" * 74)
 print("【B】服务端链路：X-Writer → audit 字段（源码三行）")
 print("=" * 74)
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/writer-census-positive-control.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 SRC = os.path.expanduser("~/dsh-collab/rust-blackboard/src")
 checks = [
     ("http.rs", r'header\(&req\.headers,\s*"x-writer"\)', "读请求头 x-writer"),

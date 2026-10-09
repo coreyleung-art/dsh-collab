@@ -37,6 +37,21 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, shutil, sys, tempfile
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/datadir-audit.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 RE_TOP_ENV = r"^process\.env\.([A-Z_][A-Z0-9_]*)\s*="                    # 禁形 A 匹配器
 RE_FALLBACK = r"process\.env\.MTM_DATA_DIR\s*\|\|\s*(.+?);?\s*$"         # 禁形 B/C 入口匹配器
 RE_ROOT_DEF = r"const\s+ROOT\s*=\s*path\.resolve\(__dirname"             # 判定 `|| ROOT` 语义用

@@ -25,6 +25,21 @@ import time
 import urllib.error
 import urllib.request
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/device-audit.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 VERSION = "0.6.0"
 # discovery 注册表在星桥服务器 (CENTRAL_BB) —— 与 bb-gate registry 同源
 BLACKBOARD = os.environ.get("CENTRAL_BB", "http://xingqiao.meetfunbp.com:8792")

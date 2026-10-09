@@ -34,6 +34,22 @@ from concurrent.futures import ThreadPoolExecutor
 # ★ 2026-09-28 加：未知参数必须【有声拒绝】—— 与本日 verification-level-lint.py 同一处改动同因。
 #   实测（08:47 探针 `python3 inplace-pointer-audit.py --selftest`）：它静默忽略 --selftest、
 #   照常跑默认扫描（825 键）⇒ **回答了另一个问题，而读数看起来像答案**。
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/inplace-pointer-audit.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 _KNOWN = {"--ns", "--limit", "--verbose", "--version", "-h", "--help"}
 _unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in _KNOWN]
 if _unknown:

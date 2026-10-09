@@ -15,10 +15,31 @@
   A. 我→MBP：3 张卡写中枢（**不写本机黑板**）→ MBP 只订中枢 SSE 收到（他回报收时刻）→ 双向计时
   B. MBP→我：他 3 张卡写中枢 → 我经 sync-from-central v1.1 镜像到本机（≤30s）→ 本脚本读本机命中
   C. 全程本机黑板不得出现我直写的测试键（证明未走 Tailscale 直连）
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json, os, sys, time, urllib.request
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/server-only-e2e-test.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
 
 CENTRAL = "http://xingqiao.meetfunbp.com:8792"
 LOCAL = "http://127.0.0.1:8792"

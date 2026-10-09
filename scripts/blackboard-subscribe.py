@@ -18,6 +18,21 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, hashlib, datetime
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/blackboard-subscribe.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 COLLAB = os.path.expanduser("~/dsh-collab")
 STATE = os.path.join(COLLAB, "token-monitor", "blackboard-subscribe-state.json")
 QUEUE_DIR = os.path.join(COLLAB, "token-monitor", "wakeup-queue")

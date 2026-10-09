@@ -12,6 +12,22 @@ B) 全命名空间扫描「探针/临时键」残留，并逐键比对两板（�
 """
 import json, urllib.request, urllib.error, re
 
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/bb-probe-residue-scan.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 LOCAL = "http://127.0.0.1:8792/"
 CENTRAL = "http://106.53.214.108:8792/"
 CARD = "notes/mac-mini/card-1791011480"

@@ -5,6 +5,22 @@
 # 判据：被删的全是 J 开头且分类=资源冲突；12 条重分类后不再含 资源冲突；计数口径同步。
 import re, sys, shutil, json, datetime
 
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/r041-two-step-migrate.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 RULES = '/Users/coreyleung/dsh-collab/rules-registry/RULES.md'
 RECLASS = {'J29':'工程','J33':'协作','J34':'协作','J35':'工程','J36':'架构','J37':'工程',
            'J38':'协作','J39':'方法论','J40':'方法论','J41':'协作','J43':'方法论','J44':'工程'}

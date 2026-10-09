@@ -105,6 +105,21 @@ import sys
 import tempfile
 import time
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/self-report-gate.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 HOME = os.path.expanduser("~")
 RETRACTIONS = os.path.join(HOME, "dsh-collab", "docs", "retractions.json")
 MAX_LINES = 200          # 显示上限：返回/打印时的行数上限（★ 不参与计数）

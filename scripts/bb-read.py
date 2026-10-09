@@ -35,6 +35,22 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, urllib.request
 
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/bb-read.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 BB = "http://127.0.0.1:8792"
 OLLAMA = "http://127.0.0.1:11434/api/generate"
 MODEL = "qwen2.5:3b"

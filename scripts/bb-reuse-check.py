@@ -21,6 +21,22 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 import argparse, json, sys, datetime
 
 # 已知能力分级库（每次评估后沉淀，供后续复用）
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/bb-reuse-check.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 KNOWN = [
     # 节点可复用：i9/MBP 可直接跑或轻微适配
     {"cap": "事件桥 SSE(8803)", "grade": "reusable", "node": "i9/MBP", "why": "纯 Python 标准库，无中枢依赖", "adapt": "配置黑板地址即可"},

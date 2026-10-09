@@ -77,3 +77,18 @@ for k, n in sorted(c.items(), key=lambda x: -x[1])[:8]:
 h04 = sum(n for k, n in c.items() if k.endswith("T04"))
 print(f"\n  04 时合计（本次枚举范围）= {h04}")
 print("  作者声称：今日 04 点批量入库 8511 键")
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/genebank-writer-probe.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass

@@ -5,10 +5,31 @@
 监听跨设备黑板 :8792 nodes/ 域：新节点注册 / 首次心跳 / 离线（心跳超时）
 → 发布事件总线 agent.online / agent.offline → 值班消费后定向 agent_send 告知 HR/协调者/设备协调。
 零 LLM。用法：python3 node-join-notify.py [--blackboard http://127.0.0.1:8792] [--once]
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, time, datetime, urllib.request, hashlib
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/node-join-notify.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
 
 BB = "http://127.0.0.1:8792"
 STATE = os.path.expanduser("~/dsh-collab/token-monitor/node-join-state.json")

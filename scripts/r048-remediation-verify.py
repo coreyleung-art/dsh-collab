@@ -2,8 +2,29 @@
 """复核星桥的 R048 两项未闭合（按我原先给出的前置条件逐条对，不看他的结论）
 ② SystemGraph：hold-out 是否真的定义 —— 我的前置是四点：测试集划分 / 不得参与特征与候选生成 / 划分命令 / 「采纳率30天」拆先验后验
 ③ 提醒器 v3：失败上限(5次) + 24h 绝对时限 + sync —— 是否真的在代码里生效
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 import os, re, json, urllib.request, subprocess
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/r048-remediation-verify.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
 
 PLAN = os.path.expanduser("~/dsh-collab/docs/systemgraph-internal-completion-plan-20261008.md")
 AR = os.path.expanduser("~/dsh-collab/tools/auto-reminder.sh")

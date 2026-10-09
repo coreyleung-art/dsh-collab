@@ -19,6 +19,12 @@
 用法：
   python3 verification-level-lint.py [--ns data/registry/] [--limit N]
 退出码：0 = 未发现无级别的完成态声称；1 = 有
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
@@ -31,6 +37,22 @@ from concurrent.futures import ThreadPoolExecutor
 #   ⇒ 危险在于：**它回答的是另一个问题，而读数看起来像答案** ——
 #     若那次默认扫描恰好 exit 0，调用者会把「它跑了别的任务」记成「自测通过」。
 #   ⇒ 样板：bb-put-both.py 的做法（不认识就干净打用法、exit 2），本段照抄其精神。
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/verification-level-lint.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 _KNOWN = {"--ns", "--limit", "--all", "--version", "-h", "--help"}
 _unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in _KNOWN]
 if _unknown:

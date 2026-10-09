@@ -26,6 +26,21 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 import argparse, os, re, sys
 
 # 本机节点名（用于判断字面量是否"硬编码本机"）
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/gate-deploy-check.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 LOCAL_NODES = {"mac-mini", "mbp", "i9"}
 # 本机常见 IP/主机名（出现即硬编码嫌疑）
 # 特定节点 IP（tailnet 100.x）或本机域名——127.0.0.1 通用回环不拦（任何机都对）

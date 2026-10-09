@@ -51,6 +51,21 @@ from bisect import bisect_right
 
 # ---------------------------------------------------------------- 常量
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/consistency-scan.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 DEFAULT_EXTS = [".html", ".htm", ".md", ".js", ".json", ".txt", ".css"]
 
 # 这些目录名一律不进入（隐藏目录由 . 前缀规则另外覆盖）

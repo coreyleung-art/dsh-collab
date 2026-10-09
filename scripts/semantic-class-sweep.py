@@ -16,6 +16,22 @@
 import re
 import sys
 
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/semantic-class-sweep.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 PATTERNS = [
     ('标题含日期（快照须标更新日）', r'^#{1,6} .*（\d{4}-\d{2}-\d{2}[^）]*）'),
     ('未来时/待办态（须确认该事是否已发生）', r'重启后|下次重启|待验|待收|将改|尚未|即将|将要|之后生效'),

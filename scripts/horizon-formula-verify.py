@@ -12,6 +12,21 @@
 """
 import os, glob, json
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/horizon-formula-verify.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 DD = os.path.expanduser("~/dsh-collab/token-monitor/blackboard")
 files = sorted(glob.glob(os.path.join(DD, "audit-*.jsonl")))   # 只算轮转归档（10 份）
 tot_b = 0

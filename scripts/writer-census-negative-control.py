@@ -3,6 +3,12 @@
 阳性 = 已知真例必须中；阴性 = 已知无关样本必须不中（或定量给基率）
 本脚本测我 writer 计数判定的【四类边界】：有值 / 空串 / null / 字段缺失
 ⇒ 目的是把「0」的敏感性边界钉清楚：哪些形态会被我计入、哪些不会
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 import json, tempfile, os
 
@@ -41,3 +47,18 @@ print("  ⇒ 因为「空串」在宽松判定下**也会被计入**，而结果
 print("  ⇒ 所以合格形态（非空值 / 空串）**都没有** ⇒ 「0」比“仅非空值为 0”更强一档")
 print("  ⚠ 但仍取决于服务端：若服务端对空 header 返回 None（而非 Some(\"\")），则空串根本不会落盘 ⇒")
 print("    该推论要成立，需确认 `header()` 对空串的行为（见另一路：读 http.rs 的 header 函数）")
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/writer-census-negative-control.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass

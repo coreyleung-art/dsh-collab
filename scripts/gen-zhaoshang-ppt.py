@@ -14,6 +14,22 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 
 # 莫兰迪配色
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/gen-zhaoshang-ppt.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 PINK = RGBColor(0xD8, 0xA7, 0x9A)    # 莫兰迪粉
 DEEP = RGBColor(0x6B, 0x4F, 0x4A)    # 深棕粉（标题）
 GREEN = RGBColor(0x8A, 0x9A, 0x7B)   # 莫兰迪绿

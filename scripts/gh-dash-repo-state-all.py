@@ -5,6 +5,22 @@
 """
 import subprocess, json
 
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/gh-dash-repo-state-all.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 REPO = "coreyleung-art/-"
 
 # ★ 应用刚学到的规则：「命令找不到」是观测面缺陷，不是对象的事实 ⇒ 先去找全路径

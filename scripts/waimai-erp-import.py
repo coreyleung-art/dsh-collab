@@ -15,6 +15,21 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 import csv, json, sys, glob, os, argparse, datetime
 from collections import defaultdict
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/waimai-erp-import.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 def load_csv(path):
     """读取外卖导出 CSV（GBK 编码，环境自适配）"""
     # 编码探测：UTF-8 严格优先（外卖导出现为 UTF-8），失败再回退 GBK 系

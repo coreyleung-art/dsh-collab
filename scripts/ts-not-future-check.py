@@ -19,6 +19,12 @@
   python3 ts-not-future-check.py --key <黑板键>
   python3 ts-not-future-check.py --selftest
 退出码：0 = 无未来时点；1 = 有；2 = 有不可解析（不判 pass）
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
@@ -33,6 +39,22 @@ import json, re, sys, datetime, urllib.request
 #     因为「截至时刻」是【我的约定名】（真实事故就写在这个字段上），而老登的「时刻」是【它随手起的】。
 #     ⇒ **"专用名"不是文本属性，是【约定属性】**。
 #     ⇒ 按正则猜字段名 ⇒ 要么放掉真实事故（收窄过度），要么 38/38 假阳性（过宽）。两头都不对。
+import os
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+LOG = os.path.expanduser("~/dsh-collab/logs/ts-not-future-check.log")
+
+
+def log(msg):
+    """★ R006 ⑦：固定路径日志；失败也留痕。"""
+    import time as _t
+    try:
+        os.makedirs(os.path.dirname(LOG), exist_ok=True)
+        with open(LOG, "a", encoding="utf-8") as f:
+            f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
+    except Exception:
+        pass
+
 TS_KEY_STRONG = re.compile(
     r"(^ts$|^ts_|_ts$|_at$|_time$|^time$|^截至时刻$|^落卡时刻$|^取值时刻$|^reported_at$|^判定时刻$)", re.I)
 TS_KEY_WEAK = re.compile(r"(时刻|时点|时间)", re.I)
