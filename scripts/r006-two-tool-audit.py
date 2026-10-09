@@ -228,21 +228,54 @@ def audit(tool):
                            "VERSION 赋值 %d 处 · --version 输出含本地值=%s" % (nver, same))
 
     # ⑦ 统一日志
-    # ★ 实跑级：查 logs/ 下【含该工具名】的日志文件是否真实存在（mtime）
-    #   2026-10-10 由 PSTD 交付触发：原判据查「源码含 "logs/" 字面量」是【声明级】，
-    #   而工具用 os.path.join(..., "logs", ...) 时源码无该字面量 ⇒ 误报 FAIL（实测抓出）。
+    # ★ 实跑级（二次升级）：跑一次工具 ⇒ 其【声明的】日志文件应【行数增加】。
+    #   2026-10-10 由 PSTD 建议：原判据只查「文件存在」—— 而实测 5/9 器的
+    #   **声明日志文件根本不存在**（声明了路径但从未创建）⇒ 只查存在会漏；且
+    #   存在的也可能是【旧的/空的】⇒ 故须「跑一次后追加行数 > 0」。
+    #   第1次升级（同日）：原判据查「源码含 "logs/" 字面量」= 声明级 ⇒ 漏报。
     logdir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "logs")
-    logfiles = []
-    if os.path.isdir(logdir):
-        base = stem.replace("_", "-").lower()
-        for fn in os.listdir(logdir):
-            if fn.endswith(".log") and base in fn.lower().replace("_", "-"):
-                fp = os.path.join(logdir, fn)
-                logfiles.append("%s(%d B)" % (fn, os.path.getsize(fp)))
-    declares = bool(re.search(r"无日志|不写日志|no\s+log", nocmt, re.I))
-    res["⑦ 统一日志"] = ("PASS" if (logfiles or declares) else "FAIL",
-                        "logs/ 下日志 %s%s" % (", ".join(logfiles) if logfiles else "无",
-                                             "（声明无日志）" if (declares and not logfiles) else ""))
+    # 从源码取【声明的】日志文件名
+    decl_logs = sorted(set(re.findall(r'"([A-Za-z0-9_\-]+\.log)"', nocmt)
+                           + re.findall(r"'([A-Za-z0-9_\-]+\.log)'", nocmt)))
+    declares_none = bool(re.search(r"无日志|不写日志|no\s+log", nocmt, re.I))
+    if declares_none and not decl_logs:
+        res["⑦ 统一日志"] = ("PASS", "显式声明无日志（可适用）")
+    elif not decl_logs:
+        res["⑦ 统一日志"] = ("FAIL", "未见声明的日志文件名")
+    else:
+        target = os.path.join(logdir, decl_logs[0])
+        before = 0
+        if os.path.exists(target):
+            try:
+                before = sum(1 for _ in open(target, encoding="utf-8", errors="replace"))
+            except OSError:
+                before = 0
+        # ★ 触发入口校正（2026-10-10 自校所得）：先用 --dry-run/--help 跑 ⇒ 实测
+        #   `gate-canfail`(7→7) 与 `j4-reuse-gate`(138→138) 都判「未追加」—— ★ 但那可能是
+        #   **那两个入口本来就不写日志**（判据过严，非工具缺陷）。⇒ 改按【会执行任务的入口】
+        #   顺序触发：--selftest（真跑自检，最可能落日志）→ --selfcheck → --dry-run。
+        for f in ("--selftest", "--selfcheck", "--dry-run"):
+            rc_t, _ = run([p, f], timeout=120, cwd=d)
+            if rc_t not in ("TIMEOUT", "ERR"):
+                # 再查一次是否已追加；若已追加就不必试下一个
+                if os.path.exists(target):
+                    try:
+                        if sum(1 for _ in open(target, encoding="utf-8", errors="replace")) > before:
+                            break
+                    except OSError:
+                        pass
+        after = 0
+        if os.path.exists(target):
+            try:
+                after = sum(1 for _ in open(target, encoding="utf-8", errors="replace"))
+            except OSError:
+                after = 0
+        if after > before:
+            res["⑦ 统一日志"] = ("PASS", "%s 追加 %d→%d 行（实测落盘）" % (decl_logs[0], before, after))
+        elif not os.path.exists(target):
+            res["⑦ 统一日志"] = ("FAIL", "★ 声明 %s 但文件不存在" % decl_logs[0])
+        else:
+            res["⑦ 统一日志"] = ("FAIL", "★ %s 存在但本次未追加（%d→%d 行）" % (decl_logs[0], before, after))
 
     # ⑧ 自动落链
     hasreg = REGISTRY_HINT in code
@@ -654,6 +687,27 @@ def _r006_std_imports(imports):
     return stdlib, third
 
 
+def _r006_logline(what, status):
+    """R006 ⑦ 统一日志：本块每次动作也留痕。★ 这不是装饰 ——
+    本块的早期守卫会遮蔽本器【自带的同名旗标实现】，若那实现里原本有 log 调用，
+    该副作用会【永不到达】（实测 gate-canfail 的唯一 log 调用点就在其自己的 lean4_check 内）。
+    故本块必须自己补上，否则本块会把被修物的 ⑦ 从「有留痕」打成「死声明」。"""
+    if globals().get("_R006_DRY", False):
+        return
+    fn = None
+    for _nm in ("log", "write_log"):
+        _f = globals().get(_nm)
+        if callable(_f):
+            fn = _f
+            break
+    if fn is None:
+        return
+    try:
+        fn("[R006] %s · %s · %s" % (_R006_DECL["tool"], what, status))
+    except Exception:
+        pass
+
+
 def _r006_legacy_narrative():
     """沿用本器【原有的 selfcheck() 自述】—— 不因迁移到 canonical 块而丢失既有声明内容。
     取不到时如实说明（不静默当空）。"""
@@ -742,6 +796,7 @@ def _r006_selfcheck():
     for nm, ok, dt in chk:
         lines.append("   %s %s — %s" % ("✅" if ok else "❌", nm, dt))
     print("\n".join(lines))
+    _r006_logline("selfcheck", "PASS %d/%d" % (len(chk) - len(fails), len(chk)))
     return 0 if not fails else 1
 
 
@@ -842,6 +897,7 @@ def _r006_lean4_check():
     if vac:
         print("  ★ 反空洞控制未过：%s" % "; ".join(vac))
     print("\n  => %d/%d pass, %d FAIL" % (len(rows) - len(nf), len(rows), len(nf)))
+    _r006_logline("lean4-check", "PASS %d/%d" % (len(rows) - len(nf), len(rows)))
     return 0 if not nf else 1
 
 

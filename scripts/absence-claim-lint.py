@@ -75,7 +75,6 @@ def selfcheck():
     print("  · 固定日志: ~/dsh-collab/logs/absence-claim-lint.log")
     return 0
 
-__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
 import argparse
@@ -1370,6 +1369,27 @@ def _r006_std_imports(imports):
     return stdlib, third
 
 
+def _r006_logline(what, status):
+    """R006 ⑦ 统一日志：本块每次动作也留痕。★ 这不是装饰 ——
+    本块的早期守卫会遮蔽本器【自带的同名旗标实现】，若那实现里原本有 log 调用，
+    该副作用会【永不到达】（实测 gate-canfail 的唯一 log 调用点就在其自己的 lean4_check 内）。
+    故本块必须自己补上，否则本块会把被修物的 ⑦ 从「有留痕」打成「死声明」。"""
+    if globals().get("_R006_DRY", False):
+        return
+    fn = None
+    for _nm in ("log", "write_log"):
+        _f = globals().get(_nm)
+        if callable(_f):
+            fn = _f
+            break
+    if fn is None:
+        return
+    try:
+        fn("[R006] %s · %s · %s" % (_R006_DECL["tool"], what, status))
+    except Exception:
+        pass
+
+
 def _r006_legacy_narrative():
     """沿用本器【原有的 selfcheck() 自述】—— 不因迁移到 canonical 块而丢失既有声明内容。
     取不到时如实说明（不静默当空）。"""
@@ -1458,6 +1478,7 @@ def _r006_selfcheck():
     for nm, ok, dt in chk:
         lines.append("   %s %s — %s" % ("✅" if ok else "❌", nm, dt))
     print("\n".join(lines))
+    _r006_logline("selfcheck", "PASS %d/%d" % (len(chk) - len(fails), len(chk)))
     return 0 if not fails else 1
 
 
@@ -1558,6 +1579,7 @@ def _r006_lean4_check():
     if vac:
         print("  ★ 反空洞控制未过：%s" % "; ".join(vac))
     print("\n  => %d/%d pass, %d FAIL" % (len(rows) - len(nf), len(rows), len(nf)))
+    _r006_logline("lean4-check", "PASS %d/%d" % (len(rows) - len(nf), len(rows)))
     return 0 if not nf else 1
 
 
@@ -1611,4 +1633,16 @@ if __name__ == "__main__" and _r006_want("--r006-sets"):
 # ══════════════════════════════ R006 块结束 ══════════════════════════════
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # ★ R006 ⑦（批次3 补）：本器定义了 log() 却【0 个调用点】⇒ 声明的日志是【死件】。
+    #   在此【唯一出口】统一留痕，覆盖 main() 的全部 return 路径：
+    #   记时间与结果；★ 连「留痕自身失败」也留痕（⑦ 原文：失败也留痕）。
+    _r006_rc = main()
+    try:
+        log("[main] rc=%s argv=%s" % (_r006_rc, " ".join(sys.argv[1:]) or "(无参)"))
+    except Exception as _r006_e:
+        try:
+            log("[main] 留痕自身失败: %s" % _r006_e)
+        except Exception:
+            pass
+    raise SystemExit(_r006_rc)
+
