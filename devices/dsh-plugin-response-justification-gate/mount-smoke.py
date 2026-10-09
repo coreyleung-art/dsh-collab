@@ -58,6 +58,18 @@ CASES = (
 )
 
 # ★ 显式构造（避免上面的占位写法产生歧义）
+def _gate_version():
+    """★ 从主器【派生】版本，不写死（R006 ⑥ 单一来源）——
+    否则每次 bump 版本都会让本冒烟假红（本条自身也曾踩过：写死 '1.0.0' ⇒ 1.0.1 时 fail）。"""
+    import re as _re
+    try:
+        s = open(GATE, encoding="utf-8").read()
+        m = _re.search(r"^__version__\s*=\s*['\"]([^'\"]+)['\"]", s, _re.M)
+        return m.group(1) if m else "?"
+    except Exception:
+        return "?"
+
+
 def build_cases(tmp):
     import json as _j
     paths = {}
@@ -67,8 +79,7 @@ def build_cases(tmp):
             _j.dump(obj, f, ensure_ascii=False)
         paths[name] = p
     return (
-        ("① --version 与 banner 同源",
-         ["--version"], 0, ["1.0.0"], []),
+        ("① --version 与 banner 同源", ["--version"], 0, [_gate_version()], []),
         ("② --negative-control 全拒",
          ["--negative-control"], 0, ["已拒", "0 FAIL"], ["误放行"]),
         ("③ enforced·有R ⇒ 放行(exit 0)",
@@ -150,10 +161,14 @@ def main():
         counts[r["state"]] = counts.get(r["state"], 0) + 1
 
     if a.json:
-        print(json.dumps({"tool": "response-justification-gate", "version": __version__,
+        print(json.dumps({"tool": "response-justification-gate",
+                          "smoke_version": __version__,
+                          "gate_version": _gate_version(),
                           "cases": rows, "counts": counts}, ensure_ascii=False, indent=1))
     else:
-        print("== response-justification-gate · 真挂载冒烟（v%s）==" % __version__)
+        print("== response-justification-gate · 真挂载冒烟 ==")
+        print("   冒烟器 v%s · ★ 被测主器 v%s（派生自主器源码，非写死）"
+              % (__version__, _gate_version()))
         print("   ★ 四态如实分报 —— skipped / timeout **不折算为通过**")
         print()
         icon = {"pass": "✅", "fail": "❌", "skipped": "⏭", "timeout": "⏱"}

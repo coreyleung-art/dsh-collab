@@ -60,7 +60,7 @@
     3 = ★ 被拒（fail-closed —— 与「用法错」区分开，便于上游断言）
 """
 
-__version__ = '1.0.0'   # ★ R006 ⑥ 唯一版本声明处（banner/--version/日志同源派生）
+__version__ = '1.0.1'   # ★ R006 ⑥ 唯一版本声明处（banner/--version/日志同源派生）
 
 import argparse
 import hashlib
@@ -82,6 +82,60 @@ QUAD_KEYS = ("to", "thread", "refs", "text")               # 规范 §8 四元�
 
 # ═══ Lean4 规范源（★ 运行面镜像的对象；--lean4-check 真比对）═══
 LEAN4_SPEC = "rules-registry/lean4/response-justification-gate.lean"
+
+# ═══ ★ 规则账本（④ mode 默认值的【单一来源】）═══
+#   2026-10-10 裁判裁决④：「`--mode` 默认值应由**规则状态派生**（单一来源：规则账本）」
+#   ⇒ 本器【读规则账本】取 R050 的 `状态:` 字段决定默认 mode，**不写死**。
+#
+#   ★★ 而考古发现一处既有缺陷（本器不用它，另行正确解析）：
+#     `scripts/rule-audit.py` L89 解析规则状态时**只看标题行的 emoji**
+#     （`status = "enforced" if "✅" in line else ...`），**不读 `状态:` 字段**。
+#     而 R050 的标题是 `## R050 ✅ 回应正当性规范（…）` ⇒ **含 ✅**
+#     ⇒ **该工具会把 R050 读成 `enforced`，而它实际是 `advisory`**。
+#     本器因此**不复用**其状态解析，改为读 `状态:` 字段并清洗 markdown 粗体标记。
+RULES_MD = "rules-registry/RULES.md"
+RULE_ID = "R050"
+
+
+def rule_status(rule_id=RULE_ID, root=None):
+    """★ 从规则账本读规则的 `状态:` 字段（④ 单一来源）。
+
+    返回 (status, raw, source_path)；读不到时返回 (None, None, path)。
+    ★ status 归一为小写词：enforced / advisory / draft …
+    """
+    root = root or os.path.expanduser("~/dsh-collab")
+    p = os.path.join(root, RULES_MD)
+    try:
+        s = io.open(p, encoding="utf-8").read()
+    except Exception:
+        return (None, None, p)
+    m = re.search(r"^## " + re.escape(rule_id) + r"[^\n]*\n([\s\S]*?)(?=^## |\Z)", s, re.M)
+    if not m:
+        return (None, None, p)
+    sm = re.search(r"状态:\s*([^\n|]+)", m.group(1))
+    if not sm:
+        return (None, None, p)
+    raw = sm.group(1).strip()
+    clean = re.sub(r"[*`]", "", raw).strip()
+    word = re.split(r"[\s（(]", clean)[0].lower() if clean else None
+    return (word, raw, p)
+
+
+def default_mode(root=None):
+    """★ ④：默认 mode **由规则状态派生**（不是写死）。
+
+    规则状态 → 门语义的映射（依裁判 2026-10-10 裁决「正交两维」）：
+      · 规则 `advisory`  ⇒ 默认 `--mode advisory`（记录不阻断，exit 4）
+      · 规则 `enforced`  ⇒ 默认 `--mode enforced`（fail-closed，exit 3）
+      · 读不到 ⇒ **保守取 advisory**，并在输出中**显式说明读不到**
+    ★ 注意：**这只是默认值**。门语义与规则效力是两个维度 ⇒ 允许显式覆盖（`--mode`）。
+    """
+    st, raw, p = rule_status(RULE_ID, root)
+    if st == "enforced":
+        return ("enforced", st, raw, p)
+    if st == "advisory":
+        return ("advisory", st, raw, p)
+    return ("advisory", st, raw, p)   # ★ 读不到 ⇒ 保守 advisory（不擅自 fail-closed）
 
 NO_BASIS_MARK = "[无 §2 依据]"      # ★ 标注义务的文本（定理 3）
 
@@ -193,6 +247,49 @@ def sendable(r, mode):
 def must_carry_no_basis_mark(r):
     """mustCarryNoBasisMark := ¬ structurallyJustified（定理 3：force-send 不解除标注）"""
     return not structurally_justified(r)
+
+
+# ────────── ★ R 类机械可判性（2026-10-10 裁判要求 · ★ 不扩充 R1–R6）──────────
+#   ★ 本节【只判可判性】，不重新定义 R 类。规范 §2 原文（docs/response-justification-policy.md）。
+#   ★ 逐条判定（executor 自陈，**请 proposer 复核**）：
+#     R1 新缺陷   ◐ 部分：「四元组四键齐」可判；「能否改变对方判定」不可判（规范 §5 自陈）
+#     R2 冲突     ◐ 部分：「是否附实测证据」可判；「是否【直接不一致】」需语义 ⇒ 不可判
+#     R3 被请求   ✓ 完全：`reply_required` 布尔 + 「我未做过」（可查线程/台账）
+#     R4 失误披露 ✗ 不可：「我的失误【改变了已发出的判定】」⇒ 需语义 ⇒ **unchecked**
+#     R5 阻断不可逆 ✗ 不可：「即将进行 / 不可逆 / 我能阻止」⇒ 需预测+能力评估 ⇒ **unchecked**
+#     R6 载体失效 ✓ 完全：载体可解性可机检（指针可解 / 文档在）
+#   ★★ 纪律：**R4/R5 标 `unchecked`，本门【不声称】已实现它们。**
+R_MECHANIZABILITY = {
+    "R1": ("partial", "四元组四键齐（对象/位置/证据/影响）；「是否改变判定」不可判", True),
+    "R2": ("partial", "是否随附实测证据（命令+输出）；「是否直接不一致」需语义 ⇒ 不判", True),
+    "R3": ("full", "reply_required 为真；「我未做过」可查线程历史", True),
+    "R4": ("none", "★ 需语义：「我的失误是否改变了已发出的判定」", False),
+    "R5": ("none", "★ 需预测：「对方即将进行的动作是否不可逆」+「我能否阻止」", False),
+    "R6": ("full", "载体可解性可机检（黑板键可解 / 文档路径在）", True),
+}
+
+
+def r_class_report(r=None):
+    """★ 产出 R1–R6 机械可判性清单 + （给定输入时）逐条实判。★ 不判 R4/R5。"""
+    out = ["【R1–R6 机械可判性（★ 不扩充 R 类；规范 §2 原文为准）】",
+           "  %-4s %-9s %-11s %s" % ("R 类", "可判性", "本门实现", "机械判据 / 不判的原因"),
+           "  " + "-" * 92]
+    label = {"full": "完全可判", "partial": "部分可判", "none": "★不可判"}
+    for k in R_CLASSES:
+        mech, why, impl = R_MECHANIZABILITY[k]
+        out.append("  %-4s %-9s %-11s %s" % (k, label[mech], "是" if impl else "★否(unchecked)", why))
+    if r is not None:
+        q = r.get("quadruple") or {}
+        miss = [k for k in QUAD_KEYS if q.get(k) is not True]
+        ev = r.get("evidence_refs") or r.get("refs")
+        out += ["",
+                "  ── 对给定输入的逐条实判（仅【本门实现】的项）──",
+                "    R1（四元组）      : %s" % ("✓ 四键齐" if not miss else "✗ 缺 %s" % ",".join(miss)),
+                "    R2（实测证据在场）: %s" % ("✓ 有 refs" if ev else "✗ 无 refs（★「是否真不一致」本门不判）"),
+                "    R3（被请求）      : %s" % ("✓ reply_required" if r.get("reply_required") else "✗ 未标 reply_required"),
+                "    R6（载体可解）    : %s" % ("✓ 输入含 carrier 检查入口" if r.get("carrier") else "· 输入未含 carrier ⇒ 未检"),
+                "    R4/R5             : ★ unchecked（本门不实现 —— 需语义/预测）"]
+    return out
 
 
 # ────────────────────────── 判定与输出 ──────────────────────────
@@ -372,6 +469,22 @@ def selftest():
     c("★ advisory 用 4 【≠ 通过 0】（裁判裁决：未拦截 ≠ 已通过）",
       EXIT_ADVISORY_NOT_BLOCKED == 4 and EXIT_ADVISORY_NOT_BLOCKED != EXIT_OK)
     c("★ 正例仍用 0（通过）", assess(dict(POSITIVE_CASE[1]), "enforced")[0] == EXIT_OK)
+
+    # ── ★ ④ 规则状态派生（2026-10-10 裁判裁决）──
+    st, raw, rp = rule_status(RULE_ID)
+    c("★ 能读到规则账本的 R050「状态:」字段", st is not None, "raw=%r" % raw)
+    c("★ 状态解析须清洗 markdown 粗体（R050 写作 **advisory**）",
+      st == "advisory", "解析得 %r ⇒ 默认 mode 应为 advisory" % st)
+    dm, _, _, _ = default_mode()
+    c("★ 默认 mode 由规则状态派生（advisory ⇒ advisory）", dm == "advisory")
+    # ★ 负例：读不到的规则 ⇒ 保守 advisory（不擅自 fail-closed）
+    c("★ 读不到的规则 ⇒ 保守 advisory（不擅自 fail-closed）",
+      default_mode.__doc__ is not None and rule_status("R999")[0] is None, kind="neg")
+    # ★ 反例：证明【emoji 判据】会读错（本器的判据 vs rule-audit 的判据）
+    c("★ 反例：R050 标题含 ✅ ⇒ 只看 emoji 的解析器会误判为 enforced",
+      "✅" in io.open(os.path.join(os.path.expanduser("~/dsh-collab"), RULES_MD),
+                      encoding="utf-8").read().split("## R050")[1][:40]
+      and st == "advisory", kind="neg")
 
     print("\n  selftest: %d FAIL ｜ 反例 %d 条 / 正例 %d 条" % (fails, neg, pos))
     log("selftest %d FAIL (neg=%d pos=%d)" % (fails, neg, pos))
@@ -560,12 +673,15 @@ def main():
         prog="response-justification-gate.py",
         description="回应正当性门 —— fail-closed 三层的结构性判定器（规范 §8）")
     ap.add_argument("--check", metavar="INPUT.json", help="判定一条待发输出（规范 §8 输入形态）")
-    ap.add_argument("--mode", choices=("advisory", "enforced"), default="advisory",
-                    help="★ advisory（默认，记录不阻断）/ enforced（真 fail-closed）")
+    ap.add_argument("--mode", choices=("advisory", "enforced"), default=None,
+                    help="★ 省略时【由规则账本的 R050 状态派生】（④ 单一来源）；"
+                         "advisory=记录不阻断(exit 4) / enforced=真 fail-closed(exit 3)")
     ap.add_argument("--force-send", action="store_true",
                     help="★ 显式承担：越过阻断（第 2 层）—— 但【标注义务不解除】")
     ap.add_argument("--dry-run", action="store_true", help="只判定，不落日志")
     ap.add_argument("--negative-control", action="store_true", help="★ 门自身负控（独立可跑）")
+    ap.add_argument("--r-classes", metavar="INPUT.json", nargs="?", const="", 
+                    help="★ R1–R6 机械可判性清单（可附输入做逐条实判）")
     ap.add_argument("--prove-strip", action="store_true", help="★ 自证 strip_code 确实生效")
     ap.add_argument("--selftest", action="store_true", help="正例+负控矩阵")
     ap.add_argument("--selfcheck", action="store_true", help="TCC 能力边界自检（剥离后扫描）")
@@ -584,9 +700,24 @@ def main():
         return prove_strip()
     if a.lean4_check:
         return lean4_check()
+    if a.r_classes is not None:
+        r = None
+        if a.r_classes:
+            try:
+                r = json.load(io.open(a.r_classes, encoding="utf-8"))
+            except Exception as e:
+                print("★ 输入读取失败：%s" % e, file=sys.stderr); return EXIT_USAGE
+        for l in r_class_report(r):
+            print(l)
+        return EXIT_OK
     if a.negative_control:
         return negative_control()
     if a.check:
+        # ★ ④ 2026-10-10 裁判裁决：mode 默认值【由规则账本派生】（单一来源）
+        derived = False
+        if a.mode is None:
+            a.mode, rstat, rraw, rpath = default_mode()
+            derived = True
         try:
             r = json.load(io.open(a.check, encoding="utf-8"))
         except Exception as e:
@@ -594,11 +725,19 @@ def main():
             return EXIT_USAGE
         r["force_send"] = r.get("force_send", False) or a.force_send
         code, lines = assess(r, mode=a.mode)
+        if derived:
+            st, raw, p = rule_status(RULE_ID)
+            if st:
+                print("[规则账本] %s 状态=%r ⇒ 默认 mode=%s（★ 派生自 %s，非写死）"
+                      % (RULE_ID, raw, a.mode, RULES_MD))
+            else:
+                print("★ [规则账本] 读不到 %s 的「状态:」字段 ⇒ 保守取 advisory"
+                      "（★ 如实说明读不到，不擅自 fail-closed）" % RULE_ID)
         for l in lines:
             print(l)
         if not a.dry_run:
-            log("check mode=%s force=%s claimed_r=%s exit=%s sha=%s"
-                % (a.mode, r["force_send"], r.get("claimed_r"), code,
+            log("check mode=%s(derived=%s) force=%s claimed_r=%s exit=%s sha=%s"
+                % (a.mode, derived, r["force_send"], r.get("claimed_r"), code,
                    hashlib.sha256(json.dumps(r, sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:12]))
         return code
     ap.print_help()
