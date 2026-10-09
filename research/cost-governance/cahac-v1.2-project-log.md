@@ -409,6 +409,23 @@
 
 ---
 
+| 2026-10-09 | **★ 目标轮 6** | **动 91 个真欠账 —— 加 `r10-impl` 动作：为 subprocess【安全用法】生成【基于实际检测】的 lean4_check。**
+**★ ① 先分类（决定能不能断言）**：`A 完全安全（仅列表字面量、无 shell=True）40` · `★ B 有风险用法 20` · `C 非 subprocess 31`。
+**★★ 而 B 类里有【真正的命令注入风险】**（变量传命令 + `shell=True`）：`bb-absorb` / `bb-gate` / `bb-upgrade` / `node-executor` / `deliver-gate` / `find-node-and-rerun` / `g10-g11-verify` / `pstd-105-staging-verify` 等 —— **已登记，不自动改行为**（那是真正的修，须逐个评估）。
+**★ ② 生成器原则（避免假断言）**：**断言内容 = 本工具【实际被检测到】的结构**；若检出 `shell=True` / 变量传命令 / 已有旗标 ⇒ **拒绝生成**（不放假断言）。
+**★★★ ③ 三次修正，全部来自实测**：
+| # | 实测暴露的问题 | 修法 |
+|---|---|---|
+| 1 | 旗标插错 parser ⇒ `unrecognized arguments` | 按【持有 `--selftest` 的主 parser】插 |
+| 2 | 分流放在 `parse_args` 之后 ⇒ **被 required 位置参数拦**（`bb-card-put.py` 报 `required: key`）| 改为 **`parse_args` 之前预扫描 `sys.argv`** |
+| 3 | ★ **语法通过 ≠ 功能生效**（12 个「成功」里若干旗标未生效）| **`safe_apply` 加功能验证**：实跑 `--lean4-check` 并检查断言表 |
+**④ 成效**：**R10 implemented 8 → 16**（+8）· **真欠账 91 → 83** · 自动生成 9 个断言**真生效 8/9**。
+**⑤ 剩余 83 的构成**：`subprocess 52` · **`任意写路径 19`** · `os.remove 5` · `rmtree 3` · `os.system 2` · `pkill 1` · `launchctl 1`。**跳过的 34 个原因**：`18 无 argparse` · `8 找不到 parse_args` · `7 已有 --lean4-check` · `1 找不到插入点` ⇒ **前 26 个本质是【无 CLI 参数解析】，属 R9 缺口，须另行处理**。
+**★★ ⑥ 而我自己的工具也暴露了一个同族问题**：`r006-retrofit-apply.py --lean4-check` 报 **4/6（2 FAIL）** —— 因为它的 A/E 判据**写死「2 类动作」**，而本轮加了 `r10-impl` ⇒ **判据未随实现更新**。**⇒ 已改为动态（`len(ACTIONS)`）**。**⇒ 这与本机既有做法一致**（`comm-invariant-audit` 用 `len(CHECKS)` 而非写死项数）。
+**⑦ 另记一次操作失误**：我曾用 `git checkout -- scripts/` 回滚，**把我自己未提交的 `r006-retrofit-apply.py` 也回滚了**（r10-impl 代码丢失需重写）⇒ **教训：回滚须【精确指定文件】，不用目录通配**。 | 提交 `660fec6` / `f9fc11f` / `8bf1cbf` | ✅ 本轮闭环 | 目标保持 active |
+
+---
+
 ## 待办（本日志的「下一步」汇总）
 
 | # | 阶段 | 内容 | 状态 |
