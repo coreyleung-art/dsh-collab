@@ -3,9 +3,12 @@
 > Cost-Aware Hybrid Agent Communication Protocol v1.2
 > 起草/维护：HR 驾驶舱 · 2026-08-19 · 状态：**STANDARD（可实施）** · 前置：cahac-protocol-draft-v0.1.md（草案）
 > **v1.2 迭代**：执行人 `session-b250bf9d`（所有者 2026-10-08 授权，属主链断裂期间）· 复核 裁判 `session-1ffded95`（节点①②）
-> **变更记录**：v1.0（初版 · 13 节）→ **v1.2**（① 状态机单一来源·修正三处不一致 ② 权重单一来源·修正两套并列 ③ 黑板 TTL 与 ACK 保留策略 ④ 认证优先级 ⑤ 必答可执行化 ⑥ `dedup_key` 语义与窗口 ⑦ 状态转移单调性 ⑧ `thread`/`task_id` 关系 ⑨ 熔断责任方 ⑩ **域声明** ⑪ 检查下探数据层 ⑫ 审计自检 ⑬ **缺席可判别** ⑭ **偏离归属（上位）** ⑮ 术语与错误码补全）。
-> **★ v1.2 的本轮状态**：**批 1（纯文档）已落**（S3 状态机单一来源 / S4 权重单一来源 / S10 thread·task_id 关系 / V-1 术语补全 / V-3 边界澄清）；
->   **批 2（需设计决策）与批 3（需实现）未落** ⇒ 凡涉及「选哪个值」之处，本版**只做单一来源化、不替裁**，均在正文以 `★v1.2 待裁` 标出。
+> **变更记录**：v1.0（**编号节 17 个 + 附录 4 个**）→ **v1.2**（① 状态机单一来源·修正三处不一致 ② 权重单一来源·修正两套并列 ③ 黑板 TTL 与 ACK 保留策略 ④ 认证优先级 ⑤ 必答可执行化 ⑥ `dedup_key` 语义与窗口 ⑦ 状态转移单调性 ⑧ `thread`/`task_id` 关系 ⑨ 熔断责任方 ⑩ **域声明** ⑪ 检查下探数据层 ⑫ 审计自检 ⑬ **缺席可判别** ⑭ **偏离归属（上位）** ⑮ 术语与错误码补全）。
+> **★ v1.2 的本轮状态（v1.4 更正 · 依裁判 B 案 N-01/N-02）**：
+> **批 1 已落**（S3 状态机单一来源 / S4 权重单一来源 / S10 thread·task_id / V-1 术语 / V-3 边界澄清）。
+> **批 2 已落**（S3·S4 单一来源化 · S5 已裁定写入；S6 认证优先级 / S7 必答 / S9 单调性 / S11 熔断责任方 ⇒ 见 §7.5 与 §18）。
+> **批 3 已落**（**S0 偏离归属 → §18** · **S1 状态写入 → §7.5** · **S2 管辖域 → §1.5** · S8 dedup_key → §8.3 · S12/S13/S15 → 工具与 I8）。
+> ★ **本版【不再有】待裁项** —— 5 处待裁已由所有者 2026-10-09 裁定并落地：① `CREATED`/`QUEUED` ⇒ 并入 `todo` 并补 `verified`/`blocked`；② `COLLAB` ⇒ 走线程、0.8 保留并补理由；③ `ACK` ⇒ 新增 `ack_write` 路径、保留 0.05；④ `dedup_key` ⇒ 统一为内容指纹；⑤ `thread`/`task_id` ⇒ 一 thread 可含多 task。
 > **基线**：`cahac-protocol-v1.0.md` **一字未改**，保留为历史基线（可对照、可回滚）。
 > 定位：多智能体通信的成本感知通道选择标准——按消息类型路由通信模式（点对点/黑板/邮箱/事件/广播）+ 回执-状态去耦 + 预算内建 + 安全审计
 > 对标：A2A（Google）/ MCP（Anthropic）；差异化=成本感知通道选择 + ACK 去耦 + 预算内建
@@ -34,18 +37,18 @@
 | 术语 | 定义 |
 |---|---|
 | Agent | 通信参与者（会话/进程） |
-| Channel | 通信模式（p2p/blackboard/mailbox/eventbus/broadcast） |
+| Channel | 通信模式（**p2p / blackboard / mailbox / eventbus / broadcast / thread**）★ v1.4 统一为 6 值：原 5 值漏了 `thread`，而 §4 已把 COLLAB 的通道定为「线程」（依 `AGENT-NETWORK-CHARTER.md` L29） |
 | Blackboard | 共享状态区（topic 命名空间） |
 | Mailbox | 文件系统任务队列 |
 | Envelope | 统一消息信封（所有通道共用头） |
 | CostCap | 任务级成本上限 |
 | **Agent Card** | **★v1.2 补**：会话能力声明（结构见 §11）——`cahac_version` / `agent_id` / `channels` / `topics` / `budget` / `comm_style` / `capabilities` |
 | **thread** | **★v1.2 补**：进程间会话级聚合标识（§3 信封字段；与 `task_id` 的关系见 §7.2 的「v1.2 关系声明」） |
-| **dedup_key** | **★ v1.2.1 已裁（所有者：要对齐）**：**统一为【内容指纹】**（如 `SHA256(payload)`），依据 `AGENT-NETWORK-CHARTER.md` L33「**同内容重投判 dup ⇒ 去重键=内容指纹**」⇒ **指纹式是权威口径**。★ **结构化命名式（`task:<name>[:status]`）降级为【关联键】**（见 §3）：它解决的是「同一任务的多次消息要能**关联**」，**不是「去重」** ⇒ **二者用途不同，不得互相替代**。|
+| **dedup_key** | **★ v1.2.1 已裁（所有者：要对齐）**：**统一为【内容指纹】**，形如 `sha256:<hex>` = `SHA256(规范化 payload)`，依据 `AGENT-NETWORK-CHARTER.md` L33「**同内容重投判 dup ⇒ 去重键=内容指纹**」⇒ **指纹式是权威口径**。★ **结构化命名式（`task:<name>[:status]`）降级为【关联键】**（见 §3）：它解决的是「同一任务的多次消息要能**关联**」，**不是「去重」** ⇒ **二者用途不同，不得互相替代**。|
 | **urgency** | **★v1.2 补**：广播紧迫度（§5.1 决策算法使用；取值 `emergency` / `policy` / `restart`，见 §4 硬规则） |
 | **retry / max_retries** | **★v1.2 补**：重试次数与上限（§7.2 任务卡字段；状态机见 §7.3） |
 
-## 1.5 ★ 管辖域声明（v1.2.1 新增 · S2）
+### 1.5 ★ 管辖域声明（v1.2.1 新增 · S2）
 
 **为什么需要**：v1.0 有两处沉默，合起来造成一条可长期存在的缝 ——
 ① **从未声明本协议管辖哪些命名空间/路径**；
@@ -53,7 +56,7 @@
 ⇒ 后果（实测）：本机同时存在**多套**通讯/任务规范，而**彼此互不引用**，
 负责落地的人**无从判断某条规则归谁管**。
 
-### 1.5.1 本协议管辖（**in-domain**）
+#### 1.5.1 本协议管辖（**in-domain**）
 
 | 命名空间 / 路径 | 本协议中定义于 | 说明 |
 |---|---|---|
@@ -64,15 +67,15 @@
 | 事件 schema | **§8** | `{event_id, ts, source, type, payload, dedup_key, severity}` |
 | Agent Card 结构 | **§11** | 能力发现 |
 
-### 1.5.2 ★ 点名域外承载（**out-of-domain，必须显式，不得沉默**）
+#### 1.5.2 ★ 点名域外承载（**out-of-domain，必须显式，不得沉默**）
 
 | 承载 | 实际是什么 | 与本协议的关系 | 归属 |
 |---|---|---|---|
-| **`~/.dsh/inbox/`** | **会话消息注入收件箱**（实测 **2672 条**，字段 `from`/`to`/`type`/`subject`…，**无 `state`**） | **不属于本协议任何通道** —— 它不是 `mailbox/`（路径/结构不同），也不是 blackboard（无 `topic` 命名空间） | **无规范覆盖**（仅有接收侧行为纪律 `receive-discipline.json`）⇒ **S1 §7.5 的调用点缺口即在此** |
+| **`~/.dsh/inbox/`** | **会话消息注入收件箱**（实测 **文件 2674 / 条目 5518**〔取值时刻 2026-10-09 06:29Z · 口径：JSONL **行数**〕，字段 `from`/`to`/`type`/`subject`…，**合法 `state` 0 条**） | **不属于本协议任何通道** —— 它不是 `mailbox/`（路径/结构不同），也不是 blackboard（无 `topic` 命名空间） | **无规范覆盖**（仅有接收侧行为纪律 `receive-discipline.json`）⇒ **S1 §7.5 的调用点缺口即在此** |
 | **`tasks/i9/*`** | 设备间任务派发（`cmd`/`result`） | **不在本协议内** | **`blackboard-task-card-protocol v1.1`（221 行 · 在役）** |
 | **黑板 `notes/` · `data/`** | 卡与登记 | **部分借用**（本协议 §6 管其主题命名与审计） | **`comm-standard-v1`**（通道规范） |
 
-### 1.5.3 ★ 与既有独立规范的关系（**v1.0 一字未提 ⇒ 本节补齐**）
+#### 1.5.3 ★ 与既有独立规范的关系（**v1.0 一字未提 ⇒ 本节补齐**）
 
 | 既有规范 | 行数 | 关系 | **已发现的冲突（本版已解决 / 待解决）** |
 |---|---|---|---|
@@ -82,7 +85,7 @@
 | **`scripts/bb-taskboard.py`** | 340 | **在役任务状态机**（唯一有实际运行数据者） | ✅ **已对齐**：`todo/claimed/done/verified/blocked` ⇒ 本协议 §7.3 采其并集（**并保留了协议特有的 `failed`/`timeout` 并加映射声明**） |
 | **`rules-registry/RULES.md`（R001–R048）** | 454 | **规则账本**（含 R006 插件化 / R046 验收门） | **本协议的所有条款须在账本里可挂规则号**；本轮成果经所有者授权，**规则化待办** |
 
-### 1.5.4 ★ 已解决的三个冲突（留档，防止复发）
+#### 1.5.4 ★ 已解决的三个冲突（留档，防止复发）
 
 | # | 冲突 | v1.0 | 权威 | 本版处置 |
 |---|---|---|---|---|
@@ -98,7 +101,8 @@
 
 ```mermaid
 graph LR
-    A[Agent A] -->|TASK/COLLAB| B[Agent B]
+    A[Agent A] -->|TASK| B[Agent B]
+    A -->|COLLAB| TH[Thread]                    %% ★ v1.4：原画成 TASK/COLLAB 共用点对点边
     A -->|STATUS/ACK| BB[Blackboard]
     A -->|BATCH| MB[Mailbox]
     A -->|EVENT| EB[EventBus]
@@ -112,16 +116,17 @@ graph LR
 
 ```json
 {
-  "cahac": "1.0",
+  "cahac": "1.2",                                  // ★ v1.4：原写 1.0 未随文档版本传播（N-11）
   "id": "msg-<uuid>",
   "type": "TASK|COLLAB|STATUS|ACK|EVENT|BATCH|BROADCAST",
-  "channel": "p2p|blackboard|mailbox|eventbus|broadcast",
+  "channel": "p2p|blackboard|mailbox|eventbus|broadcast|thread",
   "sender": "<agent-id>",
   "recipient": "<agent-id>|*|topic:<name>",
   "thread": "<thread-id>",                       // ★v1.2 关系（暂定，待裁）：见下方「v1.2 关系声明」
   "priority": "P0|P1|P2",
   "cost_cap": 2000000,
-  "dedup_key": "<stable-key>",
+  "dedup_key": "sha256:<hex>",                  // ★ v1.4：内容指纹（SHA256(规范化 payload)），
+                                                //   依 §8.3 裁定；原写 <stable-key> 未随裁定传播
   "ts": "2026-08-19T12:00:00Z",
   "expires": "2026-08-19T13:00:00Z",
   "payload": { },
@@ -151,6 +156,8 @@ graph LR
 ```
 CHANNEL(msg):
   if msg.type in (STATUS, ACK): return blackboard
+  if msg.type == COLLAB: return thread          # ★ v1.4 补：原无此分支 ⇒
+                                                #   COLLAB 会 fall through 到 `return p2p`（与 §4/章程 L29 冲突）
   if msg.type == BATCH: return mailbox
   if msg.type == BROADCAST:
       if msg.urgency in (emergency, policy, restart) and frequency_ok(msg): return broadcast
@@ -230,8 +237,14 @@ CHANNEL(msg):
 //   ⇒ **关系：一个 thread 可含多个 task**（task 从属于 thread）。
 //   依据：§7.2 的 `envelope` 内含 §3 信封 ⇒ 可携带 `thread` ⇒ 结构上已支持该从属关系。
 { "task_id": "t-<uuid>", "envelope": {...}, "priority": "P0", "deadline": "...",
-  "state": "todo|claimed|done|verified|blocked|failed|timeout", "retries": 0, "max_retries": 2 }
+  "state": "todo|claimed|done|verified|blocked|failed|timeout|superseded", "retries": 0, "max_retries": 2 }
 ```
+
+> ★ **v1.4 补强（依裁判 B 案 N-03b）**：批 1 的 S3 判据是「**`state` 枚举定义恰好 1 处**」——
+> 它**能通过，却挡不住「代码/正文里写枚举外的值」**（实证：§7.5 曾授权写 `superseded` 而本节枚举无此值）。
+> ⇒ **加强判据（两条同时满足）**：① **枚举定义恰好 1 处**；② ★ **全文出现的 `state=` 赋值，其值必须 ∈ 本节枚举** ——
+> 可由 `grep -oE "state[=:][^,}\"]*" 全文` 后逐个比对枚举验证。
+> ⇒ **只有 ① 是【定义唯一性】，② 才是【使用合规性】**；两者缺一不可（这正是「可核 ≠ 不可绕」的教训）。
 
 ### 7.3 状态机
 **唯一来源（v1.2.1 · ★ 已按所有者裁决「与既有权威文档对齐」重写）**：
@@ -256,9 +269,9 @@ STAGES = ["todo", "claimed", "done", "verified", "blocked"]
 ### 7.5 ★ 状态写入责任与时点（v1.2.1 新增 · S1）
 
 **问题（实测）**：v1.0 的 §7.3 只定义**转移**，未定义**谁在何时促成转移** ⇒
-**无责任方 ⇒ 状态永不推进**。量化证据：`~/.dsh/inbox` **2670 条里合法 `state` = 0 条**
+**无责任方 ⇒ 状态永不推进**。量化证据（**取值时刻 2026-10-09 06:29Z · 口径：JSONL 行数**）：`~/.dsh/inbox` **5518 条里合法 `state` = 0 条**（★ v1.4 更正：原文写「2670 条」是【文件数】口径，且无取值时刻 —— 依 N-07）
 （唯一 1 条 `state` 是某卡片的**同名内容字段**，非协议状态）⇒ **落地率 0.0**
-（由 `data/health/cahac-compliance` 周期上报，见 I8）。
+（由 `data/health/cahac-compliance` 周期上报，见 I8；**该键现在同时报 `files`（文件数）与 `total`（条目数），避免口径混淆**）。
 
 **★ 五个时点与唯一责任方**：
 
@@ -340,6 +353,16 @@ NORMAL → (日成本>¥100) → FUSED → (降级: 仅 p2p TASK + 黑板读) �
   → (无异常) → NORMAL | (再次超限) → HALT(全员被动) → 人工恢复
 ```
 
+> ★ **v1.4 补：两套计量单位的换算（依裁判 B 案 N-10）**
+> **问题**：§9.1 用 **token**（`day 500M tokens ≈ ¥35`），§9.2 用 **金额**（`日成本>¥100`）⇒ **换算未定义 ⇒ 熔断不可机械执行**。
+> **本版据 §9.1 已有参考导出（不发明新费率）**：
+> - **基准**：`500M tokens ≈ ¥35` ⇒ **≈ ¥0.07 / M tokens**
+> - **⇒ 熔断门限换算**：`¥100 ≈ 1.43B tokens`（= 100 ÷ 0.07 × 1e6）
+> - ★ **该换算率【须校准】**：它由 §9.1 的单一参考点外推，**未经实测复核** ⇒ **本版只把它写成【可机械执行的表达式】**
+>   （`fuse_threshold_tokens = 100 / (35/500e6) = 1.43e9`），**并标注「精度依赖 §9.1 参考点」**。
+>   ⇒ **若 §9.1 的参考点变更，此处必须同步**（同一「单一来源」原则 —— 与 §5.2 权重、§7.3 状态机同族）。
+> - ⇒ **并据此补入 §18.4 缺口族**：本条原**未被 §18.4 收录**（裁判指出）⇒ 现归入 **「换算未定义类」**。
+
 ### 9.3 任务级预算
 TASK.cost_cap 必填（除 P0）；超限→拒绝或降级本地模型；BATCH 默认低预算
 
@@ -361,8 +384,8 @@ TASK.cost_cap 必填（除 P0）；超限→拒绝或降级本地模型；BATCH 
 ## 11. Agent Card（能力发现与兼容协商）
 
 ```json
-{ "cahac_version": "1.0", "agent_id": "...", "name": "...",
-  "channels": ["p2p","blackboard","mailbox","eventbus"],
+{ "cahac_version": "1.2", "agent_id": "...", "name": "...",
+  "channels": ["p2p","blackboard","mailbox","eventbus","broadcast","thread"],
   "topics": ["ops.status","task.registry"],
   "budget": {"day_tokens": 500000000},
   "comm_style": ["task","collab"],
@@ -415,6 +438,10 @@ stateDiagram-v2
 
 ## 15. 实现指引（软→硬）
 
+> ★ **v1.4 消歧（依裁判 B 案 N-09）**：本节及下表用的 **S1/S2/S3** 是【**实现分层**】（S1 纪律层 / S2 协议层 / S3 基础设施层），
+> 与本轮迭代用的 **S0/S1/S2…**（**S0 偏离归属 / S1 状态写入 / S2 管辖域声明 / …**，见 §18 与 §1.5）**同符号但不同义**。
+> ⇒ **引用时须带前缀**：实现分层写 `§15-S1`，迭代项写 `迭代-S1`。⇒ 二者不得混用（这正是本协议 §1.4『同一形状装两种东西』类缺陷）。
+
 | 阶段 | 内容 | 验收 |
 |---|---|---|
 | S1 纪律层 | ack 免回/状态写登记表（已执行 90%） | agent_send 占比 <30% |
@@ -428,6 +455,35 @@ stateDiagram-v2
 - v1.1 候选：签名强制、跨宿主移植（A2A/MCP 适配器）
 - 向后兼容：新增消息类型走 ADDITIVE（不破坏旧通道）
 - 弃用规则：类型废弃需 2 版本过渡期
+
+## 17. 风险治理与韧性（Risk Governance & Resilience）
+
+### 17.1 治理机制（PDCA 环）
+
+| 环节 | 机制 | 频率 |
+|---|---|---|
+| 登记 | 风险登记表（7 类 24 项基线，2026-08-19，见附录 D） | 立项时+变更时 |
+| 监控 | 日审（成本/异常 🔴）/ 事件（cost.alert/store.alert/risk.detected）/ 周检 | 日/周 |
+| 响应 | 熔断状态机（§9.2 NORMAL→FUSED→HALT）+ 事件驱动告警 | 即时 |
+| 复盘 | 月复盘（风险再评估 + 配额校准 + 新风险入表） | 月 |
+
+### 17.2 韧性设计（降级链）
+
+| 故障 | 降级链 |
+|---|---|
+| 黑板不可用 | 登记表文件备份 → 临时 p2p 状态同步（限低价值） |
+| 邮箱积压 | 降级 p2p（仅 P0）→ 容量告警 |
+| 事件丢失 | 日志重放（offset 续读） |
+| 云端不可用 | 本地模型兜底（分类/摘要类） |
+| 成本超限 | FUSED（仅 p2p TASK+黑板读）→ HALT（被动） |
+
+### 17.3 新调研/架构衔接（J39）
+
+任何新架构/调研/工具立项前：
+1. 运行 scripts/risk-enumeration.py --topic <主题> 生成穷举模板
+2. 按 7 类穷举 → 概率×影响定级 → 对策（高×高必防）
+3. 登记风险表（附录 D 追加）+ registry
+4. 高×高防线未就绪 → 不立项（或限试点）
 
 ## 18. ★ 偏离归属（S0 · 上位条款 · v1.2.1 新增）
 
@@ -477,6 +533,7 @@ python3 ~/dsh-collab/scripts/cahac-clause-ownership-check.py --selftest # 反例
 | **域未闭合类** | §3 `cost_cap` 填 0 · §9.3 同 | **判据域没闭合，可被合法绕过** |
 | **认证被降级抵消类** | §10 白名单 vs §11 无 Card | **两个条款互相抵消** |
 | **外部依赖类** | §1.5.3 反向引用 | **依赖他方（协调者）** |
+| **换算未定义类**（v1.4 补 · 依 N-10）| §9.1 token ↔ §9.2 金额 | **两套单位无可机械执行的换算**（本版已给表达式并标「须校准」）|
 
 > **★ 本节的用法**：**新写任何条款时，先问「偏离时谁负责」** —— 答不出就标 `advisory`，
 > 并**计入缺口数**。⇒ **缺口数应单调下降**，而它由上面的命令随时可核。
@@ -486,17 +543,17 @@ python3 ~/dsh-collab/scripts/cahac-clause-ownership-check.py --selftest # 反例
 
 **TASK 示例**：
 ```json
-{ "cahac":"1.0", "id":"msg-9f2a", "type":"TASK", "channel":"p2p",
+{ "cahac":"1.2", "id":"msg-9f2a", "type":"TASK", "channel":"p2p",
   "sender":"session-a17a52f8", "recipient":"session-5a5368af",
   "thread":"thread-msxp8lx2", "priority":"P1", "cost_cap":2000000,
-  "dedup_key":"task:phoneuse-lookup", "ts":"2026-08-19T12:00:00Z",
+  "dedup_key":"sha256:9f2a…", "link_key":"task:phoneuse-lookup", "ts":"2026-08-19T12:00:00Z",
   "payload":{"action":"locate","target":"phoneuse","detail":"..."} }
 ```
 
 **STATUS→黑板 示例**（替代 ack）：
 ```json
-{ "cahac":"1.0", "id":"st-77c1", "type":"STATUS", "channel":"blackboard",
-  "recipient":"topic:task.registry", "dedup_key":"task:phoneuse-lookup:status",
+{ "cahac":"1.2", "id":"st-77c1", "type":"STATUS", "channel":"blackboard",
+  "recipient":"topic:task.registry", "dedup_key":"sha256:77c1…", "link_key":"task:phoneuse-lookup:status",
   "payload":{"task_id":"t-123","state":"DONE","result_summary":"..."} }
 ```
 
@@ -519,35 +576,6 @@ python3 ~/dsh-collab/scripts/cahac-clause-ownership-check.py --selftest # 反例
 
 ---
 *CAHAC v1.0 STANDARD · HR · 2026-08-19 · 完整版规范（草案 v0.1 → v1.0：补全信封/状态机/错误码/安全/Agent Card/示例/映射/实现指引）*
-
-## 17. 风险治理与韧性（Risk Governance & Resilience）
-
-### 17.1 治理机制（PDCA 环）
-
-| 环节 | 机制 | 频率 |
-|---|---|---|
-| 登记 | 风险登记表（7 类 24 项基线，2026-08-19，见附录 D） | 立项时+变更时 |
-| 监控 | 日审（成本/异常 🔴）/ 事件（cost.alert/store.alert/risk.detected）/ 周检 | 日/周 |
-| 响应 | 熔断状态机（§9.2 NORMAL→FUSED→HALT）+ 事件驱动告警 | 即时 |
-| 复盘 | 月复盘（风险再评估 + 配额校准 + 新风险入表） | 月 |
-
-### 17.2 韧性设计（降级链）
-
-| 故障 | 降级链 |
-|---|---|
-| 黑板不可用 | 登记表文件备份 → 临时 p2p 状态同步（限低价值） |
-| 邮箱积压 | 降级 p2p（仅 P0）→ 容量告警 |
-| 事件丢失 | 日志重放（offset 续读） |
-| 云端不可用 | 本地模型兜底（分类/摘要类） |
-| 成本超限 | FUSED（仅 p2p TASK+黑板读）→ HALT（被动） |
-
-### 17.3 新调研/架构衔接（J39）
-
-任何新架构/调研/工具立项前：
-1. 运行 scripts/risk-enumeration.py --topic <主题> 生成穷举模板
-2. 按 7 类穷举 → 概率×影响定级 → 对策（高×高必防）
-3. 登记风险表（附录 D 追加）+ registry
-4. 高×高防线未就绪 → 不立项（或限试点）
 
 ## 附录 D：风险登记表基线（2026-08-19，CAHAC 相关 24 项）
 
