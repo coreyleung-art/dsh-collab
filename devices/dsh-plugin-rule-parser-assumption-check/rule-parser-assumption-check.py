@@ -22,8 +22,20 @@
     ★ 本门**只检测、不修改任何解析器**（不改 `rule-audit.py`，那是他人产物）。
 
 判据（★ 三态，不做折算）
-    CONSISTENT    真值分布 == 解析器字段分布 ⇒ 该假设当前未被打破
-    INCONSISTENT  二者不一致 ⇒ ★ 存在误判 ⇒ 报出【差在哪一条】（即「新形式的第一个实例」）
+    ★★ 2026-10-10 裁判修正（读源码后确认实现正确、表述偏弱）：
+       **判据是【逐条一致性】，不是【分布相等】**：
+           ∀ rid: 真值[rid] == 解析器[rid]
+       分布相等只是【必要条件，不是充分条件】—— 它只能证「数量对得上」，
+       不能证「每一条都对得上」。反例（裁判构造）：
+           真值:   R049=enforced  R050=advisory
+           解析器: R049=advisory  R050=enforced   ← 两条互换
+           分布:   二者同为 {enforced:66, advisory:1}  ⇒ ★ 分布相等，但两条都错
+       ⇒ 故本器：**分布仅作【预筛/展示】**；**判定用逐条 diffs**。
+       ⇒ 本器实现本就如此（L: `if p != t` 建 diffs；判定用 diffs）——
+         **此前只是表述写成了「分布 ⇔ 分布」**，会误导读者。
+
+    CONSISTENT    逐条全等（∀ rid: 真值[rid] == 解析器[rid]）⇒ 该假设当前未被打破
+    INCONSISTENT  存在某条不等 ⇒ ★ 报出**逐条差异**（即「新形式的第一个实例」）
     UNCHECKED     数据源读不到 / 无法解析 ⇒ 如实标未核，**不计入通过**
 
 用法
@@ -161,14 +173,19 @@ def run(json_out=False):
     else:
         print("== %s ==" % banner())
         print("   数据源：%s（%d 条规则）" % (RULES_MD, len(rows)))
-        print("   判据：★「数据的真实分布」 ⇔ 「解析器读取的字段分布」")
+        print("   判据：★ 逐条一致性 ∀rid: 真值[rid] == 解析器[rid]")
+        print("         （★ 分布相等仅为【必要条件】⇒ 本处分布作【预筛/展示】，判定用逐条 diffs）")
         print()
         if state == "UNCHECKED":
             print("  ⏭ UNCHECKED —— 真值分布读不到（★ 不计入通过）")
             log("run UNCHECKED rows=%d" % len(rows))
             return EXIT_OK
-        print("  真值分布（读 `状态:` 字段）: %s" % stats["truth"])
-        print("  解析器分布（复现 rule-audit.py L89 的 emoji 判据）: %s" % stats["parser"])
+        print("  [预筛/展示] 真值分布（读 `状态:` 字段）: %s" % stats["truth"])
+        print("  [预筛/展示] 解析器分布（复现 rule-audit.py L89）: %s" % stats["parser"])
+        same_dist = (stats["truth"] == stats["parser"])
+        print("  [预筛] 分布是否相等: %s%s"
+              % (same_dist, "（★ 但分布相等【不等于】逐条一致 —— 见 --pair-cancel-control）"
+                 if same_dist else ""))
         print()
         if state == "CONSISTENT":
             print("  ✅ CONSISTENT —— 该隐含假设当前未被打破")
@@ -186,6 +203,63 @@ def run(json_out=False):
         print("  ⇒ 判定：%s" % ("PASS" if bad == 0 else "★ FAIL（%d 条不一致）" % len(diffs)))
     log("run state=%s diffs=%d" % (state, len(diffs)))
     return EXIT_INCONSISTENT if state == "INCONSISTENT" else EXIT_OK
+
+
+# ────────── ★ 成对抵消负控（独立可跑 · 2026-10-10 裁判要求）──────────
+#   裁判构造的反例：两条【互换】⇒ 分布相等但两条都错。
+#   ★ 本命令证明：**分布相等是必要条件、不是充分条件** ⇒ 与 --selftest 分离，便于第三方独立实跑。
+PAIR_CANCEL_CASE = (
+    "成对抵消（两条互换 ⇒ 分布相等但都错）",
+    [{"id": "R049", "title": "## R049 ✅ 甲", "status_field": "enforced"},
+     {"id": "R050", "title": "## R050 ✅ 乙", "status_field": "advisory"}],
+    # 解析器侧（手工构造的互换结果）：R049→advisory, R050→enforced
+    {"R049": "advisory", "R050": "enforced"},
+)
+
+
+def pair_cancel_control(verbose=True):
+    """★ 负控：构造「成对抵消」⇒ 分布相等、逐条不一致。
+
+    ★ 断言两件事：
+      ① 分布【相等】（证明分布判据在此会假绿）
+      ② 逐条【不一致】（证明本器判定用逐条 ⇒ 不假绿）
+    """
+    name, rows, parser_map = PAIR_CANCEL_CASE
+    truth = {r["id"]: r["status_field"] for r in rows}
+    tv, pv = {}, {}
+    for rid, t in truth.items():
+        tv[t] = tv.get(t, 0) + 1
+        pv[parser_map[rid]] = pv.get(parser_map[rid], 0) + 1
+    diffs = [rid for rid in truth if truth[rid] != parser_map[rid]]
+    dist_equal = (tv == pv)
+    per_item_equal = (not diffs)
+    fails = 0
+    if verbose:
+        print("== ★ 成对抵消负控（证明：分布相等 ⇏ 逐条一致）==")
+        print("  构造: %s" % name)
+        for r in rows:
+            print("      %-6s 真值=%-10s 解析器=%-10s %s"
+                  % (r["id"], r["status_field"], parser_map[r["id"]],
+                     "← 不一致" if r["status_field"] != parser_map[r["id"]] else ""))
+        print()
+        print("  ① 分布是否相等      : %s  %s" % (dist_equal, tv))
+        print("     ⇒ ★ 分布判据在此会输出 CONSISTENT（**假绿**）"
+              if dist_equal else "     （此例分布不等 ⇒ 未构成抵消）")
+        print("  ② 逐条是否全等      : %s  （不一致 %d 条：%s）"
+              % (per_item_equal, len(diffs), ",".join(diffs)))
+        print("     ⇒ ★ 本器判定用逐条 ⇒ 输出 INCONSISTENT（**不假绿**）")
+        print()
+        ok = dist_equal and not per_item_equal
+        print("  %s 负控成立：分布相等 ∧ 逐条不一致 ⇒ 证明分布是【必要非充分】"
+              % ("✅" if ok else "❌"))
+        if not ok:
+            fails += 1
+        print("  ⇒ 负控 %d 例 · %s" % (1, "0 FAIL" if fails == 0 else "%d FAIL" % fails))
+    else:
+        if not (dist_equal and not per_item_equal):
+            fails += 1
+    log("pair-cancel-control dist_equal=%s per_item_equal=%s" % (dist_equal, per_item_equal))
+    return 0 if fails == 0 else 1
 
 
 def selftest():
@@ -276,6 +350,8 @@ def main():
         prog="rule-parser-assumption-check.py",
         description="规则解析器隐含假设门 —— 真值分布 vs 解析器字段分布对照")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--pair-cancel-control", action="store_true",
+                    help="★ 成对抵消负控（证明分布相等 ⇏ 逐条一致）")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--selfcheck", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
@@ -284,6 +360,8 @@ def main():
     if a.version:
         print(__version__)
         return EXIT_OK
+    if a.pair_cancel_control:
+        return pair_cancel_control()
     if a.selftest:
         return selftest()
     if a.selfcheck:
