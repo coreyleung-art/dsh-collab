@@ -1,4 +1,14 @@
 
+
+// ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/bb-gallery-ui.log";
+function dshLog(msg) {
+  try {
+    require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });
+    require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\n");
+  } catch (e) {}
+}
+
 let ALL = {overview:null, blueprints:[], agents:[], versions:null, relations:null};
 // 自动感知部署子路径(Funnel /sg/ 等): 页面地址 http://h/sg/ → base=/sg
 const __BASE=(function(){const p=location.pathname;const m=p.match(/^(\/[^/]*)\/(?:index\.html)?$/);return m?m[1]:'';})();

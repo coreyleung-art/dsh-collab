@@ -3,6 +3,16 @@
 // 独立工具口径：①版本常量单一来源（.py→__version__ / .js→VERSION / .sh→VERSION）②中文 README（R039>100字）
 // ③显式声明偏离（独立脚本非插件形态）。只做增量：已有版本常量/已有 README≥100字 则跳过该项。
 // 用法：node r006-retrofit-scripts.js <脚本...>
+
+// ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/r006-retrofit-scripts.log";
+function dshLog(msg) {
+  try {
+    require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });
+    require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\n");
+  } catch (e) {}
+}
+
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { homedir } from 'node:os';

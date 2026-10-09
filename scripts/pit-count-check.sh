@@ -4,6 +4,22 @@
 #   ① 按【行索引】定位两端（## 5 · 已知坑 → ## 6 ·），**不靠字面锚点**（避开「关键词未命中≠不存在」陷阱）
 #   ② 同时给出【最大编号】（必要不充分：编号连续时它=条数，若别节编号更大则失效）
 #   ③ 打印【过宽计数】并标为陷阱：`^[0-9]+\. \*\*` 会把各节所有编号列表项都算进来 ⇒ 不可与坑条数对账
+#
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+# 依据：r006-debt-assess.py 机械扫描未检出以下原语：
+#       subprocess / os.system / eval / exec / os.remove / rmtree /
+#       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+# ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+#
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/pit-count-check.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 H="$HOME/dsh-collab/docs/audit-reviewer-handover-v1.md"
 R="$HOME/dsh-plugin-pstd/docs/README.md"
 python3 - "$H" "$R" <<'PY'

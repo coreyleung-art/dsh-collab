@@ -14,6 +14,22 @@
 # 保留本文件只为兼容既有调用路径：它**不再自带任何逻辑**，只转发到单一实现。
 # 依据 RULES.md R035：能热重启的，就不要直接杀死整个框架。
 # =============================================================================
+#
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+# 依据：r006-debt-assess.py 机械扫描未检出以下原语：
+#       subprocess / os.system / eval / exec / os.remove / rmtree /
+#       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+# ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+#
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/cldvoice-activate.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 set -uo pipefail
 CLI="$HOME/dsh-collab/devices/dsh-plugin-cldvoice-activate/cli.js"
 export PATH="/opt/homebrew/bin:$PATH"

@@ -1,4 +1,12 @@
 #!/bin/bash
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/bb-gallery-gate.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 VERSION=1.0.0 # ★ R006 ⑥ 唯一版本声明处（补课生成）
 # bb-gallery-gate.sh — 架构管理器提交前门禁(Φ9 约束前置 · R006 TCC)
 # 改 bb-blueprint-gallery.py / bb-gallery-ui.js / bb-gallery-ui.css 后必跑, 不过不发布

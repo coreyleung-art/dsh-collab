@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+
+// ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/session-storage-check.log";
+function dshLog(msg) {
+  try {
+    require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });
+    require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\n");
+  } catch (e) {}
+}
+
 const VERSION = '1.0.0'; // ★ R006 ⑥ 唯一版本声明处（补课生成）
 /**
  * 会话存储健康检查脚本（回归基线素材 v1）

@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
+#
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+# 依据：r006-debt-assess.py 机械扫描未检出以下原语：
+#       subprocess / os.system / eval / exec / os.remove / rmtree /
+#       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+# ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+#
+
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/bus-send.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 VERSION=1.0.0 # ★ R006 ⑥ 唯一版本声明处（补课生成）
 # bus-send.sh v1.0 — 跨设备 bus 信封便捷发送 (门3: 让正确通道成为顺手通道, 防退回 agent-msg 老路)
 # HR 2026-09-09: 公约发布≠工具就绪——bus token 未配导致退回老通道; 本封装自动读 token, 一条命令发对通道。

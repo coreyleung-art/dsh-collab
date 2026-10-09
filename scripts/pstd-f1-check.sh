@@ -1,5 +1,13 @@
 #!/bin/bash
 # PSTD 1.0.4 生效判据 F1/F2/F3 复测（先测触发条件 F2，再谈 F1）
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/pstd-f1-check.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 set -u
 echo "MEASURED_AT=$(date '+%Y-%m-%dT%H:%M:%S%z') epoch=$(date +%s)"
 echo "--- [1] 本机 boot 时刻 ---"

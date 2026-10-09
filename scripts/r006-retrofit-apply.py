@@ -49,6 +49,7 @@ LOG = os.path.join(COLLAB, "logs", "r006-retrofit-apply.log")   # ★ R006 ⑦ �
 # ═══ ★ 冻结白名单（R006 ⑩ 类型锁）：本工具【只做两类低风险改动】 ═══
 ACTIONS = ("r10-na", "r7-log")          # 不可变 tuple
 
+# ★ 2026-10-09 扩展：支持 .sh / .js（原仅 .py ⇒ 15 个 .sh + 5 个 .js 被跳过）
 NA_TEXT_LINES = [
     "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。",
     "依据：r006-debt-assess.py 机械扫描未检出以下原语：",
@@ -160,8 +161,61 @@ def insert_r7(src, toolname):
 
 
 # ─────────────── 安全应用 ───────────────
+def validate(path):
+    """★ 按扩展名选验证器（原仅 py_compile ⇒ .sh/.js 无保护，风险不对等）。
+
+    · .py  ⇒ py_compile
+    · .sh  ⇒ bash -n（语法检查，不执行）
+    · .js  ⇒ node --check（语法检查，不执行）
+    · 其它 ⇒ 保守起见【拒绝】（不盲改无验证手段的文件）
+    返回 (ok, detail)。
+    """
+    import subprocess
+    ext = os.path.splitext(path)[1]
+    try:
+        if ext == ".py":
+            py_compile.compile(path, doraise=True)
+            return True, "py_compile OK"
+        if ext in (".sh", ".bash"):
+            r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, timeout=15)
+            return (r.returncode == 0), ("bash -n OK" if r.returncode == 0 else r.stderr.strip()[:70])
+        if ext == ".js":
+            # ★ 2026-10-09 修：node 常在 /opt/homebrew/bin 而【不在默认 PATH】⇒
+            #   原用 "node" 会 FileNotFoundError ⇒ 被报成「验证器缺失」而拒绝（保守但原因错）。
+            #   ⇒ 改为【多候选绝对路径】；ESM 用 --input-type=module 从 stdin 检。
+            cands = ["/opt/homebrew/bin/node", "/usr/local/bin/node", "node"]
+            node = None
+            for c in cands:
+                if c == "node" or os.path.exists(c):
+                    try:
+                        subprocess.run([c, "--version"], capture_output=True, timeout=8, check=True)
+                        node = c; break
+                    except Exception:
+                        continue
+            if node is None:
+                return False, "node 不可用（试过 %s）⇒ 保守拒绝" % ",".join(cands)
+            r = subprocess.run([node, "--check", path], capture_output=True, text=True, timeout=20)
+            if r.returncode == 0:
+                return True, "node --check OK (%s)" % node
+            # ESM 回退：--input-type=module 从 stdin
+            try:
+                src = open(path, encoding="utf-8").read()
+                r2 = subprocess.run([node, "--input-type=module", "--check"],
+                                    input=src, capture_output=True, text=True, timeout=20)
+                if r2.returncode == 0:
+                    return True, "node --input-type=module --check OK（ESM）"
+                return False, (r2.stderr or r.stderr).strip()[:70]
+            except Exception as e:
+                return False, "%s: %s" % (type(e).__name__, str(e)[:50])
+    except FileNotFoundError:
+        return False, "验证器缺失（bash/node 不可用）⇒ 保守拒绝"
+    except Exception as e:
+        return False, "%s: %s" % (type(e).__name__, str(e)[:60])
+    return False, "无验证手段的扩展名 %s ⇒ 保守拒绝" % ext
+
+
 def safe_apply(path, new_src):
-    """备份 → 写 → py_compile → 失败即回滚。返回 (ok, why)。"""
+    """备份 → 写 → 【按扩展名验证】 → 失败即回滚。返回 (ok, why)。"""
     bak = path + ".r006bak"
     try:
         shutil.copy2(path, bak)
@@ -170,8 +224,10 @@ def safe_apply(path, new_src):
     try:
         with io.open(path, "w", encoding="utf-8") as f:
             f.write(new_src)
-        # ★ 改后立即编译验证
-        py_compile.compile(path, doraise=True)
+        # ★ 改后立即验证（按扩展名）
+        vok, vdetail = validate(path)
+        if not vok:
+            raise SyntaxError(vdetail)
     except Exception as e:
         # ★ 失败即回滚，不留坏文件
         try:
@@ -187,6 +243,72 @@ def safe_apply(path, new_src):
 
 
 # ─────────────── 候选 ───────────────
+
+def na_block_for(ext):
+    """按语言生成 N/A 声明注释块。.sh/.js 用 # 注释（与 .py 同为 #，但无需 docstring）。"""
+    if ext in (".sh", ".js", ".bash"):
+        return ["#"] + ["# " + l for l in NA_TEXT_LINES] + ["#"]
+    return None      # .py 走 docstring 路径
+
+
+def insert_na_shell(src, ext):
+    """给 .sh / .js 在【首个注释头之后】插入 N/A 注释块（★ 不假设有 docstring）。"""
+    if "约束门（⑩）" in src:
+        return None, "已有约束门声明（跳过）"
+    lines = src.split("\n")
+    # 找插入点：shebang 与首个注释块之后，第一个【非注释、非空】行之前
+    idx = 0
+    while idx < len(lines):
+        s = lines[idx].strip()
+        if s == "" or s.startswith("#") or s.startswith("//"):
+            idx += 1
+            continue
+        break
+    if idx == 0:
+        idx = 1 if lines and lines[0].startswith("#!") else 0
+    block = na_block_for(ext) or []
+    new = lines[:idx] + block + [""] + lines[idx:]
+    return "\n".join(new), None
+
+
+def needs_r7_shell(src):
+    pats = (r"dsh-collab/logs", r"scripts/logs", r"DshLogFile", r"dsh-plugin-.*\.log", r"LOG=", r"LOG =")
+    return not any(re.search(p, src) for p in pats)
+
+
+def insert_r7_shell(src, toolname, ext):
+    """给 .sh / .js 插入固定日志（自足）。"""
+    if not needs_r7_shell(src):
+        return None, "已有 R7 日志（跳过）"
+    lines = src.split("\n")
+    if ext in (".sh", ".bash"):
+        block = ["", "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕",
+                 'DSH_LOG="$HOME/dsh-collab/logs/%s.log"' % toolname,
+                 "dsh_log() {",
+                 '    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null',
+                 '    printf \'%s %s\\n\' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true',
+                 "}", ""]
+    else:  # .js
+        block = ["", "// ★ R006 ⑦ 统一日志：固定路径，失败也留痕",
+                 'const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/%s.log";' % toolname,
+                 "function dshLog(msg) {",
+                 "  try {",
+                 '    require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });',
+                 '    require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\\n");',
+                 "  } catch (e) {}",
+                 "}", ""]
+    # 插到 shebang/注释头之后
+    idx = 0
+    while idx < len(lines):
+        s = lines[idx].strip()
+        if s == "" or s.startswith("#") or s.startswith("//"):
+            idx += 1
+            continue
+        break
+    if idx == 0: idx = 1 if lines and lines[0].startswith("#!") else 0
+    new = lines[:idx] + block + lines[idx:]
+    return "\n".join(new), None
+
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -198,9 +320,10 @@ def candidates(action):
         return [], "载入 r006-debt-remediate 失败: %s" % type(e).__name__
     rows = debt.scan()
     if action == "r10-na":
+        # ★ 放开到全部扩展名（.py 走 docstring，.sh/.js 走注释块）
         return [r for r in rows if r["r10"] == "missing" and not r["dangerous"]], None
     if action == "r7-log":
-        return [r for r in rows if r["r7"] == "missing" and r["name"].endswith(".py")], None
+        return [r for r in rows if r["r7"] == "missing"], None
     return [], "未知 action"
 
 
@@ -313,10 +436,12 @@ def main():
             src = io.open(path, encoding="utf-8").read()
         except Exception as e:
             print("   ★ %-40s 读失败 %s" % (r["name"], type(e).__name__)); fail_n += 1; continue
+        ext = os.path.splitext(r["name"])[1]
+        slug = r["name"].rsplit(".", 1)[0]
         if action == "r10-na":
-            new, why = insert_na(src)
+            new, why = (insert_na(src) if ext == ".py" else insert_na_shell(src, ext))
         else:
-            new, why = insert_r7(src, r["name"].replace(".py", ""))
+            new, why = (insert_r7(src, slug) if ext == ".py" else insert_r7_shell(src, slug, ext))
         if new is None:
             print("   ⏭  %-40s 跳过：%s" % (r["name"], why)); skip_n += 1; continue
         if not a.apply:

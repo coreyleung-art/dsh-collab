@@ -1,4 +1,14 @@
 #!/usr/bin/env node
+
+// ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/r006-retrofit.log";
+function dshLog(msg) {
+  try {
+    require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });
+    require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\n");
+  } catch (e) {}
+}
+
 const VERSION = '1.0.0'; // ★ R006 ⑥ 唯一版本声明处（补课生成）
 // r006-retrofit.js — 存量插件 R006 补课生成器（2026-10-03 目标⑤）
 // 对每个目标插件补齐：version(缺) / CHANGELOG(缺) / docs/README.md(中文<100时) / lib/selfcheck.js / cli.js / peer 软链(缺)
