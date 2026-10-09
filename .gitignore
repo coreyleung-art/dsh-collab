@@ -32,3 +32,8 @@
 # ★ 2026-10-09：scripts/logs 曾被误跟踪（含 985MB 的 agentsend-violations.jsonl）
 #   注意：.gitignore 只对【未跟踪】文件生效 ⇒ 已跟踪者须先 git rm --cached
 scripts/logs/
+
+# ★ 2026-10-10 同型事故【复发】：`git add -f <目录>` 会【递归强制】加入被忽略的文件，
+#   上述 scripts/logs/ 规则对它无效 ⇒ 985MB 的 agentsend-violations.jsonl 再次进入提交，
+#   推送被 GitHub（超 100MB 硬限）与 Gitee（超 100MB 配额）【双双拒绝】。
+#   ★ 纪律：`-f` 只能【逐个文件】给（如 `git add -f docs/x.md`），**绝不给目录**。

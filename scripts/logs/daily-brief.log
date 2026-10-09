@@ -1,0 +1,1076 @@
+# 24h 工作简报 · 2026-08-20
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（39 项）
+- **v1.0.241** **开源方案+论文调研 & AI 投产比坐标交付**（HR 自主调研，未走总线/子代理）：① research/cost-governance/agent-token-cost-open-source-research.md——三层方案（可观测 Langfus
+- **v1.0.250** **AI 外卖运营科学实验室研究设计交付**（用户战略升级）：research/ops-science/ai-ops-science-lab-design.md v0.1——6 层架构（数据/指标/因果/决策/执行/实验）；核心=补单↔推广费↔转化因果测算（R
+- **v1.0.251** **市场调研端自动化补充登记**（用户澄清核心方向）：ai-ops-science-lab-design.md 新增 §一·A——**双链路同构架构**：链路 A=商家版管理（控制电脑：CDP/面板原语）；链路 B=市场调研（控制手机：ADB/Appium/A
+- **v1.0.252** **花店生意演进双主线研究交付**（用户 08-18 战略思考，论文级支撑）：research/ops-science/flower-shop-evolution-research.md——数字化主线（1.0 手工→2.0 表格→2.5 ERP→3.0 端侧自
+- **v1.0.255** **研究论文库沉淀完成**（用户指示全量拉取）：新建 DSH 知识库 **ops-science-research**（ID afa7de13-011a-4c73-a9d6-13492c05cdf7）——**23 篇/237 chunks/151.7k 字符/
+- **v1.0.256** **研究思考沉淀到记忆体系（Obsidian vault）**（用户指示）：iCloud Obsidian vault 写入 6 页——wiki/concepts/{flower-shop-evolution, ai-ops-science-lab, mark
+- **v1.0.259** **成本治理论文原文全量入库**（用户指示）：ops-science-research 知识库从 23 篇/237 chunks → **29 篇/1,178 chunks/744k 字符/186k tokens**——成本治理 7 篇全部升级全文（Local
+- **v1.0.260** **结构优化恢复方案交付**（用户指示：止血临时、恢复目标）：research/cost-governance/structural-recovery-plan.md——四支柱=①会话瘦身（Pi 哲学 one-brain/四工具/ack 协议化）②推理路由分层
+- **v1.0.262** **深度分析评估报告交付**（用户三问）：research/cost-governance/deep-analysis-broadcast-communication-paper.md——① 广播**不取消收窄**（紧急告警/制度发布/重启窗口三类 ≤每月几次
+- **v1.0.263** **CAHAC 协议草案 + 架构风险穷举评估交付**（用户指示）：① cahac-protocol-draft-v0.1.md——成本感知混合通信协议（7 类消息分级 TASK/COLLAB/STATUS/ACK/EVENT/BATCH/BROADCAST；
+- **v1.0.264** **CAHAC 协议 v1.0 完整版交付**（用户指示推进完整版）：cahac-protocol-v1.0.md（310 行 STANDARD）——16 章+3 附录：信封统一 schema/7 类消息分级/通道选择器算法+成本权重表/黑板协议（API+冲突
+- **v1.0.265** **风险穷举工具化 + 风险治理完整方案整合**（用户指示）：① 工具=scripts/risk-enumeration.py（--topic 生成 7 类穷举模板，可复用任意调研）② 方法论=research/cost-governance/risk-enu
+- **v1.0.266** **项目类型枚举 + CAHAC 离线回放 v0.1 交付**（用户批准今日执行）：① project-type-enumeration.md——回溯 registry 枚举 **8 类项目**（成本治理/战略研究/外卖运营/设备协调/插件工具/知识沉淀/治理
+- **v1.0.272** **S1 协议试点启动**（用户批准）：research/cost-governance/s1-protocol-pilot.md——P0 主线程（ACK 75.3%→<20%）+ P1 设备线程（TASK 必答/STATUS 写台账）回执黑板化；规则=纯确认
+- **v1.0.273** **本地/在线模型适用性规则 v1.0 起草**（用户问询：此前仅 v0.2 粗略分层+方案描述+论文依据，未成型——本次补齐完整决策规则）：research/cost-governance/model-routing-rules-v1.0.md——6 判定维
+- **v1.0.274** **模型路由论文调研+入库+规则补齐**（用户指示）：知识库 ops-science-research 新增 4 篇（RouteLLM 2406.18665 / FrugalGPT 2305.05176 / 端云协作推理 2509.24050 / 协作推理协议
+- **v1.0.275** **J40 技术决策论文支撑规范纳入**（用户评估请求）：resource-conflict-policy.md 新增 **J40**——重大技术决策（新架构/协议/技术路线/选型）必须调研+论文原文入库（import_url/paper-fetch 直入库不
+- **v1.0.276** **J40 分级行为细化 v1.1**（用户定义）：研究性动作（决策怎么做：架构/协议/路线/选型/立项）→前置强制（调研→原文入库→注明支撑→J39）；生产/经营性动作（执行既定怎么做：接单/回复/日报/监控/例行）→效率优先直接执行+**登记调研需求（re
+- **v1.0.277** **本地知识资产长期战略确立**（用户战略判断）：research/ops-science/local-knowledge-asset-strategy.md v1.0——五重价值（主权韧性/复利/零成本/隐私合规/垂直护城河）；四层资产（L1 论文库 33 
+- **v1.0.278** **M2 结构运营推进**：① **索引自动化**=scripts/kb-index-gen.py（读 KB 文档列表 JSON → 自动生成 research-paper-library-index.md，随入库更新）——实测生成 39 篇索引（1375 c
+- **v1.0.279** **知识版本/TTL 治理机制草案**（M2 推进·知识飞轮条件④补齐）：kb-version-ttl-governance.md——版本=title 带日期/新版本并存旧版保留/决策引用注明版本/冲突并列呈现；TTL 按类型（论文长期/价格 30 天/平台规
+- **v1.0.280** **A4 本地路由 PoC 设计 v1.0**（S2 前置准备）：research/cost-governance/a4-local-routing-poc-design.md——5 类场景（分类/关键词/短摘要/JSON 提取/草稿）；测量协议（本地结果+置
+- **v1.0.281** **S2/S3 并轨正式化方案**（用户问询可行→结论可行）：s2-s3-parallel-acceleration.md——监察三层兜底（回放/日审+quota/熔断+质量抽查）已自动化，内部运营错误成本低→「试点→验收」可替换为「渐进放量+监察阈值」持续交
+- **v1.0.282** **自动迭代闭环确认**（用户问询：迭代是否需激活提醒→结论=全自动，用户仅 4 个介入点）：① 执行层自动（恢复后 agent 被动+事件驱动）② 监察层已 launchd（每日回放/日审）③ **熔断层增强**（本轮）：cahac-replay-daily
+- **v1.0.285** **底座 Wiki 创建**（用户指示整合为单一 SSOT 持续维护）：**~/dsh-collab/foundation-wiki.md** v1.0——12 章：系统全景/J 规则集（J33-37/39/40+成本治理+ack 纪律）/成本治理体系/CAH
+- **v1.0.287** **并轨启动批准登记（S2a+S2b+S3a 三轨开跑）**（用户确认）：S2a 监控事件化（panel-event-adapter 首跑 45 条已入库，幂等验证）→ 事件日志+当前状态就位；S2b A4 本地路由（local-router 冒烟测试中，Ol
+- **v1.0.293** **用户协作工作纪律 J41-J44 纳入底层规则**（用户 Trae Work 10 条规则→梳理补充为正式底层规则，全网络执行）：① **J41 沟通与事实纪律**=用户无代码基础懂概念→复杂项目/逻辑尽量用比喻（token=水电费/黑板=公告栏/缓存=冰
+- **v1.0.294** **J41-J44 沉淀 Obsidian vault**（用户确认执行）：wiki/dsh/user-collaboration-discipline.md 规则页（YAML frontmatter+Summary/Content/Related/Sourc
+- **v1.0.295** **花店演进战略沉淀 vault + ChromaDB**（用户确认方案 B）：wiki/concepts/flower-shop-evolution.md 摘要 30 行→**完整版 106 行**（双主线 1.0→4.0 数字化/物理、耦合飞轮、垂直引擎五
+- **v1.0.296** **知识飞轮+持续更新+全量索引**（用户确认三项）：① 今日会话摘要写入 vault 日记（日记/2026-08-19.md）并增量索引 7 chunks ② 持续更新机制建立=通用增量脚本 ~/.claude/automation/hr-kb-index.
+- **v1.0.297** **外卖放行+监察体系+论文并行拉取+索引工程**（用户确认）：① **外卖全面放行**（10 店全平台，已通知协调者/外卖运营/外联/设备协调；企微私信+群聊需回复）② **监察体系四层**=waimai-audit.py（全量审计聚合：面板事件+bus 捕
+- **v1.0.298** **论文六批并行拉取全部完成**（多智能体 6 subagent，用户批准模式）：KB ops-science-research **39→123 docs / 8,781 chunks / 1,310,901 tokens**——P1 外卖 8（7全文+1待
+- **v1.0.299** **S6 架构对比评估 v1.0**（用户推进）：research/cost-governance/s6-architecture-comparison-v1.0.md——四架构对比（agent_send p2p 1× vs 黑板 写0.1/读0.05 vs 
+- **v1.0.300** **审批分级机制全量落地**（用户确认四档+默认正常+历史定档+工具化自动化）：① J42 升级分级制（L0 自动/L1 宽松/L2 正常/L3 严格）+ **J45 审批分级与台账纪律**（policy 新增，全网络）② 审批台账 approval-ledg
+- **v1.0.301** **S6 A 级 PoC + 成本门禁落地**（用户排上）：① **blackboard-subscribe.py v0.1**=黑板订阅检测 PoC（registry/ledger/workplan 三黑板 hash 差分→topic 匹配 subscrip
+- **v1.0.303** **S6 PoC 端到端验证完成 + 监察扩展**：blackboard-subscribe 全链路验证（registry 顶部插入 ✅ ledger 尾部追加 ✅ 内容 diff 方向无关 ✅ 幂等 0 重复 ✅ 无订阅不唤醒=精准 ✅ launchd 每 
+- **v1.0.304** **硬性升级 5→12 条**（用户批准）：J45 更新——新增 7 条：6批量/多店操作 7数据出域/隐私 8角色/权限变更 9规则/开关自改 10审计防线 11凭据变更 12非营业时间/无人值守批量；approval-config.json hard_es
+- **v1.0.305** **成本门禁全量落地**（用户确认 5 点）：① 任务级分档线=**单任务预估**（10/30/100/200 × 价值系数 0.5/1/2/3）② 全局熔断=**单日累计**（≥¥100 FUSED/≥¥200 HALT，每日回放口径，跨任务累计）③ **周
+- **v1.0.309** **黑板投递闭环 + 简报定时 22:00**（用户批准方案 1 + 定时）：① **值班消费协议** blackboard-dispatch-protocol.md——各 agent 实质回合查 event-bus --status→读指令→定向 agent
+
+## 二、智能体分支线（34 项）
+- **v1.0.237** **成本治理实测基线登记**（协调者汇总，HR 落账）：12.8h 窗口（11:01→23:49）工具调用 21,996 事件=token 代理消耗——**agent_send 13,585（61.8%）ack 风暴为主因**、run_code 5,702、b
+- **v1.0.238** **launchd 定时任务停用登记**（92623479 执行，用户成本指令）：**16 项全部 launchctl disable 确认 disabled**——高频 waimai.watchdog×2/kb.watcher×2/health×2/lm.m
+- **v1.0.239** **外卖域自动化停用 + 总线消息层成本基线登记**（aa528267 执行/汇报）：① 停用=launchd 17 项 unload（cron 族/bus-capture/health/ingest-watcher/remote/external-link/
+- **v1.0.240** **Token 用量分析报告交付**（HR，用户索要）：token-monitor/token-usage-analysis-2026-08-19.md——三口径交叉（gov 工具调用 21,996 事件/总线消息层 284-355 万 token/launc
+- **v1.0.242** **Token 成本优化研究路径路线图交付**（HR）：research/cost-governance/token-cost-research-roadmap.md——4 族 11 路径（A 用量侧：提示压缩/上下文工程/语义缓存/本地路由；B 通信侧：KV
+- **v1.0.243** **代运营锚定 ROI 分析登记**（用户提供分成结构）：外部代运营=营业额点数（7万→3% ¥2,100 / 10万→4% ¥4,000 / 15万→5% ¥7,500 / 15 万起每+5 万+1%：20万 ¥12,000 / 30万 ¥24,000）；R
+- **v1.0.244** **市场锚定补充登记**（用户提供代运营行业数据）：代运营公司内部人力=月薪 ¥5,000+3% 提成；行业对花店客户硬抽 8%-12% 营业额（无保底）。三层价格（7-30 万档）：市场服务费 ¥5,600-36,000 > 自雇运营 ¥7,100-14,0
+- **v1.0.245** **计费口径更正：代运营佣金计价单位=门店**（用户澄清）：每店按自身营业额单独套档（3-9 万→3%、10-14 万→4%、15-19 万→5%、20-24 万→6%、25-29 万→7%、30 万+→8%），总佣金=Σ各店，**非总盘套一档**；递增费率下
+- **v1.0.246** **精确 token 数据接入登记（DeepSeek 平台导出）**：cost+amount CSV（7 月+8 月 1-19）——**7 月 ¥745.79（日均 ¥24.86）/ 8 月 1-19 ¥1,906.04（日均 ¥100.32）**；8 月 t
+- **v1.0.247** **ROI 坐标业务现实修正登记**（用户运营洞察）：① 代运营一人多店（数量≠质量）② 营收不一定是代运营起作用（增量归因 δ）③ 代运营倾向降价竞争 ④ 要求商家刷单补量做流量。修正=价值锚从「佣金」改为「佣金×δ（归因）+ 长期质量/健康度」；对比模型=
+- **v1.0.248** **ROI 坐标第三维登记：稳定性与准确性**（用户提出）：Q=准确性 a × 稳定性 s；ROI_eff=(价值×Q−错误成本)/真实成本；错误成本=(1−a)×频次×单错损；三方对比（AI：24h 无疲劳但技术故障风险；代运营：经验准但一人多店+离职关键人
+- **v1.0.249** **研究工作推进登记**：① D1 硬预算选型评估完成（research/cost-governance/d1-hard-budget-evaluation.md）——结论=不引入新系统，启用 gov quota per-agent 配额+借鉴 TBO 超限分
+- **v1.0.253** **手机控制平台对比沉淀**（i9 Windows vs Mac）：research/ops-science/phone-control-platform-comparison.md——Android 控制两端完全对等（ADB/scrcpy/uiautomat
+- **v1.0.254** **phoneuse 项目定位登记**（设备协调 5a5368af 回报）：`E:\My vibe codding\phoneuse`（i9 E 盘）=现成手机自动化 MCP 服务器——Python 311 stdio_server，26 工具（device.
+- **v1.0.257** **研究运营工具链固化登记**（用户指示插件化/工具化/自动化）：① scripts/token-roi-review.py（每日 Token ROI 审查：读 DeepSeek 导出→日审报告+环比异常检测，已实测通过）② scripts/paper-fet
+- **v1.0.258** **gov quota 硬预算落地**（D1 评估结论执行）：Top5 消耗角色（协调者/HR/外卖运营/健康审查/摄取）设置 **day 配额 500M tokens（≈¥35/日，有效单价 ¥0.07/M）**——当前被动模式 used=0 无影响；8/1
+- **v1.0.261** **成本结构总思路 + 总线对比分析交付**：① cost-structure-master-plan.md（总纲：成本=调用次数×上下文×单价×冗余；三层=结构层（会话瘦身/路由分层/缓存）+运行层（事件驱动/按需技能/任务预算）+治理层（quota/日审/
+- **v1.0.267** **CAHAC 全场景离线回放 v0.2**（用户指示 P0/P1/P2 全做）：cahac-replay-v0.2.py（--scenario 多场景）→ cahac-replay-scenarios.md——**P0 治理值守线程（真实 1836 条分类：
+- **v1.0.268** **外卖事件流真实数据离线回放**（用户指示推进）：面板 8787 /api/alerts 实测 **45 条/24h**（new_order 84%、初蘅天河一店 87%、全 handled）——「高阈值告警层」远小于真实事件流；回放=CAHAC 事件总线档
+- **v1.0.269** **全周全量真实离线回放交付**（用户指示过去一周所有行为切割+回放+报告）：① event-cutting-spec-v1.0.md=智能体行为→CAHAC 7 类统一切割规范（ACK/STATUS/TASK/COLLAB/EVENT/BATCH/BROAD
+- **v1.0.270** **离线回放工具化：统一 CLI cahac-replay.py v1.0**（用户问询适合性→评估适合并直接实现）：5 子命令=aggregate（12.8h 切割回放）/ scenario（P0-P2 多场景）/ week（全周账单回放，--since/-
+- **v1.0.271** **每日增量离线回放自动化上线**（用户明确指示——成本治理豁免项）：cahac-replay-daily.py（**纯本地零 LLM 成本**：账单 CSV+面板 8787+本地计算，无任何模型调用）+ launchd **com.dsh.hr.cahac-
+- **v1.0.283** **告警层实现 + CAHAC 落地一致性方案**（用户指示）：① 告警层=每日回放脚本增强（FUSED>¥100/HALT>¥200 自动写 replays/alerts.md）+ weekly-summary.py（周汇总，launchd 模板待挂）② 一
+- **v1.0.284** **前置工具开发轮**（用户盘点指示）：① **local-router.py v1.0**=A4 PoC 执行器（Ollama qwen3.5-2b 调用+置信度提取（logprobs/自检）+CAHAC 门控 adopt/review/escalate+P
+- **v1.0.286** **P0/P1 完成**：① **Agent Card 模板**（agent-card-template.md：JSON 五字段+各角色建议值表+HR 示例）② **定向通知**（协调者牵头+设备协调+外卖运营补声明，J34）③ **监控事件化适配器**（pa
+- **v1.0.288** **并轨启动执行**：S2a ✅（事件适配器 45 条已入库+幂等）/ S2b ⏳（local-router 加 LM Studio 端点，冒烟受 bash 环境暂挂待续）/ S3a ✅ 已通知 aa528267 恢复差评/日报；**J35 判定**：Olla
+- **v1.0.289** **本系统本地模型选型 v1.0**（用户指示调研，J40 研究性决策）：research/cost-governance/local-model-selection-v1.0.md——设备实测（M4 LM Studio 11 模型+Ollama 嵌入 / P
+- **v1.0.290** **S3a 部分恢复确认**（aa528267 回报）：经营日报 ✅ 恢复（每日 12:30 P1 企微）；差评监控 ⚠️ 受限（/api/review 500=SPA 路由守卫 P2 排期）→ **评价入口修复后并轨**（修复即代跑店 2/4/6/7/8），
+- **v1.0.291** **S2b 本地路由冒烟成功**：local-router 管道全通（LM Studio qwen3.5-2b）——① 修复 thinking-mode 兼容（content 空→reasoning_content 尾部兜底+system 抑制思考指令）② 加
+- **v1.0.292** **local-router 中文冒烟通过**（修复日志 hash 字段用 inp）：中文消息「收到确认，保持联动」分类输出 STATUS/ACK 推理正确（thinking 尾部含 STATUS/ACK/COLLAB 判定）——**A4 PoC 场景 1（消
+- **v1.0.302** **PoC 修复**：blackboard-subscribe 新增行提取方向修正（registry 顶部插入→取头部 delta 行），订阅 summary 准确；唤醒队列/幂等/launchd 保持 |
+- **v1.0.306** **B 级事件总线 PoC 闭环**（用户推进）：event-bus.py v1.0——五类基线事件（cost.alert/store.alert/task.completed/agent.offline/risk.detected）+ append-only
+- **v1.0.307** **简报推送方案 v2 简化**（用户取消 Notion/邮件）：24h 简报推送收敛为**企微单通道**——外联通讯员（92623479）代发（复用已有 wecom 通道，零新凭据）；Notion 文档/邮件通道取消；简报 md 仍本地留存 reports/
+- **v1.0.308** **企微推送腿自动化闭环**（外联提供 8790/send 直调入口）：daily-brief.py 加 --push-wecom（urllib POST 8790/send，channel=wecom level=P1 source=daily-brief）
+
+## 三、日常检查
+- 外卖监察：操作 45 条 · 拒单率 0% · 异常率 0% · 时均 1.9
+- 审批巡检：5 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 1, 'L3': 4} · 需确认 5
+- 黑板订阅唤醒：1 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-20.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-08-21
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（12 项）
+- **v1.0.298** **论文六批并行拉取全部完成**（多智能体 6 subagent，用户批准模式）：KB ops-science-research **39→123 docs / 8,781 chunks / 1,310,901 tokens**——P1 外卖 8（7全文+1待
+- **v1.0.299** **S6 架构对比评估 v1.0**（用户推进）：research/cost-governance/s6-architecture-comparison-v1.0.md——四架构对比（agent_send p2p 1× vs 黑板 写0.1/读0.05 vs 
+- **v1.0.300** **审批分级机制全量落地**（用户确认四档+默认正常+历史定档+工具化自动化）：① J42 升级分级制（L0 自动/L1 宽松/L2 正常/L3 严格）+ **J45 审批分级与台账纪律**（policy 新增，全网络）② 审批台账 approval-ledg
+- **v1.0.301** **S6 A 级 PoC + 成本门禁落地**（用户排上）：① **blackboard-subscribe.py v0.1**=黑板订阅检测 PoC（registry/ledger/workplan 三黑板 hash 差分→topic 匹配 subscrip
+- **v1.0.303** **S6 PoC 端到端验证完成 + 监察扩展**：blackboard-subscribe 全链路验证（registry 顶部插入 ✅ ledger 尾部追加 ✅ 内容 diff 方向无关 ✅ 幂等 0 重复 ✅ 无订阅不唤醒=精准 ✅ launchd 每 
+- **v1.0.304** **硬性升级 5→12 条**（用户批准）：J45 更新——新增 7 条：6批量/多店操作 7数据出域/隐私 8角色/权限变更 9规则/开关自改 10审计防线 11凭据变更 12非营业时间/无人值守批量；approval-config.json hard_es
+- **v1.0.305** **成本门禁全量落地**（用户确认 5 点）：① 任务级分档线=**单任务预估**（10/30/100/200 × 价值系数 0.5/1/2/3）② 全局熔断=**单日累计**（≥¥100 FUSED/≥¥200 HALT，每日回放口径，跨任务累计）③ **周
+- **v1.0.309** **黑板投递闭环 + 简报定时 22:00**（用户批准方案 1 + 定时）：① **值班消费协议** blackboard-dispatch-protocol.md——各 agent 实质回合查 event-bus --status→读指令→定向 agent
+- **v1.0.310** **角色体系治理·外卖矩阵正式生效 + 审查治理推进**（用户授权最优方案）：① **外卖域职责矩阵 v1.0**（waimai-role-matrix.md）——单入口 aa528267 四线分派（动作/数据 de7b29de/客服 b193c782/学习 
+- **v1.0.312** **差评监控恢复（S3a 守卫补项完成）**（aa528267 回报）：评价接口直连固化 fetchBadReviewsApi（绕开页面守卫新壳）→ 4 店 18 条差评采集 + 报告落盘——**放行后唯一待修复项清零**；差评监控恢复，site-adapt 
+- **v1.0.313** **J46 官方文档优先沉淀纪律**（用户指示，全网络）：外部平台/技术→优先查官方文档（禁猜/假设）→拉原文本地沉淀（raw/KB，含版本/URL）→先查后拉（KB/vault 已有直接引用）→索引更新→TTL 30-90 天刷新；执行=任务方自查或委派摄取
+- **v1.0.314** **规则文件同步向量化机制**（用户要求：规则每次更新同步向量化）：scripts/rules-sync.py——9 个规则/制度文件（policy/foundation-wiki/approval-ledger/config/协作纪律/知识更新/黑板协议/职
+
+## 二、智能体分支线（5 项）
+- **v1.0.302** **PoC 修复**：blackboard-subscribe 新增行提取方向修正（registry 顶部插入→取头部 delta 行），订阅 summary 准确；唤醒队列/幂等/launchd 保持 |
+- **v1.0.306** **B 级事件总线 PoC 闭环**（用户推进）：event-bus.py v1.0——五类基线事件（cost.alert/store.alert/task.completed/agent.offline/risk.detected）+ append-only
+- **v1.0.307** **简报推送方案 v2 简化**（用户取消 Notion/邮件）：24h 简报推送收敛为**企微单通道**——外联通讯员（92623479）代发（复用已有 wecom 通道，零新凭据）；Notion 文档/邮件通道取消；简报 md 仍本地留存 reports/
+- **v1.0.308** **企微推送腿自动化闭环**（外联提供 8790/send 直调入口）：daily-brief.py 加 --push-wecom（urllib POST 8790/send，channel=wecom level=P1 source=daily-brief）
+- **v1.0.311** **角色治理·归档执行确认**（协调者执行 18 个 inactive）：运维域最终保留=**5a5368af+b241741f+6ed4daf2**（3d490920 确认 inactive，归档列表一致，修正择一表述）；调研子代理/通用/前任 13 个 i
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：6 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-21.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-08-22
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（11 项）
+- **v1.0.320** **云 MCP 网关议题论文补拉启动**（用户指示）：subagent 后台拉取 6-8 篇（MCP 安全/远程 MCP 网关/API 按调用计费/工具注册表/订阅经济学），KB 已有 NetMCP/CA-MCP 不重复；设计 cloud-mcp-gatewa
+- **v1.0.321** **云 MCP 网关论文补拉完成**（用户指示）：8 篇全全文入库（KB 123→**131 docs**/9,859 chunks），**4 篇 MCP 公网安全专题**直接支撑云网关设计：2603.22489 威胁建模+工具投毒、2604.07551 MC
+- **v1.0.325** **接入分级议题论文补拉启动**（用户指示）：subagent f4e6c537 后台拉取 6-8 篇（多租户 SaaS 隔离/ABAC-RBAC/ZTNA/WireGuard 安全网络/设备身份零接触/API 网关鉴权），KB 已有 8 篇 MCP 不重复；
+- **v1.0.326** **知识库向量化自动保障**（用户指出应自动化）：验证=KB 131 docs **embedded=true**（此前论文全部已向量化 ✅）；新建 kb-health.py 每日 09:25 巡检（索引一致性+异常告警，launchd 已挂）；knowled
+- **v1.0.327** **接入分级议题论文补拉完成**（自动向量化验证 ✅）：8 篇全免费 arXiv 全文入库（KB 131→**139 docs**/11,038 chunks/**embedded true**）：ZTNA×2（2503.11659/2410.20611）、W
+- **v1.0.328** **架构阶段图 v1.0 + 节点接入自动告知**（用户推进）：① architecture-evolution-stages-v1.0.md（0 单机→1 跨设备→2 节点→3 分级→4 商业化，验证标准+回退点）② **node-join-notify.p
+- **v1.0.329** **接入分级 PoC 9/9 PASS**（用户推进）：tier-gate-test.py 模拟网关分级逻辑（role-config.json：store/subscriber 角色+白名单+租户边界+审批+配额）——门店本店 allow/跨店 403/改价 
+- **v1.0.330** **架构/安全设计沉淀+向量化**（用户指示）：8 篇设计文档（阶段图/节点关系/外部分级/网关清单/黑板/总线/云网关）入 KB（85 chunks 自动嵌入，KB 147 docs）；vault 编译 architecture-evolution 总览页+
+- **v1.0.334** **自动沉淀交付链机制落地**（协调者，用户指示「任务完成→自动沉淀让 token 越来越省钱」）：① **scripts/sedimentation-chain-scan.py**（属主协调者）——纯规则零 LLM 扫描器：扫 event-bus task.
+- **v1.0.335** **判定反馈工具链 + 学习型路由冷启动数据**（协调者，用户指示「判断过程自增长学习更省资源」）：① **scripts/route-feedback.py**（属主协调者）——判定反馈收集器（纯规则零 LLM）：记录「扫描器判定 vs 值班人实际裁决」反馈
+- **v1.0.325** **接入分级议题论文补拉启动**（用户指示）：subagent 后台拉取 6-8 篇（多租户 SaaS 隔离/ABAC-RBAC/ZTNA/WireGuard 安全网络/设备身份零接触/API 网关鉴权），KB 已有 8 篇 MCP 不重复；接入分级设计 ac
+
+## 二、智能体分支线（11 项）
+- **v1.0.315** **企微侧同步客服恢复**（用户指示）：通知外联 92623479（企微监听链路恢复，私信先行，群聊待接收范围配置）+ b193c782（客服回复恢复：监控→范本→回复→回企微，重大售后升级 aa528267）+ aa528267（升级链知会）；等待三方回报后
+- **v1.0.316** **企微客服恢复闭环 + 差评预警定时发群**（用户指令）：① 外联监听恢复（私信+群聊，群接收范围配置已解决，两群实证）② **黑板路由 v2**（企微消息→exlink-blackboard JSONL→外联读黑板→agent_send 路由→8790 回
+- **v1.0.317** **MTM 美团客户侧暂不恢复**（用户指令）：企微侧客服继续运行；美团客户侧（MTM）消息通道/客服接入保持不恢复；已通知外联+客服确认无在途恢复动作；若 MTM 指美团商家版客户消息通道待回报确认 |
+- **v1.0.318** **差评预警定时发群落地**（用户指令，外联提供群 chat_id=wrObL9WAAAmpV27LFG0NMGX4dZHAXngQ + 8790 发群实测通过）：daily-review-group.py（读差评报告→零 LLM 聚合统计→markdown→
+- **v1.0.319** **差评发群单发裁决（方案 A）**：aa528267 侧 daily-review-push.js 已 11:00 闭环发群（采集→分析→8790 target=新群，实测成功，分析质量更高）；**HR 侧 daily-review-group.py 停用*
+- **v1.0.322** **黑板部署形态决策**（用户确认）：现阶段=Tailscale 内网**共享账本+命名空间隔离**（信任内部，不引入多租户复杂度）；**多租户升级路径已标注**（公网投放门店/员工时启用：租户命名空间 data/<门店>/* + 云网关 ABAC 按角色 +
+- **v1.0.323** **i9 内网直连 MCP 成功 + 鉴权缺口升级**（i9 CLD 实测）：external-link-mcp 直连通过（握手/工具枚举/配置写入/语法校验全走完，/mcp 端点）；**发现=Tailscale 网段无鉴权**（channel.send/bu
+- **v1.0.324** **跨设备黑板 + 节点总线 PoC 首跑**（用户推进）：① **blackboard-server v0.1**（:8792 六 API+订阅回调+JSONL 持久化+重启恢复，launchd 常驻 com.dsh.hr.blackboard-server
+- **v1.0.331** **MCP 服务器更新规格·node.bootstrap**（用户指示）：mcp-server-node-bootstrap-spec-v1.0.md——external-link-mcp :8910 加 node.bootstrap（入职包：node_id/
+- **v1.0.332** **J47 破坏性会话/资源操作纪律**（用户指示，教训=本次未同意移出 4 会话含智囊）：移除/删除/重建/覆盖必须先用户同意+先备份+先确认角色；5 会话 zstd 修复完成（解压→重压放回，数据零丢失）；备份=backups/session-fix-20
+- **v1.0.333** **Cordis 插件无崩溃风险审查工具 + 模式专属工具复用模式沉淀**（协调者，用户指示插件化工具化）：① **scripts/cordis-crash-audit.py**（属主协调者）——Cordis 插件 client 端一键审查（slots.inj
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：13 任务 · 档位分布 {'L0': 2, 'L1': 0, 'L2': 3, 'L3': 8} · 需确认 11
+- 黑板订阅唤醒：9 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-22.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-08-23
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（16 项）
+- **v1.0.321** **云 MCP 网关论文补拉完成**（用户指示）：8 篇全全文入库（KB 123→**131 docs**/9,859 chunks），**4 篇 MCP 公网安全专题**直接支撑云网关设计：2603.22489 威胁建模+工具投毒、2604.07551 MC
+- **v1.0.325** **接入分级议题论文补拉启动**（用户指示）：subagent f4e6c537 后台拉取 6-8 篇（多租户 SaaS 隔离/ABAC-RBAC/ZTNA/WireGuard 安全网络/设备身份零接触/API 网关鉴权），KB 已有 8 篇 MCP 不重复；
+- **v1.0.326** **知识库向量化自动保障**（用户指出应自动化）：验证=KB 131 docs **embedded=true**（此前论文全部已向量化 ✅）；新建 kb-health.py 每日 09:25 巡检（索引一致性+异常告警，launchd 已挂）；knowled
+- **v1.0.327** **接入分级议题论文补拉完成**（自动向量化验证 ✅）：8 篇全免费 arXiv 全文入库（KB 131→**139 docs**/11,038 chunks/**embedded true**）：ZTNA×2（2503.11659/2410.20611）、W
+- **v1.0.328** **架构阶段图 v1.0 + 节点接入自动告知**（用户推进）：① architecture-evolution-stages-v1.0.md（0 单机→1 跨设备→2 节点→3 分级→4 商业化，验证标准+回退点）② **node-join-notify.p
+- **v1.0.329** **接入分级 PoC 9/9 PASS**（用户推进）：tier-gate-test.py 模拟网关分级逻辑（role-config.json：store/subscriber 角色+白名单+租户边界+审批+配额）——门店本店 allow/跨店 403/改价 
+- **v1.0.330** **架构/安全设计沉淀+向量化**（用户指示）：8 篇设计文档（阶段图/节点关系/外部分级/网关清单/黑板/总线/云网关）入 KB（85 chunks 自动嵌入，KB 147 docs）；vault 编译 architecture-evolution 总览页+
+- **v1.0.334** **自动沉淀交付链机制落地**（协调者，用户指示「任务完成→自动沉淀让 token 越来越省钱」）：① **scripts/sedimentation-chain-scan.py**（属主协调者）——纯规则零 LLM 扫描器：扫 event-bus task.
+- **v1.0.335** **判定反馈工具链 + 学习型路由冷启动数据**（协调者，用户指示「判断过程自增长学习更省资源」）：① **scripts/route-feedback.py**（属主协调者）——判定反馈收集器（纯规则零 LLM）：记录「扫描器判定 vs 值班人实际裁决」反馈
+- **v1.0.325** **接入分级议题论文补拉启动**（用户指示）：subagent 后台拉取 6-8 篇（多租户 SaaS 隔离/ABAC-RBAC/ZTNA/WireGuard 安全网络/设备身份零接触/API 网关鉴权），KB 已有 8 篇 MCP 不重复；接入分级设计 ac
+- **v1.0.338** **HR Cockpit 就任交接**（用户指示）：session-2a15e6b1 接任资源管理者+成本监察专员（前任 session-a17a52f8 误归档退役，历史 8 万行保留 ~/.dsh/sessions/）；表头维护者更新；agent_prof
+- **v1.0.339** **i9 节点总线接入 + 共享资产分析**（协调者 fa1f9150，用户推进「mac 指挥 i9 本地智能体」）：① **经验沉淀** research/cost-governance/i9-node-integration-2026-08-23.md——
+- **v1.0.340** **黑板任务卡协议 v1.1 + 分目录 scan 验证成功**（协调者 fa1f9150）：① **命名约定**：mac总线（mac-mini 中枢/派单）↔ i9总线（PC-i9 节点/执行），黑板 notes/mac-mini 声明 ② **schema
+- **v1.0.342** **GeneBank 协议 v0.2 + 外卖自动化恢复拍板**（协调者 fa1f9150，用户确认）：① **GeneBank 存储协议 v0.2**（AI 网盘基因库，用户「文件基因工程」概念）——混合命名（隐喻+工程）、六条染色体（models/data
+- **v1.0.345** **GeneBank token 最小化模式**（协调者 fa1f9150，用户问上传下载能否零 token）：① **结论=已零 token**——上传下载（HTTP 字节流）+ manifest 生成（纯规则）+ 检索（本地查询）全部零 LLM 调用（实测
+- **v1.0.348** **迭代自动落链制度 + i9 算力诊断**（协调者 fa1f9150，用户要求「以后每次迭代自动落链」）：① **制度 v1.0**（iteration-auto-sediment-policy）——每次迭代完成自动落链 5 步（落盘文档→入库 KB→向量化
+
+## 二、智能体分支线（18 项）
+- **v1.0.322** **黑板部署形态决策**（用户确认）：现阶段=Tailscale 内网**共享账本+命名空间隔离**（信任内部，不引入多租户复杂度）；**多租户升级路径已标注**（公网投放门店/员工时启用：租户命名空间 data/<门店>/* + 云网关 ABAC 按角色 +
+- **v1.0.323** **i9 内网直连 MCP 成功 + 鉴权缺口升级**（i9 CLD 实测）：external-link-mcp 直连通过（握手/工具枚举/配置写入/语法校验全走完，/mcp 端点）；**发现=Tailscale 网段无鉴权**（channel.send/bu
+- **v1.0.324** **跨设备黑板 + 节点总线 PoC 首跑**（用户推进）：① **blackboard-server v0.1**（:8792 六 API+订阅回调+JSONL 持久化+重启恢复，launchd 常驻 com.dsh.hr.blackboard-server
+- **v1.0.331** **MCP 服务器更新规格·node.bootstrap**（用户指示）：mcp-server-node-bootstrap-spec-v1.0.md——external-link-mcp :8910 加 node.bootstrap（入职包：node_id/
+- **v1.0.332** **J47 破坏性会话/资源操作纪律**（用户指示，教训=本次未同意移出 4 会话含智囊）：移除/删除/重建/覆盖必须先用户同意+先备份+先确认角色；5 会话 zstd 修复完成（解压→重压放回，数据零丢失）；备份=backups/session-fix-20
+- **v1.0.333** **Cordis 插件无崩溃风险审查工具 + 模式专属工具复用模式沉淀**（协调者，用户指示插件化工具化）：① **scripts/cordis-crash-audit.py**（属主协调者）——Cordis 插件 client 端一键审查（slots.inj
+- **v1.0.336** **MLX 微调沉积判定模型止损归档**（协调者，用户拍板「止损归档，词频级联继续当家」）：① 实测=融合模型 4 关键样本 **3/4**（错判「花店驾驶舱状态机落地 13 子项收官」→跳过），现有词频级联 **4/4**（含该样本 score 0.96→沉
+- **v1.0.337** **DSH 会话归档/反归档契约知识沉淀**（协调者，HR 会话丢失排查 → 官方源码挖契约 → 入库向量化）：① 产出=research/dsh-session-archive-restore-2026-08-22.md——官方源码契约（spec.js 33
+- **v1.0.341** **零订阅派单工具链 + 数据沉淀回流 + flower-yolo 共享**（协调者 fa1f9150）：① **展开器** scripts/task-card-expander.py——机械指令 → qwen2.5:3b 本地展开（零订阅）→ schema 
+- **v1.0.343** **sse-sub 事件驱动框架 + 外卖 token 评估 + 队列并发增强**（协调者 fa1f9150）：① **sse-sub 框架**（客服 b193c782，~/dsh-collab/im-reply/tools/sse-sub.js，属主客服）—
+- **v1.0.344** **GeneBank 实现层落地**（协调者 fa1f9150，用户要求全做）：① **genebank-server.py**（:8801 注册层服务）——基因注册/查询/列表 + manifest 校验（gene_id sha256/染色体枚举/语义版本）
+- **v1.0.346** **黑板双向异步并发 v2.0**（协调者 fa1f9150，用户提出「双向异步并发接收/回复」）：① **双向队列**（对称）——中枢→节点派单 tasks/<node>/queue/<seq>（已有）+ 节点→中枢主动发 tasks/central/que
+- **v1.0.347** **黑板事件桥 + 智能体订阅泛化**（协调者 fa1f9150，用户要求订阅接入 sse-sub + 泛化本地智能体黑板逻辑）：① **blackboard-events.py**（:8803 黑板事件桥，常驻）——黑板 SUBSCRIBE 回调（已订阅 t
+- **v1.0.349** **i9 算力激活安排 + flower-yolo 基因注册**（协调者自主推进，用户授权「你直接安排我去睡觉」）：① **派卡装 CUDA PyTorch**（i9-cuda-001，pip install torch torchvision cu128 ~
+- **v1.0.351** **i9 算力激活完成 + 常驻事件驱动监控**（协调者，用户确认 CUDA 装完 + 指出监控需常驻）：① **CUDA PyTorch 装完验证**——i9-torch-verify-002 回报 `torch 2.6.0+cu124 cuda True 
+- **v1.0.352** **ERP AI 接入调研 + 蓝图同步**（协调者，用户指示深度调研 ERP AI MCP 接口，让 ERP 成为数据规范性底座）：① **蓝图全量同步 i9**（notes/i9/blueprint：数字化 1.0→2.5 ERP→3.0 端侧→4.0 垂
+- **v1.0.353** **ERP MCP 实测打通 + PR #24（AI 账号门店绑定）**（协调者自主持续，用户授权「起草 PR 自主自动持续做」）：① **实测打通**：robot-ai/Robot@2026Erp 登录成功（JWT）+ admin/admin123 登录成功
+- **v1.0.354** **门店财务明细导出探测固化**（a3bc8cba，商家实收口径）：① 破解参数根因——radio value=poiFinanceDetail 是 UI 标识，后端实际 reportType=daySgBusinessAnalysisDetail；selec
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：11 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 1, 'L3': 10} · 需确认 11
+- 黑板订阅唤醒：15 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-23.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-08-24
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（5 项）
+- **v1.0.339** **i9 节点总线接入 + 共享资产分析**（协调者 fa1f9150，用户推进「mac 指挥 i9 本地智能体」）：① **经验沉淀** research/cost-governance/i9-node-integration-2026-08-23.md——
+- **v1.0.340** **黑板任务卡协议 v1.1 + 分目录 scan 验证成功**（协调者 fa1f9150）：① **命名约定**：mac总线（mac-mini 中枢/派单）↔ i9总线（PC-i9 节点/执行），黑板 notes/mac-mini 声明 ② **schema
+- **v1.0.342** **GeneBank 协议 v0.2 + 外卖自动化恢复拍板**（协调者 fa1f9150，用户确认）：① **GeneBank 存储协议 v0.2**（AI 网盘基因库，用户「文件基因工程」概念）——混合命名（隐喻+工程）、六条染色体（models/data
+- **v1.0.345** **GeneBank token 最小化模式**（协调者 fa1f9150，用户问上传下载能否零 token）：① **结论=已零 token**——上传下载（HTTP 字节流）+ manifest 生成（纯规则）+ 检索（本地查询）全部零 LLM 调用（实测
+- **v1.0.348** **迭代自动落链制度 + i9 算力诊断**（协调者 fa1f9150，用户要求「以后每次迭代自动落链」）：① **制度 v1.0**（iteration-auto-sediment-policy）——每次迭代完成自动落链 5 步（落盘文档→入库 KB→向量化
+
+## 二、智能体分支线（10 项）
+- **v1.0.341** **零订阅派单工具链 + 数据沉淀回流 + flower-yolo 共享**（协调者 fa1f9150）：① **展开器** scripts/task-card-expander.py——机械指令 → qwen2.5:3b 本地展开（零订阅）→ schema 
+- **v1.0.343** **sse-sub 事件驱动框架 + 外卖 token 评估 + 队列并发增强**（协调者 fa1f9150）：① **sse-sub 框架**（客服 b193c782，~/dsh-collab/im-reply/tools/sse-sub.js，属主客服）—
+- **v1.0.344** **GeneBank 实现层落地**（协调者 fa1f9150，用户要求全做）：① **genebank-server.py**（:8801 注册层服务）——基因注册/查询/列表 + manifest 校验（gene_id sha256/染色体枚举/语义版本）
+- **v1.0.346** **黑板双向异步并发 v2.0**（协调者 fa1f9150，用户提出「双向异步并发接收/回复」）：① **双向队列**（对称）——中枢→节点派单 tasks/<node>/queue/<seq>（已有）+ 节点→中枢主动发 tasks/central/que
+- **v1.0.347** **黑板事件桥 + 智能体订阅泛化**（协调者 fa1f9150，用户要求订阅接入 sse-sub + 泛化本地智能体黑板逻辑）：① **blackboard-events.py**（:8803 黑板事件桥，常驻）——黑板 SUBSCRIBE 回调（已订阅 t
+- **v1.0.349** **i9 算力激活安排 + flower-yolo 基因注册**（协调者自主推进，用户授权「你直接安排我去睡觉」）：① **派卡装 CUDA PyTorch**（i9-cuda-001，pip install torch torchvision cu128 ~
+- **v1.0.351** **i9 算力激活完成 + 常驻事件驱动监控**（协调者，用户确认 CUDA 装完 + 指出监控需常驻）：① **CUDA PyTorch 装完验证**——i9-torch-verify-002 回报 `torch 2.6.0+cu124 cuda True 
+- **v1.0.352** **ERP AI 接入调研 + 蓝图同步**（协调者，用户指示深度调研 ERP AI MCP 接口，让 ERP 成为数据规范性底座）：① **蓝图全量同步 i9**（notes/i9/blueprint：数字化 1.0→2.5 ERP→3.0 端侧→4.0 垂
+- **v1.0.353** **ERP MCP 实测打通 + PR #24（AI 账号门店绑定）**（协调者自主持续，用户授权「起草 PR 自主自动持续做」）：① **实测打通**：robot-ai/Robot@2026Erp 登录成功（JWT）+ admin/admin123 登录成功
+- **v1.0.354** **门店财务明细导出探测固化**（a3bc8cba，商家实收口径）：① 破解参数根因——radio value=poiFinanceDetail 是 UI 标识，后端实际 reportType=daySgBusinessAnalysisDetail；selec
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-24.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-08-25
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-25.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-08-26
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-26.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-08-27
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（1 项）
+- **v1.0.355** **HR 批量登记**（HR 2a15e6b1，用户指示巡检落账）：① **i9 角色化 9 实体**（评估通过，属主=i9 总线）——职责角色 agent:i9-duty-sediment/compute/erp/toolchain ×4 + 族智能体 pr
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：1 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-27.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-08-28
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-28.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-08-29
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（2 项）
+- **v1.0.356** **删除前考古纪律工具化+SOP+泛化评估**（HR 2a15e6b1，用户指示「删之前先考古，工具化落链，评估泛化」）：① **scripts/pre-delete-archaeology.py**（属主 HR，纯规则零 LLM）——删除前考古评估器：内容类
+- **v1.0.358** **技术栈选型评估器+SOP**（HR 司库 2a15e6b1，用户指示「选型必须有评估器，防模型偷懒/幻想」）：① **scripts/tech-choice-evaluator.py**（属主 HR，纯规则零 LLM）——6 维评分（官方文档/论文基础/生
+
+## 二、智能体分支线（1 项）
+- **v1.0.357** **磁盘清理执行**（HR 2a15e6b1，用户同意，J47 走完）：① 删 9 个弃用 LM Studio 模型 89.4G（Qwen3.6-27B/Mixtral-8x7B/Yi-34B/35B-uncensored/MLX 实验等——考古清单 docs
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：3 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 1, 'L3': 2} · 需确认 3
+- 黑板订阅唤醒：2 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-29.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-08-30
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（4 项）
+- **v1.0.356** **删除前考古纪律工具化+SOP+泛化评估**（HR 2a15e6b1，用户指示「删之前先考古，工具化落链，评估泛化」）：① **scripts/pre-delete-archaeology.py**（属主 HR，纯规则零 LLM）——删除前考古评估器：内容类
+- **v1.0.358** **技术栈选型评估器+SOP**（HR 司库 2a15e6b1，用户指示「选型必须有评估器，防模型偷懒/幻想」）：① **scripts/tech-choice-evaluator.py**（属主 HR，纯规则零 LLM）——6 维评分（官方文档/论文基础/生
+- **v1.0.359** **蓝图规划师角色任命**（HR 司库，用户 GUI 审批通过 aprv-mtfovzro）：① **扩展明鉴 v2.0**（用户洞察 2fe61625，非新建）——蓝图主编，新增能力 blueprint-dialog/create/refine + BP-9
+- **v1.0.363** **论文库双轨归属登记 + 仲裁**（明鉴 v2 报告 P1：蓝图引用论文与资产库脱节，papers-db/KB paper-cache 0 命中）：① **papers-db**=4787d717 独占维护（SQLite+FTS5+bge-m3，v1.0.4
+
+## 二、智能体分支线（4 项）
+- **v1.0.357** **磁盘清理执行**（HR 2a15e6b1，用户同意，J47 走完）：① 删 9 个弃用 LM Studio 模型 89.4G（Qwen3.6-27B/Mixtral-8x7B/Yi-34B/35B-uncensored/MLX 实验等——考古清单 docs
+- **v1.0.360** **知了新资产登记**（a3bc8cba 申报，HR 登记）：chat_records.db（独立聊天记录库，chat_sessions/messages/images 三表）+ 原语 chat_records_query（read 级，原语库 50）+ li
+- **v1.0.361** **ERP/小程序并行分工登记**（i9 提案+星桥裁决+HR 意见采纳）：① 角色A=ERP 开发协调（**i9 侧 file:flower-server-java**，含竞赛/校准/企微/BOM；用户纠正 2026-08-30：ERP 源码在 i9 非 m
+- **v1.0.362** **ERP 资源归属修正**（用户纠正）：ERP（flower-server-java）在 **i9 侧**非 mac——v1.0.361 角色A 资源行修正为 file:flower-server-java（i9 属主）；角色B 不变（小程序 i9 侧）；分
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：3 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-30.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-08-31
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（10 项）
+- **v1.0.359** **蓝图规划师角色任命**（HR 司库，用户 GUI 审批通过 aprv-mtfovzro）：① **扩展明鉴 v2.0**（用户洞察 2fe61625，非新建）——蓝图主编，新增能力 blueprint-dialog/create/refine + BP-9
+- **v1.0.363** **论文库双轨归属登记 + 仲裁**（明鉴 v2 报告 P1：蓝图引用论文与资产库脱节，papers-db/KB paper-cache 0 命中）：① **papers-db**=4787d717 独占维护（SQLite+FTS5+bge-m3，v1.0.4
+- **v1.0.364** **FlowerNet 蓝图 v2.2 master 发布**（明鉴 v2 蓝图主编）：① 单文件 data/blueprint/flowernet/blueprint-flowernet-v2.2-master.md（stages+works+45 任务卡+
+- **v1.0.368** **概念数据字典工具四件套**（HR 司库，R019 落地载体）：① **工具化** scripts/concept-dict.py v1.0.0——add/query/check/suggest/audit/list/selfcheck/version，纯规
+- **v1.0.372** **子代理资源治理执行**（HR 司库，星桥采纳）：① 归档 4 个僵尸/重复子代理（4d488478 外卖论文 1 条消息/e83724af+0373d601 Ralph worker 已完成/d1911e2e MAS 论文与 f4e6c537 重复——合并
+- **v1.0.379** **subagent-govern check-new 新建前评估**（HR 司库，R021 落地）：① check-new --role 子命令——拟建子代理 vs 现有匹配 → REUSE（复用现有，省 ~1400 token/次）/ CREATE（无现成
+- **v1.0.381** **子代理存量分析落链 + 跨会话复用**（HR 司库，用户深化）：① analyze --sediment——评估报告落盘 docs/subagent-analysis-<date>.md + 入库 KB（967d1fcf，4 chunks 向量化，含复用索
+- **v1.0.382** **Rust 化决策标准登记**（HR 司库，用户指出便利性偏差风险）：① 原则——便利性决策必须对照明确标准，不按感觉执行（防「怕麻烦」默认 Python 顶替的系统性风险：技术债累积/体系分裂/决策惯性/掩盖问题）② **触发标准**：端侧分发需求（i9/
+- **v1.0.383** **便利性偏差治理规范**（HR 司库，用户指出「怕麻烦是否引起风险」）：① 完整文档 docs/convenience-bias-governance.md——定义（便利性偏差 vs YAGNI 区分）/典型表现 5 类（语言图省事/现有资产当免死金牌/默认
+- **v1.0.386** **广州橙果×梁振宇合作架构登记**（明鉴记录，HR 登记）：① 结构：广州橙果 65% / 梁振宇 35%（梁一票否决权）；IP 单独主体个人+新主体各 50%（锁死泛行业复用）；运营新主体独立于上市主体 ② 资产：品牌/知识产权/工具入新主体；原有门店独立
+
+## 二、智能体分支线（18 项）
+- **v1.0.360** **知了新资产登记**（a3bc8cba 申报，HR 登记）：chat_records.db（独立聊天记录库，chat_sessions/messages/images 三表）+ 原语 chat_records_query（read 级，原语库 50）+ li
+- **v1.0.361** **ERP/小程序并行分工登记**（i9 提案+星桥裁决+HR 意见采纳）：① 角色A=ERP 开发协调（**i9 侧 file:flower-server-java**，含竞赛/校准/企微/BOM；用户纠正 2026-08-30：ERP 源码在 i9 非 m
+- **v1.0.362** **ERP 资源归属修正**（用户纠正）：ERP（flower-server-java）在 **i9 侧**非 mac——v1.0.361 角色A 资源行修正为 file:flower-server-java（i9 属主）；角色B 不变（小程序 i9 侧）；分
+- **v1.0.365** **蓝图升级工具化交付**（明鉴 v2，bb-blueprint2.py）：scripts/bb-blueprint2.py——蓝图升级 6 步 CLI：refine(changelog)/broadcast(公告)/notify(定向提醒)/master(汇
+- **v1.0.366** **蓝图工作台 v3 交付**（明鉴 v2，bb-workbench.py）：scripts/bb-workbench.py——三个前置环节工具化：gap(缺口评估框架)/taskcards(任务卡模板)/deploy(主蓝图落盘：版本 bump+状态+子步+
+- **v1.0.367** **任务卡执行状态机交付**（明鉴 v2，bb-taskboard.py）：scripts/bb-taskboard.py——45 卡状态机（todo→claimed→done→verified+blocked）七功能：领卡/汇报/插卡/阻塞/验收/看板/进度
+- **v1.0.369** **概念字典泛化推进**（HR 司库）：① 反向吸收试点 ✅——suggest 源扩展（+蓝图目录）→ 从蓝图 master 提取 20 候选 → 登记 4 核心概念（任务卡/验收/天河3号店/工时），字典 6 概念全健康 ② 横向接入试点启动——通知明鉴（蓝
+- **v1.0.370** **概念字典向量化 P1**（HR 司库，评估采纳混合双轨）：① **query --semantic**——bge-m3 本地嵌入+余弦相似度+向量缓存（data/concept-vectors.json，add 时增量生成）；实测「客户返图特征」→命中「返
+- **v1.0.371** **概念字典向量化 P2**（HR 司库）：check 语义混淆增强——文本中概念同现时，除字面公共词缀提示外，语义相近概念（相似度≥0.75）也提示「确认非同一概念」；实测「返图特征库/物品特征库」字面+语义双提示，低相似度不误报。向量化 P1+P2 全完成
+- **v1.0.373** **R020 首例 + 概念字典更新**（HR 司库）：① R020 首例闭环——queue 工具族（queue_watch/condense/drain）蓝图适配分析完成（明鉴，强适配 d3 端侧自动化+d3-2 感知闭环告警降噪，中适配 d4-1 聚合+d
+- **v1.0.374** **子代理治理工具化**（HR 司库，R006 九标准）：scripts/subagent-govern.py v1.0.0——三过程 CLI：audit（评估：类型分组/活跃度/僵尸判定<5条>7天/重复组检测）/ cleanup（处理：dry-run 默认
+- **v1.0.375** **subagent-govern 灾难级安全护栏**（HR 司库，用户要求：不可误判主会话为子代理/防崩溃）：① **主角色黑名单**——21 个主角色关键词+设备前缀+资源档案三重特征 → cleanup 一律 🚫 拦截中止 ② **audit 严格判定*
+- **v1.0.376** **守望 v2.0 灾难防御升级登记**（星桥批准，用户流程）：① 角色升级：灾难恢复自查 → 主动防范灾难事件门（5 门：变更风险评估/发布前验证/重启前就绪/健康预防/灾难事件）+ 恢复评估双职责 ② agent_profile 已更新（6 能力+5 资源
+- **v1.0.377** **知了 dsh-data-tools v0.2.0 交付**（a3bc8cba，Rust CLI）：① 新增 price-analysis 子命令（store/date-range → 逐日折扣率+汇总）② 与 JS lib/price-analysis.j
+- **v1.0.378** **dsh-data-tools v0.2.0 QA 验收 PASS**（验金石 ffb7c3ab，data/qa/dsh-data-tools-v020）：① selfcheck allOk ② price-analysis 与 JS 逐分一致（守白 8 月
+- **v1.0.380** **subagent-govern R006 九标准补全**（HR 司库，用户要求工具化插件化标准）：① 补 cld-check（CLD 自适应：CLD.app/workspace/agent-bus 路径检测 PASS）+ version-check（dsh
+- **v1.0.384** **全设备存量子代理排查执行**（HR 司库，星桥批准）：① 排查 10 真子代理（8 调研+2 worker，严格判定零主角色误判）② 处置确认：4d488478 僵尸 + e83724af/0373d601 worker 完成 = 3 归档（已在列表，v1
+- **v1.0.385** **明鉴 prep-ahead 双工具登记**（a3bc8cba→明鉴交付，HR 登记）：① bb-prep-learn.py（提前学习扫描器，TCC PASS 扫 15 候选）+ bb-prep-research.py（提前调查扫描器，TCC PASS 扫 
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：18 任务 · 档位分布 {'L0': 1, 'L1': 1, 'L2': 9, 'L3': 7} · 需确认 16
+- 黑板订阅唤醒：9 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-08-31.md
+PUSH_WECOM: 200 {"ok":true,"raw":{"extra_identity_context":"<extra_identity_context>\n机器人身份：\n名字：CLD-Mac\nID：aibLaCPfTgYtVzD3OyEsyUyzlyy
+# 24h 工作简报 · 2026-09-01
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（6 项）
+- **v1.0.372** **子代理资源治理执行**（HR 司库，星桥采纳）：① 归档 4 个僵尸/重复子代理（4d488478 外卖论文 1 条消息/e83724af+0373d601 Ralph worker 已完成/d1911e2e MAS 论文与 f4e6c537 重复——合并
+- **v1.0.379** **subagent-govern check-new 新建前评估**（HR 司库，R021 落地）：① check-new --role 子命令——拟建子代理 vs 现有匹配 → REUSE（复用现有，省 ~1400 token/次）/ CREATE（无现成
+- **v1.0.381** **子代理存量分析落链 + 跨会话复用**（HR 司库，用户深化）：① analyze --sediment——评估报告落盘 docs/subagent-analysis-<date>.md + 入库 KB（967d1fcf，4 chunks 向量化，含复用索
+- **v1.0.382** **Rust 化决策标准登记**（HR 司库，用户指出便利性偏差风险）：① 原则——便利性决策必须对照明确标准，不按感觉执行（防「怕麻烦」默认 Python 顶替的系统性风险：技术债累积/体系分裂/决策惯性/掩盖问题）② **触发标准**：端侧分发需求（i9/
+- **v1.0.383** **便利性偏差治理规范**（HR 司库，用户指出「怕麻烦是否引起风险」）：① 完整文档 docs/convenience-bias-governance.md——定义（便利性偏差 vs YAGNI 区分）/典型表现 5 类（语言图省事/现有资产当免死金牌/默认
+- **v1.0.386** **广州橙果×梁振宇合作架构登记**（明鉴记录，HR 登记）：① 结构：广州橙果 65% / 梁振宇 35%（梁一票否决权）；IP 单独主体个人+新主体各 50%（锁死泛行业复用）；运营新主体独立于上市主体 ② 资产：品牌/知识产权/工具入新主体；原有门店独立
+
+## 二、智能体分支线（12 项）
+- **v1.0.369** **概念字典泛化推进**（HR 司库）：① 反向吸收试点 ✅——suggest 源扩展（+蓝图目录）→ 从蓝图 master 提取 20 候选 → 登记 4 核心概念（任务卡/验收/天河3号店/工时），字典 6 概念全健康 ② 横向接入试点启动——通知明鉴（蓝
+- **v1.0.370** **概念字典向量化 P1**（HR 司库，评估采纳混合双轨）：① **query --semantic**——bge-m3 本地嵌入+余弦相似度+向量缓存（data/concept-vectors.json，add 时增量生成）；实测「客户返图特征」→命中「返
+- **v1.0.371** **概念字典向量化 P2**（HR 司库）：check 语义混淆增强——文本中概念同现时，除字面公共词缀提示外，语义相近概念（相似度≥0.75）也提示「确认非同一概念」；实测「返图特征库/物品特征库」字面+语义双提示，低相似度不误报。向量化 P1+P2 全完成
+- **v1.0.373** **R020 首例 + 概念字典更新**（HR 司库）：① R020 首例闭环——queue 工具族（queue_watch/condense/drain）蓝图适配分析完成（明鉴，强适配 d3 端侧自动化+d3-2 感知闭环告警降噪，中适配 d4-1 聚合+d
+- **v1.0.374** **子代理治理工具化**（HR 司库，R006 九标准）：scripts/subagent-govern.py v1.0.0——三过程 CLI：audit（评估：类型分组/活跃度/僵尸判定<5条>7天/重复组检测）/ cleanup（处理：dry-run 默认
+- **v1.0.375** **subagent-govern 灾难级安全护栏**（HR 司库，用户要求：不可误判主会话为子代理/防崩溃）：① **主角色黑名单**——21 个主角色关键词+设备前缀+资源档案三重特征 → cleanup 一律 🚫 拦截中止 ② **audit 严格判定*
+- **v1.0.376** **守望 v2.0 灾难防御升级登记**（星桥批准，用户流程）：① 角色升级：灾难恢复自查 → 主动防范灾难事件门（5 门：变更风险评估/发布前验证/重启前就绪/健康预防/灾难事件）+ 恢复评估双职责 ② agent_profile 已更新（6 能力+5 资源
+- **v1.0.377** **知了 dsh-data-tools v0.2.0 交付**（a3bc8cba，Rust CLI）：① 新增 price-analysis 子命令（store/date-range → 逐日折扣率+汇总）② 与 JS lib/price-analysis.j
+- **v1.0.378** **dsh-data-tools v0.2.0 QA 验收 PASS**（验金石 ffb7c3ab，data/qa/dsh-data-tools-v020）：① selfcheck allOk ② price-analysis 与 JS 逐分一致（守白 8 月
+- **v1.0.380** **subagent-govern R006 九标准补全**（HR 司库，用户要求工具化插件化标准）：① 补 cld-check（CLD 自适应：CLD.app/workspace/agent-bus 路径检测 PASS）+ version-check（dsh
+- **v1.0.384** **全设备存量子代理排查执行**（HR 司库，星桥批准）：① 排查 10 真子代理（8 调研+2 worker，严格判定零主角色误判）② 处置确认：4d488478 僵尸 + e83724af/0373d601 worker 完成 = 3 归档（已在列表，v1
+- **v1.0.385** **明鉴 prep-ahead 双工具登记**（a3bc8cba→明鉴交付，HR 登记）：① bb-prep-learn.py（提前学习扫描器，TCC PASS 扫 15 候选）+ bb-prep-research.py（提前调查扫描器，TCC PASS 扫 
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：6 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-01.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-02
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-02.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-03
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-03.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-04
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：2 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-04.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-05
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：2 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-05.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-06
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：11 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-06.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-07
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：1 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-07.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-08
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：1 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-08.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-09
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：4 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-09.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-10
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-10.md
+PUSH_WECOM_FAIL: HTTP Error 400: Bad Request
+# 24h 工作简报 · 2026-09-12
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-12.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-13
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-13.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-14
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-14.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-15
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-15.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-24
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-24.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-25
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-25.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-28
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-28.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-09-29
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-09-29.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-01
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-01.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-02
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：今日审计未跑（09:20 launchd）
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-02.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-03
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-03.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-04
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-04.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-05
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-05.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-06
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-06.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-07
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-07.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-08
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：0 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-08.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>
+# 24h 工作简报 · 2026-10-09
+
+> 自动归集：registry 更新日志 + 审批台账 + 外卖监察 + 黑板订阅 + 成本趋势 · HR daily-brief v1.0
+
+## 一、主线推进（0 项）
+
+## 二、智能体分支线（0 项）
+
+## 三、日常检查
+- 外卖监察：操作 0 条 · 拒单率 0% · 异常率 0% · 时均 0.0
+- 审批巡检：0 任务 · 档位分布 {'L0': 0, 'L1': 0, 'L2': 0, 'L3': 0} · 需确认 0
+- 黑板订阅唤醒：2 条（队列 wakeup-queue）
+
+## 四、成本
+- 今日成本趋势待每日回放更新
+- 单日熔断: FUSED>=100 / HALT>=200（daily）· 周兜底 500
+
+## 五、下一步建议
+- 由 HR 按主线遗留补充
+
+BRIEF_SAVED: /Users/coreyleung/dsh-collab/reports/daily-brief-2026-10-09.md
+PUSH_WECOM_FAIL: <urlopen error [Errno 61] Connection refused>

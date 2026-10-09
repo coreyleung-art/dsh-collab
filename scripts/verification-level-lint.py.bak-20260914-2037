@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""核验级别检测：找「已落盘 / 已修复 / 已同步」这类声称，看它有没有声明核到哪一级。
+
+由来（HR 2026-09-14 排序：第 1 位）：
+  可机械检查 ✓ · 后果最重 —— 虚假的「已落盘」会让下游在错误前提上行动。
+  今晚多起事故都源于此：HR 报「写入成功两次」· 我报「已落盘成功」，而两层都不是真的。
+  执行理由：这条防的是【下游在错误前提上行动】（不可逆）；裸数那条防的是【可比性失真】（可重算）。
+  ⇒ 不可逆的优先于可重算的。
+
+三级（明鉴 2026-09-14 的核验边界 v2）：
+  存在级 —— 键在、非空（GET 得到）
+  结构级 —— 层级与字段形态符合约定（字段数 / 键集合 / 单层）
+  内容级 —— 值与声称相符（指纹 / 复算）
+
+它做什么：扫卡的内容，找【完成态声称】，检查同一段里有没有级别词。
+  有声称 + 无级别词 ⇒ 报出（该声称的强度上限不明）
+  有声称 + 有级别词 ⇒ 通过
+
+用法：
+  python3 verification-level-lint.py [--ns data/registry/] [--limit N]
+退出码：0 = 未发现无级别的完成态声称；1 = 有
+"""
+import json, sys, re, urllib.request, urllib.error
+from concurrent.futures import ThreadPoolExecutor
+
+BB = "127.0.0.1:8792"
+
+# ★ 收紧（第一版只抓「词的出现」，实测假阳性极高）：
+#   第一版正则 CLAIM = 已落盘|已写入|已修复|已修|... ⇒ 120 键报 28 处 17 张，
+#   而看样例：v2.2.0：…已修（历史记录）· 是否已修好（待查问题）·
+#   「不是报告已修」（否定式）· 已修好的 20 张（被指对象）—— 三种都不是【声称】。
+#   根因与我在 inplace-pointer-audit 第一版犯的同一个错：测的是【词的出现】，
+#   要测的是【声称本身】。
+# 收紧为：只认【第一人称的完成态声称】——
+#   形态 = 「已X」后紧跟【冒号 或 具体对象】，且其前 12 字内没有
+#   是否 / 不是 / 未 / 被 / 的 / 版本号 / 引号内的转述标记
+CLAIM = re.compile(r"已(?:落盘|写入|修复|同步|完成|投递|部署|上线|合并|推送)")
+NEG = re.compile(r"是否|不是|并非|未|被|已在|待|若|如|已修好的|报告已|声称")
+VER = re.compile(r"v\d+\.\d+|VERSION|版本")
+# 级别词（声明核到哪一级）
+LEVEL = re.compile(r"存在级|结构级|内容级|已核|非空|字段数|键集合|指纹|sha256|复算|回读|GET\s*\d|双侧|ver=|\d+\s*B\b|字节")
+
+
+def enum(ns):
+    d = json.loads(urllib.request.urlopen(f"http://{BB}/{ns}", timeout=90).read())
+    l = d.get("list", {})
+    return list(l.keys()) if isinstance(l, dict) else list(l)
+
+
+def get(k):
+    try:
+        with urllib.request.urlopen(f"http://{BB}/{k}", timeout=15) as r:
+            return json.loads(r.read())
+    except Exception:
+        return None
+
+
+def scan(k):
+    env = get(k)
+    if not env:
+        return None
+    v = env.get("value", {})
+    if not isinstance(v, dict):
+        return None
+    hits = []
+    for fld, val in v.items():
+        s = val if isinstance(val, str) else json.dumps(val, ensure_ascii=False)
+        for m in CLAIM.finditer(s):
+            # ① 必须是【声称】而非提及：其后 6 字内须是冒号或具体对象（数字/键名/文件名）
+            after = s[m.end(): m.end() + 10]
+            if not re.match(r"\s*[:：]", after) and not re.search(r"[0-9A-Za-z_\-/]", after):
+                continue
+            # ② 其前 12 字内不得有否定 / 疑问 / 转述 / 版本标记
+            before = s[max(0, m.start() - 12): m.start()]
+            if NEG.search(before) or VER.search(before):
+                continue
+            # ③ 同一段（前后 60 字）内找级别词
+            ctx = s[max(0, m.start() - 60): m.end() + 60]
+            if not LEVEL.search(ctx):
+                hits.append((fld, m.group(0), ctx.strip()[:90]))
+    return (k, hits) if hits else None
+
+
+def main():
+    ns = "data/registry/"
+    limit = 0
+    if "--ns" in sys.argv:
+        ns = sys.argv[sys.argv.index("--ns") + 1]
+    if "--limit" in sys.argv:
+        limit = int(sys.argv[sys.argv.index("--limit") + 1])
+    keys = enum(ns)
+    if limit:
+        keys = keys[:limit]
+    print(f"扫描 {ns} · {len(keys)} 键")
+    with ThreadPoolExecutor(max_workers=24) as ex:
+        res = [r for r in ex.map(scan, keys) if r]
+    total = sum(len(h) for _, h in res)
+    print(f"★ 有完成态声称但未声明级别的：{total} 处（分布在 {len(res)} 张卡）\n")
+    for k, hits in res[:15]:
+        print(f"  {k.split('/')[-1][:56]}")
+        for fld, w, ctx in hits[:2]:
+            print(f"      [{w}] …{ctx}…")
+    if len(res) > 15:
+        print(f"  …另有 {len(res)-15} 张")
+    print()
+    print("★ 判读：这是【候选而非判决】—— 一段里没有级别词，也可能是它在别处声明了。")
+    print("  而它比「不报」好：它把「哪些声称的强度上限不明」变成了一份可读的清单。")
+    return 1 if total else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""agent-send-gate.py — agent_send 门禁守护（v2.1 规范执行检测）
+
+扫描跨会话消息，检测「全文未落黑板」违规（>50 字且不含『看黑板』且非紧急标记）：
+  ① 记录违规（黑板 data/audit/agentsend-violations.jsonl）
+  ② 提醒违规方（黑板 notes/<角色>/ 通知）
+  ③ 防刷屏（纯确认不回——低于阈值不告警）
+
+用法:
+  python3 agent-send-gate.py --once       # 单次扫描（cron/手动）
+  python3 agent-send-gate.py --interval 300  # 常驻（每 5 分钟）
+
+判定:
+  违规 = 文本长度 > 50 字 且 不含 '看黑板' 且 不含 'urgent' 且 非广播(broadcast)
+  合规 = 短提示 / 含看黑板 / urgent 标记 / 广播
+
+输出: 黑板 data/audit/agentsend-violations.jsonl（append-only）
+"""
+import argparse, json, os, time, datetime, urllib.request
+
+BB = "http://127.0.0.1:8792"
+VIOLATIONS = "data/audit/agentsend-violations.jsonl"
+THRESHOLD = 200  # >200字且无黑板引用=疑似全文回报（业务对话豁免）
+
+def now():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+def get_bb(path):
+    try:
+        req = urllib.request.Request(BB + "/" + path.lstrip("/"))
+        with urllib.request.urlopen(req, timeout=8) as r:
+            return json.loads(r.read().decode())
+    except Exception:
+        return None
+
+def log_violation(entry):
+    # 落盘违规记录
+    out = os.path.expanduser("~/dsh-collab/scripts/logs/agentsend-violations.jsonl")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    # 同步黑板（审计可查）
+    try:
+        req = urllib.request.Request(BB + "/" + VIOLATIONS.lstrip("/"))
+        # 黑板无 append，读-改-写（简化：写独立键）
+        req2 = urllib.request.Request(
+            BB + f"/{VIOLATIONS.rsplit('/',1)[0]}/v-{int(time.time())}",
+            data=json.dumps({"value": entry}, ensure_ascii=False).encode(), method="PUT")
+        urllib.request.urlopen(req2, timeout=5)
+    except Exception:
+        pass
+
+def scan():
+    # 用 agent_thread 数据不可直接获取（工具），改为扫黑板最近消息
+    # 简化：扫描本机 agent-bus 状态文件中的最近消息（若有）
+    bus_file = os.path.expanduser("~/.dsh/agent-bus.json")
+    if not os.path.exists(bus_file):
+        print(f"[agent-send-gate] {now()} 无 agent-bus.json，跳过（仅黑板侧监控）")
+        return 0
+
+    try:
+        data = json.load(open(bus_file, encoding="utf-8"))
+    except Exception as e:
+        print(f"[agent-send-gate] {now()} 读取 agent-bus.json 失败: {e}")
+        return 0
+
+    # 找最近消息（threads → messages）
+    violations = 0
+    threads = data.get("threads", [])
+    for t in threads:
+        for m in t.get("messages", []):
+            text = m.get("text", "")
+            kind = m.get("kind", "normal")
+            if kind == "broadcast":
+                continue
+            if "看黑板" in text or "urgent" in text.lower():
+                continue
+            if len(text) <= THRESHOLD:
+                continue
+            # 业务对话豁免：确认/反馈/决策/协作类消息不算违规（v2.3 规范只约束「汇报」）
+            biz_markers = ["✅", "收到", "确认", "决策", "【", "】", "@session", "@", "见黑板", "详见", "供参考", "回执", "探针", "部署", "方案", "测试"]
+            if any(mk in text for mk in biz_markers):
+                continue
+            # 违规：>200 字全文且无黑板引用且非业务对话（= 纯汇报类长文）
+            entry = {
+                "ts": now(),
+                "from": m.get("from", "?"),
+                "to": m.get("to", "?"),
+                "len": len(text),
+                "preview": text[:80],
+                "thread": t.get("id", "?"),
+            }
+            log_violation(entry)
+            print(f"[agent-send-gate] {now()} ⚠️ 违规 {entry['from']} → {entry['to']} ({entry['len']}字): {entry['preview']}")
+            violations += 1
+
+    print(f"[agent-send-gate] {now()} 扫描完成: {violations} 条违规")
+    return violations
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--once", action="store_true")
+    ap.add_argument("--interval", type=int, default=300)
+    args = ap.parse_args()
+    while True:
+        try:
+            scan()
+        except Exception as e:
+            print(f"[agent-send-gate] {now()} scan error: {e}")
+        if args.once:
+            break
+        time.sleep(args.interval)
+
+if __name__ == "__main__":
+    main()

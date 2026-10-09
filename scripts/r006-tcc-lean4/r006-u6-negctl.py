@@ -27,11 +27,14 @@ M2 = '\n_ = open("/etc/r006-negctl-outside-roots", "w")\n'
 M3 = '\nimport subprocess as _n3\n_n3.Popen(["true"])\n'
 M4_OLD = '    r = {"exec": set(), "write": set(), "danger": set(), "imports": set(), "err": ""}\n    try:'
 M4_NEW = '    return {"exec": set(), "write": set(), "danger": set(), "imports": set(), "err": ""}\n    try:'
+# M5：把 Python 版本写成【浮点数字面量】（= 第 9 项窄口径能判定的那一片）⇒ --selfcheck 须红。
+M5 = '\nMIN_PY_NUM = 3.9\n'
 
-CASES = [("M1 新增危险原语 os.system", M1, "danger", True),
-         ("M2 新增越界常量写入", M2, "write", True),
-         ("M3 别名形式外部命令", M3, "exec", True),
-         ("M4 扫描器致盲（反空洞）", "BLIND", "anti-vacuous", True)]
+CASES = [("M1 新增危险原语 os.system", M1, "danger", "--lean4-check"),
+         ("M2 新增越界常量写入", M2, "write", "--lean4-check"),
+         ("M3 别名形式外部命令", M3, "exec", "--lean4-check"),
+         ("M4 扫描器致盲（反空洞）", "BLIND", "anti-vacuous", "--lean4-check"),
+         ("M5 浮点型版本字面量（第9项）", M5, "verliteral", "--selfcheck")]
 
 
 def build(name, mut):
@@ -52,19 +55,19 @@ def main():
         shutil.rmtree(WORK)
     os.makedirs(WORK)
     bad = 0
-    for i, (name, mut, expect, _) in enumerate(CASES, 1):
+    for i, (name, mut, expect, flag) in enumerate(CASES, 1):
         p, err = build("neg%d.py" % i, mut)
         if p is None:
             print("  ⏭  %s — %s" % (name, err))
             bad += 1
             continue
-        r = subprocess.run([sys.executable, p, "--lean4-check"], capture_output=True,
+        r = subprocess.run([sys.executable, p, flag], capture_output=True,
                            text=True, timeout=120, cwd=WORK)
         rows = [l for l in r.stdout.splitlines() if re.match(r"^\s+(OK|FAIL)\s+[A-F]\s", l)]
         failed = [l.split()[1] for l in rows if "FAIL" in l]
         ctrl = [l for l in r.stdout.splitlines() if "反空洞" in l]
         ok = (r.returncode == 1)
-        note = "rc=%s 红项=%s" % (r.returncode, ",".join(failed) or "无")
+        note = "%s rc=%s 红项=%s" % (flag, r.returncode, ",".join(failed) or "无")
         if expect == "anti-vacuous":
             ok = ok and bool(ctrl) and set(failed) >= {"A", "E", "F"}
             note += " · 反空洞控制已触发=%s" % bool(ctrl)
@@ -74,6 +77,10 @@ def main():
             ok = ok and "E" in failed
         elif expect == "exec":
             ok = ok and "F" in failed
+        elif expect == "verliteral":
+            hit = any("❌" in l and "浮点型 Python 版本字面量" in l for l in r.stdout.splitlines())
+            ok = ok and hit
+            note += " · 第9项红=%s" % hit
         print("  %s %-26s %s" % ("✅" if ok else "❌", name, note))
         if not ok:
             bad += 1

@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""bb-todo-eval.py — 蓝图 todo 价值评估(R006)
+两级判定: I先闸(已实现未标记→done) → R硬闸(资源不可得→backlog) → V/D/C/S打分排序
+用法:
+  --scan            全蓝图 todo 分类(疑似完成/可推进/backlog)
+  --eval BP         单蓝图逐项打分排序
+  --selfcheck / --tool-version
+"""
+import argparse, json, os, sys, glob, datetime, urllib.request, re
+
+VERSION = "v1.0.0"
+BB = os.environ.get("BB_URL", "http://127.0.0.1:8792")
+SCRIPT_DIR = os.path.expanduser("~/dsh-collab/scripts")
+BLUEPRINT_DIR = os.path.expanduser("~/dsh-collab/data/blueprint")
+
+# 本机已有工具/实现线索(用于 I 核对: todo 名 → 是否已有脚本)
+TOOL_HINTS = {
+    "bb-": ["registry", "blueprint", "dialog", "create", "integrity", "content", "schema"],
+    "rust": ["write", "inbox", "派发", "rust化", "背压"],
+    "rules": ["规则", "rule", "judge", "断言", "编译"],
+    "gene": ["gene-bank", "基因", "版本回退", "资产登记"],
+    "compact": ["记忆", "压缩", "persist", "摘要", "保留策略"],
+    "ocr": ["报销识别", "OCR", "截图识别"],
+}
+def _impl_exists(name):
+    """启发式: todo 名里关键词是否对应本机已有脚本/工具"""
+    for pat, kws in TOOL_HINTS.items():
+        for kw in kws:
+            if kw.lower() in str(name).lower():
+                hits = glob.glob(SCRIPT_DIR + f"/*{pat}*")
+                if hits: return True, [os.path.basename(h) for h in hits[:2]]
+    return False, []
+
+def _scan_all():
+    """全蓝图 todo + works 收集"""
+    all_bp = []
+    try:
+        r = json.loads(urllib.request.urlopen(BB + "/data/blueprint/relations", timeout=6).read())
+        bps = r.get("value", r).get("blueprints", [])
+        all_bp = [b if isinstance(b, str) else b.get("id") for b in bps]
+    except Exception: pass
+    out = []
+    for bid in all_bp:
+        try:
+            r = json.loads(urllib.request.urlopen(BB + "/data/blueprint/" + bid, timeout=5).read())
+            v = r.get("value", r)
+        except Exception: continue
+        for s in v.get("stages", []):
+            st_name = str(s.get("stage")) + " " + str(s.get("name"))
+            for sub in s.get("substages", []):
+                if sub.get("status") == "todo":
+                    out.append({"bp": bid, "stage": st_name, "id": sub.get("id"),
+                                "name": sub.get("name"), "note": str(sub.get("note", ""))[:80]})
+    return out
+
+def classify(item):
+    """I 核对 + R 判定"""
+    impl, files = _impl_exists(item["name"])
+    # R: 需外部资源启发词
+    need_ext = any(k in str(item["name"]) + str(item["note"]) for k in
+                   ["授权", "计量", "HA", "云接管", "上线", "灰度", "投放", "门店", "用户", "支付", "采购", "实地"])
+    if impl:
+        return "suspected-done", files
+    if need_ext:
+        return "backlog", "需外部资源"
+    return "actionable", ""
+
+def main():
+    ap = argparse.ArgumentParser(description="蓝图 todo 价值评估")
+    ap.add_argument("--scan", action="store_true")
+    ap.add_argument("--eval")
+    ap.add_argument("--selfcheck", action="store_true")
+    ap.add_argument("--tool-version", action="store_true")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args()
+    if args.tool_version: print(f"bb-todo-eval {VERSION}"); return
+    if args.selfcheck:
+        t = _scan_all()
+        print("TCC:", "✅" if isinstance(t, list) else "❌", f"({len(t)} todo)")
+        return
+    items = _scan_all()
+    cats = {"suspected-done": [], "actionable": [], "backlog": []}
+    for it in items:
+        c, det = classify(it)
+        it["class"] = c; it["detail"] = det
+        cats[c].append(it)
+    if args.json:
+        print(json.dumps({"total": len(items), "cats": {k: len(v) for k, v in cats.items()},
+                          "suspected": cats["suspected-done"][:20], "backlog": cats["backlog"][:20]},
+                         ensure_ascii=False, indent=1)); return
+    print(f"══ 全蓝图 todo 评估({len(items)} 项) ══")
+    print(f"① 疑似已完成未标记(待核, 零成本): {len(cats['suspected-done'])}")
+    for it in cats["suspected-done"][:15]:
+        print(f"   {it['bp']}/{it['id']} {str(it['name'])[:34]} ← 工具在 {it['detail']}")
+    print(f"② 可推进(本机可做): {len(cats['actionable'])}")
+    for it in cats["actionable"][:15]:
+        print(f"   {it['bp']}/{it['id']} {str(it['name'])[:34]} | {it['stage'][:12]}")
+    print(f"③ backlog(需外部资源): {len(cats['backlog'])}")
+    for it in cats["backlog"][:10]:
+        print(f"   {it['bp']}/{it['id']} {str(it['name'])[:30]}")
+
+if __name__ == "__main__":
+    main()
