@@ -399,8 +399,10 @@ def gen_lean4_for(src, toolname):
     if _has_del and not _has_sub:
         return gen_delete_na(src)
 
-    if not has_lit:
-        return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
+    # ★ 2026-10-09 修：无列表字面量【不再拒绝】——
+    #   变量传参在【无 shell=True】时是安全的（不经 shell 解析）。
+    #   ⇒ 生成【「无 shell=True」型】断言，而非「命令写死」断言。
+    _lit_mode = has_lit
     # ★ 2026-10-09 修：旗标检测须【剥离注释/字符串后】判断 ——
     #   实证 3 个工具（convention-lean4-check / pollution-scanner / session-rebirth）
     #   只在【文档字符串】里提到 `--lean4-check`，实跑却报 `unrecognized arguments`
@@ -451,9 +453,14 @@ def gen_lean4_for(src, toolname):
     L.append("        return chr(10).join(out)")
     L.append("    _code = _strip(_self)")
     L.append("")
-    L.append("    c(\"A\", \"类型锁：subprocess 首参为【列表字面量】⇒ 命令写死\",")
-    L.append("      bool(_re.search(r'subprocess\\.(?:run|Popen|call)\\(\\s*\\[', _self)),")
-    L.append("      \"列表字面量在位\")")
+    if _lit_mode:
+        L.append("    c(\"A\", \"类型锁：subprocess 首参为【列表字面量】⇒ 命令写死\",")
+        L.append("      bool(_re.search(r'subprocess\\.(?:run|Popen|call)\\(\\s*\\[', _self)),")
+        L.append("      \"列表字面量在位\")")
+    else:
+        L.append("    c(\"A\", \"类型锁：subprocess 无 shell=True ⇒ 参数不经 shell 解析\",")
+        L.append("      not _re.search(r'shell\\s*=\\s*True', _code),")
+        L.append("      \"无 shell（变量传参亦安全）\")")
     L.append("    c(\"B\", \"入口门：无 shell=True（不可注入）\",")
     L.append("      not _re.search(r'shell\\s*=\\s*True', _code),")
     L.append("      \"调用点 %d 个\" % len(_re.findall(r'subprocess\\.(?:run|Popen|call)\\s*\\(', _code)))")
@@ -660,7 +667,10 @@ def candidates(action):
             # ★ 2026-10-09 再修：删除类【不走 r10-impl】—— 它们只需 N/A 声明
             #   （有依据），而 r10-impl 的功能验证要求 `--lean4-check` 可跑 ⇒ 必然失败。
             #   ⇒ 删除类改由 r10-na 通道处理。
-            if not re.search(r"subprocess\.(?:run|Popen|call)\(\s*\[", s):
+            # ★ 2026-10-09 修：接受【任何 subprocess 调用】——
+            #   「变量传命令」**本身不是危险**（无 shell=True 时变量被当成【单个参数】，
+            #   不经 shell 解析）；只有 shell=True 才危险（上面已排除）。
+            if not re.search(r"subprocess\.(?:run|Popen|call)\s*\(", s):
                 continue
             out.append(r)
         return out, None

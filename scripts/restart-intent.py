@@ -60,7 +60,12 @@ def run_guard():
     """R011 强制门预检（返回通过与否）"""
     guard = os.path.expanduser("~/dsh-collab/rust-tools/dist/dsh-tools-macos-arm64-v1.10.0")
     if os.path.exists(guard):
-        r = os.system(f"{guard} restart-guard ~/dsh-plugin-central-inbox ~/dsh-plugin-agent-bus ~/dsh-plugin-openchronicle --checks-dir ~/dsh-collab/rust-tools/checks > /tmp/restart-guard.txt 2>&1")
+        # ★ 2026-10-09 R10 修复：os.system ⇒ subprocess.run（列表传参）
+        #   原 os.system 经 shell 解析；改列表后【不经 shell】⇒ 注入路径结构性消除。
+        #   同时获得可判定的退出码（os.system 的返回是 wait 状态，须换算）。
+        import subprocess as _sp
+        _r = _sp.run([guard, "restart-guard", "~/dsh-plugin-central-inbox", "~/dsh-plugin-agent-bus", "~/dsh-plugin-openchronicle", "--checks-dir", "~/dsh-collab/rust-tools/checks", ">", "/tmp/restart-guard.txt", "2>&1"], capture_output=True, text=True)
+        r = _r.returncode
         return r == 0, open("/tmp/restart-guard.txt").read().strip().split("\n")[-2:]
     return None, ["强制门工具不存在，跳过"]
 
