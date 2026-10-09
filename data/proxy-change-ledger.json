@@ -35,6 +35,14 @@
    "grantedBy": "user",
    "timestamp": "2026-10-09T22:48:23",
    "recordedBy": "session-b250bf9d"
+  },
+  {
+   "authId": "AUTH-20261009-eb357cc73a70",
+   "scope": "plugin:dsh-plugin-repo-pipeline",
+   "quote": "帮我考古一下，更新凭证与工具关联",
+   "grantedBy": "user",
+   "timestamp": "2026-10-09T22:52:55",
+   "recordedBy": "session-b250bf9d"
   }
  ],
  "changes": [
@@ -242,6 +250,21 @@
    "lastModifier": "session-b250bf9d",
    "files": [
     "dsh-plugin-flower-cockpit/.git/config"
+   ]
+  },
+  {
+   "id": "CHG-20261009-d8a1a76f64d8",
+   "channel": "plugin:dsh-plugin-repo-pipeline",
+   "evidence": "考古结论：该插件【已完整登记且 QA 验收 PASS】（非半成品，属主 session-dcac2308，v0.1.0，含 doctor/setup/status/sync 四命令 + CI/Release/Deploy 模板）；★ 修其【工具关联缺口】—— gh 硬依赖 PATH ⇒ 加 resolveBin/resolve_gh（HEAD=68a8237）；验证：不带 PATH 时 doctor 由「⚠ 缺少 gh CLI」变「✓ 已登录 [路径 /opt/homebrew/bin/gh]」",
+   "rollback": "cp /tmp/rp-bak/* 回填三个文件",
+   "authorization": "AUTH-20261009-eb357cc73a70",
+   "authQuote": "帮我考古一下，更新凭证与工具关联",
+   "timestamp": "2026-10-09T22:53:56",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-repo-pipeline/src/helpers.ts",
+    "dsh-plugin-repo-pipeline/lib/helpers.js",
+    "dsh-plugin-repo-pipeline/scripts/repo-pipeline.sh"
    ]
   }
  ]
