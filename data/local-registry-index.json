@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T18:05:28",
+  "built_at": "2026-10-09T18:07:03",
   "sources": {
    "S1 工具实体": 331,
    "S2 R006 矩阵": 273,
    "S3 资源登记表": 524,
    "S4 规则账本": 52,
-   "S5 黑板登记卡": 933,
+   "S5 黑板登记卡": 935,
    "S6 skills": 18
   },
-  "total": 2131
+  "total": 2133
  },
  "items": [
   {
@@ -13400,6 +13400,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "plan-version-chain",
+   "path": "blackboard:data/registry/plan-version-chain",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "platform-bp-verify-20260910",
    "path": "blackboard:data/registry/platform-bp-verify-20260910",
    "desc": "黑板登记卡"
@@ -14620,6 +14627,13 @@
    "kind": "bb-card",
    "name": "v3-review-request",
    "path": "blackboard:data/registry/v3-review-request",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "v31-fix-criteria",
+   "path": "blackboard:data/registry/v31-fix-criteria",
    "desc": "黑板登记卡"
   },
   {

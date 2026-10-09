@@ -58,6 +58,22 @@
    "hits": 12,
    "note": "复用 I8 的缺席可判别模式（comm-invariant-audit.py）；复用 cahac-compliance-report.py 的阈值同源做法；不新建机制",
    "at": "2026-10-09T18:01:45"
+  },
+  {
+   "intent": "补齐存量工具的 R7 统一日志 与 R10 约束门 lean4-check",
+   "artifact": "r006-r10-r7-remediate",
+   "verdict": "adapt",
+   "hits": 7,
+   "note": "复用既有：r006-retrofit-scripts.js（补课器骨架生成法）+ audit-r006-gap-analysis.md 的「显式声明豁免」做法；不新建运动式补齐；★ 关键实证：2026-09-06 那次 R10 全域补建的成绩建立在【宽判据】上（记录里「已补齐」的 session-rebirth/subagent-govern/bb-schema-gate 等今天用严判据全部不达标）⇒ 故本件重点是【让补齐可机械核+可持续】而非再做一次一次性运动",
+   "at": "2026-10-09T18:09:01"
+  },
+  {
+   "intent": "批量补齐存量工具的 R7 日志 与 R10 声明 的优化计划",
+   "artifact": "r006-batch-apply.py",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "复用 r006-retrofit-scripts.js 的「补课器」模式 + 本轮 r006-debt-remediate 的三态判据；不新建运动式机制；★ 关键：上一轮我用脚本改 3 个文件改坏 3 个（docstring 位置错/引用不存在常量）⇒ 故本件【先做安全的批量改器】：dry-run 默认 + 逐个 py_compile + 失败即回滚 + 不夹带改动",
+   "at": "2026-10-09T18:16:55"
   }
  ]
 }
