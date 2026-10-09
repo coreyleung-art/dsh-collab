@@ -822,9 +822,12 @@ def candidates(action):
                 s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
             except Exception:
                 continue
-            if "--selfcheck" in strip_code_py(s):
-                continue
-            if "def selfcheck" in s:
+            # ★ 2026-10-09 修（判据过严的反向错误）：
+            #   原用 strip_code_py 剥离后判断 ⇒ `add_argument("--selfcheck")` 里的旗标名
+            #   在【字符串里】被剥掉 ⇒ 判「没有」⇒ 重复插入 ⇒ argparse 冲突（实证 13 个）。
+            #   ⇒ `--selfcheck` 是【旗标名，必须在字符串里注册】⇒ 判据【不得剥离】。
+            #   （这与 R10 的 `--lean4-check` 需要剥离【恰好相反】—— 那里是注释里提到会误判。）
+            if "--selfcheck" in s or "def selfcheck" in s or "cmd_selfcheck" in s:
                 continue
             out.append(r)
         return out, None
