@@ -1,0 +1,248 @@
+{
+ "_meta": {
+  "version": "1.0.1",
+  "createdAt": "2026-10-09T21:55:03"
+ },
+ "authorizations": [
+  {
+   "authId": "AUTH-20261009-dea67d017d9f",
+   "scope": "dsh-plugin-hr,dsh-plugin-excalidraw,dsh-plugin-flower-cockpit,dsh-plugin-md-preview,scripts:r2-selfcheck",
+   "quote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "grantedBy": "user",
+   "timestamp": "2026-10-09T21:55:03",
+   "recordedBy": "session-b250bf9d"
+  },
+  {
+   "authId": "AUTH-20261009-d292871a3f50",
+   "scope": "gitee:new-repo:dsh-plugin-excalidraw,gitee:new-repo:dsh-plugin-md-preview",
+   "quote": "授权，在 gitee 新建 2 个仓库并推送",
+   "grantedBy": "user",
+   "timestamp": "2026-10-09T22:12:49",
+   "recordedBy": "session-b250bf9d"
+  },
+  {
+   "authId": "AUTH-20261009-a137bd5311a2",
+   "scope": "github:new-repo:dsh-plugin-excalidraw,github:new-repo:dsh-plugin-md-preview,gitee:new-repo:dsh-plugin-hr",
+   "quote": "可以配，你搜索一下最近才设置过专用 github token以及 pat，考古一下。",
+   "grantedBy": "user",
+   "timestamp": "2026-10-09T22:19:25",
+   "recordedBy": "session-b250bf9d"
+  },
+  {
+   "authId": "AUTH-20261009-59c017ce04e2",
+   "scope": "github:new-repo:dsh-plugin-flower-cockpit",
+   "quote": "授权（推荐）—— 在 GitHub 为 dsh-plugin-flower-cockpit 建仓",
+   "grantedBy": "user",
+   "timestamp": "2026-10-09T22:48:23",
+   "recordedBy": "session-b250bf9d"
+  }
+ ],
+ "changes": [
+  {
+   "id": "CHG-20261009-4c5d8ffbf9d9",
+   "channel": "plugin:dsh-plugin-hr",
+   "evidence": "tsconfig module commonjs→es2022 + package.json 加 type:module；重新 tsc 后 lib/index.js 为纯 ESM（import4/export4/require0）；实测 node import 成功（name=hr, apply=function）；client.js 未动（仍 __ModuleLoader__ 格式）",
+   "rollback": "git -C ~/dsh-plugin-hr checkout f1c8b62 -- . （或 cp -r /tmp/hr-before-esm/* ~/dsh-plugin-hr/）",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T21:56:32",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-hr/tsconfig.json",
+    "dsh-plugin-hr/package.json",
+    "dsh-plugin-hr/lib/index.js",
+    "dsh-plugin-hr/lib/index.d.ts"
+   ]
+  },
+  {
+   "id": "CHG-20261009-6816232166f2",
+   "channel": "plugin:dsh-plugin-excalidraw",
+   "evidence": "tsconfig module CommonJS→es2022 + package.json 加 type:module；tsc 重编译后 lib/index.js 为 ESM（exports.=0 require=0）；node import 验证 OK",
+   "rollback": "git -C ~/dsh-plugin-excalidraw checkout <sha> -- . 或 cp -r /tmp/before-esm-dsh-plugin-excalidraw/* ~/dsh-plugin-excalidraw/",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T21:57:55",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-excalidraw/tsconfig.json",
+    "dsh-plugin-excalidraw/package.json",
+    "dsh-plugin-excalidraw/lib/index.js"
+   ]
+  },
+  {
+   "id": "CHG-20261009-5a8f1d3457bb",
+   "channel": "plugin:dsh-plugin-flower-cockpit",
+   "evidence": "① tsconfig CommonJS→es2022 + type:module ② ★ 实质修复：lib/adapt.js 由 CJS 转 ESM（require→import、module.exports→export、createRequire 造 require）③ src/index.ts 的 require('../lib/adapt.js')→import * as adapt；node import 验证 OK（name/apply 正常）",
+   "rollback": "git -C ~/dsh-plugin-flower-cockpit checkout 8805d1e -- . / cp /tmp/fc-adapt-before.js /tmp/fc-index-before.ts 回填",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T21:57:55",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-flower-cockpit/tsconfig.json",
+    "dsh-plugin-flower-cockpit/package.json",
+    "dsh-plugin-flower-cockpit/lib/adapt.js",
+    "dsh-plugin-flower-cockpit/src/index.ts",
+    "dsh-plugin-flower-cockpit/lib/index.js"
+   ]
+  },
+  {
+   "id": "CHG-20261009-78b89664f813",
+   "channel": "plugin:dsh-plugin-md-preview",
+   "evidence": "① tsconfig CommonJS→es2022 + type:module ② ★ 补 exports 字段（原缺 ⇒ 声明了 dsh.client 却无 ./client 出口，R1 fail 的真因）；三个导出目标均验证存在；node import OK；R1 由 fail→unchecked",
+   "rollback": "git -C ~/dsh-plugin-md-preview checkout <sha> -- . 或 cp /tmp/mdp-pkg-before.json ~/dsh-plugin-md-preview/package.json",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T21:57:55",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-md-preview/tsconfig.json",
+    "dsh-plugin-md-preview/package.json",
+    "dsh-plugin-md-preview/lib/index.js"
+   ]
+  },
+  {
+   "id": "CHG-20261009-6d482d8c836f",
+   "channel": "scripts:r2-selfcheck-batch",
+   "evidence": "为 256 个 .py + 20 个 .sh/.js 生成 R006 ② TCC --selfcheck（三段：能力清单←docstring/注释+参数 · 不该发生路径←危险原语检测 · 依赖完整性←import 分类）；功能验证 255/256 三段齐；三语言语法 0 失败；R2 fail 263(81%)→0",
+   "rollback": "git -C ~/dsh-collab log --oneline 查 9010fd4 之前；或 git checkout d4e8ad6 -- scripts/（R2 生成前的状态）",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T22:05:29",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-collab/scripts/（256 个 .py + 20 个 .sh/.js）"
+   ]
+  },
+  {
+   "id": "CHG-20261009-0f020c30016e",
+   "channel": "gitee:new-repo:dsh-plugin-excalidraw",
+   "evidence": "在 gitee 新建仓库并推送 dsh-plugin-excalidraw（该目录原非 git 仓库）",
+   "rollback": "删除 gitee 仓库 dsh-plugin-excalidraw",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T22:10:25",
+   "lastModifier": "session-b250bf9d",
+   "files": [],
+   "voided": true,
+   "voidReason": "★ 误放行：修门前的子串匹配把「新建仓库」当成「在授权范围内」；门已修为高危动作须显式授权（2026-10-09）",
+   "voidedAt": "2026-10-09T22:10:42"
+  },
+  {
+   "id": "CHG-20261009-4d6dc9396a45",
+   "channel": "plugin:dsh-plugin-md-preview",
+   "evidence": "（对照测试，稍后随实际变更更新）",
+   "rollback": "n/a",
+   "authorization": "AUTH-20261009-dea67d017d9f",
+   "authQuote": "补 r2 缺口。4 个 cjs 插件做迁移，这次你代做。",
+   "timestamp": "2026-10-09T22:10:26",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-md-preview/x"
+   ],
+   "voided": true,
+   "voidReason": "★ 测试性记录（非实际变更），作废",
+   "voidedAt": "2026-10-09T22:13:40"
+  },
+  {
+   "id": "CHG-20261009-805ddf3cb8ef",
+   "channel": "gitee:new-repo:dsh-plugin-excalidraw",
+   "evidence": "门测试（稍后随实际执行更新）",
+   "rollback": "删除该 gitee 仓库",
+   "authorization": "AUTH-20261009-d292871a3f50",
+   "authQuote": "授权，在 gitee 新建 2 个仓库并推送",
+   "timestamp": "2026-10-09T22:12:49",
+   "lastModifier": "session-b250bf9d",
+   "files": [],
+   "voided": true,
+   "voidReason": "★ 测试性记录（非实际变更），作废",
+   "voidedAt": "2026-10-09T22:13:40"
+  },
+  {
+   "id": "CHG-20261009-bfc77d6bfd0b",
+   "channel": "gitee:new-repo:dsh-plugin-excalidraw",
+   "evidence": "① git init（原非 git 仓库）+ .gitignore（对齐既有约定：node_modules/.DS_Store/dist/*.log/*.bak）② 首次提交 f0bd4a3（18-19 个文件，node_modules 已排除）③ Gitee API 建仓 coreyleung/dsh-plugin-excalidraw ④ 推送并核实 refs 一致（本地=远端）⑤ 默认分支设为 main",
+   "rollback": "删除 Gitee 仓库 coreyleung/dsh-plugin-excalidraw；本地删 ~/dsh-plugin-excalidraw/.git 即回到未纳管状态",
+   "authorization": "AUTH-20261009-d292871a3f50",
+   "authQuote": "授权，在 gitee 新建 2 个仓库并推送",
+   "timestamp": "2026-10-09T22:13:40",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-excalidraw/.gitignore",
+    "dsh-plugin-excalidraw/package.json",
+    "dsh-plugin-excalidraw/tsconfig.json",
+    "dsh-plugin-excalidraw/lib/index.js",
+    "dsh-plugin-excalidraw/CHANGELOG.md"
+   ]
+  },
+  {
+   "id": "CHG-20261009-e17b4f20961a",
+   "channel": "gitee:new-repo:dsh-plugin-md-preview",
+   "evidence": "① git init（原非 git 仓库）+ .gitignore（对齐既有约定：node_modules/.DS_Store/dist/*.log/*.bak）② 首次提交 263513c（18-19 个文件，node_modules 已排除）③ Gitee API 建仓 coreyleung/dsh-plugin-md-preview ④ 推送并核实 refs 一致（本地=远端）⑤ 默认分支设为 main",
+   "rollback": "删除 Gitee 仓库 coreyleung/dsh-plugin-md-preview；本地删 ~/dsh-plugin-md-preview/.git 即回到未纳管状态",
+   "authorization": "AUTH-20261009-d292871a3f50",
+   "authQuote": "授权，在 gitee 新建 2 个仓库并推送",
+   "timestamp": "2026-10-09T22:13:40",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-md-preview/.gitignore",
+    "dsh-plugin-md-preview/package.json",
+    "dsh-plugin-md-preview/tsconfig.json",
+    "dsh-plugin-md-preview/lib/index.js",
+    "dsh-plugin-md-preview/CHANGELOG.md"
+   ]
+  },
+  {
+   "id": "CHG-20261009-3168da899e3e",
+   "channel": "github:new-repo:dsh-plugin-excalidraw",
+   "evidence": "GitHub 建仓 + SSH remote + 推送（本地=远端一致）（HEAD=f0bd4a3）",
+   "rollback": "删除对应远程仓库；本地无需回滚（remote 配置可用 git remote remove 撤销）",
+   "authorization": "AUTH-20261009-a137bd5311a2",
+   "authQuote": "可以配，你搜索一下最近才设置过专用 github token以及 pat，考古一下。",
+   "timestamp": "2026-10-09T22:24:09",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-excalidraw/.git/config"
+   ]
+  },
+  {
+   "id": "CHG-20261009-078a4dcbb619",
+   "channel": "github:new-repo:dsh-plugin-md-preview",
+   "evidence": "GitHub 建仓 + SSH remote + 推送（首次 push 因仓库未就绪 exit=128，重试后一致）（HEAD=263513c）",
+   "rollback": "删除对应远程仓库；本地无需回滚（remote 配置可用 git remote remove 撤销）",
+   "authorization": "AUTH-20261009-a137bd5311a2",
+   "authQuote": "可以配，你搜索一下最近才设置过专用 github token以及 pat，考古一下。",
+   "timestamp": "2026-10-09T22:24:09",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-md-preview/.git/config"
+   ]
+  },
+  {
+   "id": "CHG-20261009-7bd83f27e822",
+   "channel": "gitee:new-repo:dsh-plugin-hr",
+   "evidence": "Gitee 建仓 + remote + 推送（原仅 GitHub，现双仓一致）（HEAD=274dd49）",
+   "rollback": "删除对应远程仓库；本地无需回滚（remote 配置可用 git remote remove 撤销）",
+   "authorization": "AUTH-20261009-a137bd5311a2",
+   "authQuote": "可以配，你搜索一下最近才设置过专用 github token以及 pat，考古一下。",
+   "timestamp": "2026-10-09T22:24:09",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-hr/.git/config"
+   ]
+  },
+  {
+   "id": "CHG-20261009-a663c1f59352",
+   "channel": "github:new-repo:dsh-plugin-flower-cockpit",
+   "evidence": "GitHub 建仓 coreyleung-art/dsh-plugin-flower-cockpit + SSH remote + 推送（HEAD=244fc85）⇒ 该插件由【仅 Gitee】变【双仓一致】",
+   "rollback": "删除该 GitHub 仓库；本地 git remote remove origin 撤销 remote",
+   "authorization": "AUTH-20261009-59c017ce04e2",
+   "authQuote": "授权（推荐）—— 在 GitHub 为 dsh-plugin-flower-cockpit 建仓",
+   "timestamp": "2026-10-09T22:48:38",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "dsh-plugin-flower-cockpit/.git/config"
+   ]
+  }
+ ]
+}

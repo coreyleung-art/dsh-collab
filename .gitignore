@@ -8,6 +8,12 @@
 !/data/
 !/**/README*
 /data/*
+# ★ 2026-10-09：审计类台账【必须】在版本控制里（代做留痕的时间戳/授权/变动人）
+#   `/data/*` 会连带排除它们 ⇒ 显式加入例外。
+!/data/proxy-change-ledger.json
+!/data/j44-reuse-ledger.json
+!/data/local-registry-index.json
+
 !/data/registry/
 !/data/reports/
 # 白名单树内仍排除: 日志/缓存/密钥/旧备份
