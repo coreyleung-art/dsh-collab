@@ -363,6 +363,7 @@ CHECKS = [
     ("I6 闸门只断言数据（非服务存在性）", lambda b, m: i6()),
     ("I7 投递模式（通知不唤醒）", lambda b, m: i7(m)),
     ("I8 CAHAC 落地合规（缺席可判别）", lambda b, m: i8(b, m)),
+    ("I9 沉淀链在跑且被消费（缺席可判别）", lambda b, m: i9(b, m)),
 ]
 
 MARK = {"PASS": "✅", "FAIL": "❌", "GAP": "🟡", "PENDING": "🟠", "SKIP": "⚪"}
@@ -439,6 +440,41 @@ def i8(bus=None, msgs=None):
                 SRC + "合规率 = **%.4f** ⇒ **落地中**（未达 60%% 阈值）"
                 % (rate,), ev)
     return ("PASS", SRC + "合规率 = %.4f（> 60%% 阈值）" % (rate,), ev)
+
+
+
+# ── I9 沉淀链在跑且被消费（★ 2026-10-09 新增 · 与 I8 同构）────────────────────
+#   依据：G1/G3「缺席可判别」——把报警从【存在报警】反转为【缺席报警】。
+#   实测动因：沉淀链 2026-08-22 建、跑 11 天后静默 37 天（清单停在 2026-09-02），
+#             而【无人察觉】。2026-10-09 接电（--from-git + launchd）后单日产出 56 条，
+#             而消费标记仅 1 条 ⇒ 即「有清单而无人消费」——同样不会自己报警。
+#   ⇒ 本项读 data/health/sedimentation（由 sedimentation-absence-check.py 周期写入）。
+def i9(bus=None, msgs=None):
+    key = "data/health/sedimentation"
+    try:
+        import urllib.request
+        with urllib.request.urlopen("http://127.0.0.1:8792/" + key, timeout=8) as r:
+            d = json.loads(r.read().decode("utf-8"))
+    except Exception as e:
+        return "SKIP", "读不到黑板键 %s（%s）⇒ 无从判定" % (key, type(e).__name__), {"key": key}
+    v = d.get("value", d)
+    st = (v or {}).get("status")
+    ev = {"key": key, "version": d.get("version"), "status": st,
+          "items": (v or {}).get("items"), "consumed": (v or {}).get("consumed"),
+          "source_ts": (v or {}).get("source_ts"),
+          "refresh_seconds": (v or {}).get("refresh_seconds")}
+    # ★ 三态纪律：缺 status ⇒ 未核，不得当作通过
+    if st is None:
+        return "SKIP", "上报体缺 status ⇒ **未核**（缺字段记未核，不得当作通过）", ev
+    if st == "PASS":
+        return "PASS", "沉淀链新鲜且已消费（items=%s consumed=%s）" % (ev["items"], ev["consumed"]), ev
+    if st == "FAIL":
+        return "FAIL", "★ **链未在跑**（缺席）—— %s" % str((v or {}).get("why"))[:110], ev
+    if st == "GAP":
+        return "GAP", "★ **有清单而无人消费/空清单** —— %s" % str((v or {}).get("why"))[:110], ev
+    if st == "PENDING":
+        return "PENDING", "**部分消费** —— %s" % str((v or {}).get("why"))[:110], ev
+    return "SKIP", "未知 status=%r ⇒ 未核" % st, ev
 
 
 def audit():
@@ -535,9 +571,17 @@ def main():
         n_pass = sum(1 for r in rows if r["status"] == "PASS")
         n_pend = sum(1 for r in rows if r["status"] == "PENDING")
         print("  " + "─" * 96)
-        print(f"  PASS {n_pass} · PENDING {n_pend}（已休眠，修复待部署）· "
-              f"GAP {n_gap}（机制尚不存在）· FAIL {n_fail}（活跃违规）")
-        print("  四档必须分开：PENDING 等重启、GAP 要建、FAIL 要改行为；混在一起就没有行动指引。\n")
+        print(f"  PASS {n_pass} · PENDING {n_pend} · GAP {n_gap} · FAIL {n_fail}")
+        # ★ 2026-10-09 修：原汇总行把 PENDING 硬编码解释为「已休眠，修复待部署」，
+        #   而 PENDING 现承载【多种】含义（I2=已休眠历史债 · I8=落地起步 · I9=部分消费）
+        #   ⇒ 统一注释会把【不同的行动指引】混在一起，正是本行自己说的「混在一起就没有行动指引」。
+        #   ⇒ 改为【逐项列出 PENDING 及其原因摘要】，让每个 PENDING 自带行动指引。
+        pends = [r for r in rows if r["status"] == "PENDING"]
+        if pends:
+            print("  ★ PENDING 逐项（原因与行动各不同，故不得合并注释）：")
+            for r in pends:
+                print("      %-4s %s" % (r["id"], (r.get("why") or "")[:100]))
+        print("  四档必须分开：PENDING 待处置、GAP 要建、FAIL 要改行为；混在一起就没有行动指引。\n")
     return 1 if any(r["status"] == "FAIL" for r in rows) else 0
 
 

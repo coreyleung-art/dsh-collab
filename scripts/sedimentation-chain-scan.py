@@ -90,6 +90,41 @@ def clean_summary(raw: str) -> str:
     s = re.sub(r'\s+', ' ', s).strip()
     return s
 
+
+# ─────────────── ★ D1（2026-10-09）：--from-git 数据源 ───────────────
+# 动因（有实证）：本扫描器的数据源是 event-bus 的 task.completed 事件，
+#   而 2026-08-22 建链至今【无人发布该事件】⇒ 实跑恒为「0 事件 ⇒ 0 条建议」
+#   （清单停在 2026-09-02，静默 37 天）。
+# ⇒ 修法（按〈删除失败模式〉而非〈降低概率〉）：**不依赖任何人记得发布事件**，
+#   改从【迭代必然产生的副产品】推导 —— 即 git 提交（实测近 3 天 75 个提交）。
+# ⇒ 于是「没人发布事件」这一失败模式【不再可表达】。
+def load_events_from_git(since_days):
+    """从 git log 推导「迭代事件」，与 task.completed 同构。"""
+    import subprocess
+    try:
+        r = subprocess.run(
+            ["git", "-C", COLLAB, "log", "--since=%s days ago" % int(since_days),
+             "--pretty=format:%H\x1f%at\x1f%s"],
+            capture_output=True, text=True, timeout=30)
+        if r.returncode != 0:
+            print("[warn] git log 退出码 %s（该源跳过）" % r.returncode, flush=True)
+            return []
+    except Exception as e:
+        print("[warn] git 不可用（该源跳过）: %s" % str(e)[:60], flush=True)
+        return []
+    out = []
+    for line in r.stdout.split("\n"):
+        parts = line.split("\x1f")
+        if len(parts) < 3:
+            continue
+        sha, at, subj = parts[0], parts[1], parts[2]
+        out.append({"topic": "task.completed", "source": "git",
+                    "id": "git-" + sha[:12],
+                    "ts": datetime.datetime.fromtimestamp(int(at)).isoformat(),
+                    "payload": {"summary": subj, "sha": sha[:12]}})
+    return out
+
+
 def classify(summary: str):
     """纯规则判定：返回 (decision, heavy) 其中 decision ∈ {deposit, skip, review}"""
     s = summary or ""
@@ -120,12 +155,32 @@ def save_state(state):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", type=float, default=7.0, help="扫描最近 N 天（默认 7）")
+    ap.add_argument("--from-git", action="store_true",
+                    help="★ 追加 git 提交作为事件源（不依赖有人发布 task.completed）")
     ap.add_argument("--dry-run", action="store_true", help="只看清单不落盘")
     ap.add_argument("--auto", action="store_true", help="C 模式：自动执行本地环节（预留，逐步启用）")
     ap.add_argument("--mark-consumed", action="store_true", help="把已沉淀事件标记 consumed（需先人工执行）")
     args = ap.parse_args()
 
     events = load_events(args.since)
+
+
+    src_git = 0
+
+
+    if args.from_git:
+
+
+        g = load_events_from_git(args.since)
+
+
+        src_git = len(g)
+
+
+        _seen = {e.get('id') for e in events}
+
+
+        events += [e for e in g if e.get('id') not in _seen]
     state = load_state()
     seen = set(state.get("seen", []))
 

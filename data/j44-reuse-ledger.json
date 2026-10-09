@@ -34,6 +34,30 @@
    "hits": 12,
    "note": "本机无同类执行门；仅有规则文字与规则同步引用",
    "at": "2026-10-09T17:57:45"
+  },
+  {
+   "intent": "给沉淀扫描器加 from-git 数据源 与 launchd 定时触发",
+   "artifact": "sedimentation-from-git",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "claim: 复用既有闭环——blackboard-dispatch-protocol.md 的消费协议 + bus-capture 的 15min launchd 模式 + event-bus publish；只新增 --from-git 数据源",
+   "at": "2026-10-09T18:01:13"
+  },
+  {
+   "intent": "新建 sedimentation launchd 定时出待沉淀清单",
+   "artifact": "com.dsh.cron.sedimentation",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "复用 bus-capture 的 plist 形态与 15min 模式；但职责不同（它出纪要，本项出待沉淀清单）；消费端复用 blackboard-dispatch-protocol",
+   "at": "2026-10-09T18:01:35"
+  },
+  {
+   "intent": "新建沉淀链缺席可判别检查器 absence check",
+   "artifact": "sedimentation-absence-check.py",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "复用 I8 的缺席可判别模式（comm-invariant-audit.py）；复用 cahac-compliance-report.py 的阈值同源做法；不新建机制",
+   "at": "2026-10-09T18:01:45"
   }
  ]
 }

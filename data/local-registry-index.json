@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T17:58:34",
+  "built_at": "2026-10-09T18:03:10",
   "sources": {
-   "S1 工具实体": 330,
+   "S1 工具实体": 331,
    "S2 R006 矩阵": 273,
    "S3 资源登记表": 520,
    "S4 规则账本": 52,
    "S5 黑板登记卡": 932,
    "S6 skills": 18
   },
-  "total": 2125
+  "total": 2126
  },
  "items": [
   {
@@ -26,6 +26,13 @@
    "name": "bb-blueprint2.py",
    "path": "~/dsh-collab/scripts/bb-blueprint2.py",
    "desc": "bb-blueprint2.py — 蓝图升级工具 v2（明鉴 v2 蓝图主编流程工具化）"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
+   "name": "sedimentation-absence-check.py",
+   "path": "~/dsh-collab/scripts/sedimentation-absence-check.py",
+   "desc": "sedimentation-absence-check.py — 沉淀链【缺席可判别】检查器 v1.0.0"
   },
   {
    "src": "S1",
