@@ -537,14 +537,24 @@ def prove_strip(verbose=True):
     # ★★ 判据二（真判据）：剥离后**行号必须与原文一一对应**。
     #   ★ 这条正是抓到「多行字符串压成 1 行 ⇒ 行号漂移」的判据 ——
     #     旧版只看「探针在否」，抓不到它。**
-    same_lines = (len(src.split("\n")) == len(code.split("\n")))
+    # ★★ 2026-10-10 裁判裁决（§九·补四）：**报「应当不变」的量时，须报【关系】，不报【取值】**
+    #   理由：取值会随无关变化失效（610 在文件长到 748 行后即失效），而关系不会。
+    #   故本处输出【关系式】`剥离前行数 == 剥离后行数`，**仅在关系不成立时**才附具体值供定位。
+    n_src = len(src.split("\n"))
+    n_code = len(code.split("\n"))
+    same_lines = (n_src == n_code)
     if not same_lines:
         bad += 1
     if verbose:
-        print("  %s %-34s 原文=%-5s 剥离后=%-5s %s"
-              % ("✅" if same_lines else "❌", "★ 行号一一对应（真判据）",
-                 len(src.split("\n")), len(code.split("\n")),
-                 "⇒ 行号不漂移" if same_lines else "★ 行号漂移（多行字符串被压行）"))
+        if same_lines:
+            # ★ 报关系，不报取值
+            print("  ✅ %-34s %s" % ("★ 行号一一对应（真判据）",
+                                     "剥离前行数 == 剥离后行数"))
+        else:
+            # 关系不成立 ⇒ 才给取值（供定位；此时取值是【诊断信息】而非断言）
+            print("  ❌ %-34s %s（诊断值：%d vs %d）"
+                  % ("★ 行号一一对应（真判据）",
+                     "★ 关系不成立：剥离前行数 ≠ 剥离后行数", n_src, n_code))
 
     # ★ 并排展示：找出第一处含字符串的行，展示两侧差异
     if verbose:
