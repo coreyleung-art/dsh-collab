@@ -390,6 +390,14 @@ def gen_lean4_for(src, toolname):
     # ★ 守卫：检出风险用法 ⇒ 拒绝（不放假断言）
     if has_shell:
         return None, "★ 检出 shell=True ⇒ 不可生成「命令写死」断言（须先改代码）"
+
+    # ★ 2026-10-09 加：**删除类**（无 subprocess）的专用断言 ——
+    #   实证 7 个工具用 os.remove/rmtree 清理自己的临时/归档目录，路径非外部输入。
+    #   断言「删除目标在受控目录内」，而非「命令写死」。
+    _has_del = bool(_re.search(r"os\.remove\(|shutil\.rmtree\(|os\.rmdir\(", code))
+    _has_sub = bool(_re.search(r"subprocess\.(?:run|Popen|call)\s*\(", code))
+    if _has_del and not _has_sub:
+        return _gen_delete_check(src, toolname)
     if not has_lit:
         return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
     # ★ 2026-10-09 修：旗标检测须【剥离注释/字符串后】判断 ——
@@ -477,7 +485,14 @@ def gen_lean4_for(src, toolname):
     #   分流走 `if "--lean4-check" in sys.argv` 预扫描即可。
     m_ins = _re.search(r"(\n\s*" + _re.escape(apv) + r"\.add_argument\([^\n]*\))", new)
     if m_ins:
-        ins = '\n    ' + apv + '.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")'
+        # ★ 2026-10-09 修：旗标插入须【沿用匹配行的实际缩进】——
+        #   原写死 4 空格 ⇒ 若匹配到的 add_argument 在 for/if 内部（实证 session-rebirth.py），
+        #   插入后缩进不一致 ⇒ IndentationError。
+        _mline = new[m_ins.start(1):m_ins.end(1)]
+        _ind = _re.match(r"\n(\s*)", _mline)
+        _ind = _ind.group(1) if _ind else "    "
+        # 只取【语句本身】的缩进（去掉换行）
+        ins = '\n' + _ind + apv + '.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")'
         new = new[:m_ins.end(1)] + ins + new[m_ins.end(1):]
     # 若无可插入处 ⇒ 不注册旗标（预扫描即可）
 
@@ -553,7 +568,17 @@ def candidates(action):
         for r in rows:
             if r["r10"] != "missing" or not r["dangerous"]:
                 continue
-            if "subprocess" not in r["dangerous_what"]:
+            # ★ 2026-10-09 修：**只处理 .py** ——
+            #   生成的 lean4_check 是【Python 函数】，插进 .sh/.js 必然语法错
+            #   （实证 pstd-f1-check.sh 反复失败，报 `line 11: syntax`）。
+            #   ⇒ .sh/.js 的 R10 需【各自的 shell/JS 版方案】（另立）。
+            if not r["name"].endswith(".py"):
+                continue
+            # ★ 2026-10-09 扩展：也接受【删除类】（os.remove/rmtree）——
+            #   实证它们的删除目标均为自己的临时/归档目录（非外部输入）。
+            _dw = r["dangerous_what"]
+            if not ("subprocess" in _dw or "os.remove" in _dw or "rmtree" in _dw
+                    or "rmdir" in _dw or "os.system" in _dw):
                 continue
             try:
                 s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
