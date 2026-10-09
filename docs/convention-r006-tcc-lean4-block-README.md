@@ -193,12 +193,22 @@ pyline = any(l.strip().startswith("Python %s" % _r006_sys.version.split()[0]) fo
 
 ## ⑦ 未结项（交 adjudicator）
 
-1. **`audit-criteria-triage.py` 未纳入本批** —— 它是**一次性分析脚本**（无 argparse、无函数、
-   顶层直接跑完即落盘 `/tmp/u7/verdicts.json`），**没有可复用输入面**；而 R006 ① 的反例正是
-   「只有 `.py` 无 CLI 包装的裸脚本」。**把它工具化是一个"形态决策"，不是缺口补丁**：
-   - 选项 A：工具化（加 argparse + `--input` 读判据表，内置表作默认集）
-   - 选项 B：**按报告产物归档**（它是一次 U7 分析的产出，其结论已落盘）
-   ★ 需 adjudicator/owner 裁形态；不作此裁决前我不擅自重构，以免毁掉一次性产物。
+1. **`audit-criteria-triage.py` —— ★ 已裁定 B 并执行完毕（2026-10-10 收口）**
+   - **裁定**：adjudicator 判 **B = 按报告产物归档**，理由是**用它自己的结论**：
+     该分诊文档的结论是「**值得新建的门 = 0 条**」，而**把一次性脚本包装成 CLI，恰恰就是「造门」**。
+   - **执行**：移入 `scripts/archive/audit-criteria-triage.py`（**不删** —— 它是
+     `docs/audit-criteria-triage-decision.md` 的可复现条件之一），并在文件头加归档说明；
+     该文档内 3 处生成器路径已同步更新（`dangling-reference` 归零）。
+   - **形态说明（如实记录）**：裁定前该脚本**已被升级为带 argparse 的形态**
+     （`--json/--dry-run/--out/--selftest/--selfcheck/--lean4-check/--version`，205 行，
+     `94ad21864d61b6e5`），但实测 `--selfcheck` **只输出 1 行**、`--lean4-check` **无 A–F**
+     —— 即 adjudicator 量到的「② 0 段 · ⑩ A–F 全缺」。归档即把它**移出 R006 十项批**，
+     其升级产物随之保留在归档件内，不再参与工具族扫描面。
+2. **⑧ 自动落链 10/10 UNCHECKED** —— 口径差（本方按默认注入面判 PASS，审查器按静态字面量判 UNCHECKED），
+   维持原判为**非缺口**。
+3. **D 的实测化**依赖批次 2 的 `--dry-run`（⑨③）。
+4. **`selftest-inventory` 无可表示的成功退出码**（任何合法调用都 rc=1）⇒ 「0=成功」在该器不可达，
+   属 ⑨② 缺口，留批次 2。（本批 C 项以 `positive_expect_rc=[0,1]` + 显式理由暂过，**不是免检**。）
 2. **⑧ 自动落链 10/10 UNCHECKED** —— 口径差（本方按默认注入面判 PASS，审查器按静态字面量判 UNCHECKED），
    维持原判为**非缺口**。
 3. **D 的实测化**依赖批次 2 的 `--dry-run`（⑨③）。

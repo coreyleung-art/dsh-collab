@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# ★ 2026-10-10 归档 —— 一行说明：**本器不是 R006 工具，是那份判据分诊报告的生成件**。
+#   裁定 B（adjudicator session-1ffded95 · U6 委托三批次之外的形态裁决）：
+#   它自己的结论就是「值得新建的门 = 0 条」，而**把一次性脚本包装成 CLI，恰恰就是「造门」**。
+#   故移入 scripts/archive/ 予以保留（**不删** —— 它是 docs/audit-criteria-triage-decision.md
+#   的可复现条件之一；★ 该文档内的生成器路径已同步改为本路径），且**不纳入 R006 十项批**。
+#   ★ 代价如实记录：归档后它仍可手工运行复现，但不再被 toolbox-selftest-sweep 等工具族扫描面覆盖。
 """audit-criteria-triage.py — 判据工具化分诊器（v1.0.0）
 
 为什么需要（来由）
