@@ -259,9 +259,16 @@ def safe_apply(path, new_src):
 # ─────────────── 候选 ───────────────
 
 def na_block_for(ext):
-    """按语言生成 N/A 声明注释块。.sh/.js 用 # 注释（与 .py 同为 #，但无需 docstring）。"""
-    if ext in (".sh", ".js", ".bash"):
+    """按语言生成 N/A 声明注释块。
+
+    ★ 2026-10-09 修：原实现给 .js 也用 `#` 注释 ⇒ JS 语法错（`SyntaxError: Invalid or
+      unexpected token`），被 safe_apply 拦下并回滚 5 个文件。
+      ⇒ **注释符必须按语言**：`.sh`→`#` · `.js`→`//` · `.py` 走 docstring。
+    """
+    if ext in (".sh", ".bash"):
         return ["#"] + ["# " + l for l in NA_TEXT_LINES] + ["#"]
+    if ext == ".js":
+        return ["//"] + ["// " + l for l in NA_TEXT_LINES] + ["//"]
     return None      # .py 走 docstring 路径
 
 
