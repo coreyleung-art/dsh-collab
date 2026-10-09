@@ -24,6 +24,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== route-feedback-replay 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · route-feedback-replay.py v1.0 — 判定反馈回放器（纯规则，零 LLM）")
+    print("  · 职责：从历史数据批量生成「判定训练对」，解决 route-feedback 冷启动慢（500 条要值班慢慢攒）的问题。")
+    print("  · 数据源 → 标签规则（关键：不把 agent-bus 一刀切标 skip）：")
+    print("  · ① resource-registry 变更日志（338 条）→ deposit（已登记=该沉淀，强正样本）")
+    print("  · 命令/参数: dry-run, balance")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/route-feedback-replay.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, random, datetime
@@ -115,7 +141,10 @@ def load_bus_reports():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="只看统计不落盘")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--balance", action="store_true", help="正负样本均衡采样")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     # ① registry 变更日志 = deposit 正样本（最干净）

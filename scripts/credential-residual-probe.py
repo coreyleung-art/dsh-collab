@@ -13,6 +13,37 @@
 
 用法: credential-residual-probe.py [--sessions-dir DIR] [--sample N] [--json]
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== credential-residual-probe 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · credential-residual-probe —— 凭据「剩余风险」代理量探针（2026-09-14 老登 aa528267）")
+    print("  · 立据：HR 裁定「剩余风险须配可定期重测的代理量，否则『剩余风险』是弃权而非风险登记」。")
+    print("  · 本工具把上下文层（transcript 面）的剩余风险转成**两个可重测的代理量**：")
+    print("  · ① 携带者会话数（含该凭据行的会话文件个数）")
+    print("  · 命令/参数: sessions-dir, lean4-check, sample, json, selftest")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, os, re, subprocess, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/credential-residual-probe.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, hashlib, json, os, re, subprocess, sys
@@ -163,6 +194,7 @@ def collect_tokens():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sessions-dir", default=DEFAULT_SESSIONS)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--sample", type=int, default=0, help="只扫最近 N 个（0=全量）")
     ap.add_argument("--json", action="store_true")

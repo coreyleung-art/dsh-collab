@@ -32,6 +32,37 @@
 退出码（★ R006 ⑨）：0 = 无真欠账；1 = 有真欠账（missing）；2 = 用法/环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== r006-debt-assess 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · r006-debt-assess.py — R7/R10 存量欠账：三态判定 + 可执行补齐建议 v1.0.0")
+    print("  · 为什么需要（2026-10-09 · 目标轮 2）：")
+    print("  · 实测 R7（统一日志）缺 294 · R10（约束门）缺 316 ⇒ 两项都缺 284（共 331 工具）。")
+    print("  · **★ 而 2026-09-06 曾组织过一次「R10 全域补建」**（`resource-registry.md` v1.0.406），")
+    print("  · 命令/参数: json, suggest, selftest, lean4-check, list-missing, deep")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, io, json, os, re, subprocess, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/r006-debt-assess.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -332,6 +363,7 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser(description="R6/R10 存量欠账三态判定 + 补齐建议")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--suggest", metavar="FILE")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")

@@ -24,11 +24,42 @@ R006 ①第5项存在的理由就是这句：「其它九项可以全绿而插�
 退出码: 0 全绿可上线 · 1 有红项，禁止重启 · 2 用法/环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== plugin-preflight 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · plugin-preflight.py — dsh 插件变更的上线前预检（不进 server、不重启 CLD）")
+    print("  · 动因（2026-10-01 用户指出）：历史上出现过「工具更新 → dsh 插件兼容崩溃」这一类事故，")
+    print("  · 且 09-04 考古归纳为 M4「插件加载协议不符」，有两处实录：")
+    print("  · · central-inbox 插件调用了私有未导出函数 ⇒ dsh 启动失败")
+    print("  · 命令/参数: plugin, lean4-check, profile, json, selftest")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, json, os, re, subprocess, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/plugin-preflight.log")
+    return 0
+
+
 
 # ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
 #   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。
 #   生成原则：**断言的是本工具【实际被检测到】的结构**，而非理想模板 ——
 #   故每项验证「检测到的那个事实仍然成立」。若引入新危险原语，A/B 会 FAIL。
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 def lean4_check():
     fails = 0; checks = []
 
@@ -372,6 +403,7 @@ def cmd_selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--plugin")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--profile", default=PROFILE)
     ap.add_argument("--json", action="store_true")

@@ -15,6 +15,32 @@
   3. 生成吸收建议（grade + 建议动作）
   4. 落链：黑板 data/iterations/absorb-<tool> + genebank registry
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-absorb 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-absorb.py — 节点经验/能力吸收流水线（进化循环第 4 步自动化）")
+    print("  · 节点（i9/MBP/门店）登记新工具/能力后，自动评估其复用价值并落链吸收建议。")
+    print("  · 供 bb-absorb-watch.py（常驻事件驱动）调用，也可手动执行。")
+    print("  · python3 bb-absorb.py --check-only ...   # 只评估不落链")
+    print("  · 命令/参数: node, lean4-check, tool, desc, deps, hub-dep, node-side, check-only")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-absorb.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, subprocess, sys, datetime, urllib.request
@@ -54,6 +80,7 @@ def put(path, obj):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--node", required=True, help="来源节点（i9/mbp/store-xx）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--tool", required=True, help="工具/能力名（如 i9-executor.py）")
     ap.add_argument("--desc", required=True, help="能力描述")
@@ -64,6 +91,8 @@ def main():
     ap.add_argument("--env-notes", default="", help="环境自适配说明（编码/平台/路径差异，强制维度）")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     print("== 吸收流水线：%s/%s ==" % (args.node, args.tool))

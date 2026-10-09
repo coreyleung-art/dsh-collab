@@ -19,6 +19,32 @@
   6. 复用评估（调 bb-reuse-check.py）
   7. 落链登记黑板 data/iterations/
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-upgrade 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-upgrade.py — 底座升级流水线（进化循环第 2 步，半自动）")
+    print("  · 标准化底座升级流程：版本递增 → 注入变更 → 语法检查 → 起测试实例 → 冒烟测试 →")
+    print("  · 切换 plist → 验证生产 → 落链（黑板+registry）→ 复用评估（自动调 bb-reuse-check）。")
+    print("  · --what '新增能力描述' --deps '依赖' --hub-dep '中枢依赖' --node-side '节点侧")
+    print("  · 命令/参数: from, lean4-check, to, script, what, deps, hub-dep, node-side")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-upgrade.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, subprocess, sys, time, datetime, random, urllib.request
@@ -73,6 +99,7 @@ def http(method, url, body=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--from", dest="vfrom", required=True)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--to", dest="vto", required=True)
     ap.add_argument("--script", required=True, help="新版本脚本路径")
@@ -83,6 +110,8 @@ def main():
     ap.add_argument("--dry-run", action="store_true", help="只跑到测试，不切生产")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     script_path = args.script if os.path.isabs(args.script) else os.path.join(SCRIPTS, args.script)

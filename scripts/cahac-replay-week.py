@@ -2,6 +2,29 @@
 # -*- coding: utf-8 -*-
 """CAHAC full-week offline replay v0.3 (HR) — real weekly billing x attribution x CAHAC counterfactual"""
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== cahac-replay-week 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · （头部无中文用途说明 ⇒ 能力清单为空，建议补 docstring）")
+    print("  · 命令/参数: csv-dir, out")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: csv, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/cahac-replay-week.log")
+    return 0
+
+
 #
 # ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
 # 依据：r006-debt-assess.py 机械扫描未检出以下原语：
@@ -45,7 +68,10 @@ def week_billing(csv_dir):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv-dir", default=os.path.expanduser("~/dsh-collab/token-monitor/deepseek-export"))
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--out", default=os.path.expanduser("~/dsh-collab/token-monitor/replays/cahac-replay-week-0812-0819.md"))
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     daily = week_billing(args.csv_dir)
     total = sum(daily.values())

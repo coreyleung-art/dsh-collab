@@ -17,6 +17,32 @@
   status=passed   → 已满足前置，可推进
   status=required → 未满足，先跑 next 命令再回来
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-gate 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-gate.py — 机制前置门禁（全局规则，所有动作推进前先过）")
+    print("  · 用户指示（2026-08-23）：机制前置过程工具化/插件化/自动化/落链为底层规则——")
+    print("  · 任何工作未完成机制前置评估，先跑评估再推进。")
+    print("  · python3 bb-gate.py --action send --to hr --text '请评估X'       # 发消息前")
+    print("  · 命令/参数: action, lean4-check, list, text, to, type, from, vto")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-gate.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, datetime, os, subprocess, urllib.request
@@ -142,6 +168,7 @@ CHECKERS = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--action", choices=list(GATES.keys()))
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--list", action="store_true")
     # send
@@ -163,6 +190,8 @@ def main():
     ap.add_argument("--key", default="")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.list:

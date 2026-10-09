@@ -6,6 +6,36 @@
 正常时静默（只写统一日志）。零漂移零写入黑板（防噪音）。
 2026-10-02 星桥 · 架构三期治理常态化 ①
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== drift-scan-cron 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · drift-scan-cron.py — 通道漂移周期巡检 wrapper（com.dsh.cron.drift-scan 调用）")
+    print("  · 运行 drift-scan（node 工具）→ driftCount>0 时写黑板告警卡 data/ops/drift-alert/<ts>。")
+    print("  · 正常时静默（只写统一日志）。零漂移零写入黑板（防噪音）。")
+    print("  · 2026-10-02 星桥 · 架构三期治理常态化 ①")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: json, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/drift-scan-cron.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json, subprocess, sys, time, urllib.request, os

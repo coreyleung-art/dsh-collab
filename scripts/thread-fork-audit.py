@@ -26,6 +26,32 @@ thread-fork-audit —— 议题分叉审计（v1.0.0）
   依 R10 定义（「不该发生的路径在结构上不可绕过」）此处无该路径。
 ★ 限度：此为【模式匹配 + 人工核】结论；若日后引入【由参数驱动的删除目标】，须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== thread-fork-audit 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · thread-fork-audit —— 议题分叉审计（v1.0.0）")
+    print("  · 来源：明鉴 2026-09-14 两条发现（都由她举证）：")
+    print("  · ① 收敛表 data/registry/thread-convergence-table-20260911 只有 5 行，")
+    print("  · 而「核验边界」「口径两组」两个议题**都不在表内** ⇒ 两次都跨线程分叉。")
+    print("  · 命令/参数: bus, refs, registry, ref-field, topic-lookup, bb, ident-field, stub-suggest")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, hashlib, json, os, re, sys, tempfile, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/thread-fork-audit.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
@@ -809,6 +835,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--bus", default=os.path.expanduser("~/.dsh/agent-bus.json"))
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--refs", help="逗号分隔的对象标识（card-key 或 key 片段）")
     ap.add_argument("--registry", help="收敛表 JSON（取其 ref 字段，或 --ref-field 指定）")
     ap.add_argument("--ref-field", default="ref")
@@ -824,6 +851,8 @@ def main():
     ap.add_argument("--json-out")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.version:

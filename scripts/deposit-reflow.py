@@ -13,6 +13,32 @@
 
 输出: 生成的清单文档路径（落盘后由协调者/HR 入库 KB）
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== deposit-reflow 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · deposit-reflow.py v1.0 — 数据沉淀回流：scan 结果 → 结构化清单文档")
+    print("  · 读黑板 tasks/<node>/result（scan/数据沉淀 回报）→ 生成 markdown 清单 → 落盘。")
+    print("  · 让「i9 项目沉淀 → mac 侧可检索」自动化、可复用（不只是手工一次）。")
+    print("  · python3 deposit-reflow.py                          # 回流最近一次 scan 回报（默认 i9）")
+    print("  · 命令/参数: node, out, dry-run, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/deposit-reflow.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, sys, datetime, urllib.request
@@ -137,9 +163,12 @@ def reflow(node, dry_run=False, out_dir=None):
 def main():
     ap = argparse.ArgumentParser(description="数据沉淀回流：scan 结果 → 清单文档")
     ap.add_argument("--node", default=NODE, help="目标节点（默认 i9）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--out", default=None, help="输出目录（默认 research/cost-governance）")
     ap.add_argument("--dry-run", action="store_true", help="只打印清单不落盘")
     ap.add_argument("--lean4-check", action="store_true", help="Lean4自检(越权路径被拒)")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.lean4_check:
         # Lean4 自检: 越权输出目录应被拒

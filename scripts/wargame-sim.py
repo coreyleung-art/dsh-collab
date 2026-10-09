@@ -32,6 +32,32 @@ R006 十项对照(本 CLI 工具达标项):
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== wargame-sim 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · wargame-sim.py — 沙盘推演标准化工具 (战略推演方法 · R006 插件化工具化标准)")
+    print("  · 明鉴 · 2026-09-10 · v1.0.0")
+    print("  · 实现我方「沙盘推演」四步方法论：第一性模拟 → 反向推演 → 价值再评估 → 资本与赢法。")
+    print("  · 输出按我方 BP 标准的红杉/F君十大模块；内部以「诚实性四红线」为不可绕过的约束门。")
+    print("  · 命令/参数: enumerate, reverse, value, capital, run, lean4-check, version, topic")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/wargame-sim.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, os, datetime, hashlib, platform
@@ -209,6 +235,7 @@ def cmd_lean4(args):
 def main():
     ap = argparse.ArgumentParser(description="沙盘推演标准化工具 v%s (R006 插件化工具化标准)" % VERSION)
     ap.add_argument("--version", action="version", version="wargame-sim %s" % VERSION)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     sub = ap.add_subparsers(dest="cmd")
 
     p = sub.add_parser("enumerate", help="第一步 第一性模拟(穷举)")
@@ -228,6 +255,10 @@ def main():
 
     p = sub.add_parser("lean4-check", help="R006 约束门自检")
     p.add_argument("--deliver", action="store_true")
+
+    if "--selfcheck" in __import__("sys").argv:
+
+        return selfcheck()
 
     args = ap.parse_args()
     _log("cmd=%s argv=%s" % (args.cmd, sys.argv[1:]))

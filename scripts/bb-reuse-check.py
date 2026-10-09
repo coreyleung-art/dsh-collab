@@ -16,6 +16,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-reuse-check 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-reuse-check.py — 底座能力复用性评估器（进化循环第 3 步）")
+    print("  · 每次底座升级/新增能力时运行：判定该能力「是否适合复用到分布式节点侧（i9/MBP）」。")
+    print("  · 输出：复用分级（reusable / needs-adaptation / hub-only）+ 节点接入建议。")
+    print("  · python3 bb-reuse-check.py --capability '事件桥异步通知' --deps 'threading,8803端口")
+    print("  · 命令/参数: capability, deps, hub-dependent, node-side, env-notes, list-known")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-reuse-check.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, datetime
@@ -92,11 +118,14 @@ def evaluate(capability, deps, hub_dep, node_side, env_notes=""):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--capability", help="能力名称/描述")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--deps", default="", help="依赖（如 threading,8803端口）")
     ap.add_argument("--hub-dependent", default="", help="中枢依赖描述（若无写'无'）")
     ap.add_argument("--node-side", default="", help="节点侧情况（是否需要改造）")
     ap.add_argument("--env-notes", default="", help="环境自适配说明（编码/平台/路径差异，v1.1 强制维度）")
     ap.add_argument("--list-known", action="store_true", help="列出已知能力分级")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.list_known:

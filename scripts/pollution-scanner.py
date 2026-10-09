@@ -24,6 +24,32 @@
 输出: 每类 {污染?, 证据, 溯源, 修复建议} + 汇总分
 R006#10: 本工具自身带 --lean4-check 自检(约束不可绕过)
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== pollution-scanner 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · pollution-scanner.py — 通讯污染持续识别与根治（R006 十项标准结构门）")
+    print("  · 用户 2026-09-09：collab 污染是显性一例，应按 R006 十项设计工具识别全部污染类型，动态持续根治。")
+    print("  · 检测 10 类污染（每类=一个检测器，输出溯源+修复建议）：")
+    print("  · P1 域错配:    消息写错域 / collab 灌跨设备(G-C27 复查)")
+    print("  · 命令/参数: watch, lean4-check, fix")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, collections, json, os, re, subprocess, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/pollution-scanner.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, subprocess, sys, time, datetime
@@ -220,10 +246,13 @@ DETECTORS = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--watch", type=int, default=0, help="常驻: 每 N 秒扫一次")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--fix", default=None, help="执行修复: P4/P8(清理)等")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.watch > 0:

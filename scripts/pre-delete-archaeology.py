@@ -27,6 +27,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== pre-delete-archaeology 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · pre-delete-archaeology v1.0 (HR) — 删除前考古评估器（纯规则，零 LLM）")
+    print("  · 职责：删除文件/目录/资源前，先评估考古价值——「删之前先考古」制度化。")
+    print("  · 对目标做内容类型识别 + 价值信号扫描 → 给出三级处置建议：")
+    print("  · ✅ safe_delete     零考古价值，可安全删除")
+    print("  · 命令/参数: path, batch, json, gen-manifest")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/pre-delete-archaeology.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, datetime, collections
@@ -152,9 +178,12 @@ def gen_manifest(paths, out):
 def main():
     ap = argparse.ArgumentParser(description='删除前考古评估器（纯规则零 LLM）')
     ap.add_argument('--path', help='评估单个路径')
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument('--batch', help='批量清单文件（每行一路径）')
     ap.add_argument('--json', action='store_true', help='JSON 输出')
     ap.add_argument('--gen-manifest', help='生成考古清单到指定文件（配合 --path/--batch）')
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     paths = []

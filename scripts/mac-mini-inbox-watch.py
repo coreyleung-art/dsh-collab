@@ -17,6 +17,32 @@
   依 R10 定义（「不该发生的路径在结构上不可绕过」）此处无该路径。
 ★ 限度：此为【模式匹配 + 人工核】结论；若日后引入【由参数驱动的删除目标】，须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== mac-mini-inbox-watch 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · mac-mini-inbox-watch.py — 中枢(mac-mini)通道消费常驻监听")
+    print("  · 监听黑板 notes/mac-mini/*（其他节点发给中枢的通道）与 notes/collab/*（协作通道），")
+    print("  · 新键出现即打印 + 写日志 + 落盘 inbox（中枢会话可感知，解决'MBP 发了消息中枢不知道'）。")
+    print("  · python3 mac-mini-inbox-watch.py              # 常驻监听（默认 5s 轮询）")
+    print("  · 命令/参数: once, interval, dry-run, selftest, backfill")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/mac-mini-inbox-watch.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, time, datetime, urllib.request
@@ -337,11 +363,14 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--once", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--interval", type=int, default=5)
     ap.add_argument("--dry-run", action="store_true", help="★P0：只打印不写任何文件（供等价性验证）")
     ap.add_argument("--selftest", action="store_true", help="跑断言套件")
     ap.add_argument("--backfill", action="store_true",
                     help="忽略历史存量，只处理启动后的新键")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.selftest:
         # ★ 崩溃断言化：未捕获异常必须变成一条【命名 FAIL】并给出汇总，

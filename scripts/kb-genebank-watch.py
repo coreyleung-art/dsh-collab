@@ -15,6 +15,32 @@
   python3 kb-genebank-watch.py                      # 常驻（事件驱动 + 6h 兜底）
   python3 kb-genebank-watch.py --log /tmp/kb-gb-watch.log
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== kb-genebank-watch 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · kb-genebank-watch.py — 语义库→基因库自动同步常驻监控（事件驱动）")
+    print("  · 用户指示（2026-08-24）：语义库更新后自动同步基因库，过程自动化。")
+    print("  · 事件驱动：订阅黑板事件桥（8803），检测语义库来源更新（论文落链/新 PDF 登记）→")
+    print("  · 自动触发 kb-genebank-sync.py（去重 + 断点续传）。")
+    print("  · 命令/参数: log, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/kb-genebank-watch.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, sys, time, datetime, subprocess, urllib.request
@@ -78,9 +104,12 @@ def main():
     global LOGF, LAST_FULL
     ap = argparse.ArgumentParser()
     ap.add_argument("--log", default=None)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     LOGF = args.log
     log("语义库→基因库同步监控启动（事件驱动 %s + 6h 兜底）" % EVENTS_URL)

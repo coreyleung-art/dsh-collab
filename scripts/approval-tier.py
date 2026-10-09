@@ -8,6 +8,32 @@
   python3 approval-tier.py --history              # 历史定档：registry 全量 v1.0.x 回填
   python3 approval-tier.py --daily                # 每日巡检：今日 registry 行 + doc/ 新确认文档
 零 LLM 成本。"""
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== approval-tier 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · approval-tier v1.0 (HR) — 审批定档工具（J45）")
+    print("  · 按分级矩阵（L0-L3）+ 硬性升级规则对任务定档，写审批台账。")
+    print("  · python3 approval-tier.py --task '描述'          # 单任务定档（追加台账）")
+    print("  · python3 approval-tier.py --history              # 历史定档：registry 全量 v1.0.x 回填")
+    print("  · 命令/参数: task, history, daily, cost, value, roi, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, subprocess, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/approval-tier.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, datetime
@@ -74,12 +100,15 @@ def extract_registry_rows():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--task", default="")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--history", action="store_true")
     ap.add_argument("--daily", action="store_true")
     ap.add_argument("--cost", type=float, default=0.0, help="预估成本（元）")
     ap.add_argument("--value", default="normal", choices=["low", "normal", "high", "strategic"])
     ap.add_argument("--roi", type=float, default=0.0, help="预估 ROI_eff")
     ap.add_argument("--lean4-check", action="store_true", help="Lean4自检(违规路径被拒)")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.lean4_check:
         # Lean4 自检: ROI<0.5 低价值+超成本任务应 deny(不该 auto 放行)

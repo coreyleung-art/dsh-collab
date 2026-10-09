@@ -30,6 +30,32 @@ datadir-job-audit —— 逐 job 的数据根生效判定（静态，只读）�
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== datadir-job-audit 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · datadir-job-audit —— 逐 job 的数据根生效判定（静态，只读）（v1.0.0）")
+    print("  · 补齐的边：**env → 实际读到的库**（老登的 datadir-audit.py 覆盖「源码面」；本工具覆盖「调度面」）。")
+    print("  · 背景（2026-09-14 联合定位）：lib/store.js:11 `process.env.MTM_DATA_DIR || ROOT` 是**顶层 const**，")
+    print("  · 而 lib/im-window.js:14 / lib/browser-restart.js:13 / lib/main-page.js:14 在**模块顶层改写 process.env**")
+    print("  · 命令/参数: agents, json-out, selftest, version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, collections, json, os, re, sys, tempfile, time")
+    print("  · ★ 第三方: plistlib ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/datadir-job-audit.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
@@ -151,9 +177,12 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--agents", default="~/Library/LaunchAgents")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--json-out")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.version:
         print(json.dumps({"tool": "datadir-job-audit", "version": VERSION, "mode": "static",

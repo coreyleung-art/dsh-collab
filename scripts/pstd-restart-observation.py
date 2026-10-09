@@ -20,6 +20,37 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== pstd-restart-observation 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · pstd-restart-observation.py — PSTD ③ 重启观测的**机械双读**（v1.0.0）")
+    print("  · 依据：裁判 2026-10-08 预登记判别表（写在观测之前，防事后解释）+ 附加前置（同时读磁盘版本，")
+    print("  · 排除「磁盘被改」这一替代解释）。")
+    print("  · 判别表（预注册，非事后解释）：")
+    print("  · 命令/参数: std, json, selftest, version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/pstd-restart-observation.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import argparse, json, os, sys, datetime
 
 
@@ -94,6 +125,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--std", help="在役 std（如 PSTD/1.0.4）；省略则只读磁盘并提示需 tool 读数")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--json", action="store_true"); ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
     a = ap.parse_args()

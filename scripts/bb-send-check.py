@@ -30,6 +30,32 @@ v3.0.0（2026-09-14，采纳明鉴 ③「把约定变成机制」，并直指 HR
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-send-check 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-send-check.py — agent_send 发送前审查校验器（v3.0.0：新增「引用完整性」门禁）")
+    print("  · 在调用 agent_send 之前运行，判断该消息应该怎么发：")
+    print("  · ✅ 放行（短提示/紧急/已落黑板且引用可解析）")
+    print("  · ⚠️ 建议（全文未落黑板 → 先写黑板再发短提示）")
+    print("  · 命令/参数: text, to, bb, no-verify, replay-bus, json, selftest, version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, concurrent, datetime, hashlib, json, os, re, sys, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-send-check.log")
+    return 0
+
+
 import argparse
 import json
 import os
@@ -371,6 +397,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--text")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--to")
     ap.add_argument("--bb", default=DEFAULT_BB)
     ap.add_argument("--no-verify", action="store_true", help="跳过引用 GET（离线时用；会明确标注未核）")
@@ -378,6 +405,8 @@ def main():
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.selftest:

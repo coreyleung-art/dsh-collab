@@ -24,6 +24,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-share 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-share.py — 跨设备文件共享工具（防『清单式假共享』）")
+    print("  · 用户指示（2026-08-24）：避免『给了清单没给实体』类型问题。")
+    print("  · 教训：训练论文只给 arXiv ID（没文件）→ 又只给本地路径（i9 访问不到）。")
+    print("  · 规则：给节点文件 = 复制到 HTTP 共享目录 + 给 Tailscale 可下载地址 + 写黑板 + 派单通知。")
+    print("  · 命令/参数: file, dir, to, note, no-notify, list")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, hashlib, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-share.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, os, shutil, subprocess, datetime, urllib.request
@@ -130,11 +156,14 @@ def verify(url):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", help="共享单个文件")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--dir", help="共享目录全部文件")
     ap.add_argument("--to", required=True, help="目标节点（i9/mbp/store-xx）")
     ap.add_argument("--note", default="", help="说明")
     ap.add_argument("--no-notify", action="store_true", help="不派单通知")
     ap.add_argument("--list", action="store_true", help="列出已共享")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.list:

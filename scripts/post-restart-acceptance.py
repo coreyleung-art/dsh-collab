@@ -14,6 +14,36 @@ idle 主动 flushQueue + agentBus.flush 暴露 + delivery-guard 判据）与 cen
     python3 ~/dsh-collab/scripts/post-restart-acceptance.py
 退出码：0 = 全部通过；1 = 有未达标项（打印明细）
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== post-restart-acceptance 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · post-restart-acceptance.py — CLD 重启后的一键验收")
+    print("  · 验收对象（2026-10-04 批次）：agent-way v1.5.13（MBP 决定性根因 ①②③：deliver 失败出声 +")
+    print("  · idle 主动 flushQueue + agentBus.flush 暴露 + delivery-guard 判据）与 central-inbox v0.2.12")
+    print("  · （R43 三级时间源 + G30 boot 窗口有界缓冲重放）。历史批次判据保留：")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: datetime, json, os, re, subprocess, sys, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/post-restart-acceptance.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.1.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json

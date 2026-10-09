@@ -39,6 +39,33 @@ import re
 import sys
 
 # 文档形如 `path` 或 `path:LINE`
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== citation-resolvability 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 返回 (可解析?, 用了哪个根)。只用文档声明的根，不用作者私有知识。")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: os, re, sys")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/citation-resolvability.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 CITE_RE = re.compile(r'`([^`\n]+?)`')
 PATHISH = re.compile(r'^(~?/|[\w.@-]+/)')  # 含目录分隔 ⇒ 像路径
 PLACEHOLDER = re.compile(r'<[^>]+>')      # <slug> <node> 等模板占位

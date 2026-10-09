@@ -22,6 +22,37 @@
   comm-invariant-audit.py --selftest 审计器自身的负例控制
 退出码：0 = 无 FAIL；1 = 存在 FAIL；2 = 环境错误
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== comm-invariant-audit 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · comm-invariant-audit.py — 通信底座不变量一致性审计（I1–I7）")
+    print("  · 为什么需要单独一支（而不是写进共享模块 selftest）：")
+    print("  · 官方 `docs/subsystems/invariants.zh.md` 规定运行时不变式")
+    print("  · 「**可以断言什么**（**权威事件流或可变数据，绝不是服务或方法是否存在**）」。")
+    print("  · 命令/参数: json, selftest, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, json, os, re, subprocess, sys, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/comm-invariant-audit.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse
@@ -566,6 +597,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--lean4-check", action="store_true", help="★ R006 ⑩ 六项 A–F")
     a = ap.parse_args()

@@ -33,6 +33,37 @@
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== cahac-compliance-report 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · cahac-compliance-report.py — CAHAC 合规率上报 + 缺席可判别（S15/S12 落地）")
+    print("  · 为什么需要（依 2026-10-09 所有者授权、计划 §5 批 3）：")
+    print("  · CAHAC v1.0 有规范、有工具（cahac-compliance-check.py）、有 launchd（cahac-replay），")
+    print("  · 却在 42 天里零落地 —— 因为「不实现也合法」（静默兼容条款 L20/L115/L217）⇒")
+    print("  · 命令/参数: report, check, status, selftest, dry-run, verify-plist, refresh-seconds")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, json, os, subprocess, sys, time, urllib")
+    print("  · ★ 第三方: plistlib ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/cahac-compliance-report.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import argparse
 import json
 import os
@@ -284,6 +315,7 @@ def verify_plist():
 def main():
     ap = argparse.ArgumentParser(description="CAHAC 合规率上报 + 缺席可判别")
     ap.add_argument("--report", action="store_true", help="算合规率并写黑板")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--check", action="store_true", help="检查上报是否陈旧")
     ap.add_argument("--status", action="store_true", help="只读打印")
     ap.add_argument("--selftest", action="store_true", help="自测")

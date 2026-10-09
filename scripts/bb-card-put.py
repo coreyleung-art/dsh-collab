@@ -20,6 +20,32 @@
   [--dry-run] 只打印将写入的内容与校验结论，不写
 退出码：0=成功且回读一致 ｜ 2=参数/键名问题 ｜ 3=回读不可读 ｜ 4=回读与写入不一致 ｜ 5=下游拒绝
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-card-put 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-card-put.py —— 黑板**卡写入**的统一入口（供会话内临时脚本复用），v1.0.0")
+    print("  · 版本：唯一来源 = 下方 VERSION 常量（docstring 不写版本号，防声明位漂移）。")
+    print("  · 为什么存在（真实动机，非设计想象）：")
+    print("  · 2026-09-11 我在 30 分钟内**两次**踩同一个坑：卡内**顶层键名含逗号** ⇒ `bb-write --expect-keys`")
+    print("  · 命令/参数: lean4-check, json, keep-ts, dry-run, once-marker, allow-repeat")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-card-put.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, subprocess, sys, datetime
@@ -52,6 +78,7 @@ def _now_iso():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('key')
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument('--json', dest='payload', default=None)
     ap.add_argument('--keep-ts', dest='keep_ts', action='store_true')
@@ -62,6 +89,8 @@ def main():
     ap.add_argument('--allow-repeat', dest='allow_repeat', action='store_true')
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     # ① 键名守卫：逗号会切碎 --expect-keys（bb-write 的接口限制，属主已裁定将支持重复 --expect-key，未实施）

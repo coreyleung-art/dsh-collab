@@ -25,6 +25,32 @@ B+ / C 两用：
 输出：token-monitor/sedimentation-queue/YYYY-MM-DD.json（待沉淀清单）
       + 打印到 stdout（值班人可读）
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== sedimentation-chain-scan 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · sedimentation-chain-scan.py v1.0 — 自动沉淀交付链 · 待沉淀清单扫描器（纯规则，零 LLM）")
+    print("  · 职责：扫描 event-bus 的 task.completed 事件 → 按「是否新建脚本/文档/踩坑修复」信号")
+    print("  · → 判定「值得沉淀 / 跳过」→ 生成「待沉淀清单」（值班 HR/协调者按决策表执行七步链）。")
+    print("  · B+ / C 两用：")
+    print("  · 命令/参数: since, from-git, dry-run, auto, mark-consumed, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, re, subprocess, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/sedimentation-chain-scan.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, glob, datetime, hashlib
@@ -175,12 +201,15 @@ def save_state(state):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--since", type=float, default=7.0, help="扫描最近 N 天（默认 7）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--from-git", action="store_true",
                     help="★ 追加 git 提交作为事件源（不依赖有人发布 task.completed）")
     ap.add_argument("--dry-run", action="store_true", help="只看清单不落盘")
     ap.add_argument("--auto", action="store_true", help="C 模式：自动执行本地环节（预留，逐步启用）")
     ap.add_argument("--mark-consumed", action="store_true", help="把已沉淀事件标记 consumed（需先人工执行）")
     ap.add_argument("--lean4-check", action="store_true", help="★ R006 ⑩ 六项 A–F 自证")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.lean4_check:
         return lean4_check()

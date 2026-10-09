@@ -22,6 +22,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-dispatch 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-dispatch.py — 事件分发决策器（协调者判断门工具化）")
+    print("  · 用户指示（2026-08-23）：具体事件/工作该分发给谁 + 哪个角色应加入评估——")
+    print("  · 这个判断过程工具化、插件化、沉淀到链。")
+    print("  · python3 bb-dispatch.py --event '论文全文拉取落链'          # 自动匹配主责+协作者")
+    print("  · 命令/参数: event, list-role, no-audit, as, semantic")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, math, os, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-dispatch.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, datetime, re, urllib.request, time
@@ -167,10 +193,13 @@ def match_assess(event):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--event", help="事件/任务描述")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--list-role", action="store_true", help="列出角色能力库")
     ap.add_argument("--no-audit", action="store_true")
     ap.add_argument("--as", dest="caller", default="", help="调用者角色id（泛化：任意角色用它判断自己处理还是转交）")
     ap.add_argument("--semantic", action="store_true", help="启用语义匹配（bge-m3 本地向量，提升表述差异命中）")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     kb_ver = _load_kb()   # 自进化：启动加载黑板知识库（可被 learn 更新）
 

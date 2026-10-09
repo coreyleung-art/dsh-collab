@@ -39,6 +39,37 @@ deploy-map.json：
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== verify-deploy 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 交付验证器 · verify-deploy.py")
+    print("  · 解决「只看 HTTP 200 就认为上线了」的问题：200 只说明有东西在，")
+    print("  · 不能说明线上就是**你手上的这一版**（真实事故：线上 95,645B，本地 52,302B）。")
+    print("  · 给一份「本地文件 → URL」映射，逐个拉取线上内容并**逐字节比对（sha256）**：")
+    print("  · 命令/参数: map, timeout, json")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, hashlib, json, os, socket, ssl, sys, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/verify-deploy.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
@@ -242,6 +273,7 @@ def main(argv=None):
         epilog="退出码：0=全部一致 / 1=有不一致或错误 / 2=用法或 IO 错误",
     )
     parser.add_argument("--map", dest="map_path", required=True, help="deploy-map.json 路径")
+    parser.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     parser.add_argument("--timeout", type=float, default=25, help="单条请求超时秒数（默认 25）")
     parser.add_argument("--json", action="store_true", help="输出机器可读 JSON（不输出人读报告）")
     args = parser.parse_args(argv)

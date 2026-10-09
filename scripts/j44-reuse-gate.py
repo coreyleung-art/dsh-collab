@@ -39,6 +39,37 @@
   2 = 用法/环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== j44-reuse-gate 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · j44-reuse-gate.py — J44「资源复用纪律」的执行门 v1.0.0")
+    print("  · 为什么需要（J44 是 enforced 却【无执行件】）：")
+    print("  · `rules-registry/RULES.md` J44 原文：")
+    print("  · > ## J44 ✅ 资源复用纪律（用户指示，全网络）")
+    print("  · 命令/参数: intent, artifact, verdict, note, check, list, selftest, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, json, os, subprocess, sys, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/j44-reuse-gate.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -227,6 +258,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(description="J44 资源复用纪律 · 执行门")
     ap.add_argument("--intent", help="你要做什么（一句话）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--artifact", help="你要新建的产物名（用于留痕）")
     ap.add_argument("--verdict", choices=VERDICTS, help="对命中的裁决：reuse/adapt/no-overlap")
     ap.add_argument("--note", default="", help="备注")

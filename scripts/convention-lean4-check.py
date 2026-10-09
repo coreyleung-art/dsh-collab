@@ -10,6 +10,32 @@
   python3 convention-lean4-check.py --gates C4,C8  # 只跑指定断言
 退出码: 0=全过 1=有 FAIL 2=运行错误
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== convention-lean4-check 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · convention-lean4-check.py — CLD 分布式智能体节点网络公约 · Lean4 结构校验器")
+    print("  · 用户 2026-09-09: 建立一套基于 Lean4 逻辑的结构规范 —— 公约条文 → 可执行断言")
+    print("  · 校验 G-C1..G-C10（见公约 §0 表），任一 FAIL 即阻塞该设备接入/相关操作。")
+    print("  · python3 convention-lean4-check.py              # 全量校验(本机 mac-mini 视角)")
+    print("  · 命令/参数: node, lean4-check, gates")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, json, os, re, subprocess, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/convention-lean4-check.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, subprocess, sys, time, datetime
@@ -513,10 +539,13 @@ GATES = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--node", default="mac-mini")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--gates", default=None, help="逗号分隔如 C4,C8；默认全量")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     global NODE
     NODE = args.node

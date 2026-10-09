@@ -37,6 +37,37 @@
 退出码：0 = 有命中 / 无异常；1 = 无命中；2 = 用法或环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== local-registry 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · local-registry.py — 本机工具/资源统一登记与检索 v1.0.0")
+    print("  · 为什么需要（2026-10-09 完整评估 · §4 根因）：")
+    print("  · 实测出一个【结构性不对称】：")
+    print("  · 对外部世界我有 4 个发现工具（web_search / read_url / read_url_batch / read_url_site）；")
+    print("  · 命令/参数: capability, limit, json, rebuild, selftest, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, json, os, re, subprocess, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/local-registry.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -318,6 +349,7 @@ def main():
     ap.add_argument("mode", nargs="?", default="search",
                     choices=["build", "search", "stats", "sources"])
     ap.add_argument("terms", nargs="*")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--capability", default=None, help="按能力描述查（同 terms）")
     ap.add_argument("--limit", type=int, default=25)
     ap.add_argument("--json", action="store_true")

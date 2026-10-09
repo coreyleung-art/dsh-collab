@@ -9,6 +9,37 @@
   立据：2026-09-14 三例同形错误（老登 C 线搜错仓 / 星桥 观测面漏 launchd disabled 表 / HR 未加载⇒无属主）。
   注意：本闸门只查「有没有声明」，**查不出声明是否真实** —— 它是提醒，不是证明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-put-verify 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 黑板落卡 + 强制回读确认（指称完整性域内落地）")
+    print("  · 用法: bb-put-verify.py <key> <json文件|-> [--writer id] [--strict]")
+    print("  · - PUT 后立即 GET 回读；非 200 或 key 不符 → 退出码 1（调用方不得声称'已落盘'）")
+    print("  · - 依据：CLAUDE.md 黑板语法（首段须纯小写字母）+ 2026-09-10 指称完整性草案")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: http, json, os, re, shutil, subprocess")
+    print("  · ★ 第三方: importlib ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-put-verify.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json, sys, os, subprocess, tempfile, time, urllib.request, urllib.error

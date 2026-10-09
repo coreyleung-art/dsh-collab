@@ -31,6 +31,37 @@
 退出码：0 = 无 GAP；1 = 存在 GAP；2 = 用法/环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== r006-recheck 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · r006-recheck.py — R006 全量合规复核器 v1.0.0")
+    print("  · 为什么需要（2026-10-09 完整评估）：")
+    print("  · 本机已有一份 **2026-10-03 的 R006 合规矩阵**（`docs/tool-r006-compliance-matrix-20261003.json`，")
+    print("  · 273 条，`compliant: 273`）。但它的 **`caliberNote` 明写口径只算 2 项**")
+    print("  · 命令/参数: lean4-check, json, kind, since, compare, selftest, with-rest")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, io, json, os, re, subprocess, sys, tempfile, time")
+    print("  · ★ 第三方: tokenize ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/r006-recheck.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -237,6 +268,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(description="R006 全量合规复核器")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--kind", choices=["script", "plugin"], default=None)
     ap.add_argument("--since", default=None, help="只核该日期(YYYY-MM-DD)之后改动过的")
     ap.add_argument("--compare", action="store_true", help="与 2026-10-03 矩阵对照口径")

@@ -22,6 +22,37 @@ R006 十项: 2selfcheck 3cld-check 4version-check 5README 6--tool-version 7日�
   subagent-audit.py classify <session-id>
   subagent-audit.py selfcheck|lean4-check|cld-check|version-check|version
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== subagent-audit 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · subagent-audit (HR) — 子代理全局审查器 (R006 十项标准 / 2026-09-11)")
+    print("  · 职责: 对全会话库做**子代理专项**审查 —— 存量/增量/归因/合规/资源/生命周期/跨设备。")
+    print("  · 判据来源: data/registry/hr-ruling-resource-audit-20260911 (P1 扇出治理 / P1.5 归档 / P2 双轨阈值)")
+    print("  · S1 存量   主会话 / 子代理 计数与体积")
+    print("  · 命令/参数: run, classify, count, tool-version, days, lean4-check, top, json")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ★ 第三方: zstandard ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/subagent-audit.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, sys, glob, datetime, subprocess
@@ -350,6 +381,7 @@ def main():
         epilog=('判据来源: data/registry/hr-ruling-resource-audit-20260911 (P1/P1.5/P2); '
                 '上限: 单父 %d/日, 全机并发 %d, 归档阈值 %d 天' % (CAP_PER_PARENT_PER_DAY, CAP_CONCURRENT, ARCHIVE_AFTER_DAYS)))
     ap.add_argument('--tool-version', action='store_true')
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     argv = [a for a in sys.argv[1:] if a != '--json-out']
     if len(argv) != len(sys.argv[1:]):
         globals()['JSON_OUT'] = True

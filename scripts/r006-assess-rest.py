@@ -25,6 +25,37 @@
 退出码（★ R006 ⑨）：0 = 无 fail；1 = 有 fail；2 = 用法/环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== r006-assess-rest 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · r006-assess-rest.py — R006 剩余五项核验器（R1 插件形态 · R2 TCC · R3 CLD · R4 版本 · R8 落链）v1.0.0")
+    print("  · 为什么需要（2026-10-09 · 目标「R006 剩余五项」）：")
+    print("  · 本机的 `r006-recheck.py` / `r006-debt-assess.py` **只核五项**（R5 文档 · R6 版本 ·")
+    print("  · R7 日志 · R9 CLI · R10 约束门）—— 也就是**可机械核的那五项**；其余五项")
+    print("  · 命令/参数: json, item, selftest, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, glob, io, json, os, re, subprocess, sys, time")
+    print("  · ★ 第三方: tokenize ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/r006-assess-rest.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -343,6 +374,7 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser(description="R006 剩余五项核验器")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--item", choices=["R1", "R2", "R3", "R4", "R8"])
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")

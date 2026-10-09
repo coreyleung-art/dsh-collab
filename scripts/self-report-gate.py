@@ -93,6 +93,35 @@ v1.1.4（2026-10-09，**采纳第三方复验的条件②**；裁定人对 v1.1.
   · ★ 条件①（selftest 报用例规模）已于 v1.1.2 采纳（现报「反例 N 条 / 正例 M 条」）。
   · ★ 条件③（L3 语义 groundedness）**仍未实现**，如实登记为未覆盖。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== self-report-gate 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · （头部无中文用途说明 ⇒ 能力清单为空，建议补 docstring）")
+    print("  · 命令/参数: check, fix-check, fix-repo, fix-selftest, json-out, demo, selftest, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · ★ 检出 shell=True ⇒ 命令须由受控来源提供，外部输入不得拼入")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, json, os, re, subprocess, sys, tempfile, time")
+    print("  · ★ 第三方: selectors ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/self-report-gate.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = "1.1.4"
 
 import argparse
@@ -932,6 +961,7 @@ DEMO = [
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--fix-check", dest="fix_check",
                     help="SR6：校验一份「修复路径覆盖」声明（{base_ref, paths[], exemptions[]}）")
     ap.add_argument("--fix-repo", dest="fix_repo", help="SR6 的 git 仓库根（缺省=本门所在仓库根）")

@@ -15,6 +15,36 @@
 用法：python3 dup-skeleton-selftest.py
 退出码 0 = 正负控均通过
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== dup-skeleton-selftest 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · dup-skeleton.py 的正控 + 负控。")
+    print("  · 由来（HR 2026-09-14）：候选型工具也须有正控。")
+    print("  · 我此前立的那一层是「结构判据 ⇒ 工具可给判决；语义判据 ⇒ 工具只能给候选」。")
+    print("  · HR 补的是这一层的另一半：候选型工具若没有正控，则「它从不给候选」与")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/dup-skeleton-selftest.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import os, subprocess, sys, tempfile

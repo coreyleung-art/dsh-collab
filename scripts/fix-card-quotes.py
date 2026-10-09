@@ -20,6 +20,36 @@ v2 做法：
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== fix-card-quotes 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 卡 JSON 内容引号修正 v2 —— 走「解析—修改—序列化」，不对序列化文本打补丁。")
+    print("  · v1 的教训（2026-09-22）：v1 用【文本级替换】并自己数「结构位有几个」——")
+    print("  · 我数成 3 个（键名 2 + 值结尾 1），而实际是 4 个 ⇒ 第 3 次修正时把【值的开头引号】也改了 ⇒ 破坏结构。")
+    print("  · HR 2026-09-22 把这条提为规则：")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: datetime, json")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/fix-card-quotes.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json, sys, os

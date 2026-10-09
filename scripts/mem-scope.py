@@ -17,6 +17,36 @@
   mem-scope.py --verdict 5     # 按标准口径判断是否 ≥5GB
   mem-scope.py --version
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== mem-scope 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · mem-scope.py — macOS 内存口径标准测量器 (v{VERSION}，动态引用防陈旧)")
+    print("  · 为什么需要它（2026-09-11 实测教训）：")
+    print("  · 同一个「可用内存 ≥5GB」阈值，在不同口径下结论【相反】——")
+    print("  · free only                = 0.06 GB（不满足）")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: datetime, json, os, re, subprocess, sys")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/mem-scope.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import datetime

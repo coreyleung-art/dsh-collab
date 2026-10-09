@@ -38,6 +38,36 @@
   ⑤ 真正例        d3-contour/dist/d3-contour.js:3 `require('d3-array')`（UMD 分支）        必须命中
   ⑥ 一行 20KB+ 的压缩文件（d3-*.min.js）必须不崩、且边界判定与多行一致
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== require-graph 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · require-graph v1.0.0 — CommonJS require() 图静态解析 + 遮蔽（shadowing）判定")
+    print("  · 作者: 老登 session-aa528267 (mac-mini) · 2026-09-14")
+    print("  · 从入口文件出发静态解析 require() 图，逐条回答：")
+    print("  · · 每个 bare specifier 实际解析到哪个物理副本（winner）")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: json, os, re, subprocess, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/require-graph.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json

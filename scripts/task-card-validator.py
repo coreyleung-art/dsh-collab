@@ -19,6 +19,32 @@ schema 校验是生死线：action 白名单 + payload 类型 + 路径白名单 
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== task-card-validator 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · task-card-validator.py v1.0 — 任务卡 schema 校验器（纯规则零 LLM）")
+    print("  · mac总线 → 黑板 → i9总线 的任务卡，必须过此校验才能挂黑板。")
+    print("  · 任务卡是「执行指令」不是「聊天文本」——本地模型展开可能出错，")
+    print("  · schema 校验是生死线：action 白名单 + payload 类型 + 路径白名单 + 危险命令拦截。")
+    print("  · 命令/参数: check, stdin")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/task-card-validator.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, sys, re
@@ -187,7 +213,10 @@ def _validate_gene(card, payload, schema, errors):
 def main():
     ap = argparse.ArgumentParser(description="任务卡 schema 校验器")
     ap.add_argument("--check", help="校验单张任务卡 JSON 字符串")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--stdin", action="store_true", help="从 stdin 批量校验（每行一张）")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.check:
         try:

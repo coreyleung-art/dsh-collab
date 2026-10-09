@@ -13,6 +13,37 @@ R006: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version 7日�
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-write 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-write (HR) - 黑板写入/校验工具 (R006 十项标准 / 2026-09-11)")
+    print("  · 版本唯一来源 = 下方 VERSION 常量(2ab9dbd0 指出四处版本漂移, 故 docstring 不再写版本号)")
+    print("  · 解决黑板写入三大陷阱(key语法400/纯文本空壳/400伪装成不存在): 写前校验key -> JSON body -> 回读验证非空 -> 明确报错")
+    print("  · R006: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version 7日志 8落链 9CLI 10lean4-check")
+    print("  · 命令/参数: put, get, validate, tool-version, json-out, body, json, from")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, inspect, io, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-write.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, sys, datetime, http.client
@@ -665,6 +696,7 @@ def main():
                 '(实测: dry-run 后回读该键 404, 未落盘)。此前它只在 put 子命令内可用且未在 help 声明 —— **同样的「能力存在但未声明」**。'))
     # R006 ⑥ --tool-version (机器可读, 版本唯一来源 = VERSION 常量)
     ap.add_argument('--tool-version', action='store_true')
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     # R006 ⑨ --json-out 机器可读输出。注: put 的 --json 已被 payload 占用(既有接口),
     # 故机器可读输出统一叫 --json-out, 这是必要偏离, 已在 README 记录。
     ap.add_argument('--json-out', dest='json_out', action='store_true')

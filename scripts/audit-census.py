@@ -18,6 +18,37 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== audit-census 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · audit-census.py — 板级审计普查（v1.0.0）")
+    print("  · 依据：独立复核员 2026-10-08 定位的**连字符坑**与**两套「正确」文件集**：")
+    print("  · · `audit-*.jsonl` **只匹配归档**；**活动文件是 `audit.jsonl`（无连字符、无日期后缀）** ⇒")
+    print("  · 用前者做普查会**恰好漏掉最近、最相关的一段**（我的实证：漏 1,881 行、而仅有 2 条 writer 全在其中）。")
+    print("  · 命令/参数: dir, json, selftest, version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/audit-census.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import argparse, glob, json, os, sys
 
 
@@ -107,6 +138,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dir", default=DEFAULT_DIR); ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--selftest", action="store_true"); ap.add_argument("--version", action="store_true")
     a = ap.parse_args()
     if a.version: print(json.dumps({"tool": "audit-census", "version": VERSION})); return 0

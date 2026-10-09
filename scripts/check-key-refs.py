@@ -32,6 +32,37 @@ check-key-refs.py — 消息里提到的黑板 key，发出去之前先核它存
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== check-key-refs 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · check-key-refs.py — 消息里提到的黑板 key，发出去之前先核它存不存在")
+    print("  · ★ 由来（2026-09-10，我自己的错，由 HR 核出）：")
+    print("  · 我在一条 agent_send 消息里写「看黑板 notes/mac-mini/ack-hr-terminus-close-20260910 已落」——")
+    print("  · **而那张卡我从未写过。** 我是凭记忆写了一个卡名，并把它当成「已落」报了。")
+    print("  · 命令/参数: stdin, base, json, tool-version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/check-key-refs.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, sys, urllib.request as U, urllib.error
@@ -77,6 +108,7 @@ def probe(base, key):
 def main():
     ap = argparse.ArgumentParser(description="核消息里提到的黑板 key 是否存在")
     ap.add_argument("text", nargs="?", default="")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--stdin", action="store_true")
     ap.add_argument("--base", action="append", default=None,
                     help="黑板实例（可多次；默认核 本机 + 中央 两个）")

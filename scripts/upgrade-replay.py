@@ -31,6 +31,32 @@ CLD 重启/升级期间，CLD 内插件（central-inbox/agent-way）失联，但
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== upgrade-replay 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · upgrade-replay.py — 升级后消息回放（备用通道保持机制 · 保障 3）")
+    print("  · CLD 重启/升级期间，CLD 内插件（central-inbox/agent-way）失联，但守护层")
+    print("  · （bb-sub → coordinator.jsonl 缓存 + central-wake → wake-trigger）全程在线，")
+    print("  · 消息不丢失。本工具在 CLD 恢复后执行「恢复回放」：")
+    print("  · 命令/参数: dry-run, since")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/upgrade-replay.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, sys, time, datetime, urllib.request
@@ -117,7 +143,10 @@ def filter_new(messages, seen):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="只预览不归档")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--since", type=str, default="", help="从指定时间戳回放（可选）")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     seen = load_seen()

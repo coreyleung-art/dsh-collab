@@ -23,11 +23,42 @@ bus-capture v1 —— 协作记忆自动捕捉管道（OpenChronicle 机制复�
   - 硬件守卫：内存空闲 <2GB 时降级（跳过纪要生成，只做捕捉标注）
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bus-capture 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bus-capture v1 —— 协作记忆自动捕捉管道（OpenChronicle 机制复用）")
+    print("  · 原理：复用 OpenChronicle 的事件捕捉/聚合/去重机制到「总线事件」：")
+    print("  · 总线事件（消息/锁/档案） → 捕捉缓冲 → 分级过滤 → 纪要 → 三轨落档")
+    print("  · python3 bus-capture.py --snapshot          # 立即执行一次捕捉（默认）")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: collections, datetime, glob, json, os, re, subprocess, sys, time, urllib")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bus-capture.log")
+    return 0
+
+
 
 # ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
 #   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。
 #   生成原则：**断言的是本工具【实际被检测到】的结构**，而非理想模板 ——
 #   故每项验证「检测到的那个事实仍然成立」。若引入新危险原语，A/B 会 FAIL。
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 def lean4_check():
     fails = 0; checks = []
 

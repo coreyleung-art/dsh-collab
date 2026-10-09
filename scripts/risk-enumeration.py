@@ -15,6 +15,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== risk-enumeration 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 风险穷举工具 v0.1 (HR)")
+    print("  · 用法：python3 risk-enumeration.py --topic 'CAHAC 架构' [--categories a,b,c] [--out path]")
+    print("  · 输入：调研/架构主题（+ 可选类别清单）")
+    print("  · 输出：风险穷举模板骨架 md（7 类分类/概率×影响矩阵/TOP N 必防/对策列）——由 agent 填充具体风险")
+    print("  · 命令/参数: topic, categories, out")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/risk-enumeration.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, os, sys, datetime
@@ -43,8 +69,11 @@ CAT_LABEL = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--topic", required=True, help="评估主题")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--categories", default=",".join(DEFAULT_CATS))
     ap.add_argument("--out", default=None)
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     cats = [c.strip() for c in args.categories.split(",") if c.strip()]
     # ★ 2026-10-09 修：原行末尾少一个 `)`（闭合 os.path.join）⇒ 该脚本【自 2026-10-03 起无法编译】，

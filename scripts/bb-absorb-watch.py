@@ -15,6 +15,32 @@
   python3 bb-absorb-watch.py                    # 常驻
   python3 bb-absorb-watch.py --log /tmp/bb-absorb-watch.log
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-absorb-watch 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-absorb-watch.py — 吸收循环常驻监控（事件驱动，零轮询零 token）")
+    print("  · 订阅黑板事件桥（:8803/events），监控 data/<node>/tools/ 命名空间——")
+    print("  · 节点登记新工具时自动触发 bb-absorb.py 评估 + 落链。")
+    print("  · 设计（吸收循环自动化）：")
+    print("  · 命令/参数: log, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-absorb-watch.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, sys, time, datetime, subprocess, urllib.request
@@ -89,9 +115,12 @@ def main():
     global LOGF
     ap = argparse.ArgumentParser()
     ap.add_argument("--log", default=None)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     LOGF = args.log
     log("吸收循环监控启动（事件驱动订阅 %s，监控 %s）" % (EVENTS_URL, WATCH_PREFIX))

@@ -25,6 +25,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== blackboard-events 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · blackboard-events.py v1.0 — 黑板事件桥：SUBSCRIBE 回调 → SSE 广播")
+    print("  · 黑板（blackboard-server 8792）的 SUBSCRIBE 是 HTTP 回调（黑板变更 → POST 到 callback）。")
+    print("  · 本桥把它转成 SSE 事件流，让智能体用 sse-sub 框架订阅黑板事件（事件驱动，零轮询）。")
+    print("  · 黑板 8792（KV + SUBSCRIBE）")
+    print("  · 命令/参数: port")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, http, os, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/blackboard-events.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, queue, threading, time, datetime
@@ -117,6 +143,9 @@ class H(BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser(description="黑板事件桥：SUBSCRIBE 回调 → SSE 广播")
     ap.add_argument("--port", type=int, default=8803)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     srv = ThreadingHTTPServer(("0.0.0.0", args.port), H)
     print("黑板事件桥 :%d（黑板 SUBSCRIBE 回调入口 /cb → SSE /events）" % args.port)

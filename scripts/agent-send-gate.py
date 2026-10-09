@@ -37,6 +37,32 @@ v2.5 变更（2026-08-31 星桥评估落地，方案 docs/agentsend-gate-audit-a
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== agent-send-gate 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · agent-send-gate.py — agent_send 审计门禁守护（v2.5，对齐 v2.4 语义）")
+    print("  · 扫描跨会话消息，审计「全文未落黑板」违规（>50 字且无黑板引用）：")
+    print("  · ① 记录违规（黑板 data/audit/agentsend-violations.jsonl + 本地 logs/）")
+    print("  · ② 防刷屏（纯确认不回——低于阈值不告警）")
+    print("  · 命令/参数: once, interval, since, all, stats, apply")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/agent-send-gate.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, time, datetime, urllib.request
@@ -166,11 +192,14 @@ def scan(since_hours=24, all_=False, apply=False):
 def main():
     ap = argparse.ArgumentParser(description="agent_send 审计门禁（v2.5 对齐 v2.4）")
     ap.add_argument("--once", action="store_true", help="单次扫描")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--interval", type=int, default=300, help="常驻间隔秒")
     ap.add_argument("--since", type=int, default=24, help="时间窗小时（0=不限；默认 24）")
     ap.add_argument("--all", dest="all_", action="store_true", help="全量盘点（忽略时间窗）")
     ap.add_argument("--stats", action="store_true", help="输出分桶统计")
     ap.add_argument("--apply", action="store_true", help="落盘违规记录（默认 dry-run 只输出）")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     if args.all_:

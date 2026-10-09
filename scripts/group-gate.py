@@ -20,6 +20,37 @@ R006: 1插件(P2) 2selfcheck 3cld-check 4version-check 5README 6--version 7日�
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== group-gate 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · group-gate v1.0.0 (HR) - 群聊治理门 (R006 十项标准 / 2026-09-07)")
+    print("  · 职责: 群聊(群发广播线程)治理——开群前决策树评估(check), 存量群健康审计(audit)。")
+    print("  · 实证: 群聊上下文放大 20.8x(消息x参与者), 40+ 人大群是资源黑洞。")
+    print("  · 规范: docs/group-chat-governance-v1.md (G1-G4 分类 + C1-C6 约束)。")
+    print("  · 命令/参数: desc, participants, mutual, duration, json")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/group-gate.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, datetime, sys
@@ -189,6 +220,7 @@ def main():
         if name in ("check", "classify"): sp.add_argument("--desc", default="")
         if name == "check":
             sp.add_argument("--participants", type=int, default=0)
+            sp.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
             sp.add_argument("--mutual", default="no")
             sp.add_argument("--duration", default="once")
         if name == "audit": sp.add_argument("--json", action="store_true")

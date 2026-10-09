@@ -19,6 +19,32 @@
   dev-sandbox --list                                 # 列出类型
   --dry-run 只分析不执行
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== dev-sandbox 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · dev-sandbox.py — 开发沙箱模拟器（泛化隔离验证模式，R015 候选）")
+    print("  · 把「隔离小样本验证，测通再推进」从 CLD 重启泛化到所有开发类型：")
+    print("  · · plugin   — 插件目录（加载/依赖/API 验证）")
+    print("  · · tool     — 工具源码（编译/运行/参数）")
+    print("  · 命令/参数: lean4-check, dry-run, list")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ★ 第三方: tomllib, yaml ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/dev-sandbox.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, subprocess, sys, tempfile, datetime, shutil
@@ -194,10 +220,13 @@ def run_verification(vtype, path, dry_run):
 def main():
     ap = argparse.ArgumentParser(description="开发沙箱模拟器（泛化隔离验证）")
     ap.add_argument("type", nargs="?", choices=["plugin", "tool", "script", "config", "workflow", "auto"], default="auto")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("target", nargs="?", default="", help="目标路径")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--list", action="store_true")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if getattr(args, "lean4_check", False):
         return lean4_check()

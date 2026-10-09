@@ -17,6 +17,37 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== card-surface-evidence 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · card-surface-evidence.py — 卡级面证据生成器（v1.0.0）")
+    print("  · 依据（独立复核员 2026-10-08）：回执只给自报三项不够，**须卡级面证据**：")
+    print("  · 双板回读 + value 哈希 + 抽取时刻。")
+    print("  · 输出（每键一行）：key | local.status | local.value_sha16 | central.status | central.value_sha16")
+    print("  · 命令/参数: json, selftest, version, versions, basis")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, os")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/card-surface-evidence.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import argparse, hashlib, json, sys, datetime, urllib.request
 
 VERSION = "1.0.0"
@@ -311,6 +342,7 @@ def versions():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("keys", nargs="*"); ap.add_argument("--json", action="store_true")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--selftest", action="store_true"); ap.add_argument("--version", action="store_true")
     ap.add_argument("--versions", action="store_true", help="脚本现读制品版本+mtime（回执用，禁手填）")
     ap.add_argument("--basis", action="store_true", help="现读比较基准（排除集/脱敏集/规则），供重述件引用")

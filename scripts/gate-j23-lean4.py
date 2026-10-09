@@ -5,6 +5,36 @@
 门语义: 重建 node_modules 前验证无运行实例持有旧映射——有则阻塞/要求维护窗口
 补逻辑: 守链 0e84e65c 2026-09-07 (纸面门→结构门)
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== gate-j23-lean4 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · gate-j23 v0.2 (结构门) — J23 node_modules 重建 vs 运行映射")
+    print("  · 对应规则: ✅ node_modules 重建 vs 运行映射 (重建时运行中实例已映射旧 dylib node-pty/ssh2)")
+    print("  · 门语义: 重建 node_modules 前验证无运行实例持有旧映射——有则阻塞/要求维护窗口")
+    print("  · 补逻辑: 守链 0e84e65c 2026-09-07 (纸面门→结构门)")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: json, os, subprocess, sys, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/gate-j23-lean4.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import sys

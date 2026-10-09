@@ -38,6 +38,32 @@ capital 只输出步骤提示。「四跑法」这套方法一直缺少标准对
 
 零外部依赖 · Python 3.9+
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== runfour 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · runfour.py — 四跑法标准框架（正跑 / 反跑 / 空数据跑 / 数据跑）")
+    print("  · 明鉴 · 2026-09-10 · v1.0.0")
+    print("  · 现有 wargame-sim.py 里只有 `value`（六维加权打分）是真计算，enumerate / reverse /")
+    print("  · capital 只输出步骤提示。「四跑法」这套方法一直缺少标准对比框架 —— 尤其是")
+    print("  · 命令/参数: init, fill, compare, score, version, lean4-check, out, date")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, json, os, re, subprocess, sys, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/runfour.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
@@ -1059,6 +1085,7 @@ def main():
             "  %-8s %-6s %s → %s" % (r["key"], r["label"], r["what"], r["key_out"]) for r in RUNS)
         + "\n\n⚠️ %s\n" % CORE_HINT)
     ap.add_argument("--version", action="version", version="runfour.py v%s" % VERSION)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     sub = ap.add_subparsers(dest="cmd")
 
@@ -1093,6 +1120,10 @@ def main():
     if "--lean4-check" in sys.argv:
 
         return lean4_check()
+
+    if "--selfcheck" in __import__("sys").argv:
+
+        return selfcheck()
 
     args = ap.parse_args()
     if not getattr(args, "func", None):

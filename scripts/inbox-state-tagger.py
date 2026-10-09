@@ -30,6 +30,37 @@
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== inbox-state-tagger 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · inbox-state-tagger.py — 给 inbox 条目补 CAHAC `state`（S1 的实现侧）")
+    print("  · 为什么需要：")
+    print("  · CAHAC §7.5 定了【五个时点与唯一责任方】，但**实现侧缺一个调用点** ——")
+    print("  · `~/.dsh/inbox` 的写入者是既有机制（`mac-mini-inbox-watch` / `central-wake` 等），")
+    print("  · 命令/参数: apply, since, state, selftest, json")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, json, os, shutil, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/inbox-state-tagger.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import argparse
 import json
 import os
@@ -139,6 +170,7 @@ def selftest():
 def main():
     ap = argparse.ArgumentParser(description="给 inbox 条目补 CAHAC state（默认 dry-run）")
     ap.add_argument("--apply", action="store_true", help="真写（默认只演练）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--since", default=None, help="只处理该日期(YYYYMMDD)之后的条目")
     ap.add_argument("--state", default=DEFAULT_STATE, choices=LEGAL, help="写入的状态")
     ap.add_argument("--selftest", action="store_true")

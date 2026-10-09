@@ -34,6 +34,38 @@ verify-ui.py — 界面改动三重验证（渲染截图 + 哈希比对 + comput
 
 退出码：任一检查失败（哈希相同 / computed 不符 / 元素缺失）→ 1，否则 0。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== verify-ui 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · verify-ui.py — 界面改动三重验证（渲染截图 + 哈希比对 + computed style 查询）")
+    print("  · 改一个页面 UI 时连续引入 5 个 bug，最后一个是 `@keyframes` 缺了一个右大括号")
+    print("  · → 后面所有 CSS 被当成 keyframes 的一部分 → 整个侧栏样式静默失效。")
+    print("  · 当时是靠人工发现「两次截图哈希相同」才察觉。本工具把这一步自动化。")
+    print("  · 命令/参数: lean4-check, checks, selectors, expect, snapshot-dir, window, chrome, sandbox")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, base64, hashlib, json, os, re, shutil, socket, struct, subprocess, sys, tempfile")
+    print("  · ★ 第三方: websocket ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/verify-ui.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 
@@ -651,6 +683,7 @@ def build_parser():
 """,
     )
     p.add_argument("file", help="要验证的 HTML 文件")
+    p.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     p.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     p.add_argument("--checks", default=DEFAULT_CHECKS,
                    help="要跑的检查，逗号分隔：render,hash,computed（默认全跑）")

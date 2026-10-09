@@ -15,6 +15,32 @@ Weights: p2p=1.0 collab=0.8 blackboard-write=0.1 blackboard-read=0.05 event=0.5 
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== cahac-replay-v0.2 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。")
+    print("  · 依据：r006-debt-assess.py 机械扫描未检出以下原语：")
+    print("  · os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数")
+    print("  · ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。")
+    print("  · 命令/参数: scenario, out")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/cahac-replay-v0.2.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, os, datetime
@@ -52,7 +78,10 @@ SCEN = {
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scenario", default="all", help="p0|p1-device|p1-events|p2-papers|all")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--out", default=os.path.expanduser("~/dsh-collab/token-monitor/replays/cahac-replay-scenarios.md"))
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     keys = list(SCEN.keys()) if args.scenario == "all" else [args.scenario]
     L = ["# CAHAC Offline Replay v0.2 · 全场景", "", "> generated: " + datetime.date.today().isoformat() + " · P0/P1-device=真实线程分类, P1-events/P2=模型估计", ""]

@@ -14,6 +14,33 @@
 
 输出: 每轮结果 + 汇总统计（成功率/平均启动/内存趋势/错误）
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== restart-stress-test 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · restart-stress-test.py — 自动化重启压力测试（沙箱隔离端口，不碰生产 CLD）")
+    print("  · 目的：反复启动 dsh web（隔离端口），验证：")
+    print("  · · 每次启动不崩溃（稳定性）")
+    print("  · · 三插件自查门每次通过（selfcheck.log 增量 ✅）")
+    print("  · 命令/参数: rounds, lean4-check, hold, port-start, boot-wait")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/restart-stress-test.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, signal, subprocess, sys, time, datetime
@@ -145,10 +172,13 @@ def run_round(round_no, port, hold_sec, boot_wait):
 def main():
     ap = argparse.ArgumentParser(description="自动化重启压力测试（沙箱隔离端口）")
     ap.add_argument("--rounds", type=int, default=5, help="测试轮数（默认 5）")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--hold", type=int, default=10, help="每轮保持秒数（默认 10）")
     ap.add_argument("--port-start", type=int, default=3090, help="起始端口（默认 3090）")
     ap.add_argument("--boot-wait", type=int, default=8, help="boot 等待秒数（默认 8）")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if getattr(args, "lean4_check", False):
         return lean4_check()

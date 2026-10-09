@@ -25,6 +25,36 @@ preset-fit v1 —— 角色专用模式评估器（模式评估工具化）
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== preset-fit 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · preset-fit v1 —— 角色专用模式评估器（模式评估工具化）")
+    print("  · 作用：数据驱动判断每个角色「是否需要专用 preset / 插件增强」——")
+    print("  · 替代「凭感觉建模式」，按 4 维信号评分给出建议。")
+    print("  · 输入：总线 agent_profiles（角色/能力/资源）+ 领域关键词信号")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: collections, json, os, re, sys, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/preset-fit.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json

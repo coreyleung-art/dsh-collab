@@ -46,6 +46,32 @@ deliver.py — 交付链编排（11 步一条命令）
 零外部依赖 · Python 3.9+
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== deliver 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · deliver.py — 交付链编排（11 步一条命令）")
+    print("  · 明鉴 · 2026-09-10 · v1.0.0")
+    print("  · 一条完整交付链有 11 步：改文档 → 立场自检 → 全载体扫描 → 红队 → 派生 → 受众检查 →")
+    print("  · 生成 HTML → 界面验证 → 落标记 → 外部推送 → 逐字节验证。目前全靠手敲。")
+    print("  · 命令/参数: steps, run, version, config, lean4-check, only, dry-run, skip-redteam")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, json, os, re, subprocess, sys, time")
+    print("  · ★ 第三方: shlex ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/deliver.log")
+    return 0
+
+
 
 # ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
 #   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。
@@ -766,6 +792,7 @@ def main():
                "  deliver.py run --config deliver.json --dry-run\n"
                "  deliver.py run --config deliver.json --only scan,audit,ui\n")
     ap.add_argument("--version", action="version", version="deliver.py v%s" % VERSION)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     sub = ap.add_subparsers(dest="cmd")
 
     p1 = sub.add_parser("steps", help="看有哪些步骤")
@@ -784,6 +811,10 @@ def main():
     p2.add_argument("--timeout", type=float, default=None, help="单步超时秒数（默认取配置 timeout 或 180）")
     p2.add_argument("--report", default=None, help="把汇总报告写入该 md 文件（也可写在配置 report 字段）")
     p2.set_defaults(func=cmd_run)
+
+    if "--selfcheck" in __import__("sys").argv:
+
+        return selfcheck()
 
     args = ap.parse_args()
     if not getattr(args, "func", None):

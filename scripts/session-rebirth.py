@@ -30,11 +30,42 @@ R006 十项标准对照:
 零 LLM 原则: 纯规则 + 文件系统/JSONL 解析 (记忆用会话内已有 compaction 摘要, 不另耗 token)。
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== session-rebirth 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · session-rebirth v1.0.0 (HR) - 旧会话死锁重建工具 (R006 十项标准 / 2026-09-06 明鉴 v2->v3 案例沉淀)")
+    print("  · 职责: 会话上下文死锁 (CONTEXT_WINDOW_EXCEEDED + 压缩门控失败) 时, 一键完成")
+    print("  · [诊断 -> 冷备份 -> 记忆提取 -> 续接提示词组装] 全流程, 让人只需开新会话粘贴提示词。")
+    print("  · 案例来源: 明鉴 v2 (session-f38244df) 79.3万 tokens 压缩门控死锁 -> v3 (a190c54c) 记忆继承重建。")
+    print("  · 命令/参数: session, lean4-check, name, role, abilities, resources")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, shutil, sys, tempfile, time")
+    print("  · ★ 第三方: zstandard ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")
+    print("  · 固定日志: ~/dsh-collab/logs/session-rebirth.log")
+    return 0
+
+
 
 # ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
 #   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。
 #   生成原则：**断言的是本工具【实际被检测到】的结构**，而非理想模板 ——
 #   故每项验证「检测到的那个事实仍然成立」。若引入新危险原语，A/B 会 FAIL。
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 def lean4_check():
     fails = 0; checks = []
 
@@ -491,6 +522,7 @@ def main():
         sp = sub.add_parser(name, help=help_)
         if name in ('diagnose', 'backup', 'extract', 'compose', 'full'):
             sp.add_argument('--session', default='', help='旧会话 id')
+            sp.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
             sp.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
         if name in ('backup', 'extract', 'compose', 'full'):
             sp.add_argument('--name', default='', help='别名(归档/文档名前缀)')

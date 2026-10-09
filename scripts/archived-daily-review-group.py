@@ -12,6 +12,32 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== archived-daily-review-group 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · daily-review-group v1.0 (HR) — 每日评价分析/差评预警发群（用户指令 2026-08-21）")
+    print("  · 读差评数据（aa528267 每日 10:00 落盘）→ 统计聚合（零 LLM）→ markdown 分析 → 8790/send target=群 chat_id 回发。")
+    print("  · 用法：python3 daily-review-group.py [--data-dir <dir>] [--chat-id <id>] [--dry-run]")
+    print("  · 群 chat_id（外联确认）：wrObL9WAAAmpV27LFG0NMGX4dZHAXngQ（新群）")
+    print("  · 命令/参数: data-dir, chat-id, dry-run")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/archived-daily-review-group.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, glob, datetime, urllib.request, re
@@ -89,8 +115,11 @@ def push(text, chat_id):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data-dir", default="")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--chat-id", default=GROUP_CHAT)
     ap.add_argument("--dry-run", action="store_true")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     path, d = find_data(args.data_dir)
     if not path:

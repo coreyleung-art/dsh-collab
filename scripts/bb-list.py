@@ -30,6 +30,37 @@
   3 黑板不可达（**≠ 不存在**）
   4 用法错 / 前缀写法非法
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-list 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-list.py — 黑板枚举，**永远附带搜索面**")
+    print("  · 作者: 老登 session-aa528267 (mac-mini) · 2026-09-28")
+    print("  · 存在的理由（一次真实错误）")
+    print("  · 我报「未找到比 09:52:56 更新的卡」——而那张卡**是存在的**（10:00:36 落卡），")
+    print("  · 命令/参数: lean4-check, grep, json, selftest, version")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, http, os, re, subprocess, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-list.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, sys, urllib.error, urllib.request
@@ -78,6 +109,7 @@ def fetch_list(prefix):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("prefix", nargs="?")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--grep", default=None, help="对完整的键做正则过滤")
     ap.add_argument("--json", action="store_true")

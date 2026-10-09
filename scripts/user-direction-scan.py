@@ -24,6 +24,32 @@ R006 十项:
   python3 user-direction-scan.py --lean4-check   # 工具自身门自检
   python3 user-direction-scan.py --version
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== user-direction-scan 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · user-direction-scan.py v1.0.0 — 「用户说过的话」落实核验扫描器（R006 十项达标 · R030 无证据不陈述）")
+    print("  · 用途: 读 data/registry/user-directions-registry.json, 对每条方向/待办做证据机器核验,")
+    print("  · 输出落实矩阵 + 差距清单。防「用户早说过、agent 没落实」类欠账再被口头掩盖。")
+    print("  · R006 十项:")
+    print("  · 命令/参数: version, json, cat, lean4-check, id")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/user-direction-scan.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, datetime, json, os, re, subprocess, sys, urllib.request
@@ -222,10 +248,13 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser(description="用户方向落实核验扫描器 (R006 十项)")
     ap.add_argument("--version", action="store_true", help="版本")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--json", action="store_true", help="JSON 输出")
     ap.add_argument("--cat", metavar="ID|backlog|all", help="单条/待办详情")
     ap.add_argument("--lean4-check", action="store_true", help="工具自身门自检")
     ap.add_argument("--id", default=None, help="仅扫指定方向 ID")
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if args.version:
         print(f"user-direction-scan.py {__VERSION__}"); return 0

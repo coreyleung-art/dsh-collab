@@ -16,6 +16,35 @@
   python3 cld-shell-sandbox-test.py            # 跑 A+B+C 全部分支
   python3 cld-shell-sandbox-test.py --test a   # 只跑 A
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== cld-shell-sandbox-test 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · cld-shell-sandbox-test.py — CLD 壳行为小样本测试（沙箱隔离，不动生产）")
+    print("  · 验证 CLD 壳的三个关键行为（用户关注点）：")
+    print("  · A. dsh 子进程崩溃 → 壳是否弹框退出（child.on('exit') → app.quit 行为）")
+    print("  · B. 模式对话框阻塞：config 未记住时，askMode 是否阻塞 boot")
+    print("  · 命令/参数: test, lean4-check")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「修改权限」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 本工具涉及「终止进程」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/cld-shell-sandbox-test.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, signal, subprocess, sys, time, datetime, shutil
@@ -142,9 +171,12 @@ def test_c_launchd_keepalive():
 def main():
     ap = argparse.ArgumentParser(description="CLD 壳行为小样本测试（沙箱隔离）")
     ap.add_argument("--test", choices=["a", "b", "c", "all"], default="all")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     setup_tmp()

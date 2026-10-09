@@ -42,6 +42,37 @@
 退出码（★ R006 ⑨）：0 = 成功；1 = 门未过（缺字段/无授权）；2 = 用法或环境错误
 """
 
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== proxy-change-record 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · proxy-change-record.py — 「代做」变更留痕台账 v1.0.0")
+    print("  · 为什么要这个工具（所有者 2026-10-09 明确要求）：")
+    print("  · > 「你代做要做时间戳和授权节点登记，记录最后变动人」")
+    print("  · ⇒ 代做（agent 代替所有者实施变更）必须留下三件事，缺一不可：")
+    print("  · 命令/参数: authorize, scope, quote, from-user, granted-by, record, channel, evidence")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, hashlib, io, json, os, sys, tempfile, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/proxy-change-record.log")
+    return 0
+
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
 
 import argparse
@@ -307,6 +338,7 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser(description="代做变更留痕台账（时间戳 + 授权登记 + 最后变动人）")
     ap.add_argument("--authorize", action="store_true", help="登记一次授权")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--scope", help="授权范围（逗号分隔的通道，或 * 表示全部）")
     ap.add_argument("--quote", help="★ 授权【原话】（不得转述）")
     ap.add_argument("--from-user", action="store_true", help="授权来自所有者")

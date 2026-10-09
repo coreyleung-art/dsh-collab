@@ -12,6 +12,32 @@ mac总线 机械指令 → 本地模型 qwen2.5:3b 展开成任务卡 → schema
 
 配套：scripts/task-card-validator.py（schema 校验器，复用其校验逻辑）
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== task-card-expander 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · task-card-expander.py v1.0 — 本地模型展开器（qwen2.5:3b 指令→任务卡）")
+    print("  · mac总线 机械指令 → 本地模型 qwen2.5:3b 展开成任务卡 → schema 校验器（生死线）→ 挂黑板")
+    print("  · 级联兜底：本地模型不可用 → 提示走在线模型 / 手动展开（省订阅 token 的机械派单走本地）")
+    print("  · python3 task-card-expander.py '扫描 E:\\projects 目录'              # 展开+校验+挂黑板")
+    print("  · 命令/参数: lean4-check, dry-run, node, task-id")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, datetime, http, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/task-card-expander.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, subprocess, sys, urllib.request
@@ -109,12 +135,15 @@ def _bb_put(path, data):
 def main():
     ap = argparse.ArgumentParser(description="本地模型展开器（qwen2.5:3b → 任务卡 → 校验 → 黑板）")
     ap.add_argument("instruction", help="自然语言指令")
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument("--dry-run", action="store_true", help="只展开+校验，不挂黑板")
     ap.add_argument("--node", default=NODE, help="目标节点（默认 i9）")
     ap.add_argument("--task-id", default=None, help="任务卡 id（默认自动生成）")
     if "--lean4-check" in sys.argv:
         return lean4_check()
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
 
     print("① 本地模型展开（%s）..." % MODEL, flush=True)

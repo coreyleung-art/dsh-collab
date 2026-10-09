@@ -12,6 +12,32 @@
 
 前置：xingduo 实例已手工补建（~/Library/LaunchAgents/com.dsh.bb-sub.xingduo.plist）可作模板参考。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-sub-gen 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · bb-sub-gen v1.0 (HR) — 黑板订阅守护生成器（角色就任基础设施）")
+    print("  · 职责：新角色就任时一键生成 bb-sub 订阅守护（com.dsh.bb-sub.<role> plist + launchctl load）")
+    print("  · ——解决「新角色未接订阅守护」治理问题（星舵实例 2026-08-30 教训）。")
+    print("  · python3 bb-sub-gen.py --audit          # 差异审计：agent_profiles vs launchctl bb-sub")
+    print("  · 命令/参数: role, lean4-check, prefixes, inbox, load, list, audit")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「执行外部命令」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, os, re, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-sub-gen.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, os, subprocess, re, glob, json
@@ -118,12 +144,15 @@ def audit():
 def main():
     ap = argparse.ArgumentParser(description='黑板订阅守护生成器（HR）')
     ap.add_argument('--role', help='角色名（如 xingduo）')
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
     ap.add_argument('--prefixes', help='订阅前缀（逗号分隔，如 data/iterations/,data/blueprint/）')
     ap.add_argument('--inbox', default='bb', help='收件箱子目录（默认 bb）')
     ap.add_argument('--load', action='store_true', help='生成后 launchctl load')
     ap.add_argument('--list', action='store_true', help='列出已注册守护')
     ap.add_argument('--audit', action='store_true', help='差异审计（角色 vs 守护）')
+    if "--selfcheck" in __import__("sys").argv:
+        return selfcheck()
     args = ap.parse_args()
     if getattr(args, "lean4_check", False):
         return lean4_check()

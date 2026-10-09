@@ -10,6 +10,36 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== bb-probe-cleanup 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · 清理我自己在鉴权探测中于本地板写下的探针键（pit 28：绕门直写单板的副作用）")
+    print("  · ★ 这是「恢复我自己造成的副作用」，不是修改被审对象；清理后立即回读验证，并如实记录。")
+    print("  · ★ 同时记录一条新操作纪律：探测写权限时，应优先探测「预期被拒」的一侧（被拒 ⇒ 零副作用），")
+    print("  · 不要探测「预期成功」的一侧（成功 ⇒ 必然留痕）。")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: json, os, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/bb-probe-cleanup.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 import json, urllib.request, urllib.error
 
 import os
