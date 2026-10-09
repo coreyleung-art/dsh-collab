@@ -13,7 +13,7 @@ lock-audit v1 —— 锁审计自动化（残留锁/异常锁检测）
 纪律：只读审计，不写文件、不广播（J34）；秒级时间观可随时跑。
 
 ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
-依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+依据：r006-debt-assess.py 机械扫描未检出以下原语：
       subprocess / os.system / eval / exec / os.remove / rmtree /
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
@@ -27,7 +27,7 @@ import time
 from datetime import datetime
 
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
 LOG = os.path.expanduser("~/dsh-collab/logs/lock-audit.log")
 
 

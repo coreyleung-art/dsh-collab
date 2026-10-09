@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""r006-batch-apply.py — R7/R10 批量补课器（安全版）v1.0.0
+"""r006-retrofit-apply.py — R7/R10 批量补课器（安全版）v1.0.0
 
 为什么需要（2026-10-09 · 所有者「暂时授权」接管优化计划）：
   存量大：220 个可加 R10 N/A 声明 · 279 个缺 R7 日志 · 91 个 R10 须真实现。
@@ -20,12 +20,12 @@
   ★ **不做**：R10 真实现（那需按工具语义逐个人工写断言）· 不改危险路径行为
 
 用法：
-  python3 r006-batch-apply.py --r10-na --limit 5              # dry-run（默认）
-  python3 r006-batch-apply.py --r10-na --limit 5 --apply      # 真写
-  python3 r006-batch-apply.py --r7-log --limit 5 --apply
-  python3 r006-batch-apply.py --list                          # 列出候选
-  python3 r006-batch-apply.py --selftest
-  python3 r006-batch-apply.py --lean4-check                   # ★ R006 ⑩ 六项 A–F
+  python3 r006-retrofit-apply.py --r10-na --limit 5              # dry-run（默认）
+  python3 r006-retrofit-apply.py --r10-na --limit 5 --apply      # 真写
+  python3 r006-retrofit-apply.py --r7-log --limit 5 --apply
+  python3 r006-retrofit-apply.py --list                          # 列出候选
+  python3 r006-retrofit-apply.py --selftest
+  python3 r006-retrofit-apply.py --lean4-check                   # ★ R006 ⑩ 六项 A–F
 
 退出码（★ R006 ⑨）：0 = 全部成功（或 dry-run 无错）；1 = 有失败（已回滚）；2 = 用法/环境错误
 """
@@ -44,14 +44,14 @@ import time
 
 HOME = os.path.expanduser("~")
 COLLAB = os.path.join(HOME, "dsh-collab")
-LOG = os.path.join(COLLAB, "logs", "r006-batch-apply.log")   # ★ R006 ⑦ 固定日志
+LOG = os.path.join(COLLAB, "logs", "r006-retrofit-apply.log")   # ★ R006 ⑦ 固定日志
 
 # ═══ ★ 冻结白名单（R006 ⑩ 类型锁）：本工具【只做两类低风险改动】 ═══
 ACTIONS = ("r10-na", "r7-log")          # 不可变 tuple
 
 NA_TEXT_LINES = [
     "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。",
-    "依据：r006-debt-remediate.py 机械扫描未检出以下原语：",
+    "依据：r006-debt-assess.py 机械扫描未检出以下原语：",
     "      subprocess / os.system / eval / exec / os.remove / rmtree /",
     "      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数",
     "★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。",
@@ -126,7 +126,7 @@ def insert_r7(src, toolname):
     # ★ 自足：用 os.path.expanduser，不依赖 COLLAB/HOME 等（我上一轮的错误）
     block = [
         "",
-        "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）",
+        "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）",
         'LOG = os.path.expanduser("~/dsh-collab/logs/%s.log")' % toolname,
         "",
         "",
@@ -190,7 +190,7 @@ def safe_apply(path, new_src):
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "debt", os.path.join(COLLAB, "scripts", "r006-debt-remediate.py"))
+        "debt", os.path.join(COLLAB, "scripts", "r006-debt-assess.py"))
     debt = importlib.util.module_from_spec(spec)
     try:
         spec.loader.exec_module(debt)
@@ -215,7 +215,7 @@ def selftest():
         print("  %s %-6s %-52s" % ("✅" if good else "❌", kind, name))
         if not good: fails += 1
 
-    print("== r006-batch-apply selftest ==")
+    print("== r006-retrofit-apply selftest ==")
     SRC = '#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n"""工具说明。\n\n更多。\n"""\nimport os\nX = 1\n'
     # 正例：docstring 定位正确
     sp = docstring_span(SRC)
@@ -271,7 +271,7 @@ def lean4_check():
     c("E", "白名单冻结：不夹带其它改动（只做两类）",
       "ACTIONS = (\"r10-na\", \"r7-log\")" in _self, "两类动作冻结")
     c("F", "负例矩阵可执行（safe_apply 为可测函数）", callable(safe_apply), "无隐式副作用除目标文件")
-    print("== r006-batch-apply · --lean4-check（六项 A–F）==")
+    print("== r006-retrofit-apply · --lean4-check（六项 A–F）==")
     for k, name, ok, detail in checks:
         print("  %s %s %-50s %s" % ("✅" if ok else "❌", k, name, detail))
     print("\n  ⇒ %d/%d 绿 · %d FAIL" % (len(checks) - fails, len(checks), fails))
@@ -303,7 +303,7 @@ def main():
     cand, err = candidates(action)
     if err:
         print("★ %s" % err, file=sys.stderr); return 2
-    print("== r006-batch-apply · %s ===" % action)
+    print("== r006-retrofit-apply · %s ===" % action)
     print("   候选 %d 个 · 本批处理 %d 个 · 模式：%s" % (len(cand), min(a.limit, len(cand)),
           "★ 真写" if a.apply else "dry-run（零变更）"))
     ok_n = skip_n = fail_n = 0

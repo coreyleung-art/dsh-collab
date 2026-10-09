@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""r006-debt-remediate.py — R7/R10 存量欠账：三态判定 + 可执行补齐建议 v1.0.0
+"""r006-debt-assess.py — R7/R10 存量欠账：三态判定 + 可执行补齐建议 v1.0.0
 
 为什么需要（2026-10-09 · 目标轮 2）：
   实测 R7（统一日志）缺 294 · R10（约束门）缺 316 ⇒ 两项都缺 284（共 331 工具）。
@@ -23,11 +23,11 @@
   open(...,'w') / Path.write_text / chmod / chown / kill / pkill
 
 用法：
-  python3 r006-debt-remediate.py                    # 三态总表 + 欠账清单
-  python3 r006-debt-remediate.py --json
-  python3 r006-debt-remediate.py --suggest <file>   # 给单个文件的补齐建议（不改文件）
-  python3 r006-debt-remediate.py --selftest
-  python3 r006-debt-remediate.py --lean4-check      # R006 ⑩ 六项 A–F
+  python3 r006-debt-assess.py                    # 三态总表 + 欠账清单
+  python3 r006-debt-assess.py --json
+  python3 r006-debt-assess.py --suggest <file>   # 给单个文件的补齐建议（不改文件）
+  python3 r006-debt-assess.py --selftest
+  python3 r006-debt-assess.py --lean4-check      # R006 ⑩ 六项 A–F
 
 退出码（★ R006 ⑨）：0 = 无真欠账；1 = 有真欠账（missing）；2 = 用法/环境错误
 """
@@ -195,7 +195,7 @@ def suggest(name):
             print("  ── R10 建议（无不可逆原语 ⇒ 可显式声明 N/A，须给依据与其限度）──")
             print("     在 docstring 末尾加一行。★ 措辞须按 R10 定义（不说「只读」，而说「无不不可逆操作」）：")
             print("       ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。")
-            print("         依据：r006-debt-remediate.py 机械扫描未检出以下原语：")
+            print("         依据：r006-debt-assess.py 机械扫描未检出以下原语：")
             print("               subprocess / os.system / eval / exec / os.remove / rmtree /")
             print("               os.chmod / os.chown / os.kill / pkill / launchctl unload")
             print("         ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。")

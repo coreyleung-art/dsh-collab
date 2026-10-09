@@ -106,7 +106,7 @@ import tempfile
 import time
 
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
 LOG = os.path.expanduser("~/dsh-collab/logs/self-report-gate.log")
 
 

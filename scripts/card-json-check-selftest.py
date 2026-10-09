@@ -7,7 +7,7 @@ __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import json, subprocess, sys, tempfile, os
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
 LOG = os.path.expanduser("~/dsh-collab/logs/card-json-check-selftest.log")
 
 

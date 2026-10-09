@@ -79,7 +79,7 @@ print(f"\n  04 时合计（本次枚举范围）= {h04}")
 print("  作者声称：今日 04 点批量入库 8511 键")
 
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
 LOG = os.path.expanduser("~/dsh-collab/logs/genebank-writer-probe.log")
 
 

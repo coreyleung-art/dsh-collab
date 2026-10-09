@@ -5,7 +5,7 @@
 ⇒ 目的是把「0」的敏感性边界钉清楚：哪些形态会被我计入、哪些不会
 
 ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
-依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+依据：r006-debt-assess.py 机械扫描未检出以下原语：
       subprocess / os.system / eval / exec / os.remove / rmtree /
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
@@ -49,7 +49,7 @@ print("  ⚠ 但仍取决于服务端：若服务端对空 header 返回 None（
 print("    该推论要成立，需确认 `header()` 对空串的行为（见另一路：读 http.rs 的 header 函数）")
 
 
-# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-batch-apply 自足插入）
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
 LOG = os.path.expanduser("~/dsh-collab/logs/writer-census-negative-control.log")
 
 

@@ -44,7 +44,7 @@ echo "新增候选: $PREV_NEW" | tee -a "$LOG"
 # 黑板周报
 python3 -c "
 import json, urllib.request
-body = {'from':'gate-weekly-audit', 'date':'$DATE', 'summary':'$SUMMARY', 'new_candidates':'$PREV_NEW'}
+body = {'from':'service:gate-weekly-audit', 'writerLabel':'服务身份（非会话）', 'date':'$DATE', 'summary':'$SUMMARY', 'new_candidates':'$PREV_NEW'}
 req = urllib.request.Request('http://127.0.0.1:8792/data/ops/gate-weekly-audit-$DATE', data=json.dumps(body).encode(), headers={'Content-Type':'application/json'}, method='PUT')
 print(urllib.request.urlopen(req, timeout=6).read().decode()[:100])
 " | tee -a "$LOG"

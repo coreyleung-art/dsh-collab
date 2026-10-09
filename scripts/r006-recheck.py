@@ -132,7 +132,7 @@ def check_one(name, path, kind):
         #   依据 `supply-chain/audit-r006-gap-analysis.md` §三 的既有做法：
         #   「①②③ 豁免声明：docstring 注明『只读工具：②TCC n/a(无外部性) ③CLD n/a(纯脚本)』」
         #   ⇒ 故 R10 三态：implemented / declared-na / missing。
-        #   ⇒ declared-na 的核验由 `r006-debt-remediate.py` 的机械判据承担（须【无危险原语】）。
+        #   ⇒ declared-na 的核验由 `r006-debt-assess.py` 的机械判据承担（须【无危险原语】）。
         _na = bool(re.search(r"(约束门\s*[:：]?\s*N/?A|无危险原语|无不该发生路径|纯只读|无外部性|R10\s*[:：]?\s*N/?A)", src, re.I))
         r["R10_lean4"] = bool((_has_fn and _has_entry and _n_checks >= 3) or _na)
         _state = ("implemented" if (_has_fn and _has_entry and _n_checks >= 3)

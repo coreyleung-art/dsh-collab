@@ -27,7 +27,7 @@ R006: CLI(argparse) · TCC(--selfcheck) · CLD自适应(纯stdlib) · 版本(--t
   python3 wargame.py --domain flowernet run                  # 一键全流程(score→adversary→converge→graph→report)
 
 ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
-依据：r006-debt-remediate.py 机械扫描未检出以下原语：
+依据：r006-debt-assess.py 机械扫描未检出以下原语：
       subprocess / os.system / eval / exec / os.remove / rmtree /
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
