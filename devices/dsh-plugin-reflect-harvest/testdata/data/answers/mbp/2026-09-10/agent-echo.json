@@ -1,0 +1,74 @@
+{
+  "device": "mbp",
+  "date": "2026-09-10",
+  "submitted_at": "2026-09-10T23:58:00+08:00",
+  "plugin_version": "0.9.9",
+  "answers": [
+    {
+      "agent": "agent-echo",
+      "items": [
+        {
+          "id": "R1",
+          "event_ref": "E101",
+          "pit": "MBP 这边的会话在覆盖快照目录之前先 dump 了一份，但事后没人说得清那份 dump 是覆盖前还是覆盖后存的 —— 时点没写进文件名。",
+          "lesson": "破坏性动作之前必须先取证，证据要标注采集时点：是处置前采集还是处置后采集",
+          "related_rule": "phi-facts",
+          "suggestion": {
+            "type": "新增",
+            "detail": "证据文件名与字段都带「处置前/处置后」标记，未标记的拒绝入库",
+            "reason": "跨设备协作时两边的快照会互相引用，时点标不清就会得出相反结论"
+          },
+          "evidence": {
+            "ts": "2026-09-10T22:40:00+08:00",
+            "collected_at": "2026-09-10T22:41:12+08:00",
+            "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | awk '{print $NF}'",
+            "output": "dump-config-20260910T220812.json（无处置前/后标记）· 对照 mac-mini 侧的命名已带标记"
+          }
+        },
+        {
+          "id": "R2",
+          "event_ref": "E103",
+          "pit": "为了跟 mac-mini 对齐口径，我把那边的一份反思原文抄进了本机的答案文件里，想着这样两边一致。",
+          "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+          "related_rule": "无",
+          "suggestion": {
+            "type": "新增",
+            "detail": "跨设备对齐口径只引用卡片/槽位号，不复制对方原文",
+            "reason": "抄原文会让同一句话在多个设备各留一份，复现计数被伪造"
+          },
+          "evidence": {
+            "ts": "2026-09-10T23:10:00+08:00",
+            "collected_at": "2026-09-10T23:11:00+08:00",
+            "cmd": "diff <(jq -r .items[1].lesson answers/mac-mini/2026-09-10/agent-alpha.json) <(jq -r .answers[0].items[1].lesson answers/mbp/2026-09-10/agent-echo.json)",
+            "output": "无差异 —— 两份文件的 lesson 逐字相同（本机抄录所致）"
+          }
+        }
+      ],
+      "declined": false
+    },
+    {
+      "agent": "agent-foxtrot",
+      "items": [
+        {
+          "id": "R1",
+          "event_ref": "E110",
+          "pit": "MBP 上跑批量截图任务时忘了先验电源与休眠设置，跑到一半合盖休眠，整批任务断在中途。",
+          "lesson": "移动设备上跑长任务前要先关休眠并接电源，且任务要能断点续跑",
+          "related_rule": "无",
+          "suggestion": {
+            "type": "新增",
+            "detail": "长任务启动前检查电源/休眠状态，并把进度落盘",
+            "reason": "台式机上不存在这个失败模式 —— 只有移动设备独立踩得到"
+          },
+          "evidence": {
+            "ts": "2026-09-10T21:30:00+08:00",
+            "collected_at": "2026-09-10T21:31:00+08:00",
+            "cmd": "pmset -g | grep -E 'sleep|displaysleep'",
+            "output": "sleep 10（合盖后 10 分钟休眠）· 批量任务在第 37/60 张断掉"
+          }
+        }
+      ],
+      "declined": false
+    }
+  ]
+}

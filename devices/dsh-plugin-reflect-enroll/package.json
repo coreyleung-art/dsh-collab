@@ -1,0 +1,43 @@
+{
+  "name": "dsh-plugin-reflect-enroll",
+  "version": "1.3.0",
+  "description": "反思入册 · 反馈闭环（跨设备 v1.1）：把用户已裁定的提案写入哲学库/规则库，并把新规则推送到本机+中央黑板、通知相关设备上的相关智能体（每日反思流水线唯一写库环节 + 数据飞轮闭环点）",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "dry-run": "node cli.js --dry-run"
+  },
+  "bin": {
+    "reflect-enroll": "cli.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "r006": {
+    "category": "engineering",
+    "scope": "mac-mini",
+    "status": "enforced",
+    "cli_form": true,
+    "tcc_selfcheck": true,
+    "cld_adaptive": true,
+    "dsh_adaptive": true,
+    "documented": "docs/README.md",
+    "versioned": true,
+    "unified_log": "~/dsh-collab/logs/dsh-plugin-reflect-enroll.log",
+    "auto_chain": "data/registry/dsh-plugin-reflect-enroll 登记卡 + 本机/中央黑板 data/registry/reflect-feedback-<date> + data/reflect/feedback/<date> + notes/<device>/ 短指引",
+    "cli_governance": "严格 parseArgs（未知旗标 exit 2）+ 退出码 0/1/2 + --dry-run 零变更 + --json",
+    "lean4_gate": "lib/gate.js 冻结枚举（decision/target/写入前缀/出站主机/**版本单调性**）+ 源码零删除原语 + 幂等/编号唯一 + 原子写回滚 + 凭据脱敏复检 + R001 持锁门 + --lean4-check 六项",
+    "cross_device": "v1.1：反馈卡推送到全部设备（本机+中央黑板 106.53.214.108:8792，写入后回读校验）；相关智能体=<device>:<agent>（提案→资源归属→设备发现表）；其他设备走中央黑板待投递队列 notes/<device>/；只写自己命名空间；落盘/上黑板前凭据扫描脱敏",
+    "bb_protocol": "R003 补充 + 与 bb-write.py 逐条对账 + **实测字符类**：key ≥2 段每段非空 · 首段 [a-z]+ · 禁空白/%&;+=:/非ASCII（实测 400）· 禁 ./.. 段（路径归一化→列举）· 落地=回读200+value非空+内容深比对",
+    "r001_lock": "写前只读检查 ~/.dsh/agent-bus.json 的 locks[]：目标文件（或其父目录）被他人独占且未过期 → LOCKED_BY_OTHER 拒写；取锁/释放锁仍是调用方的动作（工具不抢锁、无 token、零 shell）",
+    "version_monotonic": "版本单调性门：当前 version 不得低于同文件内已记录版本（changelog[].version / versionHistory[].version / audit.previousVersions），命中 → VERSION_REGRESSION 拒写（只拒绝不自动修复）。动因：明鉴 2026-09-11 的 2.4→1.4 降级事故 —— 本工具原会从错误基准继续加（1.4→1.5）把降级固化"
+  }
+}

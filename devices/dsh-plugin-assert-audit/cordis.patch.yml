@@ -1,0 +1,11 @@
+# dsh-plugin-assert-audit
+# 宿主级插件行：注册 assert_audit 工具（审计一个断言套件）
+- insert:
+    - id: assert-audit
+      name: dsh-plugin-assert-audit
+      config:
+        # 结构化约束：判定只能是 VERDICT 闭集里的成员。
+        # 「把崩溃当通过」这件事在类型层不可表达——不是被拒绝，而是语法上不存在那个值。
+        allowedRunners: ["python3", "node"]
+        timeoutSeconds: 300
+        maxMutants: 64

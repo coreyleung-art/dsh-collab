@@ -1,0 +1,7 @@
+# dsh-plugin-self-report-gate · 自述可证性门（R-SR）：SR1 现场重测 / SR2 阳性对照 / SR3 撤回传播 / SR4 写盘自证 / SR5 环境指纹 / SR6 修复路径覆盖
+# 宿主级插件行：随 profile 启动常驻（R006 ① 第 2 项）
+# id 必须等于 slug，name 必须等于 package.json name（PSTD N3）——漂移即审查不通过。
+- insert:
+    - id: self-report-gate
+      name: dsh-plugin-self-report-gate
+      config: {}

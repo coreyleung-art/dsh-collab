@@ -1,0 +1,21 @@
+# dsh-plugin-reflect-collect
+# 宿主级插件行：随 profile 启动常驻，注册 reflect_collect 工具。
+#
+# ⑩ 结构约束（在 config 层同样收口，不是"请勿写错"）：
+#   · sources 只能取冻结白名单键（files/board/tools/logs/git）——
+#     配置里写别的源会在 apply() 被过滤，无法产生"采集别的源"这件事；
+#   · boardUrl 必须是环回地址（assertBoardUrl 在采集时强制），
+#     不存在"让本工具去采别的黑板实例"的合法配置；
+#   · 上传目标**没有配置项**：origin 写死在 gate.js（中央实例），
+#     key 由 buildUploadUrl(<device>, <date>) 唯一构造 ——
+#     "换个黑板写"或"写到别的命名空间"在配置层无法表达；
+#   · 没有 token/凭据配置项：本工具用不到任何写权限令牌（中央黑板对 reflect 前缀开放 PUT）。
+- insert:
+    - id: reflect-collect
+      name: dsh-plugin-reflect-collect
+      config:
+        sources: ["files", "board", "tools", "logs", "git"]
+        boardUrl: "http://127.0.0.1:8792"
+        limit: 0
+        # device 省略 → 主机名别名表命中（本机 → mac-mini）；显式指定时必须是合法设备名
+        upload: true

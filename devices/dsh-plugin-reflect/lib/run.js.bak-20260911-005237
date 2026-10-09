@@ -1,0 +1,91 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { spawnSync } from 'node:child_process';
+import { STAGES, STAGE_IMPL, HUMAN_GATED, assertRunnable, assertStage } from './gate.js';
+import { log } from './logger.js';
+
+const H = os.homedir();
+const expand = (p) => p.replace(/^~/, H);
+
+/** 各环节的产物判据（用于断点续跑） */
+export function artifactsFor(stage, date, workdir) {
+  const w = expand(workdir);
+  const map = {
+    collect:    [path.join(w, `events-${date}.json`)],
+    dispatch:   [path.join(w, 'cards', date)],
+    harvest:    [path.join(w, `harvested-${date}.json`)],
+    synthesize: [path.join(w, `proposal-${date}.md`)],
+    enroll:     [path.join(w, `feedback-${date}.md`)],
+  };
+  return map[stage] || [];
+}
+
+export function isDone(stage, date, workdir) {
+  const arts = artifactsFor(stage, date, workdir);
+  if (arts.length === 0) return false;
+  return arts.every((p) => fs.existsSync(p));
+}
+
+export function status(date, workdir) {
+  return STAGES.map((s) => ({
+    stage: s,
+    plugin: STAGE_IMPL[s].plugin,
+    human_gated: HUMAN_GATED.includes(s),
+    done: isDone(s, date, workdir),
+    artifacts: artifactsFor(s, date, workdir),
+  }));
+}
+
+/**
+ * 跑流水线
+ * @param {object} o { root, date, workdir, upto, only, dryRun, autoRunEnroll }
+ */
+export function runPipeline(o) {
+  const { root, date, workdir, dryRun } = o;
+  const uptoIdx = o.upto ? STAGES.indexOf(assertStage(o.upto)) : STAGES.length - 1;
+  const results = [];
+
+  for (let i = 0; i < STAGES.length; i++) {
+    const stage = STAGES[i];
+    if (o.only && o.only.length && !o.only.includes(stage)) continue;
+    if (i > uptoIdx) { results.push({ stage, action: '超出 --upto 范围', skipped: true }); continue; }
+
+    // ★ 人裁环节：即使在范围内也不自动跑
+    if (HUMAN_GATED.includes(stage) && !o.autoRunEnroll) {
+      results.push({ stage, action: '跳过（需人裁）', skipped: true, human_gated: true });
+      continue;
+    }
+
+    // 断点续跑：已完成则跳过
+    if (isDone(stage, date, workdir)) {
+      results.push({ stage, action: '已完成（跳过）', skipped: true, resumed: true });
+      continue;
+    }
+
+    const impl = STAGE_IMPL[stage];
+    const cli = path.join(root, 'devices', impl.plugin, impl.cli);
+    if (!fs.existsSync(cli)) {
+      results.push({ stage, action: '插件未就位（跳过）', skipped: true, missing_tool: true });
+      continue;
+    }
+
+    if (dryRun) {
+      results.push({ stage, action: `将执行 node ${impl.plugin}/${impl.cli} ${impl.args.join(' ')}`, dry_run: true });
+      continue;
+    }
+
+    const r = spawnSync('node', [cli, ...impl.args], { encoding: 'utf8', timeout: 120000 });
+    const ok = r.status === 0;
+    log({ stage, cmd: cli, exit: r.status, ok });
+    results.push({
+      stage, action: ok ? '完成' : `失败（exit ${r.status}）`,
+      exit: r.status, ok,
+      stdout_tail: (r.stdout || '').split('\n').slice(-8).join('\n'),
+      stderr_tail: (r.stderr || '').split('\n').slice(-4).join('\n'),
+    });
+    // ★ 失败即停（⑩ F 项）：不继续往下跑
+    if (!ok) { results.push({ stage: '-', action: '因上一步失败而中止（失败即停）', aborted: true }); break; }
+  }
+  return results;
+}

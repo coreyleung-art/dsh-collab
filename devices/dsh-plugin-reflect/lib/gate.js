@@ -1,0 +1,68 @@
+/**
+ * gate.js — ⑩ 约束前置 · 不可绕过
+ *
+ * 本编排器的「不该发生路径」：
+ *   ① 跑一个不存在的环节（如 "deploy"、"enroll --force"）
+ *   ② 绕过证据门直接入册
+ *   ③ 执行任意系统命令
+ *   ④ 在 enroll 环节自动入册（必须人裁）
+ *
+ * 四条都在结构上封死：入参是冻结的枚举，不存在"其他值"这种表达。
+ */
+
+// ★ 冻结环节白名单 —— 没有第五个环节，也无法新增
+export const STAGES = Object.freeze(['collect', 'dispatch', 'harvest', 'synthesize', 'enroll']);
+
+// ★ 每个环节对应的插件与 CLI（命令白名单：不接受路径拼接的任意命令）
+export const STAGE_IMPL = Object.freeze({
+  collect:    { plugin: 'dsh-plugin-reflect-collect',    cli: 'cli.js', args: ['--json'] },
+  // ★ 补 --date（2026-09-10 修）：原版漏传 → dispatch exit 2「需要 --events 或 --devices 或 --date」
+  //   ★ 我第一版改到了 lib/run.js，而 STAGE_IMPL 在 lib/gate.js → 改动无效。
+  //     同一类错误当天第 5 次：**操作的对象与实际要改的对象不符**。
+  dispatch:   { plugin: 'dsh-plugin-reflect-dispatch',   cli: 'cli.js', args: ['--emit-only', '--json', '--date', '{date}'] },
+  harvest:    { plugin: 'dsh-plugin-reflect-harvest',    cli: 'cli.js', args: ['--json'] },
+  synthesize: { plugin: 'dsh-plugin-reflect-synthesize', cli: 'cli.js', args: ['--json'] },
+  enroll:     { plugin: 'dsh-plugin-reflect-enroll',     cli: 'cli.js', args: null }, // ★ args=null 表示不接受默认参数：enroll 必须显式给 --ruling
+});
+
+// ★ 需要人裁才可跑的环节 —— 结构上不允许被 run 跑到
+export const HUMAN_GATED = Object.freeze(['enroll']);
+
+export class GateError extends Error {
+  constructor(msg) { super(msg); this.name = 'GateError'; }
+}
+
+/** 校验环节名：非枚举值直接拒（不是 warning 后继续） */
+export function assertStage(name) {
+  if (typeof name !== 'string') throw new GateError(`stage 必须是字符串，收到 ${typeof name}`);
+  if (!STAGES.includes(name)) {
+    throw new GateError(`未知环节 "${name}"；合法值仅：${STAGES.join(' / ')}`);
+  }
+  return name;
+}
+
+/** 校验是否能自动跑：人裁环节拒绝自动执行 */
+export function assertRunnable(name, { allowEnroll = false } = {}) {
+  assertStage(name);
+  if (HUMAN_GATED.includes(name) && !allowEnroll) {
+    throw new GateError(
+      `环节 "${name}" 需要人裁，编排器不自动执行。` +
+      `如需入册，请人工跑：node devices/dsh-plugin-reflect-enroll/cli.js --ruling <file>`
+    );
+  }
+  return name;
+}
+
+/** 命令白名单：只允许从 STAGE_IMPL 取命令，不接受外部传入的命令字符串 */
+export function resolveCommand(stage, { root }) {
+  assertStage(stage);
+  const impl = STAGE_IMPL[stage];
+  if (!impl) throw new GateError(`环节 "${stage}" 无实现映射`);
+  if (!impl.args) throw new GateError(`环节 "${stage}" 不接受默认参数（需显式调用）`);
+  return {
+    cmd: 'node',
+    args: [`${root}/devices/${impl.plugin}/${impl.cli}`, ...impl.args],
+  };
+}
+
+export default { STAGES, STAGE_IMPL, HUMAN_GATED, GateError, assertStage, assertRunnable, resolveCommand };

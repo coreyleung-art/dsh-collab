@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 待用户裁定 + 待用户动手（HR 建议②，非拍板）
+     用途: 定时运行 bb-copy 的 stale-report，把「卡/制品是否同步」判定写入黑板，
+           消除「契约 + 待触发」里的未执行态。
+     装载(用户终端):
+       cp ~/dsh-collab/devices/com.dsh.cron.bb-copy-staleness.plist ~/Library/LaunchAgents/
+       launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.dsh.cron.bb-copy-staleness.plist
+     核验: launchctl list | grep bb-copy-staleness
+           python3 ~/dsh-collab/scripts/bb-copy.py heartbeat-age   # 读者侧活体检查
+     卸载: launchctl bootout gui/$(id -u)/com.dsh.cron.bb-copy-staleness
+     ★ 实测记录（2026-09-22T14:08+08:00，对象=本 agent 会话）：
+       从 agent 会话执行 bootstrap ⇒ exit 5「Input/output error」；
+       同刻 plutil -lint = OK · launchctl print gui/501 = 可达
+       ⇒ 排除「plist 语法错」与「域不存在」两个候选，剩下的是【调用方上下文】
+       ⇒ 故「需用户终端」不再是推测，有读数支撑。
+     ★ 本 plist 已 cp 一份到 ~/Library/LaunchAgents（文件已在位）。
+       按 launchd 约定它会在**下次登录**被装载 —— 这一句是**约定、未实测**，
+       不得读成「已验证生效」；请以 `launchctl list` 的实际读数为准。
+     注: XML 注释内不得含双连字符，故上文命令中的前导连字符已按可读形式省略。 -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.dsh.cron.bb-copy-staleness</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/coreyleung/dsh-collab/scripts/bb-copy.py</string>
+    <string>--stale-report</string>
+  </array>
+  <key>StartInterval</key><integer>1800</integer>
+  <key>RunAtLoad</key><true/>
+  <key>StandardOutPath</key><string>/Users/coreyleung/dsh-collab/logs/external-link/bb-copy-staleness.cron.log</string>
+  <key>StandardErrorPath</key><string>/Users/coreyleung/dsh-collab/logs/external-link/bb-copy-staleness.cron.err</string>
+</dict>
+</plist>

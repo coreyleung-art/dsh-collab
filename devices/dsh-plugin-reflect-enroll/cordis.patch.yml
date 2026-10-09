@@ -1,0 +1,18 @@
+# dsh-plugin-reflect-enroll
+# 宿主级插件行：随 profile 启动常驻，注册 reflect_enroll 工具
+- insert:
+    - id: reflect-enroll
+      name: dsh-plugin-reflect-enroll
+      config:
+        # ★ 结构化约束（R006 ⑩ 类型锁 / 入口门）：
+        # 入册目标只能是下列四个之一（键必须在 TARGETS 内）；裁定结果只能是
+        # approve / reject / modify / defer（DECISIONS 内）。
+        # 因此"自动决定入册什么"、"删除条目"、"重复入册"这三件事**在本工具的入参语法里不存在**——
+        # 不是被拒绝，而是无法表达。注意：这里刻意**没有** autoDecide / force / delete 之类的开关，
+        # 缺少这些键是本工具的证明本身，不要"顺手补上"。
+        targets: ["philosophy", "rule", "spec", "archive"]
+        decisions: ["approve", "reject", "modify", "defer"]
+        root: "~/dsh-collab"
+        bbUrl: "http://127.0.0.1:8792"
+        # 反馈环节默认不推送（推送要显式 --notify；卡片与黑板登记仍会写）
+        notify: false

@@ -1,0 +1,10 @@
+# dsh-plugin-reflect-synthesize
+# 宿主级插件行：随 profile 启动常驻，注册 reflect_synthesize 工具（每日反思流水线 ⑤ 提炼）
+- insert:
+    - id: reflect-synthesize
+      name: dsh-plugin-reflect-synthesize
+      config:
+        # ★ 这里的 config 只影响「回报多少」，**影响不了判定，更影响不了写目标** ——
+        # 写目标在 lib/out.js 的冻结 WRITE_SPEC 里（只有 proposal-md / unified-log / selfcheck-state）。
+        # 没有任何键能让本工具去写 RULES.md 或哲学库：那些目录根本不在白名单基目录之下。
+        includeMarkdown: true

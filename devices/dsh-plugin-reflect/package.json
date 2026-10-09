@@ -1,0 +1,29 @@
+{
+  "name": "dsh-plugin-reflect",
+  "version": "1.0.0",
+  "description": "每日反思流水线编排器：串联 collect→dispatch→harvest→synthesize→enroll 五环节，支持断点续跑",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "dry-run": "node cli.js run --dry-run"
+  },
+  "bin": { "reflect": "cli.js" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "r006": {
+    "category": "engineering",
+    "scope": "mac-mini",
+    "status": "enforced",
+    "cli_form": true,
+    "tcc_selfcheck": true,
+    "cld_adaptive": true,
+    "documented": "docs/README.md",
+    "unified_log": "~/dsh-collab/logs/dsh-plugin-reflect.log",
+    "lean4_gate": "lib/gate.js 冻结环节白名单 + 命令白名单 + --lean4-check 六项"
+  }
+}

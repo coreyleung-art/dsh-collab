@@ -1,0 +1,7 @@
+# dsh-plugin-item-validity-review-check · 条目有效性审查：判断一张卡/一条待办/一个条目是否仍有效（时效 + 空间），编排既有判据（引用失效/可解析/否定面/越界），输出五态 + 条件量 + 盲区声明
+# 宿主级插件行：随 profile 启动常驻（R006 ① 第 2 项）
+# id 必须等于 slug，name 必须等于 package.json name（PSTD N3）——漂移即审查不通过。
+- insert:
+    - id: item-validity-review-check
+      name: dsh-plugin-item-validity-review-check
+      config: {}

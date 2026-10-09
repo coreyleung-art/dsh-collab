@@ -1,0 +1,39 @@
+{
+  "name": "dsh-plugin-cldvoice-activate",
+  "version": "1.0.2",
+  "description": "CLD-Voice 激活性重启（端口释放检查 + 失败重试 + 健康验证）；结构上不允许触碰框架进程",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "dry-run": "node cli.js --dry-run"
+  },
+  "bin": {
+    "cldvoice-activate": "cli.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "r006": {
+    "category": "engineering",
+    "scope": "mac-mini",
+    "status": "enforced",
+    "cli_form": true,
+    "tcc_selfcheck": true,
+    "cld_adaptive": true,
+    "dsh_adaptive": true,
+    "documented": "docs/README.md",
+    "versioned": true,
+    "unified_log": "~/dsh-collab/logs/cldvoice-activate.log",
+    "auto_chain": "rules-registry/RULES.md R035 + data/registry/toolchain 登记",
+    "cli_governance": "argparse 式校验 + 退出码 0/1/2",
+    "lean4_gate": "lib/gate.js 封闭白名单 + 框架禁用词 + AST 无宽杀证明"
+  }
+}

@@ -1,0 +1,1305 @@
+{
+ "schema": "reflect-harvest/v2",
+ "date": "2026-09-10",
+ "generated_at": "2026-09-10T16:37:20.202Z",
+ "device_layer": {
+  "devices": [
+   "mac-mini",
+   "mbp",
+   "lab-mbp",
+   "i9"
+  ],
+  "device_source": "cli:--devices",
+  "local_device": "mac-mini",
+  "local_source": "cli:--device",
+  "central": "http://106.53.214.108:8792",
+  "local_only": false,
+  "allow_late": false,
+  "local_root": "/Users/coreyleung/dsh-collab/data/reflect"
+ },
+ "agents_total": 8,
+ "agents_answered": 7,
+ "agents_declined": 0,
+ "files_rejected": 1,
+ "items_total": 16,
+ "items_valid": 13,
+ "items_rejected": 3,
+ "devices_total": 4,
+ "devices_submitted": 3,
+ "devices_pending": 1,
+ "pending_devices": [
+  "i9"
+ ],
+ "per_device": {
+  "mac-mini": {
+   "device": "mac-mini",
+   "status": "submitted",
+   "agents_total": 4,
+   "agents_answered": 3,
+   "agents_declined": 0,
+   "files_rejected": 1,
+   "items_total": 11,
+   "items_valid": 8,
+   "items_rejected": 3,
+   "rejection_distribution": {
+    "invalid_evidence": 2,
+    "invalid_type": 1
+   },
+   "flags_distribution": {
+    "evidence_no_collected_at": 8,
+    "unknown_rule": 1
+   },
+   "plugin_version": "1.0.0",
+   "plugin_versions": [
+    "1.0.0"
+   ],
+   "late_accepted": 0,
+   "out_of_window": 0,
+   "device_mismatch": 0,
+   "card_dispatched": false,
+   "card_via": "blackboard(404)",
+   "sources": {
+    "local": 4,
+    "blackboard": 0
+   },
+   "errors": []
+  },
+  "mbp": {
+   "device": "mbp",
+   "status": "submitted",
+   "agents_total": 2,
+   "agents_answered": 2,
+   "agents_declined": 0,
+   "files_rejected": 0,
+   "items_total": 3,
+   "items_valid": 3,
+   "items_rejected": 0,
+   "rejection_distribution": {},
+   "flags_distribution": {},
+   "plugin_version": "0.9.9",
+   "plugin_versions": [
+    "0.9.9"
+   ],
+   "late_accepted": 0,
+   "out_of_window": 0,
+   "device_mismatch": 0,
+   "card_dispatched": false,
+   "card_via": "blackboard(404)",
+   "sources": {
+    "local": 2,
+    "blackboard": 0
+   },
+   "errors": []
+  },
+  "lab-mbp": {
+   "device": "lab-mbp",
+   "status": "submitted",
+   "agents_total": 2,
+   "agents_answered": 2,
+   "agents_declined": 0,
+   "files_rejected": 0,
+   "items_total": 2,
+   "items_valid": 2,
+   "items_rejected": 0,
+   "rejection_distribution": {},
+   "flags_distribution": {},
+   "plugin_version": "1.0.0",
+   "plugin_versions": [
+    "1.0.0"
+   ],
+   "late_accepted": 0,
+   "out_of_window": 0,
+   "device_mismatch": 0,
+   "card_dispatched": false,
+   "card_via": "blackboard(404)",
+   "sources": {
+    "local": 1,
+    "blackboard": 2
+   },
+   "errors": []
+  },
+  "i9": {
+   "device": "i9",
+   "status": "pending",
+   "agents_total": 0,
+   "agents_answered": 0,
+   "agents_declined": 0,
+   "files_rejected": 0,
+   "items_total": 0,
+   "items_valid": 0,
+   "items_rejected": 0,
+   "rejection_distribution": {},
+   "flags_distribution": {},
+   "plugin_version": null,
+   "plugin_versions": [],
+   "late_accepted": 0,
+   "out_of_window": 0,
+   "device_mismatch": 0,
+   "card_dispatched": true,
+   "card_via": "local:/Users/coreyleung/dsh-collab/data/reflect/cards/i9/2026-09-10.md",
+   "sources": {
+    "local": 0,
+    "blackboard": 0
+   },
+   "errors": []
+  }
+ },
+ "version_drift": {
+  "versions_by_device": {
+   "mac-mini": "1.0.0",
+   "mbp": "0.9.9",
+   "lab-mbp": "1.0.0",
+   "i9": null
+  },
+  "distinct": [
+   "0.9.9",
+   "1.0.0"
+  ],
+  "drifted": true,
+  "note": "回填未带 plugin_version 的设备无法比对 —— 那是\"未知\"，不是\"一致\""
+ },
+ "rejected": [
+  {
+   "device": "mac-mini",
+   "agent": "agent-delta",
+   "item_id": null,
+   "scope": "file",
+   "reason": "invalid_decline",
+   "reasons": [
+    "invalid_decline"
+   ],
+   "issues": [
+    "declined:true 但未给理由（declined_reason / reason 均为空）——「弃权」也是一种断言，必须有依据（phi-facts）"
+   ],
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mac-mini/2026-09-10/agent-delta.json"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-alpha",
+   "item_id": "R3",
+   "scope": "item",
+   "reason": "invalid_evidence",
+   "reasons": [
+    "invalid_evidence"
+   ],
+   "issues": [
+    "证据不完整，缺: evidence"
+   ],
+   "event_ref": "E018",
+   "lesson_preview": "重启类操作后应做一次就绪复核"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-beta",
+   "item_id": "R3",
+   "scope": "item",
+   "reason": "invalid_type",
+   "reasons": [
+    "invalid_type"
+   ],
+   "issues": [
+    "suggestion.type='新增规则' 不在四选一 [新增/修订/转规范/无需动作]",
+    "evidence 缺 collected_at（只有对象时刻 ts，没有采集时刻）—— 依 Φ13 建议补齐；各设备时钟不同步时尤其重要"
+   ],
+   "event_ref": "E035",
+   "lesson_preview": "长任务应当把中间产物落盘而不是留在上下文"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-gamma",
+   "item_id": "R3",
+   "scope": "item",
+   "reason": "invalid_evidence",
+   "reasons": [
+    "invalid_evidence"
+   ],
+   "issues": [
+    "证据不完整，缺: evidence.cmd|evidence.output"
+   ],
+   "event_ref": "E045",
+   "lesson_preview": "会话压缩前要记录消息数基线"
+  }
+ ],
+ "rejection_distribution": {
+  "invalid_decline": 1,
+  "invalid_evidence": 2,
+  "invalid_type": 1
+ },
+ "flags_distribution": {
+  "evidence_no_collected_at": 8,
+  "unknown_rule": 1
+ },
+ "clusters": [
+  {
+   "cluster_id": "C1",
+   "lesson": "破坏性动作之前必须先取证，证据要标注采集时点：是处置前采集还是处置后采集",
+   "agents": [
+    "lab-mbp:agent-echo",
+    "mac-mini:agent-alpha",
+    "mac-mini:agent-beta",
+    "mac-mini:agent-gamma",
+    "mbp:agent-echo"
+   ],
+   "all_agents": [
+    "lab-mbp:agent-echo",
+    "mac-mini:agent-alpha",
+    "mac-mini:agent-beta",
+    "mac-mini:agent-gamma",
+    "mbp:agent-echo"
+   ],
+   "devices": [
+    "lab-mbp",
+    "mac-mini",
+    "mbp"
+   ],
+   "cross_device": true,
+   "recurrence": 5,
+   "recurrence_raw": 5,
+   "item_count": 5,
+   "refs": [
+    "R030",
+    "phi-facts"
+   ],
+   "flags": [
+    "cross_device",
+    "evidence_no_collected_at"
+   ],
+   "items": [
+    "lab-mbp:agent-echo#B1",
+    "mac-mini:agent-alpha#R1",
+    "mac-mini:agent-beta#R1",
+    "mac-mini:agent-gamma#R1",
+    "mbp:agent-echo#R1"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "mac-mini",
+     "agent": "agent-alpha",
+     "item_id": "R1",
+     "event_ref": "E012",
+     "pit": "15:51 我覆盖了闭环卡，两小时后才发现卡片口径已被导出标记改写。读卡的人无从判断这条断言反映的是处置前还是处置后的状态；若照卡片执行，会白换一次口令。",
+     "lesson": "破坏性动作之前必须先取证，且证据要标注是处置前还是处置后采集",
+     "related_rule": "phi-facts",
+     "suggestion": {
+      "type": "新增",
+      "detail": "证据类断言增加「采集时点」必填项（处置前/处置后），写卡时强制填写",
+      "reason": "脱时点的证据会被误读：同一份证据跨时点引用而不标注，就会变成误导性证据"
+     },
+     "evidence": {
+      "ts": "2026-09-10T15:51:55+08:00",
+      "cmd": "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8792/notes/closed-loop-card",
+      "output": "200 —— 此为处置前采集；处置后重采亦为 200，两者不可混用"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    },
+    {
+     "device": "mac-mini",
+     "agent": "agent-beta",
+     "item_id": "R1",
+     "event_ref": "E031",
+     "pit": "用户当面质疑我推上去的不是他最新改的版本。我报的是 14:5x 采集的哈希，而他的编辑发生在 15:17-15:20 —— 我报出的「一致」在报出的那一刻就已过期。",
+     "lesson": "处置之前必须先取证，证据要标注采集时点；处置后补注的只能算回忆",
+     "related_rule": "R030",
+     "suggestion": {
+      "type": "修订",
+      "detail": "「一致/最新/已同步」类断言必须写成 sha256:X @ 时刻 @ 版本号",
+      "reason": "让断言自带时点自证，接收方不必信任何人的记忆"
+     },
+     "evidence": {
+      "ts": "2026-09-10T15:22:10+08:00",
+      "cmd": "shasum -a 256 dist/index.html; ls -l --time-style=full-iso dist/index.html",
+      "output": "9f2c...c41  (mtime 15:17:42) —— 与 14:5x 快照哈希不一致，证明核对证据已过期"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    },
+    {
+     "device": "lab-mbp",
+     "agent": "agent-echo",
+     "item_id": "B1",
+     "event_ref": "E201",
+     "pit": "补记：昨晚处置前我确实先抓了快照，但写复盘时只写了『当时是好的』，没写在什么时刻采的；早上再看已经分不清了。",
+     "lesson": "破坏性动作前先取证，并把采集时点写进记录，否则事后分不清处置前还是处置后",
+     "related_rule": "phi-facts",
+     "suggestion": {
+      "detail": "复盘记录模板增加『采集时点（处置前/后）』必填行",
+      "reason": "隔夜再看就分不清了",
+      "type": "新增"
+     },
+     "evidence": {
+      "cmd": "log show --last 12h --predicate 'process == \"cld\"' | tail -5",
+      "collected_at": "2026-09-11T09:16:00+08:00",
+      "output": "重启窗口 22:41-22:43；快照文件 mtime 22:40 —— 处置前，但记录里没写",
+      "ts": "2026-09-11T09:15:00+08:00"
+     },
+     "submitted_at": "2026-09-11T09:20:00+08:00",
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    },
+    {
+     "device": "mbp",
+     "agent": "agent-echo",
+     "item_id": "R1",
+     "event_ref": "E101",
+     "pit": "MBP 这边的会话在覆盖快照目录之前先 dump 了一份，但事后没人说得清那份 dump 是覆盖前还是覆盖后存的 —— 时点没写进文件名。",
+     "lesson": "破坏性动作之前必须先取证，证据要标注采集时点：是处置前采集还是处置后采集",
+     "related_rule": "phi-facts",
+     "suggestion": {
+      "type": "新增",
+      "detail": "证据文件名与字段都带「处置前/处置后」标记，未标记的拒绝入库",
+      "reason": "跨设备协作时两边的快照会互相引用，时点标不清就会得出相反结论"
+     },
+     "evidence": {
+      "ts": "2026-09-10T22:40:00+08:00",
+      "collected_at": "2026-09-10T22:41:12+08:00",
+      "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | awk '{print $NF}'",
+      "output": "dump-config-20260910T220812.json（无处置前/后标记）· 对照 mac-mini 侧的命名已带标记"
+     },
+     "submitted_at": "2026-09-10T23:58:00+08:00",
+     "plugin_version": "0.9.9",
+     "sync_duplicate": false
+    },
+    {
+     "device": "mac-mini",
+     "agent": "agent-gamma",
+     "item_id": "R1",
+     "event_ref": "E041",
+     "pit": "我在覆盖配置之前先 dump 了一份现场快照，事后才能说清「重启前是什么样」；隔壁会话没 dump，只能靠回忆描述重启前的端口占用。",
+     "lesson": "破坏性动作前先取证，并标注证据是处置前采集还是处置后采集",
+     "related_rule": "phi-facts",
+     "suggestion": {
+      "type": "新增",
+      "detail": "破坏性操作入口加「快照钩子」：没拿到快照就拒绝执行",
+      "reason": "重启类操作若不先取证，「重启后正常」会成为唯一证据"
+     },
+     "evidence": {
+      "ts": "2026-09-10T22:10:00+08:00",
+      "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | head",
+      "output": "dump-config-20260910T220812.json（处置前）· 对照：会话记录中无同轮快照"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    }
+   ]
+  },
+  {
+   "cluster_id": "C2",
+   "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+   "agents": [
+    "mac-mini:agent-alpha",
+    "mac-mini:agent-beta"
+   ],
+   "all_agents": [
+    "mac-mini:agent-alpha",
+    "mac-mini:agent-beta",
+    "mbp:agent-echo"
+   ],
+   "devices": [
+    "mac-mini"
+   ],
+   "cross_device": false,
+   "recurrence": 2,
+   "recurrence_raw": 3,
+   "item_count": 3,
+   "refs": [
+    "无"
+   ],
+   "flags": [
+    "evidence_no_collected_at",
+    "possible_sync_duplicate"
+   ],
+   "items": [
+    "mac-mini:agent-alpha#R2",
+    "mac-mini:agent-beta#R2",
+    "mbp:agent-echo#R2"
+   ],
+   "sync_duplicate_members": [
+    "mbp:agent-echo#R2"
+   ],
+   "sync_duplicate_groups": [
+    {
+     "devices": [
+      "mac-mini",
+      "mbp"
+     ],
+     "kept": "mac-mini:agent-alpha#R2",
+     "dropped": [
+      "mbp:agent-echo#R2"
+     ],
+     "reason": "lesson 逐字相同且跨设备、时点接近 → 疑似同步盘/复制粘贴产物，不重复计入 recurrence"
+    }
+   ],
+   "members": [
+    {
+     "device": "mac-mini",
+     "agent": "agent-alpha",
+     "item_id": "R2",
+     "event_ref": "E014",
+     "pit": "为说明「哪条口令已恢复」，我在回复卡里把口令值原样抄了一遍。这次复制不是有意写入，是为了把事说清楚。",
+     "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+     "related_rule": "无",
+     "suggestion": {
+      "type": "新增",
+      "detail": "凭据一律以槽位号（S01）形式引用，讨论通道不承载凭据本体",
+      "reason": "本次 4 次副本里有 3 次是解释性引用/验证时复述，靠自觉拦不住"
+     },
+     "evidence": {
+      "ts": "2026-09-10T14:20:00+08:00",
+      "cmd": "grep -c 'S0[0-9]' PASSCODE-SLOTS-AUTHORITATIVE.md; grep -cE '[0-9]{4}-[0-9]{4}-[0-9]{4}' PASSCODE-SLOTS-AUTHORITATIVE.md",
+      "output": "槽位引用 5 处；高熵凭据形态 0 处 —— 权威表零凭据，而回复卡含口令值原文，对比即证"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    },
+    {
+     "device": "mac-mini",
+     "agent": "agent-beta",
+     "item_id": "R2",
+     "event_ref": "E033",
+     "pit": "协作者在回执里引用口令来确认验证结果。他说他只是核对一下，没有别的意思。",
+     "lesson": "凭据每被引用一次就多一份副本，因此凭据类信息应改用槽位号引用",
+     "related_rule": "无",
+     "suggestion": {
+      "type": "新增",
+      "detail": "凭据防火墙同时拦「解释性引用」，不只拦有意写入",
+      "reason": "只拦落盘不够：本次 4 次复制里 3 次不涉及落盘，只涉及引用"
+     },
+     "evidence": {
+      "ts": "2026-09-10T14:35:00+08:00",
+      "cmd": "python3 scripts/scan-credential-copies.py --since 2026-09-10",
+      "output": "副本 4 次：原始泄漏 1（有意写入）· 闭环卡说明 1 · 回复卡 1 · 回执 1（后三次均为解释/核对性引用）"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    },
+    {
+     "device": "mbp",
+     "agent": "agent-echo",
+     "item_id": "R2",
+     "event_ref": "E103",
+     "pit": "为了跟 mac-mini 对齐口径，我把那边的一份反思原文抄进了本机的答案文件里，想着这样两边一致。",
+     "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+     "related_rule": "无",
+     "suggestion": {
+      "type": "新增",
+      "detail": "跨设备对齐口径只引用卡片/槽位号，不复制对方原文",
+      "reason": "抄原文会让同一句话在多个设备各留一份，复现计数被伪造"
+     },
+     "evidence": {
+      "ts": "2026-09-10T23:10:00+08:00",
+      "collected_at": "2026-09-10T23:11:00+08:00",
+      "cmd": "diff <(jq -r .items[1].lesson answers/mac-mini/2026-09-10/agent-alpha.json) <(jq -r .answers[0].items[1].lesson answers/mbp/2026-09-10/agent-echo.json)",
+      "output": "无差异 —— 两份文件的 lesson 逐字相同（本机抄录所致）"
+     },
+     "submitted_at": "2026-09-10T23:58:00+08:00",
+     "plugin_version": "0.9.9",
+     "sync_duplicate": true
+    }
+   ]
+  },
+  {
+   "cluster_id": "C3",
+   "lesson": "移动设备上跑长任务前要先关休眠并接电源，且任务要能断点续跑",
+   "agents": [
+    "mbp:agent-foxtrot"
+   ],
+   "all_agents": [
+    "mbp:agent-foxtrot"
+   ],
+   "devices": [
+    "mbp"
+   ],
+   "cross_device": false,
+   "recurrence": 1,
+   "recurrence_raw": 1,
+   "item_count": 1,
+   "refs": [
+    "无"
+   ],
+   "flags": [],
+   "items": [
+    "mbp:agent-foxtrot#R1"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "mbp",
+     "agent": "agent-foxtrot",
+     "item_id": "R1",
+     "event_ref": "E110",
+     "pit": "MBP 上跑批量截图任务时忘了先验电源与休眠设置，跑到一半合盖休眠，整批任务断在中途。",
+     "lesson": "移动设备上跑长任务前要先关休眠并接电源，且任务要能断点续跑",
+     "related_rule": "无",
+     "suggestion": {
+      "type": "新增",
+      "detail": "长任务启动前检查电源/休眠状态，并把进度落盘",
+      "reason": "台式机上不存在这个失败模式 —— 只有移动设备独立踩得到"
+     },
+     "evidence": {
+      "ts": "2026-09-10T21:30:00+08:00",
+      "collected_at": "2026-09-10T21:31:00+08:00",
+      "cmd": "pmset -g | grep -E 'sleep|displaysleep'",
+      "output": "sleep 10（合盖后 10 分钟休眠）· 批量任务在第 37/60 张断掉"
+     },
+     "submitted_at": "2026-09-10T23:58:00+08:00",
+     "plugin_version": "0.9.9",
+     "sync_duplicate": false
+    }
+   ]
+  },
+  {
+   "cluster_id": "C4",
+   "lesson": "跨设备推送必须带重试与回读校验，一次超时不能算失败",
+   "agents": [
+    "lab-mbp:agent-golf"
+   ],
+   "all_agents": [
+    "lab-mbp:agent-golf"
+   ],
+   "devices": [
+    "lab-mbp"
+   ],
+   "cross_device": false,
+   "recurrence": 1,
+   "recurrence_raw": 1,
+   "item_count": 1,
+   "refs": [
+    "无"
+   ],
+   "flags": [],
+   "items": [
+    "lab-mbp:agent-golf#G1"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "lab-mbp",
+     "agent": "agent-golf",
+     "item_id": "G1",
+     "event_ref": "E205",
+     "pit": "海边网络不稳，推送黑板时一次超时就不重试了，那天的回填整批没上去。",
+     "lesson": "跨设备推送必须带重试与回读校验，一次超时不能算失败",
+     "related_rule": "无",
+     "suggestion": {
+      "detail": "黑板写入封装重试(3次)+回读校验",
+      "reason": "移动网络下单次失败率很高，静默丢数据",
+      "type": "新增"
+     },
+     "evidence": {
+      "cmd": "curl -s -o /dev/null -w '%{http_code} %{time_total}s' -m 3 http://106.53.214.108:8792/data/reflect/answers/lab-mbp/2026-09-10",
+      "collected_at": "2026-09-11T09:31:00+08:00",
+      "output": "第一次 timeout；重试后 200（0.42s）",
+      "ts": "2026-09-11T09:30:00+08:00"
+     },
+     "submitted_at": "2026-09-11T09:20:00+08:00",
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    }
+   ]
+  },
+  {
+   "cluster_id": "C5",
+   "lesson": "批量任务要在每批写入后记检查点，支持断点续跑",
+   "agents": [
+    "mac-mini:agent-beta"
+   ],
+   "all_agents": [
+    "mac-mini:agent-beta"
+   ],
+   "devices": [
+    "mac-mini"
+   ],
+   "cross_device": false,
+   "recurrence": 1,
+   "recurrence_raw": 1,
+   "item_count": 1,
+   "refs": [
+    "R099"
+   ],
+   "flags": [
+    "evidence_no_collected_at",
+    "unknown_rule"
+   ],
+   "items": [
+    "mac-mini:agent-beta#R4"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "mac-mini",
+     "agent": "agent-beta",
+     "item_id": "R4",
+     "event_ref": "E036",
+     "pit": "批量导出跑到第 37 个店铺时失败，前面 36 个的结果没存，只能整体重跑。",
+     "lesson": "批量任务要在每批写入后记检查点，支持断点续跑",
+     "related_rule": "R099",
+     "suggestion": {
+      "type": "新增",
+      "detail": "批量任务落 checkpoint.json（已完成集合 + 时间戳）",
+      "reason": "失败重跑代价与批量规模成正比"
+     },
+     "evidence": {
+      "ts": "2026-09-10T19:05:00+08:00",
+      "cmd": "ls -l ~/dsh-collab/data/export-store/ | tail -3",
+      "output": "仅见最终产物，无中间检查点文件 —— 失败即整体重跑"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    }
+   ]
+  },
+  {
+   "cluster_id": "C6",
+   "lesson": "无证据的条目必须被质量门拒收，不能混进汇总",
+   "agents": [
+    "mac-mini:agent-gamma"
+   ],
+   "all_agents": [
+    "mac-mini:agent-gamma"
+   ],
+   "devices": [
+    "mac-mini"
+   ],
+   "cross_device": false,
+   "recurrence": 1,
+   "recurrence_raw": 1,
+   "item_count": 1,
+   "refs": [
+    "R006"
+   ],
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "items": [
+    "mac-mini:agent-gamma#R2"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "mac-mini",
+     "agent": "agent-gamma",
+     "item_id": "R2",
+     "event_ref": "E044",
+     "pit": "昨天的汇总里有 2 条根本找不到证据的条目，却被算进了复现计数，把一条只有 1 个人提到的事排到了第 1 位。",
+     "lesson": "无证据的条目必须被质量门拒收，不能混进汇总",
+     "related_rule": "R006",
+     "suggestion": {
+      "type": "新增",
+      "detail": "收牌环节把「证据完整性」做成结构门：证据字段缺失的条目在类型层就进不了 valid 集合",
+      "reason": "事后看不出来哪条是编的；复现计数一旦被污染，用户会按不存在的依据入册"
+     },
+     "evidence": {
+      "ts": "2026-09-10T23:30:00+08:00",
+      "cmd": "python3 -c \"import json;d=json.load(open('harvested-2026-09-09.json'));print(d['items_valid'], len([i for i in d['valid_items'] if not i.get('evidence')]))\"",
+      "output": "12 4 —— 12 条「有效」里有 4 条 evidence 为空对象"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    }
+   ]
+  },
+  {
+   "cluster_id": "C7",
+   "lesson": "新做插件必须十项全达标才交付",
+   "agents": [
+    "mac-mini:agent-gamma"
+   ],
+   "all_agents": [
+    "mac-mini:agent-gamma"
+   ],
+   "devices": [
+    "mac-mini"
+   ],
+   "cross_device": false,
+   "recurrence": 1,
+   "recurrence_raw": 1,
+   "item_count": 1,
+   "refs": [
+    "R006"
+   ],
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "items": [
+    "mac-mini:agent-gamma#R4"
+   ],
+   "sync_duplicate_members": [],
+   "sync_duplicate_groups": [],
+   "members": [
+    {
+     "device": "mac-mini",
+     "agent": "agent-gamma",
+     "item_id": "R4",
+     "event_ref": "E046",
+     "pit": "我把新工具直接以裸脚本形式交付，没有插件包装，宿主无法调度也观测不到，事后排查多花了半小时。",
+     "lesson": "新做插件必须十项全达标才交付",
+     "related_rule": "R006",
+     "suggestion": {
+      "type": "无需动作",
+      "detail": "R006 已覆盖（十项含插件形态、自查、日志、落链）",
+      "reason": "只是我没照着做，不是规则缺失"
+     },
+     "evidence": {
+      "ts": "2026-09-10T21:15:00+08:00",
+      "cmd": "grep -n '十项全达标才交付' ~/dsh-collab/docs/R006-插件化工具化标准-v3.0.md",
+      "output": "L12: 凡新做插件或工具，**十项全达标才交付** —— 规则已存在"
+     },
+     "submitted_at": null,
+     "plugin_version": "1.0.0",
+     "sync_duplicate": false
+    }
+   ]
+  }
+ ],
+ "answers_meta": [
+  {
+   "device": "mac-mini",
+   "agent": "agent-alpha",
+   "declined": false,
+   "items": 3,
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mac-mini/2026-09-10/agent-alpha.json",
+   "legacy_layout": false,
+   "submitted_at": null,
+   "plugin_version": "1.0.0",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-beta",
+   "declined": false,
+   "items": 4,
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mac-mini/2026-09-10/agent-beta.json",
+   "legacy_layout": false,
+   "submitted_at": null,
+   "plugin_version": "1.0.0",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-gamma",
+   "declined": false,
+   "items": 4,
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mac-mini/2026-09-10/agent-gamma.json",
+   "legacy_layout": false,
+   "submitted_at": null,
+   "plugin_version": "1.0.0",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "mbp",
+   "agent": "agent-echo",
+   "declined": false,
+   "items": 2,
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mbp/2026-09-10/agent-echo.json",
+   "legacy_layout": false,
+   "submitted_at": "2026-09-10T23:58:00+08:00",
+   "plugin_version": "0.9.9",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "mbp",
+   "agent": "agent-foxtrot",
+   "declined": false,
+   "items": 1,
+   "origin": "local",
+   "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/mbp/2026-09-10/agent-echo.json",
+   "legacy_layout": false,
+   "submitted_at": "2026-09-10T23:58:00+08:00",
+   "plugin_version": "0.9.9",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "lab-mbp",
+   "agent": "agent-echo",
+   "declined": false,
+   "items": 1,
+   "origin": "blackboard",
+   "ref": "data/reflect/answers/lab-mbp/2026-09-10",
+   "legacy_layout": false,
+   "submitted_at": "2026-09-11T09:20:00+08:00",
+   "plugin_version": "1.0.0",
+   "late_by_key": false,
+   "late_key_offset": 0
+  },
+  {
+   "device": "lab-mbp",
+   "agent": "agent-golf",
+   "declined": false,
+   "items": 1,
+   "origin": "blackboard",
+   "ref": "data/reflect/answers/lab-mbp/2026-09-10",
+   "legacy_layout": false,
+   "submitted_at": "2026-09-11T09:20:00+08:00",
+   "plugin_version": "1.0.0",
+   "late_by_key": false,
+   "late_key_offset": 0
+  }
+ ],
+ "dedupe": {
+  "dropped_duplicate_sources": [
+   {
+    "key": "lab-mbp#agent-echo",
+    "kept": "blackboard",
+    "dropped": "local",
+    "ref": "/Users/coreyleung/dsh-collab/data/reflect/answers/lab-mbp/2026-09-10/agent-echo.json"
+   }
+  ]
+ },
+ "similarity": [
+  {
+   "a": "mac-mini:agent-alpha#R2",
+   "b": "mbp:agent-echo#R2",
+   "sim": 1,
+   "shared": 30,
+   "merged": true,
+   "why": "dice 1.000 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-alpha#R1",
+   "b": "mbp:agent-echo#R1",
+   "sim": 0.8,
+   "shared": 22,
+   "merged": true,
+   "why": "dice 0.800 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-gamma#R1",
+   "b": "mbp:agent-echo#R1",
+   "sim": 0.654,
+   "shared": 17,
+   "merged": true,
+   "why": "dice 0.654 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-alpha#R1",
+   "b": "mac-mini:agent-gamma#R1",
+   "sim": 0.612,
+   "shared": 15,
+   "merged": true,
+   "why": "dice 0.612 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-beta#R1",
+   "b": "mbp:agent-echo#R1",
+   "sim": 0.607,
+   "shared": 17,
+   "merged": true,
+   "why": "dice 0.607 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-alpha#R2",
+   "b": "mac-mini:agent-beta#R2",
+   "sim": 0.571,
+   "shared": 16,
+   "merged": true,
+   "why": "dice 0.571 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-beta#R2",
+   "b": "mbp:agent-echo#R2",
+   "sim": 0.571,
+   "shared": 16,
+   "merged": true,
+   "why": "dice 0.571 ≥ 0.52"
+  },
+  {
+   "a": "lab-mbp:agent-echo#B1",
+   "b": "mac-mini:agent-gamma#R1",
+   "sim": 0.545,
+   "shared": 15,
+   "merged": true,
+   "why": "dice 0.545 ≥ 0.52"
+  },
+  {
+   "a": "mac-mini:agent-alpha#R1",
+   "b": "mac-mini:agent-beta#R1",
+   "sim": 0.491,
+   "shared": 13,
+   "merged": true,
+   "why": "shared 13 ≥ 8 且 dice 0.491 ≥ 0.4（长度差导致 Dice 偏低，但内容高度重叠）"
+  },
+  {
+   "a": "lab-mbp:agent-echo#B1",
+   "b": "mbp:agent-echo#R1",
+   "sim": 0.459,
+   "shared": 14,
+   "merged": true,
+   "why": "shared 14 ≥ 8 且 dice 0.459 ≥ 0.4（长度差导致 Dice 偏低，但内容高度重叠）"
+  },
+  {
+   "a": "lab-mbp:agent-echo#B1",
+   "b": "mac-mini:agent-alpha#R1",
+   "sim": 0.448,
+   "shared": 13,
+   "merged": true,
+   "why": "shared 13 ≥ 8 且 dice 0.448 ≥ 0.4（长度差导致 Dice 偏低，但内容高度重叠）"
+  },
+  {
+   "a": "mac-mini:agent-beta#R1",
+   "b": "mac-mini:agent-gamma#R1",
+   "sim": 0.28,
+   "shared": 7,
+   "merged": false,
+   "why": "dice 0.280 < 0.52；shared 7 < 8 或 dice < 0.4"
+  }
+ ],
+ "similarity_rule": {
+  "dice": 0.52,
+  "sharedMin": 8,
+  "sharedDiceFloor": 0.4
+ },
+ "sync_duplicate_rule": {
+  "windowMs": 86400000,
+  "requireByteIdenticalLesson": true,
+  "requireCrossDevice": true,
+  "note": "逐字相同 + 跨设备 + 时点接近(<24h) → 判 possible_sync_duplicate，不重复计入 recurrence"
+ },
+ "valid_items": [
+  {
+   "device": "mac-mini",
+   "agent": "agent-alpha",
+   "item_id": "R1",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E012",
+   "pit": "15:51 我覆盖了闭环卡，两小时后才发现卡片口径已被导出标记改写。读卡的人无从判断这条断言反映的是处置前还是处置后的状态；若照卡片执行，会白换一次口令。",
+   "lesson": "破坏性动作之前必须先取证，且证据要标注是处置前还是处置后采集",
+   "related_rule": "phi-facts",
+   "suggestion": {
+    "type": "新增",
+    "detail": "证据类断言增加「采集时点」必填项（处置前/处置后），写卡时强制填写",
+    "reason": "脱时点的证据会被误读：同一份证据跨时点引用而不标注，就会变成误导性证据"
+   },
+   "evidence": {
+    "ts": "2026-09-10T15:51:55+08:00",
+    "cmd": "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8792/notes/closed-loop-card",
+    "output": "200 —— 此为处置前采集；处置后重采亦为 200，两者不可混用"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-alpha",
+   "item_id": "R2",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E014",
+   "pit": "为说明「哪条口令已恢复」，我在回复卡里把口令值原样抄了一遍。这次复制不是有意写入，是为了把事说清楚。",
+   "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+   "related_rule": "无",
+   "suggestion": {
+    "type": "新增",
+    "detail": "凭据一律以槽位号（S01）形式引用，讨论通道不承载凭据本体",
+    "reason": "本次 4 次副本里有 3 次是解释性引用/验证时复述，靠自觉拦不住"
+   },
+   "evidence": {
+    "ts": "2026-09-10T14:20:00+08:00",
+    "cmd": "grep -c 'S0[0-9]' PASSCODE-SLOTS-AUTHORITATIVE.md; grep -cE '[0-9]{4}-[0-9]{4}-[0-9]{4}' PASSCODE-SLOTS-AUTHORITATIVE.md",
+    "output": "槽位引用 5 处；高熵凭据形态 0 处 —— 权威表零凭据，而回复卡含口令值原文，对比即证"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-beta",
+   "item_id": "R1",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E031",
+   "pit": "用户当面质疑我推上去的不是他最新改的版本。我报的是 14:5x 采集的哈希，而他的编辑发生在 15:17-15:20 —— 我报出的「一致」在报出的那一刻就已过期。",
+   "lesson": "处置之前必须先取证，证据要标注采集时点；处置后补注的只能算回忆",
+   "related_rule": "R030",
+   "suggestion": {
+    "type": "修订",
+    "detail": "「一致/最新/已同步」类断言必须写成 sha256:X @ 时刻 @ 版本号",
+    "reason": "让断言自带时点自证，接收方不必信任何人的记忆"
+   },
+   "evidence": {
+    "ts": "2026-09-10T15:22:10+08:00",
+    "cmd": "shasum -a 256 dist/index.html; ls -l --time-style=full-iso dist/index.html",
+    "output": "9f2c...c41  (mtime 15:17:42) —— 与 14:5x 快照哈希不一致，证明核对证据已过期"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-beta",
+   "item_id": "R2",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E033",
+   "pit": "协作者在回执里引用口令来确认验证结果。他说他只是核对一下，没有别的意思。",
+   "lesson": "凭据每被引用一次就多一份副本，因此凭据类信息应改用槽位号引用",
+   "related_rule": "无",
+   "suggestion": {
+    "type": "新增",
+    "detail": "凭据防火墙同时拦「解释性引用」，不只拦有意写入",
+    "reason": "只拦落盘不够：本次 4 次复制里 3 次不涉及落盘，只涉及引用"
+   },
+   "evidence": {
+    "ts": "2026-09-10T14:35:00+08:00",
+    "cmd": "python3 scripts/scan-credential-copies.py --since 2026-09-10",
+    "output": "副本 4 次：原始泄漏 1（有意写入）· 闭环卡说明 1 · 回复卡 1 · 回执 1（后三次均为解释/核对性引用）"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-beta",
+   "item_id": "R4",
+   "flags": [
+    "evidence_no_collected_at",
+    "unknown_rule"
+   ],
+   "event_ref": "E036",
+   "pit": "批量导出跑到第 37 个店铺时失败，前面 36 个的结果没存，只能整体重跑。",
+   "lesson": "批量任务要在每批写入后记检查点，支持断点续跑",
+   "related_rule": "R099",
+   "suggestion": {
+    "type": "新增",
+    "detail": "批量任务落 checkpoint.json（已完成集合 + 时间戳）",
+    "reason": "失败重跑代价与批量规模成正比"
+   },
+   "evidence": {
+    "ts": "2026-09-10T19:05:00+08:00",
+    "cmd": "ls -l ~/dsh-collab/data/export-store/ | tail -3",
+    "output": "仅见最终产物，无中间检查点文件 —— 失败即整体重跑"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-gamma",
+   "item_id": "R1",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E041",
+   "pit": "我在覆盖配置之前先 dump 了一份现场快照，事后才能说清「重启前是什么样」；隔壁会话没 dump，只能靠回忆描述重启前的端口占用。",
+   "lesson": "破坏性动作前先取证，并标注证据是处置前采集还是处置后采集",
+   "related_rule": "phi-facts",
+   "suggestion": {
+    "type": "新增",
+    "detail": "破坏性操作入口加「快照钩子」：没拿到快照就拒绝执行",
+    "reason": "重启类操作若不先取证，「重启后正常」会成为唯一证据"
+   },
+   "evidence": {
+    "ts": "2026-09-10T22:10:00+08:00",
+    "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | head",
+    "output": "dump-config-20260910T220812.json（处置前）· 对照：会话记录中无同轮快照"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-gamma",
+   "item_id": "R2",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E044",
+   "pit": "昨天的汇总里有 2 条根本找不到证据的条目，却被算进了复现计数，把一条只有 1 个人提到的事排到了第 1 位。",
+   "lesson": "无证据的条目必须被质量门拒收，不能混进汇总",
+   "related_rule": "R006",
+   "suggestion": {
+    "type": "新增",
+    "detail": "收牌环节把「证据完整性」做成结构门：证据字段缺失的条目在类型层就进不了 valid 集合",
+    "reason": "事后看不出来哪条是编的；复现计数一旦被污染，用户会按不存在的依据入册"
+   },
+   "evidence": {
+    "ts": "2026-09-10T23:30:00+08:00",
+    "cmd": "python3 -c \"import json;d=json.load(open('harvested-2026-09-09.json'));print(d['items_valid'], len([i for i in d['valid_items'] if not i.get('evidence')]))\"",
+    "output": "12 4 —— 12 条「有效」里有 4 条 evidence 为空对象"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mac-mini",
+   "agent": "agent-gamma",
+   "item_id": "R4",
+   "flags": [
+    "evidence_no_collected_at"
+   ],
+   "event_ref": "E046",
+   "pit": "我把新工具直接以裸脚本形式交付，没有插件包装，宿主无法调度也观测不到，事后排查多花了半小时。",
+   "lesson": "新做插件必须十项全达标才交付",
+   "related_rule": "R006",
+   "suggestion": {
+    "type": "无需动作",
+    "detail": "R006 已覆盖（十项含插件形态、自查、日志、落链）",
+    "reason": "只是我没照着做，不是规则缺失"
+   },
+   "evidence": {
+    "ts": "2026-09-10T21:15:00+08:00",
+    "cmd": "grep -n '十项全达标才交付' ~/dsh-collab/docs/R006-插件化工具化标准-v3.0.md",
+    "output": "L12: 凡新做插件或工具，**十项全达标才交付** —— 规则已存在"
+   },
+   "submitted_at": null,
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "mbp",
+   "agent": "agent-echo",
+   "item_id": "R1",
+   "flags": [],
+   "event_ref": "E101",
+   "pit": "MBP 这边的会话在覆盖快照目录之前先 dump 了一份，但事后没人说得清那份 dump 是覆盖前还是覆盖后存的 —— 时点没写进文件名。",
+   "lesson": "破坏性动作之前必须先取证，证据要标注采集时点：是处置前采集还是处置后采集",
+   "related_rule": "phi-facts",
+   "suggestion": {
+    "type": "新增",
+    "detail": "证据文件名与字段都带「处置前/处置后」标记，未标记的拒绝入库",
+    "reason": "跨设备协作时两边的快照会互相引用，时点标不清就会得出相反结论"
+   },
+   "evidence": {
+    "ts": "2026-09-10T22:40:00+08:00",
+    "collected_at": "2026-09-10T22:41:12+08:00",
+    "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | awk '{print $NF}'",
+    "output": "dump-config-20260910T220812.json（无处置前/后标记）· 对照 mac-mini 侧的命名已带标记"
+   },
+   "submitted_at": "2026-09-10T23:58:00+08:00",
+   "plugin_version": "0.9.9"
+  },
+  {
+   "device": "mbp",
+   "agent": "agent-echo",
+   "item_id": "R2",
+   "flags": [],
+   "event_ref": "E103",
+   "pit": "为了跟 mac-mini 对齐口径，我把那边的一份反思原文抄进了本机的答案文件里，想着这样两边一致。",
+   "lesson": "引用即复制：为了说明而引用会让信息多一份副本，凭据类信息应改用槽位号引用",
+   "related_rule": "无",
+   "suggestion": {
+    "type": "新增",
+    "detail": "跨设备对齐口径只引用卡片/槽位号，不复制对方原文",
+    "reason": "抄原文会让同一句话在多个设备各留一份，复现计数被伪造"
+   },
+   "evidence": {
+    "ts": "2026-09-10T23:10:00+08:00",
+    "collected_at": "2026-09-10T23:11:00+08:00",
+    "cmd": "diff <(jq -r .items[1].lesson answers/mac-mini/2026-09-10/agent-alpha.json) <(jq -r .answers[0].items[1].lesson answers/mbp/2026-09-10/agent-echo.json)",
+    "output": "无差异 —— 两份文件的 lesson 逐字相同（本机抄录所致）"
+   },
+   "submitted_at": "2026-09-10T23:58:00+08:00",
+   "plugin_version": "0.9.9"
+  },
+  {
+   "device": "mbp",
+   "agent": "agent-foxtrot",
+   "item_id": "R1",
+   "flags": [],
+   "event_ref": "E110",
+   "pit": "MBP 上跑批量截图任务时忘了先验电源与休眠设置，跑到一半合盖休眠，整批任务断在中途。",
+   "lesson": "移动设备上跑长任务前要先关休眠并接电源，且任务要能断点续跑",
+   "related_rule": "无",
+   "suggestion": {
+    "type": "新增",
+    "detail": "长任务启动前检查电源/休眠状态，并把进度落盘",
+    "reason": "台式机上不存在这个失败模式 —— 只有移动设备独立踩得到"
+   },
+   "evidence": {
+    "ts": "2026-09-10T21:30:00+08:00",
+    "collected_at": "2026-09-10T21:31:00+08:00",
+    "cmd": "pmset -g | grep -E 'sleep|displaysleep'",
+    "output": "sleep 10（合盖后 10 分钟休眠）· 批量任务在第 37/60 张断掉"
+   },
+   "submitted_at": "2026-09-10T23:58:00+08:00",
+   "plugin_version": "0.9.9"
+  },
+  {
+   "device": "lab-mbp",
+   "agent": "agent-echo",
+   "item_id": "B1",
+   "flags": [],
+   "event_ref": "E201",
+   "pit": "补记：昨晚处置前我确实先抓了快照，但写复盘时只写了『当时是好的』，没写在什么时刻采的；早上再看已经分不清了。",
+   "lesson": "破坏性动作前先取证，并把采集时点写进记录，否则事后分不清处置前还是处置后",
+   "related_rule": "phi-facts",
+   "suggestion": {
+    "detail": "复盘记录模板增加『采集时点（处置前/后）』必填行",
+    "reason": "隔夜再看就分不清了",
+    "type": "新增"
+   },
+   "evidence": {
+    "cmd": "log show --last 12h --predicate 'process == \"cld\"' | tail -5",
+    "collected_at": "2026-09-11T09:16:00+08:00",
+    "output": "重启窗口 22:41-22:43；快照文件 mtime 22:40 —— 处置前，但记录里没写",
+    "ts": "2026-09-11T09:15:00+08:00"
+   },
+   "submitted_at": "2026-09-11T09:20:00+08:00",
+   "plugin_version": "1.0.0"
+  },
+  {
+   "device": "lab-mbp",
+   "agent": "agent-golf",
+   "item_id": "G1",
+   "flags": [],
+   "event_ref": "E205",
+   "pit": "海边网络不稳，推送黑板时一次超时就不重试了，那天的回填整批没上去。",
+   "lesson": "跨设备推送必须带重试与回读校验，一次超时不能算失败",
+   "related_rule": "无",
+   "suggestion": {
+    "detail": "黑板写入封装重试(3次)+回读校验",
+    "reason": "移动网络下单次失败率很高，静默丢数据",
+    "type": "新增"
+   },
+   "evidence": {
+    "cmd": "curl -s -o /dev/null -w '%{http_code} %{time_total}s' -m 3 http://106.53.214.108:8792/data/reflect/answers/lab-mbp/2026-09-10",
+    "collected_at": "2026-09-11T09:31:00+08:00",
+    "output": "第一次 timeout；重试后 200（0.42s）",
+    "ts": "2026-09-11T09:30:00+08:00"
+   },
+   "submitted_at": "2026-09-11T09:20:00+08:00",
+   "plugin_version": "1.0.0"
+  }
+ ],
+ "catalog": {
+  "rules_available": true,
+  "rules_count": 79,
+  "phis_available": true,
+  "phis_count": 13
+ },
+ "notes": [
+  "设备表文件不可读（ENOENT: ENOENT: no such file or directory, open '/Users/coreyleung/dsh-collab/data/reflect/devices.json'）→ /Users/coreyleung/dsh-collab/data/reflect/devices.json",
+  "设备 mac-mini: 本地 4 · 黑板 0 · 卡=未派出（blackboard(404)）",
+  "设备 mbp: 本地 2 · 黑板 0 · 卡=未派出（blackboard(404)）",
+  "设备 lab-mbp: 本地 1 · 黑板 2 · 卡=未派出（blackboard(404)）",
+  "设备 i9: 本地 0 · 黑板 0 · 卡=已派出（local:/Users/coreyleung/dsh-collab/data/reflect/cards/i9/2026-09-10.md）",
+  "★ 设备间插件版本漂移：0.9.9 vs 1.0.0 —— 不同版本行为可能不同，裁定前先确认口径"
+ ]
+}

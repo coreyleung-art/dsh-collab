@@ -1,0 +1,12 @@
+# dsh-plugin-cldvoice-activate
+# 宿主级插件行：随 profile 启动常驻，注册 cldvoice_activate 工具
+- insert:
+    - id: cldvoice-activate
+      name: dsh-plugin-cldvoice-activate
+      config:
+        # 结构化约束：只允许重启下列服务（键必须在 ALLOWED 内）。
+        # 任何"重启整个框架"的诉求都不可表达——不是被拒绝，而是语法上不存在这样的入参。
+        allow: ["cld-voice", "voice-service"]
+        portWaitSeconds: 20
+        bootWaitSeconds: 25
+        retries: 3

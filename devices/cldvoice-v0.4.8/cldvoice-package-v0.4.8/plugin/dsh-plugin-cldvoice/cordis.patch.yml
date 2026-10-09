@@ -1,0 +1,5 @@
+# dsh-plugin-cldvoice · 语音需求成稿 host（复用 CLD-Voice 8902 后端；全双工 UI 后续接 client bundle）
+- insert:
+    - id: cldvoice
+      name: dsh-plugin-cldvoice
+      config: {}

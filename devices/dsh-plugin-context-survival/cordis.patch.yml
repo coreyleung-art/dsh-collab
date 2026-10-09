@@ -1,0 +1,37 @@
+# dsh-plugin-context-survival
+# 宿主（host）平面插件行：随 profile 启动常驻。
+# ★ 与官方 compaction-basic **并存** —— 本文件**不**接管 compaction realm（seam b）。
+# ★ inject 只有宿主平面真实存在的服务（'tools'）；**绝不**写客户端服务（slots）
+#   —— 2026-10-09 excalidraw 事故：宿主端 inject 一个只在客户端存在的服务 ⇒ 该条永久
+#   pending ⇒ 整棵插件树加载失败、CLD 起不来。
+#   本插件的 tokenMeter / llm 是**可选**依赖，一律在运行期用 ctx.get() 取（拿不到就如实跳过），
+#   因此它们**不写进 inject**（写进去就等于给自己加了一条可以绊倒整棵树的强依赖）。
+- insert:
+    - id: context-survival
+      name: dsh-plugin-context-survival
+      config:
+        # K2：守卫默认关闭。开启后**只测量、只记录**，不产出检查点、不替换表面。
+        # K6 挂载（不可逆）由用户在独立试验会话内执行，先登记后执行。
+        enableGuard: false
+        # 预算公式（前两项对齐 ctxwin/src/budget.ts，第三项是本插件加的）：
+        #   usable      = floor(cw × usableRatio)
+        #   limit       = min(maxTokens, floor(cw × limitRatio))
+        #   preemptCeil = floor(cw × preemptRatio)
+        #   threshold   = min(limit + bufferTokens, usable, preemptCeil)
+        # 首值见台账 docs/context-survival-tracker.md §2 Q-K2；K5 标定后定稿。
+        usableRatio: 0.95
+        limitRatio: 0.9
+        # ★ 抢先上限（F1 · 2026-10-10 用户裁决「抢先」）：官方 compaction-basic 在
+        #   floor(cw × 0.8) 触发（dsh-compaction-basic/lib/index.js:13 DEFAULT_THRESHOLD_RATIO）
+        #   —— 照抄 ctxwin 的 0.9 会让本守卫**晚**于官方触发，立论落空。
+        #   故本值必须 < 0.8；resolveBudget 强制这一点（配成 ≥0.8 抛 BAD_PREEMPT，静默失效不留口子）。
+        #   加性 buffer 在**小窗口**做不到抢先：cw=8192 时 0.9cw+8000 被 usable 夹到 7782，仍晚于官方 6553。
+        preemptRatio: 0.7
+        bufferTokens: 8000
+        # ★ K2 未消费：本字段在全库**没有任何消费者**（只声明、不生效）——K3 起才用于
+        #   「最新保活」窗口。写在配置里是为了让 K3 的形状可见，但此刻改它**不会有任何效果**。
+        retainTokens: 5120
+        # 可选：给 limit 再加一层**硬上限**（limit = min(maxTokens, floor(cw × limitRatio))）。
+        # 语义是"别的都算完了也要卡在这"，**不是** contextWindow 的兜底值——
+        # 拿不到 contextWindow 时本插件如实跳过并告警，绝不拿一个猜的数字顶上（R030）。
+        # maxTokens: 65536

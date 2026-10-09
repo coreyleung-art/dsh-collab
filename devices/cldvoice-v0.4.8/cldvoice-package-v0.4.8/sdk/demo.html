@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VoiceKit Demo · 语音交互内核接入示例</title>
+<style>
+  body{font-family:system-ui,'PingFang SC',sans-serif;background:#0f1218;color:#e8eaf0;max-width:720px;margin:40px auto;padding:0 20px}
+  h1{font-size:20px;color:#6ea8ff}
+  .card{background:#141824;border:1px solid #232a3a;border-radius:12px;padding:16px;margin:16px 0}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  button{border:none;border-radius:8px;padding:10px 18px;font-size:14px;cursor:pointer;background:#1e3a5f;color:#fff}
+  button.rec{background:#10b981}button.stop{background:#ef4444}
+  .state{font-size:13px;color:#8b9bb4}
+  #log{background:#0d1119;border:1px solid #232a3a;border-radius:8px;padding:10px;font-size:13px;min-height:160px;max-height:320px;overflow-y:auto;line-height:1.7}
+  .u{color:#38bdf8}.ai{color:#a78bfa}
+</style>
+</head>
+<body>
+<h1>🎙 VoiceKit · 全双工语音对话 Demo</h1>
+<div class="card">
+  <div class="row">
+    <button id="btnRec" class="rec">🎤 开始说话</button>
+    <button id="btnDraft">📋 成稿</button>
+    <span class="state" id="state">off</span>
+  </div>
+  <div style="margin-top:10px;font-size:12px;color:#5a6072">
+    点「开始说话」→ 说话 → 再点停止 → AI 回应（文字+语音）。跨端 SDK 示例，<b>任何页面引入 voice-sdk.js 即得此能力</b>。
+  </div>
+</div>
+<div class="card"><div id="log"><div style="color:#5a6072">等待开始…</div></div></div>
+
+<script src="./voice-sdk.js"></script>
+<script>
+  const logEl = document.getElementById('log');
+  function log(html){ const d=document.createElement('div'); d.innerHTML=html; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
+
+  // ── SDK 接入(核心就这几行) ──
+  const v = new VoiceClient({ url: 'ws://127.0.0.1:8905', voice: true });
+  v.on('partial', t => log(`<div class="u">▍${t.replace(/</g,'&lt;')}</div>`));
+  v.on('ai_text', t => log(`<div class="ai">AI: ${t.replace(/</g,'&lt;')}</div>`));
+  v.on('state', s => document.getElementById('state').textContent = s);
+  v.on('error', e => log(`<div style="color:#f87171">⚠️ ${e}</div>`));
+  v.on('draft', d => {
+    if (d.ok) log(`<div style="color:#34d399">📋 成稿 OK: ${(d.title||'').slice(0,40)}</div>`);
+    else log(`<div style="color:#f87171">成稿失败: ${d.error||''}</div>`);
+  });
+
+  let rec = false;
+  document.getElementById('btnRec').onclick = () => {
+    rec = !rec;
+    if (rec) { v.start(); document.getElementById('btnRec').textContent='⏹ 停止'; }
+    else { v.stop(); document.getElementById('btnRec').textContent='🎤 开始说话'; }
+  };
+  document.getElementById('btnDraft').onclick = () => v.draft();
+</script>
+</body>
+</html>

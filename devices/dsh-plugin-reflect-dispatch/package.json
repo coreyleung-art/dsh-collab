@@ -1,0 +1,39 @@
+{
+  "name": "dsh-plugin-reflect-dispatch",
+  "version": "1.1.2",
+  "description": "按每个智能体当天真实做过的事件，定制一张「思考卡」并派发（每日反思流水线的发牌环节，跨设备）；结构上不允许「假装派发了」/「跨设备污染」/「凭据扩散」",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "tool-version": "node cli.js --tool-version"
+  },
+  "bin": {
+    "reflect-dispatch": "cli.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "r006": {
+    "category": "engineering",
+    "scope": "mac-mini + mbp（跨设备，经中央黑板 106.53.214.108:8792）",
+    "status": "enforced",
+    "cli_form": true,
+    "tcc_selfcheck": true,
+    "cld_adaptive": true,
+    "dsh_adaptive": true,
+    "documented": "docs/README.md",
+    "versioned": true,
+    "unified_log": "~/dsh-collab/logs/dsh-plugin-reflect-dispatch.log",
+    "auto_chain": "data/registry/dsh-plugin-reflect-dispatch 登记卡 + data/reflect/* 协议 + docs/README.md（第九节列出与 collect/harvest/synthesize/enroll 的关系）",
+    "cli_governance": "parseArgs 严格校验 + 退出码 0/1/2 + --dry-run 零变更 + --json",
+    "lean4_gate": "lib/gate.js：通知模板类型锁 + 目标存在门(void-or-throw) + 跨设备写门(设备段必须匹配) + 设备名/状态/建议类型冻结枚举 + 凭据脱敏(9类,幂等) + 空壳键内容口径 + 键语法≥2段/后续段字符集(R003通告+bb-write交叉验证) + 写盘根前缀+设备段门 + 主机双板白名单(无环境变量入口) + 派发状态机 + 补派迟到门 + --lean4-check 六项"
+  }
+}

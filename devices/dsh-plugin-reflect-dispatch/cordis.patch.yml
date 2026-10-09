@@ -1,0 +1,13 @@
+# dsh-plugin-reflect-dispatch
+# 宿主级插件行：注册 reflect_dispatch（定制卡生成+派发）与 reflect_targets（只读目标解析）
+- insert:
+    - id: reflect-dispatch
+      name: dsh-plugin-reflect-dispatch
+      config:
+        # 结构约束：卡片只能写在这个前缀下（相对 ~/dsh-collab/），越界即 GateError。
+        # "把卡写到别处去"不是被拒绝，而是语法上没有这个入参。
+        reflectRoot: data/reflect
+        # 每次派发默认只落盘（不发送）；要发送必须显式 send:true。
+        emitOnly: true
+        # 每个智能体最多带几条事件（防"一屏事件"淹没定制性）
+        maxEvents: 8

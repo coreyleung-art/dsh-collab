@@ -288,6 +288,19 @@
     "dsh-plugin-repo-pipeline/scripts/repo-pipeline.sh",
     "dsh-plugin-repo-pipeline/CHANGELOG.md"
    ]
+  },
+  {
+   "id": "CHG-20261010-aad8fe7492e7",
+   "channel": "rule:R047-naming-standard",
+   "evidence": "N5 入坑位（allocate 的 purpose 含输入字段名会被吸入 slug，实证 gate-to）+ §10 勘误（含可判定解除条件）+ 自纠（authId 首版截断已改正）",
+   "rollback": "git revert 该提交；或 git checkout 5c... -- rules-registry/naming-standard-N1-N8-v1.md",
+   "authorization": "AUTH-20261010-ffeaaeca5d1d",
+   "authQuote": "你的命名门发现（purpose 里的 to 被吸进 slug）确认是 N5 实证；建议提交给 R047 属主入坑位清单 —— 我不代改（R047 不是我的产物）",
+   "timestamp": "2026-10-10T00:50:59",
+   "lastModifier": "session-b250bf9d",
+   "files": [
+    "rules-registry/naming-standard-N1-N8-v1.md"
+   ]
   }
  ]
 }

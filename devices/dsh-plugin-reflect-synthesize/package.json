@@ -1,0 +1,47 @@
+{
+  "name": "dsh-plugin-reflect-synthesize",
+  "version": "1.0.0",
+  "description": "每日反思流水线 · 提炼（⑤）：对照现有规则/哲学库 → 分类归档 → ★ 按（跨设备, 复现广度）排序 → 生成看一眼就能裁的提案；结构上无写规则库/哲学库的能力",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "preview": "node cli.js --preview"
+  },
+  "bin": {
+    "reflect-synthesize": "cli.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "files": [
+    "cli.js",
+    "lib/",
+    "docs/",
+    "testdata/",
+    "cordis.patch.yml",
+    "CHANGELOG.md"
+  ],
+  "r006": {
+    "category": "governance",
+    "scope": "mac-mini",
+    "status": "enforced",
+    "cli_form": true,
+    "tcc_selfcheck": true,
+    "cld_adaptive": true,
+    "dsh_adaptive": true,
+    "documented": "docs/README.md",
+    "versioned": true,
+    "unified_log": "~/dsh-collab/logs/dsh-plugin-reflect-synthesize.log",
+    "auto_chain": "data/registry/dsh-plugin-reflect-synthesize 登记卡 + docs/README.md",
+    "cli_governance": "旗标单一来源 lib/options.js + 退出码 0/1/2 + --dry-run 零变更 + --json + --preview",
+    "lean4_gate": "lib/out.js guardWritePath 写门（治理库路径构造不出来）+ 冻结 WRITE_SPEC + 旗帜集合运算证明 + --lean4-check 六项（含扫描器正控）"
+  }
+}

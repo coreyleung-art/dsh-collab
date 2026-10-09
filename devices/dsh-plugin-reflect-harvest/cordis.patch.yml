@@ -1,0 +1,10 @@
+# dsh-plugin-reflect-harvest
+# 宿主级插件行：随 profile 启动常驻，注册 reflect_harvest 工具（每日反思流水线 ④ 收牌）
+- insert:
+    - id: reflect-harvest
+      name: dsh-plugin-reflect-harvest
+      config:
+        # ★ 这里的 config 只影响「回报多少」，**影响不了校验判定** ——
+        # 判定在 lib/gate.js（mintAdmitted / buildValidSet），config 到不了那里。
+        # 没有任何键能跳过证据门：没有 skipEvidence / force / lenient。
+        includeItems: true

@@ -1,0 +1,12 @@
+# dsh-plugin-reflect — 每日反思流水线编排器
+# 宿主级插件行：随 profile 启动常驻，注册 reflect_run / reflect_status 工具
+- insert:
+    - id: reflect
+      name: dsh-plugin-reflect
+      config:
+        # ★ 结构化约束：只允许跑下列环节（键必须在 STAGES 内）。
+        # 任何"跳过证据门"或"自动入册"的诉求都不可表达——不是被拒绝，而是语法上不存在这样的入参。
+        stages: ["collect", "dispatch", "harvest", "synthesize", "enroll"]
+        # enroll 环节默认关闭：入册必须由人裁触发，编排器不自动跑到这一步
+        auto_run_enroll: false
+        workdir: "~/dsh-collab/data/reflect"

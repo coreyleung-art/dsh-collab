@@ -1,0 +1,34 @@
+{
+  "name": "dsh-plugin-assert-audit",
+  "version": "1.1.0",
+  "description": "断言套件审计器 + 范围审查器：断言枚举/空断言检测/变异三态判定；以及 agent 会话·跨设备沟通工具链的覆盖盲区枚举。结构上不允许把「跑不起来」判成「通过」，也不允许把「不可判」折算成任一侧。",
+  "type": "module",
+  "main": "lib/index.js",
+  "bin": {
+    "assert-audit": "cli.js"
+  },
+  "scripts": {
+    "selfcheck": "node cli.js --selfcheck",
+    "lean4-check": "node cli.js --lean4-check",
+    "dry-run": "node cli.js --dry-run"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-tools": "^0.1.0-rc.6"
+  },
+  "r006": {
+    "category": "engineering",
+    "scope": "mac-mini",
+    "status": "enforced",
+    "cli_form": true,
+    "real_mount_smoke": true,
+    "documented": "docs/README.md",
+    "unified_log": "~/dsh-collab/logs/assert-audit.log",
+    "lean4_gate": "lib/gate.js：VERDICT 冻结闭集 + SCOPE 三态闭集 + 命令白名单 [python3,node,ps,launchctl] + DENIED_SUBCOMMANDS 冻结 + 写入面唯一"
+  }
+}
