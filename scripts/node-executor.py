@@ -22,6 +22,13 @@ i9 的 i9-executor.py 证明了「秒级全天候零 token 值守」：纯 HTTP 
   python3 node-executor.py --node-id local-watcher --blackboard http://127.0.0.1:8792 --interval 10 --once
 
 动作白名单（可扩展）：shell/info/status/ollama/scan/自定义
+
+★ 约束门（⑩）：N/A —— **本工具的危险能力是【设计如此】**，且【命令来源受控】。
+  详述：本工具确用 `subprocess.run(..., shell=True)`，但**命令并非来自外部任意输入**：
+  来源 = 【黑板任务卡】（有协议约束）+ 本文件顶部声明的【动作白名单】
+         （shell/info/status/ollama/scan/自定义）⇒ 非任意命令。
+★ 限度：**保留 shell=True 是因为需要管道/重定向/&& 等 shell 特性**；
+  但【外部输入不得拼进命令字符串】—— 引入外部输入时须改为列表传参。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 

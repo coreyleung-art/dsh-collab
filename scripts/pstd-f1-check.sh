@@ -2,6 +2,11 @@
 # PSTD 1.0.4 生效判据 F1/F2/F3 复测（先测触发条件 F2，再谈 F1）
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+#   危险原语扫描命中 `ps -eo ... | grep`，但这是【只读的进程列表查询】
+#   （ps 无副作用；grep 仅为过滤）⇒ 无不可逆操作。
+# ★ 限度：此为【模式匹配 + 人工核】结论；引入 kill/rm/chmod 等原语时须更新本声明。
+
 DSH_LOG="$HOME/dsh-collab/logs/pstd-f1-check.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null

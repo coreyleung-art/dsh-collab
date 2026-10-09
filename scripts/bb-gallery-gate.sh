@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+# ★ 约束门（⑩）：N/A —— **本工具的危险能力受限且非外部输入**。
+#   pkill 的用途：清理【本脚本自己启动的】临时测试服务（模式限定为
+#   `bb-blueprint-gallery.py --port $PORT`，$PORT 是脚本内变量，非命令行参数）。
+#   ⇒ 依 R10 定义（「不该发生的路径在结构上不可绕过」）：杀进程的目标【已在模式中收口】，
+#     无法通过外部输入扩大作用范围。
+# ★ 限度：此为【模式匹配 + 人工核】结论；若日后允许从参数指定 kill 模式，须更新本声明。
+
 DSH_LOG="$HOME/dsh-collab/logs/bb-gallery-gate.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
