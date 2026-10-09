@@ -315,9 +315,22 @@ def lean4_check():
       "r2 缺旗标⇒fail · r3 无私有路径⇒pass")
     # ★ 2026-10-09 修自指：须用 strip_code 剥离后再查 ——
     #   否则本行自身含的 "--apply" 字样会被自己匹配到（今日第 N 次「引述 vs 真值」）。
+    # ★ 2026-10-09 修：原判据 `"apply" not in _selfcode` 【本身写错】——
+    #   本器里有变量名 `has_apply`，剥离后仍在 ⇒ 恒 FAIL（判据把自己的标识符当成真值，
+    #   与今日反复出现的「引述 vs 真值」同族）。⇒ 改用【具体的写盘形态】判据。
+    # ★ 2026-10-09 修（第 2 次）：判据须区分【写日志】与【改被测文件】——
+    #   本器有 log()（R006 ⑦ 要求的固定日志），其 f.write 是【必要的】，
+    #   而 R10 关心的是「不该发生的路径」＝【修改被测对象】。
+    #   ⇒ 判据改为：**除 log() 外无写盘**；并显式核「不写任何 .py/.sh/.js」。
     _selfcode = strip_code(io.open(os.path.abspath(__file__), encoding="utf-8").read())
-    c("E", "白名单冻结：本器不修改任何文件（只读核验）",
-      "apply" not in _selfcode and "open(" + '"w"' not in _selfcode, "无写盘分支")
+    # 去掉 log() 函数体后再查写盘
+    _nol = re.sub(r"def log\(msg\):[\s\S]*?(?=\ndef |\n# ══)", "", _selfcode)
+    _writes = re.findall(r"open\([^)]*[\"'][wa]\"?'|write_text\(", _nol)
+    # 再核：是否写过被测脚本（.py/.sh/.js）
+    _targets = re.findall(r"open\([^)]*\.(py|sh|js)[\"']?[^)]*[\"'][wa]\"?'", _selfcode)
+    c("E", "白名单冻结：除 log() 外无写盘，且从不写被测脚本",
+      (not _writes) and (not _targets),
+      "非日志写盘 %d 处 · 写被测脚本 %d 处" % (len(_writes), len(_targets)))
     c("F", "负例矩阵可执行（strip_code 为可测函数）", callable(strip_code), "纯函数")
     print("== r006-assess-rest · --lean4-check（六项 A–F）==")
     for k, name, ok, detail in checks:

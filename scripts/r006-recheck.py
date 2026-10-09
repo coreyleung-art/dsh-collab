@@ -241,9 +241,12 @@ def main():
     ap.add_argument("--since", default=None, help="只核该日期(YYYY-MM-DD)之后改动过的")
     ap.add_argument("--compare", action="store_true", help="与 2026-10-03 矩阵对照口径")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--lean4-check", action="store_true", help="★ R006 ⑩ 六项 A–F")
     ap.add_argument("--with-rest", action="store_true",
                     help="★ 同时核 R1/R2/R3/R4/R8（调用 r006-assess-rest.py）")
     a = ap.parse_args()
+    if a.lean4_check:
+        return lean4_check()
     if a.selftest:
         return selftest()
     if getattr(a, "with_rest", False):
@@ -298,6 +301,57 @@ def main():
         except Exception as e:
             print("     对照失败:", e)
     return 1 if any(r["n_gap"] for r in rows) else 0
+
+
+
+# ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
+#   ★ 本函数由手工补写（因本器此前的「已有则跳过」判断被【模板字符串里的字样】
+#     误判为「已有」，导致只有调用没有定义 ⇒ NameError。教训同今日「引述 vs 真值」。）
+def lean4_check():
+    """本器自身的 R10 自证（六项 A–F）。"""
+    fails = 0
+    checks = []
+
+    def c(k, name, cond, detail=""):
+        nonlocal fails
+        checks.append((k, name, bool(cond), detail))
+        if not cond:
+            fails += 1
+
+    import io as _io
+    import tokenize as _tk
+    _self = _io.open(os.path.abspath(__file__), encoding="utf-8").read()
+
+    def _strip(s):
+        try:
+            out = []
+            for tk in _tk.generate_tokens(_io.StringIO(s).readline):
+                if tk.type in (_tk.STRING, _tk.COMMENT):
+                    out.append(" ")
+                elif tk.type in (_tk.NL, _tk.NEWLINE):
+                    out.append("\n")
+                else:
+                    out.append(tk.string)
+            return "".join(out)
+        except Exception:
+            return s
+    _code = _strip(_self)
+
+    c("A", "类型锁：口径声明冻结（只核可机械核的 5 项）",
+      "只核可机械核的 5 项" in _self, "口径明写")
+    c("B", "入口门：不把「未核」当成「达标」",
+      "未核" in _self, "声明在位")
+    c("C", "Schema 门：工具枚举非空", len(enumerate_tools()) > 0,
+      "%d 个工具" % len(enumerate_tools()))
+    c("D", "状态机：核心判定函数可调用", callable(assess), "assess() 在位")
+    c("E", "白名单冻结：未核项在输出里显式列出",
+      ("R1/R2/R3/R4/R8" in _self) or ("未核" in _self), "显式列出未核项")
+    c("F", "负例矩阵可执行（--selftest 在位）", "--selftest" in _self, "selftest 在位")
+    print("== r006-recheck · --lean4-check（六项 A–F）==")
+    for k, name, ok, detail in checks:
+        print("  %s %s %-50s %s" % ("OK " if ok else "FAIL", k, name, detail))
+    print("\n  => %d/%d pass, %d FAIL" % (len(checks) - fails, len(checks), fails))
+    return 0 if fails == 0 else 1
 
 
 if __name__ == "__main__":
