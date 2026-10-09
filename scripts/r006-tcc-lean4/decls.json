@@ -46,7 +46,10 @@
   ],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": false,
+  "dry_suppress": [],
+  "dryrun_note": "本器自带 --dry-run 实现 ⇒ canonical 块不接管，把旗标放回 argv 交还原实现"
  },
  "silent-truncation-lint.py": {
   "tool": "silent-truncation-lint",
@@ -89,7 +92,10 @@
   "frozen_danger": [],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": false,
+  "dry_suppress": [],
+  "dryrun_note": "本器自带 --dry-run 实现 ⇒ canonical 块不接管，把旗标放回 argv 交还原实现"
  },
  "r006-two-tool-audit.py": {
   "tool": "r006-two-tool-audit",
@@ -138,7 +144,10 @@
   ],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": false,
+  "dry_suppress": [],
+  "dryrun_note": "本器自带 --dry-run 实现 ⇒ canonical 块不接管，把旗标放回 argv 交还原实现"
  },
  "gate-auditor.py": {
   "tool": "gate-auditor",
@@ -181,7 +190,12 @@
   "frozen_danger": [],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log"
  },
  "j44-reuse-gate.py": {
   "tool": "j44-reuse-gate",
@@ -225,7 +239,12 @@
   "frozen_danger": [],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log"
  },
  "toolbox-selftest-sweep.py": {
   "tool": "toolbox-selftest-sweep",
@@ -274,7 +293,12 @@
   ],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "write_log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 write_log"
  },
  "selftest-inventory.py": {
   "tool": "selftest-inventory",
@@ -320,7 +344,12 @@
    0,
    1
   ],
-  "positive_expect_reason": "本器是【报告器】而非门：rc=1 = 报告有发现，是合法结果；只有 rc=2（用法错）/124/125（超时/崩溃）才算门失效。★ 同时如实记缺陷：本器【无可表示的成功退出码】—— 任何合法调用都返回 1，故「0=成功」在本器上不可达，属 ⑨② 缺口，留待批次 2 修。"
+  "positive_expect_reason": "本器是【报告器】而非门：rc=1 = 报告有发现，是合法结果；只有 rc=2（用法错）/124/125（超时/崩溃）才算门失效。★ 同时如实记缺陷：本器【无可表示的成功退出码】—— 任何合法调用都返回 1，故「0=成功」在本器上不可达，属 ⑨② 缺口，留待批次 2 修。",
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log"
  },
  "absence-claim-lint.py": {
   "tool": "absence-claim-lint",
@@ -367,7 +396,12 @@
   ],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log"
  },
  "citation-stale-check.py": {
   "tool": "citation-stale-check",
@@ -415,7 +449,13 @@
   ],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log",
+   "_w"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log,_w"
  },
  "verification-level-lint.py": {
   "tool": "verification-level-lint",
@@ -459,6 +499,11 @@
   "frozen_danger": [],
   "positive_expect_rc": [
    0
-  ]
+  ],
+  "dryrun_via_block": true,
+  "dry_suppress": [
+   "log"
+  ],
+  "dryrun_note": "本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log"
  }
 }

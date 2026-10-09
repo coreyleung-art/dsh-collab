@@ -42,7 +42,7 @@
 # 既不绕过本器的严格参数治理，也不让治理挡掉自检入口本身。
 import sys as _r006_sys
 if __name__ == "__main__":
-    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets")
+    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets", "--dry-run")
                          if f in _r006_sys.argv]
     if _R006_EARLY_FLAGS:
         _r006_sys.argv = [x for x in _r006_sys.argv if x not in _R006_EARLY_FLAGS]
@@ -161,14 +161,27 @@ def audit(tool):
                      "%d B · sha256[0:16]=%s · --help rc=%s" % (len(raw), sha, rc))
 
     # ② TCC 自检
+    # ★ 2026-10-10 修正（由 PSTD 用规格口径驳倒我方）：
+    #   原件只判「有 --selfcheck ∧ rc=0 ∧ 源码含 tokenize」—— ★ 而规格 §2② 要求
+    #   「**--selfcheck 输出至少三段**」（能力清单 / 不该发生路径 / 依赖完整性）。
+    #   ⇒ 按规格口径，我方自己那两个工具也不达标（实测只输出 1 行）。
     has_sc = "--selfcheck" in src
     uses_tok = "tokenize" in code
-    if has_sc and uses_tok:
+    SECTIONS = ("能力清单", "不该发生路径", "依赖完整性")
+    if has_sc:
         rc, out = run([p, "--selfcheck"], cwd=d)
-        res["② TCC 自检"] = ("PASS" if rc == 0 else "FAIL",
-                             "tokenize 剥离在场 · --selfcheck rc=%s" % rc)
+        # ★ 段落判定：显式标记 `【…】` 或三个关键词至少命中三个不同段
+        marks = re.findall(r"【([^】]+)】", out)
+        hit = [s2 for s2 in SECTIONS if any(s2 in m for m in marks)]
+        nseg = max(len(set(marks)), len(hit))
+        if rc != 0:
+            res["② TCC 自检"] = ("FAIL", "--selfcheck rc=%s（非零）" % rc)
+        elif nseg >= 3 and len(hit) >= 3:
+            res["② TCC 自检"] = ("PASS", "三段在场(%s) · tokenize=%s · rc=0" % (",".join(hit), uses_tok))
+        else:
+            res["② TCC 自检"] = ("FAIL", "★ 输出段数不足：%d 段（规格 §2② 要求 ≥3）· 命中 %s" % (nseg, hit or "无"))
     else:
-        res["② TCC 自检"] = ("FAIL", "has_selfcheck=%s uses_tokenize=%s" % (has_sc, uses_tok))
+        res["② TCC 自检"] = ("FAIL", "无 --selfcheck")
 
     # ③ CLD 自适应（★ 用【仅剥注释】面 ⇒ 保留字符串，因路径通常在字符串里；
     #    但★ 带显式豁免标记「★ 检测器模式」的行除外 —— 检测器自身的模式表不算硬编码）
@@ -256,13 +269,22 @@ def audit(tool):
                                             "" if not gov_bad else " · 未识别: " + " ".join(gov_bad)))
 
     # ⑩ 约束门 —— ★ 须能红
+    # ★ 2026-10-10 修正（同上）：原件判 rc∈{0,1} —— 而该口径会把
+    #   「明确拒绝」(rc=1) 与「静默空转」(rc=0，跑了默认动作什么都没查) 判成同一类。
+    #   ⇒ 规格 §4.2 要的是 **A–F 六项自证在场**。
     hasl4 = "lean4" in src.lower()
     if not hasl4:
         res["⑩ 约束门"] = ("FAIL", "无 --lean4-check 或等价约束门")
     else:
         rc, out = run([p, "--lean4-check"], cwd=d)
-        res["⑩ 约束门"] = ("PASS" if rc in (0, 1) else "FAIL",
-                          "--lean4-check rc=%s · 输出 %d 字符" % (rc, len(out)))
+        found = [L for L in "ABCDEF" if re.search(r"\b%s\b[\s:：．.)）]" % L, out)]
+        missing = [L for L in "ABCDEF" if L not in found]
+        if rc != 0:
+            res["⑩ 约束门"] = ("FAIL", "--lean4-check rc=%s（非零）" % rc)
+        elif missing:
+            res["⑩ 约束门"] = ("FAIL", "★ A–F 缺 %s（规格 §4.2 要六项自证）" % ",".join(missing))
+        else:
+            res["⑩ 约束门"] = ("PASS", "A–F 六项在场 · rc=0")
     return res, sha
 
 
@@ -465,6 +487,9 @@ _R006_DECL = {
     'frozen_write': frozenset({'<expr>'}),
     'frozen_danger': frozenset({'__import__', 'os.unlink'}),
     'positive_expect_rc': [0],
+    'dryrun_via_block': False,
+    'dry_suppress': [],
+    'dryrun_note': '本器自带 --dry-run 实现 ⇒ canonical 块不接管，把旗标放回 argv 交还原实现',
 }
 
 _R006_EXEC_ATTRS = ("run", "Popen", "call", "check_call", "check_output")
@@ -837,6 +862,26 @@ def _r006_want(flag):
     """旗标本器是否被请求：既认当前 argv，也认【早期垫片】暂存的旗标。
     （垫片必须存在：本器可能在模块级就校验 argv，会先于本块把旗标当「不认识的参数」拒掉。）"""
     return (flag in _r006_sys.argv) or (flag in globals().get("_R006_EARLY_FLAGS", []))
+
+
+# ── R006 ⑨③ `--dry-run` 统一实现（canonical） ────────────────────────────────
+# 分流（★ 必须分流：本族里 3 个器【自带】--dry-run，拦截它会破坏其既有语义）：
+#   · dryrun_via_block=True  : 本器无自带实现 ⇒ 由本块接管：把 --dry-run 从 argv 摘掉
+#     （故其 argparse 不因未知旗标报错），并按 decl["dry_suppress"] 把【自动写入助手】
+#     置为空操作 ⇒ 本器走完整逻辑但不产生自动落盘副作用。
+#   · dryrun_via_block=False : 本器自带实现 ⇒ 把垫片摘走的旗标【放回 argv】，交还原实现。
+if __name__ == "__main__":
+    _R006_DRY = False
+    if _R006_DECL.get("dryrun_via_block") and _r006_want("--dry-run"):
+        _R006_DRY = True
+        _r006_sys.argv = [x for x in _r006_sys.argv if x != "--dry-run"]
+        for _rn in _R006_DECL.get("dry_suppress", []):
+            if callable(globals().get(_rn)):
+                globals()[_rn] = (lambda *a, **k: None)
+    elif "--dry-run" in globals().get("_R006_EARLY_FLAGS", []):
+        _r006_sys.argv.append("--dry-run")
+else:
+    _R006_DRY = False
 
 
 if __name__ == "__main__" and _r006_want("--selfcheck"):

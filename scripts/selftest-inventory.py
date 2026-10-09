@@ -31,7 +31,7 @@
 # 既不绕过本器的严格参数治理，也不让治理挡掉自检入口本身。
 import sys as _r006_sys
 if __name__ == "__main__":
-    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets")
+    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets", "--dry-run")
                          if f in _r006_sys.argv]
     if _R006_EARLY_FLAGS:
         _r006_sys.argv = [x for x in _r006_sys.argv if x not in _R006_EARLY_FLAGS]
@@ -150,6 +150,15 @@ if _unknown:
     print(f"   本工具接受的参数: {' '.join(sorted(_KNOWN))}")
     print("   ★ 加这道检查的起因：本工具自己曾把伪造旗标【静默忽略】、照常跑默认动作")
     sys.exit(2)
+# ★ R006 ⑨⑤ --help 自解释：原状是【静默忽略 --help 并跑默认盘点（28s，rc=1）】
+if ("-h" in sys.argv[1:]) or ("--help" in sys.argv[1:]):
+    print("用法: selftest-inventory [--dir <dir>] [--tools a,b,c]")
+    print("退出码: 0/1 均为【正常跑完】（本器是报告器：1 = 报告有发现）；2 = 用法或 IO 错误")
+    print("★ 已知未结项（⑨②）：本器【无可表示的成功退出码】—— 任何合法调用都返回 1，")
+    print("  故「0=成功」在本器上不可达。这里明确说出来，而不是让读者以为是失败。")
+    print("")
+    print(__doc__ or "")
+    sys.exit(0)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 BOGUS = "--zzz-bogus-flag"
@@ -325,6 +334,9 @@ _R006_DECL = {
     'frozen_danger': frozenset(),
     'positive_expect_rc': [0, 1],
     'positive_expect_reason': '本器是【报告器】而非门：rc=1 = 报告有发现，是合法结果；只有 rc=2（用法错）/124/125（超时/崩溃）才算门失效。★ 同时如实记缺陷：本器【无可表示的成功退出码】—— 任何合法调用都返回 1，故「0=成功」在本器上不可达，属 ⑨② 缺口，留待批次 2 修。',
+    'dryrun_via_block': True,
+    'dry_suppress': ['log'],
+    'dryrun_note': '本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log',
 }
 
 _R006_EXEC_ATTRS = ("run", "Popen", "call", "check_call", "check_output")
@@ -697,6 +709,26 @@ def _r006_want(flag):
     """旗标本器是否被请求：既认当前 argv，也认【早期垫片】暂存的旗标。
     （垫片必须存在：本器可能在模块级就校验 argv，会先于本块把旗标当「不认识的参数」拒掉。）"""
     return (flag in _r006_sys.argv) or (flag in globals().get("_R006_EARLY_FLAGS", []))
+
+
+# ── R006 ⑨③ `--dry-run` 统一实现（canonical） ────────────────────────────────
+# 分流（★ 必须分流：本族里 3 个器【自带】--dry-run，拦截它会破坏其既有语义）：
+#   · dryrun_via_block=True  : 本器无自带实现 ⇒ 由本块接管：把 --dry-run 从 argv 摘掉
+#     （故其 argparse 不因未知旗标报错），并按 decl["dry_suppress"] 把【自动写入助手】
+#     置为空操作 ⇒ 本器走完整逻辑但不产生自动落盘副作用。
+#   · dryrun_via_block=False : 本器自带实现 ⇒ 把垫片摘走的旗标【放回 argv】，交还原实现。
+if __name__ == "__main__":
+    _R006_DRY = False
+    if _R006_DECL.get("dryrun_via_block") and _r006_want("--dry-run"):
+        _R006_DRY = True
+        _r006_sys.argv = [x for x in _r006_sys.argv if x != "--dry-run"]
+        for _rn in _R006_DECL.get("dry_suppress", []):
+            if callable(globals().get(_rn)):
+                globals()[_rn] = (lambda *a, **k: None)
+    elif "--dry-run" in globals().get("_R006_EARLY_FLAGS", []):
+        _r006_sys.argv.append("--dry-run")
+else:
+    _R006_DRY = False
 
 
 if __name__ == "__main__" and _r006_want("--selfcheck"):

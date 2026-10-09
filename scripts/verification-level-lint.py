@@ -35,7 +35,7 @@
 # 既不绕过本器的严格参数治理，也不让治理挡掉自检入口本身。
 import sys as _r006_sys
 if __name__ == "__main__":
-    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets")
+    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets", "--dry-run")
                          if f in _r006_sys.argv]
     if _R006_EARLY_FLAGS:
         _r006_sys.argv = [x for x in _r006_sys.argv if x not in _R006_EARLY_FLAGS]
@@ -100,13 +100,22 @@ def log(msg):
     except Exception:
         pass
 
-_KNOWN = {"--ns", "--limit", "--all", "--version", "-h", "--help"}
+_KNOWN = {"--ns", "--limit", "--all", "--version", "-h", "--help", "--json"}
 _unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in _KNOWN]
 if _unknown:
-    sys.exit(f"❌ 不认识的参数: {' '.join(_unknown)}\n"
-             f"   本工具接受的参数: {' '.join(sorted(_KNOWN))}\n"
-             f"   ★ 本工具【没有】--selftest 入口（明鉴已知未结项，2026-09-28 盘点时发现）——\n"
-             f"     这里明确说出来，而不是静默跑默认扫描（那会给你另一个问题的答案）。")
+    print("❌ 不认识的参数: %s" % " ".join(_unknown))
+    print("   本工具接受的参数: %s" % " ".join(sorted(_KNOWN)))
+    print("   ★ 本工具【没有】--selftest 入口（明鉴已知未结项，2026-09-28 盘点时发现）——")
+    print("     这里明确说出来，而不是静默跑默认扫描（那会给你另一个问题的答案）。")
+    # ★ R006 ⑨② 退出码语义：用法错误 = 2（原为 sys.exit(字符串) ⇒ rc=1，与「门失效」混为一类）
+    sys.exit(2)
+# ★ R006 ⑨⑤ --help 自解释：原状是【静默忽略 --help 并跑默认扫描（28s，rc=1）】
+if ("-h" in sys.argv[1:]) or ("--help" in sys.argv[1:]):
+    print("用法: verification-level-lint [--ns <ns>] [--limit N] [--all] [--json] [--version]")
+    print("退出码: 0=无发现 · 1=有发现/判据失效 · 2=用法或 IO 错误")
+    print("")
+    print(__doc__ or "")
+    sys.exit(0)
 
 BB = "127.0.0.1:8792"
 
@@ -221,7 +230,6 @@ def main():
     keys = enum(ns)
     if limit:
         keys = keys[:limit]
-    print("扫描 " + ns + " · " + str(len(keys)) + " 键 · 判据段未改动（本次仅修实现 + 加分档）")
     with ThreadPoolExecutor(max_workers=24) as ex:
         res = [r for r in ex.map(scan, keys) if r]
 
@@ -234,6 +242,16 @@ def main():
                 B.append((k, fld, hits))
             else:
                 A.append((k, fld, hits))
+
+    # ★ R006 ⑨④ 机器可读开关：--json ⇒ 【纯 JSON 输出】（故文本输出后移到本分支之后）
+    if "--json" in sys.argv:
+        import json as _j
+        print(_j.dumps({"tool": "verification-level-lint", "version": VERSION, "ns": ns,
+                        "keys_scanned": len(keys), "A_true_defect": A,
+                        "B_undetermined": B, "S_suspect": S},
+                       ensure_ascii=False, default=str))
+        return 1 if (A or B) else 0
+    print("扫描 " + ns + " · " + str(len(keys)) + " 键 · 判据段未改动（本次仅修实现 + 加分档）")
     print("★ 命中字段合计 " + str(len(A) + len(B) + len(S)) + " 个（" + str(len(res)) + " 张卡）—— 新版「处」= 字段，旧版「处」= 匹配次数，不可直接比")
     print("  A 真缺陷（无级别词且无证据）    : " + str(len(A)))
     print("  B 待定  （无级别词但有验证证据）: " + str(len(B)))
@@ -303,6 +321,9 @@ _R006_DECL = {
     'frozen_write': frozenset({'<expr>'}),
     'frozen_danger': frozenset(),
     'positive_expect_rc': [0],
+    'dryrun_via_block': True,
+    'dry_suppress': ['log'],
+    'dryrun_note': '本器原无 --dry-run ⇒ 由 canonical 块接管：垫片摘旗标 + 置空写助手 log',
 }
 
 _R006_EXEC_ATTRS = ("run", "Popen", "call", "check_call", "check_output")
@@ -675,6 +696,26 @@ def _r006_want(flag):
     """旗标本器是否被请求：既认当前 argv，也认【早期垫片】暂存的旗标。
     （垫片必须存在：本器可能在模块级就校验 argv，会先于本块把旗标当「不认识的参数」拒掉。）"""
     return (flag in _r006_sys.argv) or (flag in globals().get("_R006_EARLY_FLAGS", []))
+
+
+# ── R006 ⑨③ `--dry-run` 统一实现（canonical） ────────────────────────────────
+# 分流（★ 必须分流：本族里 3 个器【自带】--dry-run，拦截它会破坏其既有语义）：
+#   · dryrun_via_block=True  : 本器无自带实现 ⇒ 由本块接管：把 --dry-run 从 argv 摘掉
+#     （故其 argparse 不因未知旗标报错），并按 decl["dry_suppress"] 把【自动写入助手】
+#     置为空操作 ⇒ 本器走完整逻辑但不产生自动落盘副作用。
+#   · dryrun_via_block=False : 本器自带实现 ⇒ 把垫片摘走的旗标【放回 argv】，交还原实现。
+if __name__ == "__main__":
+    _R006_DRY = False
+    if _R006_DECL.get("dryrun_via_block") and _r006_want("--dry-run"):
+        _R006_DRY = True
+        _r006_sys.argv = [x for x in _r006_sys.argv if x != "--dry-run"]
+        for _rn in _R006_DECL.get("dry_suppress", []):
+            if callable(globals().get(_rn)):
+                globals()[_rn] = (lambda *a, **k: None)
+    elif "--dry-run" in globals().get("_R006_EARLY_FLAGS", []):
+        _r006_sys.argv.append("--dry-run")
+else:
+    _R006_DRY = False
 
 
 if __name__ == "__main__" and _r006_want("--selfcheck"):

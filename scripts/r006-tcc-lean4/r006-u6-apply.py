@@ -41,7 +41,7 @@ SHIM = '''# ── R006 早期旗标垫片（★ 必须在任何【模块级】�
 # 既不绕过本器的严格参数治理，也不让治理挡掉自检入口本身。
 import sys as _r006_sys
 if __name__ == "__main__":
-    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets")
+    _R006_EARLY_FLAGS = [f for f in ("--selfcheck", "--lean4-check", "--r006-sets", "--dry-run")
                          if f in _r006_sys.argv]
     if _R006_EARLY_FLAGS:
         _r006_sys.argv = [x for x in _r006_sys.argv if x not in _R006_EARLY_FLAGS]
@@ -53,10 +53,16 @@ GUARD_RE = re.compile(r'^if __name__ == "__main__" and "--(selfcheck|lean4-check
 MAIN_RE = re.compile(r'^if __name__ == "__main__":\s*$')
 
 
+SHIM_E = "# ── 垫片结束 ──"
+
+
 def add_shim(text):
-    """把垫片插到【模块 docstring 之后、其余一切之前】。幂等。"""
+    """把垫片插到【模块 docstring 之后、其余一切之前】；★ 已存在则【整段替换】（不是跳过）。
+    —— 幂等检查若写成"存在就跳过"，垫片文本改了也不会生效（本批踩过：--dry-run 进不了捕获列表）。"""
     if SHIM_S in text:
-        return text, "已在"
+        a = text.index(SHIM_S)
+        b = text.index(SHIM_E, a) + len(SHIM_E)
+        return text[:a] + SHIM.rstrip("\n") + text[b:], "替换"
     try:
         tree = ast.parse(text)
         n = tree.body[0]
