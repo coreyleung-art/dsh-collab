@@ -47,7 +47,7 @@ COLLAB = os.path.join(HOME, "dsh-collab")
 LOG = os.path.join(COLLAB, "logs", "r006-retrofit-apply.log")   # ★ R006 ⑦ 固定日志
 
 # ═══ ★ 冻结白名单（R006 ⑩ 类型锁）：本工具【只做两类低风险改动】 ═══
-ACTIONS = ("r10-na", "r7-log", "r10-impl")          # 不可变 tuple
+ACTIONS = ("r10-na", "r7-log", "r10-impl", "r2-selfcheck")          # 不可变 tuple
 
 # ★ 2026-10-09 扩展：支持 .sh / .js（原仅 .py ⇒ 15 个 .sh + 5 个 .js 被跳过）
 NA_TEXT_LINES = [
@@ -604,6 +604,180 @@ def gen_delete_na(src):
     block = ["#"] + ["# " + l for l in NA_DEL] + ["#"]
     return "\n".join(lines[:idx] + block + [""] + lines[idx:]), None
 
+
+# ─────────────── ★ r2-selfcheck：生成 TCC 能力边界自检（R006 ②）───────────────
+#   ★ 与 r10-impl 同原则：**三段内容 = 从本工具【实际检测到】的事实**，而非空模板：
+#     ① 能力清单      ← 头部 docstring/注释的用途行 + argparse 子命令
+#     ② 不该发生路径   ← 危险原语检测结果（有 ⇒ 列出；无 ⇒ 明确声明无该路径）
+#     ③ 依赖完整性    ← import 语句分类（标准库 / 第三方 / 缺失）
+def gen_selfcheck_for(src, toolname):
+    """为工具生成 --selfcheck（三段）。返回 (new_src, err)。"""
+    import re as _re
+    if "--selfcheck" in strip_code_py(src):
+        return None, "已有 --selfcheck（跳过）"
+
+    # ① 能力清单：docstring 里的非空行 + argparse 的子命令
+    caps = []
+    m = _re.search(r'"""[\s\S]{0,1800}?"""', src)
+    head = m.group(0) if m else "\n".join(src.split("\n")[:30])
+    for ln in head.split("\n"):
+        s = ln.strip().strip('"').strip()
+        if not s or s.startswith("#") or "-*-" in s or s.startswith("!"):
+            continue
+        if _re.search(r"[\u4e00-\u9fff]", s) and 6 <= len(s) <= 100:
+            caps.append(s)
+        if len(caps) >= 4:
+            break
+    subs = _re.findall(r'add_parser\(\s*["\']([\w-]+)["\']', src)
+    subs += _re.findall(r'add_argument\(\s*["\']--([\w-]+)["\']', src)
+    subs = list(dict.fromkeys(subs))[:8]
+
+    # ② 不该发生路径：危险原语
+    code = strip_code_py(src) if "strip_code_py" in globals() else src
+    DANG = [(r"subprocess\.", "执行外部命令"), (r"os\.system\s*\(", "经 shell 执行命令"),
+            (r"os\.remove\s*\(|shutil\.rmtree\s*\(|os\.rmdir\s*\(", "删除文件/目录"),
+            (r"os\.chmod\s*\(|os\.chown\s*\(", "修改权限"), (r"os\.kill\s*\(|\bpkill\b", "终止进程"),
+            (r"https?://", "访问网络")]
+    hits = [desc for pat, desc in DANG if _re.search(pat, code)]
+    shell_true = bool(_re.search(r"shell\s*=\s*True", code))
+
+    # ③ 依赖完整性
+    imports = set()
+    for ln in src.split("\n"):
+        mm = _re.match(r"\s*(?:import|from)\s+([A-Za-z_][\w.]*)", ln)
+        if mm:
+            imports.add(mm.group(1).split(".")[0])
+    # ★ 2026-10-09 修：原 STDLIB 为手写短名单 ⇒ 把 ast/inspect 等标准库误判为「第三方」
+    #   （实证 absence-claim-lint 输出「★ 第三方: ast, inspect」）。⇒ 改用【运行时权威来源】：
+    #   Python 3.10+ 的 sys.stdlib_module_names；3.9 及以下回退到 sys.builtin_module_names
+    #   + 一份更全的常见标准库名单。
+    try:
+        import sys as _s
+        _std = set(getattr(_s, "stdlib_module_names", ())) | set(getattr(_s, "builtin_module_names", ()))
+    except Exception:
+        _std = set()
+    _std |= {
+        "os","sys","re","json","io","time","datetime","glob","hashlib","argparse","subprocess",
+        "shutil","collections","itertools","functools","pathlib","typing","urllib","http","ast",
+        "inspect","tempfile","random","math","statistics","csv","sqlite3","logging","traceback",
+        "base64","uuid","signal","platform","socket","threading","concurrent","unittest","textwrap",
+        "string","abc","copy","enum","dataclasses","contextlib","warnings","difflib","unicodedata",
+        "struct","pickle","gzip","zipfile","tarfile","filecmp","fnmatch","stat","errno","locale",
+        "getpass","pwd","grp","resource","select","ssl","email","mimetypes","html","xml","codecs",
+    }
+    third = sorted(x for x in imports if x not in _std and not x.startswith("_"))
+    std = sorted(x for x in imports if x in _std)
+
+    L = []
+    A = L.append
+    A("")
+    A("")
+    A("# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══")
+    A("#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——")
+    A("#   三段内容取自【本工具实际被检测到的结构】，非空模板。")
+    A("def selfcheck():")
+    A("    import sys as _sys, os as _os")
+    A('    print("== %s 自查（TCC 能力边界）==")' % toolname)
+    A("")
+    A('    print("【① 能力清单】")')
+    if caps:
+        for c in caps:
+            A('    print("  · %s")' % c.replace('"', "'")[:96])
+    else:
+        A('    print("  · （头部无中文用途说明 ⇒ 能力清单为空，建议补 docstring）")')
+    if subs:
+        A('    print("  · 命令/参数: %s")' % ", ".join(subs[:8]).replace('"', "'"))
+    A("")
+    A('    print("【② 不该发生路径清单】")')
+    if hits:
+        for h in hits:
+            A('    print("  · 本工具涉及「%s」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")' % h)
+    else:
+        A('    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")')
+    if shell_true:
+        A('    print("  · ★ 检出 shell=True ⇒ 命令须由受控来源提供，外部输入不得拼入")')
+    A('    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")')
+    A("")
+    A('    print("【③ 依赖完整性】")')
+    # ★ 本行【不得】用 %% 转义（无外层格式化）—— 与 r10 生成器同族的坑，已第二次踩
+    A('    print("  · Python %s" % _sys.version.split()[0])')
+    if std:
+        A('    print("  · 标准库: %s")' % ", ".join(std[:12]).replace('"', "'"))
+    if third:
+        A('    print("  · ★ 第三方: %s ⇒ 缺失时行为须明确（拒绝或降级），不得抛栈")' % ", ".join(third[:8]).replace('"', "'"))
+    else:
+        A('    print("  · ✅ 无第三方依赖（仅标准库）")')
+    A('    print("  · 固定日志: ~/dsh-collab/logs/%s.log")' % toolname)
+    A("    return 0")
+    A("")
+    A("")
+    body = "\n".join(L)
+
+    # 插入：docstring 之后（或注释头之后）
+    ds = docstring_span(src)
+    lines = src.split("\n")
+    if ds:
+        ins = ds[1] + 1
+    else:
+        ins = 0
+        for i, ln in enumerate(lines):
+            s = ln.strip()
+            if s == "" or s.startswith("#") or s.startswith("import ") or s.startswith("from "):
+                ins = i + 1; continue
+            break
+    new = "\n".join(lines[:ins]) + body + "\n".join(lines[ins:])
+
+    # 接线：加 --selfcheck 旗标 + 分流
+    import re as _r2
+    m_ap = _r2.search(r"(\w+)\.add_argument\(", src)
+    apv = m_ap.group(1) if m_ap else None
+    if apv:
+        m_ins = _r2.search(r"(\n\s*" + _r2.escape(apv) + r"\.add_argument\([^\n]*\))", new)
+        if m_ins:
+            _mline = new[m_ins.start(1):m_ins.end(1)]
+            _ind = _r2.match(r"\n(\s*)", _mline)
+            _ind = _ind.group(1) if _ind else "    "
+            new = new[:m_ins.end(1)] + '\n' + _ind + apv + '.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")' + new[m_ins.end(1):]
+        m_pa = _r2.search(r"(\n(\s*)args = " + _r2.escape(apv) + r"\.parse_args\(\))", new)
+        if m_pa:
+            ind = m_pa.group(2)
+            new = new[:m_pa.start(1)] + ("\n" + ind + 'if "--selfcheck" in __import__("sys").argv:' + "\n"
+                                         + ind + "    return selfcheck()") + new[m_pa.start(1):]
+            return new, None
+    # 无 argparse ⇒ 顶层脚本模式。
+    # ★ 2026-10-09 修：dispatch 必须插在【def selfcheck 之后】——
+    #   原插在 docstring 之后（即 def 之前）⇒ 调用时 NameError（实证 25/40 失败）。
+    rl = new.split("\n")
+    _i_def = next((i for i, l in enumerate(rl) if l.startswith("def selfcheck")), None)
+    if _i_def is None:
+        return None, "生成的 selfcheck 定义未找到"
+    # 找该 def 块结束（下一个顶层 def/class/if 之前的最后一行）
+    _i_end = _i_def + 1
+    while _i_end < len(rl):
+        if rl[_i_end].startswith(("def ", "class ", "if __name__")) or (
+                rl[_i_end] and not rl[_i_end][0].isspace() and not rl[_i_end].startswith("#")):
+            break
+        _i_end += 1
+    dispatch = ('\nimport sys as _r006_sys\n'
+                'if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:\n'
+                '    _r006_sys.exit(selfcheck())\n')
+    new = "\n".join(rl[:_i_end] + [dispatch] + rl[_i_end:])
+    return new, None
+
+
+def strip_code_py(src):
+    """剥离 Python 注释与字符串（供 R2 生成器复用同一判据）。"""
+    try:
+        import io as _io, tokenize as _tk
+        out = []
+        for tk in _tk.generate_tokens(_io.StringIO(src).readline):
+            if tk.type in (_tk.STRING, _tk.COMMENT): out.append(" ")
+            elif tk.type in (_tk.NL, _tk.NEWLINE): out.append("\n")
+            else: out.append(tk.string)
+        return "".join(out)
+    except Exception:
+        return src
+
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -637,6 +811,23 @@ def candidates(action):
         return out, None
     if action == "r7-log":
         return [r for r in rows if r["r7"] == "missing"], None
+    if action == "r2-selfcheck":
+        # ★ R006 ② TCC：无 --selfcheck 的 .py 脚本（.sh/.js 另立）
+        out = []
+        for r in rows:
+            n = r["name"]
+            if not n.endswith(".py"):
+                continue
+            try:
+                s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
+            except Exception:
+                continue
+            if "--selfcheck" in strip_code_py(s):
+                continue
+            if "def selfcheck" in s:
+                continue
+            out.append(r)
+        return out, None
     if action == "r10-impl":
         # ★ 只对【subprocess 完全安全】的（列表字面量、无 shell=True）—— 否则断言会是假的
         out = []
@@ -761,6 +952,7 @@ def main():
     ap.add_argument("--r10-na", action="store_true")
     ap.add_argument("--r7-log", action="store_true")
     ap.add_argument("--r10-impl", action="store_true", help="★ 为 subprocess 安全用法生成 lean4_check")
+    ap.add_argument("--r2-selfcheck", action="store_true", help="★ 生成 TCC 能力边界自检（R006 ②）")
     ap.add_argument("--limit", type=int, default=5, help="本批最多处理 N 个（默认 5）")
     ap.add_argument("--apply", action="store_true", help="★ 真写（默认 dry-run）")
     ap.add_argument("--list", action="store_true")
@@ -770,7 +962,7 @@ def main():
     if a.selftest: return selftest()
     if a.lean4_check: return lean4_check()
 
-    action = ("r10-na" if a.r10_na else ("r7-log" if a.r7_log else ("r10-impl" if a.r10_impl else None)))
+    action = ("r10-na" if a.r10_na else ("r7-log" if a.r7_log else ("r10-impl" if a.r10_impl else ("r2-selfcheck" if a.r2_selfcheck else None))))
     if a.list:
         for act in ACTIONS:
             cand, err = candidates(act)
@@ -803,6 +995,8 @@ def main():
                 new, why = (insert_na(src) if ext == ".py" else insert_na_shell(src, ext))
         elif action == "r10-impl":
             new, why = gen_lean4_for(src, slug)
+        elif action == "r2-selfcheck":
+            new, why = gen_selfcheck_for(src, slug)
         else:
             new, why = (insert_r7(src, slug) if ext == ".py" else insert_r7_shell(src, slug, ext))
         if new is None:
