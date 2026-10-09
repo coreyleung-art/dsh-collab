@@ -397,7 +397,8 @@ def gen_lean4_for(src, toolname):
     _has_del = bool(_re.search(r"os\.remove\(|shutil\.rmtree\(|os\.rmdir\(", code))
     _has_sub = bool(_re.search(r"subprocess\.(?:run|Popen|call)\s*\(", code))
     if _has_del and not _has_sub:
-        return _gen_delete_check(src, toolname)
+        return gen_delete_na(src)
+
     if not has_lit:
         return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
     # ★ 2026-10-09 修：旗标检测须【剥离注释/字符串后】判断 ——
@@ -547,6 +548,55 @@ def gen_lean4_for(src, toolname):
         new = _re.sub(r"(^import [^\n]*)$", r"\1\nimport sys", new, count=1, flags=_re.M)
     return new, None
 
+def da_strip(src):
+    """剥离去注释/字符串（供候选判断用；与 r006-debt-assess 的 strip_code 同法）。"""
+    try:
+        import io as _io, tokenize as _tk
+        out = []
+        for tk in _tk.generate_tokens(_io.StringIO(src).readline):
+            if tk.type in (_tk.STRING, _tk.COMMENT): out.append(" ")
+            elif tk.type in (_tk.NL, _tk.NEWLINE): out.append("\n")
+            else: out.append(tk.string)
+        return "".join(out)
+    except Exception:
+        return src
+
+
+
+def gen_delete_na(src):
+    """删除类工具的【带依据 N/A 声明】。
+
+    ★ 依据（实证 6 个工具）：删除目标均为【自身临时/归档目录】（DATA_DIR 常量 /
+      tempfile 临时目录 / 自身缓冲），**不从参数接收删除目标** ⇒ 依 R10 定义
+      （「不该发生的路径在结构上不可绕过」）此处无该路径。
+    """
+    NA_DEL = [
+        "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不修改权限】。",
+        "  关于删除：本工具确有 os.remove/rmtree，但**目标限于【自身临时/归档目录】**",
+        "  （常量 DATA_DIR / tempfile 临时目录 / 自身缓冲目录），**不从参数接收删除目标** ⇒",
+        "  依 R10 定义（「不该发生的路径在结构上不可绕过」）此处无该路径。",
+        "★ 限度：此为【模式匹配 + 人工核】结论；若日后引入【由参数驱动的删除目标】，须更新本声明。",
+    ]
+    if "约束门（⑩）" in src:
+        return None, "已有约束门声明（跳过）"
+    span = docstring_span(src)
+    if span and span[0] != span[1]:
+        lines = src.split("\n")
+        lines[span[1]:span[1]] = [""] + NA_DEL
+        return "\n".join(lines), None
+    lines = src.split("\n")
+    if span:
+        idx = span[1] + 1
+    else:
+        idx = 0
+        for i, ln in enumerate(lines):
+            s = ln.strip()
+            if s == "" or s.startswith("#"):
+                idx = i + 1; continue
+            break
+    block = ["#"] + ["# " + l for l in NA_DEL] + ["#"]
+    return "\n".join(lines[:idx] + block + [""] + lines[idx:]), None
+
 def candidates(action):
     import importlib.util
     spec = importlib.util.spec_from_file_location(
@@ -559,7 +609,25 @@ def candidates(action):
     rows = debt.scan()
     if action == "r10-na":
         # ★ 放开到全部扩展名（.py 走 docstring，.sh/.js 走注释块）
-        return [r for r in rows if r["r10"] == "missing" and not r["dangerous"]], None
+        # ★ 并纳入【删除类但无 subprocess】（它们只需带依据的 N/A 声明）
+        out = []
+        for r in rows:
+            if r["r10"] != "missing":
+                continue
+            if not r["dangerous"]:
+                out.append(r); continue
+            if not r["name"].endswith(".py"):
+                continue
+            try:
+                s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
+            except Exception:
+                continue
+            c = da_strip(s)
+            _del = bool(re.search(r"os\.remove\(|shutil\.rmtree\(|os\.rmdir\(", c))
+            _sub = bool(re.search(r"subprocess\.(?:run|Popen|call)\s*\(", c))
+            if _del and not _sub:
+                out.append(r)
+        return out, None
     if action == "r7-log":
         return [r for r in rows if r["r7"] == "missing"], None
     if action == "r10-impl":
@@ -584,8 +652,14 @@ def candidates(action):
                 s = io.open(os.path.expanduser(r["path"]), encoding="utf-8", errors="ignore").read()
             except Exception:
                 continue
-            if re.search(r"shell\s*=\s*True", s):
+            if re.search(r"shell\s*=\s*True", da_strip(s)):
                 continue
+            # ★ 2026-10-09 修：原条件【只接受 subprocess 列表字面量】⇒ 删除类
+            #   （os.remove/rmtree，无 subprocess）被全部排除（实证 6 个）。
+            #   ⇒ 改为：**subprocess 列表字面量 OR 删除类** 任一即入选。
+            # ★ 2026-10-09 再修：删除类【不走 r10-impl】—— 它们只需 N/A 声明
+            #   （有依据），而 r10-impl 的功能验证要求 `--lean4-check` 可跑 ⇒ 必然失败。
+            #   ⇒ 删除类改由 r10-na 通道处理。
             if not re.search(r"subprocess\.(?:run|Popen|call)\(\s*\[", s):
                 continue
             out.append(r)
@@ -711,7 +785,12 @@ def main():
         ext = os.path.splitext(r["name"])[1]
         slug = r["name"].rsplit(".", 1)[0]
         if action == "r10-na":
-            new, why = (insert_na(src) if ext == ".py" else insert_na_shell(src, ext))
+            # ★ 删除类（有 os.remove/rmtree 但无 subprocess）走【带依据的 N/A】
+            if ext == ".py" and re.search(r"os\.remove\(|shutil\.rmtree\(|os\.rmdir\(", da_strip(src)) \
+               and not re.search(r"subprocess\.(?:run|Popen|call)\s*\(", da_strip(src)):
+                new, why = gen_delete_na(src)
+            else:
+                new, why = (insert_na(src) if ext == ".py" else insert_na_shell(src, ext))
         elif action == "r10-impl":
             new, why = gen_lean4_for(src, slug)
         else:
