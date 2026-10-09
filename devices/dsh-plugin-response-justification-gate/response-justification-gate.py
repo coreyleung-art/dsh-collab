@@ -193,26 +193,35 @@ def strip_code(src):
         「探针字符串在否」这类弱判据【抓不到】（旧版正是如此，两份版本都没抓到）。
     """
     try:
-        n_lines = len(src.split("\n"))
-        lines = [""] * n_lines
+        n = len(src.split("\n"))
+        lines = src.split("\n")
+        # ★★ 2026-10-10 修：原实现「逐 token 重拼」=> **token 间空白被吞**
+        #   实证后果：`if a.selftest:` -> `ifa.selftest:` ; `def selftest(` -> `defselftest(`
+        #   => 下游以【空白为界】的正则（如 def 加空白加 selftest）全部失配
+        #   => 该 bug 同时造成【selftest 自身 2 条 FAIL】与【对他人脚本的假阳性】。
+        #   => 修法：**只抹除 STRING/COMMENT 覆盖的区段，其余保留原文**（不重拼 token）。
+        spans = []
         for tk in tokenize.generate_tokens(io.StringIO(src).readline):
             if tk.type in (tokenize.STRING, tokenize.COMMENT):
-                # ★ 被剥离：该 token 覆盖的行【置为空】—— 按行号，不数换行
-                for ln in range(tk.start[0], tk.end[0] + 1):
-                    if 1 <= ln <= n_lines:
+                spans.append((tk.start[0], tk.start[1], tk.end[0], tk.end[1]))
+        for (sr, sc, er, ec) in spans:
+            if sr == er:
+                if 1 <= sr <= n:
+                    L = lines[sr - 1]
+                    lines[sr - 1] = L[:sc] + " " * (ec - sc) + L[ec:]
+            else:
+                for ln in range(sr, er + 1):
+                    if not (1 <= ln <= n):
+                        continue
+                    if ln == sr:
+                        lines[ln - 1] = lines[ln - 1][:sc]
+                    elif ln == er:
+                        lines[ln - 1] = " " * ec + lines[ln - 1][ec:]
+                    else:
                         lines[ln - 1] = ""
-                continue
-            if tk.type in (tokenize.NL, tokenize.NEWLINE, tokenize.INDENT,
-                           tokenize.DEDENT, tokenize.ENDMARKER):
-                continue
-            # ★ 代码 token：按【其起始行】落位（同行的多个 token 顺序拼接）
-            ln = tk.start[0]
-            if 1 <= ln <= n_lines:
-                lines[ln - 1] += tk.string
         return "\n".join(lines)
     except Exception:
         return src
-
 
 # ────────────────────────── ★ 谓词（与 .lean 1:1）──────────────────────────
 # ★ 命名与 rules-registry/lean4/response-justification-gate.lean 的 def 一一对应；

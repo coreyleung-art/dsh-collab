@@ -89,23 +89,34 @@ def strip_code(src):
     ★ 按 token 行号重建 ⇒ 行号一一对应（本线 2026-10-10 修出的实现）。"""
     try:
         n = len(src.split("\n"))
-        lines = [""] * n
+        lines = src.split("\n")
+        # ★★ 2026-10-10 修：原实现「逐 token 重拼」=> **token 间空白被吞**
+        #   实证后果：`if a.selftest:` -> `ifa.selftest:` ; `def selftest(` -> `defselftest(`
+        #   => 下游以【空白为界】的正则（如 def 加空白加 selftest）全部失配
+        #   => 该 bug 同时造成【selftest 自身 2 条 FAIL】与【对他人脚本的假阳性】。
+        #   => 修法：**只抹除 STRING/COMMENT 覆盖的区段，其余保留原文**（不重拼 token）。
+        spans = []
         for tk in tokenize.generate_tokens(io.StringIO(src).readline):
             if tk.type in (tokenize.STRING, tokenize.COMMENT):
-                for ln in range(tk.start[0], tk.end[0] + 1):
-                    if 1 <= ln <= n:
+                spans.append((tk.start[0], tk.start[1], tk.end[0], tk.end[1]))
+        for (sr, sc, er, ec) in spans:
+            if sr == er:
+                if 1 <= sr <= n:
+                    L = lines[sr - 1]
+                    lines[sr - 1] = L[:sc] + " " * (ec - sc) + L[ec:]
+            else:
+                for ln in range(sr, er + 1):
+                    if not (1 <= ln <= n):
+                        continue
+                    if ln == sr:
+                        lines[ln - 1] = lines[ln - 1][:sc]
+                    elif ln == er:
+                        lines[ln - 1] = " " * ec + lines[ln - 1][ec:]
+                    else:
                         lines[ln - 1] = ""
-                continue
-            if tk.type in (tokenize.NL, tokenize.NEWLINE, tokenize.INDENT,
-                           tokenize.DEDENT, tokenize.ENDMARKER):
-                continue
-            ln = tk.start[0]
-            if 1 <= ln <= n:
-                lines[ln - 1] += tk.string
         return "\n".join(lines)
     except Exception:
         return src
-
 
 # ────────────────── 判据：真值分布 vs 解析器字段分布 ──────────────────
 

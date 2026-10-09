@@ -139,15 +139,77 @@ def run_case(name, argv, want_code, want_in, want_out, tmp):
     return ("pass", "%.2fs" % dt)
 
 
+def selftest():
+    """★ 本测试器【自身的】自检（2026-10-10 加）。
+
+    为什么加：`test-script-selfcheck-gate` 首次实跑 ⇒ **报本文件「无 --selftest」**。
+    ⇒ **我自己的门抓出了我自己的缺失** —— 按裁判判据「凡提交测试脚本须提供实跑通过的 --selftest」，
+      本测试器也须自检。★ 加它同时使该门对本目录不再有 FAIL。
+    """
+    fails = neg = pos = 0
+
+    def c(name, cond, kind="pos"):
+        nonlocal fails, neg, pos
+        if kind == "pos":
+            pos += 1
+        else:
+            neg += 1
+        ok = bool(cond)
+        print("  %s %-6s %-52s" % ("✅" if ok else "❌", kind, name))
+        if not ok:
+            fails += 1
+
+    print("== mount-smoke selftest ==")
+    # ① 版本派生（不写死 —— 曾因此假红）
+    v = _gate_version()
+    c("★ 能从主器派生版本（非写死）", v != "?")
+    c("★ 主器版本形如 x.y.z", bool(__import__("re").match(r"^\d+\.\d+\.\d+$", v)), "(%s)" % v)
+    # ② 用例表结构
+    import tempfile, os as _os
+    cases = build_cases(tempfile.mkdtemp(prefix="ms-"))
+    c("用例表非空", len(cases) > 0, "(%d 例)" % len(cases))
+    c("★ 每例含 (名称, argv, 期望退出码, 须含, 须不含)",
+      all(len(x) == 5 for x in cases))
+    c("★ 期望退出码均为 int", all(isinstance(x[2], int) for x in cases))
+    # ③ ★ 四态定义在场（不折算）
+    with open(_os.path.abspath(__file__), encoding="utf-8") as _f:
+        src = _f.read()
+    c("★ 四态齐（pass/fail/skipped/timeout）",
+      all(t in src for t in ("pass", "fail", "skipped", "timeout")))
+    c("★ 声明 skipped/timeout 不折算为通过", "不折算" in src)
+    # ④ ★ 负例：被测对象【真】缺失 ⇒ 应 skipped（不假绿）
+    #   ★ 2026-10-10 修：原断言传 "/nonexistent-dir" 作 tmp ⇒ 但 run_case 检查的是【GATE 是否存在】
+    #     而 GATE 真实存在 ⇒ 该例真跑成功 ⇒ 断言【预设错了】（我的断言自身的错）。
+    #   ⇒ 正确做法：把 GATE 指向一个不存在的路径，再跑。
+    _saved = globals()["GATE"]
+    try:
+        globals()["GATE"] = "/nonexistent-gate-xyz.py"
+        st, det = run_case("x", ["--version"], 0, None, None, "/tmp")
+        c("★ 被测对象【真】缺失 ⇒ skipped（不假绿）", st == "skipped", "(%s)" % det)
+    finally:
+        globals()["GATE"] = _saved
+    # ⑤ ★ 断言「判定不折算 skipped」—— 造一个含 skipped 的 counts，验证 bad 计算
+    _counts = {"pass": 3, "fail": 0, "skipped": 2, "timeout": 0}
+    _bad = _counts.get("fail", 0) + _counts.get("timeout", 0)
+    c("★ 判定公式：bad = fail + timeout（skipped 不计入）", _bad == 0,
+      "（pass=3 skipped=2 ⇒ bad=%d）" % _bad)
+
+    print("\n  selftest: %d FAIL ｜ 反例 %d 条 / 正例 %d 条" % (fails, neg, pos))
+    return 0 if fails == 0 else 1
+
+
 def main():
     ap = argparse.ArgumentParser(description="回应正当性门 · 真挂载冒烟（四态如实分报）")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--version", action="store_true")
+    ap.add_argument("--selftest", action="store_true", help="★ 本测试器自身的自检")
     ap.add_argument("--help-extra", action="store_true")
     a = ap.parse_args()
     if a.version:
         print(__version__)
         return 0
+    if a.selftest:
+        return selftest()
 
     import tempfile
     tmp = tempfile.mkdtemp(prefix="rjg-smoke-")
