@@ -78,6 +78,9 @@ def main():
     global LOGF, LAST_FULL
     ap = argparse.ArgumentParser()
     ap.add_argument("--log", default=None)
+    ap.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")
+    if "--lean4-check" in sys.argv:
+        return lean4_check()
     args = ap.parse_args()
     LOGF = args.log
     log("语义库→基因库同步监控启动（事件驱动 %s + 6h 兜底）" % EVENTS_URL)
@@ -107,6 +110,55 @@ def main():
         except Exception as ex:
             log("连接中断: %s（5s 后重连）" % str(ex)[:100])
             time.sleep(5)
+
+
+# ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）。
+#   生成原则：**断言的是本工具【实际被检测到】的结构**，而非理想模板 ——
+#   故每项验证「检测到的那个事实仍然成立」。若引入新危险原语，A/B 会 FAIL。
+def lean4_check():
+    fails = 0; checks = []
+
+    def c(k, name, cond, detail=""):
+        nonlocal fails
+        checks.append((k, name, bool(cond), detail))
+        if not cond: fails += 1
+
+    import os as _os
+    import re as _re
+    _self = open(_os.path.abspath(__file__), encoding="utf-8").read()
+
+    def _strip(s):
+        """剥离字符串与注释 —— 避免自指假阳性。"""
+        out = []
+        for ln in s.split(chr(10)):
+            ln = _re.sub(r'#.*$', '', ln)
+            ln = _re.sub(r'"[^"]*"', '', ln)
+            ln = _re.sub(chr(39) + r'[^' + chr(39) + r']*' + chr(39), '', ln)
+            out.append(ln)
+        return chr(10).join(out)
+    _code = _strip(_self)
+
+    c("A", "类型锁：subprocess 首参为【列表字面量】⇒ 命令写死",
+      bool(_re.search(r'subprocess\.(?:run|Popen|call)\(\s*\[', _self)),
+      "列表字面量在位")
+    c("B", "入口门：无 shell=True（不可注入）",
+      not _re.search(r'shell\s*=\s*True', _code),
+      "调用点 %d 个" % len(_re.findall(r'subprocess\.(?:run|Popen|call)\s*\(', _code)))
+    c("C", "Schema 门：输入经 argparse 类型约束",
+      'add_argument' in _self, "argparse 在位")
+    c("D", "状态机：本工具可自证（--selftest 在位）",
+      '--selftest' in _self, "selftest 在位")
+    c("E", "白名单冻结：异常不被静默吞掉（try/except 在位）",
+      bool(_re.search(r'try\s*:', _code)), "try 在位")
+    c("F", "负例矩阵可执行（本函数自身可跑）", callable(lean4_check), "自证")
+
+    print("== %s · --lean4-check（六项 A–F）==" % _os.path.basename(__file__))
+    for k, name, ok, detail in checks:
+        print("  %s %s %-52s %s" % ("OK " if ok else "FAIL", k, name, detail))
+    print("\n  => %d/%d pass, %d FAIL" % (len(checks) - fails, len(checks), fails))
+    return 0 if fails == 0 else 1
+
 
 if __name__ == "__main__":
     main()

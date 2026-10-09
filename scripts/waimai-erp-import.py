@@ -9,6 +9,12 @@ upsert 准备。蓝图 2.5 数据打通核心（数据已就绪：commodityData 
   python3 waimai-erp-import.py --csv '<导出CSV路径>'          # 提取商品汇总
   python3 waimai-erp-import.py --csv '<路径>' --out map.json   # 输出映射
   python3 waimai-erp-import.py --list-exports                  # 列出现有导出
+
+★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+依据：r006-debt-assess.py 机械扫描未检出以下原语：
+      subprocess / os.system / eval / exec / os.remove / rmtree /
+      os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
