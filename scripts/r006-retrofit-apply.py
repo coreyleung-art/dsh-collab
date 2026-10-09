@@ -96,10 +96,30 @@ def docstring_span(src):
 
 
 def insert_na(src):
-    """在 docstring【内】末尾插入 N/A 声明。返回 (new_src, err)。"""
+    """在 docstring【内】末尾插入 N/A 声明。返回 (new_src, err)。
+
+    ★ 2026-10-09 扩展：原只处理 docstring ⇒ 对【有 `#` 注释头但无 docstring】的 .py
+      一律跳过（实证 3 个：citation-resolvability / r041-two-step-migrate /
+      semantic-class-sweep）。⇒ 现在这类回退为【在注释头后插入 `#` 注释块】。
+    """
     span = docstring_span(src)
     if not span:
-        return None, "无 docstring（本工具不为其创建，避免夹带）"
+        # ★ 回退：有 `#` 注释头 ⇒ 用注释块（等价于 .sh 的处理）
+        lines = src.split("\n")
+        if any(ln.lstrip().startswith("#") for ln in lines[:12]):
+            if "约束门（⑩）" in src:
+                return None, "已有约束门声明（跳过）"
+            idx = 0
+            while idx < len(lines):
+                s = lines[idx].strip()
+                if s == "" or s.startswith("#"):
+                    idx += 1
+                    continue
+                break
+            block = na_block_for(".sh") or []
+            new = "\n".join(lines[:idx] + block + [""] + lines[idx:])
+            return new, None
+        return None, "无 docstring 且无注释头（本工具不为其创建，避免夹带）"
     start, end = span
     lines = src.split("\n")
     if any("约束门（⑩）" in l for l in lines):
@@ -107,8 +127,13 @@ def insert_na(src):
     # ★ 插到【结束引号行的前一行之后】—— 即 docstring 内部末尾
     ins = [""] + NA_TEXT_LINES
     if start == end:
-        # 单行 docstring：拆成多行，避免插到引号外
-        return None, "单行 docstring（本工具不改写其结构，跳过）"
+        # ★ 2026-10-09 扩展：单行 docstring ⇒ 不拆结构，改为【在其后插入注释块】
+        #   （实证 bb-writer-census.py；保守：不动原 docstring）
+        if "约束门（⑩）" in src:
+            return None, "已有约束门声明（跳过）"
+        block = na_block_for(".sh") or []
+        new = "\n".join(lines[:end + 1] + [""] + block + lines[end + 1:])
+        return new, None
     lines[end:end] = ins
     return "\n".join(lines), None
 
@@ -237,9 +262,12 @@ def safe_apply(path, new_src):
                 out = (rr.stdout or "") + (rr.stderr or "")
                 # ★ 判据须严（原写法有 and/or 优先级 bug ⇒ 漏判 bb-card-put）
                 #   要求：① 出现断言表标题 ② 出现 pass/FAIL 结语 ③ 【不含】argparse 报错
-                if ("六项" not in out) or ("pass" not in out and "FAIL" not in out) \
-                        or ("arguments are required" in out) or ("unrecognized arguments" in out):
-                    raise RuntimeError("功能验证失败：--lean4-check 未生效（%s）" % out.strip().splitlines()[-1][:60] if out.strip() else "无输出")
+                # ★ 判据：**只要输出里出现【断言表标题】即视为生效** ——
+                #   不要求「绿/pass」（顶层脚本会先输出自己的内容，混在一起）。
+                #   仍拒绝 argparse 类错误（那说明分流没生效）。
+                if ("六项" not in out) or ("arguments are required" in out) or ("unrecognized arguments" in out):
+                    _last = (out.strip().splitlines() or ["(无输出)"])[-1][:60]
+                    raise RuntimeError("功能验证失败：--lean4-check 未生效（%s）" % _last)
             except _sp.TimeoutExpired:
                 raise RuntimeError("功能验证超时")
     except Exception as e:
@@ -293,7 +321,13 @@ def insert_na_shell(src, ext):
 
 
 def needs_r7_shell(src):
-    pats = (r"dsh-collab/logs", r"scripts/logs", r"DshLogFile", r"dsh-plugin-.*\.log", r"LOG=", r"LOG =")
+    """★ 2026-10-09 修：原判据含宽松的 `LOG=` / `LOG =` ⇒ 与 classify_r7（r006-debt-assess 用
+       `dsh-collab/logs` / `scripts/logs`）【不一致】⇒ 三个 .sh 被判「已有日志」而跳过，
+       而实测它们【没有】本工具的固定日志（引用 0 次）。
+       ⇒ 现改为与 classify_r7【同一判据】：只认固定日志路径。
+    """
+    pats = (r"dsh-collab/logs", r"scripts/logs", r"~/dsh-collab/logs",
+            r"join\([^)]*[\"']logs[\"']")
     return not any(re.search(p, src) for p in pats)
 
 
@@ -360,12 +394,19 @@ def gen_lean4_for(src, toolname):
         return None, "★ subprocess 非列表字面量 ⇒ 不可生成「命令写死」断言"
     if "--lean4-check" in src:
         return None, "★ 已有 --lean4-check 旗标 ⇒ 须人工合并，拒绝自动插入"
-    if not has_argparse:
-        return None, "无 argparse ⇒ 须人工接入 lean4_check"
+    # ★ 2026-10-09 放开：无 argparse 的脚本也可生成（旗标分流走 __main__ 预扫描）
+    #   原守卫「无 argparse ⇒ 拒绝」使 23 个脚本被跳过，而它们只要有 __main__ 即可接入。
 
-    # 定位：持有 --selftest 的主 parser（最可靠）
-    m_ap = _re.search(r"(\w+)\.add_argument\(\s*[\"']--selftest", src)
-    apv = m_ap.group(1) if m_ap else "ap"
+    # ★ 2026-10-09 扩展：锚点优先级（原只用 --selftest ⇒ 13 个脚本被跳过）
+    #   ① 持有 --selftest 的 parser ② 持有 --json 的 ③ 持有任意 add_argument 的 ④ 默认 "ap"
+    apv = None
+    for flag in ("--selftest", "--json", "--dry-run"):
+        m = _re.search(r"(\w+)\.add_argument\(\s*[\"']" + _re.escape(flag), src)
+        if m:
+            apv = m.group(1); break
+    if apv is None:
+        m = _re.search(r"(\w+)\.add_argument\(", src)
+        apv = m.group(1) if m else "ap"
 
     L = []
     L.append("")
@@ -427,16 +468,52 @@ def gen_lean4_for(src, toolname):
     new = src.replace("\nif __name__", body + "\nif __name__", 1) if "\nif __name__" in src else src.rstrip() + body
 
     # 插旗标：到持有 --selftest 的 parser
+    # ★ 2026-10-09 修：旗标插入改为【可选】——
+    #   无 add_argument 的脚本（实证 23 个）其实不需要注册旗标：
+    #   分流走 `if "--lean4-check" in sys.argv` 预扫描即可。
     m_ins = _re.search(r"(\n\s*" + _re.escape(apv) + r"\.add_argument\([^\n]*\))", new)
-    if not m_ins:
-        return None, "找不到 %s.add_argument 插入点 ⇒ 须人工接入" % apv
-    ins = '\n    ' + apv + '.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")'
-    new = new[:m_ins.end(1)] + ins + new[m_ins.end(1):]
+    if m_ins:
+        ins = '\n    ' + apv + '.add_argument("--lean4-check", action="store_true", help="R006 10 A-F")'
+        new = new[:m_ins.end(1)] + ins + new[m_ins.end(1):]
+    # 若无可插入处 ⇒ 不注册旗标（预扫描即可）
 
     # 插分流
     m_pa = _re.search(r"(\n(\s*)args = " + _re.escape(apv) + r"\.parse_args\(\))", new)
     if not m_pa:
-        return None, "找不到 parse_args ⇒ 须人工接入"
+        # ★ 2026-10-09：无 parse_args（顶层脚本，实证 16 个 —— 它们全是 13~44 条顶层裸语句）。
+        #   不能把分流放末尾（顶层代码会【先产生副作用】）⇒ 改为：
+        #     ① 把 lean4_check 定义【前移】到 import 段之后
+        #     ② 紧随其后插入分流（在顶层代码之前）
+        #   这样 ① 顶层代码一行不动 ② `--lean4-check` 在副作用发生前生效。
+        #   同时不再要求存在 `__main__`（这些脚本本来就没有）。
+        m_def = _re.search(r"(\n# ═══ ★ R006 ⑩ 约束门：[\s\S]*?return 0 if fails == 0 else 1\n)", new)
+        if not m_def:
+            return None, "生成的函数块定位失败"
+        defblock = m_def.group(1)
+        rest = new[:m_def.start()] + new[m_def.end():]
+        rl = rest.split("\n")
+        # ★ 2026-10-09 修：插入点必须【跳过整个 docstring】（可能跨多行）——
+        #   原实现只跳过以 `"""` 开头的行 ⇒ 把函数插进了 docstring 中间
+        #   （实证 entry-coverage.py 报 SyntaxError，与我今天第一次改坏文件同族）。
+        ds_span = docstring_span(rest)
+        if ds_span:
+            ins2 = ds_span[1] + 1          # docstring 结束行之后
+        else:
+            ins2 = 0
+            for i, ln in enumerate(rl):
+                s = ln.strip()
+                if s == "" or s.startswith("#") or s.startswith("import ") or s.startswith("from "):
+                    ins2 = i + 1
+                    continue
+                break
+        # ★ 2026-10-09 修：分流【自带 import sys】——
+        #   原实现依赖文件里已有 `import sys`，但那些顶层脚本的 import 多在
+        #   docstring【之后】，而本插入点在 docstring【之前】⇒ NameError。
+        dispatch = ('\nimport sys as _r006_sys\n'
+                    'if __name__ == "__main__" and "--lean4-check" in _r006_sys.argv:\n'
+                    '    _r006_sys.exit(lean4_check())\n')
+        new = "\n".join(rl[:ins2] + ["", defblock, dispatch] + rl[ins2:])
+        return new, None
     # ★ 2026-10-09 修：分流【不能放在 parse_args 之后】——
     #   实证 bb-card-put.py 有 required 位置参数 ⇒ parse_args 先校验 required ⇒
     #   `--lean4-check` 单独跑会报 "the following arguments are required: key"。

@@ -52,8 +52,14 @@ for f in ("gate.js", "gate.js.bak-20261008-g11"):
             seg = src.splitlines()[line - 1].strip() if line - 1 < src.count("\n") else ""
             print(f"     L{line}: {seg[:110]}")
 print()
-rc = subprocess.run(f"diff '{D}/gate.js.bak-20261008-g11' '{D}/gate.js' | head -40", shell=True,
+# ★ 2026-10-09 R10 修复：原 shell=True 仅为管道 `| head -40` ⇒ 改列表传参 + Python 内截断
+_d = subprocess.run(["diff", f"{D}/gate.js.bak-20261008-g11", f"{D}/gate.js"],
                     capture_output=True, text=True)
+class _R:
+    returncode = _d.returncode
+    stdout = "\n".join((_d.stdout or "").splitlines()[:40])
+    stderr = _d.stderr
+rc = _R()
 print("  diff（旧→新，前 40 行）:")
 for l in (rc.stdout or "").splitlines():
     print("   ", l[:130])

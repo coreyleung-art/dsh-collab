@@ -39,7 +39,8 @@ for c in CANDIDATES:
         print(f"  ⚠ 存在但不可执行: {c}")
 
 print(f"\n  which node (shell) -> ", end="")
-r = subprocess.run("which node 2>&1", shell=True, capture_output=True, text=True)
+# ★ 2026-10-09 R10 修复：原 shell=True 仅为重定向 `2>&1`；命令写死 ⇒ 改列表传参
+r = subprocess.run(["which", "node"], capture_output=True, text=True)
 print(r.stdout.strip() or r.stderr.strip())
 
 print("\n  PATH =", os.environ.get("PATH", "")[:300])
@@ -47,8 +48,9 @@ print("\n  PATH =", os.environ.get("PATH", "")[:300])
 if found:
     print(f"\n=== 用 {found} 跑暂存区自测 ===")
     STG = os.path.expanduser("~/dsh-collab/audits/20261008/pstd-105-staging")
-    for cmd in (f"'{found}' tests/audit-tally.mjs", f"'{found}' cli.js --selfcheck"):
-        r = subprocess.run(cmd, shell=True, cwd=STG, capture_output=True, text=True, timeout=180)
+    # ★ 2026-10-09 R10 修复：原为 f-string 拼接 + shell ⇒ 改列表传参
+    for cmd in ([found, "tests/audit-tally.mjs"], [found, "cli.js", "--selfcheck"]):
+        r = subprocess.run(cmd, cwd=STG, capture_output=True, text=True, timeout=180)
         print(f"\n  $ {cmd}")
         print(f"    exit = {r.returncode}")
         out = (r.stdout or "") + (r.stderr or "")

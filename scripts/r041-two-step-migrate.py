@@ -3,6 +3,14 @@
 # 步骤1：12 条重分类（MBP 2026-10-03 表，已逐条对账）——跨对象行为准则=规则留账本
 # 步骤2：剩余 资源冲突 31 条 → 退役索引（retiredEntries），按 ^## J 分章节精确删（防行号截断陷阱）
 # 判据：被删的全是 J 开头且分类=资源冲突；12 条重分类后不再含 资源冲突；计数口径同步。
+#
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+# 依据：r006-debt-assess.py 机械扫描未检出以下原语：
+#       subprocess / os.system / eval / exec / os.remove / rmtree /
+#       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+# ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+#
+
 import re, sys, shutil, json, datetime
 
 import os

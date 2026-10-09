@@ -41,7 +41,13 @@ print()
 print("=" * 74)
 print("【②】launchd 当前是否仍加载")
 print("=" * 74)
-r = subprocess.run("launchctl list 2>/dev/null | grep -i auto-reminder", shell=True, capture_output=True, text=True)
+# ★ 2026-10-09 R10 修复：原 `shell=True` 仅为使用管道 `|`，而命令本可写死。
+#   ⇒ 改为【列表传参 + Python 内过滤】⇒ 参数不经 shell，注入路径结构性消除。
+_r = subprocess.run(["launchctl", "list"], capture_output=True, text=True)
+_lines = [l for l in (_r.stdout or "").splitlines() if "auto-reminder" in l.lower()]
+class _R:  # 保持下游 `r.stdout` 用法不变
+    stdout = "\n".join(_lines)
+r = _R()
 print("  ", (r.stdout or "").strip() or "（未加载 / 已 bootout）")
 
 print()

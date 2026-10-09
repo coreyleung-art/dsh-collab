@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 """独立复核「X-Writer 只记不验 / writer 有值者=0」——作者：裁判（自测，不引用他人读数）"""
+
+#
+# ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+# 依据：r006-debt-assess.py 机械扫描未检出以下原语：
+#       subprocess / os.system / eval / exec / os.remove / rmtree /
+#       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
+# ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
+#
 import json, os, glob, collections
 
 

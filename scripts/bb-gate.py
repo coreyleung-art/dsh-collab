@@ -87,11 +87,15 @@ GATES = {
 
 def check_send(args):
     """发消息前置：跑 bb-channel 裁决（支持显式 --type 覆盖自动分类）"""
-    cmd = "python3 %s/bb-channel.py --text \"%s\"" % (SCRIPTS, (args.text or "")[:80])
+    # ★ 2026-10-09 R10 修复（结构性消除命令注入）：
+    #   原 `cmd = "...--text \"%s\"" % args.text` + `shell=True`
+    #   ⇒ 参数经 shell 解析，双引号包裹不能防注入。
+    #   ⇒ 改为【列表传参 + 无 shell】。
+    cmd = ["python3", os.path.join(SCRIPTS, "bb-channel.py"), "--text", (args.text or "")[:80]]
     if args.type:
-        cmd += " --type %s" % args.type
+        cmd += ["--type", args.type]
     try:
-        r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=15)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
         out = r.stdout or ""
         import re
         ch = re.search(r'"channel": "(\w+)"', out)

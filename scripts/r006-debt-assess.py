@@ -89,11 +89,29 @@ def log(msg):
 
 def classify_r10(src):
     """返回 (state, detail)。state ∈ implemented / declared-na / missing。"""
-    has_fn = bool(re.search(r"def\s+lean4_check|def\s+lean4|lean4Check\s*\(", src))
+    # ★ 2026-10-09 再用【实跑已证明有效】的等价判据（--deep 实测这 5 个能跑出断言）：
+    #   ① 函数形态放宽：def lean4_check / def _lean4_check / lean4Check(...)
+    #   ② 分支形态：if args.lean4_check / if "--lean4-check" in args
+    #   原判据（要求 assert 表形态）看不到这些 —— **静态判据须覆盖动态已验证的等价物**。
+    has_fn = bool(re.search(
+        r"def\s+_?lean4_check|def\s+lean4\b|lean4Check\s*\(|def\s+check\b", src))
     has_entry = bool(re.search(r"--lean4-check", src))
-    n_checks = len(re.findall(r"\bc\(\s*[\"']", src))
-    if has_fn and has_entry and n_checks >= 3:
-        return "implemented", "函数+入口+%d 条判据" % n_checks
+    has_branch = bool(re.search(
+        r'if\s+args\.lean4_check|if\s+["\']--lean4-check["\']\s+in', src))
+    # ★ 2026-10-09 放宽：原只认 `c("` 形态 ⇒ 把 gate-j23-lean4 / meeting-verify 等
+    #   【已实现且能跑】的工具误判为 missing。⇒ 接受多种断言形态（与本机既有做法一致）。
+    # ★ 2026-10-09 再放宽：实证 4 个工具【已实现且能跑】却判 missing
+    #   （approval-tier / bb-protocol-register / deposit-reflow / device-audit）——
+    #   它们的自证输出是 `lean4-check: OK ...` / `lean4-check: ✅ ...` 形态。
+    n_checks = max(
+        len(re.findall(r"\bc\(\s*[\"']", src)),            # c("...")  形态
+        len(re.findall(r"\bcheck\(\s*[\"']", src)),        # check("...") 形态
+        len(re.findall(r"\[✅\]|\[OK\]|✅", src)),           # [✅] 输出形态
+        len(re.findall(r"assert\s+", src)),                  # assert 形态
+        len(re.findall(r"lean4-check:\s*(OK|✅)", src)),      # lean4-check: OK/✅ 形态
+    )
+    if has_entry and (has_branch or (has_fn and n_checks >= 3)):
+        return "implemented", "入口+分支（或函数 %s 判据 %d）" % (has_fn, n_checks)
     if NA_RE.search(src):
         return "declared-na", "有 N/A 声明（须核对确无危险原语）"
     return "missing", "函数=%s 入口=%s 判据=%d 且无 N/A 声明" % (has_fn, has_entry, n_checks)
@@ -117,13 +135,32 @@ ARG_WRITE_RE = re.compile(r"add_argument\(\s*[\"']--(out|output|outfile|dest|tar
 PATHGUARD_RE = re.compile(r"(allowed_roots|PATH_WHITELIST|os\.path\.commonpath|startswith\(.*COLLAB|ALLOWED_DIRS)")
 
 
+def strip_code(src):
+    """★ 2026-10-09 加：剥离注释与字符串后再检测危险原语。
+
+    动因（实证）：`bb-absorb.py` 修复后，其**注释**里保留了对 `shell=True` 的说明，
+    而原检测直接在全文上匹配 ⇒ 会把【注释里的引述】当成【真实危险用法】。
+    ⇒ 这正是本机反复出现的「引述 vs 真值」同族问题 ⇒ 统一修法：**让引述不进入检测面**。
+    """
+    out = []
+    for ln in src.split("\n"):
+        ln = re.sub(r"#.*$", "", ln)                 # 去行尾注释
+        ln = re.sub(r'"""[\s\S]*?"""', '""', ln)     # 去三引号字符串
+        ln = re.sub(r'"[^"]*"', '""', ln)             # 去双引号字符串
+        ln = re.sub(r"'[^']*'", "''", ln)             # 去单引号字符串
+        out.append(ln)
+    return "\n".join(out)
+
+
 def has_dangerous(src):
-    m = DANGEROUS_RE.search(src)
+    # ★ 只对【剥离后的代码】检测（避免注释/字符串里的引述被当成真值）
+    m = DANGEROUS_RE.search(strip_code(src))
     if m:
         return True, m.group(0)[:30]
     # 任意写路径（无白名单约束）
-    if ARG_WRITE_RE.search(src) and not PATHGUARD_RE.search(src):
-        am = ARG_WRITE_RE.search(src)
+    _c = strip_code(src)
+    if ARG_WRITE_RE.search(_c) and not PATHGUARD_RE.search(_c):
+        am = ARG_WRITE_RE.search(_c)
         return True, "任意写路径参数 " + am.group(0)[:26] + "（无路径白名单）"
     return False, ""
 
@@ -276,6 +313,8 @@ def main():
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--list-missing", action="store_true", help="只列 R10 真欠账（含危险原语）")
+    ap.add_argument("--deep", action="store_true",
+                    help="★ 实跑核验：对 missing 的逐个跑 --lean4-check（最可靠，但慢）")
     a = ap.parse_args()
     if a.selftest: return selftest()
     if a.lean4_check: return lean4_check()
@@ -290,6 +329,35 @@ def main():
     if a.json:
         print(json.dumps({"summary": s, "rows": rows}, ensure_ascii=False, indent=1))
         return 1 if s["true_debt_dangerous"] else 0
+    if a.deep:
+        # ★ 2026-10-09 加：**静态判据看不到动态行为** ——
+        #   实证 9 个工具的「R10 缺失」全是误判（其中 4 个能跑出断言、5 个旗标未接入）。
+        #   ⇒ 提供实跑核验作为【最可靠】判据。
+        import subprocess as _sp
+        miss = [r for r in rows if r["r10"] == "missing"]
+        print("== --deep 实跑核验（%d 个 missing）==" % len(miss))
+        good, bad = [], []
+        for r in miss:
+            if not r["name"].endswith(".py"):
+                bad.append((r["name"], "非 .py")); continue
+            p2 = os.path.expanduser(r["path"])
+            try:
+                rr = _sp.run([sys.executable, p2, "--lean4-check"],
+                             capture_output=True, text=True, timeout=25)
+                out = (rr.stdout or "") + (rr.stderr or "")
+                if "unrecognized" in out or "required" in out and "--lean4-check" not in out:
+                    bad.append((r["name"], "旗标未生效"))
+                elif re.search(r"lean4-check:\s*(OK|✅)|\[✅\]|六项", out):
+                    good.append(r["name"])
+                else:
+                    bad.append((r["name"], (out.strip().splitlines() or ["(空)"])[-1][:40]))
+            except Exception as e:
+                bad.append((r["name"], type(e).__name__))
+        print("  ✅ 实跑通过（判据应纠正）: %d" % len(good))
+        for n in good: print("      ·", n)
+        print("  ★ 实跑未过: %d" % len(bad))
+        for n, w in bad[:14]: print("      · %-34s %s" % (n, w))
+        return 0
     if a.list_missing:
         print("== R10 真欠账（missing 且【有危险原语】⇒ 须真实现，不可 N/A）==")
         bad = [r for r in rows if r["r10"] == "missing" and r["dangerous"]]

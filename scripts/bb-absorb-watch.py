@@ -73,10 +73,13 @@ def trigger_absorb(node, tool, desc_hint=""):
         log("⏭ 已吸收过: %s/%s（跳过）" % (node, tool))
         return
     log("🎯 检测到新工具: %s/%s → 触发吸收评估" % (node, tool))
-    cmd = "python3 %s --node %s --tool %s --desc \"%s\" --deps \"标准库\" --hub-dep \"黑板HTTP\" --node-side \"纯标准库\" --env-notes \"需核查：编码GBK/UTF8、路径分隔、shell风格跨平台自适配\"" % (
-        ABSORB, node, tool, desc_hint or ("%s 节点工具" % node))
+    # ★ 2026-10-09 R10 修复：原为字符串拼接 + shell=True（参数可注入）
+    #   ⇒ 改为【列表传参 + 无 shell】。
+    cmd = ["python3", ABSORB, "--node", node, "--tool", tool,
+           "--desc", desc_hint or ("%s 节点工具" % node),
+           "--deps", "标准库", "--hub-dep", "黑板HTTP", "--node-side", "unix"]
     try:
-        r = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=60)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
         out = (r.stdout or "") + (r.stderr or "")
         log("吸收评估完成:\n%s" % out[-300:])
     except Exception as ex:

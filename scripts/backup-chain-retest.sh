@@ -7,6 +7,14 @@
 # ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 #
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/backup-chain-retest.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 VERSION=1.0.0 # ★ R006 ⑥ 唯一版本声明处（补课生成）
 # backup-chain-retest —— 备份链四处缺陷的可重测命令（2026-09-14 老登 aa528267）
 #

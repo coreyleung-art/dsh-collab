@@ -76,10 +76,18 @@ def main():
 
     # 2. 复用评估
     print("\n[评估] 复用性...")
+    # ★ 2026-10-09 R10 修复（结构性消除命令注入）：
+    #   原实现 `"...%s..." % (args.desc, ...)` + `shell=True` ⇒ 参数经 shell 解析，
+    #   而【双引号包裹不能防注入】（参数自身可含 `"`）。
+    #   ⇒ 改为【列表传参 + 无 shell】：参数不再进入 shell 解析 ⇒ 该路径【结构上不可绕过】。
     proc = subprocess.run(
-        "python3 %s --capability \"%s\" --deps \"%s\" --hub-dependent \"%s\" --node-side \"%s\" --env-notes \"%s\""
-        % (REUSE, args.desc, args.deps, args.hub_dep, args.node_side, args.env_notes),
-        shell=True, capture_output=True, text=True)
+        ["python3", REUSE,
+         "--capability", args.desc,
+         "--deps", args.deps,
+         "--hub-dependent", args.hub_dep,
+         "--node-side", args.node_side,
+         "--env-notes", args.env_notes],
+        capture_output=True, text=True)
     out = (proc.stdout or "") + (proc.stderr or "")
     grade = "?"
     for line in out.split("\n"):

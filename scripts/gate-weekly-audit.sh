@@ -10,6 +10,14 @@
 # ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 #
 
+
+# ★ R006 ⑦ 统一日志：固定路径，失败也留痕
+DSH_LOG="$HOME/dsh-collab/logs/gate-weekly-audit.log"
+dsh_log() {
+    mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
+    printf '%s %s\n' "$(date +%Y-%m-%dT%H:%M:%S)" "$*" >> "$DSH_LOG" 2>/dev/null || true
+}
+
 set -uo pipefail
 DATE=$(date +%Y%m%d)
 AUDIT="$HOME/dsh-collab/scripts/gate-auditor.py"
