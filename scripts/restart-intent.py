@@ -17,6 +17,37 @@
       os.chmod / os.chown / os.kill / pkill / launchctl unload / 任意写路径参数
 ★ 限度：此为【模式匹配】结果，可能有漏；引入上述任一原语时须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== restart-intent 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · restart-intent.py — 重启方：生成标准「准备重启信息」并写黑板（R013）")
+    print("  · restart-intent.py prepare --node mac-mini --reason \"修复 central-inbox\" \\")
+    print("  · restart-intent.py status <node> [--set recovered|failed|restarting]  # 更新状态")
+    print("  · restart-intent.py show <node>                                        # 查看最近 intent")
+    print("  · 命令/参数: prepare, status, node, reason, rescuer, downtime, escalate, services")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具【不执行外部命令、不删除数据、不修改权限】⇒ 无该路径")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, subprocess, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/restart-intent.log")
+    return 0
+
+
+import sys as _r006_sys
+if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
+    _r006_sys.exit(selfcheck())
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, sys, datetime, urllib.request
@@ -142,6 +173,7 @@ def main():
     sub = ap.add_subparsers(dest="cmd")
     p = sub.add_parser("prepare")
     p.add_argument("--node", required=True, help="本设备名")
+    p.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     p.add_argument("--reason", required=True, help="重启原因")
     p.add_argument("--rescuer", required=True, help="救援方设备")
     p.add_argument("--downtime", default="120", help="预计中断秒数")

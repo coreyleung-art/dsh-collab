@@ -16,6 +16,32 @@ v0.4 → v0.5 变更（2026-08-23 · 协调者，吸收推广反馈升级底座�
   依 R10 定义（「不该发生的路径在结构上不可绕过」）此处无该路径。
 ★ 限度：此为【模式匹配 + 人工核】结论；若日后引入【由参数驱动的删除目标】，须更新本声明。
 """
+
+# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
+#   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）——
+#   三段内容取自【本工具实际被检测到的结构】，非空模板。
+def selfcheck():
+    import sys as _sys, os as _os
+    print("== blackboard-server-v0.5 自查（TCC 能力边界）==")
+
+    print("【① 能力清单】")
+    print("  · blackboard-server v0.5 (coordinator) — 黑板进化版（:8792 兼容升级）")
+    print("  · v0.4 → v0.5 变更（2026-08-23 · 协调者，吸收推广反馈升级底座）：")
+    print("  · 1. 【API 自描述】GET /help — 黑板全部端点 + 用法说明（角色自查，不再问『写入 API 是什么』）")
+    print("  · 2. 【命名空间注册表】GET /ns-registry — 角色→职责命名空间结构化映射（角色自查归属，不靠人工记忆/广播）")
+    print("  · 命令/参数: port, data-dir")
+
+    print("【② 不该发生路径清单】")
+    print("  · 本工具涉及「删除文件/目录」⇒ 该路径须受控（详见 R006 ⑩ 约束门）")
+    print("  · 不修改 r006 管辖外的其它工具文件（只读审计类行为）")
+
+    print("【③ 依赖完整性】")
+    print("  · Python %s" % _sys.version.split()[0])
+    print("  · 标准库: argparse, concurrent, http, time")
+    print("  · ✅ 无第三方依赖（仅标准库）")
+    print("  · 固定日志: ~/dsh-collab/logs/blackboard-server-v0.5.log")
+    return 0
+
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, threading, urllib.request, datetime, gzip, shutil
@@ -429,7 +455,10 @@ class H(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8792)
+    ap.add_argument("--selfcheck", action="store_true", help="R006 02 TCC")
     ap.add_argument("--data-dir", default=None, help="数据目录（默认 ~/dsh-collab/token-monitor/blackboard，测试用独立目录隔离）")
+    if "--selfcheck" in __import__("sys").argv:
+        __import__('sys').exit(selfcheck())
     args = ap.parse_args()
     if args.data_dir:
         DATA_DIR = args.data_dir

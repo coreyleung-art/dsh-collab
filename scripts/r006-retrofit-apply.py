@@ -682,7 +682,10 @@ def gen_selfcheck_for(src, toolname):
     A('    print("【① 能力清单】")')
     if caps:
         for c in caps:
-            A('    print("  · %s")' % c.replace('"', "'")[:96])
+            # ★ 2026-10-09 修：生成的 print 是【代码】⇒ 内容里的引号/反斜杠须转义，
+            #   否则 SyntaxError（实证 restart-intent.py：docstring 行含引号）。
+            _safe = c[:96].replace("\\", "\\\\").replace('"', '\\"').replace("{", "{{").replace("}", "}}")
+            A('    print("  · %s")' % _safe)
     else:
         A('    print("  · （头部无中文用途说明 ⇒ 能力清单为空，建议补 docstring）")')
     if subs:
@@ -741,8 +744,16 @@ def gen_selfcheck_for(src, toolname):
         m_pa = _r2.search(r"(\n(\s*)args = " + _r2.escape(apv) + r"\.parse_args\(\))", new)
         if m_pa:
             ind = m_pa.group(2)
+            # ★ 2026-10-09 修：分流须判断【是否在函数内】——
+            #   若 parse_args 在【模块级】（顶层脚本），用 `return` 会 SyntaxError
+            #   （'return' outside function，实证 5 个）。⇒ 模块级用 sys.exit。
+            # ★ 2026-10-09 再修：用【parse_args 那行的缩进】判断（最可靠）——
+            #   上一版用「前面有没有 def」的正则 ⇒ 模块级脚本前面也有 def ⇒ 误判（实证 5 个仍失败）。
+            #   ⇒ ind 为空 = 模块级 ⇒ 用 sys.exit；否则在函数内 ⇒ 用 return。
+            _in_func = bool(ind.strip())
+            _act = "return selfcheck()" if _in_func else "__import__('sys').exit(selfcheck())"
             new = new[:m_pa.start(1)] + ("\n" + ind + 'if "--selfcheck" in __import__("sys").argv:' + "\n"
-                                         + ind + "    return selfcheck()") + new[m_pa.start(1):]
+                                         + ind + "    " + _act) + new[m_pa.start(1):]
             return new, None
     # 无 argparse ⇒ 顶层脚本模式。
     # ★ 2026-10-09 修：dispatch 必须插在【def selfcheck 之后】——
