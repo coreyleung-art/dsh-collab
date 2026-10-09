@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T18:03:10",
+  "built_at": "2026-10-09T18:05:28",
   "sources": {
    "S1 工具实体": 331,
    "S2 R006 矩阵": 273,
-   "S3 资源登记表": 520,
+   "S3 资源登记表": 524,
    "S4 规则账本": 52,
-   "S5 黑板登记卡": 932,
+   "S5 黑板登记卡": 933,
    "S6 skills": 18
   },
-  "total": 2126
+  "total": 2131
  },
  "items": [
   {
@@ -7882,6 +7882,34 @@
    "desc": "v1.0.428 · **幽灵会话扫描器 + 根因确认**（HR 司库，用户要求工具化）：① scripts/ghost-session-scan.py v1.0.0（R006 十项）——扫「突然出现/无角色命名」会话, 四类判定 G1未登记/G2无角色/G3突然出现/G5微小存根(+G4归档信息项), 评分聚焦用户诉求(无角色40+近期35+未登记25+存"
   },
   {
+   "src": "S3",
+   "kind": "resource",
+   "name": "2026-10-09",
+   "path": "(registry)",
+   "desc": "v1.0.429 · ★ **R006 全量合规复核器 + 完整评估**（session-b250bf9d，所有者指示「做一次完整评估」）：① `scripts/r006-recheck.py` v1.0.0 —— 复用 2026-10-03 矩阵字段结构、把口径从 2 项扩为 5 项可机械核（R5/R6/R7/R9/R10），覆盖 330 工具；② `do"
+  },
+  {
+   "src": "S3",
+   "kind": "resource",
+   "name": "2026-10-09",
+   "path": "(registry)",
+   "desc": "v1.0.430 · ★ **整合「发现工具的结构性不对称」**（session-b250bf9d）：① `scripts/local-registry.py` v1.0.0 —— 聚合 6 源（工具实体/R006矩阵/资源登记表/规则账本/黑板登记卡/skills）共 2125 项，检索 + 索引落盘 `data/local-registry-index."
+  },
+  {
+   "src": "S3",
+   "kind": "resource",
+   "name": "2026-10-09",
+   "path": "(registry)",
+   "desc": "v1.0.431 · ★ **R006 §2⑧ 补 push 判据（v3.1.2）+ J44 执行门**（session-b250bf9d，**用户明示同意**）：① 规格修订 —— ⑧ 原自检性质是 pull（GET/knowledge_search），实证表明 pull 不足（两个补课器均已登记而 agent 仍找不到）⇒ 补 **ⓑ push**（产出"
+  },
+  {
+   "src": "S3",
+   "kind": "resource",
+   "name": "2026-10-09",
+   "path": "(registry)",
+   "desc": "v1.0.432 · ★ **沉淀链接上电**（session-b250bf9d）：① `sedimentation-chain-scan.py` 加 `--from-git` 数据源 —— **从 git 提交推导迭代事件，不依赖人发布 task.completed**（失败模式删除式修法；实测 0 事件→79 事件）；② launchd `com.dsh"
+  },
+  {
    "src": "S4",
    "kind": "rule",
    "name": "R001",
@@ -14571,6 +14599,13 @@
    "kind": "bb-card",
    "name": "user-version-v4-existence-evidence-93pct-20260914",
    "path": "blackboard:data/registry/user-version-v4-existence-evidence-93pct-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "v3-audit-response",
+   "path": "blackboard:data/registry/v3-audit-response",
    "desc": "黑板登记卡"
   },
   {
