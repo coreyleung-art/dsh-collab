@@ -120,8 +120,16 @@ def check_one(name, path, kind):
         r["R9_cli"] = bool(re.search(r"argparse|getopts|sys\.argv", src))
         ev["R9"] = "有参数解析" if r["R9_cli"] else "无参数解析"
         # R10 约束门
-        r["R10_lean4"] = bool(re.search(r"lean4|lean-4", src, re.I))
-        ev["R10"] = "有 lean4 自证" if r["R10_lean4"] else "无 lean4 自证"
+        # ★ 2026-10-09 收紧判据：原为 `re.search(r"lean4|lean-4")` ⇒ 任何注释里写个 "lean4" 就能过
+        #   ⇒ 那使 R10 可被【一句注释】绕过（与今日 N-03b「判据可被绕过」同族）
+        #   ⇒ 改为要求【真实实现三要素】同时成立：
+        #     ① 存在 lean4 相关的函数定义  ② 该函数内有 ≥3 条判据（c(...) 调用）
+        #     ③ 存在可执行入口（--lean4-check 旗标）
+        _has_fn = bool(re.search(r"def\s+lean4_check|function\s+lean4_check|lean4Check\s*\(", src))
+        _has_entry = bool(re.search(r"--lean4-check", src))
+        _n_checks = len(re.findall(r"\bc\(\s*[\"']", src))
+        r["R10_lean4"] = bool(_has_fn and _has_entry and _n_checks >= 3)
+        ev["R10"] = "函数=%s 入口=%s 判据数=%d" % (_has_fn, _has_entry, _n_checks)
     else:  # plugin
         pkg = os.path.join(path, "package.json")
         src = read(os.path.join(path, "lib", "selfcheck.js")) or read(os.path.join(path, "index.js"))
@@ -186,10 +194,17 @@ def selftest():
     tmp = tempfile.mkdtemp(prefix="r006re-")
     # 正例：达标脚本
     good = os.path.join(tmp, "good.py")
+    # ★ 2026-10-09：R10 判据收紧后，样例必须【真实现】lean4 门（不能只写注释）
     open(good, "w", encoding="utf-8").write(
-        '#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n"""好工具：为什么需要 / 用法 / 判据，都是中文说明。\n"""\n'
-        "__version__ = '1.0.0'\nimport argparse, os\nLOG=os.path.expanduser('~/dsh-collab/logs/good.log')\n"
-        "# lean4-check 自证\n")
+        '#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\n'
+        '"""好工具：为什么需要 / 用法 / 判据，都是中文说明，足以满足文档化判据。\n"""\n'
+        "__version__ = '1.0.0'\nimport argparse, os\n"
+        "LOG=os.path.expanduser('~/dsh-collab/logs/good.log')\n"
+        "def lean4_check():\n"
+        "    c('A', 'a', True)\n    c('B', 'b', True)\n    c('C', 'c', True)\n"
+        "    return 0\n"
+        "ap=argparse.ArgumentParser()\n"
+        "ap.add_argument('--lean4-check', action='store_true')\n")
     r, _ = check_one("good.py", good, "script")
     c("达标脚本 ⇒ 5 项全过", all(v is True for v in r.values()), )
     # 负例：全缺

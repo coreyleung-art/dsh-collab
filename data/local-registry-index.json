@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T17:53:18",
+  "built_at": "2026-10-09T17:58:34",
   "sources": {
-   "S1 工具实体": 329,
+   "S1 工具实体": 330,
    "S2 R006 矩阵": 273,
    "S3 资源登记表": 520,
    "S4 规则账本": 52,
-   "S5 黑板登记卡": 930,
-   "S6 skills": 16
+   "S5 黑板登记卡": 932,
+   "S6 skills": 18
   },
-  "total": 2120
+  "total": 2125
  },
  "items": [
   {
@@ -1412,6 +1412,13 @@
    "name": "kb-health.py",
    "path": "~/dsh-collab/scripts/kb-health.py",
    "desc": "kb-health v1.0 (HR) — 知识库健康巡检（每日自动，零 LLM）"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
+   "name": "j44-reuse-gate.py",
+   "path": "~/dsh-collab/scripts/j44-reuse-gate.py",
+   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处"
   },
   {
    "src": "S1",
@@ -12616,6 +12623,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "j44-reuse-gate-v1",
+   "path": "blackboard:data/registry/j44-reuse-gate-v1",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "job-level-datadir-probe-failed-20260914",
    "path": "blackboard:data/registry/job-level-datadir-probe-failed-20260914",
    "desc": "黑板登记卡"
@@ -14555,6 +14569,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "v3-file-quality-audit",
+   "path": "blackboard:data/registry/v3-file-quality-audit",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "v3-review-request",
    "path": "blackboard:data/registry/v3-review-request",
    "desc": "黑板登记卡"
@@ -14807,6 +14828,13 @@
   {
    "src": "S6",
    "kind": "skill",
+   "name": "reuse-before-build",
+   "path": "~/.dsh/skills/reuse-before-build/SKILL.md",
+   "desc": "J44「资源复用纪律」的执行门——建任何新工具/脚本/机制之前先跑它：它会搜本机 2100+ 项已有资产；有命中不显式裁决就直接拒绝（exit 1），并留痕可事后核。触发词：建新工具前/要不要新建/复用检查/J44/reuse check/先查再建/避免重复造轮子。"
+  },
+  {
+   "src": "S6",
+   "kind": "skill",
    "name": "price-analysis",
    "path": "~/.dsh/skills/price-analysis/SKILL.md",
    "desc": "价格策略分析技能——锚定定价/大促抬价/SKU级抬价/分钟级调价检测/节日涨价空间测算，基于 order_sales 真实订单数据，支持日常/大促价格波动测算与教师节等节日备战。触发词：价格分析/价格策略/大促抬价/涨价空间/定价分析/SKU抬价/分钟级调价。"
@@ -14852,6 +14880,13 @@
    "name": "apply-status-check",
    "path": "~/.dsh/skills/apply-status-check/SKILL.md",
    "desc": ""
+  },
+  {
+   "src": "S6",
+   "kind": "skill",
+   "name": "local-prior-art",
+   "path": "~/.dsh/skills/local-prior-art/SKILL.md",
+   "desc": "本机既有工具/资源/规则的【建前考古】入口——建新工具、写新脚本、定新制度、规划任何\"要不要做一个X\"之前，先用它查本机 2100+ 项已有资产，避免重复造轮子与\"已存在而无人知\"。触发词：建前考古/查本机有没有/已有实现/是否已有/复用既有/查重/有没有类似工具/先查再建/prior art。"
   }
  ]
 }

@@ -4,9 +4,9 @@
 >   xq:Rxx = 本账本（mac-mini）｜ mbp:Rxx = MBP 账本｜编号冻结不重编。
 >   消歧表：本目录 rules-id-collision-map.md（与双板 data/registry/rules-id-collision-map 同源）。
 
-> v2.23.5 | 64 条 | 所有总线设备必须服从
+> v2.23.6 | 65 条 | 所有总线设备必须服从
 >
-> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R47 · J13 · R-ERR4 = 64`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
+> ★ **计数口径（HR 2026-09-11 裁定）**：声明改为**分区可核**——`R48 · J13 · R-ERR4 = 65`，每个数字对应可机械统计的标题前缀（`^## R[0-9]` / `^## J[0-9]` / `^## R-ERR`）。
 > 此前声明「76 条」与 `rules-cli audit` 的 78、实际标题数均不符 ⇒ **计数不可核 = 声明无效**（R030）。核验：`rules-integrity.py`。
 > ⚠️ **格式约束（HR 自纠 2026-09-11）**：首行**必须保留 `N 条` 形式**（如 `83 条`）—— 改动声明格式而不同步消费方解析器，会让门读成「v? | ? 条」。分区明细写在下方注里，不替换首行。
 >
@@ -153,6 +153,7 @@
 - 分类: 工程 | 范围: all-bus-devices | 状态: enforced
 - 摘要: **安装任何工具前先全面搜索本地是否已有**（glob/知识库/工具面）；**能调用/映射/标记打通的都不新建**，避免每路径装独立工具；衔接 J37 供应链评估
 - 详情: 属主: 全员
+- **★ 执行件（2026-10-09 补）**: `scripts/j44-reuse-gate.py` v1.0.0 —— 建前复用门（有命中未裁决即 exit 1，留痕可 `--check` 核）；依赖 `scripts/local-registry.py`。补件原因：J44 原为 enforced 而无执行件。
 
 ## J38 ✅ **外链入向即时反馈规范**（用户提出 2026-08-18，92623479 提案，HR 评估登记）
 - 分类: 协作 | 范围: all-bus-devices | 状态: enforced
@@ -407,10 +408,17 @@
 - 详情: ①运行门 tools/acceptance-gate.py v1.1（--check/--selftest/--lean4-check；v1.1 补证据解析；v1.1.1 封「仅内联 evidence」旁路（裁判 preset 首审）；v1.1.2 版本单一来源+空 needle 用法错；v1.1.3 拒绝信息与 exit 1 语义对齐：board: 双板 200、board-local/central: 单板、file:/log:/marker: 存在+可选 ::contains: 断言——MBP 负控复现「凭空证据过门=假绿」后封死；v1.1.4 新增 surfaceMeasured 判据：裁定面必须由实测划定——surface_measured 非空且全部可解 + surface_unmeasured 字段必须在场（缺字段=未测边界由假设划定），selftest 1 正 10 负（新增负8/9/10），来源=PSTD v5 教训「范围由实测划定不能由假设划定」+ 用户点头正式化）②形式化规范 rules-registry/lean4/acceptance-gate.lean（定理 1-6：提出=裁定无效 / 执行=裁定无效 / 三方合一无效 / 未声明面无效 / 面未实测划定无效 / 三方分明正例）③valid(c) := 第三方在场 ∧ 声明裁定面 ∧ 面由实测划定 ∧ 证据在场 ④自我更正=同门（correctionValid := valid）
 - 关联: R030（无验证不陈述）/ 章程 §5（自审无效条款）/ R045（章程基线）
 
-## R047 ✅ 插件/工具命名准入门（N1–N8）（2026-10-05 星桥裁定 · PSTD 提请 · v1.0.4）
+## R048 ✅ 协调者设计/代码工作须经独立审查员审计（2026-10-08 老板指令 · 星桥入账 · v1.0.1）
+- 分类: 治理 | 范围: 星桥(协调者)设计/代码工作域 | 状态: enforced
+- 摘要: 星桥（协调者）的所有设计与代码工作（方案设计/脚本/仓库操作/工程变更等）必须与独立审查员（audit-reviewer 会话）合作完成：方案先行送审、执行中可请其复核、完成后经其审计；审计未过不得视为完成；审查员离线时工作排队，不以离线为由绕过
+- 详情: ①适用对象=星桥产出的设计文档/脚本/仓库与工程变更（含 repo 改名、转私有、清理等账号级操作）②合作形态=方案送审→按裁定执行→完成后审计回卡（R046 三方分离：星桥=提出/执行，审查员=裁定）③执行判据沿用 R046 验收门（声明体含 surface_measured/surface_unmeasured）
+- 详情补充（v1.0.1，2026-10-08 裁判提议制度化）：送审件「时值检查」——凡写入实测值（路径/数字/版本/端口/大小/时间/状态）必须三选一：A 自包含可复跑 / B 标取值时点+复跑命令 / C 指向活体判据入口；裸值禁用于不可逆决策（实证五类：/tmp 路径、24/64→25/65、std 1.0.3→1.0.4、仓 size 0→120MB、端口 49187；两类差点致不可逆损失）。检查清单 docs/submission-timevalue-checklist-v1.md
+- 关联: R046（验收门）/ R030（无验证不陈述）/ 章程 §5（自审无效条款）
+
+## R047 ✅ 插件/工具命名准入门（N1–N8）（2026-10-05 星桥裁定 · PSTD 提请 · v1.0.6）
 - 分类: 治理 | 范围: all-bus-devices | 状态: enforced
-- 摘要: 新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.3），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名；豁免须显式声明，禁止声明即豁免
-- 详情: ①执行点=plugin_name_gate check（新名校验）/allocate（用途→规范标识）——P2 已落盘 ~/dsh-plugin-pstd v1.0.3 并经 dsh plugin add 挂载（deps+bundles+符号链接三件齐备，dump-config 合成验证 2026-10-06 01:4x）；重启存活待最近受控窗口验证后改常驻 ②执行面在本机（workspaceRoot/~ + ~/dsh-collab/devices），跨设备由各设备各自运行 PSTD 或由本机分发落盘包 ③2026-10-05 全机命名审计存量：agent-bus 包名漂移（属主星桥，重启窗口内改）/ files·md-preview·ui-spec·openpencil 包名≠目录名（属主各自，openpencil 走 R047 豁免声明（对应 N2）或改名前确认）/ devices cldvoice.bak-* 4 目录（属主星桥，归档保留）/ workflow 缺 cordis.patch.yml 插件行（CLI 形态豁免声明待属主补）/ bb-card-send·channel-gate·drift-scan·launchd-scan 插件行 id 写全包名（N3：id===slug 违规，2026-10-06 裁判审计补登，早于 10-05 审计即存在，7 天宽限后如未改将静默存活）④PSTD 自证矩阵负例 15 条全拒+正例 12 条全可用（运行时 selfproof 实测）⑤登记（黑板卡/data/registry 卡）暂无命名门；如需覆盖由 PSTD 另立件 ⑥N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 rules-registry/verify-naming-standard.py（星桥机械实测 PASS：19/19 向量、8/8 负控红、6 字段变异自检全覆盖；登记卡 data/registry/naming-standard-n1-n8；PSTD 第三方复核 v1.0.2 通过：三 artifacts 可解析、pending 已清）
+- 摘要: 新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.4），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名；豁免须显式声明，禁止声明即豁免
+- 详情: ①执行点=plugin_name_gate check（新名校验）/allocate（用途→规范标识）——**常驻**：P2 落盘 ~/dsh-plugin-pstd v1.0.3 经 dsh plugin add 挂载，2026-10-08 机器重启后实测 plugin_name_gate 可调用且 std=PSTD/1.0.3（磁盘包在供，动态版已消亡）⇒ ③ 对 v1.0.3 重启存活验证通过；v1.0.6 起权威版本=1.0.4，③ 对 1.0.4 不继承、待下次重启由裁判复核（std=PSTD/1.0.4）②执行面在本机（workspaceRoot/~ + ~/dsh-collab/devices），跨设备由各设备各自运行 PSTD 或由本机分发落盘包 ③2026-10-05 全机命名审计存量：agent-bus 包名漂移（属主星桥，重启窗口内改）/ files·md-preview·ui-spec·openpencil 包名≠目录名（属主各自，openpencil 走 R047 豁免声明（对应 N2）或改名前确认）/ devices cldvoice.bak-* 4 目录（属主星桥，归档保留）/ workflow 缺 cordis.patch.yml 插件行（CLI 形态豁免声明待属主补）/ bb-card-send·channel-gate·drift-scan·launchd-scan 插件行 id 写全包名（N3：id===slug 违规，2026-10-06 裁判审计补登，早于 10-05 审计即存在，7 天宽限后如未改将静默存活）④PSTD 自证矩阵负例 15 条全拒+正例 12 条全可用（运行时 selfproof 实测）⑤登记（黑板卡/data/registry 卡）暂无命名门；如需覆盖由 PSTD 另立件 ⑥N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 rules-registry/verify-naming-standard.py（星桥机械实测 PASS：19/19 向量、8/8 负控红、6 字段变异自检全覆盖；登记卡 data/registry/naming-standard-n1-n8；PSTD 第三方复核 v1.0.2 通过：三 artifacts 可解析、pending 已清）⑥·补（2026-10-08 PSTD 机制实证）：**N3 两条判据后果分级**——`name` 零容忍（profile 按**包名**绑定：package.json 的 `link:` 与 lockfile 皆引用 name ⇒ name 错=挂载断）；`id` 的害处是**漂移不可核对**而非不可挂载（实测：全库无一处按 patch id 引用，改 id 后连发两张卡均成功 ⇒ 挂载未受影响）。⇒ 判据层须分开表述，避免把「可核对性」与「可挂载性」混成一条 |
 - 关联: R006（插件化工具化标准）/ R046（验收门：命名门自证须第三方在场）
 
 ## retiredEntries（R041 退役索引 · 数据搬出账本留痕，溯源不悬空）

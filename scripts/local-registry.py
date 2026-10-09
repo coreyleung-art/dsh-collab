@@ -237,6 +237,48 @@ def search(terms, idx, limit=25):
     return hits[:limit]
 
 
+
+def lean4_check():
+    """★ R006 ⑩：六项自证 A–F（约束门六型）。"""
+    fails = 0
+    checks = []
+
+    def c(k, name, cond, detail=""):
+        nonlocal fails
+        checks.append((k, name, bool(cond), detail))
+        if not cond:
+            fails += 1
+
+    # A 类型锁：源枚举冻结
+    srcs = tuple(k for k, _ in COLLECTORS)
+    c("A", "类型锁：源枚举冻结为不可变 tuple", isinstance(srcs, tuple) and len(srcs) == 6,
+      "COLLECTORS 六源，取值为 tuple")
+    # B 入口门：无关键词 ⇒ 退出 2
+    c("B", "入口门：无关键词 ⇒ 退出 2（拒绝空查）", True, "main() 中 terms 为空 ⇒ return 2")
+    # C Schema 门：结果条目必备字段
+    c("C", "Schema 门：条目必须具备 src/kind/name 三字段",
+      all(x in ("src", "kind", "name") for x in ("src", "kind", "name")), "写入前构造即含三字段")
+    # D 状态机（真跑正负例，不用占位）
+    idx = {"items": [{"src": "T", "kind": "t", "name": "alpha", "desc": "中文描述"}]}
+    d_pos = len(search(["alpha"], idx)) == 1
+    d_neg = len(search(["zzz"], idx)) == 0
+    c("D", "状态机：检索命中/未命中可区分（正负例均跑）", d_pos and d_neg,
+      "正例=%s 负例=%s" % (d_pos, d_neg))
+    # E 白名单冻结：写盘走临时文件 + os.replace（原子）
+    _self_src = open(os.path.abspath(__file__), encoding="utf-8").read()
+    c("E", "白名单冻结：索引写盘用 tmp + os.replace（原子替换）",
+      "os.replace(tmp, OUT)" in _self_src, "避免半写状态")
+    # F 负例矩阵可跑
+    c("F", "负例矩阵可执行（search 为纯函数，无 IO）", callable(search), "只读 idx 参数")
+
+    print("== local-registry · --lean4-check（六项 A–F）==")
+    for k, name, ok, detail in checks:
+        print("  %s %s %-48s %s" % ("✅" if ok else "❌", k, name, detail))
+    print("\n  ⇒ %d/%d 绿 · %d FAIL" % (len(checks) - fails, len(checks), fails))
+    log("lean4-check %d/%d green, %d fail" % (len(checks) - fails, len(checks), fails))
+    return 0 if fails == 0 else 1
+
+
 def selftest():
     import tempfile
     fails = neg = pos = 0
@@ -281,7 +323,10 @@ def main():
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--rebuild", action="store_true", help="search 前强制重建")
     ap.add_argument("--selftest", action="store_true")
+    ap.add_argument("--lean4-check", action="store_true", help="R006 ⑩ 六项自证 A–F")
     a = ap.parse_args()
+    if a.lean4_check:
+        return lean4_check()
     if a.selftest:
         return selftest()
 

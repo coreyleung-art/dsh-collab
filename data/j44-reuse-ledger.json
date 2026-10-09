@@ -1,0 +1,39 @@
+{
+ "_meta": {
+  "version": "1.0.0"
+ },
+ "records": [
+  {
+   "intent": "新建一个沉淀扫描器 sediment scan",
+   "artifact": "my-sediment-scan.py",
+   "verdict": "reuse",
+   "hits": 12,
+   "note": "已有 sedimentation-chain-scan.py，复用之",
+   "at": "2026-10-09T17:57:21"
+  },
+  {
+   "intent": "新建一个从未有过的量子纠缠调度器 xyzzy",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-09T17:57:34"
+  },
+  {
+   "intent": "新建一个沉淀扫描器 sediment",
+   "artifact": "probe.py",
+   "verdict": "reuse",
+   "hits": 6,
+   "note": "",
+   "at": "2026-10-09T17:57:35"
+  },
+  {
+   "intent": "新建一个 J44 复用门 reuse gate",
+   "artifact": "j44-reuse-gate.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "本机无同类执行门；仅有规则文字与规则同步引用",
+   "at": "2026-10-09T17:57:45"
+  }
+ ]
+}
