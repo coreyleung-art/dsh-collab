@@ -87,7 +87,7 @@ import sys as _r006_sys
 if False:  # ★ R006 ②⑩ 已迁移至文件末 canonical 块（原守卫并入）
     _r006_sys.exit(selfcheck())
 
-__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处
+__version__ = '1.1.0'  # ★ R006 ⑥ 唯一版本声明处（1.1.0 = 2026-10-10 补【概念层】检索 + 面外声明）
 
 import argparse
 import json
@@ -113,6 +113,77 @@ def log(msg):
             f.write("%s %s\n" % (time.strftime("%Y-%m-%dT%H:%M:%S"), msg))
     except Exception:
         pass
+
+
+# ═══ ★ 概念层检索（2026-10-10 新增）═══════════════════════════════════════════
+# 动因：原器只查【资产】（有没有现成脚本），不查【概念】（有没有现成方法/标准/论文）。
+#   ⇒ 实测代价：把已有论文重造了一遍（R046 三元分离 ≈ GAVEL, ACL 2026 Findings）。
+#   ⇒ 用户原话「类似的【功能或能力】」中，"能力" 包含概念能力。
+# ★ 本层的 ⑦/三态纪律：源不可用 ⇒ 显式 degraded，**绝不冒充「无命中」**。
+CONCEPT_EXT = (".md", ".txt", ".json", ".html")
+CONCEPT_ROOTS = [
+    ("~/tech-research（官方文档镜像）", os.path.expanduser("~/tech-research")),
+    ("~/dsh-collab/docs（本线文档）", os.path.join(COLLAB, "docs")),
+]
+
+
+def concept_search(terms, per_root=8):
+    """概念层检索。返回 (sources, excl_n, unreadable_n)。"""
+    sources = []
+    excl_n = unreadable_n = 0
+    for label, root in CONCEPT_ROOTS:
+        if not os.path.isdir(root):
+            # ★ 源不可用 ⇒ degraded（不是 0 命中）
+            sources.append({"source": label, "root": root, "status": "degraded:目录不存在",
+                            "scanned": 0, "hits": 0, "items": []})
+            continue
+        n, items = 0, []
+        for dp, dn, fns in os.walk(root):
+            dn[:] = [d for d in dn if d not in ("node_modules", "__pycache__", ".git")]
+            for fn in sorted(fns):
+                p = os.path.join(dp, fn)
+                if not fn.endswith(CONCEPT_EXT):
+                    excl_n += 1
+                    continue
+                n += 1
+                try:
+                    t = open(p, encoding="utf-8", errors="replace").read()
+                except Exception:
+                    unreadable_n += 1
+                    continue
+                low = t.lower()
+                got = [x for x in terms if x.lower() in low]
+                if got:
+                    items.append({"path": p, "terms": sorted(set(got))})
+        items.sort(key=lambda x: -len(x["terms"]))
+        sources.append({"source": label, "root": root,
+                        "status": "ok" if n else "degraded:面内 0 个文件",
+                        "scanned": n, "hits": len(items), "items": items[:per_root]})
+    return sources, excl_n, unreadable_n
+
+
+def render_concept(sources, excl_n, unreadable_n):
+    """概念层报告 + ★ 面覆盖声明（第四族防线：面外/降级必须显式）。"""
+    ok = sum(1 for s in sources if s["status"] == "ok")
+    deg = [s for s in sources if s["status"] != "ok"]
+    print("  ★ 概念层（有没有同类【方法/标准/论文/先例】—— 不只是有没有现成脚本）")
+    for s in sources:
+        mark = "ok  " if s["status"] == "ok" else "DEGR"
+        print("     %s %-34s scanned=%-5d hits=%d %s" % (
+            mark, s["source"], s["scanned"], s["hits"],
+            "" if s["status"] == "ok" else "· " + s["status"]))
+        for it in s["items"][:3]:
+            print("          · %s  ← %s" % (it["path"][-72:], ",".join(it["terms"])))
+    print("     ★ 概念层覆盖声明：sources=%d ok=%d degraded=%d · 面外排除=%d · 读不开=%d"
+          % (len(sources), ok, len(deg), excl_n, unreadable_n))
+    # ★★ 面外声明（第四族防线）：本层只覆盖【本地语料】，web 语料不在面内。
+    #    实证：本轮漏掉的那条先例 GAVEL（ACL 2026 Findings, 10.18653/v1/2026.findings-acl.1789）在【网上】。
+    #    ⇒ 不写这一句，本表的 0 命中会被读成「无同类概念」= 面外通过。
+    print("     ⊘ 【面外·必读】本层只扫本地语料；★ 网上的方法/标准/论文（ACL / IEEE / arXiv 等）**不在面内**。")
+    print("       ⇒ 本层的 0 命中【不构成】「无同类概念」的证据；涉及方法/标准/算法者，须另做一次 web 检索。")
+    if deg:
+        print("     ⇒ ★ 有源降级 ⇒ 本层【未完全覆盖】。**不得**据本表宣称「无同类概念存在**。")
+    return ok, len(deg)
 
 
 def search_local(terms, limit=12):
@@ -302,9 +373,16 @@ def main():
         log("search ERROR %s" % err)
         return 2
 
+    # ★ 概念层（资产层之外的第二层；原器没有 ⇒ 见文件头动因）
+    c_sources, c_excl, c_unread = concept_search(terms)
+
     ok, why = _decide(bool(a.verdict), hits, a.artifact)
     out = {"intent": a.intent, "terms": terms, "hits": len(hits), "pass": ok, "why": why,
-           "top": [{"name": h.get("name"), "src": h.get("src")} for h in hits[:6]]}
+           "top": [{"name": h.get("name"), "src": h.get("src")} for h in hits[:6]],
+           # ★ 概念层（层名与覆盖声明一并机读）
+           "concept_layer": {"sources": c_sources, "excluded": c_excl, "unreadable": c_unread,
+                             "cover": sum(1 for x in c_sources if x["status"] == "ok"),
+                             "degraded": sum(1 for x in c_sources if x["status"] != "ok")}}
     if a.json:
         print(json.dumps(out, ensure_ascii=False, indent=1))
     else:
@@ -314,7 +392,12 @@ def main():
         print("  命中   : %d 条" % len(hits))
         for h in hits[:6]:
             print("    [%s] %s" % (h.get("src"), h.get("name")))
+        print("  ---- 资产层（以上）/ 概念层（以下）----")
+        render_concept(c_sources, c_excl, c_unread)
         print("  ⇒ 门：%s —— %s" % ("✅ 通过" if ok else "❌ 拒绝", why))
+        if sum(s2["hits"] for s2 in c_sources) == 0:
+            print("  ★ 但概念层 0 命中【仅指本地语料】—— web 面未覆盖。")
+            print("     若本 intent 涉及【方法/标准/算法/机制】，此处状态是【未覆盖】，不是【无】。")
         if not ok:
             print("  ★ 请先裁决：--verdict reuse|adapt|no-overlap --artifact <名字>")
 
