@@ -1,6 +1,6 @@
 # xdom-directory.py · 跨域邮箱只读目录页生成器（本目录 `docs/xdom-index/` 的中文描述文档）
 
-> 版本 **0.4.1**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
+> 版本 **0.4.2**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
 > 路径 `~/dsh-collab/docs/xdom-index/xdom-directory.py`
 > ★ 本文件满足 R039（工具中文描述文档）——★ **本目录此前没有 README，是欠账，2026-10-12 由外部线 `ext` 补**。
 > ★ 变更历史见同目录 `CHANGELOG.md`（R006 ⑥）。
@@ -29,6 +29,13 @@
 
 ★ **本工具不为让页面好看而造线**：推测性聚类会把**事实**混成**作者的推断**，
 这正是本线一直在挑对端的那类毛病（S3：判据守错了对象）⇒ 宁可报「不可判」。
+
+★★ **v0.4.2 的触发事件是我自己的动作**：⑧ 卡被**真的推上板**之后，回读那张卡 ——
+★ 卡里写着「★ pull-only…该链目前只能由人/别的工具 pull 后落地」，**而它正坐在板上**这样说。
+★ **三态**：那句话**不是假话**（逐句成立），但那个**标签会被合理地读成【状态陈述】**，
+★ 而**状态已经变了** ⇒ **易误导**，**不是错误**。
+★★ 根因：★ **卡描述不了自己落地这件事**（卡生于推板之前；一落板，任何「尚未推板」式**状态自述当场作废**）
+⇒ ★ 现卡**只留【机制】陈述**，**状态归读板**。（同族：**判据不得自指**。）
 
 ## ② 用法（含退出码）
 
@@ -65,12 +72,16 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
 | ⑤ 文档化 | **✓** | 本 README（R039）+ `CHANGELOG.md`（R006 ⑥） |
 | ⑥ 版本管理 | **✓** | `VERSION` 常量**唯一来源**，`--tool-version` **自动反查源码自证**；CHANGELOG 已建 |
 | ⑦ 统一日志 | **✓** | `~/dsh-collab/logs/xdom-directory.log`（★ 失败也留痕）· `--dry-run` **连日志也不写** |
-| ⑧ 自动落链 | **⚠️ 部分** | 有 `--registry-card`（**只打印**）；★ **尚未推 `data/registry/xdom-directory`**；★ 本工具**⑧-ⓑ push 做不到** ⇒ 须显式标「**pull-only（有已知风险）**」 |
+| ⑧ 自动落链 | **✓（★ 机制上须外部代理）** | `--registry-card` **只打印**（★ 本工具**无写原语**）；★ **链已落地**：`data/registry/xdom-directory`，由**外部写手** `tools/bb_dualwrite.py` 代理推板（两板值 sha16 相等）。★ **本工具仍无写原语**（`--lean4-check` F 项调用点 = 0）—— ★ **这条安全属性没被削弱** |
 | ⑨ CLI 治理 | **✓** | `--json` / `--board` / `--dry-run` / `--selftest` / `--selfcheck` / `--lean4-check` / `--tool-version` / `--registry-card`；未知旗标 `exit 2`（argparse 保证） |
 | ⑩ 约束前置 | **✓** | **结构门**（不是源码约定）：`guard_own_source()` 在**任何真实动作前**跑，命中即**拒绝执行**；`--lean4-check` 六项 A–F **6/6** |
 
-★ **⑧ 的缺口不是秘密**：它写在这里、写在 `CHANGELOG.md`、也写在 `--registry-card` 的输出里 ——
-★ **谁都不会因为少一条链而拿不到页**，但**谁都得知道这条链现在是 pull-only**。
+★★ **⑧ 的一处结构性张力（v0.4.2 记，★ 不是缺陷，是两条要求互斥）**：
+★ **R006 ⑧ 要「自动落链」**（工具自己写板）· ★ **本支的只读结构门要「代码面无写原语」**
+⇒ ★ **同一支工具不可能同时满足这两条** —— 它最强的安全属性**正是**让它无法自动落链的那条。
+⇒ ★ 解法：**把落链移出工具，由外部写手代理**（`bb_dualwrite.py`，写者与键**由调用方显式给出**）。
+★ **写者必须是 ASCII** —— ★ 中文写者会在**两块板上双双** `UnicodeEncodeError` 而**PUT 根本没发生**
+（★ 这条已写在 `tools/bb_dualwrite.py` 自己的文件头注释里）。
 
 ## ④ 坑（★ 都是实测撞出来的，不是设想的）
 
@@ -101,6 +112,13 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
    ⇒ **静默错 5 分钟**，判据拿去比的就是一个**假时间**。
    ⇒ 现按**长度**选格式（13 位 / 15 位），并配一条**解析控**（`_parse_keyts("20261012T0305")`
    必须等于 `03:05:00`）。★ 同族：**判据取错对象**。
+9. ★★ **别让落盘物自述「我还没落地」**（v0.4.2 实测踩到）：★ **卡描述不了自己落地这件事** ——
+   卡生于**推板之前**，一旦被推上板，卡里任何「尚未推板 / pull-only」式的**状态自述当场作废**，
+   ★ **而它正坐在板上这么说**，矛盾在字面上就看得见。
+   ⇒ 现策略：卡**只留【机制】陈述**（本工具无写原语 ⇒ 落链须外部代理，★ 恒真），
+   **状态（落没落）一律归读板**。★ 同族：**判据不得自指**。
+   ★ **注意区分**：这类「易误导」**不是**「说假话」—— ★ 原句**逐句都成立**，
+   被误读的是**标签**；★ 三态里它是**「成立但易被读成另一件事」**，**不要**报成「不成立」。
 
 ## ⑤ 复现命令
 
@@ -108,8 +126,12 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
 cd ~/dsh-collab
 python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 51 PASS / 0 FAIL
 python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"        # 期望 6/6 绿
+python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"       # 期望 0.4.2 · 单一来源=OK
 python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（16/16）
 python3 scripts/doc-cn-check.py docs/xdom-index/README.md                     # R039 机械判据
+# ★ ⑧ 的状态**归读板**，不归卡自述：
+curl -s http://127.0.0.1:8792/data/registry/xdom-directory | head -c 160 ; echo
+curl -s http://xingqiao.meetfunbp.com:8792/data/registry/xdom-directory | head -c 160 ; echo
 ```
 
 ★ **变异探针不是可选项**：一条控若不能被负控打红，它就是**空转绿**；

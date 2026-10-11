@@ -8,6 +8,74 @@
 
 ---
 
+## [0.4.2] 2026-10-12 · ★ 触发事件是**把 ⑧ 卡真的推上板之后，回头读自己推上去的那张卡**
+
+**触发**：⑧ 落链由外部写手（`tools/bb_dualwrite.py`）**真的落地**后，回读板上的卡 ——
+★ 卡里写着「★ pull-only（有已知风险）… 该链目前只能由**人/别的工具 pull 后落地**」。
+★★ 而那张卡**正坐在板上**说自己是 pull-only。
+
+★ **三态，我说准**：★ 那句话**不是假话** —— 逐句都成立（本工具确实无写原语、确实须外部代理）；
+★ 但「**pull-only**」这个**标签**会被**合理地读成【状态陈述】**（＝该链尚未落地），
+★ 而那个**状态已经变了** ⇒ ★ 这是**易误导**，**不是错误**。★ 两者不可混为一谈。
+
+★★ **根因（★ 同族：判据不得自指）**：★ **卡描述不了自己落地这件事** ——
+卡是**推板之前**生成的；它一旦被推上板，卡里任何「尚未推板」式的**状态自述当场作废**，
+★ 而且**自相矛盾在字面上就看得见**（卡在板上说自己不在板上）。
+
+### 改动
+
+| # | 改动 | 它的**控制**是什么 |
+|---|---|---|
+| ① | ⑧ 卡**只留【机制】陈述，删掉【状态】陈述**：改述为「本工具无写原语 ⇒ 落链须由外部写手代理；**本卡不自述板状态，请读板判定**」 | ★ **键名 `r006_8_gap` 沿用不改**（不破坏既有消费方）· 断言：文本**不得**再含 `pull-only`，**必须**含「不自述板状态」 |
+| ② | `VERSION` → `0.4.2` | R006 ⑥ `--tool-version` 自证单一来源 |
+
+★ **修法不是改口，是把状态从卡里拿掉** —— 机制一句话恒真，状态**由读板得出**。
+
+### ★★ 同时记一处结构性张力（★ 不是缺陷，是**两条要求互斥**）
+
+★ **R006 ⑧ 说「自动落链」**（工具自己写板）· ★ **本支的只读结构门说「代码面无写原语」**
+⇒ ★ **同一支工具不可能同时满足这两条** —— 它最强的安全属性**正是**让它无法自动落链的那条。
+⇒ ★ 本线采取的解法：**把落链移出工具，由外部写手代理**（`tools/bb_dualwrite.py`，写者与键由调用方显式给出）。
+★ **本工具仍无写原语**（`--lean4-check` F 项：外部命令调用点 = **0**）—— ★ 这条性质**没有被这次落地削弱**。
+
+### 落地实测（★ 我这次**不写「未推板」**了 —— 状态归读板）
+
+| 项 | 读数 |
+|---|---|
+| 键 | `data/registry/xdom-directory` |
+| 写手 | `ext-registry-card`（★ **ASCII** —— 中文写者会在**两块板上**双双 `UnicodeEncodeError`） |
+| 两板 PUT/GET | local `200/200` · central `200/200` |
+| 两板值 sha16 | **`9a2e4d7ae7707c3a`（相等）** |
+| 结论 | ★ **未出现 `UNKNOWN_CHANNEL`** ⇒ 此前那条「⑧ 落链会撞 `UNKNOWN_CHANNEL`」的断言**被实测打掉** |
+
+### 复跑（★ 自包含绝对路径 · 不含 `/tmp`）
+
+```bash
+cd /Users/coreyleung/dsh-collab
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"          # 期望 51 PASS / 0 FAIL
+python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"       # 期望 6/6 绿
+python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"      # 期望 0.4.2 · 单一来源=OK
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"  # 期望 16/16 变红
+# ★ 状态**归读板**（不归卡自述）：
+curl -s http://127.0.0.1:8792/data/registry/xdom-directory | head -c 200
+curl -s http://xingqiao.meetfunbp.com:8792/data/registry/xdom-directory | head -c 200
+# ★ 取 v0.4.1 的旧件（用于核「改前」而不是只信记述）：
+git -C /Users/coreyleung/dsh-collab log --oneline -- docs/xdom-index/xdom-directory.py
+```
+
+★ **注**：v0.4.1 的 sha16 `5ebd6e70ba902869` 已随本次改动**不在工作区**；
+★★ **已实测可复原**（不是「应该能」）：自动快照 `5af4a6c8fa4b9d61d1cfe2897160a5a6d6747ee0`
+里那件 **sha16 恰为 `5ebd6e70ba902869`** —— ★ **就是我发出去的那封信里引的那一件**。
+⇒ 收到的信里引了那个 sha 的读法：
+```bash
+cd /Users/coreyleung/dsh-collab
+git show 5af4a6c8fa4b9d61d1cfe2897160a5a6d6747ee0:docs/xdom-index/xdom-directory.py | shasum -a 256 | cut -c1-16   # 期望 5ebd6e70ba902869
+```
+★ 教训一句：**引用一个 sha 到对外信件里，等于承诺它可复原** —— ★ 所以改版之后**必须回核**，
+不能假设「反正有快照」（★ 本线此前的做法正是「假设」）。
+
+---
+
 ## [0.4.1] 2026-10-12 · ★ 触发事件是**把 v0.4.0 与活板对了一遍**（不是评审，是实测）
 
 **触发**：落盘 v0.4.0 后按惯例做「落盘物 vs 活板」对照 ⇒ ★ 发现 **v0.4.0 自己宣称「必亮」的那条告警，
