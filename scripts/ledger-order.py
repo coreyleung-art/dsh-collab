@@ -63,9 +63,25 @@ def _mins(hhmm):
     return int(h) * 60 + int(m)
 
 
+def _exact_map():
+    """★★ 读 `ledger-true-times.json` 的 `time_exact` 标记。
+    ★ 为什么必需：共享 commit 的条目，git 给的是【上界】（★ commit 时刻），
+      ★★ **不是该条自身时刻** ⇒ 对这些条目算 `delta_min`，
+      ★量到的是【批次延迟】，**不是「台账写错了多少」**。
+      ★ 由 `session-c05b831c` 指出（2026-10-12）。
+    """
+    fp = os.path.join(REPO, "data/registry/ledger-true-times.json")
+    try:
+        d = json.load(open(fp, encoding="utf-8"))
+        return {k: v.get("time_exact", True) for k, v in (d.get("times") or {}).items()}
+    except Exception:
+        return {}
+
+
 def audit(ledger=LEDGER):
-    """★ 「时刻」列 vs git 真实（★ 两个字段都锚定在 T 之后；通配位标不可比）"""
+    """★ 「时刻」列 vs git（★ 锚定 T；通配位不可比；★★ 上界值不参与偏移）"""
     t = git_first_times(ledger)
+    exact = _exact_map()
     rows = []
     for did in sorted(t):
         w = written_time(did, ledger)
@@ -75,6 +91,13 @@ def audit(ledger=LEDGER):
         wm = re.search(r'T(\d{2}):([0-9x]{2})', w)
         rm = re.search(r'T(\d{2}):(\d{2})', t[did]["time"])
         if not wm or not rm:
+            continue
+        # ★★★ 上界值（time_exact=False）⇒ 【不参与偏移比较】
+        if exact.get(did, True) is False:
+            rows.append({"id": did, "written": "%s:%s" % (wm.group(1), wm.group(2)),
+                         "real": "%s:%s" % (rm.group(1), rm.group(2)),
+                         "delta_min": None, "wildcard": False, "upper_bound": True,
+                         "note": "★ 该条的 git 时刻是【上界】（共享 commit）⇒ 不参与偏移比较"})
             continue
         if 'x' in wm.group(2):
             rows.append({"id": did, "written": "%s:%s" % (wm.group(1), wm.group(2)),
@@ -125,13 +148,17 @@ def cmd_audit(as_json=False):
     print("== 「时刻」列审计（★ 列 vs git）==")
     if not rows:
         print("  ★ 无对比数据 ⇒ 【不可判】（★ 分母为 0，不得读作通过）"); return 0
-    bad = 0; wild = 0
+    bad = 0; wild = 0; ub = 0
     for r in rows:
         d = r.get("delta_min")
         # ★★ 通配位（★ 如台账写 09:1x）⇒ 【不可精确比对】，★ 不得当 0 也不得当有值
         if d is None:
-            wild += 1
-            print("  %-8s 列 %-6s 真 %-6s ★★ 不可判（★ 台账写的是通配时刻）" % (r["id"], r["written"], r["real"]))
+            if r.get("upper_bound"):
+                ub += 1
+                print("  %-8s 列 %-6s 真 %-6s ★★ 不参与（★ git 时刻是上界）" % (r["id"], r["written"], r["real"]))
+            else:
+                wild += 1
+                print("  %-8s 列 %-6s 真 %-6s ★★ 不可判（★ 台账写的是通配时刻）" % (r["id"], r["written"], r["real"]))
             continue
         if d == 0:
             tag = "— 一致"
@@ -140,7 +167,7 @@ def cmd_audit(as_json=False):
         else:
             tag = "★ 列比真【早】%d 分" % (-d); bad += 1
         print("  %-8s 列 %-6s 真 %-6s %s" % (r["id"], r["written"], r["real"], tag))
-    print("  ⇒ 比对 %d 条 · ★ 不一致 %d 条 · ★★ 不可判（通配）%d 条" % (len(rows), bad, wild))
+    print("  ⇒ 比对 %d 条 · ★ 不一致 %d 条 · ★★ 不可判（通配）%d 条 · ★★★ 不参与（上界）%d 条" % (len(rows), bad, wild, ub))
     return 0
 
 

@@ -2078,6 +2078,8 @@ function switchTab(name){
   else if(name==='channel'&&!window.__chanDone){window.__chanDone=true;renderChannelBaseline()}
   /* ★ C1（2026-10-12）：目标页 —— 四维 S/H/I/L（原话自己的四个词）。 */
   else if(name==='goal'&&!window.__goalDone){window.__goalDone=true;renderGoalDimensions()}
+  /* ★ C2（2026-10-12）：进度页 —— 阶段轴 + 执行序 + M0–M4 解除条件。 */
+  else if(name==='progress'&&!window.__progDone){window.__progDone=true;renderProgressAxis()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}

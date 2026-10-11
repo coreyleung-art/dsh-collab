@@ -1669,6 +1669,7 @@ def build_index(port):
 <div class="tab" data-tab="gap" data-dom="SYS">🧭 差距盘点</div>
 <div class="tab" data-tab="channel" data-dom="SYS">🛰 通道基线</div>
 <div class="tab" data-tab="goal" data-dom="SYS">🎯 目标四维</div>
+<div class="tab" data-tab="progress" data-dom="SYS">📈 进度轴</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1693,6 +1694,7 @@ def build_index(port):
 <div class="main" id="view-gap"></div>
 <div class="main" id="view-channel"></div>
 <div class="main" id="view-goal"></div>
+<div class="main" id="view-progress"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2045,6 +2047,15 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     self._send(200, json.dumps(
                         {"error": "%s: %s" % (type(e).__name__, e), "dims": []},
+                        ensure_ascii=False))
+                return
+            if path == "/api/progress-axis":
+                # ★ C2（2026-10-12）：进度页 —— 阶段轴 + 执行序 + M0–M4（只读 v6.1）。
+                try:
+                    self._send(200, json.dumps(build_progress_axis(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "miles": []},
                         ensure_ascii=False))
                 return
             if path == "/api/overview":
@@ -3096,6 +3107,79 @@ def build_goal_dimensions():
         "headline": "四维即原话自身的四个词（更稳定 / 更健康 / 跟得上业界 / 保持领先），不是另立的分法。",
         "note": "★ 达标数按判据的 ✅ 计数；⚠（如 L-2「不可判」）**不计入达标也不计入失败**，单列。"
                 "★ H-4 同时给文档读数与本线现测：v6.1 写「现状 6.25%」，而现测见 liveRate。",
+    }
+
+
+def build_progress_axis():
+    """★ C2（2026-10-12）：进度页 —— 阶段轴 + 执行序 + M0–M4（含解除条件）。★ 只读。
+
+    ★★ 本页必须带的一条警告（§14.1 逐字要点）：
+       旧阶段图（阶段 0–4）所在件 `architecture-evolution-stages-v1.0.md` 的
+       `mtime == birth == 2026-08-22` ⇒ **从未更新**；v5 全文「阶段」**0 命中**、从不引用它。
+       ⇒ **两条轴独立，混用会把 2026-08-22 的旧刻度当当前进度**。v6 **只写 Wave 轴**。
+       ★ 把这条警告印在页面上，比印进度本身还重要 —— 否则读者会从别处捡来旧刻度。
+
+    ★★ 最有行动价值的一列是 **「解除条件（v6 新增）」** —— v5 没有这列。
+       它把「❌ 不成立」变成「要做什么才算成立」。
+    """
+    p = os.path.join(BASE, "docs/distributed-agent-network-governance-plan-v6.1-20261011.md")
+    try:
+        s = open(p, encoding="utf-8", errors="replace").read()
+        mtime = datetime.datetime.fromtimestamp(os.stat(p).st_mtime).strftime("%Y-%m-%d %H:%M")
+    except Exception as e:
+        return {"error": "%s: %s" % (type(e).__name__, e), "miles": []}
+
+    def sep(l):
+        return bool(re.match(r"^\|[\s\-:|]+\|$", l.strip()))
+
+    def cells(l):
+        return [c.strip() for c in l.strip().strip("|").split("|")]
+
+    miles, waves = [], []
+    mode = None
+    for line in s.splitlines():
+        h = re.match(r"^##\s+14\.(\d)\s+(.+)$", line)
+        if h:
+            sec = h.group(2)
+            mode = "exec" if "执行序" in sec else ("miles" if "M0–M3" in sec or "M0-M3" in sec else None)
+            continue
+        if not mode or not line.strip().startswith("|") or sep(line):
+            continue
+        c = cells(line)
+        if not c or c[0] in ("项", "里程碑"):
+            continue
+        if mode == "exec" and len(c) >= 3:
+            waves.append({"what": re.sub(r"[*`]", "", c[0])[:60],
+                          "read": re.sub(r"[*`]", "", c[1])[:220],
+                          "src": re.sub(r"[*`]", "", c[2])[:80]})
+        elif mode == "miles" and len(c) >= 4 and re.match(r"^\*{0,2}M\d", c[0]):
+            miles.append({"id": "M" + re.search(r"M(\d)", c[0]).group(1),
+                          "goal": re.sub(r"[*`]", "", re.sub(r"^\*{0,2}M\d\*{0,2}\s*", "", c[0]))[:180],
+                          "verdict": re.sub(r"[*`]", "", c[1])[:60],
+                          "why": re.sub(r"[*`]", "", c[2])[:220],
+                          "unblock": re.sub(r"[*`]", "", c[3])[:420]})
+
+    def tri(v):
+        if "❌" in v: return "❌"
+        if "🟡" in v: return "🟡"
+        if "✅" in v: return "✅"
+        return "?"
+
+    for m in miles:
+        m["tri"] = tri(m["verdict"])
+
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mtime": mtime, "path": "docs/distributed-agent-network-governance-plan-v6.1-20261011.md",
+        "writer": "星桥第二任（本端点只读，不写该文件）",
+        "axis": "阶段轴 = Wave（S / C / 0–5）+ 里程碑 M0–M4。这是唯一阶段轴。",
+        "axisWarning": ("★ 勿混用旧轴：旧阶段图所在件 architecture-evolution-stages-v1.0.md 的 "
+                        "mtime == birth == 2026-08-22 ⇒ 从未更新；v5 全文「阶段」0 命中、从不引用它。"
+                        "两条轴独立 —— 混用会把 2026-08-22 的旧刻度当当前进度。"),
+        "waves": waves, "miles": miles,
+        "byTri": {t: sum(1 for m in miles if m["tri"] == t) for t in ("✅", "🟡", "❌", "?") if any(m["tri"] == t for m in miles)},
+        "note": "★ 判定列沿用 v6.1 §14.3（含 v5 自身实测 + v6 复核）；★ 「解除条件」列是 v6 新增 —— "
+                "它把「❌ 不成立」变成「要做什么才算成立」，是本页最有行动价值的一列。",
     }
 
 
