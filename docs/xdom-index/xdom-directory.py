@@ -22,9 +22,14 @@
   ★ 2026-10-12 02:4x，活板长出**第 16 楼**，**用的是另一套字段名**（v2）：
     v2 有 `awaiting` / `reply_to_key` / `sent_at_epoch_ms` / `thread` / `from_label_hint`；
     v1 有 `ts` / `ball` / `ref` / `from_session`。
-  ★★ v0.3.0 按 v1 读 ⇒ 第 16 楼被读成**空信**（`ts=None` `ball=None` `ref=[]`）⇒ **旗舰读数 R6=0 是错的**
-     （实际 `reply_required=true ∧ awaiting='ext'` ⇒ **ext 欠 int 一句**）。
+  ★★ v0.3.0 按 v1 读 ⇒ 第 16 楼被读成**空信**（`ts=None` `ball=None` `ref=[]`）
+     ⇒ ★ **两处读数当下就是错的**：`requires_reply` **少算 2 封**（9 而非 11）、
+       **R6「最新一封天然「尚未被回」」报 0**（而末封明明 rr=true ∧ `awaiting='ext'`）
+     ⇒ ★ **实际是 ext 欠 int 一句**。
      ⇒ ★ 这是本线**第 6 次**「判据的对象取错了」（S3 同族）：**判据没错，取字段取错了**。
+  ★ 措辞更正（v0.4.1）：★ **不要把 R6 说成「旗舰读数」** —— 本页的旗舰是〇表第三行
+    「现在还欠谁一句」，它在 v0.3.0 与 v0.4.0 **都印「不可判」**（事实边不足以把「要求回复」降级为「已回」）。
+    ★ v0.4.0 初稿的台账与信里把它写成了「旗舰 R6 0→1」—— ★ **那是标签贴错了对象**。
   ① **schema 适配**：v1/v2 双字段名并读（`ball`/`awaiting` · `ts`/`sent_at_epoch_ms` · `ref`/`reply_to_key`）。
   ② **参与方归一**：剥 `session-` 前缀 + **语料内自证**映射（v1 的 `from`+`from_session` 互证出的 会话↔名字 表）
      ⇒ ★ **不猜**：归一不了就**原样保留**并记 **R8**。
@@ -35,6 +40,18 @@
   ⑥ **共线读数两栏并印**：`ball_eq_to`（**归一后**）与 `ball_eq_to_raw`（**原始串比**）
      ⇒ ★ raw 那一栏就是 v0.3.0 的**假否例**：拿缺失的 `ball` 去比**会话 ID** 形态的 `to` ⇒ 必然不等。
   ⑦ **`reply_to_key` 计入事实边**，并**逐边标 `via`**（`dst.ref → src` 还是 `dst.reply_to_key → src`）。
+
+★ v0.4.0 → v0.4.1 的改动（★ 由**实测**逼出来：把 v0.4.0 与活板对了一遍）
+  ★ 缺陷：`_KEY_TS_RE` 只认 14 位键段（`%Y%m%dT%H%M%S`）⇒ **活板第 17/18 楼的键段只有到分钟**
+    （`20261012T0240` / `20261012T0330`）⇒ 落进 `kts is None` 分支
+    ⇒ ★ **「键段 vs 字段时间不符」这条检查被整段跳过**。
+  ★★ 后果：CHANGELOG 与自检里点名「**必亮**」的那条告警，说的**正是**第 17 楼
+    （键段 02:40 vs `sent_at_epoch_ms` 02:02:02，差 38 分钟）—— ★ 而**活板上一次都没亮过**
+    （实测 warnings 仅 2 条，都是 `W-KEY-TS-FORMAT`）。
+    ★ 旧的 v2 夹具用的是 14 位键 ⇒ **它复刻的键形态活板上并不存在** ⇒ 控是**空转**的。
+  ⇒ ① 短键段**也解析**，② 格式告警**照发**（`W-KEY-TS-FORMAT` 语义不变），
+    ③ 时间检查**不再因格式而跳过**，④ 新增**复刻活板键形态**的夹具（含「对齐 ⇒ 不得亮」负控），
+    ⑤ 探针新增 **M17**（把这条打回 v0.4.0 口径 ⇒ 必须变红）。
 
 ★ 本支定位（五条，写死）
   ① **只读**：网络侧**只 GET**，**不写板上任何键**（★ 结构门封堵，见 `--lean4-check`）。
@@ -104,7 +121,7 @@ if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
 
 
 # ═══ ★ R006 ⑥ 唯一版本声明处 ═══（★ 全文件**只此一处**，`--tool-version` 自动反查源码自证）
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 
 
 import argparse
@@ -139,6 +156,11 @@ _V2_KEYS = ("sent_at_epoch_ms", "awaiting", "reply_to_key", "thread", "from_labe
 _SESSION_RE = re.compile(r"^(?:session-)?"
                          r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$")
 _KEY_TS_RE = re.compile(r"^" + re.escape(LOG_PREFIX) + r"(\d{8}T\d{6})")
+# ★★ v0.4.1：键段**只有到分钟**（`%Y%m%dT%H%M`）也算**可解析** —— ★ 活板上确有其例（第 17/18 楼）。
+#   ★ v0.4.0 的判据只认 14 位 ⇒ 短键段落到 `kts is None` ⇒ **「键段 vs 字段时间不符」整段被跳过**；
+#     而 CHANGELOG 里点名要亮那条告警的那封信（键段 02:40 / epoch 02:02:02），**键段恰恰是短的**
+#     ⇒ ★ 那条告警**在活板上一次都没亮过**。★ 认出它、但不因此**不查**时间。
+_KEY_TS_SHORT_RE = re.compile(r"^" + re.escape(LOG_PREFIX) + r"(\d{8}T\d{4})(?!\d)")
 _PARTY_RE = re.compile(r"^[a-z][a-z0-9_-]{0,31}$")
 _TS_SKEW_S = 60          # ★ 键段时间 vs 字段时间 超过这个差 ⇒ W-KEY-VS-FIELD-TS
 
@@ -232,8 +254,15 @@ def _ts_of(m):
 
 
 def _key_ts(key):
-    """⇒ 键段里的 `%Y%m%dT%H%M%S`（没有则 None）。"""
+    """⇒ 键段里的时间串（`%Y%m%dT%H%M%S` 或 `%Y%m%dT%H%M`；都没有则 None）。
+
+    ★ v0.4.1：**短形态也返回**（格式告警由调用方发）——
+      否则「键段 vs 字段时间不符」这条检查会被**整段跳过**（v0.4.0 的实际行为）。
+    """
     mm = _KEY_TS_RE.match(key)
+    if mm:
+        return mm.group(1)
+    mm = _KEY_TS_SHORT_RE.match(key)
     return mm.group(1) if mm else None
 
 
@@ -245,10 +274,13 @@ def _parse_iso(s):
 
 
 def _parse_keyts(s):
-    try:
-        return time.mktime(time.strptime(s, "%Y%m%dT%H%M%S"))
-    except (ValueError, TypeError):
-        return None
+    """★ v0.4.1：两种长度都试（`%Y%m%dT%H%M%S` → `%Y%m%dT%H%M`）；都不成才 None。"""
+    for fmt in ("%Y%m%dT%H%M%S", "%Y%m%dT%H%M"):
+        try:
+            return time.mktime(time.strptime(s, fmt))
+        except (ValueError, TypeError):
+            continue
+    return None
 
 
 def _post_warnings(key, m, schema, ts, frm_ok, to_ok):
@@ -263,7 +295,9 @@ def _post_warnings(key, m, schema, ts, frm_ok, to_ok):
     kts = _key_ts(key)
     if kts is None:
         out.append(W_KEY_TS)
-    elif ts is not None:
+    elif len(kts) != 15:                      # ★ v0.4.1：短形态**照发格式告警**，但**不再跳过**下面的时间检查
+        out.append(W_KEY_TS)
+    if ts is not None and kts is not None:
         a, b = _parse_keyts(kts), _parse_iso(ts)
         if a is not None and b is not None and abs(a - b) > _TS_SKEW_S:
             out.append(W_KEY_VS_FIELD)
@@ -812,6 +846,40 @@ def _fixture_v2():
     return logs, {}
 
 
+def _ms_of(local_iso):
+    """本地时间串 ⇒ epoch 毫秒。★ 只在本文件的夹具里用。"""
+    return int(time.mktime(time.strptime(local_iso, "%Y-%m-%dT%H:%M:%S"))) * 1000
+
+
+def _fixture_shortkey():
+    """★★ v0.4.1 夹具：逐字复刻**活板上第 17/18 楼的真实【键形态】** —— `%Y%m%dT%H%M`（只有到分钟）。
+
+    ★ 它存在的理由（★ 又一次「判据守错了对象」）：
+      v0.4.0 的 `_KEY_TS_RE` 只认 14 位（`%Y%m%dT%H%M%S`）⇒ 短键段落进 `kts is None`
+      ⇒ **「键段 vs 字段时间不符」整段被跳过**。
+      ★ 而 CHANGELOG 里点名「⇒ 必亮」的那条告警，说的**正是**这封短键段的信
+      （键段 02:40 vs `sent_at_epoch_ms` 02:02:02，差 38 分钟）
+      ⇒ ★ **那条告警在活板上一次都没亮过**（活板 warnings 实测只有 2 条，都是 `W-KEY-TS-FORMAT`）。
+      ★ 旧的 `_fixture_v2()` 用的是 14 位键 `…T024000` ⇒ **它测的键形态活板上并不存在** ⇒ 控是空的。
+
+    ★ 两封：一封差 38 分钟（**必须**亮 `W-KEY-VS-FIELD-TS`）· 一封对齐（**不得**亮）⇒ 证非恒真。
+    """
+    return {
+        # ★ 活板键形态：12 位（只有到分钟），且 epoch 与键段**差 38 分钟**
+        LOG_PREFIX + "20261012T0240-int-v2-shortkey-skew": {
+            "topic": "T-SK", "from": "int", "to": "ext",
+            "sent_at_epoch_ms": _ms_of("2026-10-12T02:02:02"),
+            "awaiting": "ext", "reply_required": True,
+            "subject": "短键段 · 键 02:40 vs epoch 02:02:02（差 38 分钟）"},
+        # ★ 负控：同为短键段，但**时间对齐**（键 03:05 == epoch 03:05）
+        LOG_PREFIX + "20261012T0305-int-v2-shortkey-aligned": {
+            "topic": "T-SK", "from": "int", "to": "ext",
+            "sent_at_epoch_ms": _ms_of("2026-10-12T03:05:00"),
+            "awaiting": "ext", "reply_required": True,
+            "subject": "短键段 · 时间对齐"},
+    }, {}
+
+
 def selftest():
     ok = fail = 0
 
@@ -934,6 +1002,20 @@ def selftest():
         "⇒ ★ 两栏**必须不同**，否则说明归一根本没生效 —— ★ 而差的那一封正是活板第 16 楼")
     chk({u["code"]: u["count"] for u in VA["undecidable"]}["R7"] == 0,
         "★ R7 负控：本夹具两封**都有**球权字段 ⇒ R7=0（★ 证明 R7 不是恒真判据）")
+
+    # ═══ ★★ v0.4.1 短键段控（★ 活板**真实**键形态 —— v0.4.0 的控没复刻它）═══
+    SK = by(*_fixture_shortkey())
+    _sk = SK[LOG_PREFIX + "20261012T0240-int-v2-shortkey-skew"]
+    _al = SK[LOG_PREFIX + "20261012T0305-int-v2-shortkey-aligned"]
+    chk(W_KEY_TS in _sk["warnings"] and W_KEY_TS in _al["warnings"],
+        "★ 格式控：短键段 `%Y%m%dT%H%M` ⇒ `W-KEY-TS-FORMAT` 必须亮（★ 这条 v0.4.0 就有）")
+    chk(W_KEY_VS_FIELD in _sk["warnings"],
+        "★★ **本组最重要的一条**：短键段**也**必须做「键段 vs 字段时间」检查 —— "
+        "键 02:40 vs epoch 02:02:02 差 38 分钟 ⇒ `W-KEY-VS-FIELD-TS` 必须亮"
+        "（★ v0.4.0 在此**整段跳过**：判据只认 14 位键 ⇒ 活板上那条告警**一次都没亮过**）")
+    chk(W_KEY_VS_FIELD not in _al["warnings"],
+        "★ 负控：短键段**且**时间对齐（键 03:05 == epoch 03:05）⇒ **不得**亮"
+        "（★ 证明上一条不是「短键段就必亮」的恒真判据）")
 
     # ★ R8 正控：造一封 `to` 是**合法会话 ID 但映射表里没有** 的信
     _unk = "session-ffffffff-ffff-ffff-ffff-ffffffffffff"
