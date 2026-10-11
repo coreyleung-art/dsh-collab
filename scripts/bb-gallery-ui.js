@@ -377,10 +377,30 @@ function renderGraphAsList(box, rel, onNodeClick){
     +' <span style="color:#5a6072">· 与图谱同源，点击条目效果同点节点</span></div>'));
   const groups={};
   nodes.forEach(n=>{const k=n.dim||n.kind||'其他';(groups[k]=groups[k]||[]).push(n)});
+  /* ★★ 2026-10-12 P7（逐页看图发现）：大列表的【导航】问题。
+     现象：跨节点资产页有 **243 个节点**，列表模式虽可读，但手机上要滑很久才到底，
+           且没有任何折叠/筛选 ⇒ 列表解决了「可读」，没解决「可导航」。
+     修法：节点总数 > 30 时，**各组默认折叠**（只显示组名+计数），点组名展开。
+           ⇒ 首屏先给「这张图由哪些部分组成」的总览，再按需下钻。
+     ★ 小列表（≤30）不折叠 —— 折叠一个 4 项的组只会多一次点击。 */
+  const collapse = nodes.length > 30;
   Object.keys(groups).forEach(k=>{
     const g=document.createElement('div');
-    g.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:10px 0 4px">'
-      +esc(k)+' <span style="color:#5a6072;font-weight:400">('+groups[k].length+')</span></div>'));
+    const hd=document.createElement('div');
+    hd.style.cssText='font-size:12px;color:#6ea8ff;font-weight:600;margin:10px 0 4px;'
+      +'min-height:34px;display:flex;align-items:center;gap:6px;'+(collapse?'cursor:pointer':'');
+    hd.innerHTML=(collapse?'<span class="grp-tri" style="width:10px;display:inline-block">▸</span>':'')
+      +esc(k)+' <span style="color:#5a6072;font-weight:400">('+groups[k].length+')</span>';
+    const body=document.createElement('div');
+    if(collapse) body.style.display='none';
+    if(collapse){
+      hd.onclick=function(){
+        const on=body.style.display!=='none';
+        body.style.display=on?'none':'block';
+        const t=hd.querySelector('.grp-tri'); if(t)t.textContent=on?'▸':'▾';
+      };
+    }
+    g.appendChild(hd);
     groups[k].forEach(n=>{
       const row=document.createElement('div');
       row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;'
@@ -391,8 +411,9 @@ function renderGraphAsList(box, rel, onNodeClick){
         +esc(n.label||n.id)+'</span>'
         +'<span style="color:#5a6072;font-size:10.5px;flex:0 0 auto">'+esc(n.dim||'')+'</span>';
       row.onclick=()=>{ if(typeof onNodeClick==='function') onNodeClick(n); };
-      g.appendChild(row);
+      body.appendChild(row);
     });
+    g.appendChild(body);
     wrap.appendChild(g);
   });
   if(edges.length){

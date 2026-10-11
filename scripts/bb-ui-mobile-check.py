@@ -220,9 +220,13 @@ def check_a1(tab):
 
 # ══════════════ 自检 · 负控矩阵 ══════════════
 def selftest():
-    """★ 判据必须会红 —— 否则它只是日志。"""
+    """★ 判据必须会红 —— 否则它只是日志。
+    ★ 2026-10-12：条数**由运行时算出**，不写死 —— 原实现把「8」写在输出串里，
+      新增第 9 条后仍报 8（读数与对象不符）。"""
     fails = []
+    n_ck = [0]
     def ck(name, cond, detail=""):
+        n_ck[0] += 1
         print("  %s %-54s %s" % ("OK  " if cond else "FAIL", name, detail))
         if not cond:
             fails.append(name)
@@ -236,6 +240,10 @@ def selftest():
     # A2 正控
     ok, bad = check_a2(js, py)
     ck("正控 A2：当前源码必须绿", ok, "命中 %d" % len(bad))
+    # A2 负控②：布局绑定方位词（2026-10-12 逐页看图新增规则）
+    ok, bad = check_a2(js + "\nconst _y='📐 从左侧选择蓝图查看详情';\n", py)
+    ck("★ 负控 A2：布局方位词必须红", not ok and any("布局方位词" in str(b[1]) for b in bad),
+       "命中 %d" % len(bad))
 
     # A2b 负控：只有 mousemove 没有 pointerdown ⇒ 必须红
     ok, d = check_a2b("cv.addEventListener('mousemove',f)")
@@ -262,7 +270,7 @@ def selftest():
     ok, d = check_a4b(js, css)
     ck("正控 A4b：当前源码必须绿", ok, d)
 
-    print("\n  %s" % ("负控矩阵全过（%d 项）" % 8 if not fails else "失败: %s" % ", ".join(fails)))
+    print("\n  %s" % ("负控矩阵全过（%d 项）" % n_ck[0] if not fails else "失败: %s" % ", ".join(fails)))
     return 1 if fails else 0
 
 
