@@ -35,8 +35,8 @@
 | 13 | **M4③b `expired` 告警** | ❌ **不成立** —— `expired` 唯一消费者是**审计器**（把 expired 排除出统计），**无告警** | 台账 **D-078** | `grep -rn 'expired' scripts/*.py` |
 | 14 | **`channel_gate` 熔断有效** | ✅ 成立（★ 24h 内第 3 次变更被**冻结 24h**） | 台账 **D-074** · 变更单 `cg-mv43j0bj-1-j8qb` | `channel_gate register …`（★ 会真冻结，勿试） |
 | 15 | **仓库「-」删除是否安全** | ✅ **安全** —— 该仓是**空壳**（0 对象/0 ref/0 issue）⇒ ★ **没有东西需要副本** | 台账 **D-080** · `docs/verify/repo-dash-empty-evidence-20261008.md`（2157 行） | 该证据件 §二 九条判据 |
-| 16 | **`f189650` 造成的次生故障** | ✅ 成立 —— ★ **本线的 `git checkout -- scripts/` 打断了明鉴的常驻进程** | 台账 **D-075** | 卡 `notes/mac-mini/repair-report-20261011175340-SystemGraph-health-cwd` |
-| 17 | **auto-snapshot 改变了 `git diff` 语义** | ✅ 成立（★ 爆炸半径 **2 个脚本**，`self-report-gate.py` 走显式 ref **不受影响**） | 台账 **D-075** | `grep -rIl 'git diff' scripts/*.py tools/*.py` |
+| 16 | **`f189650` 造成的次生故障** | ✅ 成立 —— ★ **本线的 `git checkout -- scripts/` 打断了明鉴的常驻进程** | 台账 **D-068** | 卡 `notes/mac-mini/repair-report-20261011175340-SystemGraph-health-cwd` |
+| 17 | **auto-snapshot 改变了 `git diff` 语义** | ✅ 成立（★ 爆炸半径 **2 个脚本**，`self-report-gate.py` 走显式 ref **不受影响**） | 台账 **D-068** | `grep -rIl 'git diff' scripts/*.py tools/*.py` |
 | 18 | **定时快照已上线** | ✅ 成立（`com.dsh.cron.git-snapshot` · 1800s · ★ **恒不 push**） | 台账 **D-070** | `launchctl list | grep git-snapshot` |
 
 ---
@@ -68,6 +68,15 @@
 | 8 | ★★ **宣称失效时，追到所有被污染的下游** | 把未复核结论转给了明鉴 | 台账 **D-077** |
 | 9 | ★ **能当场更正自己首猜的人比首猜对的人可靠** | 明鉴 ×2 · 本线 ×4 | 台账 **D-079** |
 | 10 | ★ **写进注释的教训会腐烂，写进控的才会活** | `:783` 注释记着错，控却不守它 | 台账 **D-077** |
+
+---
+
+## ★ 索引自身的更正（2026-10-12T05:0x）
+
+★★ **本索引第 16/17 项原引「台账 D-075」—— 而 D-075 是【空号】**（★ 台账实际编号 `D-001…D-091` 共 90 条，★ **缺 D-075**）。
+★ 该两条内容实际在 **D-068**（★ `deviation-ledger-20261011.md:1186`）。★★ **已修正编号。**
+★★★ **⇒ 这正是本线今晚反复记的那条同型**：★ **「指针指向不存在的落盘物」** —— ★ **而本线自己犯了它。**
+★ 由子代理 `449f0720` 在阶段盘点时指出（★ 非本线自查）。
 
 ---
 
