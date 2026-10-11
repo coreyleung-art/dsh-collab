@@ -1,6 +1,6 @@
 # xdom-directory.py · 跨域邮箱只读目录页生成器（本目录 `docs/xdom-index/` 的中文描述文档）
 
-> 版本 **0.4.3**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
+> 版本 **0.4.4**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
 > 路径 `~/dsh-collab/docs/xdom-index/xdom-directory.py`
 > ★ 本文件满足 R039（工具中文描述文档）——★ **本目录此前没有 README，是欠账，2026-10-12 由外部线 `ext` 补**。
 > ★ 变更历史见同目录 `CHANGELOG.md`（R006 ⑥）。
@@ -38,6 +38,15 @@
 ⇒ ★ 现卡**只留【机制】陈述**，**状态归读板**。（同族：**判据不得自指**。）
 
 ★★ **v0.4.3 的触发事件同样是自曝**：读对方新信时发现，目录页把**标题在 44 字处静默硬切**（原标题 55 字「…+ 一条 schema 分裂是我造的」印成「…+ 一条 sc」），★ **且把告警徽章粘进同一格** ⇒ ★ 读者会把【被截断的】读成【原文如此】、把【告警】读成【标题的一部分】。★ 修：`_clip()` **截断必留痕**（补「…」并注明原长）+ 告警**独立成列**；★ 配**四条渲染控**与变异 **M18/M19**。
+
+★★ **v0.4.4 的触发事件是【发信前的逐字复核】**：我准备回信给 `int`，发前把信里每个数回读一遍 ——
+顺手摊开板上**真时间**，才发现 `…T0330-…` 的**键段说 `03:30`**、`sent_at_epoch_ms` 却是 **`02:35:13`**；
+而排在它**后面**的 `…T032424-…` 才是 `03:24:24` ⇒ ★ **这一对的键序与时间序是反的**。
+★★ 而本页 §一 的**标题写着「时间倒序」**，实际做的是 `reversed(idx["posts"])` = **按键倒序**
+⇒ ★ **标题断言了数据没算的东西**。★ 更难看的是：★ 两个真时间**并排印在同一张表里**
+⇒ **页面自己推翻自己，矛盾在字面上就看得见**。★ 同族：**判据的对象取错了**（序的对象是「键」，标题说的是「时间」）。
+★ 修：**呈现序改真时间**（板封 → 自述 → 键段三级）· **逐行标出实际用到的轴**（落到键段者标 `键段⚠`）·
+★ 且**规则序不动** —— `posts` 仍按键序建，`infer:handoff-next-utterance-v1` 的 7 条边**不变**。
 
 ## ② 用法（含退出码）
 
@@ -125,15 +134,29 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
     ★ 一个「只读派生 · 逐字回指」的页面，**恰恰不能**静默改短它引的原文。
     ⇒ 现策略：`_clip()` **超长必留「…」并注明原长**；★ 且**告警不与标题同格**。
     ★ 同族：★ **把「我看到的」当成「全部」**（＝对方纪律 1/2：**空≠无** · **不得升格**）。
+11. ★★ **别让标题断言数据没算的东西**（v0.4.4 实测踩到）：★ §一 标题写「**时间倒序**」，
+    而排序是 **键序**倒序 ⇒ ★ 活板上把真时间 `02:35:13` 那封排到 `03:24:24` 那封**之上**，
+    ★ 而两个真时间**就并排印在同一张表里** ⇒ **页面自己推翻自己**。
+    ⇒ 现策略：**呈现序用真时间**（`板封` → `自述` → `键段`，`_order_epoch` / `_render_order`），
+    **逐行把实际用到的轴印出来**（落到键段者标 **`键段⚠`** ⇒ ★ 那行的先后**是名字给的，不是读出来的**）。
+    ★ **规则序（键序）不动** —— 它定义着推断边，**换排序会改那 7 条边**。
+    ★ 同族：**判据的对象取错了**（★ 序的对象与标题说的不是同一个东西）。
+    ★ 诚实附注：★ **今天没有活板数据能区分「板封」与「自述」**（活板两处两者相等）⇒
+    「板封优先」那一级**只有单测控在护**，**不是**活板逼出来的需求。
+12. ★ **控的对象别取宽**（v0.4.4 实测踩到）：短标题负控原写 `"…" not in 整页`
+    ⇒ ★ 本版 §一 的**说明行里**就有「…」（`…T0330-…`）⇒ 它**当场假红**。
+    ⇒ ★ 它要管的**只有标题格** ⇒ 现在只扫标题格。★ 同族：**判据守错了对象**。
 
 ## ⑤ 复现命令
 
 ```bash
 cd ~/dsh-collab
-python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 55 PASS / 0 FAIL
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 61 PASS / 0 FAIL
 python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"        # 期望 6/6 绿
-python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"       # 期望 0.4.2 · 单一来源=OK
-python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（18/18）
+python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"       # 期望 0.4.4 · 单一来源=OK
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（20/20）
+# ★ 序轴自证（活板 · 只读）：T0324（真 03:24:24）必须排在 T0330（真 02:35:13）**之上**
+python3 docs/xdom-index/xdom-directory.py | grep -n 'T0324\|T0330' | head -2
 python3 scripts/doc-cn-check.py docs/xdom-index/README.md                     # R039 机械判据
 # ★ ⑧ 的状态**归读板**，不归卡自述：
 curl -s http://127.0.0.1:8792/data/registry/xdom-directory | head -c 160 ; echo
@@ -151,7 +174,7 @@ curl -s http://xingqiao.meetfunbp.com:8792/data/registry/xdom-directory | head -
 | `README.md` | 本文件（R039 中文描述文档） |
 | `CHANGELOG.md` | 变更日志（R006 ⑥） |
 | `xdom-directory.py` | 生成器（**只 GET**；★ 写原语在**代码面**为零，字面量仅见于控的样本字符串） |
-| `probe/mutation_directory_selftest.py` | **变异探针 v5**：证明生成器的自检与结构门**会变红**（18 变异，含 gate 模式） |
+| `probe/mutation_directory_selftest.py` | **变异探针 v6**：证明生成器的自检与结构门**会变红**（20 变异，含 gate 模式） |
 | `xdom-directory-20261012.md` | 本机板渲染出的目录页（可随时重生成） |
 | `line-rule-evidence-20261012.md` | P1 定桩证据件：「球权交接 ⇒ 回复链」**被实测打掉** |
 | `P2-preflight-20261012.md` | P2 开工前说明书（合规前置 · 范围变更 · 裁决点） |

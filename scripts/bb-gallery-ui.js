@@ -65,25 +65,68 @@ function __cacheSet(key,val){try{localStorage.setItem(__CACHE_PREFIX+key,JSON.st
 function __apiFile(u){ // /api/xxx → api/xxx.json(静态模式路径)
   const m=u.match(/^\/api\/([a-z0-9-]+)/);return m?('api/'+m[1]+'.json'):u.replace(/^\//,'');
 }
+/* ★★ 2026-10-12 P5a/P5b（手机体验 · 载荷与流量）：
+   问题：`j()` 一律【在线优先】⇒ 每次进页面都把 200KB 级端点整段重下
+        （实测 cap-perm 202613 B · biz-assets 171807 B · agents 88347 B），
+        这是手机上流量与等待时间的主要成本。
+   修法：用 A 组已交付的【模型版本号】做重验证 —— 版本没变就不重下。
+   ★ 只对【确认由模型覆盖】的端点生效（模型监听的板书键 + agent-bus.json）；
+     其余端点保持原行为（在线优先）⇒ 不会因为端点不在模型里而读到陈旧数据。
+   ★ 兜底：即使版本未变，缓存超过 10 分钟也强制重取（防「模型版本该变而未变」）。 */
+const __MODEL_VER_BACKED={overview:1,blueprints:1,relations:1,versions:1,agents:1};
+const __REVAL_MAX_AGE=10*60*1000;
+async function __modelVer(){
+  if(window.__mver!==undefined)return window.__mver;
+  window.__mver=null;
+  try{
+    const r=await fetch(__BASE+'/api/model-status',{cache:'no-store'});
+    const m=await r.json();
+    if(m&&m.version!=null)window.__mver=m.version;
+  }catch(e){}
+  return window.__mver;
+}
 async function j(u){
   // 1) 静态模式(CloudBase): 直接读本地 json 文件
   if(__STATIC){
     const r=await fetch(__apiFile(u),{cache:'no-store'});return r.json();
   }
-  // 2) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
+  // 2) ★ 模型版本重验证：版本未变且缓存新鲜 ⇒ 直接返回缓存，免去整段网络传输
+  const _ep=(u.match(/^\/api\/([a-z0-9-]+)/)||[])[1];
+  if(_ep&&__MODEL_VER_BACKED[_ep]){
+    const v=await __modelVer();
+    if(v!=null){
+      const cv=__cacheGet('~ver'+u), c=__cacheGet(u), ts=__cacheGet('~ts'+u)||0;
+      const young=(Date.now()-ts)<__REVAL_MAX_AGE;
+      const nonempty=c&&((Array.isArray(c)&&c.length>0)||(!Array.isArray(c)&&typeof c==='object'&&Object.keys(c).length>0));
+      if(cv===v&&young&&nonempty){
+        /* ★ 2026-10-12 实测修正：不能用 __dataState.mode 标记重验证 ——
+           它是【最后写入者赢】的全局量，而 init() 里多个 j() 并发完成，
+           不在本名单里的端点（如 /api/assets）会用 'online' 把它覆盖掉
+           ⇒ 状态条上永远看不到「复查命中」。改用【只增不减的计数器】。 */
+        window.__revalHits=(window.__revalHits||0)+1;
+        if(typeof __updateDataState==='function')__updateDataState();
+        __dataState.online=true;
+        __dataState.stamp=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+        return c;
+      }
+    }
+  }
+  // 3) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
   try{
     const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
     const r=await fetch(__BASE+u,{signal:ctrl.signal});clearTimeout(t);
     if(r.ok){
       const d=await r.json();
       __cacheSet(u,d);                                 // 写缓存
+      __cacheSet('~ver'+u,window.__mver);              // ★ 记下取回时的模型版本
+      __cacheSet('~ts'+u,Date.now());                  // ★ 记下取回时刻（TTL 兜底用）
       __dataState.mode='online';__dataState.online=true;
       __dataState.stamp=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
       return d;
     }
     throw new Error('HTTP '+r.status);
   }catch(e){
-    // 3) 缓存兜底(离线/失败) — 拒 null/空对象污染(坏缓存当无缓存)
+    // 4) 缓存兜底(离线/失败) — 拒 null/空对象污染(坏缓存当无缓存)
     const c=__cacheGet(u);
     if(c&&typeof c==='object'&&Object.keys(c).length>0&&c!==null){__dataState.mode='cache';__dataState.online=false;return c;}
     if(c&&Array.isArray(c)&&c.length>0){__dataState.mode='cache';__dataState.online=false;return c;}
@@ -144,6 +187,17 @@ async function __switchSource(){
     alert('无其他可用数据源(仅当前可达)');
   }
 }
+/* ★ P5b 就地更新器：状态条在 init() 后 600ms 才组好，而重验证命中可能发生在其后
+   （多个 j() 并发完成，顺序不定）⇒ 命中时就地刷新那一项，不重建整个状态条。 */
+function __updateDataState(){
+  try{
+    const st=document.getElementById('ds-state');
+    if(!st)return;
+    const n=window.__revalHits||0;
+    const base=st.textContent.replace(/ · 复查命中 \d+ 项\(省流量\)/,'');
+    st.textContent=base+(n>0?(' · 复查命中 '+n+' 项(省流量)'):'');
+  }catch(e){}
+}
 async function __showDataState(){
   const el0=document.getElementById('ds-state');if(el0)el0.remove();
   const el1=document.getElementById('src-badge');if(el1)el1.remove();
@@ -156,7 +210,12 @@ async function __showDataState(){
     st.style.cssText='position:fixed;right:14px;bottom:14px;font-size:10px;color:#8b90a3;background:rgba(13,17,25,.85);border:1px solid #232a3a;padding:3px 10px;border-radius:12px;z-index:300;pointer-events:none';
     const srcTxt={funnel:'· 实时数据',cloud:'· 镜像数据',local:'· 本机数据',other:''}[__SRC]||'';
     const vTxt=(__dataState.stamp?(' 更新 '+__dataState.stamp):'');
-    st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+srcTxt;
+    // ★ P5b：把「复查命中（模型版本未变 ⇒ 免去重下）」显式显示出来 ——
+    //   ① 用户看得出它在省流量 ② 也让这个行为【可被截图验证】（否则只能读代码相信）
+    //   ★ 用只增不减的计数器，不用 __dataState.mode（后者会被其他端点覆盖）
+    const _rh=window.__revalHits||0;
+    const mTxt=(_rh>0?(' · 复查命中 '+_rh+' 项(省流量)'):'');
+    st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+mTxt+srcTxt;
     st.style.maxWidth='calc(100vw - 28px)';   // ★ 手机上别溢出（P4）
     st.style.textAlign='right';
     if(st.textContent)document.body.appendChild(st);
