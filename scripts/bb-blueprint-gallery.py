@@ -1670,6 +1670,7 @@ def build_index(port):
 <div class="tab" data-tab="channel" data-dom="SYS">🛰 通道基线</div>
 <div class="tab" data-tab="goal" data-dom="SYS">🎯 目标四维</div>
 <div class="tab" data-tab="progress" data-dom="SYS">📈 进度轴</div>
+<div class="tab" data-tab="circles" data-dom="SYS">⭕ 两圈(回收)</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1695,6 +1696,7 @@ def build_index(port):
 <div class="main" id="view-channel"></div>
 <div class="main" id="view-goal"></div>
 <div class="main" id="view-progress"></div>
+<div class="main" id="view-circles"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2056,6 +2058,15 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     self._send(200, json.dumps(
                         {"error": "%s: %s" % (type(e).__name__, e), "miles": []},
+                        ensure_ascii=False))
+                return
+            if path == "/api/two-circles":
+                # ★ C4（2026-10-12）：两圈（原始三分）设计 + 遗忘根因（只读）。
+                try:
+                    self._send(200, json.dumps(build_two_circles(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "cites": []},
                         ensure_ascii=False))
                 return
             if path == "/api/overview":
@@ -3180,6 +3191,114 @@ def build_progress_axis():
         "byTri": {t: sum(1 for m in miles if m["tri"] == t) for t in ("✅", "🟡", "❌", "?") if any(m["tri"] == t for m in miles)},
         "note": "★ 判定列沿用 v6.1 §14.3（含 v5 自身实测 + v6 复核）；★ 「解除条件」列是 v6 新增 —— "
                 "它把「❌ 不成立」变成「要做什么才算成立」，是本页最有行动价值的一列。",
+    }
+
+
+# ══════ ★ C4（2026-10-12）：两圈（原始三分）设计 —— 一次【知识回收】 ══════
+# ★★ 为什么要回收：台账 **D-076** 记「**两圈（原始为三分）设计被遗忘** —— 写在
+#    `research/cost-governance/`」。★ 根因（星桥 `repo-strata-map-20261012.md` 已实证）：
+#    **治理检索面长期只扫 `docs/`**，而实测圈二的证据全在 `research/` 与 `erp-workspace/`，
+#    **`docs/` 里「门店」几乎为 0** ⇒ ★ **治理所依据的 docs/，是信息量最小的地层之一**。
+# ★★ 本函数的原则：**内容是【策展】的（自原文摘），但每条都带 `cite`（文件:行）**，
+#    且**实时核验被引文件是否仍在、何时改过** —— 回收来的知识最怕「引文本身已漂移」。
+TWO_CIRCLES = {
+    "design": [
+        {"k": "内部（圈一）", "src": "Tailscale 网段（100.x）", "trust": "高（自有设备）",
+         "auth": "内部 token（SSE_TOKEN）+ 网络白名单"},
+        {"k": "公网-门店（圈二）", "src": "云网关公网 → 门店身份", "trust": "中（商户合同）",
+         "auth": "门店凭据（企微身份/门店账号）"},
+        {"k": "公网-订阅（圈三·未启动）", "src": "云网关公网 → 订阅用户", "trust": "低（付费客户）",
+         "auth": "订阅 API key（作用域）"},
+    ],
+    "roles": [
+        {"k": "内部设备", "bound": "全网络（nodes/data/registry 全量）",
+         "tools": "监察/审批/运营/黑板/总线（全工具）", "appr": "内部 J45 分级"},
+        {"k": "门店", "bound": "本店 data/<门店>/*（隔离）",
+         "tools": "本店只读（订单/评价/报表）+ 受限操作（回复草稿）",
+         "appr": "改价/上下架 → 自动升级店长/总部确认"},
+        {"k": "订阅用户", "bound": "订阅租户 data/<subscriber>/*",
+         "tools": "只读聚合（简报/报告/知识检索）", "appr": "无写操作（网关层硬过滤）"},
+    ],
+    "decision": "现阶段 = **Tailscale 内网共享账本 + 命名空间隔离**（nodes/<节点>/、data/<域>/，"
+                "权限=信任内部）—— 完全够用，**不引入多租户复杂度**。",
+    "trigger": "**升级触发：投放门店/员工时启用（现不提前做）**。",
+    "upgrade_path": ["① 命名空间加租户层 data/<门店>/*", "② 云网关 ABAC 按角色",
+                     "③ 企微身份认证", "④ 员工操作 J45 自动升级审批", "⑤ 审计加租户维度"],
+    "cites": [
+        "research/cost-governance/access-tiering-role-model-v0.1.md:3",
+        "research/cost-governance/cross-device-blackboard-design-v1.0.md:4",
+        "research/cost-governance/architecture-evolution-stages-v1.0.md:31",
+        "docs/repo-strata-map-20261012.md",
+    ],
+    "strata": [
+        {"layer": "cld-voice", "files": 8547, "stores": None},
+        {"layer": "erp-workspace", "files": 782, "stores": 2418},
+        {"layer": "research", "files": 749, "stores": 1240},
+        {"layer": "data", "files": 715, "stores": 1319},
+        {"layer": "docs", "files": 649, "stores": 0},
+        {"layer": "scripts", "files": 451, "stores": None},
+        {"layer": "datasets", "files": 151, "stores": 1417},
+    ],
+    "forgotten_rootcause": "★ 治理检索面长期**只扫 `docs/`**；而实测圈二的证据全在 `research/` 与 "
+                           "`erp-workspace/`，**`docs/` 里「门店」几乎为 0** ⇒ "
+                           "★★ **治理所依据的 `docs/`，是信息量最小的地层之一**。",
+    "status_today": "差件 D-076 记：「**圈二（门店投放）落地**」= ❌，卡在**用户**；"
+                    "★ 讨论充分、PoC 9/9，但**活体 E2 无任何 `store-*` 节点**；"
+                    "★ 试点标识 `i9-sim` = **模拟**（非真实门店）。",
+    "proposals": ["凡「搜集因某主题」的任务，起手先扫四个地层（research / comm-server / erp-workspace / 黑板 KV）",
+                  "锚点的「扫过的面」字段宜**显式列出未扫的层**（现在只列已扫 ⇒ 读者不知道缺什么）",
+                  "建议将此地层图纳入 §4.6 四件同步的**第五件**（或挂到索引键的 strata_map 字段）"
+                  " —— 否则它会像 docs/ 一样被遗忘"],
+}
+
+
+def build_two_circles():
+    """★ C4（2026-10-12）：两圈（原始三分）设计 + 遗忘根因 + 七地层对比。★ 只读。
+
+    ★ 本函数做两件事：① 返回**策展**的设计内容（每条带 cite）；② **实时核验每条引文**
+      —— 被引文件是否仍在、mtime 多少。★ 回收来的知识最怕「引文本身已漂移」，
+      故引文不能只是字符串，必须是**可核验的指针**。
+    """
+    cites = []
+    for c in TWO_CIRCLES["cites"]:
+        rel = c.split(":")[0]
+        p = os.path.join(BASE, rel)
+        e = {"cite": c, "path": rel}
+        try:
+            st = os.stat(p)
+            e["exists"] = True
+            e["mtime"] = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M")
+            e["bytes"] = st.st_size
+            with open(p, encoding="utf-8", errors="replace") as f:
+                n = sum(1 for _ in f)
+            e["lines"] = n
+            # ★ 若引文带行号，核对该行是否仍有内容（不核内容对错，只核「行还在」）
+            if ":" in c:
+                ln = int(c.split(":")[1])
+                with open(p, encoding="utf-8", errors="replace") as f:
+                    ls = f.readlines()
+                e["lineExists"] = (1 <= ln <= len(ls))
+                e["linePreview"] = (ls[ln - 1].strip()[:100] if e["lineExists"] else "")
+        except Exception as ex:
+            e["exists"] = False
+            e["err"] = "%s: %s" % (type(ex).__name__, ex)
+        cites.append(e)
+    ok = sum(1 for e in cites if e.get("exists"))
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "title": "两圈（原始为三分）· 2026-08-22 设计 · 被遗忘后回收",
+        "design": TWO_CIRCLES["design"], "roles": TWO_CIRCLES["roles"],
+        "decision": TWO_CIRCLES["decision"], "trigger": TWO_CIRCLES["trigger"],
+        "upgrade_path": TWO_CIRCLES["upgrade_path"],
+        "forgotten_rootcause": TWO_CIRCLES["forgotten_rootcause"],
+        "statusToday": TWO_CIRCLES["status_today"],
+        "proposals": TWO_CIRCLES["proposals"],
+        "strata": TWO_CIRCLES["strata"],
+        "cites": cites, "citesOk": ok, "citesTotal": len(cites),
+        "writer": "明鉴 v3（策展 + 实时核验引文；被引文件全部只读，不写）",
+        "note": "★ 本页是【知识回收】：内容自原文摘录（每条带 cite），而 **cite 是实时核验的指针**"
+                "（文件是否仍在 · mtime · 行是否还在），不是一串字符串 —— "
+                "★ 回收来的知识最怕「引文本身已漂移」。★ 三条行动提案**不代裁**。",
     }
 
 

@@ -352,6 +352,63 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C2（2026-10-12）：进度页 · 阶段轴 ══════════
+   ★★ 本页第一条要印的不是进度，是【警告】：旧阶段图（阶段 0–4）所在件
+     `architecture-evolution-stages-v1.0.md` 的 `mtime == birth == 2026-08-22`
+     ⇒ **从未更新**；v5 全文「阶段」0 命中、从不引用它。
+     ⇒ 混用会把 2026-08-22 的旧刻度当当前进度。**v6 只写 Wave 轴。**
+   ★★ 最有行动价值的一列是「解除条件」（v6 新增）—— 它把「❌ 不成立」变成
+     「要做什么才算成立」。
+   ★ 数据源 = /api/progress-axis（只读 v6.1）。 */
+async function renderProgressAxis(){
+  const box=$('view-progress'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/progress-axis'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const TRI_C={'✅':'#34c77b','❌':'#e06c75','🟡':'#e5c07b','?':'#8b90a3'};
+
+  box.appendChild(el('h3','','📈 进度轴 · '+(d.miles||[]).length+' 个里程碑 + '+(d.waves||[]).length+' 项执行序'));
+  // ── ① ★ 轴混用警告（第一屏第二块，必须显眼）──
+  box.appendChild(el('div','','<div style="background:#2a1f10;border:1px solid #7a5a1e;border-radius:10px;padding:10px 12px;margin:0 0 10px">'
+    +'<div style="font-size:12px;color:#f5b942;font-weight:600">⚠ 唯一阶段轴</div>'
+    +'<div style="font-size:11.5px;color:#e8eaf0;margin-top:4px">'+esc(d.axis||'')+'</div>'
+    +'<div style="font-size:11px;color:#f5b942;margin-top:6px;border-top:1px solid #4a3a18;padding-top:6px">'
+    +esc((d.axisWarning||'').replace(/[*]/g,''))+'</div></div>'));
+  // ── ② 里程碑 + 解除条件（★ 主体）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">里程碑与解除条件（点行展开）</div>'));
+  const list=el('div','');
+  (d.miles||[]).forEach(m=>{
+    const row=el('div','');
+    row.style.cssText='padding:9px 10px;border-bottom:1px solid #1a2130;cursor:pointer;min-height:44px';
+    row.innerHTML='<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="flex:0 0 30px;font-size:12.5px;font-weight:600;color:'+(TRI_C[m.tri]||'#8b90a3')+'">'+esc(m.id)+'</span>'
+      +'<span style="flex:0 0 20px;color:'+(TRI_C[m.tri]||'#8b90a3')+'">'+esc(m.tri)+'</span>'
+      +'<span style="flex:1;min-width:0;font-size:11.5px;color:#e8eaf0">'+esc(m.goal)+'</span></div>'
+      +'<div class="xq-detail" style="display:none;font-size:11px;margin-top:6px;background:#0d1119;'
+      +'border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 38px">'
+      +'<div style="color:#8b90a3"><b style="color:#e06c75">判定：</b>'+esc(m.verdict)+'</div>'
+      +'<div style="color:#8b90a3;margin-top:4px"><b style="color:#8b90a3">依据：</b>'+esc(m.why)+'</div>'
+      +'<div style="color:#34c77b;margin-top:6px;border-top:1px solid #232a3a;padding-top:6px">'
+      +'<b>★ 解除条件：</b>'+esc(m.unblock)+'</div></div>';
+    row.onclick=()=>{const dd=row.querySelector('.xq-detail'); if(dd) dd.style.display=(dd.style.display==='none')?'block':'none';};
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  // ── ③ 执行序 + Wave ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">执行序与 Wave 现状</div>'
+    + (d.waves||[]).map(w=>'<div style="padding:8px 10px;border-bottom:1px solid #1a2130;min-height:40px">'
+      +'<div style="font-size:12px;color:#e8eaf0">'+esc(w.what)+'</div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:3px">'+esc(w.read)+'</div>'
+      +(w.src?'<div style="font-size:10.5px;color:#5a6072">依据：'+esc(w.src)+'</div>':'')+'</div>').join('')));
+  // ── ④ 口径 ──
+  box.appendChild(el('div','','<div style="font-size:11px;color:#5a6072;margin:14px 0 0;padding:8px 10px;'
+    +'background:#0d1119;border:1px solid #232a3a;border-radius:8px">'+esc(d.note)
+    +'<br>文件 mtime '+esc(d.mtime)+' · 数据截至 '+esc(d.generatedAt)+' · 写入者：'+esc(d.writer)+'</div>'));
+}
 /* ══════════ ★ C1（2026-10-12）：目标页 · 四维 S/H/I/L ══════════
    ★★ 四维的出处逐字：「原话把目标写成一句话、四个并列项 —— 「更稳定」「更健康」
      「跟得上业界」「保持领先」。四维即原话自身的四个词，**不是我另立的分法**。」
@@ -2080,6 +2137,8 @@ function switchTab(name){
   else if(name==='goal'&&!window.__goalDone){window.__goalDone=true;renderGoalDimensions()}
   /* ★ C2（2026-10-12）：进度页 —— 阶段轴 + 执行序 + M0–M4 解除条件。 */
   else if(name==='progress'&&!window.__progDone){window.__progDone=true;renderProgressAxis()}
+  /* ★ C4（2026-10-12）：两圈页 —— 一次【知识回收】（2026-08-22 设计被遗忘后找回）。 */
+  else if(name==='circles'&&!window.__circDone){window.__circDone=true;renderTwoCircles()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}
