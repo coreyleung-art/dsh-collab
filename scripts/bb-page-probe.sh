@@ -28,13 +28,17 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 SIM="${SG_SIM_UDID:-D5AE0F82-CA99-44FC-A9E3-6BCECA1437C4}"   # iPhone 18 Pro
 
 mkdir -p "$OUT"
-echo "════ 探针：$HASH ════"
+# ★ 2026-10-12 P7 教训：必须带 cache-buster —— 否则 Safari/Chrome 可能用缓存页，
+#   你会对着【旧渲染】判断「修复没生效」（本夜实测踩到一次）。
+TS=$(date +%s)
+URL="$BASE/?t=$TS#$HASH"
+echo "════ 探针：$HASH ════  ($URL)"
 
 # ── ① iOS（Xcode 模拟器 · 真 iOS WebKit；env(safe-area-*) 有真实值）──
 if /usr/bin/xcrun simctl list devices | grep -q "$SIM"; then
   st=$(/usr/bin/xcrun simctl list devices | grep "$SIM" | sed -n 's/.*(\([A-Za-z]*\)).*/\1/p')
   [ "$st" = "Booted" ] || /usr/bin/xcrun simctl boot "$SIM" >/dev/null 2>&1
-  /usr/bin/xcrun simctl openurl "$SIM" "$BASE/#$HASH" >/dev/null 2>&1
+  /usr/bin/xcrun simctl openurl "$SIM" "$URL" >/dev/null 2>&1
   sleep 11
   /usr/bin/xcrun simctl io "$SIM" screenshot "$OUT/ios-$HASH.png" >/dev/null 2>&1
   echo "  iOS   : $OUT/ios-$HASH.png  $(stat -f%z "$OUT/ios-$HASH.png" 2>/dev/null || echo 失败) B"
@@ -47,7 +51,7 @@ rm -rf "/tmp/probe-$HASH"; mkdir -p "/tmp/probe-$HASH"
 "$CHROME" --headless=new --disable-gpu --no-sandbox --user-data-dir="/tmp/probe-$HASH" \
   --window-size=1440,900 --hide-scrollbars --virtual-time-budget=11000 \
   --enable-logging=stderr --v=0 \
-  --screenshot="$OUT/mac-$HASH.png" --dump-dom "$BASE/#$HASH" \
+  --screenshot="$OUT/mac-$HASH.png" --dump-dom "$URL" \
   >"/tmp/probe-$HASH.html" 2>"/tmp/probe-$HASH.err"
 echo "  macOS : $OUT/mac-$HASH.png  $(stat -f%z "$OUT/mac-$HASH.png" 2>/dev/null || echo 失败) B"
 
