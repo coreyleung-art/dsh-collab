@@ -352,6 +352,74 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C1（2026-10-12）：目标页 · 四维 S/H/I/L ══════════
+   ★★ 四维的出处逐字：「原话把目标写成一句话、四个并列项 —— 「更稳定」「更健康」
+     「跟得上业界」「保持领先」。四维即原话自身的四个词，**不是我另立的分法**。」
+   ★★ H-4 同时给【文档读数】与【本线现测】：v6.1 写「见 M4①（现状 6.25%）」，
+     而现测已到 15%+（差 2.4 倍）⇒ 两个都列，不替读者选一个。
+   ★ 数据源 = /api/goal-dimensions（只读 v6.1）。 */
+async function renderGoalDimensions(){
+  const box=$('view-goal'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/goal-dimensions'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const TRI_C={'✅':'#34c77b','❌':'#e06c75','⚠':'#f5b942','?':'#8b90a3'};
+  const dims=d.dims||[];
+
+  box.appendChild(el('h3','','🎯 目标四维 · 可判项（'+(dims.map(x=>x.total).reduce((a,b)=>a+b,0))+' 条）'));
+  box.appendChild(el('div','','<div style="font-size:12px;color:#8b90a3;margin:-6px 0 10px">'
+    +esc((d.headline||'').replace(/[*]/g,''))+'</div>'));
+
+  // ── ① 四维总览（★ 一行看完全貌：每维达标 X/总）──
+  const ov=el('div','');
+  ov.style.cssText='display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px';
+  dims.forEach(x=>{
+    const c=el('div','');
+    const ok=x.passed, tot=x.total;
+    c.style.cssText='background:#141824;border:1px solid '+(ok===0?'#5a2a2a':'#2d5a94')
+      +';border-radius:10px;padding:10px;min-height:64px';
+    c.innerHTML='<div style="font-size:12px;color:#f5b942;font-weight:600">'+esc(x.code)+' · '+esc(x.name)+'</div>'
+      +'<div style="font-size:10.5px;color:#5a6072;margin-top:1px">原话：「'+esc(x.from_original)+'」</div>'
+      +'<div style="font-size:18px;font-weight:700;color:'+(ok===0?'#e06c75':'#34c77b')+';margin-top:4px">'
+      +ok+'<span style="font-size:12px;color:#5a6072">/'+tot+'</span>'
+      +'<span style="font-size:10.5px;color:#5a6072;font-weight:400"> 条达标</span></div>';
+    ov.appendChild(c);
+  });
+  box.appendChild(ov);
+
+  // ── ② 每维逐条 ──
+  dims.forEach(x=>{
+    box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:12px 0 4px">'
+      +esc(x.code)+' · '+esc(x.name)+'（'+x.passed+'/'+x.total+' 达标）</div>'));
+    const l=el('div','');
+    (x.items||[]).forEach(it=>{
+      const row=el('div','');
+      row.style.cssText='padding:9px 10px;border-bottom:1px solid #1a2130;cursor:pointer;min-height:44px';
+      row.innerHTML='<div style="display:flex;align-items:baseline;gap:8px">'
+        +'<span style="flex:0 0 18px;color:'+(TRI_C[it.tri]||'#8b90a3')+'">'+esc(it.tri)+'</span>'
+        +'<span style="flex:0 0 40px;font-size:11.5px;color:#6ea8ff">'+esc(it.id)+'</span>'
+        +'<span style="flex:1;min-width:0;font-size:12px;color:#e8eaf0">'+esc(it.judge)+'</span></div>'
+        +(it.liveRate!=null?'<div style="font-size:11px;color:#f5b942;margin-top:3px;padding-left:26px">'
+          +'★ 文档读数 6.25% vs 本线现测 <b>'+it.liveRate+'%</b>（'+esc(it.liveAt)+'）</div>':'')
+        +'<div class="xq-detail" style="display:none;font-size:11px;color:#8b90a3;margin-top:6px;background:#0d1119;'
+        +'border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 26px">'
+        +'<div style="color:#5a6072">现状读数：</div><div>'+esc(it.now)+'</div>'
+        +(it.liveNote?'<div style="margin-top:4px;color:#f5b942">'+esc(it.liveNote)+'</div>':'')+'</div>';
+      row.onclick=()=>{const dd=row.querySelector('.xq-detail'); if(dd) dd.style.display=(dd.style.display==='none')?'block':'none';};
+      l.appendChild(row);
+    });
+    box.appendChild(l);
+  });
+
+  // ── ③ 口径声明 ──
+  box.appendChild(el('div','','<div style="font-size:11px;color:#5a6072;margin:14px 0 0;padding:8px 10px;'
+    +'background:#0d1119;border:1px solid #232a3a;border-radius:8px">'+esc(d.note)
+    +'<br>文件 mtime '+esc(d.mtime)+' · 数据截至 '+esc(d.generatedAt)+' · 写入者：'+esc(d.writer)+'</div>'));
+}
 /* ══════════ ★ C5（2026-10-12）：通道基线页 ══════════
    ★★ 本页立页理由（实测）：同一条判据 M4① 在三处有**三个不同的真读数**（差 2.4 倍）：
      v6.1 锚点 19/304=6.25% · 差距件 48/342=14.04% · 本线现测见下。
@@ -2008,6 +2076,8 @@ function switchTab(name){
   else if(name==='gap'&&!window.__gapDone){window.__gapDone=true;renderGapInventory()}
   /* ★ C5（2026-10-12）：通道基线页 —— ★ 核心是【现测】，不是抄文件。 */
   else if(name==='channel'&&!window.__chanDone){window.__chanDone=true;renderChannelBaseline()}
+  /* ★ C1（2026-10-12）：目标页 —— 四维 S/H/I/L（原话自己的四个词）。 */
+  else if(name==='goal'&&!window.__goalDone){window.__goalDone=true;renderGoalDimensions()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}

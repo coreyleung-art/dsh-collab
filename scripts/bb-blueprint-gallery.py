@@ -1668,6 +1668,7 @@ def build_index(port):
 <div class="tab" data-tab="ledger" data-dom="SYS">📒 偏差台账</div>
 <div class="tab" data-tab="gap" data-dom="SYS">🧭 差距盘点</div>
 <div class="tab" data-tab="channel" data-dom="SYS">🛰 通道基线</div>
+<div class="tab" data-tab="goal" data-dom="SYS">🎯 目标四维</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1691,6 +1692,7 @@ def build_index(port):
 <div class="main" id="view-ledger"></div>
 <div class="main" id="view-gap"></div>
 <div class="main" id="view-channel"></div>
+<div class="main" id="view-goal"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2034,6 +2036,15 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     self._send(200, json.dumps(
                         {"error": "%s: %s" % (type(e).__name__, e), "m4": []},
+                        ensure_ascii=False))
+                return
+            if path == "/api/goal-dimensions":
+                # ★ C1（2026-10-12）：目标页 —— 四维 S/H/I/L（只读 v6.1）。
+                try:
+                    self._send(200, json.dumps(build_goal_dimensions(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "dims": []},
                         ensure_ascii=False))
                 return
             if path == "/api/overview":
@@ -3000,6 +3011,91 @@ def build_channel_baseline():
         "note": "★ 本页【现测】而非抄文件：同一条判据在三处有三个不同的真读数（差 2.4 倍），"
                 "三份都是真的、只是时刻不同 ⇒ 三源并列、各标时刻，不合并也不取平均。"
                 "★ M4② / M4③ 与 P28 属结构性判断，现测无法自动判定 ⇒ 引用来源件并标明，不冒充实测。",
+    }
+
+
+def build_goal_dimensions():
+    """★ C1（2026-10-12）：目标页 —— 四维可判项（v6.1 §0.1.4/§0.1.5）。★ 只读。
+
+    ★★ 四维不是另立的分法 —— 出处逐字：「原话把目标写成一句话、四个并列项 ——
+       「更**稳定**」「更**健康**」「跟得上**业界**」「保持**领先**」。
+       四维即原话自身的四个词，**不是我另立的分法**。」
+       ⇒ 本页照此呈现：**S 稳定 / H 健康 / I 业界对齐 / L 领先**。
+
+    ★★ 一处必须现测而不能照抄的理由：维二 H-4「告警送达率（双板）= 100%」在 v6.1 里
+       写「见 M4①（现状 **6.25%**）」，而本线现测 M4① 已到 **15%+**（差 2.4 倍，见 C5 页）。
+       ⇒ 本函数**同时给出文档读数与本线现测**，并标明哪个是哪个 —— 不替读者选一个。
+    """
+    p = os.path.join(BASE, "docs/distributed-agent-network-governance-plan-v6.1-20261011.md")
+    try:
+        s = open(p, encoding="utf-8", errors="replace").read()
+        mtime = datetime.datetime.fromtimestamp(os.stat(p).st_mtime).strftime("%Y-%m-%d %H:%M")
+    except Exception as e:
+        return {"error": "%s: %s" % (type(e).__name__, e), "dims": []}
+
+    DIM_NAME = {"一": ("S", "稳定性", "更稳定"), "二": ("H", "健康度", "更健康"),
+                "三": ("I", "与业界对齐", "跟得上业界"), "四": ("L", "保持领先", "保持领先")}
+    dims, cur = [], None
+    for line in s.splitlines():
+        h = re.match(r"^####\s+维度([一二三四])\s*[·:：]\s*(.+)$", line)
+        if h:
+            k = h.group(1)
+            code, name, raw = DIM_NAME.get(k, ("?", h.group(2), ""))
+            cur = {"code": code, "name": name, "from_original": raw, "items": []}
+            dims.append(cur)
+            continue
+        # 遇到下一个同级/更高级标题则退出该维
+        if cur is not None and re.match(r"^#{2,4}\s", line) and not re.match(r"^####\s+维度", line):
+            cur = None
+            continue
+        if cur is not None and line.strip().startswith("|"):
+            c = [x.strip() for x in line.strip().strip("|").split("|")]
+            if len(c) < 3 or re.match(r"^[\s\-:|]+$", line.strip()):
+                continue
+            if c[0] in ("#",) or not re.match(r"^[SHIL]-\d+$", c[0]):
+                continue
+            txt = c[2]
+            tri = "✅" if ("✅" in txt or "✓" in txt) else ("⚠" if "⚠" in txt else ("❌" if "❌" in txt else "?"))
+            cur["items"].append({"id": c[0], "judge": re.sub(r"[*`]", "", c[1])[:200],
+                                 "now": re.sub(r"[*`]", "", txt)[:400], "tri": tri})
+
+    # ★ H-4 现测对照（文档读数 vs 本线现测）
+    live = None
+    try:
+        cb = build_channel_baseline()
+        live = {"rate": cb["live"].get("rate"), "at": cb["generatedAt"]}
+    except Exception:
+        pass
+    for d in dims:
+        for it in d["items"]:
+            if it["id"] == "H-4" and live and live.get("rate") is not None:
+                it["liveRate"] = live["rate"]
+                it["liveAt"] = live["at"]
+                # ★ 修：字面百分号必须写成 %% —— 「（6.25%）」里的 `%` 后随全角括号，
+                #   Python 会把它当格式符解析 ⇒ ValueError: unsupported format character
+                it["liveNote"] = ("★ 文档读数（6.25%%）与本线现测（%s%%）**相差 2.4 倍** —— "
+                                  "两者都是真的、只是时刻不同（文档写于 10-10/11）。"
+                                  % live["rate"])
+
+    def tally(d):
+        t = {}
+        for it in d["items"]:
+            t[it["tri"]] = t.get(it["tri"], 0) + 1
+        return t
+
+    for d in dims:
+        d["byTri"] = tally(d)
+        d["total"] = len(d["items"])
+        d["passed"] = d["byTri"].get("✅", 0)
+
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mtime": mtime, "path": "docs/distributed-agent-network-governance-plan-v6.1-20261011.md",
+        "writer": "星桥第二任（本端点只读，不写该文件）",
+        "dims": dims,
+        "headline": "四维即原话自身的四个词（更稳定 / 更健康 / 跟得上业界 / 保持领先），不是另立的分法。",
+        "note": "★ 达标数按判据的 ✅ 计数；⚠（如 L-2「不可判」）**不计入达标也不计入失败**，单列。"
+                "★ H-4 同时给文档读数与本线现测：v6.1 写「现状 6.25%」，而现测见 liveRate。",
     }
 
 
