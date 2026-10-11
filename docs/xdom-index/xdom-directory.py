@@ -873,10 +873,23 @@ def selftest():
         "★ 边控：悬空信键 ref = 1（k4 指向板上不存在的键）⇒ **不计入事实边**")
     chk(E["totals"]["edges_inferred"] == 4,
         "★ 边控：推断边 = 4（k1→k3 · k2→k3 · k3→k4 · k4→k6）")
-    chk(all(e["dst"] == K("20261010T120000", "int-k3") or True for e in []) or
-        [e["dst"] for e in E["edges_inferred"] if e["src"] == K("20261010T110000", "ext-k2")]
+    # ★★ v0.4.0 **修了一处恒真判据（空转绿）**：本行原文是
+    #    `chk(all(... for e in []) or [ ... ] == [...], ...)` ——
+    #    `all([])` 恒为 True，`True or X` **恒为 True** ⇒ ★ 这一条**无论怎么改都绿**。
+    #    ★ 它不是「写错了」，是**根本没有断言** —— 由 M9 变异检验抓出来（现 M9 已能打红本行）。
+    chk([e["dst"] for e in E["edges_inferred"] if e["src"] == K("20261010T110000", "ext-k2")]
         == [K("20261010T120000", "int-k3")],
         "★ 边控：k2 的推断目标 = **第一封**来自 int 的信（k3），不是最后一封")
+    # ★★ M8 变异检验抓出的第二处：原判据只读 `totals`（那个数是由**局部变量**另算的），
+    #    ⇒ ★ 有人真把返回结构里的两栏合并了，`totals` 也照样好看 ⇒ 控是空的。
+    #    ⇒ 判据改到**消费方真正读的那个键**上。
+    chk(len(E["edges_fact"]) == 1 and len(E["edges_inferred"]) == 4,
+        "★ **分栏控（直接读返回结构，不读 totals）**：`edges_fact`=1 且 `edges_inferred`=4"
+        " ⇒ 两栏必须各自独立（合并成一个 list 这条会红）")
+    chk(all(e["kind"] == "fact" for e in E["edges_fact"])
+        and all(e["kind"] == "inferred" for e in E["edges_inferred"]),
+        "★ 分栏控：每条的 `kind` 与它所在的栏位**一致**"
+        "（★ 事实边不得漏进推断栏，反之亦然 —— 混栏就是把「推断」当「事实」卖）")
 
     U = {u["code"]: u for u in E["undecidable"]}
     chk(U["R1"]["count"] == 0, "★ 不可判：R1 = 0（参与方仅 ext/int）")
