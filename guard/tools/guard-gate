@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-gate — Lean 式修复门锁 v2（机械执行《修复规范-Lean逻辑版-v2》）
+在 agent 每次对 CLD/dsh 底层操作前运行；前提不满足则 exit 1 拒绝。
+
+用法（作为 agent 每次写操作的前置编译检查）：
+  guard-gate <target-path>            # 检查 P0(官方预查) P1(备份) P2(非红线)
+  guard-gate <target-path> --auto     # 自动补 P1(备份) 后检查
+  guard-gate <target> --new-task     # 声明有立项的新部署任务(审计通道, 不占防试错计数)
+  guard-gate --check-all <path>       # P0-P5 全查（含沙箱提示）
+
+对应 Lean 语义：safe_edit 的前提证明义务。
+P0 official_verified → 受限区操作 24h 内须有 guard-doc-check 官方预查证据（同领域）
+P1 backup_exists     → 检查 backups/ 是否有该文件的 .bak-good-*
+P2 not_forbidden     → 命中红线清单则拒
+P3 version_coherent  → 若是 @deepseek-ai 相关路径，查遮蔽
+P4 sandbox_verified  → 提示需先在 /tmp 沙箱验证（本脚本不自动做）
+P5 bounded           → 本 agent 自检：本次会话同类操作计数
+
+v2 新增：P0 官方标准预查门。受 2026-09-04 教训约束——多轮故障都源于
+"凭旧认知修，没先核对官方最新行为"（如 NODE_OPTIONS 白名单、Electron
+打包 fuse、pnpm overrides 语义）。改底层前先 guard-doc-check 留证。
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+GUARD_DIR = os.path.expanduser("~/dsh-collab/guard")
+BACKUP_DIR = os.path.join(GUARD_DIR, "backups")
+RUNTIME_NM = "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai"
+PROFILE_NM = os.path.expanduser("~/.dsh/profiles/web/node_modules/@deepseek-ai")
+
+FORBIDDEN_PATTERNS = [  # 绝对红线：永远拒绝（改即崩）
+    r"/Applications/CLD\.app/Contents/Frameworks/Electron Framework\.framework/",
+    r"/Applications/CLD\.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai/dsh-tools/lib/",
+    r"\.dsh/profiles/web/node_modules/\.pnpm/",
+    r"com\.user\.auto-index\.plist",
+]
+
+RESTRICTED_PATTERNS = [  # 受限区：需 P1 备份 + 沙箱验证后可改（走完整五道闸）
+    r"/Applications/CLD\.app/Contents/Resources/app\.asar$",
+    r"\.dsh/profiles/web/package\.json$",
+    r"\.dsh/profiles/web/cordis\.patch\.yml$",
+    r"\.dsh/profiles/web/pnpm-lock\.yaml$",
+    r"\.dsh/profiles/web/pnpm-workspace\.yaml$",
+    r"dsh-runtime/runtime/node_modules/@deepseek-ai/",
+    r"/Applications/CLD\.app/Contents/Resources/dsh-runtime/runtime/node_modules/",
+]
+
+STATE_FILE = os.path.join(GUARD_DIR, "gate-state.json")
+
+
+def expand(p):
+    return os.path.expanduser(p)
+
+
+def infer_domain(target):
+    """从路径推断技术领域（与 guard-doc-check 一致），供 P0 校验用"""
+    t = expand(target).lower()
+    if re.search(r"\.swift$|swift", t):
+        return "swift"
+    if re.search(r"electron|app\.asar|CLD\.app|framework|node_options|crashreport|heap", t):
+        return "electron"
+    if re.search(r"dsh|@deepseek-ai|profile|plugin|cordis|session|\.dsh/", t):
+        return "dsh"
+    return "dsh"  # 默认 dsh
+
+
+def doc_verified(target):
+    """P0: 受限区操作前，24h 内须有同领域的 guard-doc-check 官方预查证据。
+    返回 (ok, msg)。证据过期/领域不符/镜像过期未 web 补证 → 不通过。"""
+    st = {}
+    if os.path.exists(STATE_FILE):
+        try:
+            st = json.load(open(STATE_FILE))
+        except Exception:
+            st = {}
+    checks = st.get("_doc_checks", [])
+    if not checks:
+        return False, "无 guard-doc-check 记录！先跑: guard-doc-check '<主题>'（P0 官方预查）"
+    domain = infer_domain(target)
+    # 找最近一条同领域记录
+    for c in reversed(checks):
+        if c.get("domain") != domain:
+            continue
+        ts = c.get("ts_epoch", 0)
+        age_h = (time.time() - ts) / 3600.0
+        if age_h > 24:
+            return False, f"最近同领域({domain})官方预查已过期({age_h:.0f}h > 24h)，重新跑 guard-doc-check"
+        # 镜像过期且无 web 补证 → 证据不足（官方标准可能已变）
+        if c.get("mirror_stale") and not c.get("web_evidence"):
+            return False, f"预查基于过期镜像({c.get('mirror_age_days')}天)且无 web 补证，需 --web 补官方最新"
+        n_hits = c.get("mirror_hits", 0)
+        if n_hits == 0 and not c.get("web_evidence"):
+            return False, f"预查({c.get('topic')})无任何官方命中且无 web 补证"
+        return True, f"官方预查通过: 主题「{c.get('topic')}」 命中{n_hits}条 {'+web' if c.get('web_evidence') else ''} ({age_h:.0f}h前)"
+    return False, f"无 {domain} 领域的官方预查记录！先跑: guard-doc-check '<主题>' --topic ..."
+
+
+def has_backup(target):
+    """P1: 检查 backups 里是否有该文件的 good 备份"""
+    full = expand(target)
+    if not os.path.exists(full):
+        return False, "目标不存在（无法确认需备份）"
+    safe = full.replace("/", "__").lstrip("_")
+    try:
+        matches = [f for f in os.listdir(BACKUP_DIR) if f.startswith(safe + ".bak-good-")]
+        return bool(matches), f"找到 {len(matches)} 个备份" if matches else "无 .bak-good 备份！先 guard backup"
+    except FileNotFoundError:
+        return False, "backups 目录不存在"
+
+
+def path_status(target):
+    """返回 (level, reason): level = red(绝对红线)/restricted(受限)/free(自由)"""
+    full = expand(target)
+    for pat in FORBIDDEN_PATTERNS:
+        if re.search(pat, full):
+            return "red", f"绝对红线: {pat}"
+    for pat in RESTRICTED_PATTERNS:
+        if re.search(pat, full):
+            return "restricted", f"受限区: {pat}"
+    return "free", ""
+
+
+def version_coherent(target):
+    """P3: 若目标在 profile @deepseek-ai 下，检查是否遮蔽 runtime"""
+    full = expand(target)
+    if PROFILE_NM in full and "@deepseek-ai" in full:
+        m = re.search(r"@deepseek-ai/([^/]+)", full)
+        if m:
+            pkg = m.group(1)
+            pv = rv = None
+            for d, tag in [(os.path.dirname(os.path.dirname(full)), "profile"), (RUNTIME_NM, "runtime")]:
+                pj = os.path.join(d, "package.json")
+                if os.path.exists(pj):
+                    try:
+                        v = json.load(open(pj))["version"]
+                        if tag == "profile":
+                            pv = v
+                        else:
+                            rv = v
+                    except Exception:
+                        pass
+            if pv and rv and pv != rv:
+                return False, f"版本遮蔽: {pkg} profile={pv} ≠ runtime={rv}"
+    return True, ""
+
+
+def op_count_bounded(target, limit=3):
+    """P5: 统计本 agent 对同类目标的近期操作次数（防无限试错）"""
+    st = {}
+    if os.path.exists(STATE_FILE):
+        try:
+            st = json.load(open(STATE_FILE))
+        except Exception:
+            st = {}
+    key = re.sub(r"[0-9]{8}.*", "", target)  # 去时间戳归并同类
+    return st.get(key, 0) < limit
+
+
+def record_op(target, new_task=False):
+    st = {}
+    if os.path.exists(STATE_FILE):
+        try:
+            st = json.load(open(STATE_FILE))
+        except Exception:
+            st = {}
+    key = re.sub(r"[0-9]{8}.*", "", target)
+    if new_task:
+        # 审计通道：部署任务单独计数，不影响防试错计数
+        tasks = st.setdefault("_tasks", {})
+        tasks[key] = tasks.get(key, 0) + 1
+        tasks["_last"] = time.strftime("%Y%m%d-%H%M%S")
+    else:
+        st[key] = st.get(key, 0) + 1
+    st["_day"] = time.strftime("%Y%m%d")
+    json.dump(st, open(STATE_FILE, "w"), indent=1)
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    target = sys.argv[1]
+    auto = "--auto" in sys.argv
+    new_task = "--new-task" in sys.argv  # 声明这是有立项的新部署(审计), 非同故障试错
+
+    checks = []
+    level, reason = path_status(target)
+
+    if level == "red":
+        # 绝对红线：无讨论余地，直接拒
+        print("=== guard-gate 前提检查（Lean 编译检查）===")
+        print(f"  ✗ P0 绝对红线: {reason}")
+        print("\n❌ 绝对红线，操作被永久拒绝。无任何豁免。")
+        return 1
+
+    if level == "restricted":
+        # 受限区：必须 P0 官方预查 + P1 备份 + P4 沙箱验证（完整五道闸）
+        print(f"  ℹ {reason}（受限区：需 P0 官方预查 + P1 备份 + P4 沙箱验证）")
+        # P0: 官方标准预查门（v2 新增）
+        d_ok, d_msg = doc_verified(target)
+        checks.append(("P0 官方预查(≤24h)", d_ok, d_msg))
+        ok, msg = has_backup(target)
+        if auto and not ok and os.path.exists(expand(target)):
+            safe = expand(target).replace("/", "__").lstrip("_")
+            ts = time.strftime("%Y%m%d-%H%M%S")
+            dest = os.path.join(BACKUP_DIR, f"{safe}.bak-good-{ts}")
+            try:
+                os.makedirs(BACKUP_DIR, exist_ok=True)
+                subprocess.run(["cp", expand(target), dest], check=True)
+                ok, msg = True, f"已自动备份 → {dest}"
+            except Exception as e:
+                msg = f"自动备份失败: {e}"
+        checks.append(("P1 受限区备份", ok, msg))
+        # 受限区还需沙箱确认（--sbox 标记表示已沙箱验证）
+        sbox_ok = "--sbox" in sys.argv
+        checks.append(("P4 沙箱已验证", sbox_ok, "需 --sbox 确认已在 /tmp 副本验证" if not sbox_ok else "已确认"))
+    else:
+        # 自由区：普通 P1
+        ok, msg = has_backup(target)
+        if auto and not ok and os.path.exists(expand(target)):
+            safe = expand(target).replace("/", "__").lstrip("_")
+            ts = time.strftime("%Y%m%d-%H%M%S")
+            dest = os.path.join(BACKUP_DIR, f"{safe}.bak-good-{ts}")
+            try:
+                os.makedirs(BACKUP_DIR, exist_ok=True)
+                subprocess.run(["cp", expand(target), dest], check=True)
+                ok, msg = True, f"已自动备份 → {dest}"
+            except Exception as e:
+                msg = f"自动备份失败: {e}"
+        checks.append(("P1 备份存在", ok, msg))
+
+    # P3 版本（@deepseek-ai 相关才有效）
+    vok, vmsg = version_coherent(target)
+    checks.append(("P3 版本一致", vok, vmsg or "通过"))
+    # P5 有界（--new-task = 有立项的新部署声明，走审计通道）
+    if new_task:
+        bounded = True
+        checks.append(("P5 操作有界", True, "已声明 --new-task（新部署任务，审计记录）"))
+    else:
+        bounded = op_count_bounded(target)
+        checks.append(("P5 操作有界", bounded, "通过" if bounded else "今日同类操作已达上限，必须回滚而非继续改"))
+
+    print("=== guard-gate 前提检查（Lean 编译检查）===")
+    all_pass = True
+    for name, ok, msg in checks:
+        mark = "✓" if ok else "✗"
+        print(f"  {mark} {name}: {msg}")
+        if not ok:
+            all_pass = False
+
+    if all_pass:
+        record_op(target, new_task=new_task)
+        print("\n✅ 全部前提满足 → safe_edit 可构造，允许执行")
+        # v2.3: 路由风险联动——放行时按路径命中 risk-router 的操作类别，提示后果概率
+        risk_hint(target)
+        return 0
+    print("\n❌ 前提不满足 → 操作被拒绝（类型错误）。先满足前提再重试。")
+    return 1
+
+
+def risk_hint(target):
+    """联动 risk-router.json：目标路径命中某 OP 的 path_hint → 打印风险提醒。"""
+    try:
+        rt = json.load(open(os.path.join(GUARD_DIR, "tools", "risk-router.json")))
+    except Exception:
+        return
+    full = expand(target)
+    hits = []
+    for op in rt.get("operations", []):
+        hint = op.get("path_hint", "")
+        if hint and hint in full:
+            hits.append(op)
+    if not hits:
+        return
+    print("  ── 路由风险提醒（guard-risk 详情）──")
+    for op in hits[:2]:
+        top = op.get("consequences", [{}])[0]
+        print(f"  [{op['id']}] {op['name']} (风险 {op['risk']}) — 最可能后果: {top.get('what', '')} [概率 {top.get('prob', '?')}] → {top.get('toolbox', '')}")
+        print(f"      查详情: guard-risk {op['id']}")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

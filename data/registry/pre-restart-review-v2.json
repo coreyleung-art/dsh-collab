@@ -1,0 +1,128 @@
+{
+ "schema": "pre-restart-review-v2/v1",
+ "created_at": "2026-10-10T02:10:09+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 重启前审查 v2（六组全会套）：**可重启** —— 插件 GO · 门层全绿 · 改动就位 · 换装脚本待命",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T02:10:09+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_why_v2": "★ 首版检查被 **dsh 子进程 OOM 崩溃**中断（见 `★_the_crash_that_interrupted_v1`），故用全套工具重跑。",
+ "★★_the_crash_that_interrupted_v1": {
+  "what": "★ 首轮检查期间 **dsh 子进程崩溃**（不是 CLD 重启）",
+  "evidence": [
+   "`FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`",
+   "`[exit-trace] CRASH: dsh-crash (pid 30420, code null, signal **SIGABRT**)`",
+   "`[child-exit] dsh 崩溃(code=null signal=SIGABRT) **自动重启 1/3**`",
+   "`===== CLD boot 2026-10-09T18:03:40.948Z =====`（北京 02:03:40）"
+  ],
+  "★_it_reproduces_P17": "★ 崩溃前 50 秒 memory-trend 仍显示 `heap=9MB rss=163MB`（**平**）⇒ **完全看不出要崩** ⇒ 这正是锚点 **P17**「**监控只测本体 | 崩溃前无告警 | OOM 在 dsh 子进程**」的**实测复现**，且数值同量级（P17 原文记「本体 RSS 平的 105MB」）",
+  "recovery": "✅ CLD 的 `child-exit` 机制**成功自动拉起**（1/3 次）⇒ 新 dsh pid **25477**（父=30420，02:03:40 起）"
+ },
+ "★_group_A_system": {
+  "cld_health_check": {
+   "C1_boot": "❌ unclean —— **上次（pid 29097）的既有记录**，非本次",
+   "C2_heartbeat": "✅ age 1s · pid 30420",
+   "C3_data": "✅ 455 sessions · 2 workspaces",
+   "C7_version": "✅ 0 mismatches",
+   "memory": "heap 9MB · rss 172MB · uptime 7680s"
+  },
+  "launchd_scan": {
+   "total": 80,
+   "loaded": 78,
+   "unloaded": 2,
+   "parseFail": 0,
+   "balanced": true,
+   "★_orphan": "`com.dsh.cld-mic-apply` —— ★ **是我启动的换装脚本**（launchctl submit 临时注册，预期内）",
+   "highFreq": [
+    "comm-hb-fwd(30s)",
+    "hb-watchdog(60s)",
+    "hr.bb-request-watch(120s)"
+   ]
+  },
+  "★_drift_scan": {
+   "total": 12,
+   "driftCount": 2,
+   "drifts": [
+    {
+     "check": "tailscale-direct",
+     "actual": "缺失/非 active: **macbook-pro-2**（MBP 不在 tailnet）"
+    },
+    {
+     "check": "funnel-public",
+     "actual": "**https://coreymac-mini.taild3fd86.ts.net ⇒ HTTP 502**"
+    }
+   ],
+   "★_why_it_matters": "★ 该 502 的地址**正是星台 App 的降级通道**（`BridgeConfig.baseURLFallback`）⇒ **降级通道当前不通，App 只能走公网主通道**（`https://xingqiao.meetfunbp.com/sb`，实测可达）"
+  }
+ },
+ "★_group_B_plugins": {
+  "central-inbox": "✅ **GO**（A 组合完整性 exit=0 · B 真挂载冒烟 pass · 生产日志零污染 · C 遮蔽 shadowed=0）",
+  "agent-bus（抽检）": "✅ **GO**（同三项全过）",
+  "note": "★ 抽检第二个插件是**为确认组合树整体健康**，非只测本次改动对象"
+ },
+ "★_group_C_gates": {
+  "beacon-check --net": "✅ **全绿**（0 WARN · 0 SKIP）",
+  "selftest-starbridge-gates": "✅ **5/5**",
+  "gate-canfail（裁判的门 × 我的 cases）": "✅ **5/5**",
+  "node-claim-gate --selftest": "✅ **6/6**（含伪造证据负例）",
+  "★_gcr-gate": {
+   "tally": "PASS 5 · **FAIL 3** · N-A 9",
+   "fails": [
+    "G-CR6 缺 audio-input（主 app）",
+    "G-CR7 4/4 Helper 缺 audio-input",
+    "G-CR8 死会话 245.2MB"
+   ],
+   "★_nature": "★ **三条均既有**（G-CR6/G-CR7 是今晚才学会检出；G-CR8 是 P26 遗留）⇒ **非本次改动引入**；★ **G-CR6/G-CR7 正是换装要解决的**（换装后应转 PASS）"
+  }
+ },
+ "★_group_D_changes": {
+  "files_sha": {
+   "index.js": "c6131f917a1a",
+   "selftest.js": "122f92cfc6b1",
+   "agent-role-map.json": "04c96f45d89d",
+   "main-roles.json": "983ecea32afa",
+   "server.js": "89337bc05dac",
+   "queue-condense.plist": "66fbd14a9a3c",
+   "ChatModel.swift": "75bce8e4db0b"
+  },
+  "★_live_ref_rescan": "★ 7 文件复扫 ⇒ **非注释活引用仅 1 处**：`index.js:147 DEAD_SESSIONS` —— **那是「排除死会话」的机制本身，有意保留**（裁判已复核确认）",
+  "backups": [
+   "guard/backups/p2-20261010-014215（3）",
+   "guard/backups/p2b-20261010-015253（3）",
+   "guard/backups/p0-20261010-014426（2）"
+  ]
+ },
+ "★_group_E_restart_mechanics": {
+  "restart-governor preflight": "✅ exit=0 —— 总线锁 0 · 总线数据文件在（23,253,166B）· RESTART_GO 标记无（预期）· 3081 有监听；⚠ **未找到宿主进程**（它找 `dsh/lib/bin.js --profile web`，本机 CLD 的 dsh 形态不同）⇒ **探测失配**",
+  "★_换装脚本": "✅ **仍在等待**（`com.dsh.cld-mic-apply` pid 19413 · etime ~10 分 · 日志停在「等待 CLD 退出」）",
+  "★_its_known_defect": "★ 其等待判据 `grep -F \"/Applications/CLD.app/\"` **匹配任何含该路径的进程** ⇒ 实测现命中 **4 个**（主进程 + crashpad + Helper + dsh）⇒ **退出后若有 helper 残留会一直等到超时**（判据过宽）",
+  "processes": {
+   "CLD 主进程": "30420（00:00:48 起）",
+   "dsh 子进程": "25477（02:03:40 起 · 父=30420）",
+   "sb-mobile": "PID 1250（Oct 8 04:28 起 · 仍在）"
+  }
+ },
+ "★_group_F_sessions_data": {
+  "workspace_sessions": 453,
+  "本会话文件": "16,495,644 B（**又长了** —— 从 8.25MB → 11.7MB → 16.5MB）",
+  "死会话": "✅ **仍在**（257,087,661 B · mtime 10-10 00:01）—— **按纪律不删**",
+  "双板": "本地板 HTTP 200 · 中枢板 HTTP 200 ✅",
+  "★_role-map 已生效": "「星桥」与「星桥v2」**均指向 session-e317d6ab** · **无指向死会话的键** ✅"
+ },
+ "★★_verdict": {
+  "可重启": "✅ **可以重启**",
+  "summary": "★ **插件层 GO**（2/2 抽检）· **门层全绿**（除 3 个既有 FAIL）· **改动就位**（sha 记录 + 备份在位 + 活引用已清）· **换装脚本待命**",
+  "★_the_3_FAILs_do_not_block": "★ G-CR6/G-CR7 **正是本次换装要解决的**（换装后应转 PASS）；G-CR8 的死会话是既有遗留，**不禁重启**（它不影响 CLD 启动）",
+  "★_what_will_change": "退出 CLD ⇒ 换装脚本自动：备份 → 换装 → tccutil reset → 验收 → 重开"
+ },
+ "not_verified": [
+  "★ `post-restart-acceptance.py` 与 `restart-governor.sh verify` **仍未跑**（须重启后）",
+  "★ 换装后的 G-CR6/G-CR7 **未验**（预期转 PASS，须重启后复跑）",
+  "★ `funnel-public` 502 的根因未查（只记现象）",
+  "★ `tailscale-direct` 缺 macbook-pro-2 的根因未查"
+ ],
+ "r046_note": "本卡为重启前审查 v2 登记，不构成任何验收或裁决通过。"
+}

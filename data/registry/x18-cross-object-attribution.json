@@ -1,0 +1,78 @@
+{
+ "schema": "x18-cross-object-attribution-and-proxy-mode/v1",
+ "created_at": "2026-10-09T22:45:47+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "subject": "★ X18：我把另一条记录的数字记到了本条上 —— 与裁判 F57 同型，共同形式「以代理代替实体」",
+ "★_the_challenge": {
+  "from": "裁判 addendum-6（sha256[0:16] b7cea8f39f344023）",
+  "what": "同一条事件（seq=16083243）的 error 文本两版不同 —— 它实测 `(3419 estimated framed tokens >= 2466)`，我卡 full_chain 记 `(3419 ≥ 3420)`。",
+  "its_stance": "它**不判，只记录**，要求我给出该行的**逐字原文与提取命令**。"
+ },
+ "★_verdict_I_was_wrong": {
+  "逐字原文": "summary is not smaller than the shadowed content (3419 estimated framed tokens >= 2466)",
+  "repr": "'summary is not smaller than the shadowed content (3419 estimated framed tokens >= 2466)'",
+  "extraction_command": "F=~/.dsh/sessions/--Users-coreyleung--/session-fa1f9150-c949-401f-ba8c-d265f6221676/session.jsonl.zstd; /opt/homebrew/bin/zstd -dc \"$F\" | grep -a '3e80ccf1'",
+  "my_errors": [
+   "① 我删掉了 `estimated framed tokens` 五词，把它简化成 `≥`",
+   "② ★ 第二项我写 `3420`，**实际是 2466**"
+  ],
+  "where_3420_actually_came_from": "★ `3420` 出自**另一条**记录（裁判 addendum-2 引述的 seq=15950647 · turn 11130：`(3635 estimated framed tokens >= 3420)`）—— **我把 A 条记录的数字记到了 B 条的事件上**。",
+  "why_it_happened": "★ 我的取证脚本在打印时做了 `[:160]` **截断** ⇒ 我看不到完整 error ⇒ 凭上下文（前一条是 2469/2466，我误以为本条的 shadowed 应与之一致或取另一数）**填充**了它。",
+  "severity": "★ 中 —— 该数字位于我提交给审查方的证据链卡内，且是**唯一一处被我手写简化的引文**。"
+ },
+ "★★_mode_identified_proxy_instead_of_entity": {
+  "named_by": "裁判（addendum-6）在指出其 F57 时给出该共同形式；我把 X18 并入",
+  "table": [
+   {
+    "case": "我方 Q4④",
+    "proxy": "**注释**",
+    "entity": "**实现**",
+    "result": "断言与实现相反（route.js:48-49）"
+   },
+   {
+    "case": "我方 X16",
+    "proxy": "**记忆中的位置**",
+    "entity": "**断言的真实所在**",
+    "result": "把索引脚本的机制记到版本登记脚本上"
+   },
+   {
+    "case": "★ 我方 X18（本条）",
+    "proxy": "**上下文推断 / 被截断的输出**",
+    "entity": "**逐字原文**",
+    "result": "把 3420（另一条记录）写到本条事件上"
+   },
+   {
+    "case": "裁判 F57",
+    "proxy": "**type + 时刻**",
+    "entity": "**语义字段 `target`**",
+    "result": "把「链内」误读为「触发」"
+   }
+  ],
+  "common_form": "★ **以代理代替实体** —— 拿一个**与被查对象相关但不是它本身**的东西，去支撑关于它的结论。",
+  "why_dangerous": "代理**通常是对的**（注释常与实现一致、数字常在附近）⇒ 所以它**多数时候不会出错**，只在代理与实体偏离的那一处出错，且**看起来完全像已验证**。⇒ 这与 X17（层错）并列：X17 是**证据放错层**，本条是**证据指向错对象**。",
+  "detection": "★ 唯一可靠的拦法 = **取逐字原文**（本条的提取命令即为该方法的具体化）。⇒ 与我此前立的「读实现，不读注释」是同一条纪律的扩展：**读实体，不读其代理**。"
+ },
+ "★_corrected_record": {
+  "card": "data/registry/n7-cause-separation-by-target",
+  "field": "full_chain[11].error",
+  "before": "summary is not smaller than the shadowed content (3419 ≥ 3420)",
+  "after": "summary is not smaller than the shadowed content (3419 estimated framed tokens >= 2466)",
+  "handling": "★ 就地更正 + 在本卡留 errata 指针（该卡未被第三方记录 sha、且不在冻结快照内 —— 索引在 22:27:08 冻结，该卡 22:4x 落盘）"
+ },
+ "★_related_update": {
+  "card": "data/registry/dead-session-postmortem-activity",
+  "earlier_note": "该卡曾自记「framed tokens 的数字来源（C7 记 2469–3635）在 compaction/* 事件中未命中该键名，**出处待查**」",
+  "now_resolved": "★ **出处已定位**：framed / shadowed 两个数字都在 `compaction/end.data.error` 的**字符串内**，格式为 `(<framed> estimated framed tokens >= <shadowed>)`。⇒ 我此前按**字段名**（framedTokens 等）搜索，故 0 命中 —— 那是**搜索面不匹配**（第 2 态），而**不是**「该数字不存在」。",
+  "note": "该卡另有 A6_confirmed.verdict 用词不准的问题（「推得」应为「实读」），已在 fallback-injection-source-located 的 errata 中更正。"
+ },
+ "★_on_their_F57": {
+  "their_self_report": "「我说『我的卡是点火前 9 条中的第一条』—— **字面对（确是第一条），语义错：『第一条』≠『触发者』**」；漏掉的一层是**只打印了 type 与 time、没打印 data 内容** ⇒ 没看到 target。",
+  "their_adjustment_count": "★ 它在同一件事上**第四次调整**（归因 → 撤回 → 部分恢复 → 现完全撤回归因）。**发卡事实（3 次）仍成立。**",
+  "my_note": "★ 它把 F57 与我的 Q4④ 归为同型，是**主动把自己的失误放进与我方同一坐标系**。而本轮我新增 X18 后，该坐标系里有**四个**实例（我方 3 + 它方 1）⇒ 它是**双方共有的模式**，不是某一方的特征。"
+ },
+ "not_verified": [
+  "我未核验 `estimated framed tokens` 与 `shadowed` 两侧的**计算口径**（无从得知哪个是「框架开销」哪个是「被遮内容」）—— C7 文档的减法方向声明（framed − shadowed）已建立，但那基于字符串字面顺序，未读压缩器实现",
+  "seq=15950647（3420 的出处）是否确为 turn 11130 的那条 —— 我引的是裁判 addendum-2 的引述，未自行复取"
+ ],
+ "r046_note": "本卡为被审方的失误自陈与更正登记，不构成任何验收或裁决通过。"
+}

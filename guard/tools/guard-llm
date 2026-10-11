@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-llm — 独立 LLM 通道（MiniMax M2 系）· 诊断副驾 / 交叉验证 / 沉淀助手
+
+用途（自举协议 forge-1788527624）：
+  1. 诊断副驾: cld-monitor 告警证据 → 独立模型给根因假设+处置建议(与我交叉验证)
+  2. 报告提炼: 日志/证据 → 结构化修复报告摘要
+  3. 交叉验证: 我的判断 → 独立模型复核(今天遮蔽排查如果有副驾可能更快收敛)
+  4. 预留: embedding 接入 guard-recall 升级真向量
+
+用法：
+  guard-llm ask "<问题>"                     # 一次问答(默认 M2.5-highspeed 快)
+  guard-llm ask "<问题>" --model MiniMax-M3   # 用强推理模型
+  guard-llm diag <证据文件/文本>              # 诊断模式: 让模型给 根因假设/证据核对/处置建议
+  guard-llm diag --from-monitor              # 取 cld-monitor 最新证据自动分析
+  guard-llm models                           # 列出可用模型
+Key: ~/.dsh/.env 的 MINIMAX_API_KEY
+"""
+import json
+import os
+import subprocess
+import sys
+import urllib.request
+
+API = "https://api.minimaxi.com/v1/text/chatcompletion_v2"
+DEFAULT_MODEL = "MiniMax-M2.5-highspeed"
+STRONG_MODEL = "MiniMax-M3"
+
+
+def key():
+    try:
+        raw = open(os.path.expanduser("~/.dsh/.env")).read()
+        m = [l for l in raw.splitlines() if l.startswith("MINIMAX_API_KEY=")]
+        if m:
+            return m[0].split("=", 1)[1].strip()
+    except Exception:
+        pass
+    print("❌ 未找到 MINIMAX_API_KEY in ~/.dsh/.env")
+    sys.exit(1)
+
+
+def chat(prompt, model=None, system=None, max_tokens=2000):
+    body = {"model": model or DEFAULT_MODEL,
+            "messages": ([{"role": "system", "content": system}] if system else []) +
+                        [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens}
+    req = urllib.request.Request(API, data=json.dumps(body).encode(),
+                                 headers={"Authorization": "Bearer " + key(),
+                                          "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        d = json.loads(r.read().decode())
+    ch = d.get("choices", [{}])[0]
+    msg = ch.get("message", {})
+    content = msg.get("content") or ""
+    reasoning = msg.get("reasoning_content") or ""
+    return {"content": content, "reasoning": reasoning[:500],
+            "finish": ch.get("finish_reason"), "model": model or DEFAULT_MODEL}
+
+
+def cmd_ask(args):
+    q = args[0] if args else ""
+    if not q:
+        print("需传问题"); return 1
+    model = DEFAULT_MODEL
+    if "--model" in sys.argv:
+        model = sys.argv[sys.argv.index("--model") + 1]
+    print(f"=== guard-llm ({model}) ===")
+    r = chat(q, model=model)
+    print(r["content"])
+    if r.get("reasoning"):
+        print(f"\n[推理] {r['reasoning']}")
+    return 0
+
+
+def cmd_diag(args):
+    src = args[0] if args else ""
+    evidence = ""
+    if src == "--from-monitor":
+        # 取最新 monitor 证据
+        ev_dir = os.path.expanduser("~/.cld/logs/cld-monitor/evidence")
+        try:
+            jsons = sorted([f for f in os.listdir(ev_dir) if f.endswith(".json")])
+            if jsons:
+                evidence = open(os.path.join(ev_dir, jsons[-1])).read()
+        except Exception:
+            pass
+        if not evidence:
+            print("无 monitor 证据"); return 1
+    elif src and os.path.exists(os.path.expanduser(src)):
+        evidence = open(os.path.expanduser(src), encoding="utf-8", errors="ignore").read()
+    else:
+        evidence = src
+    system = ("你是资深 CLD/DSH 系统诊断副驾。基于证据给出: 1) 根因假设(最可能优先) "
+              "2) 证据核对(哪些支持/反对) 3) 处置建议(按风险排序) 4) 还需什么证据。"
+              "简明、可执行、指出不确定性。")
+    prompt = f"以下是 CLD 监控/修复证据，请诊断:\n\n{evidence[:6000]}"
+    print(f"=== guard-llm 诊断副驾 ({STRONG_MODEL}) ===")
+    r = chat(prompt, model=STRONG_MODEL, system=system, max_tokens=3000)
+    print(r["content"])
+    return 0
+
+
+def cmd_models():
+    import urllib.request as _ur
+    req = _ur.Request("https://api.minimaxi.com/v1/models", headers={"Authorization": "Bearer " + key()})
+    with _ur.urlopen(req, timeout=10) as r:
+        d = json.loads(r.read().decode())
+    print("=== MiniMax 模型 ===")
+    for m in d.get("data", []):
+        print(" -", m["id"])
+    return 0
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__); return 1
+    cmd = sys.argv[1]
+    rest = [a for a in sys.argv[2:] if not a.startswith("--")]
+    if cmd == "ask":
+        return cmd_ask(rest)
+    if cmd == "report":
+        # 报告提炼: 输入修复事实文本 → MiniMax 产结构化修复报告(供 send-repair-report 投递)
+        raw = rest[0] if rest else ""
+        if not raw:
+            print("需传修复事实文本或文件路径"); return 1
+        if os.path.exists(os.path.expanduser(raw)):
+            raw = open(os.path.expanduser(raw), encoding="utf-8", errors="ignore").read()
+        sys_prompt = ("你是修复报告提炼器。把零散修复事实整理成结构化 JSON 报告，字段: "
+                      "root_cause(根因) / wrong_paths(试过的错路, 如有) / fix(修复动作) / "
+                      "verify(验证证据) / artifacts(产物路径) / followups(遗留)。简明中文。")
+        print(f"=== guard-llm 报告提炼 ({STRONG_MODEL}) ===")
+        r = chat("以下是本次修复的原始记录，请提炼成结构化修复报告:\n\n" + raw[:6000],
+                 model=STRONG_MODEL, system=sys_prompt, max_tokens=2500)
+        print(r["content"])
+        return 0
+
+    if cmd == "diag":
+        return cmd_diag(rest)
+    if cmd == "models":
+        return cmd_models()
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

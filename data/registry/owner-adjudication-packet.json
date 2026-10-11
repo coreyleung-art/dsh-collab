@@ -1,0 +1,64 @@
+{
+ "schema": "owner-adjudication-packet/v1",
+ "created_at": "2026-10-09T23:19:36+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "★_what_this_is": "★ **证据包，不是结论包**。裁判建议的出路 A（由所有者裁）附了一个硬条件：**「所有者需直接读证据，不能转述」**（理由：M8 位置偏置 —— 转述者的位置会带入偏置）。⇒ 故本卡**只给：原始位置 + 可自行核验的命令 + 该证据能/不能回答什么**；**我的立场单列并明确标注为「被审方立场，非结论」**。",
+ "★_why_owner_qualifies": "所有者**非 proposer、非 executor、非建构者** ⇒ 满足 R046 门的第三方要求（裁判实测：A/B/D 被拒、C 通过；其 authority_note：「授权的对象不能是『自审』本身」）",
+ "★_hard_condition": "★ **不能转述** —— 你若只读本卡而不读原始证据，则本卡成了一层转述，M8（位置偏置）即成立。**每项都给了命令，建议直接跑。**",
+ "待裁事项_1_C7整体能否_closed": {
+  "中性描述": "C7 = 「证伪门与半修清单」。其交付物为 docs/c7-half-fix-clause10-20261009.md（含 §八 补正）。问题是：它是否够格记 `closed_with_evidence`（§11 要求六者齐备）。",
+  "原始位置": [
+   "file:docs/c7-half-fix-clause10-20261009.md",
+   "blackboard:data/registry/c7-half-fix-clause10（v1 卡，已补双向失效标注）",
+   "blackboard:data/registry/c7-half-fix-clause10-v2（v2 卡）"
+  ],
+  "可自行核验的命令": [
+   "shasum -a 256 docs/c7-half-fix-clause10-20261009.md",
+   "grep -n '^## ' docs/c7-half-fix-clause10-20261009.md   # 看它有几节、§八 是否在",
+   "curl -s http://127.0.0.1:8792/data/registry/c7-half-fix-clause10 | python3 -m json.tool | head -40"
+  ],
+  "★_该证据能回答什么": "文档内容、结构、卡内状态与失效标注是否在位",
+  "★_不能回答什么": "★ **「六者是否齐备」需要读 §11 的定义再逐条比对** —— 该项**不是**由任何单一命令给出的；且**负面事实（缺什么）无法由『有这些内容』推出**（本线反复出现的一族）",
+  "我的立场（被审方，非结论）": "C7 我记 in_flight；其证伪条 8–11 尚未入锚点（须随 P0）"
+ },
+ "待裁事项_2_4项假closed的合规性": {
+  "中性描述": "`continuity-index` 有 4 项记 `closed_with_evidence`（C1 单一索引键 · C2 锚点文档 · C3 续接提示词 · C5 反遗忘校验）。判据门实测它们**三要素不齐**（缺 DoD / verifier）。问题是：**这是否构成不合规**？",
+  "原始位置": [
+   "blackboard:data/registry/continuity-index（items 数组）",
+   "blackboard:data/registry/state-registry（含 closure_missing 字段）"
+  ],
+  "可自行核验的命令": [
+   "curl -s http://127.0.0.1:8792/data/registry/state-registry | python3 -c \"import json,sys; d=json.load(sys.stdin)['value']; [print(i['id'], i['state'], i.get('closure_missing')) for i in d['items'] if i['state']=='closed_with_evidence']\"",
+   "python3 tools/build-state-registry.py --check   # 只读，会打印 ✗ 判据未通过 + 逐项缺什么"
+  ],
+  "★_该证据能回答什么": "**哪些项被机械判为三要素不齐、缺哪几项**（这是可复现的）",
+  "★_不能回答什么": "★ **「这三要素的定义是否适用于该体系」** —— 裁判已声明该索引属**平台健康声明体系**，与「C7 不由它裁」同一体系 ⇒ **该体系是否适用 §11 的六者规则，本会话无立场判定**",
+  "我的立场（被审方，非结论）": "★ 我**不主张它们不合规**；我只报「判据门独立地红了」（裁判原话：「判据门独立地红了，红的对象需第三方认定」）"
+ },
+ "待裁事项_3_本阶段产出可否记closed": {
+  "中性描述": "本阶段（2026-10-09）产出的 11 张卡与 3 脚本，能否记 `closed_with_evidence`？",
+  "原始位置": [
+   "file:docs/starbridge-stage-report-and-review-package-20261009.md（信息包 14 项）",
+   "blackboard:data/registry/stage-review-result 与 addendum-1..9（裁判的报告）"
+  ],
+  "可自行核验的命令": [
+   "sed -n '1,30p' docs/starbridge-stage-report-and-review-package-20261009.md   # 首段即缺口前置披露",
+   "ls audits/20261009/starbridge-stage-review-addendum-*.md",
+   "python3 tools/selftest-starbridge-gates.py    # 自证矩阵"
+  ],
+  "★_不能回答什么": "★ 边界用例与负控的**完备性**无法由跑任一命令推出",
+  "我的立场（被审方，非结论）": "★ **缺一**（负控已成立、边界用例仍基本未跑）⇒ 按 §11 **无一够格记 closed**"
+ },
+ "★★_出路B_若不裁则如何记账": {
+  "note": "★ 若你选择**不裁**（出路 B），本会话的处置是（裁判明确支持）：",
+  "handling": [
+   "C7 整体 ⇒ 记 `verifier_unavailable` ⇒ **保持 in_flight**（不回落成已通过）",
+   "4 项假 closed ⇒ 记 `out_of_scope_of_available_verifiers` ⇒ **不擅改数，随 P0 一并处理**",
+   "本阶段产出 ⇒ 记 `六者缺一` ⇒ **不记 closed**",
+   "★ 这三条**不影响 C/A 两阶段推进**（它们本身就是在补证据与造门）",
+   "★ **只影响**：P2（须 P1 停点）· Wave C 整体关闭"
+  ]
+ },
+ "★_出路C_note": "★ 裁判指出：「**『不唤醒』≠『不可新建』**」—— 若你的意思是「不要新开会话」，则 C 不成立；若你的意思是「不要唤醒既有那几个复核员」，则**新建一个未被同化的会话**是干净第三方。★ **这一点只有你能定**，故我按最保守理解执行（即：不新建、不唤醒）。",
+ "r046_note": "本卡为给所有者的**证据索引**，不含任何裁定；其成立与否不由本会话声明。"
+}

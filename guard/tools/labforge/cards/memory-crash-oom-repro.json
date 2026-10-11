@@ -1,0 +1,66 @@
+{
+  "id": "memory-crash-oom-repro",
+  "title": "多会话全量物化 OOM 复现 + 帧索引治理对照",
+  "goal": "复现历史 CLD OOM（SIGABRT）崩溃场景，并验证 P2-1 帧索引尾部窗口治理后同资源下不再崩溃",
+  "hypothesis": "H1: 多真实会话全量物化(full)在受限 heap 顶(512MB)下 SIGABRT 崩溃；H2: 帧索引尾部窗口(tail)同 heap 顶下存活且峰值内存低；H3: tail 峰值内存与耗时均较 full 改善 >=10x",
+  "kind": "crash",
+  "runner": "runner-crash",
+  "data": [
+    "real-fa1f9150.zstd",
+    "real-aa528267.zstd",
+    "real-a3bc8cba.zstd",
+    "real-de7b29de.zstd",
+    "real-4787d717.zstd",
+    "real-92623479.zstd"
+  ],
+  "params": {
+    "heap": "512,1024",
+    "tail-frames": 200,
+    "clone": "true"
+  },
+  "assertions": [
+    {
+      "id": "A1-OOM-rootcause",
+      "metric": "fullCrashedAny",
+      "op": "eq",
+      "target": true,
+      "desc": "全量物化在受限 heap 顶下崩溃(SIGABRT) —— 复现根因"
+    },
+    {
+      "id": "A2-governance-alive",
+      "metric": "tailAliveAtCrashHeaps",
+      "op": "eq",
+      "target": true,
+      "desc": "帧索引治理后: 崩溃 heap 顶下 tail 全部存活"
+    },
+    {
+      "id": "A3-memory-gain",
+      "metric": "maxMemRatio",
+      "op": "gte",
+      "target": 10,
+      "desc": "治理后峰值内存改善 >= 10x"
+    },
+    {
+      "id": "A4-time-gain",
+      "metric": "maxTimeRatio",
+      "op": "gte",
+      "target": 10,
+      "desc": "治理后耗时改善 >= 10x"
+    }
+  ],
+  "status": "pass",
+  "created": "2026-09-05T05:50:30.918Z",
+  "lastResult": {
+    "time": "2026-09-05T05:53:57.831Z",
+    "pass": 4,
+    "fail": 0,
+    "na": 0,
+    "file": "/Users/coreyleung/dsh-collab/guard/tools/labforge/results/memory-crash-oom-repro.latest.json"
+  },
+  "tags": [
+    "memory",
+    "oom",
+    "frame-index",
+    "governance"
+  ]
+}

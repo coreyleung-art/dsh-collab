@@ -1,0 +1,75 @@
+{
+ "schema": "restart-precheck-toolchain-located/v1",
+ "created_at": "2026-10-10T00:24:09+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 重启前审查：**既有工具链已存在（不需要新造）** —— 四件套 + 实测可用",
+ "authority": "用户 2026-10-10 指令：「做完后做一次重启前审查，**之前有过类似的审查工具，去考察一下**，重启安全审查没问题之后，我等下帮你手动重启。」",
+ "★_archaeology_result": "★ 用户所述属实 —— 本机已有一整套重启前/后工具，**本会话未新造任何重启工具**（遵守「建前考古」）。",
+ "★_the_toolchain": [
+  {
+   "tool": "scripts/plugin-preflight.py",
+   "size": 22576,
+   "when": "**重启前**",
+   "what": "插件上线前预检，**不进 server、不重启 CLD**",
+   "checks": [
+    "A 组合完整性：`dsh --dump-config`（挡 patch/组合错误）",
+    "B 真挂载冒烟：`import` + `apply(桩 ctx)`（挡 M4：apply 抛异常/私有符号）",
+    "C 依赖遮蔽：profile node_modules 扫描（挡 M1：旧包遮蔽 runtime）"
+   ],
+   "exit_codes": "0 全绿可上线 · **1 有红项，禁止重启** · 2 用法/环境错误",
+   "★_why_it_matters_here": "其 docstring 原话：「本机多数插件是 `link:` 依赖（如 dsh-plugin-central-inbox），**源码即部署 —— 改错一个字，下次启动即挂，中间没有任何环节会拦你**。故必须在改完之后、重启之前跑本预检。」"
+  },
+  {
+   "tool": "scripts/restart-intent.py",
+   "when": "重启前 + 后",
+   "what": "重启留档（R013）：`prepare --node mac-mini --reason … --rescuer … --downtime …` 写黑板 `notes/collab/restart-intent-<node>-<ts>`；重启后 `status <node> --set recovered|failed`",
+   "constraint_gate": "其自陈：**不执行外部命令、不删除数据、不修改权限**"
+  },
+  {
+   "tool": "restart-governor.sh",
+   "when": "重启前 + 后",
+   "what": "受控重启编排：`preflight`（锁/标记/进程）· `countdown N` · `go`（**需 RESTART_GO 标记**）· `verify`（新进程/端口/路由）",
+   "guardrail": "「必须存在 RESTART_GO 标记（仅协调会话评估通过后写入）才允许 --go；默认 dry-run」"
+  },
+  {
+   "tool": "scripts/post-restart-acceptance.py",
+   "size": 19981,
+   "when": "**重启后**",
+   "what": "CLD 重启后一键验收（历史批次判据累积）",
+   "exit_codes": "0 全部通过 · 1 有未达标项（打印明细）"
+  }
+ ],
+ "★_measured_usability": {
+  "selftest": "★ `plugin-preflight.py --selftest` ⇒ **14 PASS / 0 FAIL**（含负控：不存在的插件判红 · 臆造插件不得混入身份 · 冒烟不污染生产日志）",
+  "★_real_run_on_P3_target": {
+   "cmd": "python3 scripts/plugin-preflight.py --plugin dsh-plugin-central-inbox",
+   "result": "★ **GO（可重启上线）**",
+   "detail": [
+    "✅ A 组合完整性 exit=0 · 行数=729 · 插件在树=True",
+    "✅ B 真挂载冒烟 state=pass · entry=~/dsh-plugin-central-inbox/lib/index.js",
+    "✅ **生产侧副作用：central-inbox.log 字节增量=0（未污染）**",
+    "✅ C 依赖遮蔽（真遮蔽）shadowed=0",
+    "⚠ 惰性残骸 101 个（**不判红**，但应清理）"
+   ]
+  }
+ },
+ "★_the_restart_precheck_procedure_for_this_task": {
+  "step_1": "`python3 scripts/plugin-preflight.py --plugin dsh-plugin-central-inbox` ⇒ **须 exit=0**（若 P3 走**代码层**则必跑；走**配置层**亦跑作基线）",
+  "step_2": "`python3 scripts/restart-intent.py prepare --node mac-mini --reason \"P3 止血：覆盖 central-inbox 回退注入落点\" --rescuer <你> --downtime <分钟>` ⇒ 留档",
+  "step_3": "`./restart-governor.sh preflight` ⇒ 检锁/标记/进程",
+  "step_4": "★ **你手动重启 CLD**（用户已表示会手动执行）",
+  "step_5": "`python3 scripts/post-restart-acceptance.py` + `./restart-governor.sh verify`",
+  "step_6": "`python3 scripts/restart-intent.py status mac-mini --set recovered`（或 failed）",
+  "★_额外一步_P3专属": "★ 重启后须**读 central-inbox 的启动日志**，确认注入目标是否从 `session-fa1f9150` 变为星桥v2 会话 id —— **这是 P3 的验收判据本身**，四件套不含它"
+ },
+ "★_open_question_for_P3": {
+  "issue": "★ 四件套**都是围绕「插件源码/组合」设计的**，而 P3 方案 A（`launchctl setenv`）**改的是环境变量**，两类工具的交集为空 ⇒ **方案 A 的生效性四件套一个都测不到**",
+  "implication": "⇒ 方案 A 若走，其验收**须另立判据**（读插件日志的注入目标行）—— 本卡已将其列为 step_extra；",
+  "★_contrast": "★ 而方案 B（改 `lib/index.js`）**恰好落在四件套的覆盖内**（A/B 两检都直接针对它）⇒ **这是方案 B 相对 A 的一个此前未计入的优点**"
+ },
+ "not_verified": [
+  "`restart-governor.sh` 与 `post-restart-acceptance.py` **未实跑**（前者会动进程，后者须重启后才有意义）—— 本轮只读了其 docstring 与用法，**不据此声称其可用**",
+  "惰性残骸 101 个是否影响本次重启 —— 预检**不判红**，但未评估其风险"
+ ],
+ "r046_note": "本卡为既有工具链的考古与可用性实测登记，不构成任何验收或裁决通过。"
+}

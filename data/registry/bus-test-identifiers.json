@@ -1,0 +1,67 @@
+{
+ "schema": "bus-test-identifiers/v1",
+ "created_at": "2026-10-09T21:53:28+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "purpose": "把测试标识从真实往来中分离 —— 任何基于 agent-bus threads 的统计应按本清单排除，否则总线负载/往来量读数被测试流量污染（v3.1 §2.2 硬伤#4）",
+ "usage": "机读：读 identifiers[].id，在统计 threads[].messages[] 的 from/to 时排除之",
+ "scan_surface": "~/.dsh/agent-bus.json threads[].messages[] 全量（本会话实测）",
+ "identifiers": [
+  {
+   "id": "bus:stress",
+   "n": 9,
+   "nature": "S2 阶段重复投递压测（repeat-1..4，每轮发给一个节点并收 ack）",
+   "peers": [
+    "session-fa1f9150（星桥·repeat-1）",
+    "session-a190c54c（明鉴·repeat-2）",
+    "session-9910d4b2（守灯·repeat-3）",
+    "session-2a15e6b1（司库·repeat-4）"
+   ],
+   "evidence": "notes/collab/bus-s2-repeat-{1..4}-* · bus-s2-ack-213a9477"
+  },
+  {
+   "id": "bus:s2-test",
+   "n": 3,
+   "nature": "S2 测试信封转写（to=星桥）",
+   "peers": [
+    "session-fa1f9150"
+   ],
+   "evidence": "notes/collab/bus-s2-probe-d1edf180"
+  },
+  {
+   "id": "bus:s2-live",
+   "n": 2,
+   "nature": "常驻守护自动接收验证（live 测试卡闭环）",
+   "peers": [
+    "session-fa1f9150"
+   ],
+   "evidence": "notes/collab/bus-s2-live-probe-73ea87fc"
+  }
+ ],
+ "total_test_messages": 12,
+ "exclusion_rule": {
+  "applies_to": [
+   "总线负载统计",
+   "往来量/参与消息数",
+   "节点连通性画像",
+   "合作方图谱计数"
+  ],
+  "does_not_apply_to": [
+   "故障考古（测试本身也是证据）",
+   "本索引的 ⑦ 失效清单"
+  ],
+  "note": "排除的是**统计口径**，不是删除数据 —— 历史留痕只读不改（交接计划 §九）"
+ },
+ "related_defect": {
+  "key": "data/registry/starbridge-alias-mapping-defect",
+  "note": "同批发现的另一条：bus:server:coordinator 被 identity-variant-map.py 错配到 fa1f9150 名下。那一条**不是测试标识**，是身份错配，故不并入本清单。"
+ },
+ "not_verified": [
+  "是否存在**未带 bus: 前缀**的测试流量（本轮只扫了 bus: 族）",
+  "S2 之外（S1/S3…）是否另有测试标识 —— 本轮只命中 bus:s2-* 与 bus:stress",
+  "这 12 条是否已被任何已公布的统计数字计入，未追溯"
+ ],
+ "self_application": {
+  "第 8 态": "n=12 条 · distinct=3 个标识 · 覆盖=agent-bus.json threads 全量",
+  "R030": "未验证项单列，不填 0 冒充"
+ }
+}

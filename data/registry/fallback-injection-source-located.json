@@ -1,0 +1,99 @@
+{
+ "schema": "fallback-injection-source-located/v1",
+ "created_at": "2026-10-09T21:57:13+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "item": "P3 前置（只读定位）",
+ "title": "★ 回退注入配置源已定位：不在环境变量、不在配置文件，而是 dsh-plugin-central-inbox 源码里的两处硬编码",
+ "status": "已定位 · 未改动（P3 本体须所有者批准）",
+ "why_v31_could_not_find_it": {
+  "v31_note": "「回退注入配置源未定位：CENTRAL_AGENT 在 comm-server/ 与 ~/.dsh/*.env 中 0 命中；候选为 rust-tools 二进制参数或守护进程环境」",
+  "answer": "⇒ 找错了**层**。CENTRAL_AGENT 是**显式覆盖**用的环境变量（可选），**不是默认值**；默认值硬编码在插件**源码**里。所以「0 命中」是正确读数，但它回答的不是「源在哪」。"
+ },
+ "located_source": {
+  "file": "~/dsh-plugin-central-inbox/lib/index.js",
+  "version": "0.2.15",
+  "installed_at": [
+   "~/.dsh/profiles/web/node_modules/dsh-plugin-central-inbox",
+   "~/dsh-plugin-central-inbox"
+  ],
+  "config": "★ 该插件的 profile 配置为 `config: {}` **空** —— 印证落点不在配置层（见 research/agent-comm-paths/evidence/L1/dump-config-web-composed.yml:657-660）",
+  "hardcodes": [
+   {
+    "line": 117,
+    "code": "const explicit = process.env.CENTRAL_AGENT; if (explicit) return explicit;",
+    "role": "覆盖入口（优先级最高）"
+   },
+   {
+    "line": 120,
+    "code": "if (NODE_ID === 'mac-mini') return 'session-fa1f9150-c949-401f-ba8c-d265f6221676';",
+    "role": "★★ **本机直接命中的那一条** —— 注释原文「mac-mini 中枢：注入目标即中枢会话 fa1f9150（无需 agentBus.list，boot 早期也可用）」。NODE_ID 由 os.hostname() 自动探测（L81），本机 = mac-mini ⇒ **无条件返回死会话 id**"
+   },
+   {
+    "line": 125,
+    "code": "const central = agents.find(a => a.id && a.id.includes('fa1f9150')) || agents[0];",
+    "role": "★ 第二处硬编码：即使不走 120 行，也**优先匹配含 fa1f9150 的会话**；再退回 agents[0]"
+   }
+  ]
+ },
+ "second_root_cause": {
+  "found": "★ 除硬编码外，还有一条**持续的**注入路径",
+  "evidence": "lib/index.js:152 注释原文：「central：to 缺失/符号中枢名/**解析失败**/命中即中枢 → 注入中枢」",
+  "meaning": "⇒ 任何 `to` **解析失败**的消息都会注入中枢；而本机中枢 = 死会话。这解释了为何死会话在死后仍被反复点火（见 dead-session-postmortem-activity：死后 9 次 compaction 全失败）。",
+  "note": "L170-173 注释称 0.2.x 已修「不可解析的 to 不再静默回退注入中枢」——但 L152 的注释（同文件）仍写「解析失败 → 注入中枢」。**两处注释是否矛盾，未逐行核实 route.js**，故本条只登记为**待核**，不作结论。"
+ },
+ "halting_options": [
+  {
+   "id": "A",
+   "layer": "配置层（推荐）",
+   "action": "设环境变量 CENTRAL_AGENT=<星桥v2 会话 id>，覆盖源码硬编码",
+   "pros": "零代码改动 · 可回滚（删环境变量即恢复原状）· 不碰他人插件源码",
+   "cons": "须改启动环境（launchd plist 或 CLD 启动配置）⇒ 仍是配置变更，须批",
+   "risk": "低",
+   "prerequisite": "先确认 CLD 启动环境的设置位置（未查）"
+  },
+  {
+   "id": "B",
+   "layer": "代码层",
+   "action": "改 lib/index.js:120 与 :125 的硬编码",
+   "pros": "根治",
+   "cons": "改他人插件源码 + 须重挂载/重启才生效 ⇒ 与「不重启、不改 profile」禁令冲突",
+   "risk": "中",
+   "prerequisite": "插件属主同意 + 重启窗口"
+  },
+  {
+   "id": "C",
+   "layer": "不改代码也不改配置",
+   "action": "禁用回退注入的触发源（减少 unresolvable 消息）",
+   "pros": "零变更",
+   "cons": "治标 —— 定时任务 A6（queue-condense，每月 1 日 09:30，--to 死会话）仍会点火",
+   "risk": "低",
+   "prerequisite": "—"
+  }
+ ],
+ "A6_confirmed": {
+  "plist": "~/Library/LaunchAgents/com.dsh.cron.queue-condense.plist",
+  "program": "~/dsh-collab/rust-tools/dist/dsh-tools-macos-arm64-v1.25.0 queue-condense --condense --to session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "schedule": "StartCalendarInterval = Day 1 / Hour 9 / Minute 30（每月 1 日 09:30）",
+  "runatload": false,
+  "verdict": "★ 确认 v3.1 的推得正确：--to 参数**就是**该 cron 的目标会话，硬编码为死会话"
+ },
+ "not_done": [
+  "★ 未做任何改动 —— 本卡是 P3 的**前置定位**，P3 本体（止血）须所有者批准",
+  "未查 CLD 启动环境的设置位置（方案 A 的前置）",
+  "未逐行核实 route.js 中「解析失败是否仍回退中枢」（两处注释疑矛盾）",
+  "未验证安装副本 ~/.dsh/profiles/web/node_modules/ 与源码副本 ~/dsh-plugin-central-inbox 是否逐字一致"
+ ],
+ "recommended_next": "P3 待批时，建议采纳方案 A（配置层覆盖）并同时处理 A6（plist 的 --to 改指 星桥v2 或移除）",
+ "r046_note": "本卡为只读定位取证，不构成任何验收或裁决通过。",
+ "★errata_20261009": {
+  "added_at": "2026-10-09T22:27:08+08:00",
+  "what": "★ 本卡的 `second_root_cause.meaning` 断言「任何 `to` 解析失败的消息都会注入中枢」—— **该断言错误**。",
+  "reviewer_verdict": "裁判 v1 审查（audits/20261009/starbridge-stage-review-v1.md）Q4④ 判 ❌ 不成立",
+  "truth": "实现 `route.js:48-49` 逐字写明「未命中【不再静默回退注入中枢】」⇒ 未命中即 `skip`。我引的是 `index.js:152` 的**过时注释**。",
+  "compounding": "同卡内 `meaning`（下断言）与 `note`（写「未逐行核实，不作结论」）**自相矛盾** —— 第 8 态的卡内变体。裁判按 `meaning` 判 ❌ 是正确的。",
+  "corrected_by": "blackboard:data/registry/stage-review-v1-response",
+  "complete_path_list": "见 corrected_by 卡的 `★_errata_2_complete_paths`：route.js 内 **6 条**（empty-to / central-alias / own-node-alias / role-mapped / exact / fragment） + 外部 **2 条**（A3 central-wake.py · A6 queue-condense.plist）= **共 8 条**",
+  "why_not_deleted": "按「被第三方读过并判定的内容不删改，更正由外部声明」—— 错误内容**保留可追溯**，仅加本指针。",
+  "second_correction": "★ 另：本卡 `A6_confirmed.verdict` 称「确认 v3.1 的**推得**正确」，实为本会话**实读 plist** 确认（非推理）。用词不准，一并记录。"
+ }
+}

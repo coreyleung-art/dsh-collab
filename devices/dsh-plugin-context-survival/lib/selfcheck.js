@@ -28,6 +28,48 @@ function resolvePeer(peer) {
   }
 }
 
+/**
+ * ★ R006 ②「TCC 能力边界自检」的**三段内容本体**（2026-10-10 从 cli.js 渲染层移入）.
+ *
+ * 为什么搬进本模块：R006 ② 的判据对象是 **selfcheck 本身**。
+ * 搬入前本模块只做 peer 解析 + 符号检查 ⇒ **只覆盖三段中的「依赖完整性」一段**（审计器报 1/3 是对的）。
+ * 三段是：
+ *   [① 能力清单]     本插件**能做**的事
+ *   [② 不该发生路径] 本插件**永远不该做**的事（负能力）—— R006 ② 的立意所在
+ *   [③ 依赖完整性]   本插件**靠什么活**（peer 可解析 + 缺则如实降级）
+ *
+ * @param {{recallKinds:string[], allowedInject:string[], forbiddenInject:string[],
+ *          allowedCommands:string[], nodeVersion:string, logFile:string}} env
+ * @returns {{capabilities:string[], forbidden:string[], deps:string[]}} 三段，每段是逐条陈述
+ */
+export function buildSegments(env = {}) {
+  const rk = (env.recallKinds || []).join(', ');
+  const ai = (env.allowedInject || []).join(', ');
+  const fi = (env.forbiddenInject || []).join(', ');
+  const ac = (env.allowedCommands || []).length;
+  const nv = env.nodeVersion || process.version;
+  const lf = env.logFile || '(未指定)';
+
+  return {
+    capabilities: [
+      `三工具：csx_status（只读状态）/ csx_checkpoint（产出检查点）/ csx_recall（按 seq 逐字召回）`,
+      `只读观测：agent/pre-step 上读 tokenMeter 与 session.events，判定压力与并发状态`
+    ],
+    forbidden: [
+      `零外部命令：ALLOWED_COMMANDS 长度 ${ac}（不 spawn/exec/fork 任何东西 —— **能力为零**，非「没找到危险命令」）`,
+      `召回目标枚举化：RECALL_KINDS = [${rk}]，id 为有界数字/区间 ⇒ **不接受路径/命令/URL/任何其它字符串**`,
+      `不接管压缩后端：inject 白名单 = [${ai}]，禁 [${fi}]（seam b：与官方并存，不替换 ctx.compaction）`,
+      `观察器契约：任何读不到 ⇒ 如实报原因码，**绝不抛出**（守卫自身缺陷不得影响会话）`
+    ],
+    deps: [
+      `运行期只依赖 node ${nv} 内置模块；不调用任何 dsh 私有 API（R006 ③ CLD 自适应）`,
+      `标识/版本来自 package.json（R006 ⑥ 单一来源）`,
+      `统一日志：${lf}`,
+      `可选服务（tokenMeter/llm）一律 ctx.get() 取，拿不到即如实跳过（**不写进 inject**，避免整棵树加载失败）`
+    ]
+  };
+}
+
 export function runSelfCheck(pluginName, spec = {}) {
   const missing = [];
   const warnings = [];

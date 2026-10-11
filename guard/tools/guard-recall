@@ -1,0 +1,288 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-recall — 修理知识库：语义检索复用经验（零依赖 BM25 + 中文/英文分词）
+
+每次修复 → 报告 → ingest 入库；官方文档/技术文档/部件卡/工具箱也可入。
+以后搜经验：guard-recall search "会话消失 pnpm 遮蔽" → 复用历史处置与工具。
+
+用法：
+  guard-recall ingest <file|dir> [--type auto|repair|doc|card|report-json] [--force]
+                    # 入库（去重：按 src 内容 sha，未变跳过）；dir 递归
+  guard-recall search "<query>" [-k 5] [--type repair|doc|card]
+                    # BM25 检索，返回 id/标题/日期/来源/得分/命中片段
+  guard-recall stats                    # 库统计（文档数/词表/类型分布）
+  guard-recall reindex                  # 全量重建索引
+库: ~/dsh-collab/repair-knowledge/（docs/ + index.json）
+"""
+import json
+import math
+import os
+import re
+import sys
+
+KB = os.path.expanduser("~/dsh-collab/repair-knowledge")
+DOCS = os.path.join(KB, "docs")
+INDEX = os.path.join(KB, "index.json")
+STOP = set("的了是在与和就都而及或一个之我你他这那有对不会也并为于其但等可要".split())
+# 中文 bigram 太稀疏会碎，控制：CJK 连续段 1~4 字符都算特征 + 段整体
+CJK = re.compile(r"[\u4e00-\u9fff]+")
+ASCIIW = re.compile(r"[A-Za-z0-9][A-Za-z0-9._\-]*")
+
+
+def sha1(s):
+    import hashlib
+    return hashlib.sha1(s.encode("utf-8", "ignore")).hexdigest()
+
+
+def tokenize(text):
+    """返回 (token, weight) 词表。中文: 连续CJK段整段+2gram；英文/数字: 词(≥2)。"""
+    toks = {}
+    for seg in CJK.findall(text):
+        if len(seg) <= 1:
+            continue
+        toks[seg] = toks.get(seg, 0) + 1
+        if len(seg) >= 2:
+            for i in range(len(seg) - 1):
+                big = seg[i:i + 2]
+                if big not in STOP:
+                    toks[big] = toks.get(big, 0) + 1
+        if len(seg) >= 3:  # 段整体更重要（专名/术语）
+            toks[seg] = toks.get(seg, 0) + 2
+    for w in ASCIIW.findall(text.lower()):
+        if len(w) >= 2 and w not in ("the", "and", "for", "with", "from", "this", "that"):
+            toks[w] = toks.get(w, 0) + 1
+    return toks
+
+
+def doc_text(doc):
+    """拼出全文用于检索（JSON 报告扁平化）"""
+    d = doc.get("_doc", {})
+    parts = [str(doc.get("title", "")), str(doc.get("type", "")), str(doc.get("date", ""))]
+    for k in ("done", "verify", "artifacts", "followups", "root_cause", "fix", "summary", "content"):
+        v = doc.get("_doc", {}).get(k) or doc.get(k)
+        if isinstance(v, (list, tuple)):
+            parts.append(" ".join(str(x) for x in v))
+        elif v:
+            parts.append(str(v))
+    return "\n".join(parts)
+
+
+# ---------------- ingest ----------------
+def ingest_file(path, ftype="auto", force=False):
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            raw = f.read()
+    except Exception as e:
+        return {"ok": False, "path": path, "error": str(e)}
+    if not raw.strip():
+        return {"ok": False, "path": path, "error": "empty"}
+    src = os.path.relpath(path, os.path.expanduser("~"))
+    hid = sha1(raw)
+    idx = load_index()
+    prev = idx.get("meta", {}).get("ingested", {}).get(src)
+    if prev == hid and not force:
+        return {"ok": True, "path": path, "skipped": "unchanged"}
+    base = os.path.basename(path)
+    ext = os.path.splitext(base)[1].lower()
+    if ftype == "auto":
+        if ext == ".json":
+            try:
+                j = json.loads(raw)
+                ftype = "report-json"
+                title = j.get("title", j.get("kind", base))
+                date = str(j.get("ts", "") or "")[:14]
+                raw2 = json.dumps(j, ensure_ascii=False)
+            except Exception:
+                ftype, title, date, raw2 = "doc", base, "", raw
+        elif ext in (".md", ".markdown"):
+            ftype, title, date = "doc", base, ""
+            m = re.search(r"^#\s+(.+)$", raw, re.M)
+            if m:
+                title = m.group(1).strip()
+            m2 = re.search(r"(20\d{2}[-/]?\d{2}[-/]?\d{2})", raw)
+            if m2:
+                date = m2.group(1).replace("-", "").replace("/", "")
+            raw2 = raw
+        else:
+            ftype, title, date, raw2 = "doc", base, "", raw
+    else:
+        title, date, raw2 = base, "", raw
+    doc_id = ftype + "-" + sha1(src + hid)[:12]
+    body = {"id": doc_id, "type": ftype, "title": title, "date": date, "src": src, "text": raw2}
+    os.makedirs(DOCS, exist_ok=True)
+    with open(os.path.join(DOCS, doc_id + ".json"), "w", encoding="utf-8") as f:
+        json.dump(body, f, ensure_ascii=False)
+    idx.setdefault("meta", {}).setdefault("ingested", {})[src] = hid
+    save_index(idx)
+    return {"ok": True, "path": path, "id": doc_id, "type": ftype, "title": title}
+
+
+def ingest_all(paths, ftype, force):
+    res = []
+    for p in paths:
+        p = os.path.expanduser(p)
+        if os.path.isdir(p):
+            for root, dirs, files in os.walk(p):
+                dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("node_modules", ".git")]
+                for fn in files:
+                    if fn.startswith("."):
+                        continue
+                    res.append(ingest_file(os.path.join(root, fn), ftype, force))
+        else:
+            res.append(ingest_file(p, ftype, force))
+    rebuild_index()
+    ok = sum(1 for r in res if r.get("ok"))
+    print(f"ingest 完成: {ok}/{len(res)} 成功（跳过已入库=unchanged）")
+    for r in res:
+        if not r.get("ok") and "skipped" not in r:
+            print("  ✗", r.get("path"), r.get("error"))
+    return 0
+
+
+# ---------------- index ----------------
+def load_index():
+    try:
+        return json.load(open(INDEX))
+    except Exception:
+        return {"meta": {}, "postings": {}, "doclen": {}, "docs": {}}
+
+
+def save_index(idx):
+    os.makedirs(KB, exist_ok=True)
+    json.dump(idx, open(INDEX, "w"), ensure_ascii=False)
+
+
+def rebuild_index():
+    idx = {"meta": {}, "postings": {}, "doclen": {}, "docs": {}}
+    total = 0
+    for fn in sorted(os.listdir(DOCS)):
+        if not fn.endswith(".json"):
+            continue
+        try:
+            doc = json.load(open(os.path.join(DOCS, fn)))
+        except Exception:
+            continue
+        text = doc.get("text", "")
+        toks = tokenize(text)
+        did = doc["id"]
+        idx["docs"][did] = {"type": doc.get("type"), "title": doc.get("title"), "date": doc.get("date"), "src": doc.get("src")}
+        idx["doclen"][did] = sum(toks.values())
+        for t, c in toks.items():
+            idx["postings"].setdefault(t, {})[did] = c
+        total += 1
+    idx["meta"]["total"] = total
+    idx["meta"]["avgdl"] = (sum(idx["doclen"].values()) / total) if total else 0
+    save_index(idx)
+    print(f"重建索引完成: {total} 文档")
+
+
+# ---------------- search ----------------
+def bm25_search(query, k=5, ftype=None, n_terms=40):
+    idx = load_index()
+    postings, doclen, docs = idx.get("postings", {}), idx.get("doclen", {}), idx.get("docs", {})
+    N = max(idx.get("meta", {}).get("total", 0), 1)
+    avgdl = idx.get("meta", {}).get("avgdl", 1) or 1
+    q_toks = tokenize(query)
+    scores = {}
+    matched = {}
+    for t, qc in list(q_toks.items())[:n_terms]:
+        df = len(postings.get(t, {}))
+        if df == 0:
+            continue
+        idf = math.log(1 + (N - df + 0.5) / (df + 0.5))
+        for did, tf in postings[t].items():
+            if ftype and docs.get(did, {}).get("type") != ftype:
+                continue
+            dl = doclen.get(did, 1)
+            bm = tf * (2.2) / (tf + 1.5 * (1 - 0.75 + 0.75 * dl / avgdl))
+            scores[did] = scores.get(did, 0) + idf * bm * (0.5 + 0.5 * qc)
+            matched.setdefault(did, []).append(t)
+    ranked = sorted(scores.items(), key=lambda x: -x[1])[:k * 3]
+    out = []
+    for did, sc in ranked:
+        info = docs.get(did, {})
+        out.append({"id": did, "score": round(sc, 2), "type": info.get("type"), "title": info.get("title"),
+                    "date": info.get("date"), "src": info.get("src"), "terms": list(dict.fromkeys(matched[did]))[:8]})
+    return sorted(out, key=lambda x: -x["score"])[:k]
+
+
+def cmd_search(query, k, ftype):
+    print(f"=== guard-recall 检索: 「{query}」(k={k}) ===")
+    hits = bm25_search(query, k, ftype)
+    if not hits:
+        print("无命中。建议: ①换关键词 ②先 ingest 更多资料 ③查知识库 stats")
+        return 1
+    for h in hits:
+        print(f"\n[{h['score']}] ({h['type']}) {h['title']}  {h['date'] or ''}")
+        print(f"     src: {h['src']}")
+        if h["terms"]:
+            print(f"     命中词: {' '.join(h['terms'])}")
+    print("\n提示: 命中报告含 done/verify → 复用其修复路径；含 artifacts → 工具已存在可直接调用。")
+    return 0
+
+
+def cmd_stats():
+    idx = load_index()
+    docs = idx.get("docs", {})
+    by = {}
+    for d in docs.values():
+        by[d.get("type", "?")] = by.get(d.get("type", "?"), 0) + 1
+    print("=== repair-knowledge 库 ===")
+    print(f"文档总数: {len(docs)}")
+    for t, c in sorted(by.items(), key=lambda x: -x[1]):
+        print(f"  {t}: {c}")
+    print(f"词条(postings): {len(idx.get('postings', {}))}")
+    return 0
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    cmd = sys.argv[1]
+    if cmd == "ingest":
+        # 解析 --type/--force，其余为路径
+        ftype = "auto"
+        force = False
+        paths = []
+        i = 2
+        while i < len(sys.argv):
+            a = sys.argv[i]
+            if a == "--type":
+                if i + 1 < len(sys.argv):
+                    ftype = sys.argv[i + 1]; i += 2
+                    continue
+            elif a == "--force":
+                force = True
+            elif not a.startswith("--"):
+                paths.append(a)
+            i += 1
+        if not paths:
+            print("需传文件/目录"); return 1
+        return ingest_all(paths, ftype, force)
+    if cmd == "search":
+        q = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not q:
+            print("需传查询词"); return 1
+        k = 5
+        if "--k" in sys.argv:
+            try:
+                k = int(sys.argv[sys.argv.index("--k") + 1])
+            except Exception:
+                pass
+        ftype = None
+        if "--type" in sys.argv:
+            ftype = sys.argv[sys.argv.index("--type") + 1]
+        return cmd_search(q, k, ftype)
+    if cmd == "stats":
+        return cmd_stats()
+    if cmd == "reindex":
+        rebuild_index()
+        return 0
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

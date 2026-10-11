@@ -1,0 +1,692 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""beacon-check.py — 反遗忘校验（信标四件套之④/§4.4 的执行体）
+
+依据：计划 §4.4「反遗忘校验（每次启动/新会话必跑）——索引 ↔ 锚点 state_version 比对 ·
+     与 ~/.dsh/continuity-last-version 比对（回退即告警）· closed_with_evidence 的 evidence 可解性抽检」。
+
+**为什么必须存在**：信标四件套里，①②③ 都是「写下来的东西」，只有 ④ 是**会红的东西**。
+R030 与「判据必须有判别力」在本台的具体形态：一个**永远不会红**的校验等于没有校验——
+故本文件自带 `--selftest`，逐条构造反例，证明每一项**都能红**。
+
+用法:
+    python3 tools/beacon-check.py              # 离线校验（默认；不联网）
+    python3 tools/beacon-check.py --net        # 追加黑板键可读性抽检 + G-CR18 ④ + 体量守恒（会打网络）
+    python3 tools/beacon-check.py --stamp      # 把当前锚点 sha256 盖进索引（显式动作）
+    python3 tools/beacon-check.py --accept-shrink  # 显式接受体量骤降（推进守恒基线）
+    python3 tools/beacon-check.py --selftest   # 自证：每条检查都能红
+退出码: 0 = 全绿；1 = 有 FAIL；2 = 起不来
+
+★ **必须开着 `--net` 跑**才算数：G-CR18 ④ 与体量守恒都只认**板值**（权威源）；本文件其余各项
+  读的是本地**派生副本**，副本滞后时那些 PASS 判的是旧值 —— 这一点由 ④ 显式点出来。
+"""
+from __future__ import annotations
+
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+INDEX = ROOT / "data/registry/continuity-index.json"
+VERSION_POINTER = Path(os.path.expanduser("~/.dsh/continuity-last-version"))
+SESSIONS = Path(os.path.expanduser("~/.dsh/sessions/--Users-coreyleung--"))
+BOARD = "http://127.0.0.1:8792"
+
+RESULTS: list[tuple[str, str, bool, str]] = []      # (级别, 名称, 通过?, 详情)
+SKIPPED: list[str] = []                             # 未抽检（**既不算通过也不算失败**）
+PENDING: list[str] = []                             # 记为 closed 但审查员未到位（同上，**未验证 ≠ 已关闭**）
+
+
+def check(name: str, ok: bool, detail: str = "", level: str = "FAIL"):
+    RESULTS.append((level, name, ok, detail))
+    mark = "PASS" if ok else ("WARN" if level == "WARN" else "FAIL")
+    print(f"{mark:4s} {name}" + ("" if ok else f"   << {detail}"))
+
+
+def skip(name: str, detail: str = ""):
+    """**未抽检**必须与"通过"长得不一样。**
+
+    本台已 N 次栽在"跳过看起来和通过一模一样"上（`compare.py` 的子串跳键、审查器的
+    `evidence_check=None`）。故本函数的初版把"未开 --net ⇒ 黑板指针未抽检"返回成 `ok=True`
+    ⇒ 打印 **PASS** ——**同一个病在我手里当场复发**。改成单列 SKIP，并在汇总行报出条数，
+    使「全绿」不可能掩盖「有 N 条根本没看」。
+    """
+    SKIPPED.append(name)
+    print(f"SKIP {name}" + (f"   << {detail}" if detail else ""))
+
+
+def pend(name: str, detail: str = ""):
+    """**未验证 ≠ 已关闭。** 与 `skip()` 同理，必须与"通过"长得不一样。
+
+    依据 §11「六者缺一不得记 closed_with_evidence」——审查员未到位而记 closed，
+    本就是不该记的。但本函数**不替用户裁定该项是否该降级**（那是 G-CR18/Q-N 的
+    路由决定），只把「记为 closed 却无到位审查员」**显式报出并计数**，使「全绿」
+    不可能掩盖它。★ 若只加 `verifier` 字段就算过，等于给判据开后门——故单列。
+    """
+    PENDING.append(name)
+    print(f"PEND {name}" + (f"   << {detail}" if detail else ""))
+
+
+# ------------------------------------------------------------------ 解析器
+
+def anchor_state_version(path: Path) -> int | None:
+    try:
+        head = path.read_text(encoding="utf-8")[:2000]
+    except Exception:
+        return None
+    m = re.search(r"state_version\D{0,12}(\d+)", head)
+    return int(m.group(1)) if m else None
+
+
+def sha256(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def resolve_evidence(ptr: str, *, net: bool) -> tuple[str, str]:
+    """把 evidence 指针解析成一个**可解的东西**。三态：`ok` / `skip` / `fail`。
+
+    解不开就说解不开，不猜（R030）；**没查过就说没查过**，不许并进 ok（见 `skip()`）。
+    """
+    if ptr.startswith("blackboard:"):
+        key = ptr.split(":", 1)[1]
+        if not net:
+            return "skip", f"未开 --net（黑板键 `{key}` 本轮未抽检）"
+        try:
+            import urllib.request
+            with urllib.request.urlopen(f"{BOARD}/{key}", timeout=8) as r:
+                body = r.read().decode("utf-8", "replace")
+            if r.status == 200 and len(body) > 2:
+                return "ok", f"http {r.status}, {len(body)}B"
+            return "fail", f"http {r.status}, {len(body)}B（空体或非 200）"
+        except Exception as e:
+            return "fail", f"{type(e).__name__}: {e}"
+    if ptr.startswith("agentsrc:"):
+        rel = ptr.split(":", 1)[1]
+        p = SESSIONS / rel
+        return ("ok", f"{p.stat().st_size}B") if p.exists() else ("fail", "会话文件不在")
+    p = (ROOT / ptr) if not ptr.startswith("/") else Path(ptr)
+    if p.exists():
+        return "ok", (f"{p.stat().st_size}B" if p.is_file() else "目录")
+    return "fail", "路径不在"
+
+
+# ------------------------------------------------------------------ 板值 / 体量基线
+
+CHECKPOINT = Path(os.path.expanduser("~/.dsh/beacon-check-checkpoint.json"))
+
+
+def _now_iso() -> str:
+    return datetime.datetime.now().astimezone().replace(microsecond=0).isoformat()
+
+
+def canonical_sha(v) -> str:
+    return hashlib.sha256(json.dumps(v, ensure_ascii=False, sort_keys=True).encode()).hexdigest()[:16]
+
+
+def board_value(timeout: int = 8):
+    """读黑板上的索引**真身**。返回 (value | None, note)。
+
+    ★ 板值是**权威源**，本地 `data/registry/continuity-index.json` 是它的**派生副本**。
+
+    ⚠ **本台实测更正（2026-10-10）**：**并没有任何板→本地的索引同步器**。
+      `scripts/bb-absorb-watch.py` 是**事件驱动的工具登记吸收**（订阅 :8803，看 `data/<node>/tools/`），
+      与 `continuity-index` 无关；全仓扫过，没有任何脚本自动把板值刷进本地文件。
+      ⇒ **写索引的人必须两边都写**（板是权威、本地是副本）。只写板 ⇒ 本地副本静静分叉，
+        而 `beacon-check` 其余各项读的正是这个副本 ⇒ 判的是旧值而全绿。
+      这正是 G-CR18 ④ 要抓的形态，且 2026-10-10 第一次通电就抓到了本线自己。
+    """
+    import urllib.request
+    notes = []
+    for name, base in (("local", BOARD), ("central", "http://xingqiao.meetfunbp.com:8792")):
+        try:
+            with urllib.request.urlopen(f"{base}/data/registry/continuity-index", timeout=timeout) as r:
+                env = json.loads(r.read().decode("utf-8", "replace"))
+            if isinstance(env, dict) and isinstance(env.get("value"), dict):
+                return env["value"], f"{name} 板 v{env.get('version')} ts={env.get('ts')}"
+            notes.append(f"{name}: 响应无 value")
+        except Exception as e:
+            notes.append(f"{name}: {type(e).__name__}")
+    return None, "；".join(notes) or "两板均不可读"
+
+
+def volume(v) -> dict:
+    s = json.dumps(v, ensure_ascii=False, sort_keys=True)
+    items = v.get("items") or []
+    return {"chars": len(s), "stars": s.count("★"), "keys": len(v), "items": len(items),
+            "closed": len([i for i in items if i.get("state") == "closed_with_evidence"])}
+
+
+def shrink_reasons(prev: dict, cur: dict) -> list[str]:
+    """★ 收编星桥 `beacon-cover-check.py` 里**唯一不重复**的一条（其 §五.5 请我定夺）。
+
+    防的是「全文写把内容腰斩」。2026-10-10 实证：41,328 → 20,796 字符（−50%）、★219 → 31
+    （−86%），而 4 次 `bb_dualwrite` **全报** `verdict: ok / values_equal: true`
+    —— **那道门只验「两板相等」，不验「内容没变少」**。两板一起错 ⇒ 永远相等 ⇒ 永远绿。
+    """
+    out = []
+    pc, cc = prev.get("chars") or 0, cur["chars"]
+    if pc and cc < pc * 0.95:
+        out.append(f"字符 {pc}→{cc}（−{100 - cc * 100 // pc}%）")
+    ps, cs = prev.get("stars") or 0, cur["stars"]
+    if ps and cs < ps * 0.80:
+        out.append(f"★块 {ps}→{cs}（−{100 - cs * 100 // ps}%）")
+    if prev.get("keys") is not None and cur["keys"] < prev["keys"]:
+        out.append(f"顶层键 {prev['keys']}→{cur['keys']}")
+    if prev.get("items") is not None and cur["items"] < prev["items"]:
+        out.append(f"items {prev['items']}→{cur['items']}")
+    return out
+
+
+# ------------------------------------------------------------------ 校验主体
+
+# ---------------------------- ★ M4①d：通道巡检心跳的【读者】
+# ★ 为什么放在这里：§14.4 M4①d 要求「造 401 ⇒ 必须红【且必须有人收到】」。
+#   而 drift-scan-cron 的失败告警卡写在**刚刚失败的那两条腿上** ⇒ 两板皆不可达时
+#   告警卡也写不出去（★ 在断掉的链路上报告链路断了，逻辑上不可能成功）。
+# ★ 解法：心跳由 cron 每轮**单键覆盖**写本机板优先（中枢腿断了本机心跳仍在），
+#   **读者**放在 §4.4「反遗忘校验每次启动/新会话必跑」的入口上 ⇒ 每次会话都有人看。
+# ★ 复用而非重写（J44）：直接调 cron 的 `--status`，用【它自己的三态退出码】当判据，
+#   本工具不复制键名与间隔常量 ⇒ 逻辑变更自动跟随。
+PATROL_STATUS_CMD = [sys.executable,
+                     os.path.expanduser("~/dsh-collab/scripts/drift-scan-cron.py"),
+                     "--status"]
+
+
+def probe_patrol_heartbeat(cmd=None, timeout: int = 30) -> tuple[str, str]:
+    """★ 返回 (state, detail)；state ∈ fresh / stale / undecidable。
+
+    ★ `cmd` 可注入 ⇒ 自证里能用假命令构造三态反例（**不需要网络**）。
+    """
+    cmd = list(cmd or PATROL_STATUS_CMD)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except Exception as e:
+        return "undecidable", f"调用失败 {type(e).__name__} ⇒ ★ 读不到 ≠ 不存在"
+    out = " ｜ ".join(x.strip() for x in (r.stdout or "").split("\n") if x.strip())
+    if r.returncode == 0:
+        return "fresh", out[:300]
+    if r.returncode == 1:
+        return "stale", out[:300]
+    return "undecidable", f"exit={r.returncode} ⇒ 不可判（★ 读不到 ≠ 不存在，不冒充成立）"
+
+
+def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
+        accept_shrink: bool = False) -> int:
+    global RESULTS, SKIPPED, PENDING
+    RESULTS, SKIPPED, PENDING = [], [], []
+    index_path = root / "data/registry/continuity-index.json"
+
+    if not index_path.exists():
+        check("索引键本地副本存在", False, str(index_path))
+        return 1
+    try:
+        idx = json.loads(index_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        check("索引键可解析", False, f"{type(e).__name__}: {e}")
+        return 1
+    check("索引键可解析", True)
+
+    # ---- 1. 锚点在位 + 版本一致（§4.4 第一条）
+    anchor = root / idx["anchor"]
+    check("锚点文档在位", anchor.exists(), str(anchor))
+    if not anchor.exists():
+        return 1
+    av = anchor_state_version(anchor)
+    iv = idx.get("state_version")
+    check("锚点可读出 state_version", av is not None, "头部读不到 state_version")
+    check("索引 ↔ 锚点 state_version 相等", av == iv, f"锚点={av} 索引={iv}")
+
+    # ---- 2. 锚点指纹（改了正文却没升版本 ⇒ 会红）
+    stamped = idx.get("anchor_sha256")
+    actual = sha256(anchor)
+    if stamped is None:
+        check("锚点指纹已盖章", False, "anchor_sha256 为空 ⇒ 跑 --stamp 盖一次", level="WARN")
+    else:
+        check("锚点指纹未变（改了正文须同时升 state_version 并重盖章）",
+              stamped == actual, f"索引={stamped[:16]}… 实际={actual[:16]}…")
+
+    # ---- 3. 版本指针回退告警（§4.4 第二条）
+    if VERSION_POINTER.exists():
+        try:
+            pv = int(VERSION_POINTER.read_text(encoding="utf-8").strip())
+        except Exception:
+            pv = None
+        check("版本指针可解析", pv is not None, VERSION_POINTER.read_text(errors="replace")[:60])
+        if pv is not None:
+            check("版本未回退（指针 ≤ 索引）", pv <= (iv or 0), f"指针={pv} 索引={iv}")
+    else:
+        check("版本指针文件存在", False, f"{VERSION_POINTER} 不在 ⇒ 无法检测回退", level="WARN")
+
+    # ---- 4. 续接提示词：在位、未超长、**未漂移**
+    rp = root / idx["resume_prompt"]
+    check("续接提示词在位", rp.exists(), str(rp))
+    if rp.exists():
+        n = len(rp.read_text(encoding="utf-8").rstrip("\n").split("\n"))
+        check("续接提示词 ≤40 行（§4.1③）", n <= 40, f"{n} 行")
+        gen = root / idx.get("resume_prompt_generator", "")
+        if gen.exists():
+            r = subprocess.run([sys.executable, str(gen), "--stdout"],
+                               capture_output=True, text=True)
+            check("续接提示词未漂移（== 现渲染结果）",
+                  r.stdout == rp.read_text(encoding="utf-8"),
+                  "渲染结果与盘上文件不一致 ⇒ 跑一次生成脚本；**不要手改它**")
+
+    # ---- 5. closed_with_evidence 的证据可解性抽检（§4.4 第三条）
+    closed = [it for it in idx.get("items") or [] if it.get("state") == "closed_with_evidence"]
+    check("存在 closed_with_evidence 项（否则本条空转）", bool(closed),
+          "0 项 ⇒ 第 5 条没有判别力", level="WARN")
+    for it in closed:
+        evs = it.get("evidence") or []
+        if not evs:
+            check(f"{it['id']} 有 evidence 指针", False, "记为 closed 却无证据指针")
+            continue
+        res = [(e, *resolve_evidence(e, net=net)) for e in evs]
+        bad = [f"{e}→{d}" for e, st, d in res if st == "fail"]
+        skipped = [f"{e}→{d}" for e, st, d in res if st == "skip"]
+        if bad:
+            check(f"{it['id']} 证据指针可解", False, "; ".join(bad))
+        elif skipped:
+            skip(f"{it['id']} 证据指针可解", "; ".join(skipped))
+        else:
+            check(f"{it['id']} 证据指针可解", True)
+
+    # ---- 6. dod 全文表：缺席必须**显式**，不能是"看起来有"
+    dod = (idx.get("dod") or {}).get("full_table")
+    check("dod.full_table 的缺席是显式声明的",
+          (dod is not None) or bool((idx.get("dod") or {}).get("_status")),
+          "既没内容也没缺席声明 ⇒ 读者会以为它有")
+
+    # ---- 7. 自检覆盖缺口（B10 = P27 族）：以下三条**此前全无**，
+    #         故「校验全绿而事实已变」在本台上曾结构性地看不见（本线 2026-10-10 实测）。
+    items = idx.get("items") or []
+
+    # 7a. updated_at 合理域 —— 先校规范形，否则判据自身会在解析处崩（锚点 §7 §17.3③ 实测）
+    ua = idx.get("updated_at")
+    RFC3339 = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?[+-]\d{2}:\d{2}$")
+    ok_form = bool(ua) and bool(RFC3339.match(str(ua)))
+    check("updated_at 为 RFC 3339 规范形（±HH:MM 带冒号）", ok_form,
+          f"值={ua!r} ⇒ 判据会在解析处崩或被静默跳过")
+    if ok_form:
+        ahead = (datetime.datetime.fromisoformat(str(ua))
+                 - datetime.datetime.now().astimezone()).total_seconds()
+        check("updated_at 未落在未来（合理域）", ahead <= 120,
+              f"比现在超前 {ahead / 3600:.1f} 小时 ⇒ 按会话推进感觉估时间，不读时钟（B8）")
+
+    # 7b. waves / items 两段一致 —— 同源两端分头演进，只读一段的人发现不了（B9）
+    PROG = {"open": 0, "blocked": 0, "in_flight": 1, "closed_with_evidence": 2}
+    by_id = {i["id"]: i for i in items}
+    incons: list[str] = []
+    for w in idx.get("waves") or []:
+        rel = [by_id[i] for i in re.findall(r"\b([A-Z]{1,2}\d+)\b", w.get("name") or "") if i in by_id]
+        if rel:
+            hot = [i["id"] for i in rel if PROG.get(i.get("state"), 0) >= 1]
+            if hot and PROG.get(w.get("state"), 0) < 1:
+                incons.append(f"wave {w['id']} 记 {w.get('state')}，而其 items 已有 {'/'.join(hot)} 非 open")
+        for mm in re.finditer(r"([A-Z]{1,2}\d+(?:/[A-Z]{1,2}\d+)*)\s*未做", w.get("note") or ""):
+            for iid in mm.group(1).split("/"):
+                if iid in by_id and by_id[iid].get("state") != "open":
+                    incons.append(f"wave {w['id']} 的 note 称「{mm.group(0)}」，而 items[{iid}] 记 "
+                                  f"{by_id[iid].get('state')}")
+    check("waves / items 两段一致（B9）", not incons, "；".join(incons))
+
+    # 7c. closed_with_evidence 须有 verifier；**但只查字段存在会给判据开后门** ⇒
+    #     值仍是"待复核"类的，单列 PENDING，使「全绿」不能掩盖「未验证」。
+    closed = [it for it in items if it.get("state") == "closed_with_evidence"]
+    missing = [it["id"] for it in closed if not it.get("verifier")]
+    check("closed 项 verifier 字段齐备（B10③）", not missing,
+          f"{'/'.join(missing)} 记为 closed 却无 verifier 字段 ⇒ §5.1「未证不得记 closed」")
+    unverified = [it["id"] for it in closed
+                  if it.get("verifier") and re.search(r"待|pending|unavailable|未到位|TBD",
+                                                      str(it["verifier"]), re.I)]
+    if unverified:
+        pend("closed 项审查员已到位（§11 六者之「审查员」）",
+             f"{'/'.join(unverified)} 记为 closed_with_evidence，而 verifier 仍是待复核 ⇒ **未验证 ≠ 已关闭**")
+
+    # ---- 8. 本地副本 ↔ 板值一致（★ G-CR18 **④**，锚点 §7.9 四项之末）
+    #     本台今日两次翻车的形态就是这条：本地文件与板值分叉、★块与键数都对不上，而无人察觉
+    #     （本地 ★244/22 键 vs 板 ★236/21 键）。板是权威源，本地是派生副本 ⇒ 副本滞后即读数不可信。
+    bv, bnote = board_value()
+    if not net:
+        skip("本地副本 ↔ 板值一致（G-CR18 ④）", "未开 --net ⇒ 未抽检（★ 未抽检 ≠ 通过）")
+    elif bv is None:
+        check("本地副本 ↔ 板值一致（G-CR18 ④）", False, f"板不可读 ⇒ 本项无法判（{bnote}）")
+    else:
+        same = canonical_sha(bv) == canonical_sha(idx)
+        ml, mb = volume(idx), volume(bv)
+        check("本地副本 ↔ 板值一致（G-CR18 ④）", same,
+              f"本地 sha={canonical_sha(idx)} / 板 sha={canonical_sha(bv)}　"
+              f"本地[{ml['chars']}字符 {ml['stars']}★ {ml['keys']}键]"
+              f" vs 板[{mb['chars']}字符 {mb['stars']}★ {mb['keys']}键]（{bnote}）"
+              f" ⇒ 本地副本是派生件，滞后时**本文件其余各项读的都是旧值**")
+
+    # ---- 9. 体量守恒（骤降检测）—— 基线只认板值；只在**通过**时才推进基线，
+    #         否则一次腰斩会被记成新基线，红一次就永久绿（那又是一道不会红的门）。
+    if not net or bv is None:
+        skip("索引体量守恒（骤降检测）", "基线只认板值；本轮未开 --net 或板不可读 ⇒ 未抽检")
+    else:
+        cur = volume(bv)
+        try:
+            prev_rec = json.loads(CHECKPOINT.read_text(encoding="utf-8"))
+        except Exception:
+            prev_rec = None
+        if not prev_rec or prev_rec.get("source") != "board":
+            skip("索引体量守恒（骤降检测）",
+                 f"无同源基线（首次运行或源变更）⇒ 本轮**只建档、未抽检**（{cur['chars']}字符 "
+                 f"{cur['stars']}★ {cur['keys']}键）")
+            CHECKPOINT.write_text(json.dumps(
+                {"source": "board", "at": _now_iso(), "sha": canonical_sha(bv), "metrics": cur},
+                ensure_ascii=False), encoding="utf-8")
+        else:
+            prev = prev_rec.get("metrics") or {}
+            reasons = shrink_reasons(prev, cur)
+            check("索引体量守恒（骤降检测）", not reasons,
+                  "；".join(reasons) + f"　基线 {prev_rec.get('at')} ⇒ ★ 全文写把内容写少了。"
+                  f"核无误后须**显式**用 --accept-shrink 接受，否则一直红（这是刻意的）")
+            if not reasons or accept_shrink:
+                CHECKPOINT.write_text(json.dumps(
+                    {"source": "board", "at": _now_iso(), "sha": canonical_sha(bv),
+                     "metrics": cur, "accepted": bool(reasons)}, ensure_ascii=False), encoding="utf-8")
+
+    # ★ M4①d：通道巡检心跳新鲜度 —— ★ 这是「零漂移」与「巡检已死」的唯一区分器
+    if not net:
+        skip("通道巡检心跳新鲜度（M4①d）",
+             "未开 --net ⇒ 未抽检（★ 未抽检 ≠ 通过；★ 但**未抽检 ≠ 巡检已死**）")
+    else:
+        pst, pdet = probe_patrol_heartbeat()
+        if pst == "fresh":
+            check("通道巡检心跳新鲜度（M4①d）", True, pdet)
+        elif pst == "stale":
+            check("通道巡检心跳新鲜度（M4①d）", False,
+                  "★★ 心跳已陈旧 ⇒ drift 巡检【已停】。★ 先排除「刚唤醒、cron 未及跑」"
+                  "（下一轮 ≤30min 内会写新心跳）；若持续红则查 "
+                  "`launchctl list | grep drift-scan` 与 /tmp/drift-scan-cron.err.log。"
+                  "★ 静默容忍此红，正是 401 冻结 7.5 天无人知的原因。" + pdet[:160])
+        else:
+            skip("通道巡检心跳新鲜度（M4①d）", pdet)
+
+    return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
+
+
+# ------------------------------------------------------------------ 自证：每条都能红
+
+def selftest() -> int:
+    print("=== beacon-check 自证：逐条构造反例，证明每条检查都能红 ===")
+    fails = 0
+
+    def case(name, mutate, expect_fail_substr):
+        nonlocal fails
+        with tempfile.TemporaryDirectory() as td:
+            t = Path(td)
+            (t / "data/registry").mkdir(parents=True)
+            (t / "docs").mkdir()
+            base_index = json.loads((ROOT / "data/registry/continuity-index.json").read_text(encoding="utf-8"))
+            anchor_src = ROOT / base_index["anchor"]
+            (t / base_index["anchor"]).write_text(anchor_src.read_text(encoding="utf-8"), encoding="utf-8")
+            rp_src = ROOT / base_index["resume_prompt"]
+            if rp_src.exists():
+                (t / base_index["resume_prompt"]).write_text(rp_src.read_text(encoding="utf-8"), encoding="utf-8")
+            for e in base_index.get("evidence_index") or []:
+                if e.startswith(("blackboard:", "agentsrc:")):
+                    continue
+                p = t / e
+                if p.suffix:
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    p.write_text("x", encoding="utf-8")
+                else:
+                    p.mkdir(parents=True, exist_ok=True)
+            base_index["anchor_sha256"] = sha256(t / base_index["anchor"])
+            idx = mutate(json.loads(json.dumps(base_index)))
+            (t / "data/registry/continuity-index.json").write_text(
+                json.dumps(idx, ensure_ascii=False), encoding="utf-8")
+            import io
+            import contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = run(t, net=False)
+            out = buf.getvalue()
+            ok = (rc != 0) and any(l.startswith("FAIL") and expect_fail_substr in l
+                                   for l in out.split("\n"))
+            print(("PASS " if ok else "FAIL ") + f"反例可红：{name}")
+            if not ok:
+                fails += 1
+                print("      rc=", rc, "| 期望含:", expect_fail_substr)
+                print("      " + "\n      ".join(out.split("\n")[:14]))
+
+    case("版本不一致", lambda d: {**d, "state_version": d["state_version"] + 1}, "state_version 相等")
+    case("锚点被改但未重盖章", lambda d: {**d, "anchor_sha256": "0" * 64}, "锚点指纹未变")
+    case("证据指针指到不存在的路径",
+         lambda d: {**d, "items": [{**i, "evidence": ["docs/不存在的文件.md"]}
+                                   if i["id"] == "C2" else i for i in d["items"]]},
+         "C2 证据指针可解")
+    case("closed 项无证据指针",
+         lambda d: {**d, "items": [{**i, "evidence": []} if i["id"] == "C1" else i for i in d["items"]]},
+         "C1 有 evidence 指针")
+    case("dod 缺席未声明",
+         lambda d: {**d, "dod": {"full_table": None}}, "缺席是显式声明")
+
+    # ---- B10 三条新判据的反例（**新判据不带反例 = 又一道不会红的门**）
+    case("updated_at 非 RFC 3339 规范形",
+         lambda d: {**d, "updated_at": "2026-10-10T07:00:00+0800"}, "RFC 3339 规范形")
+    case("updated_at 落在未来（按感觉估时间）",
+         lambda d: {**d, "updated_at": "2099-01-01T00:00:00+08:00"}, "未落在未来")
+    case("closed 项无 verifier 字段",
+         lambda d: {**d, "items": [{k: v for k, v in i.items() if k != "verifier"}
+                                   if i["id"] == "C1" else i for i in d["items"]]},
+         "verifier 字段齐备")
+    case("waves 记 open 而其 items 已有 closed",
+         lambda d: {**d, "waves": [{**w, "state": "open"} if w["id"] == "C" else w
+                                   for w in d["waves"]]},
+         "两段一致")
+    case("wave note 称「未做」而 items 记为 closed",
+         lambda d: {**d, "waves": [{**w, "note": "C2 未做。"} if w["id"] == "C" else w
+                                   for w in d["waves"]]},
+         "两段一致")
+
+    # ---- 专测「跳过 ≠ 通过」（本台反复复发的病）：黑板指针在无 --net 时必须是 SKIP
+    # 构造一个**只有**黑板证据指针的 closed 项：它既不该 PASS（没查过），也不该 FAIL（没坏）。
+    with tempfile.TemporaryDirectory() as td:
+        t = Path(td)
+        (t / "data/registry").mkdir(parents=True)
+        (t / "docs").mkdir()
+        base = json.loads((ROOT / "data/registry/continuity-index.json").read_text(encoding="utf-8"))
+        (t / base["anchor"]).write_text((ROOT / base["anchor"]).read_text(encoding="utf-8"), encoding="utf-8")
+        if (ROOT / base["resume_prompt"]).exists():
+            (t / base["resume_prompt"]).write_text(
+                (ROOT / base["resume_prompt"]).read_text(encoding="utf-8"), encoding="utf-8")
+        base["anchor_sha256"] = sha256(t / base["anchor"])
+        base["items"] = [{"id": "X", "state": "closed_with_evidence",
+                          "evidence": ["blackboard:data/registry/continuity-index"]}]
+        (t / "data/registry/continuity-index.json").write_text(
+            json.dumps(base, ensure_ascii=False), encoding="utf-8")
+        import io
+        import contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            run(t, net=False)
+        lines = buf.getvalue().split("\n")
+        skip_line = [l for l in lines if l.startswith("SKIP X 证据指针可解")]
+        pass_line = [l for l in lines if l.startswith("PASS X 证据指针可解")]
+        ok = bool(skip_line) and not pass_line and any(SKIPPED)
+        print(("PASS " if ok else "FAIL ") + "跳过 ≠ 通过（无 --net 的黑板指针必须 SKIP，不得 PASS）")
+        if not ok:
+            fails += 1
+            print("      SKIP 行数=", len(skip_line), " PASS 行数=", len(pass_line), " SKIPPED=", SKIPPED)
+
+    # ---- G-CR18 ④ 与守恒断言的反例（★ 新判据不带反例 = 又一道不会红的门）
+    import contextlib
+    import io
+    real_bv, real_ck = board_value, CHECKPOINT
+
+    def _mk_tree(t: Path) -> dict:
+        (t / "data/registry").mkdir(parents=True)
+        (t / "docs").mkdir()
+        b = json.loads((ROOT / "data/registry/continuity-index.json").read_text(encoding="utf-8"))
+        (t / b["anchor"]).write_text((ROOT / b["anchor"]).read_text(encoding="utf-8"), encoding="utf-8")
+        rp = ROOT / b["resume_prompt"]
+        if rp.exists():
+            (t / b["resume_prompt"]).write_text(rp.read_text(encoding="utf-8"), encoding="utf-8")
+        (t / "docs/ok.md").write_text("x", encoding="utf-8")
+        for e in b.get("evidence_index") or []:            # 单元测试不走网络
+            if e.startswith(("blackboard:", "agentsrc:")):
+                continue
+            p = t / e
+            if p.suffix:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text("x", encoding="utf-8")
+            else:
+                p.mkdir(parents=True, exist_ok=True)
+        for i in b.get("items") or []:                     # 黑板指针换成本地可解件
+            if i.get("evidence"):
+                i["evidence"] = ["docs/ok.md"]
+        b["anchor_sha256"] = sha256(t / b["anchor"])
+        (t / "data/registry/continuity-index.json").write_text(
+            json.dumps(b, ensure_ascii=False), encoding="utf-8")
+        return b
+
+    def _run_patched(t: Path, board_obj, ck: Path, *, net: bool = True, accept: bool = False):
+        globals()["board_value"] = lambda timeout=8: (board_obj, "test 板 v0 ts=T")
+        globals()["CHECKPOINT"] = ck
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = run(t, net=net, accept_shrink=accept)
+        return rc, buf.getvalue()
+
+    def _verdict(rc: int, out: str, kind: str, sub: str) -> bool:
+        return any(l.startswith(kind) and sub in l for l in out.split("\n"))
+
+    def _t(label: str, ok: bool):
+        nonlocal fails
+        print(("PASS " if ok else "FAIL ") + label)
+        if not ok:
+            fails += 1
+
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            t = Path(td)
+            base = _mk_tree(t)
+            ck = Path(td) / "ck.json"
+
+            # ④ 负控：板值与本地副本分叉 ⇒ 必须红
+            split = json.loads(json.dumps(base))
+            split["_diverged"] = "板与本地分叉"
+            rc, out = _run_patched(t, split, ck)
+            _t("反例可红：本地副本与板值分叉（G-CR18 ④）",
+               rc != 0 and _verdict(rc, out, "FAIL", "本地副本 ↔ 板值一致"))
+
+            # ④ 正控：一致 ⇒ 该条必须 PASS（防判据恒红，恒红与恒绿一样没判别力）
+            rc, out = _run_patched(t, base, ck)
+            _t("正控：本地副本与板值一致 ⇒ 该条 PASS（判据非恒红）",
+               _verdict(rc, out, "PASS", "本地副本 ↔ 板值一致"))
+
+            # ④ 无 --net ⇒ 必须 SKIP，不得混进 PASS
+            rc, out = _run_patched(t, base, ck, net=False)
+            _t("跳过 ≠ 通过：无 --net 时 ④ 必须 SKIP、不得 PASS",
+               _verdict(rc, out, "SKIP", "本地副本 ↔ 板值一致")
+               and not _verdict(rc, out, "PASS", "本地副本 ↔ 板值一致"))
+
+            # 守恒：首次运行只建档，不得谎报通过
+            ck.unlink(missing_ok=True)
+            rc, out = _run_patched(t, base, ck)
+            _t("守恒：首次运行**只建档、未抽检**（不谎报通过）",
+               ck.exists() and _verdict(rc, out, "SKIP", "体量守恒"))
+
+            # 守恒负控：腰斩 ⇒ 必须红
+            shrunk = json.loads(json.dumps(base))
+            shrunk["open_questions"] = (shrunk.get("open_questions") or [])[:1]
+            shrunk.pop("_sync_note", None)
+            rc, out = _run_patched(t, shrunk, ck)
+            _t("反例可红：索引体量骤降（腰斩检测）",
+               rc != 0 and _verdict(rc, out, "FAIL", "体量守恒"))
+
+            # ★ 红线不得被自动吞掉：连跑两次仍红（基线未被推进，否则红一次就永久绿）
+            rc, out = _run_patched(t, shrunk, ck)
+            _t("守恒红线不自动消：未 --accept-shrink 时连跑两次都红",
+               rc != 0 and _verdict(rc, out, "FAIL", "体量守恒"))
+
+            # 显式接受后才推进基线
+            _run_patched(t, shrunk, ck, accept=True)
+            rc, out = _run_patched(t, shrunk, ck)
+            _t("守恒：--accept-shrink 显式接受后基线推进、转为不红",
+               not _verdict(rc, out, "FAIL", "体量守恒"))
+    finally:
+        globals()["board_value"], globals()["CHECKPOINT"] = real_bv, real_ck
+
+    # ---- ★ M4①d 通道巡检心跳：判据三态负控（**不需要网络** —— 用假命令注入三态）
+    # ★ 为什么必须做：若判据恒绿，这套心跳就只是把「没在看」包装成「在看」（D-053 同型）。
+    _py = sys.executable
+    for _nm, _cmd, _want in (
+            ("陈旧 ⇒ 必须红", [_py, "-c", "print('STALE fake'); raise SystemExit(1)"], "stale"),
+            ("新鲜 ⇒ 必须绿", [_py, "-c", "print('FRESH fake')"], "fresh"),
+            ("读不到 ⇒ 必须不可判（不冒充成立）", [_py, "-c", "raise SystemExit(2)"], "undecidable"),
+            ("命令不存在 ⇒ 必须不可判", ["/nonexistent/definitely-not-a-binary"], "undecidable")):
+        _got, _det = probe_patrol_heartbeat(_cmd)
+        _ok = _got == _want
+        print(("PASS " if _ok else "FAIL ") + f"M4①d 心跳判据负控：{_nm}（got={_got} want={_want}）")
+        if not _ok:
+            fails += 1
+
+    print()
+    print("自证：", "全绿" if not fails else f"**有红**（{fails} 条）")
+    return 1 if fails else 0
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--net", action="store_true", help="追加黑板键可读性抽检（会打网络）")
+    ap.add_argument("--stamp", action="store_true", help="把当前锚点 sha256 盖进索引")
+    ap.add_argument("--bump-pointer", action="store_true",
+                    help="把当前 state_version 写进 ~/.dsh/continuity-last-version（消掉 WARN）")
+    ap.add_argument("--accept-shrink", action="store_true",
+                    help="显式接受索引体量骤降（推进守恒基线）；不确认就别用，红线是刻意的")
+    ap.add_argument("--selftest", action="store_true")
+    a = ap.parse_args()
+
+    if a.selftest:
+        sys.exit(selftest())
+
+    if a.stamp:
+        idx = json.loads(INDEX.read_text(encoding="utf-8"))
+        anchor = ROOT / idx["anchor"]
+        idx["anchor_sha256"] = sha256(anchor)
+        idx["updated_at"] = __import__("datetime").datetime.now().astimezone().replace(microsecond=0).isoformat()
+        INDEX.write_text(json.dumps(idx, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"✓ 盖章 anchor_sha256={idx['anchor_sha256'][:16]}…（state_version={idx['state_version']}）")
+
+    if a.bump_pointer:
+        cur = json.loads(INDEX.read_text(encoding="utf-8"))["state_version"]
+        VERSION_POINTER.parent.mkdir(parents=True, exist_ok=True)
+        VERSION_POINTER.write_text(str(cur), encoding="utf-8")
+        print(f"✓ 版本指针 ← {cur}（{VERSION_POINTER}）")
+
+    rc = run(ROOT, net=a.net, accept_shrink=a.accept_shrink)
+    print()
+    bad = [r for r in RESULTS if not r[2] and r[0] == "FAIL"]
+    warn = [r for r in RESULTS if not r[2] and r[0] == "WARN"]
+    tail = f"（{len(warn)} 条 WARN，{len(SKIPPED)} 条 SKIP，{len(PENDING)} 项待复核）"
+    if bad:
+        print(f"反遗忘校验：**有红**（{len(bad)} 条 FAIL）{tail}")
+    elif SKIPPED or PENDING:
+        why = []
+        if SKIPPED:
+            why.append(f"**有 {len(SKIPPED)} 条根本没抽检**")
+        if PENDING:
+            why.append(f"**有 {len(PENDING)} 项记为 closed 而审查员未到位**")
+        print(f"反遗忘校验：无 FAIL，但{'，'.join(why)} ⇒ 不得读作『全绿』{tail}")
+        for n in SKIPPED:
+            print("         SKIP " + n)
+        for n in PENDING:
+            print("         PEND " + n)
+    else:
+        print(f"反遗忘校验：全绿 {tail}")
+    sys.exit(rc)
+
+
+if __name__ == "__main__":
+    main()

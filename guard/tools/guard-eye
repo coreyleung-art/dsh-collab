@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-eye — 远程"眼睛"：直接观测 Mac mini CLD 实际 UI（不再依赖人工报告）
+
+通道：CLD 壳管理端点 127.0.0.1:31888
+  GET /dom   → 渲染后 UI 文本(innerText) —— 模型可读，判断会话列表/界面状态
+  GET /shot  → CLD 窗口 PNG 截图 —— 人类/图像模型可看，留证
+
+用法：
+  guard-eye dom                 # 读 UI 文本(主通道: 会话/界面状态一读便知)
+  guard-eye dom --grep 会话      # 读文本并过滤关键词(如 '暂无会话' / 会话标题)
+  guard-eye shot [--out x.png]  # 截图(默认 ~/dsh-collab/eye/shots/latest.png)
+  guard-eye watch [--n 5] [--interval 3]   # 连续采样(近似视频流, 存时间戳序列)
+  guard-eye state               # 一键状态: 进程+heartbeat+UI文本前200字(快速体检)
+目标: coreyleung@192.168.1.28 (可 SSHOOK 覆盖)
+"""
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.request
+
+SSH_TARGET = os.environ.get("EYE_SSH", "coreyleung@192.168.1.28")
+CTL = "http://127.0.0.1:31888"
+SHOT_DIR = os.path.expanduser("~/dsh-collab/eye/shots")
+
+
+def ssh(cmd):
+    r = subprocess.run(["ssh", "-o", "BatchMode=yes", SSH_TARGET, cmd], capture_output=True, text=True, timeout=40)
+    return r.stdout, r.stderr, r.returncode
+
+
+def curl_ctl(path, out=None):
+    cmd = f"curl -s -m 12 {CTL}{path}"
+    if out:
+        cmd += f" -o {out}"
+    out_s, err_s, code = ssh(cmd)
+    return out_s, err_s, code
+
+
+def cmd_dom(grep=None):
+    out, err, code = curl_ctl("/dom")
+    try:
+        d = json.loads(out)
+        txt = d.get("text", "")
+        print(f"=== CLD UI 文本 (len={d.get('len')}) ===")
+        if grep:
+            for line in txt.splitlines():
+                if grep in line:
+                    print(" ", line)
+            print(f"\n(过滤 '{grep}' 命中如上)")
+        else:
+            print(txt[:2500])
+    except Exception:
+        print("解析失败:", out[:300], err[:200])
+    return 0
+
+
+def cmd_shot(out=None):
+    out = out or os.path.join(SHOT_DIR, "latest.png")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    # 经 mini 本地 curl 存图再 scp 回
+    remote_tmp = "/tmp/guard-eye-shot.png"
+    ssh(f"curl -s -m 12 {CTL}/shot -o {remote_tmp}")
+    r = subprocess.run(["scp", "-o", "BatchMode=yes", f"{SSH_TARGET}:{remote_tmp}", out], capture_output=True, text=True, timeout=40)
+    if r.returncode == 0 and os.path.exists(out):
+        print(f"✅ 截图已存: {out} ({os.path.getsize(out)} bytes)")
+        return 0
+    print("❌ 截图失败:", r.stderr[:200])
+    return 1
+
+
+def cmd_watch(n=5, interval=3):
+    print(f"=== guard-eye watch: {n} 次 × {interval}s ===")
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    for i in range(n):
+        t = time.strftime("%H:%M:%S")
+        # dom 采样
+        out, _, _ = curl_ctl("/dom")
+        try:
+            d = json.loads(out)
+            txt = d.get("text", "")
+            has_empty = "暂无会话" in txt
+            snippet = [l for l in txt.splitlines() if l.strip() and "天" not in l and "时" not in l][:3]
+            print(f"[{t}] #{i+1} len={d.get('len')} 空态={'⚠️暂无会话' if has_empty else '正常'} 首行={snippet[:1]}")
+        except Exception as e:
+            print(f"[{t}] #{i+1} 读取失败 {str(e)[:60]}")
+        # 间隔截图留证
+        if interval >= 3:
+            shot = os.path.join(SHOT_DIR, f"watch-{ts}-{i+1}.png")
+            cmd_shot(shot)
+        if i < n - 1:
+            time.sleep(interval)
+    print(f"\n截图序列目录: {SHOT_DIR}")
+    return 0
+
+
+def cmd_state():
+    print("=== guard-eye 一键状态 ===")
+    out, _, _ = ssh("pgrep -f 'CLD.app/Contents/MacOS/CLD' | wc -l")
+    print(f"CLD 进程数: {out.strip()}")
+    out, _, _ = curl_ctl("/health")
+    print("管理端点:", out.strip()[:150])
+    out, _, _ = ssh("/usr/bin/python3 -c \"import json,time;d=json.load(open('/Users/coreyleung/.cld/logs/heartbeat.json'));print('heartbeat age:',round(time.time()-d['ts']/1000),'s')\"")
+    print("心跳:", out.strip())
+    cmd_dom()
+    return 0
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    cmd = sys.argv[1]
+    if cmd == "dom":
+        grep = None
+        if "--grep" in sys.argv:
+            grep = sys.argv[sys.argv.index("--grep") + 1]
+        return cmd_dom(grep)
+    if cmd == "shot":
+        out = None
+        if "--out" in sys.argv:
+            out = sys.argv[sys.argv.index("--out") + 1]
+        return cmd_shot(out)
+    if cmd == "watch":
+        n, interval = 5, 3
+        if "--n" in sys.argv:
+            try: n = int(sys.argv[sys.argv.index("--n") + 1])
+            except Exception: pass
+        if "--interval" in sys.argv:
+            try: interval = int(sys.argv[sys.argv.index("--interval") + 1])
+            except Exception: pass
+        return cmd_watch(n, interval)
+    if cmd == "state":
+        return cmd_state()
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

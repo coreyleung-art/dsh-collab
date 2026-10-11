@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "note": "★ 变异单：每条声明一个【新控】及其【变异点】。★ 判据三条合取：基线绿 ∧ 变异点恰好命中 1 次 ∧ 变异后必红。★ 本线 2026-10-12 首建；第一条真读数见交付件。",
+  "items": [
+    {
+      "id": "channel-denominator · 排除控必须能红",
+      "why": "★ 本线 2026-10-12 在此处犯过实错：夹具不匹配任何收录模式 ⇒「被排除」是必然 ⇒ 该控恒真、永不红。已换夹具；本变异负责【持续防复发】。 ★ 变异写法：用 `[] and [...]`（恒为 `[]`）；初版误写 `[] or [...]`，而 `[] or X` 恒等于 `X` ⇒ 空操作（被本门当场拒收）。",
+      "tool": "~/dsh-collab/scripts/channel-denominator.py",
+      "probe_args": [
+        "--selftest"
+      ],
+      "probe": {
+        "expect_rc": 0,
+        "must_contain": [
+          "fails=0"
+        ]
+      },
+      "mutation": {
+        "kind": "py_replace",
+        "find": "DOMAIN_EXCLUDE_PATTERNS = [",
+        "replace": "DOMAIN_EXCLUDE_PATTERNS = [] and ["
+      },
+      "expect_red_marker": "FAIL"
+    },
+    {
+      "id": "xdom-mail · 游标不得带信封字段（负控）",
+      "why": "★ 对应 D-060：:751 曾把信的信封注进游标。本变异往游标里塞一个 type 字段 ⇒ 该负控必须红。",
+      "tool": "~/dsh-collab/tools/xdom-mail.py",
+      "probe_args": [
+        "--selftest"
+      ],
+      "probe": {
+        "expect_rc": 0,
+        "must_contain": [
+          "selftest: 50 PASS / 0 FAIL"
+        ]
+      },
+      "mutation": {
+        "kind": "py_replace",
+        "find": "return {\"party\": party, \"upto\": upto,",
+        "replace": "return {\"type\": \"letter\", \"party\": party, \"upto\": upto,"
+      },
+      "expect_red_marker": "游标上不得有信封字段"
+    },
+    {
+      "id": "beacon-check · 心跳「陈旧⇒必红」（负控）",
+      "why": "★ 对应 D-058：把 exit=1 的映射从 stale 改成 fresh ⇒ 「陈旧 ⇒ 必须红」那条负控必须红。",
+      "tool": "~/dsh-collab/tools/beacon-check.py",
+      "probe_args": [
+        "--selftest"
+      ],
+      "probe": {
+        "expect_rc": 0,
+        "must_contain": [
+          "自证： 全绿"
+        ]
+      },
+      "mutation": {
+        "kind": "py_replace",
+        "find": "    if r.returncode == 1:\n        return \"stale\", out[:300]",
+        "replace": "    if r.returncode == 1:\n        return \"fresh\", out[:300]"
+      },
+      "expect_red_marker": "陈旧"
+    }
+  ]
+}

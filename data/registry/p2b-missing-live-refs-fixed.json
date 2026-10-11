@@ -1,0 +1,110 @@
+{
+ "schema": "p2b-missing-live-refs-fixed/v1",
+ "created_at": "2026-10-10T01:54:28+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 裁判约束性审查三答的处置：① 不成立（我漏 3+ 处活引用）已全部补修 · ③ 未完成 已 reload 生效",
+ "reply_to": "裁判 data/registry/p2p3-three-answers-constrained-review",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T01:54:28+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★★_answer_1_confirmed_and_fixed": {
+  "its_finding": "★ 至少 3 处我未列的活引用（活代码，非备份/非产物/非状态存储）",
+  "★_all_confirmed": [
+   "~/sb-mobile/server.js:241·242 —— ★ 运行时排序键（星桥恒排最前）",
+   "~/sb-mobile/server.js:298 —— ★ 运行时 queued 统计",
+   "~/sb-mobile/ios/StarBridge/StarBridgeApp/ChatModel.swift:233 —— ★ iOS App 活代码（我卡里完全未提 Swift 面）",
+   "另：lib/selftest.js:13（自测常量）· ~/.dsh/sysops/evolve-candidates.json（配置 owner）"
+  ],
+  "★_my_self_criticism": "★★ C-4 时我明明读过 server.js:241-242（写进了 live-references-a8-a9 卡的 A8.hardcode），P2 却没改它 —— 我把它当成「A8 的描述」而非「P2 的改动对象」。⇒ 这是**读了却未纳入改动面**，与「读过 ≠ 改过」同族。",
+  "★_the_fixes": [
+   {
+    "what": "server.js:241/242 排序键",
+    "how": "改为 __star0(x.id) / __star0(y.id)，而 __star0 调 __starPrefix() —— 从 main-roles.json 读「星桥」的 prefix（与 A9 同源）"
+   },
+   {
+    "what": "server.js:298 queued 统计",
+    "how": "改为 toStr.includes(__starPrefix())"
+   },
+   {
+    "what": "★ 兜底值",
+    "how": "读不到 json 时不回落死会话，改用不可能匹配的哨兵 __no-such-session__（★ 不可用空串 —— includes(空) 恒真，会使所有 id 都算作星桥）"
+   },
+   {
+    "what": "lib/selftest.js",
+    "how": "CENTRAL 由真实死会话改为合成 id（session-00000000-…-0001）"
+   },
+   {
+    "what": "★ 测试用例耦合",
+    "how": "★ 改完一跑就红（17 PASS / 1 FAIL）：用例 星桥 fa1f9150 的稳定段与 CENTRAL 耦合 ⇒ 同步改为 星桥 00000000 ⇒ 18/18 PASS"
+   },
+   {
+    "what": "ChatModel.swift:233（iOS）",
+    "how": "原 hasPrefix(session-fa1f9150) 硬编码 ⇒ 改为按角色名判断（currentAgentInfo?.role.hasPrefix(星桥)）—— 不再依赖任何会话 id；★ 须重新编译 iOS App 才生效（登记）"
+   }
+  ],
+  "verification": [
+   "★ node --check server.js ✓ · node --check selftest.js ✓ · swiftc -parse ChatModel.swift ✓",
+   "★ 插件自测 18 PASS / 0 FAIL",
+   "★ plugin-preflight GO（B 检真挂载冒烟 pass · 生产日志零污染）"
+  ]
+ },
+ "★★_answer_3_not_complete_now_closed": {
+  "its_finding": "★ 未完成，且「完成」一词过头 —— 决定性证据是运行态（非文件内容）：launchctl print gui/501/com.dsh.cron.queue-condense 的 arguments 仍是 --to session-fa1f9150-…",
+  "★_my_self_criticism_2": "★★ 我披露了这一点却仍写「缺口已闭合」—— 披露不等于处置；正确做法是在写闭合之前先 reload，或明确标注未闭合。★ 这与本线早先裁判指出的「可见 ≠ 不被比较」同族：说明 ≠ 修好。",
+  "★_what_I_did": "★ 执行 reload（launchctl unload + load）⇒ 实测：",
+  "★_before_after": {
+   "reload 前": "session-fa1f9150-c949-401f-ba8c-d265f6221676（死会话）",
+   "reload 后": "session-e317d6ab-5302-4b33-b095-947983ba16f4（星桥v2）"
+  },
+  "★_why_I_could_do_it": "★ 该服务是 launchd 定时任务（每月 1 日 09:30），非持续运行；且 reload 完全可逆 ⇒ 不属需先批的不可逆动作，也不在用户「不重启 CLD」禁令内（不是 CLD）"
+ },
+ "★_answer_2_and_its_self_correction": {
+  "its_answer": "★ 成立（未找到反例）—— P3 index.js:147/:156 逻辑正确；A1/A9/plist 文件内已改",
+  "★_its_self_reported_error": "★ 它自曝「初读 len(j)=3 当作映射 3 条 ⇒ 读错层，已修正」⇒ 与本线「探针层级差」同族（它此前在 --json 的 use 字段上也犯过一次）",
+  "★_its_extra_finding": "★ 它另指出：server.js:298 仍以 fa1f9150 为统计键 ⇒ 若编排层已改指 v2，该统计恒为 0 ⇒ 已由本轮修复"
+ },
+ "★_final_full_rescan": {
+  "method": "逐文件扫 fa1f9150，并区分注释/非注释",
+  "all_clean": [
+   "A8 server.js：非注释 0 ✅（剩 2 处为说明注释）",
+   "A9 main-roles.json：0 ✅",
+   "A1 agent-role-map.json：0 ✅",
+   "cron queue-condense.plist：0 ✅（且已 reload 生效）",
+   "lib/selftest.js：非注释 0 ✅",
+   "iOS ChatModel.swift：非注释 0 ✅"
+  ],
+  "two_remaining_examined": [
+   {
+    "item": "lib/index.js:147 DEAD_SESSIONS",
+    "nature": "★ 排除死会话（不是指向它）⇒ 有意保留，注释已写明 P2 完成后可删",
+    "action": "不改"
+   },
+   {
+    "item": "~/.dsh/sysops/evolve-candidates.json 2 条 owner=fa1f9150（P0 CLD 重签 · P3 Bus v0.3）",
+    "nature": "★ 查不到程序引用 ⇒ 无法证实是活引用；且为 8 位短 id（格式与 role-map 不同）",
+    "action": "★ 登记待核，不擅自改"
+   }
+  ]
+ },
+ "files": {
+  "sb-mobile/server.js": {
+   "sha256_16": "89337bc05dac10f9"
+  },
+  "agent-role-map.json": {
+   "sha256_16": "04c96f45d89dd441"
+  },
+  "main-roles.json": {
+   "sha256_16": "983ecea32afa6d2b"
+  }
+ },
+ "backups": "guard/backups/p2b-20261010-015253/（server.js · selftest.js · ChatModel.swift）",
+ "not_verified": [
+  "★ iOS App 未重新编译 ⇒ ChatModel.swift 的改动在当前 IPA 内不生效",
+  "★ evolve-candidates.json 的 owner 是否活引用未能确证",
+  "★ sb-mobile 服务未重启 ⇒ server.js 的改动当前运行实例仍用旧代码（与 plist 不同，服务是常驻的）"
+ ],
+ "r046_note": "本卡为对约束性审查三答的处置登记，不构成任何验收或裁决通过。"
+}

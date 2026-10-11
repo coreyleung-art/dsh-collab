@@ -1,0 +1,70 @@
+{
+ "schema": "voice-downlink-broken/v1",
+ "created_at": "2026-10-10T03:44:49+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★★★ 语音链路第二层故障：上行真 · 下行假（`response.output_audio.delta` 从未到达）—— **我已独立复核成立**",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:44:49+08:00",
+  "rerunCmd": "hostname"
+ },
+ "found_by": "session-0637278c-cc44-4759-89df-3de23f0fae43（卡 `notes/mac-mini/voice-audio-downlink-broken`）",
+ "★_my_role": "★ **只做了独立复核**（它是发现者与诊断者）—— 复核结论与其一致，并找到一条**更硬的证据**（见 ④）。",
+ "★★★_verdict": "★ **上行通 · 下行断** —— TCC 层已彻底排除（上行音频已到达服务端）；**当前活故障在 Seeduplex → 本地 的下行返回通道**。",
+ "★_my_independent_recheck": {
+  "①_audio bytes=0": "✅ **8 次**（`grep -c 'audio bytes=0' logs/cld-voice-duplex.log`）—— 与它报的 8/8 一致；时间 `03:42:23 / 03:42:29 / 03:42:30`",
+  "②_TTS fallback": "✅ **5 次**，且**内容可见**：`[03:42:24] TTS fallback (no-audio) -> synthesize '那你可以试试调大系统音量，或者看看是不是当前页面的声音被静音'` —— **这正是用户所描述的「模型在帮他排查」**",
+  "③_上行通": "✅ `session.create sent` → `session.created sid=…`；`voice-service.log` 侧有对应 `session … open/closed`",
+  "④_★★_更硬的证据（我补的）": {
+   "observation": "★ `grep -c 'output_audio' logs/cld-voice-duplex.log` ⇒ **0**；而 `response.done` ⇒ **45 次**",
+   "★_meaning": "★★ **`response.output_audio.delta` 一次都没出现，而 `response.done` 有 45 次** ⇒ **Seeduplex 从未发送过音频 delta 事件** ⇒ **它的定位（断点在服务端下行返回通道，而非前端/TCC）得到直接确认**"
+  }
+ },
+ "★★_a_correction_it_made_to_me_i_accept": {
+  "my_wrong_statement": "★ 我在 `data/registry/tcc-microphone-resolved` 的 `not_verified` 里写：「**音频是否真流动** —— TCC 已授权 · 音频服务已起 · 设备正常，但**是否真听到声音只有用户能答**」",
+  "★_its_correction": "★ 「**不，后半句不成立：音频是否流动是可客观测的** —— 查 voice-service 与 duplex_bridge 的服务日志即可，**无需用户回答**。」",
+  "★_it_was_right": "★★ **它是对的，我已复核** —— 音频流的存在与否**是客观事实**，**服务端计数就在日志里**（`this-response audio bytes=N`）。",
+  "★_my_root_cause": "★★ **我把「用户的主观感受（听不听得到）」与「音频流的客观存在」混为一谈** —— **与今晚反复出现的「以代理代替实体」同族**（**主观代理替代客观实体**）。（同族：`ps` 的 argv 被当映像 · 关键词匹配被当归属 · 绿灯被当无待办 · 产物被当源）"
+ },
+ "★_the_live_fault_detail": {
+  "下行断": "`audio_done, this-response audio bytes=0`（8 次）· **fallback 兜底 5 次亦无效**（下一轮依旧 0）",
+  "已排除": [
+   "**TCC**（上行已到达 ⇒ 麦克风授权已彻底排除）",
+   "**前端**（计数在**后端**记录 ⇒ AudioContext/解锁/音量都无法解释）",
+   "**环境**：`minimax_tts` 可导入 ✅ · `MINIMAX_API_KEY` 可解析（**125 字符**，我已独立复核）✅ · err 日志无 TTS/minimax 报错 ✅"
+  ],
+  "代码锚点（我已复核）": "`backend/duplex_bridge.py` 的 `elif tp == \"response.output_audio.delta\":` 分支`_run_audio_bytes += len(o.get('delta','') or '')`"
+ },
+ "★_its_three_candidates": [
+  "候选①：Seeduplex 端点的**音频输出能力/配置**（模型只回文字不回音频）—— 与 err 日志无错相容（**协议层静默缺失，不报错**）",
+  "候选②：`speech_text_buffer.commit` 兜底所需的服务端支持**未开通**（5 次全无效）",
+  "候选③：**协议字段名/事件名在多版本间漂移**（该协议为**逆向所得**，历史上有过多轮 v0.3.x 修正）"
+ ],
+ "★_its_recommended_next_step": "★ 在 `response.done` 分支**落盘完整事件类型序列**（当前只记字节数）⇒ 一眼看出 Seeduplex 到底发了哪些事件 —— ★ **而这正是它提的「可观测性修复」的一项**，**现在它直接卡住了这个故障**（**可观测性不足 ⇒ 无法归因** 的实例）。",
+ "not_verified": [
+  "★ **三个候选根因均未定**（它也只列「候选」）—— 需落盘事件序列后才能定",
+  "★ 我**未查 `logs/cld-voice.launchd.log` / `.err` 是否仍为 0 字节**（它报的「块缓冲不 flush」）",
+  "★ `audio_done` 总次数 39 而 `bytes=0` 仅 8 ⇒ **有 31 次非零**，**其时间分布未查**（可能早期正常 ⇒ 可做「何时开始坏」的时间线）"
+ ],
+ "r046_note": "本卡为故障诊断复核登记，不构成任何验收或裁决通过。",
+ "★★★_更正_20261010（我的判据被推翻 · 三重证据）": {
+  "★_my_wrong_claim": "★ 我在此卡写：「**`response.output_audio.delta` = 0 次 ⇒ Seeduplex 从未发送过音频 delta 事件**」并称那是「**更硬的证据**」。",
+  "★★_it_is_FAILED（三重证据）": {
+   "①_日志无该词": "`grep -c output_audio logs/cld-voice-duplex.log` = **0** —— ★ **但那是「日志不写这个词」，不是「没有音频」**",
+   "②_★_正向反例（决定性）": "★ **同一文件里有 33 条非零音频**：`bytes=775984 / 752604 / 663068 / 621340 / 597392 / 579072 …` ⇒ **非零 33 条 vs 零 12 条**",
+   "③_源码层": "★ `output_audio` 仅出现在**分支判断**（`duplex_bridge.py:298/305` 的 `elif tp == …`），**不在 `blog()` 的字面量里** ⇒ **它永远不会出现在日志中**"
+  },
+  "★★_root_cause_of_MY_error": "★★ **我得到 0 之后直接下结论，没有做「仪器自检」** —— 即**没有验证「该判据在【有音频时】会非零」**。⇒ 这正是「**探针失效**」的经典形态：**判据恒为同一个值，所以它不携带信息**。",
+  "★_the_irony": "★ `session-0637278c` **早先刚提醒过我「仪器失明」**（其 `timeout` 不是 macOS 原生命令那次）——**我记录了那条教训，却在同一晚犯了同族错误**（判据恒 0 ⇒ 空集通过）。★ 这与 R006 第 3 句口诀「**读不到实参会空集通过**」同源，此处变体为「**读不到关键词会空集通过**」。"
+ },
+ "★★★_真因已定位（它自我撤回两次后的最终结论）": {
+  "★_its_two_prior_retractions": [
+   "★ **第一次撤回**：「Seeduplex 本账号只回文本」（**已证伪** —— 直连实测 363,464 字节）",
+   "★ **第二次撤回**：「前端对话中不发 commit」（**它自己撤回**）"
+  ],
+  "★_最终真因": "★★ **并发 Seeduplex 会话导致 audio delta 静默丢失** —— **单会话 5/5 成功 · 双并发全 0**（卡 `notes/mac-mini/voice-downlink-rootcause-corrected`）",
+  "★_significance": "★ 这是**第三次**修正该故障的根因，且**每次都伴随「撤回上一次结论」** ⇒ ★ **证据强度递增**（单会话 vs 并发的对照实验是**受控隔离**）",
+  "★_my_role_addendum": "★ 我在此线的角色是**独立复核者**，而我的一次复核（output_audio=0）**被证明是仪器失明** ⇒ **复核者也会带仪器缺陷** —— 故「复核」本身也须被复核（R046 的自审无效原则的延伸）"
+ }
+}

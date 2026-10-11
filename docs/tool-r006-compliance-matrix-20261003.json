@@ -1,0 +1,2505 @@
+{
+ "generatedAt": "2026-10-02T19:04:29.003Z",
+ "total": 273,
+ "compliant": 273,
+ "excludedBackupDirs": true,
+ "caliberNote": "独立脚本口径=版本常量+中文文档（CHANGELOG 在 README 显式声明偏离）；.bak 备份目录不计入",
+ "items": [
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-cldvoice",
+   "version": "0.6.1",
+   "changelog": true,
+   "cnDocs": 596,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-agent-bus",
+   "version": "1.5.9",
+   "changelog": true,
+   "cnDocs": 1776,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-bb-card-send",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 726,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-bus-queue-triage",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 908,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-central-inbox",
+   "version": "0.2.5",
+   "changelog": true,
+   "cnDocs": 558,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-channel-gate",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 321,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-dock-cards",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 314,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-drift-scan",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 256,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-excalidraw",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 414,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-files",
+   "version": "0.2.0",
+   "changelog": true,
+   "cnDocs": 644,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-flower-cockpit",
+   "version": "0.2.0",
+   "changelog": true,
+   "cnDocs": 370,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-guard",
+   "version": "0.1.1",
+   "changelog": true,
+   "cnDocs": 558,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-harness-updater",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 363,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-hr",
+   "version": "0.2.0",
+   "changelog": true,
+   "cnDocs": 388,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-knowledge-tools",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 358,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-launchd-scan",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 678,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-local-projects",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 388,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-mcp-station",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 375,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-md-preview",
+   "version": "0.1.1",
+   "changelog": true,
+   "cnDocs": 421,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-my-brand",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 442,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-openchronicle",
+   "version": "0.1.4",
+   "changelog": true,
+   "cnDocs": 546,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-openpencil",
+   "version": "0.1.0-rc.1",
+   "changelog": true,
+   "cnDocs": 324,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-repo-pipeline",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 384,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-research",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 374,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-sandbox-policy-ui",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 407,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-ui-spec",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 314,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-voice",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 438,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-waimai",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 412,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-wargame-sim",
+   "version": "0.1.1",
+   "changelog": true,
+   "cnDocs": 412,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-workflow",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 584,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "plugin",
+   "name": "dsh-plugin-workflow-capture",
+   "version": "0.1.0",
+   "changelog": true,
+   "cnDocs": 371,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "absence-claim-lint.py",
+   "version": "3.13.0",
+   "cnDocs": 548,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "agent-send-gate.py",
+   "version": "1.0.0",
+   "cnDocs": 512,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "apply-findings.py",
+   "version": "1.0.0",
+   "cnDocs": 514,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "approval-tier.py",
+   "version": "1.0.0",
+   "cnDocs": 452,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "archived-daily-review-group.py",
+   "version": "1.0.0",
+   "cnDocs": 433,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "assertion-set-consistency.py",
+   "version": "1.0.0",
+   "cnDocs": 522,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "audience-check.py",
+   "version": "1.0.0",
+   "cnDocs": 532,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "audit-snapshot.py",
+   "version": "1.0.0",
+   "cnDocs": 518,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "backup-chain-retest.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-absorb-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 500,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-absorb.py",
+   "version": "1.0.0",
+   "cnDocs": 486,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-asset-relations.py",
+   "version": "1.0.0",
+   "cnDocs": 459,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-content-check.py",
+   "version": "1.0.0",
+   "cnDocs": 448,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-create.py",
+   "version": "1.0.0",
+   "cnDocs": 502,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-dialog.py",
+   "version": "1.0.0",
+   "cnDocs": 433,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-gallery.py",
+   "version": "1.0.0",
+   "cnDocs": 502,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-generalize.py",
+   "version": "1.0.0",
+   "cnDocs": 515,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-ingest.py",
+   "version": "1.0.0",
+   "cnDocs": 534,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-integrity.py",
+   "version": "1.0.0",
+   "cnDocs": 466,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-registry.py",
+   "version": "1.0.0",
+   "cnDocs": 504,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-shell.py",
+   "version": "1.0.0",
+   "cnDocs": 489,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-ui.py",
+   "version": "1.0.0",
+   "cnDocs": 453,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-ui2.py",
+   "version": "1.0.0",
+   "cnDocs": 465,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint-version.py",
+   "version": "1.0.0",
+   "cnDocs": 504,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint.py",
+   "version": "1.0.0",
+   "cnDocs": 486,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-blueprint2.py",
+   "version": "1.0.0",
+   "cnDocs": 493,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-bp-register.py",
+   "version": "1.0.0",
+   "cnDocs": 515,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-card-put.py",
+   "version": "1.0.3",
+   "cnDocs": 574,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-channel.py",
+   "version": "1.0.0",
+   "cnDocs": 482,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-connect-execute.py",
+   "version": "1.0.0",
+   "cnDocs": 460,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-connect-lab.py",
+   "version": "1.0.0",
+   "cnDocs": 460,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-copy.py",
+   "version": "1.0.109",
+   "cnDocs": 541,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-dashboard.py",
+   "version": "1.0.0",
+   "cnDocs": 468,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-dispatch-learn.py",
+   "version": "1.0.0",
+   "cnDocs": 507,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-dispatch.py",
+   "version": "1.0.0",
+   "cnDocs": 484,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-gallery-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 475,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-gallery-export-selftest.py",
+   "version": "1.0.0",
+   "cnDocs": 528,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-gallery-export.py",
+   "version": "1.0.0",
+   "cnDocs": 453,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-gallery-gate.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-gate.py",
+   "version": "1.0.0",
+   "cnDocs": 473,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-handshake.py",
+   "version": "1.0.0",
+   "cnDocs": 484,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-list.py",
+   "version": "1.0.0",
+   "cnDocs": 515,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-mgr-events.py",
+   "version": "1.0.0",
+   "cnDocs": 452,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-milestone-report.py",
+   "version": "1.0.0",
+   "cnDocs": 522,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-plan-scanner.py",
+   "version": "1.0.0",
+   "cnDocs": 461,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-prep-learn.py",
+   "version": "1.0.0",
+   "cnDocs": 538,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-prep-research.py",
+   "version": "1.0.0",
+   "cnDocs": 534,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-protocol-register.py",
+   "version": "1.0.0",
+   "cnDocs": 420,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-protocol-runner.py",
+   "version": "1.0.0",
+   "cnDocs": 470,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-put-both.py",
+   "version": "1.0.0",
+   "cnDocs": 556,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-put-verify.py",
+   "version": "1.0.0",
+   "cnDocs": 552,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-read.py",
+   "version": "1.0.0",
+   "cnDocs": 483,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-recon.py",
+   "version": "1.0.0",
+   "cnDocs": 552,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-request-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 487,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-reuse-check.py",
+   "version": "1.0.0",
+   "cnDocs": 479,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-schema-gate.py",
+   "version": "1.0.0",
+   "cnDocs": 471,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-send-check.py",
+   "version": "3.0.0",
+   "cnDocs": 492,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-share.py",
+   "version": "1.0.0",
+   "cnDocs": 495,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-sub-daemon.py",
+   "version": "1.0.0",
+   "cnDocs": 453,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-sub-gen.py",
+   "version": "1.0.0",
+   "cnDocs": 471,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-taskboard.py",
+   "version": "1.0.0",
+   "cnDocs": 507,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-todo-eval.py",
+   "version": "1.0.0",
+   "cnDocs": 489,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-toolize.py",
+   "version": "1.0.0",
+   "cnDocs": 462,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-upgrade.py",
+   "version": "1.0.0",
+   "cnDocs": 486,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-waimai-mcp-core.py",
+   "version": "1.0.0",
+   "cnDocs": 435,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-workbench.py",
+   "version": "1.0.0",
+   "cnDocs": 522,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bb-write.py",
+   "version": "1.7.3",
+   "cnDocs": 473,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "binding-check.py",
+   "version": "1.0.0",
+   "cnDocs": 540,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "blackboard-deploy-068.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "blackboard-events.py",
+   "version": "1.0.0",
+   "cnDocs": 450,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "blackboard-server-v0.5.py",
+   "version": "1.0.0",
+   "cnDocs": 506,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "blackboard-server-v0.6.py",
+   "version": "1.0.0",
+   "cnDocs": 479,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "blackboard-subscribe.py",
+   "version": "1.0.0",
+   "cnDocs": 461,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bus-capture.py",
+   "version": "1.0.0",
+   "cnDocs": 486,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bus-dup-classify.py",
+   "version": "1.0.0",
+   "cnDocs": 566,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bus-queue-triage.js",
+   "version": "1.0.0",
+   "cnDocs": 923,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "bus-send.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-compliance-check.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-replay-daily.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-replay-v0.1.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-replay-v0.2.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-replay-week.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cahac-replay.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "card-json-check-selftest.py",
+   "version": "1.0.0",
+   "cnDocs": 413,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "card-json-check.py",
+   "version": "1.0.0",
+   "cnDocs": 413,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "catchall-scan.py",
+   "version": "1.0.0",
+   "cnDocs": 559,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "central-wake.py",
+   "version": "1.0.0",
+   "cnDocs": 472,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "channel-audit.py",
+   "version": "0.1.0",
+   "cnDocs": 494,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "channel-gate-weekly.py",
+   "version": "1.0.0",
+   "cnDocs": 453,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "check-key-refs.py",
+   "version": "1.0.0",
+   "cnDocs": 520,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "checks-transfer.py",
+   "version": "1.0.0",
+   "cnDocs": 488,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "citation-stale-check.py",
+   "version": "2.1.0",
+   "cnDocs": 534,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cld-restart-autotest.py",
+   "version": "1.0.0",
+   "cnDocs": 466,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cld-shell-sandbox-test.py",
+   "version": "1.0.0",
+   "cnDocs": 489,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "clean-external.py",
+   "version": "1.0.0",
+   "cnDocs": 478,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "comm-invariant-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 543,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "concept-dict.py",
+   "version": "1.0.0",
+   "cnDocs": 513,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "consistency-scan.py",
+   "version": "1.0.0",
+   "cnDocs": 459,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "convention-lean4-check.py",
+   "version": "1.0.0",
+   "cnDocs": 484,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "convention-pr.py",
+   "version": "1.0.0",
+   "cnDocs": 440,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "cordis-crash-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 478,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "coverage-audit.py",
+   "version": "0.2.0",
+   "cnDocs": 484,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "credential-residual-probe.py",
+   "version": "1.0.0",
+   "cnDocs": 556,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "daily-brief.py",
+   "version": "1.0.0",
+   "cnDocs": 442,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "datadir-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 527,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "datadir-job-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 546,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "deliver-gate.py",
+   "version": "1.0.0",
+   "cnDocs": 510,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "deliver.py",
+   "version": "1.0.0",
+   "cnDocs": 483,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "dependency-audit.py",
+   "version": "0.1.0",
+   "cnDocs": 475,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "deposit-judge.py",
+   "version": "1.0.0",
+   "cnDocs": 504,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "deposit-reflow.py",
+   "version": "1.0.0",
+   "cnDocs": 465,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "dev-sandbox.py",
+   "version": "1.0.0",
+   "cnDocs": 502,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "device-audit.py",
+   "version": "0.6.0",
+   "cnDocs": 491,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "doc-cn-check.py",
+   "version": "1.0.0",
+   "cnDocs": 480,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "drift-scan-cron.py",
+   "version": "1.0.0",
+   "cnDocs": 443,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "dup-skeleton-selftest.py",
+   "version": "1.0.0",
+   "cnDocs": 533,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "dup-skeleton.py",
+   "version": "1.0.0",
+   "cnDocs": 560,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "entry-coverage.py",
+   "version": "1.0.0",
+   "cnDocs": 531,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "event-bus.py",
+   "version": "1.0.0",
+   "cnDocs": 443,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "export-marker.py",
+   "version": "1.0.0",
+   "cnDocs": 475,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "fix-card-quotes.py",
+   "version": "1.0.0",
+   "cnDocs": 548,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-auditor.py",
+   "version": "1.0.0",
+   "cnDocs": 512,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-conformance.py",
+   "version": "1.0.0",
+   "cnDocs": 514,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-deploy-check.py",
+   "version": "1.0.0",
+   "cnDocs": 524,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-j23-lean4.py",
+   "version": "1.0.0",
+   "cnDocs": 459,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-j24-lean4.py",
+   "version": "1.0.0",
+   "cnDocs": 463,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gate-repairer.py",
+   "version": "3.0.0",
+   "cnDocs": 547,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gateway-security-check.py",
+   "version": "1.0.0",
+   "cnDocs": 434,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "gen-paper-summaries.py",
+   "version": "1.0.0",
+   "cnDocs": 449,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "genebank-server.py",
+   "version": "1.0.0",
+   "cnDocs": 462,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "ghost-session-scan.py",
+   "version": "1.1.0",
+   "cnDocs": 516,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "group-gate.py",
+   "version": "1.0.0",
+   "cnDocs": 465,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "i9-chat-10min.py",
+   "version": "1.0.0",
+   "cnDocs": 434,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "i9-monitor-sub.py",
+   "version": "1.0.0",
+   "cnDocs": 472,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "i9-poll-seconds.py",
+   "version": "1.0.0",
+   "cnDocs": 423,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "identity-graph-gui.py",
+   "version": "1.0.0",
+   "cnDocs": 461,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "identity-graph.py",
+   "version": "1.0.0",
+   "cnDocs": 496,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "inbound-log.py",
+   "version": "1.0.0",
+   "cnDocs": 533,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "inplace-pointer-audit.py",
+   "version": "2.0.0",
+   "cnDocs": 559,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "instance-ref-lint.py",
+   "version": "1.0.0",
+   "cnDocs": 564,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "kb-genebank-sync.py",
+   "version": "1.0.0",
+   "cnDocs": 519,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "kb-genebank-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 490,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "kb-health.py",
+   "version": "1.0.0",
+   "cnDocs": 423,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "kb-incremental.py",
+   "version": "1.0.0",
+   "cnDocs": 432,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "kb-index-gen.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "l3-semantic-check.py",
+   "version": "1.0.0",
+   "cnDocs": 494,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "local-router.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "lock-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 498,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mac-mini-inbox-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 486,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mbp-log-guard.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mbp-memory-vectorize.py",
+   "version": "1.0.0",
+   "cnDocs": 426,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mbp-session-inventory.py",
+   "version": "1.0.0",
+   "cnDocs": 448,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "meeting-verify.py",
+   "version": "1.0.0",
+   "cnDocs": 530,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mem-scope.py",
+   "version": "1.3.5",
+   "cnDocs": 470,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "merge-wg100.py",
+   "version": "1.0.0",
+   "cnDocs": 418,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mlx-data-prep.py",
+   "version": "1.0.0",
+   "cnDocs": 469,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "mlx-evaluate.py",
+   "version": "1.0.0",
+   "cnDocs": 448,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "msg-count-lint.py",
+   "version": "1.0.0",
+   "cnDocs": 559,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "node-agent.py",
+   "version": "1.0.0",
+   "cnDocs": 419,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "node-executor.py",
+   "version": "1.0.0",
+   "cnDocs": 512,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "node-join-notify.py",
+   "version": "1.0.0",
+   "cnDocs": 449,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "node-onboard-gui.py",
+   "version": "1.0.0",
+   "cnDocs": 454,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "node-reply-monitor.py",
+   "version": "1.0.0",
+   "cnDocs": 453,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "panel-event-adapter.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "paper-fetch.py",
+   "version": "1.0.0",
+   "cnDocs": 436,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "pitfalls-cli.py",
+   "version": "1.0.0",
+   "cnDocs": 461,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "plugin-preflight.py",
+   "version": "1.0.0",
+   "cnDocs": 546,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "pollution-scanner.py",
+   "version": "1.0.0",
+   "cnDocs": 522,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "post-restart-acceptance.py",
+   "version": "1.0.0",
+   "cnDocs": 461,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "pre-delete-archaeology.py",
+   "version": "1.0.0",
+   "cnDocs": 506,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "pre-transfer-check.py",
+   "version": "1.0.0",
+   "cnDocs": 480,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "preset-fit.py",
+   "version": "1.0.0",
+   "cnDocs": 503,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "profile-sync-check.py",
+   "version": "1.0.0",
+   "cnDocs": 488,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "progress-idle-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 493,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "r006-index.py",
+   "version": "1.0.0",
+   "cnDocs": 472,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "r006-retrofit-scripts.js",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "r006-retrofit.js",
+   "version": "1.0.0",
+   "cnDocs": 550,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "red-team.py",
+   "version": "1.0.0",
+   "cnDocs": 500,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "require-graph.py",
+   "version": "1.0.0",
+   "cnDocs": 501,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "rescue-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 462,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "research-sink.py",
+   "version": "1.0.0",
+   "cnDocs": 460,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "resource-audit.py",
+   "version": "0.1.0",
+   "cnDocs": 472,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "restart-intent.py",
+   "version": "1.0.0",
+   "cnDocs": 437,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "restart-stress-test.py",
+   "version": "1.0.0",
+   "cnDocs": 463,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "risk-enumeration.py",
+   "version": "1.0.0",
+   "cnDocs": 472,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "role-name-check.py",
+   "version": "1.0.0",
+   "cnDocs": 469,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "role-scan.py",
+   "version": "1.0.0",
+   "cnDocs": 513,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "route-feedback-replay.py",
+   "version": "1.0.0",
+   "cnDocs": 536,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "route-feedback.py",
+   "version": "1.0.0",
+   "cnDocs": 506,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "route-learner.py",
+   "version": "1.0.0",
+   "cnDocs": 509,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "rule-audit.py",
+   "version": "0.1.0",
+   "cnDocs": 476,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "rules-integrity.py",
+   "version": "1.0.0",
+   "cnDocs": 490,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "rules-sync.py",
+   "version": "1.0.0",
+   "cnDocs": 437,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "runfour.py",
+   "version": "1.0.0",
+   "cnDocs": 497,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "scan-to-genebank.py",
+   "version": "1.0.0",
+   "cnDocs": 450,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "sedimentation-chain-scan.py",
+   "version": "1.0.0",
+   "cnDocs": 540,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "selftest-inventory.py",
+   "version": "1.0.0",
+   "cnDocs": 545,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "send-repair-report.py",
+   "version": "1.0.0",
+   "cnDocs": 487,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "server-only-e2e-test.py",
+   "version": "1.0.0",
+   "cnDocs": 517,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "session-rebirth.py",
+   "version": "1.0.0",
+   "cnDocs": 498,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "session-storage-check.js",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "speech-fix.py",
+   "version": "1.0.0",
+   "cnDocs": 448,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "stance-auditor.py",
+   "version": "1.0.0",
+   "cnDocs": 522,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "stance-derive.py",
+   "version": "1.0.0",
+   "cnDocs": 500,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "stance-line-review.py",
+   "version": "1.0.0",
+   "cnDocs": 517,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "stance-redact.py",
+   "version": "1.0.0",
+   "cnDocs": 404,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "subagent-audit.py",
+   "version": "1.1.0",
+   "cnDocs": 508,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "subagent-govern.py",
+   "version": "1.0.0",
+   "cnDocs": 490,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "systemgraph-publish.sh",
+   "version": "1.0.0",
+   "cnDocs": 394,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "table-integrity-check.py",
+   "version": "1.0.0",
+   "cnDocs": 511,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "task-card-expander.py",
+   "version": "1.0.0",
+   "cnDocs": 508,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "task-card-validator.py",
+   "version": "1.0.0",
+   "cnDocs": 488,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "task-handoff.py",
+   "version": "1.0.0",
+   "cnDocs": 454,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "tech-choice-evaluator.py",
+   "version": "1.0.0",
+   "cnDocs": 558,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "thread-fork-audit.py",
+   "version": "1.12.0",
+   "cnDocs": 533,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "tier-gate-test.py",
+   "version": "1.0.0",
+   "cnDocs": 428,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "token-monitor.py",
+   "version": "1.0.0",
+   "cnDocs": 409,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "token-roi-review.py",
+   "version": "1.0.0",
+   "cnDocs": 440,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "ts-not-future-check.py",
+   "version": "1.0.0",
+   "cnDocs": 577,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "unit-review.py",
+   "version": "1.0.0",
+   "cnDocs": 477,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "upgrade-replay.py",
+   "version": "1.0.0",
+   "cnDocs": 484,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "user-direction-scan.py",
+   "version": "1.0.0",
+   "cnDocs": 508,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "verification-level-lint.py",
+   "version": "2.0.0",
+   "cnDocs": 552,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "verify-deploy.py",
+   "version": "1.0.0",
+   "cnDocs": 462,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "verify-ui.py",
+   "version": "1.0.0",
+   "cnDocs": 490,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "verify-watch.py",
+   "version": "1.0.0",
+   "cnDocs": 536,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "waimai-audit.py",
+   "version": "1.0.0",
+   "cnDocs": 481,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "waimai-erp-import.py",
+   "version": "1.0.0",
+   "cnDocs": 465,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "waimai-replay.py",
+   "version": "1.0.0",
+   "cnDocs": 458,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "wargame-engine.py",
+   "version": "1.0.0",
+   "cnDocs": 490,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "wargame-sim.py",
+   "version": "1.0.0",
+   "cnDocs": 504,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "wargame.py",
+   "version": "1.0.0",
+   "cnDocs": 505,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "weekly-summary.py",
+   "version": "1.0.0",
+   "cnDocs": 389,
+   "cli": true,
+   "selfcheck": false,
+   "gaps": []
+  },
+  {
+   "kind": "script",
+   "name": "work-progress-check.py",
+   "version": "1.0.0",
+   "cnDocs": 536,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-assert-audit",
+   "version": "1.1.0",
+   "changelog": true,
+   "cnDocs": 1282,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-cldvoice-activate",
+   "version": "1.0.2",
+   "changelog": true,
+   "cnDocs": 1313,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 710,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect-collect",
+   "version": "1.1.3",
+   "changelog": true,
+   "cnDocs": 4619,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect-dispatch",
+   "version": "1.1.2",
+   "changelog": true,
+   "cnDocs": 4429,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect-enroll",
+   "version": "1.3.0",
+   "changelog": true,
+   "cnDocs": 4330,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect-harvest",
+   "version": "1.1.1",
+   "changelog": true,
+   "cnDocs": 3877,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  },
+  {
+   "kind": "device-plugin",
+   "name": "dsh-plugin-reflect-synthesize",
+   "version": "1.0.0",
+   "changelog": true,
+   "cnDocs": 2932,
+   "cli": true,
+   "selfcheck": true,
+   "gaps": []
+  }
+ ]
+}

@@ -1,0 +1,55 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-10-08T18:49:19.081Z",
+  "source": "inbox",
+  "dir": "/Users/coreyleung/.dsh/inbox",
+  "max_age_days": 7,
+  "total": 2642,
+  "tally": {
+    "closed": 3,
+    "stale": 2,
+    "open": 397,
+    "unknown": 135,
+    "n/a": 2105
+  },
+  "shape_tally": {
+    "action": 433,
+    "record": 1396,
+    "feed": 709,
+    "ack": 3,
+    "unknown": 101
+  },
+  "note": "本索引用途：**以后先查此处** —— 命中者不必再逐条查看。\nclosed = 显式关闭声明或已见回复（通道 A/B）；stale = 超窗/已被取代（疑似过期，须核依赖后才能关闭）。\nunknown ≠ 已关闭：它是【判不了】（缺字段/缺时刻/通道不可见）⇒ 须补字段。\n★ 盲区：本插件只看条目本身 + 可见线程。看不到：只发在线程里未落盘的回复 /\n  我未参与的线程 / 未持久化的会话。⇒ open = 【无关闭声明且无可见回复】，\n  不等于【确定仍有未决待办】。",
+  "items": [
+    {
+      "file": "ack-collect-correction-20260910.json",
+      "state": "closed",
+      "channel": "status:status",
+      "why": "状态类字段 status 命中关闭词「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "ack-collect-paging-20260910.json",
+      "state": "closed",
+      "channel": "status:status",
+      "why": "状态类字段 status 命中关闭词「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "ack-dispatch-correction-20260910.json",
+      "state": "closed",
+      "channel": "status:status",
+      "why": "状态类字段 status 命中关闭词「不需再动」⇒ 作者已声明不必再管"
+    },
+    {
+      "file": "bus-sem-reply-req-15323663.json",
+      "state": "stale",
+      "channel": null,
+      "why": "动作项超窗：距今 29.7 天 > 窗 7 天（窗值已打印） ⇒ 疑似过期；须核其依赖是否已解决后才可关闭"
+    },
+    {
+      "file": "laodeng-i9-backfill-done-20260908.json",
+      "state": "stale",
+      "channel": null,
+      "why": "动作项超窗：距今 30.5 天 > 窗 7 天（窗值已打印） ⇒ 疑似过期；须核其依赖是否已解决后才可关闭"
+    }
+  ]
+}

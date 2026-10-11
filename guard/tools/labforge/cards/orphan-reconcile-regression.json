@@ -1,0 +1,44 @@
+{
+  "id": "orphan-reconcile-regression",
+  "title": "孤儿 tool_calls 视图修复回归（生产修复登记）",
+  "goal": "把孤儿 tool_calls 续跑卡死修复（dsh-agent-loop reconcile 补丁）登记为可回归实验：任何会话副本经视图修复后不应残留未配对 assistant tool_calls",
+  "hypothesis": "H1: 明鉴会话历史快照含孤儿(修复前 orphanBefore>0)——证明问题曾在生产中真实存在；H2: reconcile 后孤儿清零(noOrphanAfter=true)；H3: 健康会话零注入(健康样本 injected=0 无副作用)",
+  "kind": "correctness",
+  "runner": "runner-correctness",
+  "data": [
+    "real-f38244df.zstd",
+    "real-e7bfeea8.zstd"
+  ],
+  "params": {},
+  "assertions": [
+    {
+      "id": "C1-no-orphan-after",
+      "metric": "noOrphanAfter",
+      "op": "eq",
+      "target": true,
+      "desc": "视图修复后无残留孤儿(序列合法可续跑)"
+    },
+    {
+      "id": "C2-problem-confirmed",
+      "metric": "totalOrphanBefore",
+      "op": "gt",
+      "target": 0,
+      "desc": "生产样本确含孤儿(修复必要性实证)"
+    }
+  ],
+  "status": "pass",
+  "created": "2026-09-05T06:10:00.000Z",
+  "lastResult": {
+    "time": "2026-09-05T06:09:03.665Z",
+    "pass": 2,
+    "fail": 0,
+    "na": 0,
+    "file": "/Users/coreyleung/dsh-collab/guard/tools/labforge/results/orphan-reconcile-regression.latest.json"
+  },
+  "tags": [
+    "correctness",
+    "orphan-toolcalls",
+    "regression",
+    "runtime-patch"
+  ]
+}

@@ -32,7 +32,10 @@ window.__ModuleLoader__.load({
     const BRIDGE = "ws://127.0.0.1:8905";
 
     // ---------- 引擎状态(模块级单例) ----------
-    let eng = { open:false, rec:false, listening:false, aiTalking:false, live:'', aiLive:'', rows:[], err:null, aud:false, playing:false, errWin:'', orbStyle:'nebula', volume:1.35, pack:'zh', packs:[], clearArm:false };
+    let eng = { open:false, rec:false, listening:false, aiTalking:false, live:'', aiLive:'', rows:[], err:null, aud:false, playing:false, errWin:'', orbStyle:'nebula', volume:1.35, pack:'zh', packs:[], clearArm:false,
+      // 2026-10-10 迭代：成稿改为「先看/先改/再采用」，不再一点就发出去
+      draftText:'', draftPrev:'', draftId:'', draftNote:'', draftBusy:false, note:'',
+      autoSend:(function(){ try{ const v=localStorage.getItem('cldvoice_autosend'); return v==='1'; }catch(e){ return false; } })() };
     const ls = new Set();
     function setEng(p){ eng = Object.assign({}, eng, p); for (const f of ls) f(); }
     function useEng(){ const [,b]=React.useState(0); React.useEffect(()=>{ const f=()=>b(x=>x+1); ls.add(f); return ()=>ls.delete(f); },[]); return eng; }
@@ -50,6 +53,26 @@ window.__ModuleLoader__.load({
     // 修复"没声音"(根因): 每个 audio_delta 分片的 b64 各自带 '=' padding, 整段拼接后再 atob 会抛 Invalid character
     //   → flushAi 静默失败, 400KB+ 音频全丢. 改为**逐片解码**累积 Float32, 播放时直接分段. 15/15 分片各自可解.
     let ws=null, actx=null, proc=null, muteG=null, aiBuf='', userFinal='';
+    // ---------- v0.8.0: 首轮无音频 ⇒ 自动重连并回放 ----------
+    // 背景（2026-10-10 实测结论）：
+    //   · 下行音频失败呈【会话级二值】——同一会话要么整场出声、要么整场哑；
+    //     32 场会话中「部分成部分败」的混合场 = 0（9 个有机会混合的会话里 0 个混合）。
+    //   · 判别量在【服务端】：两场紧邻的会话，客户端 session.create 参数逐字相同，结果却相反；
+    //     `session.created` 全量载荷仅 3 字段（type/event_id/session.id），不含可区分信息
+    //     ⇒ 【无法预测】，只能「哑了就重开」。
+    //   · 失败率（探针样本内）约 20%/会话 ⇒ 重连 1 次命中约 80%、2 次约 96%。
+    // 设计：不回放则用户必须重说一遍；回放则「说了一次，稍等，答案自己出来」。
+    let micStream=null;       // ★ v0.8.1: 麦克风 MediaStream 引用（原来没保存 ⇒ 停止时无法释放设备）
+    let roundBuf=[];          // 本轮自上次 done 以来累计的 PCM 分片
+    let roundBufBytes=0;
+    let lastRoundBuf=[];      // 上一轮的完整分片快照（供重连回放；roundBuf 在 done 时清空）
+    let roundGotAudio=false;  // 本轮是否收到过下行音频
+    let pendingFail=false;    // 本轮已结束且无音频，正在等「兜底音频窗口」
+    let reconnTries=0;        // 本次「一句话」已重连次数
+    let reconnTimer=null;
+    const RECONN_MAX=2;                          // 最多重连 2 次（探针样本内覆盖约 96%）
+    const ROUNDBUF_CAP=16000*2*45;               // 缓存上限 45 秒 PCM（防长说不放）
+    const FALLBACK_WAIT_MS=3000;                 // ★ 等桥的 TTS 兜底窗口（见下）
     let playCtx=null;
     let playGain=null;   // 播放增益(用户可调, 默认放大补偿火山默认偏低音量)
     let playVolume=1.35; // 默认放大 1.35x, 存 localStorage
@@ -86,7 +109,43 @@ window.__ModuleLoader__.load({
     function clearHistory(){
       userFinal=''; aiBuf='';
       audDbg={rx:0, played:0, err:''};
-      setEng({rows:[], live:'', aiLive:'', aiTalking:false, clearArm:false});
+      // ★★★ 2026-10-12 用户产品决策：「点清屏算一轮，然后历史成稿自动归档」
+      //   ⇒ 清屏 = 【本轮结束】的边界，一次做完三件：
+      //     ① 成稿【自动归档】（存【当前界面文本】—— 用户可在文本框里改，按 id 归档会丢掉编辑）
+      //     ② 清空讨论（rows）
+      //     ③ 清空底稿（draftText/draftPrev/draftId）⇒ 下一轮从零起稿，不再混上一轮
+      //   ★ 归档【成败都要如实说】—— 不能说"已归档"而实际没落盘。
+      const draftText = (eng.draftText || '').trim();
+      if (draftText) {
+        setEng({ draftNote: '正在归档本轮成稿…' });
+        fetch('/voice/drafts/save', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ content: draftText, title: '语音会议记录', edited: true }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (d) {
+            setEng({ draftNote: (d && d.ok)
+              ? ('本轮已归档 · ' + (d.name || '') + ' · ' + (d.chars || 0) + ' 字 · 可在 8902/drafts 翻查')
+              : ('★ 归档失败：' + ((d && d.error) || '未知原因') + ' —— 成稿未落盘（讨论与底稿已清）') });
+          })
+          .catch(function (e) {
+            setEng({ draftNote: '★ 归档失败：' + String((e && e.message) || e) + ' —— 成稿未落盘' });
+          });
+      }
+      setEng({ rows: [], live: '', aiLive: '', aiTalking: false, clearArm: false,
+               draftText: '', draftPrev: '', draftId: '',
+               // ★ 归档是异步的，上面若已写过"正在归档…"就不要被这句覆盖掉
+               draftNote: draftText ? (eng.draftNote || '正在归档本轮成稿…') : '已清空 · 新一轮' });
+    }
+    // ★★★ 2026-10-12 加（用户实测）：
+    //   「成稿没办法清理…当我把语音的上下文对话记录清理掉之后，成稿却没有清理的地方，
+    //     这就导致我两轮对话之间的成稿会被混淆」
+    //   根因：`/api/draft` 的 base 取自 `eng.draftText`（:679），
+    //         而 `clearHistory()` 只清 rows、**不清 draftText**
+    //         ⇒ 清掉讨论后，下一轮成稿【仍以旧成稿为底稿做增量修订】⇒ 两轮混淆。
+    //   ⇒ 提供独立的「清成稿」入口：只清成稿，不动讨论（两者生命周期本就不同）。
+    function clearDraft(){
+      setEng({draftText:'', draftPrev:'', draftId:'', draftNote:'成稿已清空 · 下一轮将从零起稿，不再沿用旧底稿'});
     }
     function armClear(){
       if(eng.clearArm){                       // 第二次点击 → 真清
@@ -104,7 +163,7 @@ window.__ModuleLoader__.load({
     const micEnergyDisp={current:0};
     function ensurePlay(){
       if(!playCtx){
-        try{ playCtx=new AudioContext({sampleRate:24000}); }
+        try{ playCtx=new AudioContext(); }
         catch(e){ audDbg.err='newCtx:'+String(e.message||e); return null; }
       }
       if(!playGain){ try{ playGain=playCtx.createGain(); playGain.gain.value=playVolume; playGain.connect(playCtx.destination); }catch(e){} }
@@ -135,6 +194,13 @@ window.__ModuleLoader__.load({
       if(proc){try{proc.disconnect();}catch(e){} proc=null;}
       if(muteG){try{muteG.disconnect();}catch(e){} muteG=null;}
       if(actx){try{actx.close();}catch(e){} actx=null;}
+      // ★ v0.8.1 修（用户报「没点说话也在收录 / 上轮没正常关闭，只是按钮变了」）：
+      //   原实现只断开了音频处理链路、关掉了 AudioContext，**从未释放麦克风设备本身**
+      //   （startMic 拿到 MediaStream 后没保存引用，track 永远停不掉）。
+      //   后果：macOS 侧麦克风一直被本进程占用（指示灯常亮），
+      //         按钮变回「● 说话」只代表【不再把音频发给桥】，不代表设备已释放。
+      //   本域四份语音入口对照：dsh-plugin-voice 有 getTracks() 释放，本插件此前 0 处。
+      if(micStream){ try{ micStream.getTracks().forEach(t=>t.stop()); }catch(e){} micStream=null; }
       aiSamples=[]; aiBuf='';
     }
     function startMic(cb){
@@ -143,6 +209,7 @@ window.__ModuleLoader__.load({
       return navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation:true, noiseSuppression:true, autoGainControl:true }
       }).then(st=>{
+        micStream=st;                    // ★ v0.8.1: 保存引用，供停止时释放
         actx=new AudioContext({sampleRate:16000});
         const src=actx.createMediaStreamSource(st);
         proc=actx.createScriptProcessor(2048,1,1);
@@ -208,60 +275,522 @@ window.__ModuleLoader__.load({
           userFinal+=d.delta; setEng({live:userFinal, aiTalking:false});
         }
         else if(d.type==='text_delta'){ setEng({aiLive:eng.aiLive+d.delta}); }
-        else if(d.type==='audio_delta'){ eng.aiTalking=true; playAi(d.audio); }
+        else if(d.type==='audio_delta'){
+          roundGotAudio=true;
+          // ★ 兜底音频在窗口内到达 ⇒ 取消重连判定（这一轮其实是好的）
+          if(pendingFail){ pendingFail=false; if(reconnTimer){ clearTimeout(reconnTimer); reconnTimer=null; } }
+          eng.aiTalking=true; playAi(d.audio);
+        }
         else if(d.type==='audio_done'){ flushAi(); setEng({aiTalking:false,listening:true}); }
         else if(d.type==='done'){
           flushAi();
+          // ★ v0.8.0: 本轮结束。
+          //   ① 先照常落行（**绝不因重连而吞掉内容** —— 这是受控对照发现的第一版缺陷：
+          //      原实现在无音频时直接 return，把正常轮次的内容也吞了，测试 5 项全败）。
+          //   ② 再判断是否要等「兜底窗口」；无音频时把本轮分片存为快照，供可能的重连回放。
           const rows=eng.rows;
-          if(userFinal.trim()) rows.push({role:'user',text:userFinal.trim()});
-          if(eng.aiLive.trim()) rows.push({role:'ai',text:eng.aiLive.trim()});
-          setEng({rows, live:'', aiLive:'', aiTalking:false, listening:true});
+          // ★ P3 + 对话态（B/C）：优先级 = 结束对话 > 说「发给X」 > 对话态直投 > 常规落行
+          //   · 说「结束对话」⇒ 退出对话态
+          //   · 说「发给 X：内容」⇒ 投递（成功后由 sendToNamedSession 自动进入对话态 = B）
+          //   · 已在对话态且非上述 ⇒ 【直接投给目标】，不必每次再说「发给 X」
+          {
+            const _txt = String(userFinal || '').trim();
+            if (_txt && /结束对话|退出对话/.test(_txt)) {
+              exitTalk('已退出对话态');
+              userFinal = ''; eng.aiLive = '';
+            } else {
+              const _t = parseSendTarget(_txt);
+              if (_t) {
+                sendToNamedSession(_t.name, _t.body, '');
+                userFinal = ''; eng.aiLive = '';
+              } else if (talkTarget && _txt) {
+                sendToTalk(_txt);
+                userFinal = ''; eng.aiLive = '';
+              }
+            }
+          }
+          if(userFinal.trim()) rows.push({role:'user',text:userFinal.trim(),at:Date.now()});   // ★ at=真实发生时刻（修「所有轮次同一时刻」）
+          if(eng.aiLive.trim()) rows.push({role:'ai',text:eng.aiLive.trim(),at:Date.now()});
+          setEng({rows, live:'', aiLive:'', aiTalking:false, listening:true, note:null});
           userFinal='';
+          if(!roundGotAudio && eng.rec){
+            lastRoundBuf=roundBuf.slice();      // 快照本轮音频（重连时回放用）
+            roundBuf=[]; roundBufBytes=0;       // 本轮分片已入快照，清空以便下一轮独立累计
+            scheduleReconnectCheck();           // 不立即重连，先等兜底窗口
+          } else {
+            resetRound();
+          }
         } else if(d.type==='err'){ setEng({err:d.msg, rec:false}); }
       }catch(e){ audDbg.err='onmsg:'+String((e&&e.message)||e); }
     }
-    function toggleRec(){
-      // 必须在用户手势(点●)内同步 create+resume playCtx, 否则 Chromium autoplay 把它挂起 → 无声
-      ensurePlay();
-      if(eng.rec){ // 停止并触发 AI 收尾
-        if(ws&&ws.readyState===1){ try{ws.send(JSON.stringify({type:'commit'}));}catch(e){} }
-        stopAudio();
-        setTimeout(()=>{try{ws&&ws.close();}catch(e){} ws=null; setEng({rec:false,listening:false,aiTalking:false});},1200);
-        return;
-      }
-      setEng({rec:true,listening:false,err:null});
+    // v0.8.0: 抽出 openWs —— 初次连接与【重连】共用。
+    //   reuseMic=true 时不重启麦克风（重连场景麦克风仍在跑，重启会得到第二条流）
+    function openWs(opts){
+      opts=opts||{};
       try{ ws=new WebSocket(bridgeUrl()); }catch(e){ setEng({err:'桥连接失败',rec:false}); return; }
       ws.binaryType='arraybuffer';
       ws.onmessage=onBridgeMsg;
       ws.onerror=()=>setEng({err:'无法连接语音桥(8905)',rec:false});
       ws.onopen=()=>{
-        startMic(buf=>{ if(ws&&ws.readyState===1){ try{ws.send(buf);}catch(e){} } })
-          .then(()=>setEng({listening:true}))
+        if(opts.reuseMic){ if(opts.onReady) opts.onReady(); return; }
+        startMic(buf=>{
+          pushRoundBuf(buf);
+          if(ws&&ws.readyState===1){ try{ws.send(buf);}catch(e){} }
+        })
+          .then(()=>{ setEng({listening:true}); if(opts.onReady) opts.onReady(); })
           .catch(e=>setEng({err:'麦克风:'+String(e.message||e),rec:false}));
       };
     }
+    function pushRoundBuf(buf){
+      if(roundBufBytes>=ROUNDBUF_CAP) return;   // 超上限不再缓存（仍照常实时发送）
+      roundBuf.push(buf); roundBufBytes+=(buf&&buf.byteLength)||0;
+    }
+    // ★ v0.8.0 核心：关掉这场哑会话 → 开新会话 → 回放本轮已说的音频 → 自动补 commit。
+    //   用户无需重说。返回 false 表示已达重连上限（不再重试）。
+    function autoReconnect(){
+      if(reconnTries>=RECONN_MAX) return false;
+      reconnTries++;
+      pendingFail=false;
+      if(reconnTimer){ clearTimeout(reconnTimer); reconnTimer=null; }
+      const replay=lastRoundBuf.slice();
+      lastRoundBuf=[]; roundBuf=[]; roundBufBytes=0; roundGotAudio=false;
+      userFinal='';                                        // 旧会话的转录作废（回放后会重新转写）
+      try{ ws&&ws.close(); }catch(e){}
+      ws=null;
+      setEng({note:`本次连接未出声，已自动重连 ${reconnTries}/${RECONN_MAX} 并回放你刚说的话…`,
+              err:null, aiLive:'', live:''});
+      openWs({reuseMic:true, onReady:()=>{
+        for(const b of replay){ try{ ws.send(b); }catch(e){} }
+        try{ ws.send(JSON.stringify({type:'commit'})); }catch(e){}
+      }});
+      return true;
+    }
+    // ★ 延后判定（v0.8.0 关键修正，由受控对照发现）：
+    //   生产环境下「本轮无音频」会触发【桥的 TTS 兜底】——duplex_bridge 在 response.done 时
+    //   若发现本轮 0 字节且有文本，会发 speech_text_buffer.commit 强制合成，音频【稍后】才到。
+    //   ⇒ 不能一见到「无音频的 done」就重连，否则会把「兜底马上就要出声」的轮次误判为坏会话，
+    //     把一次正常回答变成一次多余的重连（实测：真实案例中正是这条把正常轮次判成坏的）。
+    //   ⇒ 改为：先等 FALLBACK_WAIT_MS，窗口内若音频到达则取消；仍无才重连。
+    function scheduleReconnectCheck(){
+      if(reconnTimer) clearTimeout(reconnTimer);
+      pendingFail=true;
+      reconnTimer=setTimeout(()=>{
+        reconnTimer=null;
+        if(!pendingFail) return;                    // 期间已收到音频 / 已重连
+        if(roundGotAudio){ pendingFail=false; resetRound(); return; }
+        if(!eng.rec){ pendingFail=false; return; }   // 用户已停止，不重连
+        if(reconnTries>=RECONN_MAX){
+          // ★ v0.8.0 修：重试耗尽原来是【静默放弃】——用户视角是「说了话、什么都没发生、不知为何」。
+          //   实测（复核方 n=6 + 生产日志）：失败可连片 2~3 场 ⇒ 上限用尽是真会发生的路径，不能无提示。
+          //   此处用 err（红）——它确实是失败，不是自愈过程；并给出可执行的下一步。
+          pendingFail=false; resetRound();
+          setEng({err:`连续 ${RECONN_MAX+1} 次连接都未出声（服务端故障，非本机麦克风）。请点 ⏹ 停止后重新开始。`,
+                  listening:false});
+          return;
+        }
+        autoReconnect();
+      }, FALLBACK_WAIT_MS);
+    }
+    function resetRound(){
+      pendingFail=false;
+      if(reconnTimer){ clearTimeout(reconnTimer); reconnTimer=null; }
+      roundBuf=[]; roundBufBytes=0; lastRoundBuf=[]; roundGotAudio=false; reconnTries=0;
+    }
+    // ---------- P3 定向投递（2026-10-10）----------
+    // 用户需求：唤醒/录音后说「发给<会话名>：内容」→ 投进 CLD 里那个指定会话。
+    // 解析与投递都在服务端做（名字在 CLD 会话侧，投递口在 agent-bus 侧）；
+    // 本入口只负责【识别出这句话并转发】。
+    // ---------- 对话态（2026-10-10 用户指定：B+C 都做）----------
+    // B = 说「发给 X：内容」投递成功后【自动进入】对话态（意图已明确：就是要跟它说话）
+    // C = 显式开关（面板按钮）可手动进出
+    // 对话态内：说的话【直接投给该会话】，不必每次再说「发给 X」；回话由轮询取回并念出。
+    // 退出：说「结束对话」/ 面板开关 / 投递失败。
+    let talkTarget = null;   // {id, title}
+    let talkAsk = false;
+    let talkAskBuf = '';   // 内联输入的当前值（Enter 或点确定时提交）     // ★ C 的输入态：点「进入对话态」后，在面板内联出一个输入框
 
-    // 成稿 → 注入 CLD 当前会话输入框并发送
-    function completeInject(inputActions){
+    // ★ 2026-10-11 修（用户实测：「我理解的名字跟你们实际的名字有很大差异」）：
+    //   实测：301 个有 title 的会话里只有 80 个（27%）像人类可读的名字，
+    //   192 个（64%）其实是首条消息片段（「背景：本机（mac-mini…」），且重名严重
+    //   （单个 title 最多被 86 个会话共用）⇒ 凭记忆输入名字在多数会话上不可行。
+    //   ⇒ 改为【选，而不是猜】：拉 /voice/sessions 的真实名单，按最近活跃排序，点即进。
+    //   附带好处：列表项自带 id ⇒ 直接进对话态，**绕开 /voice/resolve 的歧义判定**。
+    let talkList = [];
+    // ★ 2026-10-11 改（用户设计的第三层落地后）：对话态入口【先读目标清单】。
+    //   原实现列的是 /voice/sessions 的原始 title —— 而实测 301 个有 title 的会话里
+    //   只有 80 个（27%）像人类可读的名字，192 个（64%）是首句片段（「背景：本机（mac-mini…」），
+    //   重名最高 ×86 ⇒ **列出来用户也认不出**。
+    //   ⇒ 现在优先列【用户自己在配置页里启用并起过别名的目标】；
+    //     没有配置过才回落到原始会话列表，并提示去配置。
+    function loadTalkCandidates() {
+      setEng({ talkAsk: true, talkLoading: true });
+      fetch('/voice/targets')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          const on = ((d && d.targets) || []).filter(function (t) { return t.enabled !== false; })
+            .map(function (t) { return { id: t.id, title: t.alias || t.title || '(未命名)', raw: t.title || '' }; });
+          if (on.length) {
+            talkList = on;
+            setEng({ talkAsk: true, talkLoading: false, talkMode: 'targets', talkCount: on.length });
+            return null;
+          }
+          setEng({ talkMode: 'fallback' });   // 没配置过 ⇒ 回落
+          return fetch('/voice/sessions').then(function (r2) { return r2.json(); }).then(function (s) {
+            const arr = ((s && s.sessions) || []).filter(function (x) { return (x.title || '').trim(); });
+            arr.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+            talkList = arr.slice(0, 15).map(function (x) { return { id: x.id, title: x.title, raw: '' }; });
+            setEng({ talkAsk: true, talkLoading: false, talkNamed: (s && s.named) || 0 });
+          });
+        })
+        .catch(function (e) {
+          setEng({ talkAsk: true, talkLoading: false, err: '拉取目标清单失败：' + String((e && e.message) || e) });
+        });
+    }
+    // 配置页地址：由当前 CLD 基址拼出（同一端口同时提供 /voice/*）
+    // ★ 2026-10-11 修：原实现直接返 location.origin + '/voice/config'，
+    //   但该端点属插件【服务端代码】，插件未重载时它是 404
+    //   ⇒ 用户点「⚙ 配置」会看到一坨 {"ok":false,"error":"unknown endpoint"}（实测发生）。
+    //   ⇒ 改为【先探测再打开】：本体端点不通时，回落到已知的预览服务端口。
+    //   ★ 顺序有意如此：插件端点是"正主"，预览服务只是临时兜底；
+    //     一旦插件重载，第一个就通，不会再落到预览。
+    const CONFIG_FALLBACKS = ['http://127.0.0.1:8799/voice/config'];
+    function openConfig() {
+      const base = (function () { try { return location.origin; } catch (e) { return ''; } })();
+      const urls = [base + '/voice/config'].concat(CONFIG_FALLBACKS);
+      let i = 0;
+      const tryNext = function () {
+        if (i >= urls.length) {
+          setEng({ note: '配置页打不开：插件端点未上线，且预览服务未运行' });
+          return;
+        }
+        const u = urls[i++];
+        fetch(u, { method: 'GET' })
+          .then(function (r) {
+            if (r.status === 200) { try { window.open(u, '_blank'); } catch (e) {} setEng({ note: null }); }
+            else tryNext();
+          })
+          .catch(function () { tryNext(); });
+      };
+      tryNext();
+    }
+    function relTime(ts) {
+      if (!ts) return '';
+      const m = Math.floor((Date.now() - ts) / 60000);
+      if (m < 1) return '刚刚';
+      if (m < 60) return m + ' 分前';
+      const h = Math.floor(m / 60);
+      return h < 24 ? h + ' 小时前' : Math.floor(h / 24) + ' 天前';
+    }
+    // 选择器单独造（不塞进渲染树里嵌套 —— 那里括号层级深，实测已两次因括号数错而语法失败）
+    // 对话态入口的选择器。★ 2026-10-11：改为优先列【用户在配置页启用过的目标】。
+    //   两种模式：targets（用户的清单，显示其别名）/ fallback（未配置 ⇒ 原始会话列表）。
+    function TalkPicker(s) {
+      if (!s.talkAsk) return null;
+      const box = { marginTop: 6, border: '1px solid #334155', borderRadius: 8, padding: 8, background: '#0b1626' };
+      const isTargets = s.talkMode === 'targets';
+      // 配置入口（两种模式都给 —— 让用户随时能去增删目标）
+      const cfgBtn = React.createElement('button', {
+        type: 'button',
+        title: '打开配置页：搜索本机会话、点选加入、起你自己的名字、决定它能否作为语音对象',
+        onClick: function (e) { e.stopPropagation(); try { openConfig(); } catch (err) {} },
+        style: { flex: 'none', background: 'transparent', border: '1px solid #334155', borderRadius: 6, color: '#7dd3fc', cursor: 'pointer', fontSize: 10, padding: '2px 7px' },
+      }, '⚙ 配置');
+
+      if (s.talkLoading) {
+        return React.createElement('div', { style: box },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+            React.createElement('span', { style: { flex: 1, fontSize: 11, color: '#94a3b8' } }, '正在拉取语音目标…'),
+            cfgBtn));
+      }
+
+      const headText = isTargets
+        ? ('你启用的语音目标 · 共 ' + (s.talkCount || 0) + ' 个')
+        : ('未配置语音目标 ⇒ 暂列最近活跃的会话 · 共 ' + (s.talkNamed || 0) + ' 个有名字的');
+      const head = React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+        React.createElement('span', { style: { flex: 1, fontSize: 11, color: isTargets ? '#a7f3d0' : '#94a3b8' } }, headText),
+        cfgBtn);
+
+      const rows = talkList.length
+        ? talkList.map(function (it, k) {
+            return React.createElement('button', {
+              key: k, type: 'button',
+              onClick: function (e) { e.stopPropagation(); talkAsk = false; enterTalk(it.title, it.id); },
+              title: (it.raw ? it.raw + '\n' : '') + String(it.id || ''),
+              style: { textAlign: 'left', background: 'transparent', border: '1px solid #1e293b', borderRadius: 6, padding: '5px 8px', color: '#cbd5e1', cursor: 'pointer', fontSize: 12, display: 'flex', gap: 8, alignItems: 'baseline' },
+            },
+              React.createElement('span', { style: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, it.title),
+              it.raw ? React.createElement('span', { style: { flex: 'none', color: '#475569', fontSize: 10, maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, it.raw) : null);
+          })
+        : [React.createElement('div', { key: 'none', style: { fontSize: 11, color: '#94a3b8', lineHeight: 1.6 } },
+            isTargets ? '清单是空的（可能都停用了）—— 点右上「⚙ 配置」去启用。'
+                      : '没有拉到会话（缓存可能为空）。点右上「⚙ 配置」搜索并选一个。')];
+
+      if (!isTargets) {
+        rows.push(React.createElement('div', { key: 'hint', style: { fontSize: 10, color: '#64748b', marginTop: 4 } },
+          '★ 未配置时列的是原始 title，多数认不出 —— 建议点「⚙ 配置」选出你真正用的那几个。'));
+      }
+      return React.createElement('div', { style: box }, head,
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 190, overflowY: 'auto' } }, rows));
+    }
+                             //   为什么不用 window.prompt：Electron 的 renderer 不实现 prompt，
+                             //   调用返回 undefined ⇒ 用户点了「没反应」（2026-10-10 用户实测报告）。
+    function enterTalk(title, id) {
+      talkTarget = { title: String(title||''), id: String(id||'') };
+      setEng({ talk: talkTarget.title,
+               note: '★ 对话态：直接说即可发给「' + talkTarget.title + '」· 说「结束对话」退出' });
+      return talkTarget;
+    }
+    function exitTalk(why) {
+      talkTarget = null;
+      setEng({ talk: null, note: why || '已退出对话态' });
+    }
+    function resolveAndTalk(name) {
+      const nm = String(name||'').trim();
+      if (!nm) { setEng({ err: '请先输入会话名' }); return; }
+      setEng({ note: '正在解析「' + nm + '」…' });
+      fetch('/voice/resolve', { method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ name: nm }) })
+        .then(function(r){ return r.json(); })
+        .then(function(j){
+          if (!j || !j.ok) { setEng({ err: '解析失败' }); return; }
+          if (j.verdict === 'not_found') { setEng({ err: '没找到叫「' + nm + '」的会话' }); return; }
+          if (j.verdict === 'ambiguous') {
+            const cs = (j.candidates||[]).map(function(c){ return c.title; }).join('  /  ');
+            setEng({ err: '匹配到多个：「' + cs + '」，请说全名' }); return;
+          }
+          const c0 = (j.candidates||[])[0] || {};
+          talkAsk = false;
+          enterTalk(c0.title, c0.id);
+        })
+        .catch(function(e){ setEng({ err: '解析失败：' + String((e&&e.message)||e) }); });
+    }
+
+    function sendToTalk(text) {
+      const t = String(text||'').trim();
+      if (!t) return;
+      if (!talkTarget) return;
+      setEng({ note: '发给「' + talkTarget.title + '」…' });
+      fetch('/voice/send', {
+        method:'POST', headers:{'content-type':'application/json'},
+        body: JSON.stringify({ to: talkTarget.id || undefined, name: talkTarget.title,
+                               text: t, sender: 'ui' }),
+      }).then(function(r){ return r.json(); })
+        .then(function(j){
+          if (j && j.ok) { setEng({ note: '已发给「' + (j.title || talkTarget.title) + '」· 等它回话' }); return; }
+          setEng({ err: '对话投递失败：' + ((j && j.error) || '未知') });
+          if (j && (j.error === 'not_found' || j.error === 'ambiguous')) exitTalk('目标不可达，已退出对话态');
+        })
+        .catch(function(e){ setEng({ err: '对话投递失败：' + String((e&&e.message)||e) }); });
+    }
+
+
+    function parseSendTarget(text) {
+      const t = String(text || '');
+      const i = t.indexOf('发给');
+      if (i < 0) return null;
+      const rest = t.slice(i + 2).trim();
+      if (!rest) return null;
+      for (const sep of ['：', ':', '，', ',', '。']) {
+        const j = rest.indexOf(sep);
+        if (j > 0) {
+          const name = rest.slice(0, j).trim();
+          const body = rest.slice(j + 1).trim();
+          if (name) return { name: name, body: body };
+        }
+      }
+      return { name: rest, body: '' };
+    }
+    function sendToNamedSession(name, body, fallbackText) {
+      const text = (body && body.trim()) ? body.trim() : String(fallbackText || '').trim();
+      if (!text) { setEng({ err: '没有要发送的内容' }); return; }
+      setEng({ note: '正在投递给「' + name + '」…', err: null });
+      fetch('/voice/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: name, text: text, sender: 'ui' }),
+      }).then(function (r) { return r.json().then(function (j) { return { code: r.status, j: j }; }); })
+        .then(function (x) {
+          const j = x.j || {};
+          if (j.ok) { enterTalk(j.title || name, j.to || '');   // ★ B：投递成功即进入对话态（必须在 return 前）
+                      setEng({ note: '已投递给「' + (j.title || name) + '」· 对话态中，直接说即可' }); return; }
+          if (j.error === 'ambiguous') {
+            const names = (j.candidates || []).map(function (c) { return c.title; }).join(' / ');
+            setEng({ err: '匹配到多个：「' + names + '」，请说全名' });
+            return;
+          }
+          if (j.error === 'not_found') { setEng({ err: '没有找到叫「' + name + '」的会话' }); return; }
+          setEng({ err: '投递失败：' + (j.error || ('HTTP ' + x.code)) });
+        })
+        .catch(function (e) { setEng({ err: '投递请求失败：' + String((e && e.message) || e) }); });
+    }
+
+
+    // ---------- 回话播报（2026-10-10 · 复用本插件自己的播放链路）----------
+    // 用户指定：「复用悬浮球的播放链路」⇒ 不新写播放器，直接用本文件已有的
+    //   playAi(b64)（逐片解 16bit LE PCM → Float32 累积）
+    //   flushAi()（24kHz 播放）· ensurePlay()（解锁 AudioContext）
+    // 后端配套：POST http://127.0.0.1:8902/api/tts {text} → base64 PCM@24k（与 playAi 期望格式一致，已实测）
+    let replySince = Date.now();   // ★ 以启动时刻为起点：绝不播报历史积压（实测库里有 17+ 条旧回复）
+    let replyTimer = null;
+    // ★★★ 2026-10-12 加（用户实测「一堆的语音同时播放」）：
+    //   原 pollReplies 用 `for (const rep of d.replies) speakOneReply(rep)` ——
+    //   ① 无去重 ⇒ 同一批被反复念；② 无串行 ⇒ **多条同时发声**；
+    //   ③ 每条都 playAi+flushAi ⇒ **音频叠进同一缓冲 ⇒ 一起响**（实测症状）。
+    //   ⇒ 现改为：只念【最新一条】+ 去重 + 播报中不叠。
+    let lastSpokenReply = '';
+    let replySpeaking = false;
+    function speakOneReply(rep) {
+      const txt = String((rep && rep.text) || '').trim();
+      if (!txt) return;
+      replySpeaking = true;
+      setEng({ note: '收到回话：' + txt.slice(0, 44) });
+      // ★★★ 2026-10-12 加（治「双入口同播」）：
+      //   B 与 C 都轮询 /voice/replies 并都调 TTS ⇒ 同一句被念两遍，且 TTS 单线程被抢致超时。
+      //   ⇒ 播报前先向后端【原子认领】；认领失败（已被另一边认领）就跳过，不再念。
+      const _ck = String(rep && rep.at || '') + '|' + txt.slice(0, 40);
+      fetch('/voice/claim', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ key: _ck, who: 'B-floatball' }) })
+        .then(function (r) { return r.json(); })
+        .then(function (c) {
+          if (c && c.ok && c.claimed === false) {
+            setEng({ note: '本条回话已由另一入口播报，跳过（避免重复）' });
+            return;
+          }
+          _speakOneReplyDo(rep, txt);
+        })
+        .catch(function () { _speakOneReplyDo(rep, txt); });   // 认领接口不可用时不阻断播报
+      }
+      function _speakOneReplyDo(rep, txt) {
+        void rep;
+
+      fetch('http://127.0.0.1:8902/api/tts', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: txt.slice(0, 600) }),
+      }).then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok || !d.audio) { setEng({ err: '回话播报失败：' + ((d && d.error) || '无音频') }); replySpeaking = false; return; }
+          ensurePlay();          // ★ 复用：播放上下文
+          playAi(d.audio);       // ★ 复用：逐片解码
+          flushAi();             // ★ 复用：24kHz 播放
+          setTimeout(function () { replySpeaking = false; }, 1200);
+        })
+        .catch(function (e) { setEng({ err: '回话播报失败：' + String((e && e.message) || e) }); });
+    }
+    function pollReplies() {
+      fetch('/voice/replies?since=' + replySince)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.ok) return;
+          if (d.newest && d.newest > replySince) replySince = d.newest;
+          // ★ 只念最新一条（旧的若同一窗口到达，不再一起响）
+          const _reps = (d.replies || []);
+          if (_reps.length) {
+            const _last = _reps[_reps.length - 1];
+            const _t = String((_last && _last.text) || '').trim();
+            if (_t && _t !== lastSpokenReply && !replySpeaking) {
+              lastSpokenReply = _t;
+              if (_reps.length > 1) setEng({ note: '本窗口到 ' + _reps.length + ' 条回话，只念最新一条（避免同时发声）' });
+              speakOneReply(_last);
+            }
+          }
+        })
+        .catch(function () {});
+    }
+    function startReplyPolling() {
+      if (replyTimer) return;
+      replyTimer = setInterval(pollReplies, 8000);
+    }
+
+
+    function toggleRec(){
+      // 必须在用户手势(点●)内同步 create+resume playCtx, 否则 Chromium autoplay 把它挂起 → 无声
+      ensurePlay();
+      if(eng.rec){ // 停止并触发 AI 收尾
+        if(ws&&ws.readyState===1){ try{ws.send(JSON.stringify({type:'commit'}));}catch(e){} }
+        stopAudio();                       // ★ 立刻释放麦克风（含 track.stop，见 stopAudio 内注）
+        // ★ v0.8.1 修（用户报「显示未在听却仍在收 / 没点自己就开始收」）：
+        //   原实现把 setEng({rec:false}) 放在 1200ms 的 setTimeout 里 ⇒ 点停止后
+        //   ① 按钮仍显示「录音中」1.2 秒（UI 与真实状态脱节）
+        //   ② 期间 eng.rec 仍为 true ⇒ 【自动重连的守卫 if(!eng.rec) 失效】
+        //      ⇒ 若重连计时器在此窗口内触发，会在用户已停止之后【重新开连接并保持麦克风】
+        //      —— 这正是「没点任何按钮它自己就开始收」的机制。
+        //   现改为：状态立即翻转 + 取消已排期的重连判定；仅 ws.close() 保留 1.2s
+        //   （那是为了让 commit 触发的最后一段回复能回来，与麦克风无关）。
+        pendingFail=false;
+        if(reconnTimer){ clearTimeout(reconnTimer); reconnTimer=null; }
+        setEng({rec:false, listening:false, aiTalking:false, live:'', aiLive:'', note:null});
+        const closing=ws;
+        setTimeout(()=>{ try{ closing && closing.close(); }catch(e){} if(ws===closing) ws=null; },1200);
+        return;
+      }
+      setEng({rec:true,listening:false,err:null});
+      resetRound();
+      openWs({});
+    }
+
+    // ---------- 成稿 / 修订 / 采用 / 回退（2026-10-10 用户迭代需求）----------
+    // 用户原话：「点完成注入后文本会自动插入上下文，导致我无法 ① 提修改意见 ② 二次端到端沟通
+    //   ③ 二次录入 ④ 手动修改生成的文本。我需要具备上述交互过程的功能。」
+    //
+    // 旧实现的两个封死点（均已移除）：
+    //   · setTimeout(()=>inputActions.submit(), 300)  → 填入后 300ms 自动发送，来不及看/改
+    //   · setEng({rows:[], open:false})               → 注入即清空讨论、关闭面板，切断二次沟通
+    // 新语义：
+    //   ✅ 成稿  → 结果只进面板内【可编辑成稿区】，不碰输入框、不发送
+    //   🔄 重出稿 → 带上当前成稿作为 base ⇒ 后端走【增量修订】：只改你提到的部分，其余逐字保留
+    //   📋 采用  → 把（你改过的）成稿填入输入框；是否自动发送由下方开关决定
+    //   ↩ 上一版 → 回退到修订前的稿子
+    function makeDraft(){
       setEng({err:null});
       // 关键: 带上 role(user/ai), 否则成稿引擎无法区分用户与 AI → 需求提炼乱/留痕无角色
-      const disc=eng.rows.map(x=>({role:x.role==='user'?'user':'ai',ts:new Date().toISOString().slice(11,19),text:x.text}));
+      // ★★★ 2026-10-10 修（短判决位实害报告）：原实现 ts 取【生成那一刻】的
+      //   new Date() ⇒ 所有轮次被盖上同一个时刻（报告实证：留痕时刻全是 11:25:24），
+      //   而假时刻会「长得像真时刻」被下游当成发生时刻引用。
+      //   ⇒ 改用每行落库时记下的真实时刻（x.at，见 rows.push 处）；缺失才回退。
+      const _hhmmss = (t)=>{ try{ return new Date(t||Date.now()).toISOString().slice(11,19); }catch(e){ return ''; } };
+      const disc=eng.rows.map(x=>({role:x.role==='user'?'user':'ai',ts:_hhmmss(x.at),text:x.text}));
       if(!disc.length){ setEng({err:'还没有对话内容'}); return; }
-      const origin=(typeof location!=='undefined'&&location.origin)||'?';
-      audDbg.err='注入@'+origin+': '+disc.length+'条'; setEng({errWin:audDbg.err});
-      fetch('/voice/draft',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({discussion:disc,title:'语音会议记录'})})
+      const base=eng.draftText||'';                 // 已有成稿 ⇒ 作为底稿做增量修订
+      setEng({draftBusy:true, draftNote:base?'正在按你的意见增量修订…':'正在成稿…'});
+      fetch('/voice/draft',{method:'POST',headers:{'content-type':'application/json'},
+        body:JSON.stringify({discussion:disc,title:'语音会议记录',base})})
         .then(r=>r.json()).then(d=>{
-          audDbg.err='draft ok='+!!d.ok+' contentLen='+((d.content||'').length);
           if(d.ok&&d.content){
-            if(inputActions&&inputActions.setDraft){
-              audDbg.err+=' 注入前'+((d.content||'').slice(0,40).replace(/\n/g,' '));
-              inputActions.setDraft('【语音会议记录】\n'+d.content.slice(0,3000));
-              setTimeout(()=>{ try{inputActions.submit();}catch(e){} },300);
-            } else { audDbg.err+=' 无setDraft'; }
-            setEng({rows:[],open:false});
-          } else { audDbg.err+=' 无content'; setEng({err:'成稿失败:'+(d.error||'')}); }
-          setEng({errWin:audDbg.err});
-        }).catch(e=>{ audDbg.err='draft错:'+String(e.message||e); setEng({err:'成稿错误:'+String(e.message||e),errWin:audDbg.err}); });
+            const src=(d.stats&&d.stats.source)||'?';
+            const kind=base?('增量修订 · '+src):('成稿 · '+src);
+            setEng({ draftPrev: base||eng.draftPrev, draftText:d.content, draftId:d.id||'',
+                     draftBusy:false, draftNote:kind+' · '+d.content.length+' 字 · 可直接在下方编辑',
+                     err:null });
+          } else {
+            setEng({draftBusy:false, err:'成稿失败:'+((d&&d.error)||'未知原因')});
+          }
+        }).catch(e=>setEng({draftBusy:false, err:'成稿错误:'+String(e.message||e)}));
+    }
+
+    function applyDraft(inputActions){
+      const t=(eng.draftText||'').trim();
+      if(!t){ setEng({err:'还没有成稿，先点 ✅ 成稿'}); return; }
+      if(!(inputActions&&inputActions.setDraft)){ setEng({err:'当前环境不支持填入输入框'}); return; }
+      try{ inputActions.setDraft('【语音会议记录】\n'+t.slice(0,3000)); }
+      catch(e){ setEng({err:'填入失败:'+String(e.message||e)}); return; }
+      if(eng.autoSend){
+        setTimeout(()=>{ try{inputActions.submit();}catch(e){} },300);
+        setEng({err:null, draftNote:'已填入输入框并发送（「填入后自动发送」已开启）'});
+      } else {
+        setEng({err:null, draftNote:'已填入输入框 · 请检查/修改后自行发送（面板与讨论都保留，可继续聊）'});
+      }
+      // ★ 刻意不清空 rows、不关闭面板：保住二次沟通 / 二次录入的上下文
+    }
+
+    function revertDraft(){
+      if(!eng.draftPrev){ setEng({err:'没有上一版可回退'}); return; }
+      setEng({draftText:eng.draftPrev, draftPrev:'', draftNote:'已回退到上一版（再点 🔄 重出稿可重新修订）'});
+    }
+
+    function toggleAutoSend(){
+      const v=!eng.autoSend;
+      try{ localStorage.setItem('cldvoice_autosend', v?'1':'0'); }catch(e){}
+      setEng({autoSend:v});
     }
 
     // ---------- 语音浮点球样式(可切换, 用户自选) ----------
@@ -474,6 +1003,9 @@ window.__ModuleLoader__.load({
         React.createElement('span',{style:{marginLeft:5}},x.text)));
       const liveEl=s.live?React.createElement('div',{style:{color:'#34d399',margin:'4px 0'}},'▍'+s.live):null;
       const aiLiveEl=s.aiLive?React.createElement('div',{style:{color:'#a78bfa',margin:'4px 0',whiteSpace:'pre-wrap'}},'AI: '+s.aiLive):null;
+      // ★ 中性状态行（v0.8.0）：自动重连这类【正常自愈过程】不该用报错样式显示。
+      //   err 是红的(#f87171)+⚠️，用来报故障；note 用灰蓝、无警告图标，用来报「正在做的事」。
+      const noteEl=s.note?React.createElement('div',{style:{color:'#94a3b8',marginTop:4}},'· '+s.note):null;
       const errEl=s.err?React.createElement('div',{style:{color:'#f87171',marginTop:4}},'⚠️ '+s.err):null;
 
       const panelStyle={position:'fixed',right:26,bottom:158,width:330,maxWidth:'92vw',maxHeight:340,
@@ -485,7 +1017,7 @@ window.__ModuleLoader__.load({
         (s.rows&&s.rows.length)?React.createElement('span',{style:{color:'#475569',fontSize:10,fontWeight:400}},(s.rows.length+' 条')):null,
         React.createElement('span',{style:{flex:1}}),
         React.createElement('button',{
-          title:'清空面板里的历史记录（只清显示内容；已注入到会话的成稿不受影响）',
+          title:'★ 清屏 = 结束本轮：① 先把当前成稿【自动归档】到历史（可在 8902/drafts 翻查）② 清空讨论 ③ 清空底稿 ⇒ 下一轮从零起稿，不再与上一轮混淆。★ 若只想【丢弃】这份成稿而不归档，用旁边的「🧽 清成稿」',
           onClick:(e)=>{ e.stopPropagation(); armClear(); },
           style:{border:'1px solid '+(s.clearArm?'#ef4444':'#1e293b'),
             background:(s.clearArm?'#7f1d1d':'transparent'),
@@ -508,14 +1040,26 @@ window.__ModuleLoader__.load({
         s.packNote?React.createElement('span',{style:{color:'#34d399',fontSize:10,whiteSpace:'nowrap'}},s.packNote):null):null;
       const packHint=_packOpts.length>1?React.createElement('div',{style:{color:'#475569',fontSize:10,marginTop:3}},
         '语音包含音色+方言。切换后需重新点 ● 说话 才生效。'):null;
+      // 成稿区（2026-10-10）：成稿不再直接发出去，而是停在这里让你看、改、再采用
+      const draftArea=(s.draftText||s.draftBusy)?React.createElement('div',{style:{marginTop:8,borderTop:'1px solid #1e293b',paddingTop:8}},
+        React.createElement('div',{style:{display:'flex',alignItems:'center',gap:6,marginBottom:4}},
+          React.createElement('span',{style:{color:'#f5b942',fontWeight:600,fontSize:12}},'📄 成稿（可直接编辑）'),
+          React.createElement('span',{style:{flex:1}}),
+          s.draftPrev?React.createElement('button',{title:'回退到修订前的上一版',onClick:(e)=>{e.stopPropagation(); revertDraft();},
+            style:{border:'1px solid #334155',background:'#111c2e',color:'#94a3b8',borderRadius:6,padding:'2px 8px',fontSize:11,cursor:'pointer'}},'↩ 上一版'):null),
+        React.createElement('textarea',{value:s.draftText||'',onClick:(e)=>e.stopPropagation(),
+          onChange:(e)=>{e.stopPropagation(); setEng({draftText:e.target.value});},
+          rows:7,placeholder:'成稿会出现在这里；可继续 ● 说话提意见后点 🔄 重出稿…',
+          style:{width:'100%',boxSizing:'border-box',background:'#0b1220',color:'#e2e8f0',border:'1px solid #1e293b',borderRadius:6,padding:'6px 8px',fontSize:11,lineHeight:1.55,resize:'vertical',fontFamily:'ui-monospace,SFMono-Regular,Menlo,monospace'}}),
+        s.draftNote?React.createElement('div',{style:{color:'#7dd3fc',fontSize:10,marginTop:3}},'ℹ '+s.draftNote):null):null;
       const body=React.createElement('div',{style:{padding:'10px 12px',overflowY:'auto'}},
         React.createElement('div',{style:{display:'flex',alignItems:'center',gap:6,marginBottom:8,color:'#94a3b8',fontSize:12}},
           React.createElement('span',{style:{width:8,height:8,borderRadius:4,background:dotC,display:'inline-block'}}),
-          React.createElement('span',{}, (s.aiTalking?'AI 回答中…':(s.listening?'● 聆听…':'点 ● 说话, 👉 说完点 ✅ 完成注入'))),
+          React.createElement('span',{}, (s.aiTalking?'AI 回答中…':(s.listening?'● 聆听…':'点 ● 说话 → ✅ 成稿 → 可改可续聊 → 📋 采用'))),
           React.createElement('span',{style:{flex:1}}),
           s.playing?React.createElement('span',{style:{color:'#34d399',fontWeight:700}},'🔊'):(s.aud?React.createElement('span',{style:{color:'#f5b942'}},'⏳'):null)),
         s.rows&&s.rows.length?rows:React.createElement('div',{style:{color:'#64748b',fontSize:12}},'还没有对话, 点 ● 开始说需求'),
-        liveEl, aiLiveEl, errEl,
+        liveEl, aiLiveEl, noteEl, errEl,
         React.createElement('div',{style:{marginTop:6,padding:'5px 8px',background:'#111c2e',borderRadius:6,color:'#7dd3fc',fontSize:11,fontFamily:'monospace'}},
           '🔊 音频: 收 '+(audDbg.rx/1024).toFixed(0)+'KB / 播 '+audDbg.played+' 次 / ctx '+((playCtx&&playCtx.state)||'未建')+
           (audDbg.err?(' / ⚠ '+audDbg.err):'')),
@@ -531,11 +1075,47 @@ window.__ModuleLoader__.load({
             style:{flex:1,accentColor:'#38bdf8',cursor:'ew-resize'}}),
           React.createElement('span',{style:{color:'#94a3b8',fontSize:11,width:34,textAlign:'right'}},Math.round(playVolume*100)+'%')),
         packRow,
-        packHint);
-      const foot=React.createElement('div',{style:{display:'flex',gap:8,padding:'8px 12px',borderTop:'1px solid #1e293b'}},
-        React.createElement('button',{onClick:()=>toggleRec(),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.rec?'#ef4444':'#10b981',color:'#fff',cursor:'pointer',fontWeight:600}},
-          s.rec?'⏹ 停止':'● 说话'),
-        React.createElement('button',{onClick:()=>completeInject(props.inputActions),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:'#f5b942',color:'#0f172a',cursor:'pointer',fontWeight:600}},'✅ 完成注入'));
+        packHint,
+        draftArea);
+      const foot=React.createElement('div',{style:{padding:'8px 12px',borderTop:'1px solid #1e293b'}},
+        React.createElement('div',{style:{display:'flex',gap:8}},
+          React.createElement('button',{onClick:()=>toggleRec(),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.rec?'#ef4444':'#10b981',color:'#fff',cursor:'pointer',fontWeight:600}},
+            s.rec?'⏹ 停止':'● 说话'),
+          React.createElement('button',{title:'用当前讨论出稿；若已有成稿，则按其底稿做增量修订（只改你提到的部分，不覆盖）',
+            onClick:()=>makeDraft(),disabled:!!s.draftBusy,
+            style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.draftBusy?'#475569':'#f5b942',color:'#0f172a',cursor:s.draftBusy?'default':'pointer',fontWeight:600}},
+            s.draftBusy?'… 处理中':(s.draftText?'🔄 重出稿':'✅ 成稿')),
+          // ★ 独立清成稿（用户实测诉求：成稿没有清理的地方）
+          s.draftText?React.createElement('button',{type:'button',
+            title:'清空当前成稿。★ 只清成稿、不动讨论记录 —— 下一轮将从零起稿，不再把旧成稿当底稿（否则两轮成稿会互相混淆）',
+            onClick:(e)=>{e.stopPropagation(); clearDraft();},
+            style:{flex:'none',background:'transparent',border:'1px solid #475569',borderRadius:6,padding:'7px 10px',color:'#94a3b8',cursor:'pointer',fontSize:12}},
+            '🧽 清成稿'):null,
+          React.createElement('button',{title:'把成稿区里（你改过的）文本填入输入框；是否自动发送见下方开关',
+            onClick:()=>applyDraft(props.inputActions),
+            style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:'#38bdf8',color:'#0f172a',cursor:'pointer',fontWeight:600}},'📋 采用')),
+        // ★ C（用户指定）：显式进出对话态。B（说「发给X」自动进）= 上面 sendToNamedSession 里那处。
+        React.createElement('div',{style:{display:'flex',gap:6,marginTop:6,alignItems:'center'}},
+          React.createElement('button',{title:'对话态：进入后直接说话即发给该会话，回话自动念出；说「结束对话」或再点此退出',
+            onClick:(e)=>{e.stopPropagation();
+              if(s.talk){ exitTalk('已退出对话态'); return; }
+              if(s.talkAsk){ talkAsk=false; setEng({talkAsk:false}); return; }
+              loadTalkCandidates();
+            },
+            style:{flex:1,border:'1px solid '+(s.talk?'#34d399':'#334155'),borderRadius:6,padding:'7px 0',background:s.talk?'rgba(52,211,153,.22)':'transparent',color:s.talk?'#a7f3d0':'#cbd5e1',cursor:'pointer',fontSize:12}},
+            s.talk?('★ 对话中：'+s.talk+'（点此退出）'):'💬 进入对话态'),
+          React.createElement('span',{style:{color:'#475569',fontSize:10}},
+            s.talk?'直接说话即发给它 · 说「结束对话」退出':'进入后不必每次说「发给 X」')),
+        // ★ C 的内联输入行（不用 window.prompt —— Electron renderer 不实现它，调用返回 undefined ⇒ 点了没反应）
+        TalkPicker(s),
+        React.createElement('div',{style:{display:'flex',alignItems:'center',gap:6,marginTop:6}},
+          React.createElement('label',{style:{display:'flex',alignItems:'center',gap:5,color:'#94a3b8',fontSize:11,cursor:'pointer'},
+            onClick:(e)=>e.stopPropagation()},
+            React.createElement('input',{type:'checkbox',checked:!!s.autoSend,onChange:()=>toggleAutoSend(),style:{cursor:'pointer'}}),
+            '填入后自动发送'),
+          React.createElement('span',{style:{flex:1}}),
+          React.createElement('span',{style:{color:'#475569',fontSize:10}},
+            s.autoSend?'（关掉即可在发送前修改）':'（默认：只填入，由你发送）')));
 
       const panel=React.createElement('div',{style:panelStyle},head,body,foot);
       const ball=React.createElement('div',{ref:dragRef,title:'语音会议记录',style:ballStyle,
@@ -555,6 +1135,15 @@ window.__ModuleLoader__.load({
     module.exports={
       inject:['slots'],
       apply(ctx){
+        // ★ 启动回话播报轮询（游标在模块加载时已设为当时刻 ⇒ 不会播历史积压）
+        // ★ 2026-10-10 隔离：回话轮询【默认不启动】。用户报告「几个入口都听不到我说话、没有收音反馈」，
+        //   而它是本轮唯一新增的后台音频行为（8s 轮询 + 命中即 ensurePlay/playAi/flushAi 播放）。
+        //   按科学方法先摘掉这个变量再测：确认收音恢复 ⇒ 元凶是它；仍不正常 ⇒ 与它无关，回头再查。
+        // ★ 2026-10-10 开回：隔离已出结论 —— 收音中断的根因是【USB 麦克风输出数字静音】
+        //   （captured_frames=192000 一帧不差但 rms=0/peak=0/zero_ratio=1.0），用户拔插后恢复，
+        //   与本轮询无关。⇒ 恢复启动。且播放上下文改用系统默认速率（见 ensurePlay），
+        //   不再制造「与麦克风 48kHz 并存的两个不同采样率上下文」这一条件。
+        startReplyPolling();
         const registerSlots=(scope)=>{
           const slots=scope&&scope.slots?scope.slots:(ctx.slots||null);
           if(!slots) return;

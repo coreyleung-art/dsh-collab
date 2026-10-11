@@ -18,10 +18,25 @@
   · 拒绝含 'api/' 前缀的键（写入即会落到错误的键名空间）
   · 要求键首段为纯小写字母命名空间（`data`/`notes`/`tasks`…），否则黑板返回 400
 """
-import sys, json, hashlib, urllib.request, urllib.error
+import sys, json, os, hashlib, urllib.request, urllib.error
 
 REPLICAS = [("local", "http://127.0.0.1:8792"),
             ("central", "http://106.53.214.108:8792")]
+
+# ★ 2026-10-07 通道变更：**中央副本写需鉴权**（无 token ⇒ 401；读仍开放 200）。
+#   头名实测为 `X-Blackboard-Token`（X-Board-Token 等均 401）。令牌 0600，**绝不回显**。
+#   不处理它会让「双写」静默降级为单副本 ⇒ 故必须显式带上，并把 401 报成**单侧**而非成功。
+def _token():
+    for f in ("~/.dsh/blackboard-token", "~/.dsh/board-token"):
+        try:
+            t = open(os.path.expanduser(f)).read().strip()
+            if t:
+                return t
+        except Exception:
+            continue
+    return ""
+
+TOKEN = _token()
 
 
 def _get(base, key, timeout=15):
@@ -36,8 +51,10 @@ def _get(base, key, timeout=15):
 
 def _put(base, key, value, timeout=20):
     body = json.dumps(value, ensure_ascii=False).encode()
-    req = urllib.request.Request(f"{base}/{key}", data=body, method="PUT",
-                                 headers={"Content-Type": "application/json"})
+    hdrs = {"Content-Type": "application/json"}
+    if TOKEN:
+        hdrs["X-Blackboard-Token"] = TOKEN          # 中央写门（本地忽略即可）
+    req = urllib.request.Request(f"{base}/{key}", data=body, method="PUT", headers=hdrs)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.status
@@ -77,10 +94,15 @@ def cmd_put(key, path):
     except Exception as e:
         print(f"⛔ 载荷不是合法 JSON: {e}")
         return 2
-    print(f"发布 `{key}`（规范键 × 双副本）")
+    print(f"发布 `{key}`（规范键 × 双副本）｜鉴权令牌: {'已加载' if TOKEN else '❌ 未找到 ~/.dsh/blackboard-token'}")
     for name, base in REPLICAS:
         st = _put(base, key, payload)
-        print(f"  PUT {name:8s} -> {st}")
+        note = ""
+        if st == 401:
+            note = "  ⚠ 401=需要 X-Blackboard-Token（中央写门）⇒ 本次为**单侧写入**，不是双写"
+        elif st == 400:
+            note = "  ⚠ 400=键写法非法"
+        print(f"  PUT {name:8s} -> {st}{note}")
     return cmd_check(key)
 
 

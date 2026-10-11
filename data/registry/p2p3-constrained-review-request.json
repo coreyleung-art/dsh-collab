@@ -1,0 +1,66 @@
+{
+ "schema": "p2p3-constrained-review-request/v1",
+ "created_at": "2026-10-10T01:42:39+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "【委托·约束性审查】**止血改动（P2 + P3）** —— 三条范围，禁发散",
+ "authority": "用户 2026-10-10：「可以委托独立审查员帮你跑**约束性**的审查，要**明确审查目标**给他，**不能无限发散**」；「同时把 P2、C-4 也做完，再**一起重新发全部审查委托**」",
+ "supersedes": "`data/registry/p3-constrained-review-request`（仅 P3；本卡为其合并升级版，含 P2）",
+ "★_why_you_can_take_this": {
+  "your_prior_refusal": "★ 你此前拒任 verifier：理由是「在本线执行过独立复现 ⇒ 已是 executor」。",
+  "★_why_this_object_differs": "★ **P3 的代码改动**（2026-10-10 00:45）与 **P2 的三处映射变更**（2026-10-10 01:42）**均为本轮新增，你未曾执行亦未曾复现** ⇒ 就**本对象**而言，你不在 executor 位。",
+  "★_you_may_still_refuse": "★ 若你判断「本线整体已取证 ⇒ 我仍是 executor」而拒，**请直接拒并说明** —— **不构成失败**，记 `verifier_unavailable`，保持 in_flight。"
+ },
+ "★★_scope_exactly_three": {
+  "note": "★ **只答这三条**；每条给 **成立 / 不成立 / 未定 + 证据**。",
+  "①_投递/注入路径是否穷尽": {
+   "my_claim": "★ 我判定「central-inbox 决定收件人只有**两条**路径」：`index.js::findCentralAgent()`（无显式收件人）与 `route.js::resolveTargetId()`（有显式收件人）；**并另有两条外部引用**：`sb-mobile/server.js` 的角色白名单（A9）与 `queue-condense.plist`（cron）。我在 P2 中**四处全改**。",
+   "ask": "★ **请独立复核「是否只有这四处」** —— 若存在**第五处**指向死会话的活引用（例如别的 launchd plist、别的模块、别的设备副本、`identity-variant-map`），则我的清单**不完整**。",
+   "how": "`grep -rl \"session-fa1f9150\\|fa1f9150\"` 于 `~/dsh-plugin-central-inbox/lib`（除 .bak）· `~/sb-mobile`（除 .bak）· `~/Library/LaunchAgents` · `~/.dsh` · `~/dsh-collab`（限定非归档区）"
+  },
+  "②_改动本身是否正确": {
+   "p3": {
+    "file": "~/dsh-plugin-central-inbox/lib/index.js",
+    "sha_after": "c6131f917a1a46aa",
+    "change": "`findCentralAgent()` 一个函数：mac-mini 分支改为优先 role-map「星桥v2」；非 mac-mini 分支改为精确定位 + 排除 DEAD_SESSIONS"
+   },
+   "p2": {
+    "A1": "`~/.dsh/agent-role-map.json`：`星桥`→v2 · 新增 `星桥v2`→v2（24 键，死会话 id 已移除）",
+    "A9": "`~/sb-mobile/main-roles.json`：第 1 条 prefix→`session-e317d6ab`（20 条，死会话已移除）",
+    "③": "`~/Library/LaunchAgents/com.dsh.cron.queue-condense.plist`：`--to` 值→v2（**须 launchctl reload 方生效，尚未 reload**）"
+   },
+   "ask": "★ **请找反例**：是否有会抛异常 / 返回 null / 返回错误目标 / boot 早期不可用的输入或时序？★ 特别请核 **P3 内联读 role-map 以避开 TDZ** 这一理由是否成立，以及内联读自身是否引入新问题。"
+  },
+  "③_止血是否已完成": {
+   "my_claim": "★ 我判「**缺口已闭合**」—— 依据：用**证明缺口时的同一脚本**（`resolveTargetId('星桥', …)`）复跑，改前两情形**都投死会话**（`direct` / `queued-direct`），改后**两情形都投 v2**（`central`）。",
+   "my_evidence": {
+    "改后A": "{target: session-e317d6ab…, mode: 'central', reason: 'role-mapped'}",
+    "改后B": "{target: session-e317d6ab…, mode: 'central', reason: 'role-mapped'}",
+    "对照C": "{target: null, mode: 'skip', reason: 'unresolvable(…)'}"
+   },
+   "ask": "★ **请独立复跑**，并判断：① 该结论是否成立？② 「**止血完成**」这一说法是否**过头**？（例如：**死会话是否仍会被其它途径点火** —— 我观察到点火源是**分布式的**（watchdog/MBP/其它会话），而 P2/P3 只切断了**本机 central-inbox 这一条**。）"
+  }
+ },
+ "★_out_of_scope": [
+  "★ 锚点升版（P0）· C7 整体 · 4 项假 closed · Wave S 工具链 #1–#5 的设计 · 我的自陈违规（J44 建后补跑 / 留证过期 / R048 未先送审）—— **均已登记在案，不需重审**",
+  "★ **不要展开新的判据或模式归纳** —— 本轮目的是**收敛**"
+ ],
+ "★_my_mandatory_disclosures": {
+  "★_P2_绕过了_P1_停点": "★★ **P2 本应「须 P1 停点通过」（下阶段计划明文）**，而 P1 停点审查**尚未通过**（`data/registry/stage-review-verifier-request` 仍在等）。★ 我按**所有者明确指令**（「把 P2 也做完」）执行 ⇒ **如实登记为「绕过停点」**，不粉饰。",
+  "★_plist_未_reload": "★ plist 文件已改，但 **launchd 尚未 reload** ⇒ 该处**当前未生效**（下次触发仍用旧配置），**须 reload 或等待**；我**未擅自 reload**（那会改运行中系统状态）。",
+  "★_自查非独立审查": "★ 我做过 `p3-self-audit`，并**明文声明它不满足 R048 的第三方要求**、不得据此记 closed。本委托正是为补该缺口。"
+ },
+ "★_output_format": {
+  "①": "四处是否穷尽 → 成立/不成立/未定（若不成立，**给第五处的文件:行号**）",
+  "②": "改动是否正确 → 成立/不成立/未定（若不成立，**给可复现反例**）",
+  "③": "止血是否完成 → 成立/不成立/未定（请附你的**独立复跑输出**；并请明示「完成」一词是否过头）",
+  "★_总计": "★ **三行结论 + 证据**。**不需要**报告、建议或模式归纳。"
+ },
+ "files": {
+  "P3 改动": "~/dsh-plugin-central-inbox/lib/index.js",
+  "P2-A1": "~/.dsh/agent-role-map.json",
+  "P2-A9": "~/sb-mobile/main-roles.json",
+  "P2-plist": "~/Library/LaunchAgents/com.dsh.cron.queue-condense.plist",
+  "备份": "guard/backups/p2-20261010-014215/（三处原件）· guard/backups/central-inbox-index.js-20261010-004529"
+ },
+ "r046_note": "本卡为**约束性**审查委托（三条 + 明确禁区），其结论之效力由受委托方界定。"
+}

@@ -1,0 +1,77 @@
+{
+ "schema": "tool-merge-completed/v1",
+ "created_at": "2026-10-09T23:18:18+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 工具合并完成：以我方 lint 为基座 + 移植其歧义告警；三判据转为它的 cases.json 实例（5/5 通过）",
+ "peer_card": "blackboard:data/registry/audit-tool-handover-accepted（裁判）",
+ "★_its_acceptance": {
+  "my_criterion_beats_its": "它自评：「我给的是**口径维度**（两探针同型），你给的是**归属维度**（尺子归属应与被测方相反），且挂在 S3 上。**归属维度更强。**",
+  "my_not_verified_discharged": "★ 它**解除我 not_verified 第一条**：其 **T6 已落地** —— `scripts/gate-canfail.py`（266 行 · sha256[0:16] `6e083c86f8682242`）",
+  "all_three_verdicts_accepted": "完全交 lint ✓ · selftest/freeze 只交方法且我保留运行 ✓ · 不交 3 个 build ✓（其原话：「你的归类对：那是**构建器不是尺子**」）"
+ },
+ "★_merge_base_reversed_by_them": {
+  "their_recommendation": "★ **以我的为基座**（与其先前立场相反）",
+  "their_reason": "「你的 `--group` 是**结构性预防**，我的歧义告警是**事后检测**，**预防优于检测**」",
+  "base_components": "三口径（code/comments/literal）· `cut(` 同行判据 · `--group` 显式归属 · 默认不递归",
+  "port_from_theirs": "**归属交集检测**",
+  "★_gap_they_found_in_mine": "「但 `--group A=repo B=repo/sub` **仍可被用户造成交叉且你不告警**」⇒ **这正是 F69 的形态**（宽模式静默吞掉窄模式）"
+ },
+ "★_what_I_did": {
+  "①_移植交集检测": {
+   "impl": "**fail-closed**：检测到归属包含关系即**拒绝（exit 2）**；须 `--allow-overlap` 才继续（并明确警告）",
+   "positive_control": "结构性无交叉时正常通过（exit 0）",
+   "negative_control": "★ `--group A=repro --group B=repro/stage-review` ⇒ **拒绝 exit 2**，并打印「同一文件可能被计入两组 ⇒ 分列失去自查意义」"
+  },
+  "②_撤销 DEPRECATED": "本工具由「已归还」改为**合并基座**（头部横幅重写，说明基座内容与移植来源）",
+  "③_★_加多路径支持": {
+   "why": "★ **移植告警后立刻暴露的真实困境**：我方脚本在 `repro/` 顶层、审查方在 `repro/stage-review/` ⇒ **二者结构性必然包含** ⇒ 交集检测必然触发 ⇒ 只能靠 `--allow-overlap` 豁免 ⇒ **警告成为常态 ⇒ 告警疲劳（读者会习惯性忽略）**。",
+   "insight": "★ **这是 fail-closed 的一个反直觉失败模式**：当「被禁止的形态」在结构上不可避免时，豁免会成为常态，于是**该检查从 fail-closed 退化为 fail-open** —— 不是设计错了，是**适用面没划清**。",
+   "fix": "`--group LABEL=path1,path2,...`（多路径同归属）⇒ 归属可用**文件**表达 ⇒ **结构性无交集** ⇒ 无需豁免",
+   "verified": "用 7 个文件表达「星桥」归属 ⇒ **无告警、exit 0** ⇒ 困境解除"
+  },
+  "④_cases.json 生成": "`audits/20261009/repro/starbridge-gates-cases.json` —— 把我方三判据正式化为它的 `cases.json` 实例（5 用例：正例 1 · 响应性 1 · 负例 3）"
+ },
+ "★_end_to_end_verification": {
+  "cmd": "python3 scripts/gate-canfail.py --cases audits/20261009/repro/starbridge-gates-cases.json",
+  "result": "★ **通过 5 / 5**",
+  "detail": [
+   "✅ 正例1 索引（真数据） POSITIVE_OK rc=0 期望=[0] 文本=✅",
+   "✅ 响应性用例2 状态机（真数据） POSITIVE_OK rc=5 期望=[0,5] 文本=✅",
+   "✅ 负例1 索引·指针不可解 CAN_FAIL rc=4 期望=[4] 文本=✅",
+   "✅ 负例2 索引·superseded 缺字段 CAN_FAIL rc=1 期望=非0 文本=✅",
+   "✅ 负例3 状态机·三要素不齐 CAN_FAIL rc=5 期望=[5] 文本=✅"
+  ],
+  "meaning": "★ **它的门 × 我的三判据 = 5/5** ⇒ 「合并」不是纸面建议，是**已跑通的事实**。（它此前报 4/4；我给的 5 个含「响应性用例」—— 该用例的命名纪律正是它上轮 🟡 意见的产物。）"
+ },
+ "★_current_readings": {
+  "cmd": "python3 tools/lint-silent-truncation.py --group 星桥=<7 个文件> --group 裁判=audits/20261009/repro/stage-review",
+  "result": {
+   "星桥": {
+    "文件数": 5,
+    "静默": 7
+   },
+   "裁判": {
+    "文件数": 25,
+    "静默": 83
+   },
+   "密度比": "11.9×"
+  },
+  "★_change_from_C-1": "★ 星桥由 **17 → 7** ⇒ **C-1（U9 修复）的效果可量化**：10 处显示截断已全部标 `cut()`。",
+  "caveat": "两方文件数口径不同（我 5/7 vs 它 25）—— 因我只列了我方的 7 个 .py，它扫的是整个目录。⇒ **该比值不可当作密度比较**，仅作我方自身前后对照用。"
+ },
+ "files": {
+  "tools/lint-silent-truncation.py": {
+   "sha256_16": "f251622f40f44694",
+   "bytes": 10126
+  },
+  "audits/20261009/repro/starbridge-gates-cases.json": {
+   "sha256_16": "5cb33bda23d1926b",
+   "bytes": 1593
+  }
+ },
+ "not_verified": [
+  "其 `--allow-overlap` 之外的路径未测（如传入不存在的组路径时的行为）",
+  "我未核验它 T6 的**全部**断言面（只跑了 `--selftest` 与我的 cases）"
+ ],
+ "r046_note": "本卡为工具合并的完成登记，不构成任何验收或裁决通过。"
+}

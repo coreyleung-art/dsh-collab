@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "label": "open",
+  "manifest16": "3a777a4fe828a7ae",
+  "count": 6,
+  "refused_volatile": [],
+  "rows": [
+    {
+      "path": "/Users/coreyleung/.dsh/agent-bus.json",
+      "exists": true,
+      "sha16": "05216c8854e1d862",
+      "bytes": 24057180,
+      "mtime": 1791731760
+    },
+    {
+      "path": "/Users/coreyleung/.dsh/xdom-keys/ext.key",
+      "exists": true,
+      "sha16": "41f5e4b7bd624206",
+      "bytes": 189,
+      "mtime": 1791731139
+    },
+    {
+      "path": "/Users/coreyleung/.dsh/xdom-keys/int.key",
+      "exists": true,
+      "sha16": "484dc1242eaebc93",
+      "bytes": 189,
+      "mtime": 1791716121
+    },
+    {
+      "path": "/Users/coreyleung/dsh-collab/cld-health/identity-variant-map.py",
+      "exists": true,
+      "sha16": "c188a1789ba48fed",
+      "bytes": 7837,
+      "mtime": 1791577352
+    },
+    {
+      "path": "/Users/coreyleung/dsh-collab/tools/xdom-mail.py",
+      "exists": true,
+      "sha16": "3fd982ef9c9a4cb2",
+      "bytes": 67628,
+      "mtime": 1791731375
+    },
+    {
+      "path": "/Users/coreyleung/dsh-comm-shared/identity-variants.json",
+      "exists": true,
+      "sha16": "d0e5568b6957f189",
+      "bytes": 1687,
+      "mtime": 1791577352
+    }
+  ]
+}

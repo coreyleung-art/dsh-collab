@@ -1,0 +1,165 @@
+{
+ "schema": "voice-domain-resource-assignment/v1",
+ "created_at": "2026-10-10T03:35:42+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4（星桥 · 协调者第二任）",
+ "title": "★ 语音域资源划界（用户 2026-10-10 授权）：CLD 语音交互能力相关资源划归 session-0637278c",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:35:42+08:00",
+  "rerunCmd": "hostname"
+ },
+ "authority": "用户 2026-10-10：「我单独任命了一个角色专门负责维护我们跟语音相关能力的项目」→「授权」",
+ "★_受让人": "session-0637278c-cc44-4759-89df-3de23f0fae43（★ CLD 语音交互能力负责人）",
+ "★★_划归明细": {
+  "说明": "★ 分三类：**A 划归受让人** · **B 在已 bricked 会话名下 ⇒ 声明接任（不动其档案）** · **C 保留原属主**",
+  "A_划归受让人（活会话，可直接登记）": [
+   {
+    "resource": "devices/dsh-plugin-cldvoice",
+    "note": "★ 主插件（语音交互核心）"
+   },
+   {
+    "resource": "devices/dsh-plugin-cldvoice-activate",
+    "note": "★ 激活插件（R006 十项达标参考实现）"
+   },
+   {
+    "resource": "devices/cldvoice-v0.4.8 ~ v0.5.1（4 版 + 各自 tar.gz）",
+    "note": "历史版本归档"
+   },
+   {
+    "resource": "devices/dsh-plugin-cldvoice.bak-*（4 个）",
+    "note": "备份"
+   },
+   {
+    "resource": "~/dsh-plugin-voice",
+    "note": "另一语音输入项目（菜单栏 Swift + 会议模式）"
+   },
+   {
+    "resource": "service:com.dsh.cld-voice（pid 1206 → 8902 成稿 + 8903）",
+    "note": "★ 成稿引擎所在"
+   },
+   {
+    "resource": "service:com.dsh.voice-service（pid 1244 → ws 8905/8906）",
+    "note": "★ 语音通道"
+   },
+   {
+    "resource": "file:~/dsh-collab/cld-voice/drafts/",
+    "note": "成稿产物"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/CLD-entitlements.plist",
+    "note": "★ entitlements 单一来源（**原登记 session-0d4aec63**）"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/cld-release.sh",
+    "note": "★ 重签脚本（**原属主 session-e317d6ab，本次一并划出**）"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/cld-mic-entitlement-apply.sh",
+    "note": "换装/回滚脚本（原登记 0d4aec63）"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/verify-cld-release.sh",
+    "note": "重签核验"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/cld-restart-to-correct-app.sh",
+    "note": "★ 我 2026-10-10 新建（幂等切到正确版本）"
+   },
+   {
+    "resource": "file:~/dsh-collab/tools/cld-reopen-correct-path.sh",
+    "note": "★ 我 2026-10-10 新建（等退出→规范路径重开）"
+   },
+   {
+    "resource": "file:~/dsh-collab/notes/mac-mini/cld-mic-entitlement-20261010.md",
+    "note": "★ 根因报告（原登记 0d4aec63，**只读参考，作者仍为它**）"
+   },
+   {
+    "resource": "file:~/dsh-collab/guard/backups/CLD.app.pre-micfix-20261010-030022/",
+    "note": "★ 原版 CLD 备份（可回滚）"
+   },
+   {
+    "resource": "file:~/dsh-collab/cld-voice/backend/",
+    "note": "★★ **成稿引擎真源**（`asr_server.py` 503 行 · `duplex_bridge.py` · `voice_service.py` · `stream_bridge.py` · `minimax_tts.py` · venv）· 7 项 / 218M —— **本项由 session-0637278c 发现漏项后补入**"
+   },
+   {
+    "resource": "file:~/dsh-collab/cld-voice/backend.bak-v052-1789058601/",
+    "note": "历史备份 · 6 项 / 218M —— 同上补入"
+   },
+   {
+    "resource": "file:~/dsh-collab/cld-voice/bridge/",
+    "note": "`stream_bridge.py` · 1 项 / 8K —— 同上补入"
+   }
+  ],
+  "B_在已 bricked 会话名下_声明接任": {
+   "★_为何单独列": "★ 首任星桥 `session-fa1f9150` 已于 2026-10-09T05:39:52 bricked，**`agent_profile` 无法单向过户**，且**用户明令禁止复活它 / 禁止投递** ⇒ **故此处以「声明接任」代替过户，不去动该会话的任何档案**。",
+   "resources": [
+    {
+     "resource": "devices/ 域归档（cldvoice 相关）",
+     "note": "首任星桥档案记为「devices/ 域归档（cldvoice.bak-* ×4）」"
+    }
+   ]
+  },
+  "C_保留原属主（**不划出**）": [
+   {
+    "resource": "sb-mobile/ios（星台 App 工程与签名）",
+    "note": "★ **星台 App 是独立产品线**（手机端），其语音相关部分（成稿入口 `/api/draft`）与 CLD 语音**是两条链** ⇒ 本轮**不划**，待用户另行划界"
+   },
+   {
+    "resource": "dsh-collab/tools/{asc-api.py, starbridge-release.sh, hb-watchdog.sh, laodeng-release.sh}",
+    "note": "与语音无关（ASC 编排 / 发布 / 看门狗）"
+   },
+   {
+    "resource": "repo:coreyleung-art/* · coreyleung/*",
+    "note": "仓库管理，非语音域"
+   }
+  ]
+ },
+ "★★_交接的边界（必须读）": {
+  "①_我交了信息与建议归属": "★ 见 `data/registry/voice-role-handover`（含链路全景 · 6 项实测 · 4 个坑 · 禁令 · 缺口）",
+  "②_我【不能】替别人改档案": "★ `agent_profile` 工具**只允许改自己的**档案 ⇒ **故本卡为「权威声明」，各方须【各自】用 `agent_profile` 登记**：· 受让人 `session-0637278c` ⇒ 在 abilities/resources 里承接 A 类 + B 类接任声明\n· `session-0d4aec63` ⇒ 移除已划出的 4 项（CLD-entitlements.plist · cld-mic-entitlement-apply.sh · CLD-work/CLD.app · notes/mac-mini/cld-mic-entitlement-*.md）\n· 我（`session-e317d6ab`）⇒ 已移除 `tools/cld-release.sh`（见下方自陈）",
+  "③_不动死会话": "★ **不对 `session-fa1f9150` 做任何读以外的动作**（用户明令）⇒ B 类以**声明**处理"
+ },
+ "★_my_own_change（自陈）": {
+  "action": "★ 我已把自己档案里的 `tools/cld-release.sh` 移出 resources（本次划给受让人）",
+  "note": "★ 该文件我今晚**改动过**（entitlement 单一来源 + fail-loud 门 + 时间戳探活修正）⇒ **划出的是「维护责任」，不是「历史贡献」**；作者与改动留痕不变",
+  "★_v1_本行系补述": "★ 本条第③项所写「已移除」**在落卡时尚未执行** ⇒ 我随后立即执行（见下一条卡外动作）"
+ },
+ "★★_the_irony_I_must_flag": {
+  "★_自陈": "★ 本卡签名时我写了一句「我已移除 cld-release.sh」—— **而那一刻我尚未执行**，这**正是我今天刚建的「身份声称门」所治的同族问题**：**声称先于实测**。⇒ 我已把该句改为显式标注「尚未执行」，并**随后立即执行**；★ 若读者在两步之间读到此卡，会看到一处**诚实的时序标注**，而非一句可能不成立的声称。",
+  "★_依据": "★ `tools/node-claim-gate.py` 的核心定理：`claimed = observed` 必须是**构造子字段** —— 本次我把该纪律**从「设备归属」推广到了「动作状态声称」**"
+ },
+ "not_verified": [
+  "★ `session-0637278c` 与 `session-0d4aec63` **是否已按本卡登记** —— 我**不能代它们改档案**，故无法自证",
+  "★ `~/CLD-work/CLD.app` **已不存在**（2026-10-10 换装时 `mv` 至 `/Applications`）⇒ 该资源路径已失效，**其内容现为线上运行版本**",
+  "★ 我**未直接验证**受让人与 `0d4aec63` 是否已按本卡更新各自档案（`agent_profile` 无法代改）——仅收到 `0d4aec63` 的口头确认（「已按划界更新 agent_profile：4 项已移除」）"
+ ],
+ "r046_note": "本卡为资源划界声明，不构成任何验收或裁决通过。",
+ "★★_动作状态（消除双换装冲突）": {
+  "★_added_at": "2026-10-10T03:36:36+08:00",
+  "★_why": "★ `session-0d4aec63` 回复时自陈：「**换装动作仍挂用户口令（用户选 A·我换装等他发话）**」⇒ **它持有一个【已过期】的待办** —— 而换装**今晚已由我执行完毕**。★ 若不澄清，它或受让人可能**再执行一次换装** ⇒ **双换装冲突**。",
+  "换装_已完成": {
+   "执行者": "session-e317d6ab（★ 用户 2026-10-10 授权「可以重启重编译」后执行）",
+   "结果": "★ **`RESULT=OK`** —— 日志 `logs/cld-mic-apply-20261010-030022.log`",
+   "当前线上": "/Applications/CLD.app = **重签版**（`audio-input=1` · **4 个 Helper 全部齐备**）",
+   "门层验证": "★ **G-CR6 与 G-CR7 由 FAIL 转 PASS**（换装后复跑实测）",
+   "原版备份": "`guard/backups/CLD.app.pre-micfix-20261010-030022/`（**可回滚**）",
+   "★_另一条已闭合的路径": "★ 用户的「用户选 A·我换装等他发话」是**换装之前**的口径；用户随后对我说「可以重启重编译」⇒ **以我执行为准**（时间在后）"
+  },
+  "★_结论": "★ **不存在未决的换装待办** ⇒ `session-0d4aec63` 与 `session-0637278c` **均不应再执行换装**；若确需重装（如再次更新 app），**须先 `agent_light(file:/Applications/CLD.app)` 并遵守 R059**。",
+  "★_关于 lock": "★ `0d4aec63` 自陈「执行前会先 `agent_lock`」—— 该纪律**正确**；★ 但它同时报告 `file:/Applications/CLD.app` **现为绿灯（无持有者）** ⇒ **绿灯在本例中不等于「无待办」** ⇒ **动作状态须另行钳住**（即本节）"
+ },
+ "★★_补齐_20261010（由 session-0637278c 发现漏项，我已独立核实）": {
+  "★_who_found_it": "session-0637278c-cc44-4759-89df-3de23f0fae43（★ 它**机器解析卡全文 8207 字节**发现，非凭记忆）",
+  "★_what_I_missed": "★ 我在 A 类里只列了 **`cld-voice/drafts/`（**产物**）** 与 **两个 service**，**漏了成稿引擎的【源码目录】** —— 实测卡内 `backend` 出现 **0 次**。",
+  "★★_root_cause_of_my_omission": "★★ **我把「产物目录」当成了语音域资源的全部，漏了「真源」** —— ★ 这与今晚反复出现的「**以代理代替实体**」**同族**：**产物 ≠ 源**。（同族的还有：`ps` 的 argv 被当映像 · 关键词匹配被当归属 · 绿灯被当无待办）",
+  "★_its_evidence（我已独立复现）": {
+   "卡内字符串计数": "`backend` = **0**",
+   "cld-voice/ 一级条目": "`backend` · `backend.bak-v052-1789058601` · `bridge` · `drafts` ⇒ **只有 drafts 在卡内**",
+   "backend/ 内容": "`asr_server.py`（**503 行** · 含 `_GLM_KEY` L106/140/142/143）· `duplex_bridge.py`(20568B) · `voice_service.py`(7544B) · `stream_bridge.py`(6809B) · `minimax_tts.py`(4058B) · `venv` —— **7 项 / 218M**",
+   "bridge/": "`stream_bridge.py`（1 项 / 8K）",
+   "backend.bak-v052-*": "历史备份（6 项 / 218M）"
+  },
+  "★★_why_it_matters（它给的理由，我认可）": "★ 「你已并入缺口卡的『**静默降级不可观测**』修复，**必须改 `backend/asr_server.py`**（把失败的 `print()` 落盘 + 把 `stats.source` 外露）—— **而改它需要写权限，它不在我的资源里** ⇒ 按边界纪律，**在你或用户明示划归前，我不写这个目录、不自行扩权**。」→ ★ **它守住了边界并请求明示，而非自行扩权** —— 这是正确的做法。"
+ }
+}

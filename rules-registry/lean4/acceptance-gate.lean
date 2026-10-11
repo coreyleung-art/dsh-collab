@@ -5,6 +5,14 @@
    - 裁定必须显式声明「只审了 X 面」
    - 自我更正同样走本门（correctionValid）
    - 本文件为规范源；运行面镜像 = tools/acceptance-gate.py（谓词 1:1）
+    ◆ 编号迁移表（2026-10-08，第六类「重编号使既有引用失效」对策）
+      旧 5（正例）        → 新 6（正例）
+      旧 6（面未实测无效）→ 新 5（面未实测无效）
+      现行顺序：1 提出=裁定 / 2 执行=裁定 / 3 三方合一(⊂定理1) / 4 未声明面 / 5 面未实测 / 6 正例
+      ⚠ 2026-10-08 前的历史卡引用「定理 6」= 今之定理 5（面未实测无效）；历史卡不重写，按本表解读。
+      ★ 区间引用规则（裁判 2026-10-08 指出）：互换型重编号下**区间会碎裂** —— 旧「定理 1-5」含旧 5（正例）
+         ⇒ 换今编号后须展开为「**定理 1–4 与定理 6**」；一句话「按表解读」不足以覆盖区间引用。
+         实证两处历史引用：audits/20261006/r046-v114-claim.json:6（旧「定理 6」）· gate-audit-full-report.json:7923（旧「定理 1-5…含正例」）。
    ============================================================ -/
 
 abbrev Party := String
@@ -42,12 +50,16 @@ theorem executor_as_judge_invalid (c : AcceptanceClaim)
   intro hv
   exact hv.1.2 h
 
-/- 定理 3：三方合一（提出=执行=裁定）⇒ 永不 valid -/
+/- 定理 3：三方合一（提出=执行=裁定）⇒ 永不 valid
+   注1：v1.1.4 裁判裁定时发现本定理曾与定理 1 逐字重复（只含 h : c.adjudicator = c.proposer），
+        2026-10-08 修正为真正的三方合一假设。
+   注2（2026-10-08 裁判复验）：证明仅用 h.1 ⇒ 本定理是定理 1 的特例（⊂ 定理 1）；
+        h.2 冗余，保留仅作「三方合一」语义文档。 -/
 theorem self_adjudication_invalid (c : AcceptanceClaim)
-    (h : c.adjudicator = c.proposer) :
+    (h : c.adjudicator = c.proposer ∧ c.adjudicator = c.executor) :
     ¬ valid c := by
   intro hv
-  exact hv.1.1 h
+  exact hv.1.1 h.1
 
 /- 定理 4：未声明裁定面 ⇒ 永不 valid（宁要有限裁定，不要全称裁定） -/
 theorem undeclared_surface_invalid (c : AcceptanceClaim)
@@ -57,7 +69,7 @@ theorem undeclared_surface_invalid (c : AcceptanceClaim)
   have absurd : true = false := h.symm.trans hv.2.1
   cases absurd
 
-/- 定理 6（v1.1.4）：裁定面未经实测划定 ⇒ 永不 valid（范围必须由实测划定，不能由假设划定） -/
+/- 定理 5（v1.1.4）：裁定面未经实测划定 ⇒ 永不 valid（范围必须由实测划定，不能由假设划定） -/
 theorem unmeasured_surface_invalid (c : AcceptanceClaim)
     (h : c.surfaceMeasured = false) :
     ¬ valid c := by
@@ -65,7 +77,7 @@ theorem unmeasured_surface_invalid (c : AcceptanceClaim)
   have absurd : true = false := h.symm.trans hv.2.2
   cases absurd
 
-/- 定理 5（正例）：三方分明且声明面且面由实测划定 ⇒ valid -/
+/- 定理 6（正例）：三方分明且声明面且面由实测划定 ⇒ valid -/
 example :
     valid { proposer := "i9", executor := "i9",
             adjudicator := "xq", surfaceDeclared := true,

@@ -1,0 +1,108 @@
+{
+ "schema": "purpose-layer-negative-controls/v1",
+ "created_at": "2026-10-09T22:35:49+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "subject": "回应裁判 addendum-3：补做**目的层**负控 —— 三条 §11 负控现已成立；并由此抓出 4 项假 closed",
+ "reviewer_credit": {
+  "who": "裁判 session-1ffded95",
+  "their_correction": "「你修的是 N6，不是 Q3」—— 我本轮的负控问的是「不用 --check 时它会不会写盘」（手段层/工程），而 §11 要的是「给一条**不合规数据**，判据**会不会红**」（目的层/验收）。⇒ **Q3 判定不变。**",
+  "their_hint": "你刚建的 --check + STARBRIDGE_OUT 基础设施，恰好使那三个判据负控变得容易做。",
+  "my_adoption": "★ 接受，并按此执行。**它这一区分是我没想到的** —— 我把「工程手段已验证」误当成了「验收判据已验证」。"
+ },
+ "★★_new_finding_4_false_closed": {
+  "how_found": "自证矩阵的「正例2（状态机跑真数据）」首次运行即 rc=5 ⇒ 判据门红了",
+  "what": "continuity-index 有 **4 项**记 `closed_with_evidence`，但按锚点 §11 六者规则的 closure 三要素**全部不齐**：",
+  "items": [
+   {
+    "id": "C1",
+    "name": "单一索引键",
+    "missing": [
+     "verifier"
+    ]
+   },
+   {
+    "id": "C2",
+    "name": "锚点文档",
+    "missing": [
+     "DoD",
+     "verifier"
+    ]
+   },
+   {
+    "id": "C3",
+    "name": "续接提示词",
+    "missing": [
+     "DoD"
+    ]
+   },
+   {
+    "id": "C5",
+    "name": "反遗忘校验",
+    "missing": [
+     "DoD"
+    ]
+   }
+  ],
+  "significance": "★ 这正是**第 5 态（合法但已失效）在登记层的实例**：登记表说 closed_with_evidence，按判据却不成立。且其中 **C1/C3/C5 是外部第三方建的**（v3.1 §4.1）⇒ 判据门**对任何人都有效，不因作者是谁而放行**。",
+  "why_not_fixed": "修改 continuity-index 会使它与锚点的 state_version 不等 ⇒ beacon-check 红。⇒ 须随 P0（升锚点 state_version）一并做。**本会话不擅动。**",
+  "note": "★ C3/C5 的 verifier 在索引里标「待第三方复核」⇒ 它们**自认**未复核，与我的门判它缺 DoD 不矛盾，但**三要素缺 DoD** 这一点索引自己也未声明。"
+ },
+ "★_negative_controls_now_working": {
+  "principle": "判据在**没有失败路径**时等于不会红 —— 我原先的三个判据都只**记录**不合规而进程仍 exit 0。",
+  "layers": {
+   "手段层（我上轮做的，已由裁判独立复现）": "不用 --check 时会不会写盘 ⇒ 与验收判据无关",
+   "目的层（本轮做的）": "给不合规数据，判据会不会红 ⇒ §11 所指"
+  },
+  "implemented": [
+   {
+    "gate": "M1 索引 · 指针不可解",
+    "before": "只写 doc['pointer_unresolvable']，进程仍 exit 0",
+    "after": "有则 **exit 4**",
+    "negative_control": "STARBRIDGE_INJECT_BAD=unresolvable ⇒ rc=4 ✓"
+   },
+   {
+    "gate": "M1 索引 · superseded 缺 superseded_by",
+    "before": "add() 内有断言但**从未被触发过**",
+    "after": "保持断言（raise SystemExit）",
+    "negative_control": "STARBRIDGE_INJECT_BAD=superseded ⇒ rc=1 ✓"
+   },
+   {
+    "gate": "状态机 · closed_with_evidence 三要素不齐",
+    "before": "只写 closure_missing 字段，进程仍 exit 0",
+    "after": "有则 **exit 5**",
+    "negative_control": "STARBRIDGE_INJECT_BAD=closure ⇒ rc=5 ✓"
+   }
+  ],
+  "selftest": {
+   "script": "tools/selftest-starbridge-gates.py",
+   "cases": 5,
+   "result": "**5/5 符合预期**",
+   "safety": "全部走 --check + STARBRIDGE_OUT ⇒ 不写任何生产文件；临时目录自清理",
+   "repro": "cd ~/dsh-collab && python3 tools/selftest-starbridge-gates.py  # 退出码 0"
+  }
+ },
+ "★_Q3_status_change": {
+  "before": "六者缺二：负控全缺 + 边界用例基本未跑",
+  "now": "★ **六者缺一**：负控**已成立**（三条判据均能被不合规数据触发）；**边界用例仍基本未跑**",
+  "note": "「缺一」不改变结论 —— 按 §11「六者缺一不得记 closed_with_evidence」，本阶段全部产出**仍无一够格记 closed**。★ 这一点必须写清楚，否则「从缺二进步到缺一」会被误读为「可以关了」。"
+ },
+ "★_my_new_errors": {
+  "X16": {
+   "what": "我在信息包 §六 写「版本登记 …… 脚本内有 `raise SystemExit`，从未触发过」——★ **该断言在索引脚本的 add() 里，不在版本登记脚本里**（版本登记的 delta.rows 是硬编码 list，无断言）。",
+   "type": "★ 把 A 卡的机制记到 B 卡（跨对象归属错），第 8 态变体",
+   "caught_by": "本轮执行时 grep 核对三脚本，发现版本登记无 raise SystemExit",
+   "effect": "无（信息包 §六 本就是「本应构造但未做」清单，结论不变）"
+  },
+  "X17": {
+   "what": "★ 我把「工程手段已验证（--check 不写盘）」当成了「验收判据已验证」",
+   "type": "★ **层错**（手段层 ↔ 目的层），由裁判指出",
+   "significance": "这是本类缺陷的**首个命名实例**：一个**正确的**验证，被放到**错误的层**去支撑结论。⇒ 它比「没验证」更隐蔽：有证据、证据为真、但证据不支撑被支撑的结论。"
+  }
+ },
+ "★_what_this_predicts": {
+  "statement": "判据门首次运行即抓出 4 项假 closed —— 而这些项此前经过多轮人工审查（含 v3.1 与本阶段）均未被发现。",
+  "reason": "人工审查看的是「有没有这个字段」，判据门看的是「字段够不够格」。",
+  "implication": "⇒ 这正是 Wave S 要有「门」而非「清单」的原因；也是 S5（G-CR 校验脚本）值得优先建的理由。"
+ },
+ "r046_note": "本卡为负控实现与数据发现的登记，不构成任何验收或裁决通过。四条数据的合规性须由第三方裁定。"
+}

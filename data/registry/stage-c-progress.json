@@ -1,0 +1,96 @@
+{
+ "schema": "stage-c-progress/v1",
+ "created_at": "2026-10-09T23:17:07+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "C 阶段进展：C-0 委托已发 · C-1（U9）完成 · C-2（M9 首例）完成",
+ "goal": "goal-6b352bc9-6936-418d-82a9-26b37ddb6291（用户指定 C → A → B）",
+ "C-0_verifier_委托": {
+  "status": "已发（reply_required=true）",
+  "scope": "可裁部分（v1 的 10 项 + addendum 已复现者 + 工具交接提案）",
+  "explicitly_excluded_by_me": [
+   "① C7 整体 —— 它 v1 Q8 已声明不可裁（S3）⇒ 记 verifier_unavailable，保持 in_flight",
+   "② 是否退回/准进 P2 停点 —— **用户本轮已定归所有者** ⇒ 记 owner_decision_pending",
+   "4 项假 closed 的合规性 —— 属平台健康声明体系，在它声明范围外 ⇒ 记 out_of_scope，不塞给它制造可预见拒绝"
+  ],
+  "principle": "★ 对无人可裁的部分**记为「未定」而非回落成「已通过」**（边界②：无能力表达时保留未定）"
+ },
+ "★_C-1_U9_completed": {
+  "task": "修 U9 的静默截断（用户指定 C 阶段首项）",
+  "★_new_distinction_I_found": {
+   "statement": "★ `[:N]` 有**两种用途**，我的 lint 与（推测）裁判的 lint 都未区分：",
+   "types": [
+    {
+     "type": "显示截断",
+     "example": "`json.dumps(d)[:900]`",
+     "verdict": "**该报**（静默则危险）"
+    },
+    {
+     "type": "语义提取",
+     "example": "`(cid or \"\")[:8]` · `iso(t)[:13]`",
+     "verdict": "**不该报**（不是截断，是取前缀做标识/分组键）"
+    }
+   ],
+   "operational_criterion": "**看 `[:N]` 的结果是否被用于展示**（打印/写记录）还是用于计算/匹配/分组",
+   "counts_recomputed": {
+    "lint 报出": 17,
+    "其中注释提及": 4,
+    "其中语义提取": 3,
+    "★ 真该报": 10,
+    "note": "17 = 10 显示截断 + 4 注释提及 + 3 语义提取"
+   },
+   "shared_with_reviewer": "已发判据改进提案给它（建议其 lint 加 `EXTRACT` 分类）—— 这是「工具归还」后的正确姿态：**发现它的工具漏了什么就告诉它**"
+  },
+  "what_was_done": {
+   "method": "★ **逐处精确替换，用完整行做锚，不用正则** —— 因为批量正则已造成 X19（5 脚本损坏）",
+   "replaced": 10,
+   "helper_added": "c7-delta-distribution.py 缺 cut() ⇒ 已加，**位置按 X19 教训**：插在**第一段连续 import 之后**，而非「最后一个 import 行」（后者会因文件中部另有 import 而把定义插到调用点之后 —— X19 的真实成因）",
+   "position_verified": "5 个文件逐个人工核对 def 行号 < 首次使用行号，**全部顺序正确**"
+  },
+  "★_verification": {
+   "syntax": "6/6 通过",
+   "★_real_run": "★ **6/6 实跑 exit=0**（各全量一次）：c7-delta-distribution 22 行 · c7-delta-exact 134 行 · c7-field-locate 108 行 · c7-literal-locate 62 行 · c7-postmortem-activity 69 行 · n7-ignition-source 104 行",
+   "why_this_matters": "★ 按 M9（语法全绿≠能跑），**语法通过不算完成** —— 本次直接跑完才算"
+  }
+ },
+ "★_C-2_M9_first_instance_fixed": {
+  "task": "修裁判发现的 M9 首例：c7-delta-exact.py 空输入崩",
+  "reproduced": "`echo '' | python3 c7-delta-exact.py` ⇒ `ValueError: min() arg is an empty sequence`（我复现了）",
+  "fix_principle": "★ **空输入不是错误**（退出码 0），但**必须显式声明为空** —— 否则「没读到数据」会静默变成「差值为 0 / 无失败」，即第 8 态的反面。",
+  "★_bidirectional_verification": {
+   "empty_input": "exit=0 且输出「空输入声明」（含「这不是差值为 0」的显式区分）",
+   "with_input": "正常工作：n=108 · distinct=49 · framed 2469–3635 · shadowed 2466–3422"
+  },
+  "★_incidental": "★ n 从 105 → **108** ⇒ **源文件又长了 3 条** —— 本会话**第四次**印证「统计有时效」"
+ },
+ "C_remaining": [
+  "C-3 补边界用例（§11 六者的第六项）",
+  "C-4 收敛未测面（Obsidian 并集 · A8/A9 深挖 · route.js 逐行）"
+ ],
+ "files_state": {
+  "c7-delta-distribution": {
+   "sha256_16": "d591a7eeee4abfb8",
+   "bytes": 4159
+  },
+  "c7-delta-exact": {
+   "sha256_16": "503a1471a67e3919",
+   "bytes": 5264
+  },
+  "c7-field-locate": {
+   "sha256_16": "d839cbb1d8fcbf91",
+   "bytes": 5606
+  },
+  "c7-literal-locate": {
+   "sha256_16": "58c6b6e7ef652545",
+   "bytes": 3574
+  },
+  "c7-postmortem-activity": {
+   "sha256_16": "2368a7b7be159255",
+   "bytes": 4500
+  },
+  "n7-ignition-source": {
+   "sha256_16": "78d1fc8694232df4",
+   "bytes": 4307
+  }
+ },
+ "r046_note": "本卡为 C 阶段进展登记，不构成任何验收或裁决通过。"
+}

@@ -1,0 +1,45 @@
+{
+ "repos": {
+  "dsh-docs": {
+   "sha": "d347e703908d",
+   "when": "2026-09-04T09:16:23Z",
+   "repo": "deepseek-ai/deepseek-harness"
+  },
+  "electron-docs": {
+   "sha": "c26db8737991",
+   "when": "2026-09-04T08:35:16Z",
+   "repo": "electron/electron"
+  }
+ },
+ "npm": {
+  "@deepseek-ai/dsh": {
+   "latest": "0.1.2-rc.1",
+   "ts": 1788525508
+  },
+  "@deepseek-ai/dsh-tools": {
+   "latest": "0.0.1-rc.1",
+   "ts": 1788525510
+  },
+  "@deepseek-ai/dsh-session": {
+   "latest": "0.0.1-rc.1",
+   "ts": 1788525511
+  },
+  "@deepseek-ai/dsh-session-persistence-jsonl": {
+   "latest": "0.0.1-rc.1",
+   "ts": 1788525512
+  },
+  "@deepseek-ai/dsh-workspace": {
+   "latest": "0.0.1-rc.1",
+   "ts": 1788525513
+  },
+  "@deepseek-ai/cordis": {
+   "latest": "4.0.2",
+   "ts": 1788525514
+  },
+  "@deepseek-ai/dsh-agent": {
+   "latest": "0.1.0-rc.6",
+   "ts": 1788525515
+  }
+ },
+ "init": true
+}

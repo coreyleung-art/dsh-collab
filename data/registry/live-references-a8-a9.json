@@ -1,0 +1,88 @@
+{
+ "schema": "live-references-a8-a9-and-surface-classification/v1",
+ "created_at": "2026-10-09T22:01:48+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ v3.1 的活引用清单 A1–A7 不完整：新发现 A8（sb-mobile/server.js·运行中）与 A9（main-roles.json·第二份角色映射）",
+ "why_this_matters": "v3.1 §2.1 把「活引用 A1–A7」定义为**交接的真正对象**（会改变运行时行为）。本轮在「未测面分类」时发现至少两条**运行中**的引用未被列入 ⇒ 交接若只按 A1–A7 做，这两条会**继续指向死会话**，且其中一条**进程正在运行**。",
+ "A8": {
+  "id": "A8",
+  "file": "~/sb-mobile/server.js",
+  "size": 31790,
+  "mtime": "2026-10-05",
+  "status": "★ **运行中**",
+  "process": "PID 1250 · /opt/homebrew/bin/node /Users/coreyleung/sb-mobile/server.js · 启动于 Thu 04AM · CPU 0.0% · RSS 5.8MB",
+  "launchd": "label = com.dsh.sb-mobile-bridge（launchctl list 显示 PID 1250，状态码 0 ⇒ 已加载且运行）",
+  "hardcode": "L241-242: `const xc = x.id.includes('fa1f9150') ? 0 : 1;`（同型 L242 对 y）",
+  "semantics": "把含 fa1f9150 的会话**排到最前**（排序权重 0，其余为 1）",
+  "impact": "死会话若仍在 agentBus.list() 中出现，sb-mobile bridge 会**持续把它置顶** ⇒ 任何读该排序的下游都会优先选中死会话",
+  "layer": "运行时（活引用）",
+  "consumes": "agentBus.list() 的 id 做排序",
+  "fix_belongs_to": "P2（改活引用，须先过 P1 停点）",
+  "difficulty": "低（改字符串匹配），但须重启该 bridge 才生效 —— **不在本会话授权内**"
+ },
+ "A9": {
+  "id": "A9",
+  "file": "~/sb-mobile/main-roles.json",
+  "size": 1591,
+  "mtime": "2026-09-08",
+  "status": "静态配置（但被 A8 的运行实例读取的可能性未证）",
+  "content": "{\"prefix\": \"session-fa1f9150\", \"name\": \"星桥\", \"desc\": \"总线协调者\"}",
+  "significance": "★ **这是第二份角色映射**（第一份 = A1 `~/.dsh/agent-role-map.json`）",
+  "compounds_v31": "v3.1 §2.5 洞察 3 称「别名机制双轨不通：entity-alias-map（1 条）与 identity-variant-map（12 条）互不知情」——⇒ 本卡发现**第三条轨**：main-roles.json。**别名/角色映射至少三轨并存**。",
+  "cross_check": "与 A1 的 `\"星桥\": \"session-fa1f9150…\"` 一致（都指向死会话），但**两份文件互不引用**",
+  "risk": "★ 改 A1 而漏 A9 ⇒ 语义分裂：一条路径认为星桥已换任，另一条仍认为星桥=死会话"
+ },
+ "surface_classification": {
+  "task": "v3.1 §十未测面：`~/sb-mobile`(44) / `~/.claude`(40) / `~/Desktop`(21) / Obsidian(87) 命中文件的性质分类",
+  "★_counting_correction": {
+   "my_first_count": "用单一搜索词 `fa1f9150` ⇒ sb-mobile 14 / .claude 27 / Desktop 11 / Obsidian 84",
+   "v31_numbers": "44 / 40 / 21 / 87",
+   "resolution": "★ v3.1 用的是**并集**（`fa1f9150` ∪ `星桥`）。实测 sb-mobile：fa1f9150=14 ∪ 星桥=38 = **44** ⇒ **与 v3.1 完全吻合**。.claude：27 ∪ 35 = 41（v3.1 记 40，差 1，疑时点）。⇒ **v3.1 的数字正确**；是我方用了单一词。**第 6 次同族（搜索面不匹配）**，本次因做了差异溯源而**未造成假指控**。",
+   "discipline": "⇒ 核对计数前须先确认对方的**搜索条件**（词集/并集/交集），与「先确认符号约定」同族"
+  },
+  "classification": [
+   {
+    "dir": "~/sb-mobile",
+    "n": 44,
+    "nature": "**混合**",
+    "breakdown": "Xcode 构建缓存 xcbuilddata/attachments（6 个，可弃）· 编译产物（ChatModel.o / StarBridge.debug.dylib）· ★ 活引用 A8（server.js 运行中）· ★ A9（main-roles.json）· 3 个 server.js.bak-*（备份）",
+    "verdict": "★ **唯一含活引用者** —— 不可当作历史留痕只读处理"
+   },
+   {
+    "dir": "~/.claude",
+    "n": 41,
+    "nature": "**历史留痕（只读）**",
+    "breakdown": "11 个 .jsonl（Claude Code 会话记录）+ claude/file-history/ 版本快照 + 2 txt",
+    "verdict": "另一 AI 工具的会话记录，不改变运行时行为 ⇒ 只读不改"
+   },
+   {
+    "dir": "~/Desktop",
+    "n": 11,
+    "nature": "**历史快照（只读）**",
+    "breakdown": "9 个 json 全在 `Desktop/SystemGraph-本地文件化/api/`（cap-view/agents/overview/rules 等导出快照）· 1 md（DSH-HR会话恢复-操作手册-2026-08-22）· 1 html（归档/2026-08-17/智能体协作网络全景）",
+    "verdict": "SystemGraph 的**本地导出快照** + 归档 ⇒ 只读不改"
+   },
+   {
+    "dir": "Obsidian",
+    "n": 87,
+    "nature": "**知识库笔记（只读）**",
+    "breakdown": "84 命中全为 .md，79 个 mtime 在 2026-08（搜索因目录大而超时，未跑并集）",
+    "verdict": "笔记 ⇒ 只读不改"
+   }
+  ],
+  "conclusion": "四类中**只有 sb-mobile 含活引用**（A8/A9），其余三类均为只读留痕。⇒ 交接的「活引用」对象应从 A1–A7 扩为 **A1–A9**。"
+ },
+ "not_verified": [
+  "A9 `main-roles.json` 是否被 A8 的运行实例**实际读取**（未读 server.js 全文确认其加载路径）",
+  "sb-mobile 的 3 个 `server.js.bak-*` 与主文件的差异（未 diff）",
+  "Obsidian 的 87（并集口径）未复跑 —— 该目录大，单次 grep 超时（已实测：>60s）",
+  "A8 改动的具体生效方式与重启需求（未读其加载时序）"
+ ],
+ "recommended": [
+  "① 把 A8/A9 补入交接计划的活引用清单（v3.1 的 §2.1 表 + P2 的改动范围）",
+  "② P2 执行时须一并处理 A8/A9，否则改 A1 会造成语义分裂",
+  "③ A8 涉及**运行中进程** ⇒ 其重启需求与本会话「不重启」禁令冲突 ⇒ **须所有者安排窗口**",
+  "④ 三轨角色映射（A1 / A9 / identity-variant-map）应在 P2 中一并收敛，或显式声明以哪一份为准"
+ ],
+ "r046_note": "本卡为实测登记，不构成任何验收或裁决通过。"
+}

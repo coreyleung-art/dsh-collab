@@ -1,0 +1,1903 @@
+{
+ "schema": "starbridge-knowledge-index/v1",
+ "created_at": "2026-10-09T22:07:40+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "subject": {
+  "session_id": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+  "name": "星桥（首任，历史专名，冻结）",
+  "window": "2026-08-16T23:17 → 2026-10-09T05:39:52",
+  "death": "P26 会话硬死锁（不崩，但再也发不出请求）"
+ },
+ "observation_surface": {
+  "searched": [
+   "~/dsh-collab（文件系统枚举）",
+   "~/.dsh（配置/状态层；agent-bus.json 全量）",
+   "~/.dsh/.agent-presets（6 preset）",
+   "~/system-graph-app（v3.1 §2.5）"
+  ],
+  "unsearched": [
+   "其余设备（MBP/i9/星台）本地文件",
+   "服务器 106.53.214.108 侧",
+   "~/sb-mobile · ~/.claude · ~/Desktop · Obsidian 的命中文件性质分类",
+   "私有仓库"
+  ],
+  "note": "本索引的「已覆盖」仅指上述 searched 面；unsearched 面内的星桥产出不在本索引内，不得据本索引宣称「星桥产出已全量索引」。"
+ },
+ "entry_schema": [
+  "id",
+  "class",
+  "title",
+  "pointer",
+  "status",
+  "superseded_by",
+  "verified_by"
+ ],
+ "classes": {
+  "①": "角色定义/边界",
+  "②": "能力/资源",
+  "③": "设计产出",
+  "④": "规则裁定",
+  "⑤": "工具/脚本",
+  "⑥": "在办活",
+  "⑦": "失效清单",
+  "⑧": "裁定与审批记录",
+  "⑨": "修复/广播动作",
+  "⑩": "合作方登记"
+ },
+ "entries": [
+  {
+   "id": "K1-001",
+   "class": "①",
+   "title": "audit-reviewer preset 把「不改规则（星桥）」写成硬边界",
+   "pointer": "file:~/.dsh/.agent-presets/audit-reviewer/agent.cordis.yml::L68,L72",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中原文）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K1-002",
+   "class": "①",
+   "title": "audit-reviewer preset 身份卡（独立审计员·代号裁判）",
+   "pointer": "file:~/.dsh/.agent-presets/audit-reviewer/preset.yml",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K1-003",
+   "class": "①",
+   "title": "role-map：星桥 → 首任会话（A1 活引用；P2 不重指，另立 星桥v2）",
+   "pointer": "file:~/.dsh/agent-role-map.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（无 星桥v2 键，实测）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K1-004",
+   "class": "①",
+   "title": "★ 缺口：无「在任 v2」的角色定义（P5 才补 preset 边界）",
+   "pointer": "file:~/.dsh/.agent-presets/",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测：6 个 preset 目录均无星桥专属边界",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K1-005",
+   "class": "①",
+   "title": "★ 星桥 1.0 / 2.0 版本区别登记（双主体对照 · 差异四分类 · 引用纪律 · 术语四义钉死）",
+   "pointer": "blackboard:data/registry/starbridge-version-registry",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（两侧 profiles 自述 source=self + role-map + 文件系统）；差异 14 维，详见该卡",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K1-006",
+   "class": "①",
+   "title": "★ 术语四义：星桥=1.0（冻结）· 星桥v2=2.0（在任）· 星台=starbridge App（不交接）· 星舵=无关会话",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3.1-20261009.md::L252-L261",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §三 命名方案 + 本会话录入版本登记卡",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K1-007",
+   "class": "①",
+   "title": "★★ 活引用清单不完整（v3.1 的 A1–A7 漏 A8/A9）：**A8** = `~/sb-mobile/server.js`（★**运行中 PID 1250**，launchd `com.dsh.sb-mobile-bridge`，L241-242 硬编码 `fa1f9150` 做排序）· **A9** = `~/sb-mobile/main-roles.json`（★**第二份角色映射**，与 A1 `agent-role-map.json` 并存且互不引用）",
+   "pointer": "blackboard:data/registry/live-references-a8-a9",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（ps aux 见 PID 1250 + launchctl list 见 label + grep 行号定位硬编码）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K1-008",
+   "class": "①",
+   "title": "★ 角色/别名映射至少**三轨并存**：A1 `~/.dsh/agent-role-map.json` · A9 `~/sb-mobile/main-roles.json` · `cld-health/identity-variant-map.py` —— 三者互不引用",
+   "pointer": "blackboard:data/registry/live-references-a8-a9",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（三处内容比对一致指向死会话，但无交叉引用）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K2-001",
+   "class": "②",
+   "title": "★ 首任能力/资源清单（自述档案，仅存活于 agent-bus.json；无本地可读副本）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[agentId=session-fa1f9150]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（role/abilities×7/resources×6）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-002",
+   "class": "②",
+   "title": "首任自述资源：rules-registry 属主 / 双仓 / 星台工程 / 6 个 release 工具",
+   "pointer": "file:~/.dsh/agent-bus.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-003",
+   "class": "②",
+   "title": "第二任（在任）自述档案：已承接 + 未承接 + 被禁止三档",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[agentId=session-e317d6ab]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话自述（source=self，按 R030 不可作事实）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-004",
+   "class": "②",
+   "title": "★ 缺口：agent_profile 只能写自己档案 ⇒ 死会话名下的 resources 无法单向过户",
+   "pointer": "file:~/.dsh/agent-bus.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（tools/agent_* 语义确认）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-005",
+   "class": "②",
+   "title": "★ 既有资产未被利用：星桥记忆继承包（3,293 行 / 39 段宿主压缩摘要 + 最近 8 条用户指令，由 HR 的 session-rebirth v1.0.0 于首任死前一天生成）—— 索引化后按需投影，不整份读",
+   "pointer": "file:~/dsh-collab/docs/星桥-memory-inheritance-2026-10-08.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.4 实测（3,293 行）+ 本会话存在性校验；★ 内容完备性未逐段核（观测量=行数，非覆盖）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-006",
+   "class": "②",
+   "title": "配套续接提示词（首任世代，2026-10-08）",
+   "pointer": "file:~/dsh-collab/docs/星桥-resume-prompt-2026-10-08.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话存在性校验（1,520 B）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K2-007",
+   "class": "②",
+   "title": "★ 缺口：② 类此前「仅活在已死会话档案里，无本地可读副本」—— 本轮已把两侧自述档案索引化（K2-001/K2-003），但**档案本体仍在 agent-bus.json**，尚无独立本地快照；且 agent_profile 只能写自己档案 ⇒ 过户无机制",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（profiles 78 条，两侧均在；无独立副本）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-001",
+   "class": "③",
+   "title": "agent-constraint-lean4-design-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/agent-constraint-lean4-design-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-002",
+   "class": "③",
+   "title": "architecture-diagrams-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/architecture-diagrams-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-003",
+   "class": "③",
+   "title": "bus-push-rule-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/bus-push-rule-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-004",
+   "class": "③",
+   "title": "comm-confirmation-chain-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/comm-confirmation-chain-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-005",
+   "class": "③",
+   "title": "comm-gate-design-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/comm-gate-design-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-006",
+   "class": "③",
+   "title": "comm-router-isolation-design-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/comm-router-isolation-design-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-007",
+   "class": "③",
+   "title": "comms-governance-standard-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/comms-governance-standard-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-008",
+   "class": "③",
+   "title": "convention-pr-design-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/convention-pr-design-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-009",
+   "class": "③",
+   "title": "cross-device-arch-eval-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/cross-device-arch-eval-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-010",
+   "class": "③",
+   "title": "dsh-archify-sysgraph-eval.md",
+   "pointer": "file:~/dsh-collab/comm-server/dsh-archify-sysgraph-eval.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-011",
+   "class": "③",
+   "title": "dual-track-plan-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/dual-track-plan-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-012",
+   "class": "③",
+   "title": "e2-registry-plan-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/e2-registry-plan-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-013",
+   "class": "③",
+   "title": "health-protocol-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/health-protocol-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-014",
+   "class": "③",
+   "title": "migration-plan-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/migration-plan-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-015",
+   "class": "③",
+   "title": "node-kit-standardization-design-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/node-kit-standardization-design-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-016",
+   "class": "③",
+   "title": "node-network-self-evolution-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/node-network-self-evolution-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-017",
+   "class": "③",
+   "title": "perpetual-comms-convergence-plan-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/perpetual-comms-convergence-plan-v1.md",
+   "status": "superseded",
+   "superseded_by": "file:~/dsh-collab/comm-server/perpetual-comms-convergence-plan-v2.md",
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-018",
+   "class": "③",
+   "title": "perpetual-comms-convergence-plan-v2.md",
+   "pointer": "file:~/dsh-collab/comm-server/perpetual-comms-convergence-plan-v2.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-019",
+   "class": "③",
+   "title": "server-degrade-discipline-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/server-degrade-discipline-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-020",
+   "class": "③",
+   "title": "server-governance-v1.md",
+   "pointer": "file:~/dsh-collab/comm-server/server-governance-v1.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-021",
+   "class": "③",
+   "title": "starbridge-bus-analysis.md",
+   "pointer": "file:~/dsh-collab/comm-server/starbridge-bus-analysis.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-022",
+   "class": "③",
+   "title": "step4-external-link-detail.md",
+   "pointer": "file:~/dsh-collab/comm-server/step4-external-link-detail.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K3-023",
+   "class": "③",
+   "title": "sysgraph-universal-registry-eval.md",
+   "pointer": "file:~/dsh-collab/comm-server/sysgraph-universal-registry-eval.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举 + 存在性校验）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-001",
+   "class": "④",
+   "title": "R009 ## R009 ✅ 角色命名标准（智能体自命名-设备-角色）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L163",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-002",
+   "class": "④",
+   "title": "R030 ## R030 ✅ 自动化结果真实性原则（无验证的成功=未成功）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L258",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-003",
+   "class": "④",
+   "title": "R032 ## R032 ✅ 蓝图登记三写 + 知识向量化归档（2026-09-08 星桥批准 · 明鉴提案）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L271",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-004",
+   "class": "④",
+   "title": "R033 ## R033 ✅ 通讯通道治理（2026-09-09 用户裁决吸收 · R008 用户批准 · HR 定稿/星桥公约 ",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L277",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-005",
+   "class": "④",
+   "title": "R034 ## R034 ✅ 送达与状态确认·探照灯（2026-09-09 用户裁决吸收 · R008 用户批准 · HR 提案 ",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L285",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-006",
+   "class": "④",
+   "title": "R035 ## R035 ✅ 热重启优先·不杀框架（2026-09-10 用户指示 · 星桥提出）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L325",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-007",
+   "class": "④",
+   "title": "R036 ## R036 ✅ 通道变更治理门（2026-10-02 用户指示「Lean4 机械门而非头痛医头」· 星桥实现 · 业",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L331",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-008",
+   "class": "④",
+   "title": "R037 ## R037 ✅ L3 网络层规则（2026-10-02 用户批准 gap 补课 · 星桥实现）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L339",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-009",
+   "class": "④",
+   "title": "R038 ## R038 ✅ 组件版本注册（E2 schema v1 services 扩展 · 2026-10-02 架构三期 ",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L347",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-010",
+   "class": "④",
+   "title": "R039 ## R039 ✅ 工具中文描述文档（2026-10-03 用户指示「做任何工具必须要加中文描述文档」· 星桥录入）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L356",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-011",
+   "class": "④",
+   "title": "R040 ## R040 ✅ 自查不得自指 + 出包前真实 boot 预演（2026-10-03 MBP 原链路反馈「两代门都不可",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L364",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-012",
+   "class": "④",
+   "title": "R041 ## R041 ✅ 资源冲突收敛协议（2026-10-03 星桥+MBP 双向对齐）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L373",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-013",
+   "class": "④",
+   "title": "R042 ## R042 ✅ 投递状态诚实语义（queued≠送达）（2026-10-04 MBP 对等自查决定性数据 · 星桥 ",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L378",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-014",
+   "class": "④",
+   "title": "R043 ## R043 ✅ 拉起/重启类动作必须读回验证（2026-10-04 MBP 事故 #6 · G35 · 6823 更",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L385",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-015",
+   "class": "④",
+   "title": "R044 ## R044 ✅ 服务器操作规范门（五问必答）（2026-10-04 星桥起草 · MBP 同源）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L392",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-016",
+   "class": "④",
+   "title": "R045 ## R045 ✅ 协作网络章程基线（2026-10-04 MBP 起草 · 星桥同源）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L399",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-017",
+   "class": "④",
+   "title": "R046 ## R046 ✅ 验收门（自审无效、第三方必须在场）（2026-10-04 老板指令 · 星桥入账 · v1.1.4）",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L405",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-018",
+   "class": "④",
+   "title": "R048 ## R048 ✅ 协调者设计/代码工作须经独立审查员审计（2026-10-08 老板指令 · 星桥入账 · v1.0.",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L411",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K4-019",
+   "class": "④",
+   "title": "R047 ## R047 ✅ 插件/工具命名准入门（N1–N8）（2026-10-05 星桥裁定 · PSTD 提请 · v1.0",
+   "pointer": "file:~/dsh-collab/rules-registry/RULES.md::L418",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（grep 命中规则标题行，共 28 处含「星桥」）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-001",
+   "class": "⑤",
+   "title": "acceptance-gate.py",
+   "pointer": "file:~/dsh-collab/tools/acceptance-gate.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-002",
+   "class": "⑤",
+   "title": "asc-api.py",
+   "pointer": "file:~/dsh-collab/tools/asc-api.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-003",
+   "class": "⑤",
+   "title": "auto-reminder.sh",
+   "pointer": "file:~/dsh-collab/tools/auto-reminder.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-004",
+   "class": "⑤",
+   "title": "bb_dualwrite.py",
+   "pointer": "file:~/dsh-collab/tools/bb_dualwrite.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-005",
+   "class": "⑤",
+   "title": "beacon-check.py",
+   "pointer": "file:~/dsh-collab/tools/beacon-check.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-006",
+   "class": "⑤",
+   "title": "build-starbridge-index.py",
+   "pointer": "file:~/dsh-collab/tools/build-starbridge-index.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-007",
+   "class": "⑤",
+   "title": "build-starbridge-version-registry.py",
+   "pointer": "file:~/dsh-collab/tools/build-starbridge-version-registry.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-008",
+   "class": "⑤",
+   "title": "build-state-registry.py",
+   "pointer": "file:~/dsh-collab/tools/build-state-registry.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-009",
+   "class": "⑤",
+   "title": "cld-release.sh",
+   "pointer": "file:~/dsh-collab/tools/cld-release.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-010",
+   "class": "⑤",
+   "title": "floodgate.py",
+   "pointer": "file:~/dsh-collab/tools/floodgate.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-011",
+   "class": "⑤",
+   "title": "hb-watchdog.sh",
+   "pointer": "file:~/dsh-collab/tools/hb-watchdog.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-012",
+   "class": "⑤",
+   "title": "laodeng-release.sh",
+   "pointer": "file:~/dsh-collab/tools/laodeng-release.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-013",
+   "class": "⑤",
+   "title": "mk-resume-prompt.py",
+   "pointer": "file:~/dsh-collab/tools/mk-resume-prompt.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-014",
+   "class": "⑤",
+   "title": "relaunch-cld.sh",
+   "pointer": "file:~/dsh-collab/tools/relaunch-cld.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-015",
+   "class": "⑤",
+   "title": "starbridge-release.sh",
+   "pointer": "file:~/dsh-collab/tools/starbridge-release.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K5-016",
+   "class": "⑤",
+   "title": "verify-cld-release.sh",
+   "pointer": "file:~/dsh-collab/tools/verify-cld-release.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举，已排除 .bak/.bak-* 备份 4 个）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-001",
+   "class": "⑥",
+   "title": "锚点 WBS 30 项（Wave S/C/0–5）",
+   "pointer": "file:~/dsh-collab/docs/distributed-agent-network-governance-plan-v4-20261009.md::L259-L268",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-002",
+   "class": "⑥",
+   "title": "continuity-index.items（C1–C7 + P26 状态机）",
+   "pointer": "blackboard:data/registry/continuity-index",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（C4/C6/C7 = open，其余 closed_with_evidence）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-003",
+   "class": "⑥",
+   "title": "交接计划 P0–P5（六阶段 + 审查停点）",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3.1-20261009.md::L361-L370",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-004",
+   "class": "⑥",
+   "title": "memory-governance 蓝图 11 阶段（多数 todo；mg1-2 自称 active 已被 P26 证伪）",
+   "pointer": "file:~/dsh-collab/data/blueprint/memory-governance/blueprint-memory-governance-v1.0.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.5 实测 + 本会话实读",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-005",
+   "class": "⑥",
+   "title": "★ 本会话产出①：M1 索引本体（本条所在之物）",
+   "pointer": "blackboard:data/registry/starbridge-knowledge-index",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（双板逐字节相等）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-006",
+   "class": "⑥",
+   "title": "★ 本会话产出②：星桥 1.0/2.0 版本区别登记（14 维差异 + 术语四义 + 引用纪律）",
+   "pointer": "blackboard:data/registry/starbridge-version-registry",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（双板逐字节相等）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-007",
+   "class": "⑥",
+   "title": "★ 本会话产出③：C6 状态机登记（14 项 + 8 wave + 五态对齐 + 3 缺口）",
+   "pointer": "blackboard:data/registry/state-registry",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（双板逐字节相等）；发现锚点五态缺 unknown 态",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-008",
+   "class": "⑥",
+   "title": "★★ 本会话产出④：死会话死后活动证据（9 次 compaction 全失败 · turn 11170→11178）—— P3/P4 紧迫性依据",
+   "pointer": "blackboard:data/registry/dead-session-postmortem-activity",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话全量流式扫描（5 个可复跑脚本，audits/20261009/repro/c7-*.py）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-009",
+   "class": "⑥",
+   "title": "★★ 本会话产出⑤：P3 前置定位 —— 回退注入源在 dsh-plugin-central-inbox 源码硬编码（非环境变量非配置）",
+   "pointer": "blackboard:data/registry/fallback-injection-source-located",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读 lib/index.js:117/120/125 + plist 实读 + 两副本 sha 一致",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-010",
+   "class": "⑥",
+   "title": "★ 本会话产出⑥：P1-c 别名映射缺陷登记（移交守灯）",
+   "pointer": "blackboard:data/registry/starbridge-alias-mapping-defect",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（5 条证据链）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-011",
+   "class": "⑥",
+   "title": "★ 本会话产出⑦：测试标识机读清单（3 标识 / 12 条消息）",
+   "pointer": "blackboard:data/registry/bus-test-identifiers",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-012",
+   "class": "⑥",
+   "title": "★ 本会话产出⑧：C7 补正三项（双向失效标注 · n/distinct 声明 · 第 5–8 态入证伪清单）",
+   "pointer": "file:~/dsh-collab/docs/c7-half-fix-clause10-20261009.md::L119-",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（§八增量，不改前七节原文）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-014",
+   "class": "⑥",
+   "title": "★ 本会话产出⑩：阶段报告 + 独立审查信息包（按锚点 §5.3 十四项规格）—— 已据此委托裁判",
+   "pointer": "file:~/dsh-collab/docs/starbridge-stage-report-and-review-package-20261009.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（14 项逐项填写；含 8 个提问项与负控缺口前置披露）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-015",
+   "class": "⑥",
+   "title": "★ 本会话产出⑪：下阶段计划（三候选 + 依赖链 + 建议排序）—— 待所有者拍板",
+   "pointer": "file:~/dsh-collab/docs/starbridge-next-stage-plan-20261010.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（依赖链与候选均引本阶段实测证据）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K6-016",
+   "class": "⑥",
+   "title": "★ 本会话产出⑫：阶段审查委托登记（含 verifier 候选分析与排除理由）",
+   "pointer": "blackboard:data/registry/starbridge-stage-review-request",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（p2p 委托已送达裁判，thread-mv11hpn9-m433vf7a）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K6-013",
+   "class": "⑥",
+   "title": "★ 本会话产出⑨：三个可持续更新的构建脚本（索引 / 版本登记 / 状态机登记）",
+   "pointer": "file:~/dsh-collab/tools/build-starbridge-index.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（可复跑，指针可解性校验内建）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-001",
+   "class": "⑦",
+   "title": "plan v1 已被取代",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v1-20261009.md",
+   "status": "superseded",
+   "superseded_by": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v2-20261009.md",
+   "verified_by": "本会话实读（头部 superseded 标注在位）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-002",
+   "class": "⑦",
+   "title": "plan v2 已被取代",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v2-20261009.md",
+   "status": "superseded",
+   "superseded_by": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3-20261009.md",
+   "verified_by": "本会话实读",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-003",
+   "class": "⑦",
+   "title": "plan v3 被 v3.1 取代（v3 本体因「审计对象不可变」冻结，sha16 91ff3286e9fc0e9a）",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3-20261009.md",
+   "status": "superseded",
+   "superseded_by": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3.1-20261009.md",
+   "verified_by": "黑板卡 data/registry/plan-version-chain（外部声明，非自声明）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-004",
+   "class": "⑦",
+   "title": "perpetual-comms-convergence-plan v1 被 v2 取代",
+   "pointer": "file:~/dsh-collab/comm-server/perpetual-comms-convergence-plan-v1.md",
+   "status": "superseded",
+   "superseded_by": "file:~/dsh-collab/comm-server/perpetual-comms-convergence-plan-v2.md",
+   "verified_by": "同族版本对扫描（ls 去版本号后 uniq -d 唯一命中）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-005",
+   "class": "⑦",
+   "title": "hb-watchdog.sh 的 4 个 .bak 备份（非活跃）",
+   "pointer": "file:~/dsh-collab/tools/hb-watchdog.sh",
+   "status": "dead",
+   "superseded_by": null,
+   "verified_by": "本会话实测（ls glob *.bak* 计数 = 4）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K7-006",
+   "class": "⑦",
+   "title": "★ 缺口补记：54 天产出中其余作废项的判定 —— 本轮只覆盖有显式版本对/备份标记者；无标记的语义性作废（如设计被后续实现取代）本轮未判定，不得读成「只有这 6 条失效」",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3.1-20261009.md::L195",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话如实标注（观测面声明：判据=显式标记；无标记者不可判）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-001",
+   "class": "⑧",
+   "title": "[approved] A1 · CLD 应用重启（唯一技术阻塞，触发 9 项生效）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkidu-b8m6rpda]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-002",
+   "class": "⑧",
+   "title": "[approved] A2 · 重启轮询名单 v2 定稿（17 正式 + 3 治理 = 20 前台角色）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkjup-18os8hth]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-003",
+   "class": "⑧",
+   "title": "[approved] A3 · CLD-002 看门狗安装（需批准重签 CLD.app）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkke8-xhnteb4n]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-004",
+   "class": "⑧",
+   "title": "[approved] A4 · CLD-012 重签 + 硬重启窗口（预案 v3）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpklgn-apim8ww5]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-005",
+   "class": "⑧",
+   "title": "[rejected] A5 · 飞书通道接入（需扫码获取 secret）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkm2c-7g3eucz6]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-006",
+   "class": "⑧",
+   "title": "[approved] B1 · s9 佛山禅城-京东 扫码补登",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkyd3-ntgi5j47]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-007",
+   "class": "⑧",
+   "title": "[rejected] B2 · 企微确认卡（要贺卡 #17）裁决",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkyrp-4cb6tzlg]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-008",
+   "class": "⑧",
+   "title": "[rejected] B3 · 客服 14 条草稿审查裁决",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkz2m-u2oo0zwa]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-009",
+   "class": "⑧",
+   "title": "[approved] B4 · 商品导入原语录制确认（高风险写）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpkz9k-ekbvohbm]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-010",
+   "class": "⑧",
+   "title": "[rejected] B5 · 连载 16 集发布时机裁决",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpl0o6-g1uhrsne]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-011",
+   "class": "⑧",
+   "title": "[approved] C1 · 花店驾驶舱开工立项（16-18 天）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxplgxh-k2esqdbl]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-012",
+   "class": "⑧",
+   "title": "[approved] C2 · cron #28 定时调度落地（0.5 天）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxplht8-4pmbnknz]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-013",
+   "class": "⑧",
+   "title": "[approved] C3 · DSH-Office 自研立项（0.5-1 天）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpliem-s20oks8j]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-014",
+   "class": "⑧",
+   "title": "[approved] C4 · 画布/白板设计选型",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpllil-moabek00]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-015",
+   "class": "⑧",
+   "title": "[approved] C5 · 语音 🎤 按钮实测确认",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxplm5s-165cgtw8]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-016",
+   "class": "⑧",
+   "title": "[approved] D1 · 企微资料摸底授权",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm0l5-gyd9dn3v]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-017",
+   "class": "⑧",
+   "title": "[approved] D2 · AI 运营官方案 v1.2 定价确认",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm129-rs5df9fg]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-018",
+   "class": "⑧",
+   "title": "[approved] D3 · repo-pipeline Secret（NOTIFY_URL+部署）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm1kc-sv37xoio]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-019",
+   "class": "⑧",
+   "title": "[approved] D4 · Docker 迁移 / i9 CLD / 训练集归集拍板",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm1vj-hrgwiyt3]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-020",
+   "class": "⑧",
+   "title": "[rejected] D5 · 设备告警企微放行",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm27t-pgmx415m]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-021",
+   "class": "⑧",
+   "title": "[approved] D6 · 杂项授权（PAT 提权 / dsh-files PR / 内存 purge）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-msxpm2h8-0nl58hxs]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-022",
+   "class": "⑧",
+   "title": "[approved] 蓝图规划师角色：扩展明鉴（非新建）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtfovzro-wocg34io]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-023",
+   "class": "⑧",
+   "title": "[approved] 明鉴 v2.0 扩展（蓝图规划师）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtfozqlm-rpoypueu]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-024",
+   "class": "⑧",
+   "title": "[approved] 飞书妙记定时收取启用（R027 人类开关锁）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mthw1n8q-sbi7pq5e]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-025",
+   "class": "⑧",
+   "title": "[approved] central-inbox v2 定向注入改造部署（星台会话切换 P2）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtlw2cdz-lopdr1ot]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-026",
+   "class": "⑧",
+   "title": "[approved] R033/R034 通讯治理规则入账（R008 流程）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtsv2jzv-4jenr4hf]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-027",
+   "class": "⑧",
+   "title": "[approved] 把 .md 文件默认打开方式改为 Notion（替代 Xcode）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtu4j3yg-ilhrd6c2]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-028",
+   "class": "⑧",
+   "title": "[approved] 【网络级条文】data/registry/* 权威登记键是否强制跨设备双写？",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtw1ketm-hw20qea9]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-029",
+   "class": "⑧",
+   "title": "[approved] 【授权】是否允许我给 mbp-ops 的两张卡补一条更正行？",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtw1kexe-qfau16fc]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-030",
+   "class": "⑧",
+   "title": "[approved] 【恢复】是否恢复 Dify / waimai_dify_report 能力？",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtw1keyh-9jlp6s7z]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-031",
+   "class": "⑧",
+   "title": "[approved] 【裁定】RULES.md ↔ rules.json 合并方向是否反转（执行②③步）？",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtw1kezl-og44mwii]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-032",
+   "class": "⑧",
+   "title": "[approved] 【安全复核】security-push-20keys-supersede 两侧「脱敏记录约定」不同，需属主/用户以安全方式复核",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mtw4iun4-sj6pof7d]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-033",
+   "class": "⑧",
+   "title": "[approved] absence-claim-lint 是否升为阻断（影响全网写卡流）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mu0xf44y-8jus5yva]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-034",
+   "class": "⑧",
+   "title": "[approved] 授权删除 GitHub 仓「-」（不可逆 · 需你点头）",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-muylf3qj-nfdq0kbt]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K8-035",
+   "class": "⑧",
+   "title": "[approved] 星桥协调者职能继承（第二任）· 范围划界",
+   "pointer": "bus:~/.dsh/agent-bus.json::approvals[aprv-mv0prir5-djhpj0dk]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测抽取（approvals 共 35 份）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-001",
+   "class": "⑨",
+   "title": "cld-health/CLD-002-watchdog.md",
+   "pointer": "file:~/dsh-collab/cld-health/CLD-002-watchdog.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-002",
+   "class": "⑨",
+   "title": "cld-health/CLD-002-wecom-alert-spec.md",
+   "pointer": "file:~/dsh-collab/cld-health/CLD-002-wecom-alert-spec.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-003",
+   "class": "⑨",
+   "title": "cld-health/README.md",
+   "pointer": "file:~/dsh-collab/cld-health/README.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-004",
+   "class": "⑨",
+   "title": "cld-health/board-publish.py",
+   "pointer": "file:~/dsh-collab/cld-health/board-publish.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-006",
+   "class": "⑨",
+   "title": "cld-health/central-availability-probe.json",
+   "pointer": "file:~/dsh-collab/cld-health/central-availability-probe.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-007",
+   "class": "⑨",
+   "title": "cld-health/central-availability-probe.py",
+   "pointer": "file:~/dsh-collab/cld-health/central-availability-probe.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-008",
+   "class": "⑨",
+   "title": "cld-health/citation-anchor-scan.py",
+   "pointer": "file:~/dsh-collab/cld-health/citation-anchor-scan.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-009",
+   "class": "⑨",
+   "title": "cld-health/cld-health-baseline-20260816.md",
+   "pointer": "file:~/dsh-collab/cld-health/cld-health-baseline-20260816.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-010",
+   "class": "⑨",
+   "title": "cld-health/cld-iteration-backlog.md",
+   "pointer": "file:~/dsh-collab/cld-health/cld-iteration-backlog.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-011",
+   "class": "⑨",
+   "title": "cld-health/cld-rss-monitor.sh",
+   "pointer": "file:~/dsh-collab/cld-health/cld-rss-monitor.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-012",
+   "class": "⑨",
+   "title": "cld-health/comms-health-integration-eval-20260909.md",
+   "pointer": "file:~/dsh-collab/cld-health/comms-health-integration-eval-20260909.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-013",
+   "class": "⑨",
+   "title": "cld-health/convention-v1-shoudeng-approval-20260909.md",
+   "pointer": "file:~/dsh-collab/cld-health/convention-v1-shoudeng-approval-20260909.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-014",
+   "class": "⑨",
+   "title": "cld-health/du-survey-0832.txt",
+   "pointer": "file:~/dsh-collab/cld-health/du-survey-0832.txt",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-015",
+   "class": "⑨",
+   "title": "cld-health/du-survey2.txt",
+   "pointer": "file:~/dsh-collab/cld-health/du-survey2.txt",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-016",
+   "class": "⑨",
+   "title": "cld-health/exit-marker-spec-draft.md",
+   "pointer": "file:~/dsh-collab/cld-health/exit-marker-spec-draft.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-017",
+   "class": "⑨",
+   "title": "cld-health/gate-shoudeng-claim-report-20260907.md",
+   "pointer": "file:~/dsh-collab/cld-health/gate-shoudeng-claim-report-20260907.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-018",
+   "class": "⑨",
+   "title": "cld-health/health-check.sh",
+   "pointer": "file:~/dsh-collab/cld-health/health-check.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-022",
+   "class": "⑨",
+   "title": "cld-health/health-item17-comms.sh",
+   "pointer": "file:~/dsh-collab/cld-health/health-item17-comms.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-023",
+   "class": "⑨",
+   "title": "cld-health/health-item18-disk.sh",
+   "pointer": "file:~/dsh-collab/cld-health/health-item18-disk.sh",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-024",
+   "class": "⑨",
+   "title": "cld-health/health-log.tsv",
+   "pointer": "file:~/dsh-collab/cld-health/health-log.tsv",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-025",
+   "class": "⑨",
+   "title": "cld-health/identity-variant-map-20260911.json",
+   "pointer": "file:~/dsh-collab/cld-health/identity-variant-map-20260911.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-026",
+   "class": "⑨",
+   "title": "cld-health/identity-variant-map.py",
+   "pointer": "file:~/dsh-collab/cld-health/identity-variant-map.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-027",
+   "class": "⑨",
+   "title": "cld-health/md-default-opener-eval-20260909.md",
+   "pointer": "file:~/dsh-collab/cld-health/md-default-opener-eval-20260909.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-028",
+   "class": "⑨",
+   "title": "cld-health/ops-triage-list-20260911.json",
+   "pointer": "file:~/dsh-collab/cld-health/ops-triage-list-20260911.json",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-029",
+   "class": "⑨",
+   "title": "cld-health/phi13-shoudeng-opinion-20260910.md",
+   "pointer": "file:~/dsh-collab/cld-health/phi13-shoudeng-opinion-20260910.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-030",
+   "class": "⑨",
+   "title": "cld-health/post-restart-20260904.md",
+   "pointer": "file:~/dsh-collab/cld-health/post-restart-20260904.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-031",
+   "class": "⑨",
+   "title": "cld-health/post-restart-check.md",
+   "pointer": "file:~/dsh-collab/cld-health/post-restart-check.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-032",
+   "class": "⑨",
+   "title": "cld-health/r006-v2-selfcheck-20260906.md",
+   "pointer": "file:~/dsh-collab/cld-health/r006-v2-selfcheck-20260906.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-033",
+   "class": "⑨",
+   "title": "cld-health/r033-r034-approval-shoudeng-20260909.md",
+   "pointer": "file:~/dsh-collab/cld-health/r033-r034-approval-shoudeng-20260909.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-034",
+   "class": "⑨",
+   "title": "cld-health/reasoning-tier-feedback-20260907.md",
+   "pointer": "file:~/dsh-collab/cld-health/reasoning-tier-feedback-20260907.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-035",
+   "class": "⑨",
+   "title": "cld-health/recent-writes-scan.txt",
+   "pointer": "file:~/dsh-collab/cld-health/recent-writes-scan.txt",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-036",
+   "class": "⑨",
+   "title": "cld-health/replica-consistency-check.py",
+   "pointer": "file:~/dsh-collab/cld-health/replica-consistency-check.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-037",
+   "class": "⑨",
+   "title": "cld-health/verify-rules-guard.py",
+   "pointer": "file:~/dsh-collab/cld-health/verify-rules-guard.py",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-038",
+   "class": "⑨",
+   "title": "cld-health/volume-drain-samples.tsv",
+   "pointer": "file:~/dsh-collab/cld-health/volume-drain-samples.tsv",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-100",
+   "class": "⑨",
+   "title": "data/reports/repair-mbp-cldvoice-20260909.md",
+   "pointer": "file:~/dsh-collab/data/reports/repair-mbp-cldvoice-20260909.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K9-102",
+   "class": "⑨",
+   "title": "data/reports/user-direction-report.md",
+   "pointer": "file:~/dsh-collab/data/reports/user-direction-report.md",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实读（ls 枚举）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-001",
+   "class": "⑩",
+   "title": "2721 条 · ★无正式角色名（有自述档案：HR 驾驶舱（资源管理者 + 成本监察专员）· CAHAC 示范）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-a17a52f8-eee6-4a4e-a3a7-dfcf4bec44e0]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测更正：profiles 中存有自述 role/abilities×7/resources×5 (source=self)，但不在 role-map；按 R009 自命名 ⇒ 不得由本会话代命名",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-002",
+   "class": "⑩",
+   "title": "1296 条 · 老登 · 工具纪律/门与核验侧；写卡门与绑定机检",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-aa528267-0434-4bf5-87c5-d5a61f8215b2]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-003",
+   "class": "⑩",
+   "title": "1217 条 · ★无正式角色名（有自述档案：前任资源管理者（已交接 a17a52f8））",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-e7bfeea8-fa2e-4677-9859-e64394a853f5]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测更正：profiles 中存有自述 role/abilities×6/resources×6 (source=self)，但不在 role-map；按 R009 自命名 ⇒ 不得由本会话代命名",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-004",
+   "class": "⑩",
+   "title": "1009 条 · 文汇 · 文档摄取归档（P1）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-55d4d1bd-bb6d-4c5e-a887-f71eb64c8a3a]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-005",
+   "class": "⑩",
+   "title": "733 条 · 守灯 · 健康审查 + 名册席位#4（C1–C7 核验）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-9910d4b2-80ff-4437-afed-c848dbda22d1]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-006",
+   "class": "⑩",
+   "title": "637 条 · 明鉴 · 蓝图主编 + SystemGraph 主源架构师",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-a190c54c-ca73-4845-9a65-9dc002d45044]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-007",
+   "class": "⑩",
+   "title": "600 条 · 司库 · 资源管理 + 成本监察（HR Cockpit）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-2a15e6b1-32a9-48b3-a167-8fe0a28e8d82]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-008",
+   "class": "⑩",
+   "title": "571 条 · ★无正式角色名（有自述档案：通用成员/前任资源管理者）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-b3778a1e-7f4c-46d0-ba3d-8103fc4f646f]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测更正：profiles 中存有自述 role/abilities×6/resources×2 (source=self)，但不在 role-map；按 R009 自命名 ⇒ 不得由本会话代命名",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-009",
+   "class": "⑩",
+   "title": "551 条 · 知了 · 学习引擎（权限边界 v2）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-a3bc8cba-714e-446a-900a-b924f111edc7]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-010",
+   "class": "⑩",
+   "title": "513 条 · ★无正式角色名（有自述档案：DSH/CLD 运维与远程访问）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-43b1a2d3-3b77-41ed-aa9e-effcef446af3]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测更正：profiles 中存有自述 role/abilities×5/resources×3 (source=self)，但不在 role-map；按 R009 自命名 ⇒ 不得由本会话代命名",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-011",
+   "class": "⑩",
+   "title": "504 条 · 罗盘 · 设备协调（Device Orchestrator）",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-5a5368af-8234-48a5-8e91-1fc64f9902b7]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-012",
+   "class": "⑩",
+   "title": "459 条 · 驿使 · 外部链接/交付通道",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-92623479-a990-4f32-bb6c-ffa688d64294]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-013",
+   "class": "⑩",
+   "title": "445 条 · 守灯塔 · 系统运维/知识库",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-b241741f-820e-4453-83d4-4ebfc8cd48a3]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-014",
+   "class": "⑩",
+   "title": "444 条 · 灯塔 · 外卖采集统筹",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles[session-de7b29de-3a65-4f45-911c-e5ef410a5d4b]",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测 + 本会话复跑（role-map 命中）；职责列为自述 source=self，未核实",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-000",
+   "class": "⑩",
+   "title": "往来面：往来方 271 / role-map 仅登记 21 会话 ⇒ 未登记面 = 250",
+   "pointer": "file:~/dsh-collab/docs/starbridge-v2-handover-and-failure-visibility-plan-v3.1-20261009.md::L145",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "v3.1 §2.2 实测（271 往来方）+ 本会话实读 role-map（21 会话，v3.1 记 23 角色名，差 2 待核）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-090",
+   "class": "⑩",
+   "title": "★ 待命名节点清单（4 个）：有自述档案、无正式角色名 —— 命名权归其自身(R009)或 HR/所有者，本会话不得代命名；P1-b 的「补登记」在本会话权限内只能做到【把自述档案索引化 + 列出待命名】",
+   "pointer": "bus:~/.dsh/agent-bus.json::profiles",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（4/4 有 profiles；abilities 7/6/6/5，resources 5/6/2/3，source 全为 self）",
+   "pointer_resolvable": "true"
+  },
+  {
+   "id": "K10-091",
+   "class": "⑩",
+   "title": "★ 测试标识机读清单（3 个标识 / 12 条消息）：bus:stress · bus:s2-test · bus:s2-live —— 统计总线负载与往来量时须排除，否则读数被 S2 压测流量污染",
+   "pointer": "blackboard:data/registry/bus-test-identifiers",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（逐条 messages 定位，含 peer 与黑板证据指针）",
+   "pointer_resolvable": "unknown(net)"
+  },
+  {
+   "id": "K10-092",
+   "class": "⑩",
+   "title": "★ 别名映射缺陷（移交守灯）：identity-variant-map.py 把 bus:server:coordinator 错配到 fa1f9150 名下，而 mac-mini 侧的 bus:coordinator 未映射 —— 二者实为不同主体",
+   "pointer": "blackboard:data/registry/starbridge-alias-mapping-defect",
+   "status": "active",
+   "superseded_by": null,
+   "verified_by": "本会话实测（5 条证据链：TRUSTED_DEVS 并列 / 双向消息 / 命名空间 / COORDINATORS / 计数）",
+   "pointer_resolvable": "unknown(net)"
+  }
+ ],
+ "counts": {
+  "①": 8,
+  "②": 7,
+  "③": 23,
+  "④": 19,
+  "⑤": 16,
+  "⑥": 16,
+  "⑦": 6,
+  "⑧": 35,
+  "⑨": 36,
+  "⑩": 18
+ },
+ "pointer_unresolvable": [],
+ "total": 184
+}

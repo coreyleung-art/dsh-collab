@@ -1,0 +1,85 @@
+{
+ "schema": "official-ref-gate-delivered-and-evidence-gap/v1",
+ "created_at": "2026-10-10T01:30:37+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ A-0b #4 交付（S4 官方校对门）+ **发现全机留证过期**（门事实上 NO-GO）+ **官方条款直接支持 P3**",
+ "★_j44_gate_run_before_build": {
+  "note": "★ 本次**建前**即跑 `reuse-before-build`（上次是建后补跑）",
+  "result": "`guard_doc_check 封装` 2 命中 ⇒ 门拒；短词普查 `官方` 11 命中",
+  "verdict": "no-overlap（已留痕 exit=0）",
+  "★_why": "命中项**全为假命中**：`R-ERR1` 是**黑板写入封装** · `im-ops` 是 IM 技能 · `[S3]` 全是日期；另主动核了唯一相关候选 `scripts/cahac-clause-ownership-check.py` ⇒ 它是 **S0「偏离归属」判据**（查条款是否指定责任方），**不同域**",
+  "★_j44_compliance": "★ 本工具设计为**封装/调用**既有 `guard_doc_check`（工具面），**不重造其检索能力** ⇒ 符合 J44「能调用/映射/打通的都不新建」"
+ },
+ "★_delivered": {
+  "what": "`tools/official-ref-gate.py` —— S4 官方规范校对门",
+  "basis": "锚点 §6.1 强制前置三条（读原文）：24h 留证 / web 补证 / 产物记录「官方条款 → 我们的设计 → 差异」",
+  "★_implemented_after_reading_the_actual_state": "★ 先**读实体**取得 `guard/gate-state.json` 的真实结构（`_doc_checks` 数组，每条含 `ts/ts_epoch/target/topic/domain/mirror_hits/hit_files/mirror_stale/web_evidence`），**未假设格式**",
+  "verification": {
+   "自证矩阵": "**4/4**（留证新鲜/过期 · 三栏缺/齐）",
+   "沙箱四检": "✅ 全过（583 项受检零变更 · 幂等）"
+  }
+ },
+ "★★_the_evidence_gap_it_found": {
+  "what": "★ 对真对象跑 `--list` ⇒ **全机留证事实上已全部过期**",
+  "data": {
+   "_doc_checks 条数": 9,
+   "最新一条": "2026-10-05（97.4h 前）",
+   "其余": "189h – 845h 前"
+  },
+  "targets_NO_GO": [
+   "`cordis patch config` ⇒ 826.9h 前 ⇒ **NO-GO**",
+   "`session persistence` ⇒ 825.2h 前 ⇒ **NO-GO**",
+   "`plugin preflight` ⇒ **无留证** ⇒ **NO-GO**"
+  ],
+  "★_implication": "★ 锚点 §6.1 要求「涉 dsh 设计项须有 **24h 内**留证」⇒ **本机实际处于长期 NO-GO 状态**。⇒ 这意味着**此前相当一段时间内，「官方校对门」在形式上是失效的**（无人跑则无留证）。",
+  "★★_and_it_caught_my_own_action": {
+   "what": "★ **P3 改了 `~/dsh-plugin-central-inbox/lib/index.js`（属涉 dsh 设计项），而我在改之前没有 24h 内留证**",
+   "how_i_know": "★ 是 **#4 工具自己报出来的**（不是我先知道）",
+   "handling": "★ **立即补证**（见下）",
+   "★_significance": "★ 这是「门起了作用」的实例：**它拦住了一个已发生的动作**，并把它从「无人知」变为「有记录」。与上一轮「J44 门长句可绕过」形成对照 —— **同一批工具里，有的门抓到了我，有的门被我绕过**。"
+  }
+ },
+ "★_the_remediation_performed": {
+  "cmd": "guard_doc_check(target=\"~/dsh-plugin-central-inbox/lib/index.js\", topic=\"agent inbox events followup inject\")",
+  "result": {
+   "ok": true,
+   "mirror_hits": 3,
+   "hit_files": [
+    "agent-lifecycle.md",
+    "defensive-patterns.md",
+    "subsystems/webhook.md"
+   ],
+   "mirror_age_days": 7.9,
+   "mirror_stale": false,
+   "evidence_recorded": true
+  },
+  "verified_by_tool": "★ 回跑 #4：`agent inbox events followup inject` 留证 **0.0h 前** ⇒ **GO**（闭环）"
+ },
+ "★★_the_official_clause_that_supports_P3": {
+  "source": "`~/tech-research/dsh-docs/defensive-patterns.md` **L17**（官方镜像，非我转述）",
+  "原文要点": [
+   "`agent.followup()` has **no per-message completion or result**",
+   "**Never treat `agent/status` or `whenIdle()` as the result of one follow-up** —— several queued follow-ups, steering, and injected work **may share one `running` interval**",
+   "★ **The guard cuts both ways: if the awaited transition can never occur, the wait hangs, so handle the \"nothing to wait for\" branch explicitly.**"
+  ],
+  "★_why_it_matters_to_us": "★★ 末句**正是 P26 的机制**：死会话**永远不会有转变** ⇒ **等待会挂住**；而官方文档**明确要求处理「没有可等待对象」的分支**。⇒ **P3（不再向已死会话注入）因此不只是一项工程修补，而是官方防御模式的要求**。",
+  "also": "首两句解释了为何「注入」≠「该会话处理了这条消息」—— 多条 queued follow-up 可共享一个 running 区间，与 P26 卡内「点火 153 条但会话不再产出」的观测一致。",
+  "★_three_column_record": {
+   "官方条款": "defensive-patterns.md L17（见上）",
+   "我们的设计": "P3：`findCentralAgent()` 不再返回已死会话；优先 role-map 在任者",
+   "差异": "★ **一致** —— 官方要求「处理无可等待对象的分支」，P3 正是把「等待对象」从已死会话改为在任者；★ **未覆写**官方任何条款；★ **未证**项：官方未规定「如何识别已死会话」，我方用 role-map + 死会话常量兜底，**属自定**"
+  }
+ },
+ "files": {
+  "tools/official-ref-gate.py": {
+   "sha256_16": "6f548dbd47e6fffd",
+   "bytes": 9598
+  }
+ },
+ "not_verified": [
+  "`--artifact` 三栏判据未对真实产物测（只测了合成例）",
+  "留证过期是否已影响历史决策 —— 未回溯（本轮只处理 P3 一件）",
+  "`hit_files` 中 `webhook.md` 与本法无关，**未逐篇读**"
+ ],
+ "r046_note": "本卡为工具交付、合规缺口自陈与官方条款校对登记，不构成任何验收或裁决通过。"
+}

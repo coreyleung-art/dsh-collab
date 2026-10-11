@@ -1,0 +1,89 @@
+{
+ "schema": "cld-mic-test-precheck-delivered/v1",
+ "created_at": "2026-10-10T03:38:15+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-94783ba16f4",
+ "title": "★ 麦克风测试前置正控（已机械化）：`tools/cld-mic-test-precheck.sh` —— 把本次事故做成判据",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:38:15+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_origin": "★ 判据由 `session-0d4aec63` 在独立复核时提出：「**重测请加一条正控：先确认麦克风请求所落的实例 pid/路径 = /Applications/CLD.app（本次事故的反例判据），再判成败**」——我已把它机械化。",
+ "★_the_accident_it_codifies": {
+  "what_happened": "★ 换装完成后（`RESULT=OK`），用户测试麦克风**仍失败** —— **根因不是修复失败，而是测在了「备份路径下的旧实例」上**（`tccd` 的 `responsible` 显示旧路径）",
+  "⇒_the_lesson": "★ 若判据只有「说话有没有反应」，则**「修复无效」与「测错对象」无法区分** ⇒ **必须先验被测对象正确，再判成败**"
+ },
+ "★_the_tool": {
+  "path": "tools/cld-mic-test-precheck.sh",
+  "性质": "★ **只读**（不改 app、不重启、不动 TCC）",
+  "判据两条（均为今晚踩出）": [
+   "① **正控**：被测实例的**映像路径**必须 = `/Applications/CLD.app/Contents/MacOS/CLD`（否则测的是陈旧/备份实例）",
+   "② **app 本体**必须含 `com.apple.security.device.audio-input`（否则先修 app 再测）"
+  ],
+  "★_关键实现纪律": "★ **只用 `lsof` 的映像路径判实例，不用 `ps` 的 argv** —— app 目录被 `mv` 后 argv 仍显示旧路径而映像已在新位置（**argv 会被 mv 欺骗**）",
+  "退出码": "0 正控通过（可测）· 1 正控失败（测了也白测）· 2 无实例",
+  "用法": "`bash tools/cld-mic-test-precheck.sh`（人读）· `--quiet`（仅判定与退出码）"
+ },
+ "★★_实测结果（刚跑）": {
+  "verdict": "★ **PRECHECK=PASS**",
+  "evidence": [
+   "找到 **1 个** CLD 主进程：`pid=53363  映像=/Applications/CLD.app/Contents/MacOS/CLD  audio-input=1`",
+   "线上 `/Applications/CLD.app` 的 audio-input = **1** ✅"
+  ],
+  "★_baseline_agreement": "★ `pid=53363` 起于 **`03:09:10`** ⇒ **与 `session-0d4aec63` 观测的基线完全一致** ⇒ **三方基线统一**（我 · 它 · 预检工具）",
+  "⇒_consequence": "★ **现在可以点 ●说话 测试**；TCC 判决的 `responsible` 应指向 `/Applications/CLD.app`（而非旧路径）"
+ },
+ "★_测后取证命令": [
+  "`log show --last 5m --predicate 'process == \"tccd\"' | grep -i microphone`",
+  "★ 读 `responsible` 字段：应为 `/Applications/CLD.app/...` ⇒ **该判决才是针对新签名版的真实判决**",
+  "★ 若应为而仍拒 ⇒ **那才是「修复无效」**（此前 03:03 那次是「测错对象」）"
+ ],
+ "not_verified": [
+  "★ **行为层未验** —— 本工具只做前置正控；**「点了 ●说话 之后是否真能用」仍须用户实测**",
+  "★ 预检只覆盖 `CLD.app`；若麦克风请求由 **Helper** 进程发起，预检未覆盖 Helper 的映像路径"
+ ],
+ "r046_note": "本卡为工具交付与预检结果登记，不构成任何验收或裁决通过。",
+ "★★_v1.0.1_补Helper枚举（由 session-0d4aec63 建议·并暴露我一个实现缺陷）": {
+  "★_its_suggestion": "★ `session-0d4aec63`：「**建议补 Helper 映像枚举**（03:03 那次 tccd 的 `accessing` **正是 CLD Helper**）」",
+  "★_why_it_matters": "★★ **实际发起麦克风请求的往往是 CLD Helper 而非主进程** ⇒ **只验主进程会漏掉真正被 tccd 判定的对象**。★ 这**恰好证实了我自己写的 `not_verified` 第一条**（我当时已标注此风险，但未修）。",
+  "★★_the_defect_it_exposed": {
+   "defect": "★ v1.0.0 用 `lsof -p <pid> | awk '$4==\"txt\"{print $NF; exit}'` 取映像路径 ⇒ **对 Helper 取到的是「加载的库」而非主映像**（`txt` 段第一条不保证是主可执行文件）⇒ 实测报「未枚举到 CLD Helper 子进程」的**假阴性**（而它们其实有 6 个）",
+   "fix": "★ 改用 **`ps -p <pid> -o comm=`** —— 它**直接给出完整可执行路径**，且**不受 `lsof` 多行 txt 段干扰**",
+   "★_this_is_the_same_family": "★ 与今晚「**argv 会被 mv 欺骗**」同族：**都是「取进程身份」的判据实现细节坑**。⇒ 提炼：**取进程映像路径，首选 `ps -o comm=`（单值、完整）；`lsof` 的 txt 段是多值且顺序不保证**"
+  },
+  "★_result_after_fix": {
+   "verdict": "PRECHECK=PASS",
+   "enumerated": [
+    "主进程：`pid=53363  映像=/Applications/CLD.app/Contents/MacOS/CLD`",
+    "★ 6 个子进程（**全部映像也在 `/Applications/CLD.app` 内**）：`pid=3900 chrome_crashpad_handler`（**正是让换装脚本误判的那个孤儿**）· `pid=53365/53366/53454 CLD Helper.app` · `pid=53368 chrome_crashpad_handler` · `pid=53372 CLD Helper (Renderer).app`"
+   ],
+   "★_side_finding": "★ **`chrome_crashpad_handler` 确实是常驻的** —— 这**确认了我先前对换装脚本误判根因的推断**（判据匹配到孤儿 crashpad ⇒ 永远等不到「CLD 已退出」）"
+  }
+ },
+ "★★_v1.0.2_补世代判据（由 session-0d4aec63 建议其洞）": {
+  "★_the_hole_it_found": "★ 「**路径判据不编码「世代」**」—— `/Applications/CLD.app` 这个路径**今天可能是新签名版、明天可能被换回旧版** ⇒ **路径相同 ≠ 版本相同**。",
+  "★_its_proposed_judge": "★ **主实例 = 1 且 `lstart` ≥ 换装 `RESULT` 时刻**",
+  "★_now_four_criteria": [
+   "① 主实例 **= 1**（唯一性；多实例会各自独立授权，结果不可归因）",
+   "② **世代**：主实例 `lstart` **≥** 换装 `RESULT=OK` 时刻（**抓「被换回旧版」**）",
+   "③ 主进程 + 全部 Helper/crashpad 子进程的**映像路径**均在 `/Applications/CLD.app` 内",
+   "④ app 本体含 `com.apple.security.device.audio-input`"
+  ],
+  "★_implementation_detail_I_caught": "★ **世代锚必须取「含 `RESULT=OK` 的那条日志」**，**不能取 `ls -t` 的最新日志** —— 实测最新那条（`030652`）是**「被前置门拦住」的实例**（无 `RESULT=OK`）⇒ 若用它当锚，判据会**基于一个从未换装的时刻**。⇒ 工具改为**倒序扫描直到找到含 `RESULT=OK` 的文件**。",
+  "★_result": {
+   "verdict": "**PRECHECK=PASS（四项全绿）**",
+   "世代锚": "`2026-10-10 03:01:39`（来源 `cld-mic-apply-20261010-030022.log`）",
+   "主实例": "`pid=53363  lstart=Sat Oct 10 03:09:10 2026` ⇒ **晚于世代锚 451 秒** ✅",
+   "子进程": "6 个（`chrome_crashpad_handler` ×2 · `CLD Helper.app` ×3 · `CLD Helper (Renderer).app` ×1）**映像全在 `/Applications/CLD.app` 内** ✅"
+  },
+  "★_the_general_lesson": "★★ **「位置」不等于「身份」** —— 与今晚的「身份声称门」（`claimed = observed`）**同族**：**路径是位置，时间戳/哈希才是身份**。⇒ 凡以「某路径存在/正确」为判据者，**应同时钳住该路径当前指向的那个世代**。"
+ },
+ "★_its_verification_of_my_prior_claims": {
+  "★_三点它已独立核验成立": [
+   "① `ps -o comm=` 在 macOS 返回**完整映像路径**（非截断）—— 它给了原始输出",
+   "② **回滚点身份实测 = 真旧版**：`guard/backups/CLD.app.pre-micfix-20261010-030022` 的 `audio-input` 计数 = **0**（★ 它自陈「此前我只验了它存在，未验其身份」）",
+   "③ `tools/cld-restart-to-correct-app.sh:56` 的 `kill -9` 会主动杀掉**映像在 backups 下的陈旧实例** ⇒ **正是 03:03 事故的根治动作** ✅"
+  ]
+ }
+}

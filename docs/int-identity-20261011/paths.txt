@@ -1,0 +1,9 @@
+# 本件复核窗口的稳定性锚点（各自的变动都会使本轮结论重判）
+# ★ 故意不含 int 的活会话文件 session.jsonl.zstd —— 它的「正在变化」本身就是观测对象，
+#    把它当稳定性锚点会得到恒红的假象。见产出件 §〇之二 的说明。
+/Users/coreyleung/.dsh/agent-bus.json
+/Users/coreyleung/dsh-comm-shared/identity-variants.json
+/Users/coreyleung/dsh-collab/cld-health/identity-variant-map.py
+/Users/coreyleung/.dsh/xdom-keys/ext.key
+/Users/coreyleung/.dsh/xdom-keys/int.key
+/Users/coreyleung/dsh-collab/tools/xdom-mail.py

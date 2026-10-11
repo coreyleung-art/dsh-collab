@@ -1,0 +1,120 @@
+{
+ "schema": "attribution-vs-location-and-helper-enumeration-fix/v1",
+ "created_at": "2026-10-10T01:48:01+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 两件：① 误判根因 = **「归属」与「位置」两个维度共用一个词**（用户提问）② 其回执指正生效：G-CR7 漏枚举 1 个 Helper（实测 4 个，我写 3 个）",
+ "authority": "用户 2026-10-10：「这个会话 不是 mbp 侧发出来的吧」→「我关注的是**为什么会存在误判**？」",
+ "★★_the_mechanism_of_the_misjudgment": {
+  "★_the_root_cause_one_sentence": "★ **「归属」（属于谁）与「位置」（在哪运行）是两个不同维度，而系统里用同一个词（『MBP 侧』）表达了它们** —— 读者会把归属词当作位置实测。",
+  "①_无可靠位置来源": {
+   "tested": [
+    {
+     "source": "hostname",
+     "value": "CoreydeMac-mini.local",
+     "ok": true,
+     "note": "**唯一可靠来源**"
+    },
+    {
+     "source": "DSH_NODE_ID（shell）",
+     "value": "（空）",
+     "ok": false
+    },
+    {
+     "source": "DSH_NODE_ID（CLD 主进程）",
+     "value": "未设",
+     "ok": false
+    },
+    {
+     "source": "workspace 路径",
+     "value": "--Users-coreyleung--",
+     "ok": false,
+     "note": "★ **所有设备同名** ⇒ 从任何路径都看不出设备"
+    }
+   ],
+   "implication": "★ 不主动跑 `hostname`，就**无法知道自己在哪里**"
+  },
+  "②_「MBP 侧」是文档里的**分类词**": {
+   "evidence": "`docs/absorb-mbp-systemgraph-v1.md:12` 的表头即 `| # | MBP 侧项 | 处置 | 归属 |`",
+   "meaning": "★ 「MBP 侧项」=「**属于 MBP 的项**」—— **归属分类**，与「在哪台机器执行」无关"
+  },
+  "③_它把分类词当成位置并写进档案": {
+   "evidence": "其 `agent_profile` 调用：`role=\"MBP 侧 cldvoice/语音链路 + CLD 壳签名层排障（…）\"`",
+   "★_self_reinforcing": "★ **一旦写进 `agent_profile` 即自我强化** —— 此后所有转述（含它发给我的迭代报告）都会沿用「MBP 侧」"
+  },
+  "④_它从未实测过位置": {
+   "evidence": "★ 在它会话 JSONL 中搜 `hostname`/`scutil`/`uname` ⇒ **零命中**",
+   "implication": "★ **它没有任何可核依据** —— 该自称**不可被它自己证伪**"
+  },
+  "⑤_而实体在本机": {
+   "evidence": [
+    "会话文件：`.dsh/sessions/--Users-coreyleung--/session-0d4aec63-…`（**本机**）",
+    "workspace：`--Users-coreyleung--`（**本机**）",
+    "被改文件：`~/dsh-collab/tools/`（**本机**）",
+    "被操作对象：`/Applications/CLD.app` 与 `~/CLD-work/CLD.app`（**本机**）",
+    "另一旁证：`com.dsh.cld-voice` **在本机运行**（pid 1206/1244）"
+   ]
+  },
+  "★★_why_nobody_corrected_it": {
+   "four_conditions": [
+    "★ 它的 role 是**它自己写的** —— 没人会去质疑别人的 role",
+    "★ 「MBP 侧」在文档里是**合法词汇**（确有「MBP 侧项」表头）",
+    "★ workspace **同名** ⇒ 从任何路径都看不出设备",
+    "★ `DSH_NODE_ID` 未设 ⇒ **没有权威字段可供比对**"
+   ],
+   "conclusion": "★ **四重条件叠加 ⇒ 误判可长期存活而不被任何环节检出**"
+  },
+  "★_the_family_it_belongs_to": {
+   "statement": "★ 与今晚其余数条**同一族**：**一个维度被另一个维度的值代理，而读者当作实测**",
+   "instances": [
+    {
+     "phenomenon": "`agent_peers` 报 `idle`",
+     "real_dim": "可用性",
+     "proxy_dim": "活跃性"
+    },
+    {
+     "phenomenon": "崩溃日志写「crash or external kill?」",
+     "real_dim": "原因",
+     "proxy_dim": "「没干净退出」"
+    },
+    {
+     "phenomenon": "自称「MBP 侧」",
+     "real_dim": "位置",
+     "proxy_dim": "归属分类"
+    },
+    {
+     "phenomenon": "旧：「以代理代替实体」5 实例",
+     "real_dim": "实体",
+     "proxy_dim": "代理"
+    }
+   ],
+   "★_the_reusable_criterion": "★ **凡「身份/位置/可用性」类陈述，须问：它的值来自哪个维度？该维度是否就是读者要问的那个？** 若不是 ⇒ **必须标为代理，或补实测**。"
+  }
+ },
+ "★_its_correction_to_MY_tool_and_my_fix": {
+  "its_point_1": "★ **helper 是 4 个不是 3 个**（G-CR7 枚举漏一个；**漏检者可单独缺键仍 PASS**）",
+  "★_I_verified": "★ 实测 `Contents/Frameworks/*.app` ⇒ **恰为 4 个**：`CLD Helper.app` · `(Renderer)` · `(GPU)` · **`(Plugin)`** —— ★ **我漏的正是 `(Plugin)`**",
+  "★_the_risk_it_identified": "★ 若换装后**恰好只有 `(Plugin)` 缺键**，我的 G-CR7 会**漏检并报 PASS** —— **真实检出漏洞**",
+  "★_my_fix": "★ 改为**动态枚举** `Contents/Frameworks/*.app`（**不再硬编码名单** —— 这类「名单会过期」的判据本线已多次吃亏），**新增 Helper 亦自动覆盖**",
+  "★_verified": {
+   "实跑": "现枚举 **4/4**（首行即含 `CLD Helper (Plugin).app`）",
+   "负控": "合成「仅 1 个有键 ⇒ 缺 3 个」⇒ **FAIL** ✓（**证明它能检出部分缺失**）",
+   "备份": "`guard/backups/gcr-gate-before-helper-fix-*.py`"
+  },
+  "its_point_2": "换装后判据请分**静态/行为两层**",
+  "★_my_status_on_point_2": "★ **接受，但未实现** —— 静态层已有（entitlement 是否在）；行为层（**实际能否取到麦克风**，如查 tccd 拒绝日志）**记为待办**。★ **如实标注为未做**，不声称已做。",
+  "its_point_3": "`spctl` 报 Unnotarized 属本轮预期（未公证，仅分发需要），勿记 FAIL",
+  "★_my_status_on_point_3": "★ **本门未做 spctl 检查** ⇒ 该提醒是**预防性**的；已记录，**若将来加入 spctl 判据，须按此口径（未公证 ≠ FAIL，仅分发制品需要票据）**。"
+ },
+ "files": {
+  "tools/gcr-gate.py": {
+   "sha256_16": "fcb110d5a9f13fe3",
+   "bytes": 22711
+  }
+ },
+ "not_verified": [
+  "★ **行为层判据未做**（其建议 ②，我已接受但未实现）",
+  "★ 我**未核它的会话是否真的零次 `hostname`**（我只搜了 3 个命令名，可能它用了别的方式）",
+  "★ 我**未向它确认**它对自身位置的认知（其回执仍以「MBP 侧」署名前缀发来）"
+ ],
+ "r046_note": "本卡为误判根因分析与我方工具修正的登记，不构成任何验收或裁决通过。"
+}

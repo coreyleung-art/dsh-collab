@@ -1,0 +1,74 @@
+{
+ "schema": "c4-unmeasured-surfaces-converged/v1",
+ "created_at": "2026-10-10T01:40:23+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ C-4 收敛未测面：四条未测面全部实测；★ 并暴露 **P3 只改了一半**",
+ "task": "用户 2026-10-10：「C-4 收敛未测面。对 p3 代码改动做一次自己的审查。」",
+ "★_the_four_unmeasured_surfaces": {
+  "①_Obsidian_并集": {
+   "原记录": "「Obsidian 的 87（并集口径）未复跑 —— 该目录大，单次 grep 超时（已实测：>60s）」",
+   "★_实测": {
+    "md 文件数": 1154,
+    "并集文件数": 96,
+    "原记": 87,
+    "差": "+9"
+   },
+   "单词命中": {
+    "fa1f9150": 84,
+    "星桥": 4,
+    "coordinator": 10,
+    "总线协调者": 3,
+    "**e317d6ab（我）**": 0,
+    "**1ffded95（裁判）**": 0
+   },
+   "★★_超时判断被推翻": "★ 实测 **`grep -rl` 0.212s · `grep -r` 0.056s** ⇒ **根本不超时**。可能原因（未取证）：当时同时跑重 IO（我在扫 245MB 会话文件）或 **iCloud 未下载完**。⇒ **这是「未声明环境/时点」的又一实例** —— 结论（超时）与当时的实际环境绑定，对后人无效。",
+   "★_新发现": "3 个文件**只提「星桥」不提会话 id**（`wiki/index/dsh-collab.md` · `wiki/research/agent-comms-archaeology.md` · `raw/d4-…/…计划总览.md`）",
+   "★_新标识零命中": "★ `e317d6ab`（星桥v2）与 `1ffded95`（裁判）在 Obsidian **零命中** ⇒ **知识库未跟进本线**（属 ⑧ 自动落链的欠账）"
+  },
+  "②_A9_是否被_A8_读取": {
+   "原记录": "「A9 `main-roles.json` 是否被 A8 的运行实例**实际读取**（未读 server.js 全文确认其加载路径）」",
+   "★_实测": "★ **被读取，两处**：",
+   "evidence": [
+    "`server.js:213` `const rolesFile = path.join(__dirname, 'main-roles.json');`（**在函数体内** ⇒ 每次调用重读）",
+    "`server.js:488` `const ROLES = (function(){ … readFileSync(…'main-roles.json') … })()`（**在请求 handler 内** ⇒ 每次请求执行）"
+   ],
+   "★_结论": "⇒ 未测面解决；**且改 `main-roles.json` 无需重启 A8**（两处都是运行时读，非启动快照）"
+  },
+  "③_三个_bak_差异": {
+   "原记录": "「sb-mobile 的 3 个 `server.js.bak-*` 与主文件的差异（未 diff）」",
+   "★_实测": [
+    "`server.js.bak-161126` ⇒ 差异 **6 行**（31,598B，**与主文件 31,790B 最接近**）",
+    "`server.js.bak-e2devices` ⇒ 差异 338 行（13,124B）",
+    "`server.js.bak-rolechat` ⇒ 差异 266 行（15,700B）"
+   ]
+  },
+  "④_A8_生效方式": {
+   "原记录": "「A8 改动的具体生效方式与重启需求（未读其加载时序）」",
+   "★_实测": "★ **见 ②** —— 两处读取点**均在运行时**（函数体 / 请求 handler）⇒ **无需重启**；★ 运行实例确认：**PID 1250 已运行 1 天 21 小时**（`launchctl list` = `com.dsh.sb-mobile-bridge`，状态 0）"
+  }
+ },
+ "★★_the_biggest_finding_P3_only_covered_half": {
+  "how_found": "★ 逐行核实 `lib/route.js`（C-4 第四项本为「route.js 逐行」）",
+  "the_two_paths": [
+   {
+    "path": "`index.js::findCentralAgent()`",
+    "status": "★ **已由 P3 修改**（不再返回死会话）"
+   },
+   {
+    "path": "`route.js::resolveTargetId()` 的 **role-mapped 分支**",
+    "status": "★ **未改**"
+   }
+  ],
+  "the_code": "L35-41：`const mapped = roleMap[one];` ⇒ 若 `mapped` 命中且其在 `ids` 中 ⇒ `return { target: live, mode:'direct', reason:'role-mapped' }`；否则 `return { target: mapped, mode:'queued-direct', reason:'role-mapped-offline' }`",
+  "★_why_it_matters": "★ 两分支**都会把卡投给 `mapped`** —— 而 `roleMap['星桥']` **仍指向 `session-fa1f9150`**（实测 `~/.dsh/agent-role-map.json`：`星桥 → session-fa1f9150-c949-…`，共 24 个角色键）⇒ **`to=\"星桥\"` 的卡仍会被投给死会话**（死会话在 list 中 ⇒ `direct`；不在 ⇒ `queued-direct`「排队等它上线」，**更糟 —— 那正是 P26 的持续点火机制**）。",
+  "★_thus": "★ **P3 单独不足以止血**：`findCentralAgent()` 只管「未指定收件人时注入谁」；而「明确 `to=星桥`」的卡走 `route.js` 的角色映射，**绕过 P3 的改动**。",
+  "★_the_real_fix": "★ 根治须改 **`~/.dsh/agent-role-map.json` 的「星桥」键** —— **那是 P2**（活引用变更，须 P1 停点）。⇒ **P3 与 P2 是耦合的**：P3 改代码路径，P2 改映射内容；**缺一则仍有缺口**。",
+  "★_and_it_matches_my_own_prior_finding": "★ 与 `live-references-a8-a9` 卡的 `recommended②` 一致：「**P2 执行时须一并处理 A8/A9，否则改 A1 会造成语义分裂**」—— 本轮把该预警**从推测变成了实测**。"
+ },
+ "not_verified": [
+  "Obsidian 84/96 中**哪些是本线相关**，未逐个分类（只做了计数与并集）",
+  "`server.js.bak-161126` 的 6 行差异**具体是什么**（只统计了行数，未逐行读）",
+  "死会话 `session-fa1f9150` **当前是否仍在 `agentBus.list()` 中** —— 决定走 `direct` 还是 `queued-direct`，**未测**"
+ ],
+ "r046_note": "本卡为未测面收敛的实测登记，不构成任何验收或裁决通过。"
+}

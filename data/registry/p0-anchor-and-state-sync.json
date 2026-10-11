@@ -1,0 +1,61 @@
+{
+ "schema": "p0-anchor-and-state-sync/v1",
+ "created_at": "2026-10-10T01:44:54+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ P0 完成：**锚点升版已由外部第三方做毕（v3 在位）**；我完成的是 P0 **解锁项** —— C6/C7/P26 状态同步",
+ "authority": "用户 2026-10-10：「先做 P0 锚点升版」",
+ "★_finding_the_upgrade_was_already_done": {
+  "what_I_found": "★ 开始执行时发现锚点**已经是 `state_version: 3`** —— 升版动作**已由外部第三方完成**，并非由我执行。",
+  "evidence": [
+   "锚点头部：`state_version: 3 ｜ updated_at: 2026-10-09T23:58+08:00`",
+   "锚点含 **`v2→v3 更正账`**：① P26 由**推断**升级为**代码核实**（摘要模板强制 8 段 `dsh-compaction-basic/lib/index.js:218` · `BASIC_COMPACT_CONFIG_KEYS` `:28` 十把键无一把可改 · 失败两条路径不兜底 `:790`/`:821`）；② 补记「**机制一已修、机制二未解**」；③ 新增 **R049 上下文存活运营门**；④ 依据 `docs/context-survival-conservative-plan-20261009.md`",
+   "登记人：**外部第三方（CU 实验台线）**，经用户 2026-10-09 批准「写」"
+  ],
+  "index_already_in_sync": "★ `continuity-index.anchor_sha256 = db62634d6477cb1c2cafe10f` == 锚点实测 sha ⇒ **索引已同步**，无需重盖章",
+  "★_so_P0_the_upgrade": "★ **已完成**（非我所做）"
+ },
+ "★_what_P0_unlocks_and_what_I_did": {
+  "the_gate": "下阶段计划：「**P0 升版 ──阻塞──> C6/C7/P26 的状态同步进 continuity-index**」",
+  "★_why_it_was_blocked": "★ 锚点与其索引的 `state_version`/`anchor_sha256` 须一致，否则 `beacon-check` 红；⇒ 在锚点升版完成前**不敢改 items**（改了会触发不一致）。",
+  "★_the_sync_I_performed": {
+   "C6_状态机登记": {
+    "from": "open",
+    "to": "in_flight",
+    "why": "`tools/build-state-registry.py` 在位且定义五态（open/in_flight/closed_with_evidence/regressed/…）；index 内已有与 `item-validity-review-check` 的 `mapping`（ours/theirs/relation）⇒ **部分落地**；★ **不记 closed**：closure 三要素缺 **verifier（第三方，禁自证）**"
+   },
+   "C7_证伪门与半修清单": {
+    "from": "open",
+    "to": "in_flight",
+    "why": "★ 其原 `note` 写「P26 → 建议列为第 10 条半修」—— **该建议已实现**：`docs/c7-half-fix-clause10-20261009.md` **§二 即「第 10 条（追加进半修清单）」**；另有 §一形态⑤ · §三 W0.1 负控 · §四 DoD 8 字段 · §七 证伪候选第 7 条 · §八 勘误补正；卡 `c7-half-fix-clause10` 与 `-v2`（v2 含 P26 全量 147 压缩/100 失败）。★ **不记 closed**：§11 六者**缺一**（边界用例）",
+    "★_note_preserved": "★ 原 note **保留**为 `original_note`，不删（**历史留痕**）"
+   },
+   "P26_会话硬死锁": {
+    "from": "open",
+    "to": "in_flight",
+    "why": "取证已由推断升级为**代码核实**（v3 更正账①）· 本机另有**独立全量取证**（147 压缩/100 失败/37 恰好相等）；★ **止血已部分落地**：P2 改四处活引用 + P3 改 central-inbox；★ **但风险仍在** ⇒ 不升 closed（点火源为**分布式**，本机改动只切一条）"
+   }
+  },
+  "★_what_I_did_NOT_change": "★ **未改 `state_version`（保持 3）** —— 本次只更新 `items` 内容，锚点 sha 与 state_version 均未变 ⇒ **不触发版本不一致判据**。"
+ },
+ "★_verification": {
+  "beacon-check": "★ **全绿**（0 WARN / 0 SKIP，exit=0）—— 含「PASS dod.full_table 的缺席是显式声明的」",
+  "dual_board": "★ **双板相等**（本地板 version=11 · 中枢板 version=10；`value` 层逐字节相等）",
+  "index_sha": {
+   "before": "d1b504098b418c42",
+   "after": "6d7bbba40749fa03"
+  },
+  "anchor_sha": "db62634d6477cb1c（**未变动**，与 index.anchor_sha256 一致）✓"
+ },
+ "★_backups": "`guard/backups/p0-20261010-014426/`（`continuity-index.json` + `anchor-v3.md`）",
+ "★_remaining_after_P0": {
+  "C4_自启动注入": "★ 仍 `open` —— 锚点头部明载「**④ 自启动注入（C4）仍未做** ⇒ **M0 不成立**」（**不在本次范围**：P0 解锁的是 C6/C7/P26 三项）",
+  "4_项假_closed": "★ C1/C2/C3/C5 仍记 `closed_with_evidence` 而其**三要素不齐**（判据门 rc=5）—— **那是另一议题（平台健康声明体系），非 P0 范围**，不改数",
+  "R049": "本 v3 新增项，已 `closed_with_evidence`（**其 verifier 是否齐备未核**）"
+ },
+ "not_verified": [
+  "★ **v3 更正账的内容我未逐条独立复现**（只核到 `:218`/`:28`/`:790`/`:821` 这四处行号被引用，未逐行读源码验证）",
+  "C6 的 `mapping` 是否**完整对齐**五态（我只见到 `in_flight` 一项的对应）",
+  "R049 条目的三要素是否齐备（未做判据门检查）"
+ ],
+ "r046_note": "本卡为 P0 完成与其解锁项同步的登记，不构成任何验收或裁决通过；★ 三项状态我有权登记，但其**「完成」与否须第三方裁定**（R046 三方分离）。"
+}

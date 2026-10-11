@@ -1,0 +1,65 @@
+{
+ "schema": "gcr-gate-tool-delivered/v1",
+ "created_at": "2026-10-10T00:54:42+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ A-0b #2 交付：G-CR 门校验脚本（17 条全建档·10 条机械化）；首跑抓出 2 个 FAIL，其一为**我自己的判据错**",
+ "★_the_count_discrepancy": {
+  "finding": "锚点 §10 写「S5 G-CR **十五条**校验脚本」，而其 §7.9 **实列 17 条**（G-CR1 … G-CR17）",
+  "handling": "★ **按实列的 17 条建档，不为凑数删条**；并在工具输出首三行声明该不符",
+  "status": "已登记；是否修正锚点措辞**须随 P0**（锚点是唯一权威件）"
+ },
+ "★_coverage": {
+  "total": 17,
+  "mechanized": 10,
+  "na_with_pointer": 7,
+  "principle": "★ **复用不重造**：能调既有工具的就调 —— G-CR1 调 `plugin-preflight.py`；G-CR4 调 `guard_deps_scan.py`；G-CR15 指向 `restart-governor.sh`",
+  "na_reasons": "流程类（G-CR5/7）· 需运行时（G-CR10）· 「不用即安全」（G-CR11）· 静态扫描未做（G-CR13）· 须读 245MB 会话文件（G-CR17，已在 c7 系列卡覆盖）"
+ },
+ "★_first_real_run": {
+  "tally": "PASS 6 · FAIL 1 · N-A 10",
+  "the_one_true_FAIL": {
+   "gate": "G-CR8 装载前事件数门",
+   "detail": "1 个会话文件 ≥200MB，最大 **245.2MB**（session-fa1f9150）",
+   "verdict": "★ **真问题且预期内** —— 正是 P26 的死会话；该门**正确地红了**",
+   "★_honest_caveat": "其判据用**文件体积**作**事件数的代理指标**（不解压无法直接得事件数）⇒ 本工具已如实标注「**体积是代理指标，非事件数**」"
+  },
+  "★_the_false_FAIL_which_was_MY_bug": {
+   "gate": "G-CR12 不动运行中的 app.asar",
+   "symptom": "判 FAIL（验签失败）",
+   "★_root_cause": "★ 我**对数据文件跑了 code 签名检查** —— `file app.asar` 报 `data`，它**本来就不该被单独签名**（签名属于**外层 app bundle**）⇒ `codesign -v app.asar` **恒返回** `code object is not signed at all`（exit=1）⇒ **判据恒红，是假阳性**",
+   "★_my_own_trap_avoided": "★ 我手测时用 `codesign -v \"$A\" | head -4; echo $?` ⇒ **`$?` 取到的是 `head` 的退出码**（**R026 同型陷阱**）⇒ 差点据此说「我的脚本判错了」。改用 `>file 2>&1; RC=$?` 才拿到真值 **exit=1**。",
+   "fix": "★ 判据改为两条：① **对 bundle 验签**（`codesign -v /Applications/CLD.app`）—— 签名的正确对象；② ★ **asar 的 mtime 是否晚于 CLD 进程启动时刻** —— 这才是「**运行中被改**」的精确判据",
+   "verified": "修正后 PASS（bundle 验签通过 · asar mtime 早于进程启动）；**负控已验**：合成「晚 60s ⇒ FAIL」·「早 1 天 ⇒ PASS」"
+  }
+ },
+ "★★_the_toolchain_loop_found_a_criterion_conflict": {
+  "how": "★ 用 #1（`sandbox-script.py`）测 #2（`gcr-gate.py`）时，**#1 判 #2 非幂等**",
+  "root_cause": "★ 两次跑唯一的差异是 **`★ 扫描时点：…`** 一行 —— 该行是**声明**，非结果",
+  "★_the_conflict": "★ **两条要求直接冲突**：裁判移交的判据①要求「**打印扫描时点**」；而沙箱的幂等判据要求「**两次输出相同**」⇒ **含时间戳者恒不幂等**",
+  "fix_applied": "★ #1 的幂等判据改为**忽略声明性易变行**（时点/scanned_at/耗时/临时路径），**但绝不忽略结果行**",
+  "verified": "★ **正例复检**四检全过；★ **负控复检**（`nonidem.py`）**仍红**且打印差异行 ⇒ **忽略规则未放过真差异**",
+  "★_derived_criterion": "★ **幂等判据须区分「声明性元数据」与「结果」** —— 否则「打印时点」这类**诚实声明**会被误判为「非幂等」，进而**惩罚诚实**"
+ },
+ "★_and_one_more_self_catch": {
+  "what": "★ 我给 #1 加正则时**忘了 `import re`** ⇒ 一跑即 NameError",
+  "how_caught": "★ **改完立刻跑**（这正是 #1 自己的纪律在 #1 自身上的应用）",
+  "significance": "⇒ 本轮**三次改动三次立刻测**，每次都当场发现问题 —— 这正是用户「沙箱做好测完再挂载」原则的价值"
+ },
+ "files": {
+  "tools/gcr-gate.py": {
+   "sha256_16": "dff8ef99012fd1ee",
+   "bytes": 19343
+  },
+  "tools/sandbox-script.py": {
+   "sha256_16": "e440c240977987d1",
+   "bytes": 12563
+  }
+ },
+ "known_limits": [
+  "G-CR8 用体积作事件数代理，未直接解压计数",
+  "G-CR6 只抽检前 60 个 .dylib/.so（本机符合条件者仅 1 个，故实际全检）",
+  "G-CR4 的 guard_deps_scan 未找到（rc=-1）⇒ 退化为静态计数，**未判红**",
+  "点名的 7 条 N-A 项**非通过**，须按其指向的既有工具单独验"
+ ],
+ "r046_note": "本卡为工具交付与首跑结果登记，不构成任何验收或裁决通过。"
+}

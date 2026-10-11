@@ -1,0 +1,382 @@
+#!/usr/bin/env node
+"use strict";
+/**
+ * labforge v1.2.0 — 实验方法设计器/生成器/评估器（持续循环引擎）
+ * 属主: mbp-ops · 文档: README.md · 登记: tools-registry.md (R006 九项对齐: ⑤⑥⑦⑧⑨)
+ * 版本戳: 2026-09-05 v1.1.0 (R006 对齐: 版本戳/文档/统一日志/结果落链/CLI治理)
+ *
+ * 概念模型（四层循环）:
+ *   设计(卡片) → 生成/执行(runner) → 评估(断言回收) → 沉淀(登记结果) → 再设计
+ *
+ * 实验卡片 = 声明式目标+假设+方法+断言标准（JSON，存 cards/）
+ * Runner   = 可执行实验脚本（runners/，按 kind 分发）
+ * 断言     = 从 runner 产物 JSON 提取指标，对照卡片标准判 PASS/FAIL
+ * 沉淀     = 结果写入 results/ + 状态登记，供下一轮对照
+ *
+ * R006 九项对齐(工具类重点 ⑤⑥⑦⑧⑨):
+ *   ⑤文档化: README.md + 本头  ⑥版本: --version / VERSION 字段
+ *   ⑦统一日志: ~/dsh-collab/logs/labforge.log  ⑧自动落链: results/<id>/<ts>.json
+ *   ⑨CLI治理: 子命令 new/run/eval/loop/regress/hypotheses/status/design
+ *
+ * 子命令:
+ *   labforge new <name>           生成实验卡片模板
+ *   labforge run <card>           执行卡片（调 runner 并回收指标）
+ *   labforge eval <card> [result] 评估结果（跑断言）
+ *   labforge loop <card>          一键: run + eval + 沉淀（循环核心）
+ *   labforge status [card]        看实验登记状态
+ *   labforge design <goal>        自然语言目标 → 建议实验设计(草稿)
+ *   labforge regress               全部登记卡一键回归
+ *   labforge hypotheses            假设登记表
+ *   labforge --version            版本
+ */
+
+const VERSION = "1.2.0";
+const fs = require("node:fs");
+const path = require("node:path");
+const { spawnSync } = require("node:child_process");
+
+const ROOT = __dirname;
+const CARDS = path.join(ROOT, "cards");
+const RESULTS = path.join(ROOT, "results");
+const RUNNERS = path.join(ROOT, "runners");
+const REGISTRY = path.join(ROOT, "registry.json");
+const DATA_DIR = process.env.LABFORGE_DATA || path.join(ROOT, "data");
+const LOG_DIR = process.env.LABFORGE_LOG_DIR || path.join(process.env.HOME || "", "dsh-collab", "logs");
+const LOG_FILE = path.join(LOG_DIR, "labforge.log");
+
+function log(msg) {
+  try {
+    fs.mkdirSync(LOG_DIR, { recursive: true });
+    const ts = new Date().toISOString();
+    fs.appendFileSync(LOG_FILE, `[${ts}] ${msg}\n`);
+  } catch { /* 日志失败不阻断 */ }
+}
+
+function die(msg) { console.error(`labforge: ${msg}`); process.exit(1); }
+function ensureDirs() { for (const d of [CARDS, RESULTS, RUNNERS]) fs.mkdirSync(d, { recursive: true }); }
+
+function cardPath(name) {
+  const p = name.endsWith(".json") ? name : `${name}.json`;
+  return path.join(CARDS, p);
+}
+function loadCard(name) {
+  const p = cardPath(name);
+  if (!fs.existsSync(p)) die(`卡片不存在: ${name} (${p})`);
+  try { return JSON.parse(fs.readFileSync(p, "utf8")); }
+  catch (e) { die(`卡片解析失败 ${name}: ${e.message}`); }
+}
+
+// ---------- 卡片模板 ----------
+const CARD_TEMPLATE = {
+  id: "",
+  title: "",
+  goal: "",
+  hypothesis: "",
+  kind: "crash | perf | correctness",
+  runner: "",
+  data: [],
+  params: {},
+  assertions: [
+    { id: "A1", metric: "", op: "lt|gt|eq|contains", target: 0, desc: "" }
+  ],
+  status: "draft",
+  created: "",
+  lastResult: null,
+  tags: []
+};
+
+// ---------- 命令: new ----------
+function cmdNew(name) {
+  ensureDirs();
+  if (!name) die("用法: labforge new <实验id>");
+  const p = cardPath(name);
+  if (fs.existsSync(p)) die(`卡片已存在: ${name}`);
+  const now = new Date().toISOString();
+  const card = {
+    ...JSON.parse(JSON.stringify(CARD_TEMPLATE)),
+    id: name,
+    title: `${name} 实验`,
+    created: now,
+  };
+  fs.writeFileSync(p, JSON.stringify(card, null, 2));
+  console.log(`✅ 实验卡片已生成: ${p}`);
+  console.log("   编辑卡片: 填 goal/hypothesis/kind/runner/data/params/assertions");
+  console.log("   然后: labforge run " + name);
+}
+
+// ---------- 指标提取 ----------
+function dig(obj, pathExpr) {
+  // 支持 a.b.c 与 a[0].b
+  return pathExpr.split(".").reduce((acc, seg) => {
+    if (acc === undefined || acc === null) return undefined;
+    const m = seg.match(/^(\w+)\[(\d+)\]$/);
+    if (m) return acc[m[1]]?.[Number(m[2])];
+    return acc[seg];
+  }, obj);
+}
+
+function evalMetric(value, op, target) {
+  if (typeof value === "string") {
+    switch (op) {
+      case "contains": return value.includes(String(target));
+      case "eq": return value === String(target);
+      case "match": return new RegExp(String(target)).test(value);
+      default: return false;
+    }
+  }
+  const n = Number(value);
+  if (!Number.isFinite(n)) return false;
+  const t = Number(target);
+  switch (op) {
+    case "lt": return n < t;
+    case "lte": return n <= t;
+    case "gt": return n > t;
+    case "gte": return n >= t;
+    case "eq": return n === t;
+    default: return false;
+  }
+}
+
+// ---------- 断言评估 ----------
+function runAssertions(card, metrics) {
+  const results = [];
+  for (const a of card.assertions || []) {
+    const value = dig(metrics, a.metric);
+    const ok = value !== undefined && evalMetric(value, a.op, a.target);
+    results.push({ id: a.id, metric: a.metric, op: a.op, target: a.target, value: value ?? null, ok, desc: a.desc });
+  }
+  return results;
+}
+
+// ---------- 命令: run ----------
+function cmdRun(name, extraArgs) {
+  const card = loadCard(name);
+  if (!card.runner) die(`卡片 ${name} 未指定 runner`);
+  const runner = path.join(RUNNERS, card.runner.endsWith(".js") ? card.runner : `${card.runner}.js`);
+  if (!fs.existsSync(runner)) die(`runner 不存在: ${runner}`);
+
+  // runner 产出的 JSON 写到 latest + 时间戳归档（⑧自动落链）
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const outFile = path.join(RESULTS, `${name}.latest.json`);
+  const archiveFile = path.join(RESULTS, `${name}-${ts}.json`);
+  const dataArgs = (card.data || []).map((d) => {
+    const p = path.join(DATA_DIR, d);
+    return fs.existsSync(p) ? p : (fs.existsSync(d) ? d : d);
+  });
+  const args = [
+    ...dataArgs,
+    ...Object.entries(card.params || {}).map(([k, v]) => `--${k}=${v}`),
+    `--json-out=${outFile}`,
+    ...(extraArgs || []),
+  ];
+  log(`run ${name} runner=${card.runner}`);
+  console.log(`▶ 执行 ${name}: node ${path.basename(runner)} ${args.join(" ")}`);
+  const r = spawnSync(process.execPath, [runner, ...args], { stdio: "inherit", cwd: ROOT });
+  if (r.status !== 0) die(`runner 退出码 ${r.status}`);
+  // 归档副本（时间戳）
+  try { if (fs.existsSync(outFile)) fs.copyFileSync(outFile, archiveFile); } catch {}
+  console.log(`✅ 结果已回收: ${outFile} (归档 ${path.basename(archiveFile)})`);
+  return outFile;
+}
+
+// ---------- 命令: eval ----------
+function cmdEval(name, resultFile) {
+  const card = loadCard(name);
+  const rf = resultFile || path.join(RESULTS, `${name}.latest.json`);
+  if (!fs.existsSync(rf)) die(`无结果文件: ${rf}（先 labforge run ${name}）`);
+  let metrics;
+  try { metrics = JSON.parse(fs.readFileSync(rf, "utf8")); }
+  catch (e) { die(`结果解析失败: ${e.message}`); }
+
+  const asserts = runAssertions(card, metrics);
+  console.log(`\n═══ 评估: ${name} ═══`);
+  console.log(`目标: ${card.goal || "(未填)"}`);
+  let pass = 0, fail = 0, na = 0;
+  for (const a of asserts) {
+    if (a.value === null) { console.log(` N/A  ${a.id} ${a.desc || a.metric} (指标不存在)`); na++; continue; }
+    const mark = a.ok ? "PASS" : "FAIL";
+    console.log(` ${mark}  ${a.id} ${a.desc || ""} [${a.metric} ${a.op} ${a.target}] → 实际 ${a.value}`);
+    a.ok ? pass++ : fail++;
+  }
+  console.log(`\n结果: ${pass} PASS / ${fail} FAIL / ${na} N/A`);
+  // 更新卡片状态
+  card.status = fail === 0 && pass > 0 ? "pass" : (fail > 0 ? "fail" : "na");
+  card.lastResult = { time: new Date().toISOString(), pass, fail, na, file: rf };
+  fs.writeFileSync(cardPath(name), JSON.stringify(card, null, 2));
+  // P3 ⑧扩展：结果自动落黑板（可选，LABFORGE_BOARD=1 启用；默认本机落本地 notes 镜像）
+  try { writeBoard(card, asserts, pass, fail); } catch {}
+  return fail === 0;
+}
+
+// ---------- P3: 黑板/本地沉淀落链 ----------
+function writeBoard(card, asserts, pass, fail) {
+  const home = process.env.HOME || "";
+  const boardDir = process.env.LABFORGE_BOARD_DIR || path.join(home, "dsh-collab", "notes", "mac-mini");
+  fs.mkdirSync(boardDir, { recursive: true });
+  const ts = new Date().toISOString();
+  const line = [
+    `- [${ts}] **${card.id}** ${card.status.toUpperCase()} (${pass}P/${fail}F)`,
+    `  目标: ${card.goal || ""}`,
+    ...asserts.map((a) => `  - ${a.ok ? "✅" : (a.value === null ? "⏭️" : "❌")} ${a.id} ${a.desc || ""} → ${a.value ?? "N/A"}`),
+  ].join("\n");
+  fs.appendFileSync(path.join(boardDir, "labforge-results.md"), line + "\n");
+  log(`board 落链 ${card.id} ${card.status} ${pass}P/${fail}F`);
+}
+
+// ---------- 命令: loop ----------
+function cmdLoop(name) {
+  const out = cmdRun(name);
+  const ok = cmdEval(name, out);
+  console.log(ok ? "\n✅ 循环闭合: 实验 PASS" : "\n❌ 循环闭合: 实验 FAIL（见上方断言）");
+  return ok;
+}
+
+// ---------- 命令: status ----------
+function cmdStatus(name) {
+  ensureDirs();
+  if (name) {
+    const card = loadCard(name);
+    console.log(JSON.stringify({ id: card.id, title: card.title, goal: card.goal, status: card.status, lastResult: card.lastResult }, null, 2));
+    return;
+  }
+  const files = fs.readdirSync(CARDS).filter((f) => f.endsWith(".json"));
+  if (!files.length) { console.log("无实验卡片 (labforge new <id>)"); return; }
+  console.log("实验登记表:");
+  for (const f of files) {
+    try {
+      const c = JSON.parse(fs.readFileSync(path.join(CARDS, f), "utf8"));
+      const last = c.lastResult ? `${c.lastResult.pass}P/${c.lastResult.fail}F @${c.lastResult.time.slice(0, 10)}` : "未跑";
+      console.log(`  ${c.status.padEnd(6)} ${c.id.padEnd(28)} ${(c.goal || "").slice(0, 40).padEnd(42)} ${last}`);
+    } catch {}
+  }
+}
+
+// ---------- 命令: design（目标 → 草稿设计建议） ----------
+function cmdDesign(goal) {
+  if (!goal) die("用法: labforge design <目标描述>");
+  console.log(`═══ 实验设计草稿 ═══`);
+  console.log(`目标: ${goal}`);
+  console.log(`
+建议的实验设计模板（存为卡片后编辑细化）:
+  1. 假设（可证伪）: 把目标拆成"若 X 则 Y"的断言
+  2. 变量: 自变量(改动项) / 因变量(观测指标) / 控制变量(固定项)
+  3. 对照: 治理前(full/基线) vs 治理后(tail/新方案) 同条件对比
+  4. 回收标准: 每个断言 = metric(路径) + op + target（从 runner 产物 JSON 提取）
+  5. 隔离: 只读样本 / 受限子进程 / 不影响生产
+  6. 循环: labforge loop <id> 一键 run+eval，结果入登记表
+用法: labforge new <id> → 编辑卡片 → labforge loop <id>`);
+}
+
+// ---------- 命令: regress（全卡回归循环） ----------
+function cmdRegress() {
+  ensureDirs();
+  const files = fs.readdirSync(CARDS).filter((f) => f.endsWith(".json"));
+  if (!files.length) { console.log("无实验卡片"); return; }
+  console.log("═══ 实验全量回归 ═══\n");
+  const summary = [];
+  for (const f of files) {
+    const id = f.replace(/\.json$/, "");
+    const card = loadCard(id);
+    if (card.status === "draft" && !card.runner) { console.log(`跳过 ${id} (未配置 runner)`); continue; }
+    console.log(`\n▶ 回归 ${id} ...`);
+    let ok = false;
+    try { ok = cmdLoop(id); } catch (e) { console.log(`  执行异常: ${e.message}`); ok = false; }
+    summary.push({ id, ok, status: card.status });
+  }
+  console.log("\n═══ 回归汇总 ═══");
+  let p = 0, f = 0;
+  for (const s of summary) { console.log(` ${s.ok ? "PASS" : "FAIL"}  ${s.id} (${s.status})`); s.ok ? p++ : f++; }
+  console.log(`\n${p} 通过 / ${f} 未过`);
+}
+
+// ---------- 命令: hypotheses（假设登记表） ----------
+function cmdHypotheses() {
+  ensureDirs();
+  const files = fs.readdirSync(CARDS).filter((f) => f.endsWith(".json"));
+  const hyps = [];
+  for (const f of files) {
+    try {
+      const c = JSON.parse(fs.readFileSync(path.join(CARDS, f), "utf8"));
+      if (c.hypothesis) hyps.push({ id: c.id, status: c.status, hypothesis: c.hypothesis });
+    } catch {}
+  }
+  console.log("═══ 假设登记表 (HYPOTHESES) ═══\n");
+  if (!hyps.length) { console.log("无登记假设"); return; }
+  for (const h of hyps) {
+    console.log(`[${h.status.toUpperCase()}] ${h.id}`);
+    for (const line of h.hypothesis.split("；")) console.log(`    ${line.trim()}`);
+    console.log("");
+  }
+}
+
+// ---------- 命令: archaeology（故障根因考古） ----------
+function cmdArchaeology(extraDir) {
+  const home = process.env.HOME || "";
+  // 默认扫双目录: MBP repair-reports + macmini 快照(若已拉取)
+  const dirs = (extraDir ? [extraDir] : [
+    path.join(home, "dsh-collab", "repair-reports"),
+    path.join(home, "dsh-collab", "archaeology-mbp", "mini-reports"),
+  ]).filter((d) => fs.existsSync(d));
+  if (!dirs.length) die("无报告目录可考古");
+  const arch = require("./lib/archaeology.js");
+  const entries = [];
+  for (const d of dirs) entries.push(...arch.scanReports(d));
+  const reportsDir = dirs.join(" + ");
+  if (!entries.length) { console.log("无报告可考古"); return; }
+  const seen = new Set(); const uniq = entries.filter((e) => !seen.has(e.file) && seen.add(e.file));
+  const sum = arch.summarize(uniq);
+  const guard = arch.guardMap(CARDS);
+  const ts = new Date().toISOString();
+
+  console.log(`\n═══ 故障根因考古 ═══`);
+  console.log(`报告源: ${reportsDir} | 条目: ${sum.total} | 时间 ${ts}`);
+  console.log(`\n根因模式分布:`);
+  for (const [pid, info] of Object.entries(sum.byPattern)) {
+    const p = arch.PATTERNS.find((x) => x.id === pid);
+    if (!p) continue;
+    const mark = guard.guarded.includes(pid) ? "🛡" : "⚠️";
+    console.log(` ${mark} ${pid} ${p.name}: ${info.count} 条${info.count ? ` (例: ${info.examples[0] || ""})` : ""}`);
+    if (info.count > 0) {
+      console.log(`     解决方案: ${p.remediation || p.defense}`);
+      console.log(`     Lean4门: ${p.leanGate || "见 guard-gate 流程"}`);
+    }
+  }
+  if (sum.unclassified > 0) console.log(` ? 未归类: ${sum.unclassified} 条`);
+  console.log(`\n守护面: 已守护 [${guard.guarded.join(", ")}] | 缺口 ${guard.gaps.length ? guard.gaps.map((g) => `${g.id}(${g.name})`).join(", ") : "无"}`);
+  if (guard.gaps.length) {
+    console.log(`\n⚠️ 建议补卡:`);
+    for (const g of guard.gaps) console.log(`   labforge new ${g.id.toLowerCase().replace(/[^a-z0-9]/g, "-")}-regression  # 守护 ${g.id} ${g.name} (防御: ${g.defense})`);
+  }
+  log(`archaeology 报告源=${reportsDir} 条目=${sum.total} 缺口=${guard.gaps.map((g) => g.id).join(",") || "无"}`);
+  return { total: sum.total, byPattern: sum.byPattern, guard };
+}
+
+// ---------- main ----------
+const [cmd, arg1, ...rest] = process.argv.slice(2);
+ensureDirs();
+if (cmd === "--version" || cmd === "-v") { console.log(`labforge v${VERSION}`); process.exit(0); }
+switch (cmd) {
+  case "new": cmdNew(arg1); log(`new ${arg1}`); break;
+  case "run": cmdRun(arg1); break;
+  case "eval": { const ok = cmdEval(arg1, rest[0]); log(`eval ${arg1} ${ok ? "PASS" : "FAIL"}`); break; }
+  case "loop": { const ok = cmdLoop(arg1); log(`loop ${arg1} ${ok ? "PASS" : "FAIL"}`); break; }
+  case "status": cmdStatus(arg1); break;
+  case "design": cmdDesign(rest.join(" ") || arg1); log(`design ${arg1}`); break;
+  case "regress": log("regress start"); cmdRegress(); log("regress end"); break;
+  case "hypotheses": cmdHypotheses(); break;
+  case "archaeology": cmdArchaeology(arg1); break;
+  default:
+    console.log(`labforge v${VERSION} — 实验方法引擎 (设计/生成/评估/考古/循环)
+用法:
+  labforge new <id>           生成实验卡片
+  labforge run <id>           执行实验并回收结果
+  labforge eval <id> [结果]   评估(断言 PASS/FAIL)
+  labforge loop <id>          run+eval 一键闭环
+  labforge regress            全部登记卡一键回归
+  labforge hypotheses         假设登记表
+  labforge archaeology [目录] 故障根因考古(默认 ~/dsh-collab/repair-reports)
+  labforge status [id]        实验登记状态
+  labforge design <目标>      目标 → 设计草稿
+  labforge --version         版本号`);
+    break;
+}

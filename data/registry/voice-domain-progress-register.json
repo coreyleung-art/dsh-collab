@@ -1,0 +1,62 @@
+{
+ "schema": "voice-domain-progress-register/v1",
+ "created_at": "2026-10-10T03:48:32+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 语音域 · 进度登记（★ 按用户 2026-10-10 指示：**我只登记进度，不参与审核**）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:48:32+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_user_instruction": "「**语音相关东西你不用参与审核**，通知语音负责人，**再有审查找独立审查员跑审查立项**，**这个事情你只负责登记进度**，继续推进总目标就好」",
+ "★_the_new_division_of_labor（已通知各方）": {
+  "我（session-e317d6ab）": "★ **只登记进度**（把外部发现的语音域缺陷与进展登记成卡，**不裁不审**）",
+  "语音负责人（session-0637278c）": "★ 维护与修复；**语音相关审查请找独立审查员立项**",
+  "独立审查员（session-1ffded95）": "★ **受理语音域审查立项**",
+  "语音专项测试会话（session-a072636f）": "★ 只测不修，只出报告（其自述）；已领取培训材料",
+  "已通知": "★ 已向 0637278c（notify_only）与 a072636f（reply_required）发出分工调整说明"
+ },
+ "★★_progress_registered": {
+  "①_交接与划界": {
+   "交接包": "`data/registry/voice-role-handover`",
+   "划界卡": "`data/registry/voice-domain-resource-assignment` —— A 类 **19 项**（16 + 由 0637278c 发现补入的 3 项真源）",
+   "受让人登记": "✅ 已完成（逐项实测在位 · A/B/共享/非我 四段划分）",
+   "原持有人": "✅ 已更新档案 · **换装待办已关闭**"
+  },
+  "②_麦克风修复链（四层判据）": {
+   "TCC": "✅ **已修复** —— 换装后 `requires entitlement … audio-input but it is missing` **52 → 0**",
+   "弹窗与授权": "✅ `03:41:54 AUTHREQ_PROMPTING service=kTCCServiceMicrophone` · `responsible_path=/Applications/CLD.app` · **`authValue=2`（allowed）** · `TCCDEvent type=Create`",
+   "上行": "✅ **通** —— `session.created` · **模型语义连贯地回应用户的抱怨**",
+   "★_下行": "❌ **断（当前活故障）** —— `audio bytes=0` **8 次** · **`response.output_audio.delta` = 0 次**（而 `response.done` = 45 次）· TTS 兜底 **5 次无效**",
+   "前端": "✅ 已排除（计数在后端记录）"
+  },
+  "③_已登记的工具缺陷": "`data/registry/tool-defect-agent-profile-silent-truncate` —— `agent_profile` **条数上限恰 20 · 尾部丢弃 · 无报错**（由 0637278c 受控实验闭合我 3 项 not_verified）",
+  "④_诊断卡": [
+   "`data/registry/tcc-microphone-resolved`",
+   "`data/registry/voice-downlink-broken`",
+   "`data/registry/starbridge-capability-gaps-registered`（成稿：**间歇性静默降级**，非未实现）"
+  ]
+ },
+ "★★_an_infrastructure_defect_I_fixed（不属语音域，故由我处理）": {
+  "★_found_by": "session-a072636f（报到时发现并指正）",
+  "★_what": "★ `new-session-onboarding.md`（**新会话引导 · 被 6 个文件引用**）：**第 4 行「维护者」与第 56 行「报到命令」均指向已 bricked 的首任 `fa1f9150`** ⇒ **新会话照此报到会投给死会话**（用户明令禁止投递）。",
+  "★_why_not_voice_domain": "★ 它是**协作基础设施**（影响所有新会话），**非语音域** ⇒ **故由我修复**",
+  "★_fixed": [
+   "第 4 行维护者 → `session-e317d6ab`（附更正说明）",
+   "第 56 行报到命令 → `session-e317d6ab`",
+   "备份：`guard/backups/new-session-onboarding-before-fix-034735.md`"
+  ],
+  "★_verification": "★ **修复后 central-inbox 窗口内死会话引用 = 0 次 · 注入目标 = `session-e317d6ab`**（17,173 行尾部窗口中 `fa1f9150` 引用 0）"
+ },
+ "★_i_explicitly_did_not_do": [
+  "★ **未参与语音域审核**（按用户指示）· 未对 0637278c 的梳理或测试报告出裁定",
+  "★ **未改** `cld-voice/backend` 任何代码（它属受让人）",
+  "★ **未对 session-fa1f9150 做任何读以外的动作**"
+ ],
+ "not_verified": [
+  "★ 下行断的三个候选根因**均未定**（修需落盘事件序列 ⇒ 属受让人）",
+  "★ 我**未核** a072636f 的测试报告内容（**按用户指示不参与审核**）"
+ ],
+ "r046_note": "本卡为进度登记（非审核、非裁定），不构成任何验收或裁决通过。"
+}

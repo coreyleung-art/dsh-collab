@@ -1,0 +1,284 @@
+{
+  "items": [
+    {
+      "date": "2026-08-29",
+      "fix": "MBP 删非法调用（git ac8e2f3）+ restart-guard ⑪ 加 apply(fakeCtx) 测试",
+      "id": "2026-08-29-apply-phase-crash",
+      "lesson": "模块能加载 ≠ apply 能执行；插件验证必须执行 apply 阶段",
+      "phenomenon": "CLD 重启后 dsh exit 1，web profile 全停摆",
+      "root_cause": "central-inbox v0.1.6 引入 startAdaptGuard 调用但未导入（agent-way 私有函数）→ apply 阶段 ReferenceError",
+      "severity": "P1",
+      "sop_update": "restart-guard-sop.md ⑪增强（import+apply 双阶段实测）",
+      "title": "apply phase crash"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-central-inbox-stale-code",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P1",
+      "sop_update": "",
+      "title": "central inbox stale code"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-nodebridge-sandbox-missed-mode",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P2",
+      "sop_update": "",
+      "title": "nodebridge sandbox missed mode"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-upgrade-no-standby",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P2",
+      "sop_update": "",
+      "title": "upgrade no standby"
+    },
+    {
+      "date": "2026-08-30",
+      "fix": "新增 BB_SSE 常量 = 127.0.0.1:8803，SSE 线程改连 BB_SSE（v0.3.0）",
+      "id": "2026-08-30-mcp-sse-wrong-port",
+      "lesson": "多端口服务（REST + SSE 分离）必须为每个端口定义独立常量；「TCP 能连上」不等于「协议正确」——连接成功可能是连到了错误端口的监听",
+      "phenomenon": "bb_subscribe 返回「已订阅」但真实写黑板后永远收不到 notification 推送",
+      "root_cause": "MCP 的 SSE 后台线程用 BB 常量连 127.0.0.1:8792（REST API 端口），而 /events SSE 事件桥在独立端口 8803（原 blackboard-events.py 语义）。8792 有监听 → TCP 连接成功 → REST 对 GET /events 返回 404 后关闭 → 重连循环，推送永远不来",
+      "severity": "P1",
+      "sop_update": "blackboard-mcp-server-design-v1.md 更新端口拓扑（8792 REST / 8803 SSE）",
+      "title": "MCP bb_subscribe SSE 连错端口（8792 REST → 8803 SSE 桥）"
+    },
+    {
+      "date": "2026-08-30",
+      "fix": "main() 与 SSE 线程均改为「写时短暂 lock」（每次 write 时 lock+flush 即释放），不长期持有",
+      "id": "2026-08-30-mcp-stdout-lock-deadlock",
+      "lesson": "Rust Stdout 锁不可重入且 StdoutLock 存活于作用域；stdin 长读循环中绝不能长期持有 stdout 锁，否则所有其他线程的 stdout 输出全部死锁",
+      "phenomenon": "SSE 线程日志显示 MATCH 匹配成功，但 notification 永远写不出；Python MCP client 收不到推送",
+      "root_cause": "main() 中 let out = stdout.lock() 在 for line in stdin.lock().lines() 循环作用域内长期持有 stdout 锁；SSE 后台线程 std::io::stdout().lock() 等待该锁 → 主循环永不释放 → 死锁",
+      "severity": "P1",
+      "sop_update": "MCP 服务器设计规范：后台推送线程与主循环写 stdout 一律用写时短暂 lock 模式",
+      "title": "MCP SSE 推送 stdout 锁死锁（Rust StdoutLock 长期持有）"
+    },
+    {
+      "id": "2026-08-30-binary-version-overwrite",
+      "severity": "P3",
+      "date": "2026-08-30",
+      "title": "升级时把新版本内容写进旧版本文件名（版本文件覆盖错误）",
+      "phenomenon": "node-bridge v1.3.2→v1.3.3 升级时，先用 cp v1.3.3 → v1.3.2 覆盖同名文件（plist 仍指向 v1.3.2），导致文件名 v1.3.2 内容 v1.3.3 的版本混乱",
+      "root_cause": "升级操作直接覆盖旧版本文件而非让 plist 指向独立新版本文件",
+      "fix": "恢复 v1.3.2 原文件（.bak-v133 备份），sed 更新 plist 指向 node-bridge-macos-arm64-v1.3.3 独立文件",
+      "lesson": "版本升级应保持文件名=版本内容一致（plist 指向新版本独立文件），不覆盖旧文件；备份先于任何替换",
+      "sop_update": "版本管理 SOP：升级 = 备份旧版 → plist 改指向新版独立文件 → 重启 → 心跳验证，禁止覆盖同名"
+    },
+    {
+      "id": "2026-08-30-hot-reload-crash",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "CLD 热重载崩溃（reloadDsh 正常路径缺 return → HTTP 读 undefined 崩壳）",
+      "phenomenon": "POST 127.0.0.1:31888/reload 后 CLD 直接崩溃（uncaughtException TypeError: Cannot read properties of undefined (reading 'reloading')），需用户手动重开",
+      "root_cause": "main.js reloadDsh() 正常路径（非 already-reloading）执行完无 return → 返回 undefined → startReloadServer HTTP 处理器 `r.reloading` 读 undefined 属性 → TypeError → 壳崩。存量 bug（v0.3.x 引入），本次触发暴露",
+      "fix": "reloadDsh 正常路径补 `return { ok: true, reloading: true }`（治理仓库 ~/dsh-collab/cld/main.js，v0.3.2）",
+      "lesson": "① 热重载/重启类生产路径，触发前必须沙箱验证（R015）——本次违反纪律直接触发未验证热重载，撞上存量 bug 崩溃 ② JS 函数所有分支必须显式 return（尤其被调用方读返回值属性的场景）③ 触发崩溃后发现：CLD 不是自动重启而是用户手动重开——不能假设 launchd 自动拉起",
+      "sop_update": "热重载 SOP：触发 /reload 前先 node --check main.js + 逻辑静态验证（所有 return 路径）+ 沙箱 CLD 试跑；崩溃后先查 exit-marker/crash-reason 再判断是否自动恢复"
+    },
+    {
+      "id": "2026-08-30-collab-channel-pollution",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "独立项目误走 collab 广播污染端节点上下文",
+      "phenomenon": "同盟法辅等独立项目消息全写 notes/collab/ 广播通道，i9/MBP node-bridge 全量监听 collab → 无关项目消息落入 inbox → 上下文污染 + 可能误触发 LLM",
+      "root_cause": "① 发送方把 collab 当默认通道（R002 未执行）② node-bridge notes_loop 对 collab 无差别全收（main.rs starts_with notes/collab/）③ 协调者只确认不纠偏",
+      "fix": "① node-bridge v1.4.0 collab 白名单（只收 to/target/mentions 定向自己 + --collab-subs 订阅）实测 i9 164→21 条 ② dsh-tools v1.14.0 channel-audit 巡检（launchd 每小时 + 违规登记黑板）③ 通道纠偏通知 data/tongmeng/channel-correction-20260830",
+      "lesson": "广播通道是默认不是特权——「图省事走广播」会几何级放大污染（N 端 × 全量收）。主动巡检机制（channel-audit）比依赖人发现强：当场抓出 8 条真违规含协调者自己",
+      "sop_update": "通道卫生 SOP：collab 仅限全局公告；定向消息走 notes/<node>/ 或 data/<域>/；channel-audit 每小时巡检 + 违规登记"
+    },
+    {
+      "id": "2026-08-30-http-header-empty-auth",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "无 token 时 HTTP 头提前结束（auth 空行导致 body 解析失败）",
+      "phenomenon": "MCP bb_post/bb_put 无 token（BLACKBOARD_TOKEN 空）时，黑板注册/写入的 name 参数丢失（回退默认值 device）",
+      "root_cause": "auth 头为空时仍输出 '\\r\\n' → Host 行后出现 '\\r\\n\\r\\n'（HTTP 头结束符）→ Content-Type/Content-Length 被当 body，body 解析失败",
+      "fix": "auth 空=空串（不输出 \\r\\n），格式串 Host:\\r\\n{}Content-Type——头间单换行合法",
+      "lesson": "手工拼 HTTP 请求时，可选头为空必须输出空串而非换行——\\r\\n\\r\\n 是头结束符，多余换行会截断头部",
+      "sop_update": "HTTP 请求构造 SOP：可选头（如 auth）空时输出空串；验证用 od -c 检查 \\r\\n 数量"
+    },
+    {
+      "id": "cloudbase-deploy-verify-hash-20260910",
+      "date": "2026-09-10",
+      "domain": "部署/发布",
+      "symptom": "线上「版本是否已更新」误判：尺寸接近但内容不同（830869B vs 830799B, 差 70 字节）；或 CDN 旧缓存导致复核显示旧版",
+      "root_cause": "① 两次产物更新相隔 2 分钟、尺寸相近, 用尺寸/时间戳验证不可靠；② CDN 缓存(max-age=300/s-maxage=600)使旧内容被读到",
+      "fix": "发布验收改为 SHA-256 逐文件比对(线上 vs 本地) + 取用时加 cache-buster(?t=<ts>)或 Cache-Control: no-cache",
+      "source": "老登↔明鉴↔星桥 plan/ 与 systemgraph/ 发布链(2026-09-10)",
+      "tags": [
+        "发布验证",
+        "CDN",
+        "哈希"
+      ]
+    }
+  ],
+  "version": 1,
+  "pitfalls": [
+    {
+      "date": "2026-08-29",
+      "fix": "MBP 删非法调用（git ac8e2f3）+ restart-guard ⑪ 加 apply(fakeCtx) 测试",
+      "id": "2026-08-29-apply-phase-crash",
+      "lesson": "模块能加载 ≠ apply 能执行；插件验证必须执行 apply 阶段",
+      "phenomenon": "CLD 重启后 dsh exit 1，web profile 全停摆",
+      "root_cause": "central-inbox v0.1.6 引入 startAdaptGuard 调用但未导入（agent-way 私有函数）→ apply 阶段 ReferenceError",
+      "severity": "P1",
+      "sop_update": "restart-guard-sop.md ⑪增强（import+apply 双阶段实测）",
+      "title": "apply phase crash"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-central-inbox-stale-code",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P1",
+      "sop_update": "",
+      "title": "central inbox stale code"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-nodebridge-sandbox-missed-mode",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P2",
+      "sop_update": "",
+      "title": "nodebridge sandbox missed mode"
+    },
+    {
+      "date": "2026-08-29",
+      "fix": "",
+      "id": "2026-08-29-upgrade-no-standby",
+      "lesson": "",
+      "phenomenon": "",
+      "root_cause": "",
+      "severity": "P2",
+      "sop_update": "",
+      "title": "upgrade no standby"
+    },
+    {
+      "date": "2026-08-30",
+      "fix": "新增 BB_SSE 常量 = 127.0.0.1:8803，SSE 线程改连 BB_SSE（v0.3.0）",
+      "id": "2026-08-30-mcp-sse-wrong-port",
+      "lesson": "多端口服务（REST + SSE 分离）必须为每个端口定义独立常量；「TCP 能连上」不等于「协议正确」——连接成功可能是连到了错误端口的监听",
+      "phenomenon": "bb_subscribe 返回「已订阅」但真实写黑板后永远收不到 notification 推送",
+      "root_cause": "MCP 的 SSE 后台线程用 BB 常量连 127.0.0.1:8792（REST API 端口），而 /events SSE 事件桥在独立端口 8803（原 blackboard-events.py 语义）。8792 有监听 → TCP 连接成功 → REST 对 GET /events 返回 404 后关闭 → 重连循环，推送永远不来",
+      "severity": "P1",
+      "sop_update": "blackboard-mcp-server-design-v1.md 更新端口拓扑（8792 REST / 8803 SSE）",
+      "title": "MCP bb_subscribe SSE 连错端口（8792 REST → 8803 SSE 桥）"
+    },
+    {
+      "date": "2026-08-30",
+      "fix": "main() 与 SSE 线程均改为「写时短暂 lock」（每次 write 时 lock+flush 即释放），不长期持有",
+      "id": "2026-08-30-mcp-stdout-lock-deadlock",
+      "lesson": "Rust Stdout 锁不可重入且 StdoutLock 存活于作用域；stdin 长读循环中绝不能长期持有 stdout 锁，否则所有其他线程的 stdout 输出全部死锁",
+      "phenomenon": "SSE 线程日志显示 MATCH 匹配成功，但 notification 永远写不出；Python MCP client 收不到推送",
+      "root_cause": "main() 中 let out = stdout.lock() 在 for line in stdin.lock().lines() 循环作用域内长期持有 stdout 锁；SSE 后台线程 std::io::stdout().lock() 等待该锁 → 主循环永不释放 → 死锁",
+      "severity": "P1",
+      "sop_update": "MCP 服务器设计规范：后台推送线程与主循环写 stdout 一律用写时短暂 lock 模式",
+      "title": "MCP SSE 推送 stdout 锁死锁（Rust StdoutLock 长期持有）"
+    },
+    {
+      "id": "2026-08-30-binary-version-overwrite",
+      "severity": "P3",
+      "date": "2026-08-30",
+      "title": "升级时把新版本内容写进旧版本文件名（版本文件覆盖错误）",
+      "phenomenon": "node-bridge v1.3.2→v1.3.3 升级时，先用 cp v1.3.3 → v1.3.2 覆盖同名文件（plist 仍指向 v1.3.2），导致文件名 v1.3.2 内容 v1.3.3 的版本混乱",
+      "root_cause": "升级操作直接覆盖旧版本文件而非让 plist 指向独立新版本文件",
+      "fix": "恢复 v1.3.2 原文件（.bak-v133 备份），sed 更新 plist 指向 node-bridge-macos-arm64-v1.3.3 独立文件",
+      "lesson": "版本升级应保持文件名=版本内容一致（plist 指向新版本独立文件），不覆盖旧文件；备份先于任何替换",
+      "sop_update": "版本管理 SOP：升级 = 备份旧版 → plist 改指向新版独立文件 → 重启 → 心跳验证，禁止覆盖同名"
+    },
+    {
+      "id": "2026-08-30-hot-reload-crash",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "CLD 热重载崩溃（reloadDsh 正常路径缺 return → HTTP 读 undefined 崩壳）",
+      "phenomenon": "POST 127.0.0.1:31888/reload 后 CLD 直接崩溃（uncaughtException TypeError: Cannot read properties of undefined (reading 'reloading')），需用户手动重开",
+      "root_cause": "main.js reloadDsh() 正常路径（非 already-reloading）执行完无 return → 返回 undefined → startReloadServer HTTP 处理器 `r.reloading` 读 undefined 属性 → TypeError → 壳崩。存量 bug（v0.3.x 引入），本次触发暴露",
+      "fix": "reloadDsh 正常路径补 `return { ok: true, reloading: true }`（治理仓库 ~/dsh-collab/cld/main.js，v0.3.2）",
+      "lesson": "① 热重载/重启类生产路径，触发前必须沙箱验证（R015）——本次违反纪律直接触发未验证热重载，撞上存量 bug 崩溃 ② JS 函数所有分支必须显式 return（尤其被调用方读返回值属性的场景）③ 触发崩溃后发现：CLD 不是自动重启而是用户手动重开——不能假设 launchd 自动拉起",
+      "sop_update": "热重载 SOP：触发 /reload 前先 node --check main.js + 逻辑静态验证（所有 return 路径）+ 沙箱 CLD 试跑；崩溃后先查 exit-marker/crash-reason 再判断是否自动恢复"
+    },
+    {
+      "id": "2026-08-30-collab-channel-pollution",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "独立项目误走 collab 广播污染端节点上下文",
+      "phenomenon": "同盟法辅等独立项目消息全写 notes/collab/ 广播通道，i9/MBP node-bridge 全量监听 collab → 无关项目消息落入 inbox → 上下文污染 + 可能误触发 LLM",
+      "root_cause": "① 发送方把 collab 当默认通道（R002 未执行）② node-bridge notes_loop 对 collab 无差别全收（main.rs starts_with notes/collab/）③ 协调者只确认不纠偏",
+      "fix": "① node-bridge v1.4.0 collab 白名单（只收 to/target/mentions 定向自己 + --collab-subs 订阅）实测 i9 164→21 条 ② dsh-tools v1.14.0 channel-audit 巡检（launchd 每小时 + 违规登记黑板）③ 通道纠偏通知 data/tongmeng/channel-correction-20260830",
+      "lesson": "广播通道是默认不是特权——「图省事走广播」会几何级放大污染（N 端 × 全量收）。主动巡检机制（channel-audit）比依赖人发现强：当场抓出 8 条真违规含协调者自己",
+      "sop_update": "通道卫生 SOP：collab 仅限全局公告；定向消息走 notes/<node>/ 或 data/<域>/；channel-audit 每小时巡检 + 违规登记"
+    },
+    {
+      "id": "2026-08-30-http-header-empty-auth",
+      "severity": "P1",
+      "date": "2026-08-30",
+      "title": "无 token 时 HTTP 头提前结束（auth 空行导致 body 解析失败）",
+      "phenomenon": "MCP bb_post/bb_put 无 token（BLACKBOARD_TOKEN 空）时，黑板注册/写入的 name 参数丢失（回退默认值 device）",
+      "root_cause": "auth 头为空时仍输出 '\\r\\n' → Host 行后出现 '\\r\\n\\r\\n'（HTTP 头结束符）→ Content-Type/Content-Length 被当 body，body 解析失败",
+      "fix": "auth 空=空串（不输出 \\r\\n），格式串 Host:\\r\\n{}Content-Type——头间单换行合法",
+      "lesson": "手工拼 HTTP 请求时，可选头为空必须输出空串而非换行——\\r\\n\\r\\n 是头结束符，多余换行会截断头部",
+      "sop_update": "HTTP 请求构造 SOP：可选头（如 auth）空时输出空串；验证用 od -c 检查 \\r\\n 数量"
+    },
+    {
+      "id": "cloudbase-deploy-verify-hash-20260910",
+      "date": "2026-09-10",
+      "domain": "部署/发布",
+      "symptom": "线上「版本是否已更新」误判：尺寸接近但内容不同（830869B vs 830799B, 差 70 字节）；或 CDN 旧缓存导致复核显示旧版",
+      "root_cause": "① 两次产物更新相隔 2 分钟、尺寸相近, 用尺寸/时间戳验证不可靠；② CDN 缓存(max-age=300/s-maxage=600)使旧内容被读到",
+      "fix": "发布验收改为 SHA-256 逐文件比对(线上 vs 本地) + 取用时加 cache-buster(?t=<ts>)或 Cache-Control: no-cache",
+      "source": "老登↔明鉴↔星桥 plan/ 与 systemgraph/ 发布链(2026-09-10)",
+      "tags": [
+        "发布验证",
+        "CDN",
+        "哈希"
+      ]
+    },
+    {
+      "id": "keyword-cleanup-word-boundary-20260910",
+      "date": "2026-09-10",
+      "domain": "内容清理/文档发布",
+      "symptom": "关键词批量清除误伤合法内容：用「资方」清除时误匹配「出资方式」「出资方」, 删掉合法句子并合并表格行(13+10 处), 并留下 15 行未闭合粗体与 3 处残缺表格",
+      "root_cause": "关键词替换未使用词边界/未做替前 dry-run 与替后结构校验",
+      "fix": "①清除必须用词边界(正则 \\b 或显式白名单/黑名单) ②替前输出命中清单供人核 ③替后必跑结构完整性检查(表格列数/标签闭合) ④工具化: scripts/stance-auditor.py(P03/P10 插件)",
+      "source": "明鉴对花联网对外版清理事故自查(2026-09-10)；与 hash/尺寸口径同属『口径不清导致返工』族",
+      "tags": [
+        "清理",
+        "词边界",
+        "结构校验"
+      ]
+    },
+    {
+      "id": "chart-text-inside-js-template-20260910",
+      "date": "2026-09-10",
+      "domain": "内容清理/发布校验",
+      "symptom": "图表文案/图内文字反复漏检(同日 3 次: 结构图左框、图内对赌披露、agent 判定)；线上仍显示, 但正文关键词扫描与剥离 script 的校验器均报『通过』",
+      "root_cause": "图表文案不是 HTML 文本, 而是**JS 字符串字面量**: 单文件内 <script>/* bpv2 */ window.CHARTS=(function(){...})() 返回 HTML/SVG 字符串(该块 106KB, 含 2139 条中文串)。剥离 script 的校验器与只扫正文的清理脚本对此完全不可见",
+      "fix": "①校验器不整体剥 script, 改为提取 script 内 CJK 字符串字面量([\\u4e00-\\u9fff]{2,})后跑黑名单 ②清理须改图表库源(window.CHARTS 内文案) ③审查单元(逐行通读)须含 script 内 CJK 串 ④<style> 仍剥离(避 CSS 色名误报)",
+      "evidence": "SKIP_TAGS 剥离区间 519261-625391; 3 处命中全落在该区间内; 剥离后计数 0",
+      "source": "星桥核验 + 老登闸门实测(cloudbase-content-check.py 报通过但线上有该文案)",
+      "tags": [
+        "图内文本",
+        "JS模板",
+        "校验盲区"
+      ]
+    }
+  ]
+}

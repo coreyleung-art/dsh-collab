@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-risk — CLD/DSH 问题概率路由查询（《问题路由表》机械入口）
+修 CLD/dsh 前 / 遇到症状时必查：做过什么→会坏成什么样(概率)，坏了→路由到哪处置。
+
+用法：
+  guard-risk <关键词|目标路径|症状描述>     # 双向查询：操作预警 + 症状路由
+  guard-risk list                          # 列出全部操作类别与症状
+  guard-risk --flywheel                    # 打印飞轮五步(新问题沉淀纪律)
+
+语义：
+  - 输入命中 operation.path_hint / name → 输出该操作的后果预警(概率+工具箱+门禁)
+  - 输入命中 symptoms.symptom → 输出路由处置 + 可能肇因操作
+  - 都不命中 → 提示"未归类新问题" + 必须走飞轮五步沉淀(不许直接试修)
+"""
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROUTER = os.path.join(HERE, "risk-router.json")
+
+def load():
+    try:
+        return json.load(open(ROUTER))
+    except Exception as e:
+        print(f"❌ 无法读路由表 {ROUTER}: {e}")
+        sys.exit(1)
+
+def norm(s):
+    return re.sub(r"[\s_\-/\\]", "", str(s).lower())
+
+
+def split_units(s):
+    """拆成 (中文bigram集合, 英文/数字整词集合)。避免英文 2-gram 误撞中文。"""
+    s = str(s)
+    cjk_seg = re.findall(r"[\u4e00-\u9fff]+", s)
+    cjk_bigrams = set()
+    for seg in cjk_seg:
+        for i in range(len(seg) - 1):
+            cjk_bigrams.add(seg[i:i + 2])
+        if len(seg) == 1:
+            cjk_bigrams.add(seg)
+    words = set(re.findall(r"[A-Za-z0-9]{2,}", s.lower()))
+    return cjk_bigrams, words
+
+
+def match(q, hay):
+    """精确子串 OR (中文bigram交集 OR 英文整词交集)"""
+    nq, nh = norm(q), norm(hay)
+    if nq in nh or nh in nq:
+        return True
+    qb, qw = split_units(q)
+    hb, hw = split_units(hay)
+    return bool((qb & hb) or (qw & hw))
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    q = sys.argv[1]
+    data = load()
+
+    if q == "list":
+        print("=== 操作类别(OP) → 后果 ===")
+        for op in data["operations"]:
+            print(f"\n[{op['id']}] {op['name']}  (风险: {op['risk']})")
+            for c in op["consequences"]:
+                print(f"   ⚠ {c['what']}  [概率 {c['prob']}]  → {c['toolbox']} | {c['guard']}")
+        print("\n=== 症状 → 路由 ===")
+        for s in data["symptoms"]:
+            print(f"  「{s['symptom']}」→ {s['route']}: {s['first_action']}")
+        return 0
+
+    if q == "--flywheel":
+        fw = data["flywheel"]
+        print(f"📌 {fw['rule']}")
+        for st in fw["steps"]:
+            print(f"  {st}")
+        print("反模式(勿犯):")
+        for a in fw["anti_patterns"]:
+            print(f"  ✗ {a}")
+        return 0
+
+    nq = norm(q)
+    print("=== guard-risk 路由查询 ===")
+    hits_op = []
+    for op in data["operations"]:
+        hay = norm(op["name"] + " " + op.get("path_hint", "") + " " + op["id"])
+        if match(q, hay):
+            hits_op.append(op)
+    hits_sym = []
+    for s in data["symptoms"]:
+        if match(q, s["symptom"]):
+            hits_sym.append(s)
+
+    if not hits_op and not hits_sym:
+        print(f"  ✗ 「{q}」未命中既有路由 —— 这是【新问题】！")
+        print()
+        fw = data["flywheel"]
+        print(f"  📌 {fw['rule']}")
+        for st in fw["steps"]:
+            print(f"     {st}")
+        print("\n  ⚠️  禁止直接试修。先归大类、查最近邻工具箱条目、处置后 C1-C7、再回来沉淀本表。")
+        return 2
+
+    if hits_op:
+        print(f"\n  命中操作 {len(hits_op)} 类:")
+        for op in hits_op:
+            print(f"\n  [{op['id']}] {op['name']}  (风险: {op['risk']})")
+            print(f"  前置预查: {op['preflight']}")
+            for c in op["consequences"]:
+                print(f"    ⚠ {c['what']}")
+                print(f"      概率 {c['prob']} · 工具箱 {c['toolbox']} · 门禁: {c['guard']}")
+            print(f"  实证锚点: {op['evidence']}")
+    if hits_sym:
+        print(f"\n  命中症状 {len(hits_sym)} 条:")
+        for s in hits_sym:
+            print(f"\n  「{s['symptom']}」")
+            print(f"    路由 → {s['route']}: {s['first_action']}")
+            if s.get("prob_cause"):
+                print(f"    可能肇因: {s['prob_cause']}")
+            if s.get("prob_damage_actions"):
+                print(f"    此时勿做: {s['prob_damage_actions']}")
+    print("\n  (处置完记得 C1-C7 验证 + 沉淀；新概率/新条目更新 risk-router.json)")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

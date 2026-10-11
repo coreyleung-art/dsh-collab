@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-knowledge — 知识库部件学习管理（学-建-用循环的机械入口）
+
+用法：
+  guard-knowledge status                  # 学习进度总览（learned/learning/todo by 域+优先级）
+  guard-knowledge next                    # 推荐下一个要学的部件（按优先级+状态）
+  guard-knowledge show <part-id>          # 看某部件 registry 条目 + 卡文件是否存在
+  guard-knowledge check <part-id>         # 毕业校验：卡文件存在 + 关键字段齐全 + 关联完整
+  guard-knowledge mark <part-id> learned  # 登记毕业（更新 registry status/updated）
+  guard-knowledge learn <part-id>         # 标记 learning（开始学）
+知识库: ~/dsh-collab/cld-dsh-dev-system/knowledge/{registry.json, parts/<id>.md}
+毕业标准: 卡文件存在(9节) + standards非空 + toolbox/router关联 + §9沉淀记录
+"""
+import json
+import os
+import re
+import sys
+
+KB = os.path.expanduser("~/dsh-collab/cld-dsh-dev-system/knowledge")
+REG = os.path.join(KB, "registry.json")
+PARTS = os.path.join(KB, "parts")
+
+
+def load():
+    try:
+        return json.load(open(REG))
+    except Exception as e:
+        print(f"❌ 读 registry 失败: {e}")
+        sys.exit(1)
+
+
+def save(data):
+    json.dump(data, open(REG, "w"), ensure_ascii=False, indent=1)
+
+
+def card_path(pid):
+    return os.path.join(PARTS, f"{pid}.md")
+
+
+def card_sections(pid):
+    """粗查卡文件含哪些节标题（# 或 ## 开头）"""
+    try:
+        txt = open(card_path(pid)).read()
+        return [re.sub(r"^#+\s*", "", l).strip() for l in txt.splitlines() if re.match(r"^#{1,3}\s", l)]
+    except Exception:
+        return []
+
+
+def check_part(part, verbose=True):
+    pid = part["id"]
+    missing = []
+    card = card_path(pid)
+    has_card = os.path.exists(card)
+    if not has_card:
+        missing.append("卡文件 parts/{id}.md")
+    else:
+        secs = card_sections(pid)
+        for need in ["1. 一句话定位", "4. 约束", "5. 依赖", "6. 规范要点", "7. 关联", "9. 学-建-用"]:
+            if not any(need.split(". ", 1)[1] in s or need in s for s in secs):
+                missing.append(f"卡缺节: {need}")
+    if not part.get("standards"):
+        missing.append("standards 为空")
+    if not part.get("toolbox") and not part.get("router"):
+        missing.append("toolbox/router 无关联")
+    if part.get("status") != "learned":
+        missing.append(f"status={part.get('status')} 未毕业")
+    if verbose:
+        print(f"  [{pid}] {part.get('name')}  status={part.get('status')} prio={part.get('priority')}")
+        print(f"    卡文件: {'✅' if has_card else '❌'}")
+        if not missing:
+            print("    ✅ 毕业达标")
+        else:
+            for m in missing:
+                print(f"    ⚠ {m}")
+    return not missing
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    data = load()
+    parts = data["parts"]
+    cmd = sys.argv[1]
+
+    if cmd == "status":
+        by = {}
+        for p in parts:
+            key = (p["domain"], p["priority"])
+            by.setdefault(key, {"learned": 0, "learning": 0, "todo": 0, "total": 0})
+            by[key][p["status"]] = by[key].get(p["status"], 0) + 1
+            by[key]["total"] += 1
+        tot = {"learned": 0, "learning": 0, "todo": 0}
+        print("=== 学习进度（域 × 优先级）===")
+        for (dom, prio), c in sorted(by.items()):
+            print(f"  {dom:12s} {prio}: learned {c['learned']} / learning {c['learning']} / todo {c['todo']} / total {c['total']}")
+            for k in tot:
+                tot[k] += c[k]
+        print(f"\n总计: learned {tot['learned']} · learning {tot['learning']} · todo {tot['todo']} / {len(parts)}")
+        return 0
+
+    if cmd == "next":
+        order = {"P0": 0, "P1": 1, "P2": 2}
+        cands = [p for p in parts if p["status"] == "todo"]
+        cands.sort(key=lambda p: order.get(p["priority"], 9))
+        if not cands:
+            print("🎉 无 todo 部件——全学完了！")
+            return 0
+        for p in cands[:8]:
+            print(f"  [{p['priority']}] {p['id']:24s} {p['name']}  ({p['domain']})")
+        print("\n建议: guard-knowledge learn <id> → 读官方 doc → 建卡 → check → mark learned")
+        return 0
+
+    if cmd == "show":
+        pid = sys.argv[2] if len(sys.argv) > 2 else ""
+        for p in parts:
+            if p["id"] == pid:
+                print(json.dumps(p, ensure_ascii=False, indent=1))
+                return 0
+        print(f"未找到 {pid}（guard-knowledge list 看全部）")
+        return 1
+
+    if cmd == "list":
+        for p in parts:
+            print(f"  [{p['priority']}] {p['id']:24s} {p['status']:8s} {p['name']}")
+        return 0
+
+    if cmd == "check":
+        pid = sys.argv[2] if len(sys.argv) > 2 else ""
+        for p in parts:
+            if p["id"] == pid:
+                return 0 if check_part(p) else 1
+        print(f"未找到 {pid}")
+        return 1
+
+    if cmd in ("learn", "mark"):
+        pid = sys.argv[2] if len(sys.argv) > 2 else ""
+        newst = "learned" if cmd == "mark" else "learning"
+        for p in parts:
+            if p["id"] == pid:
+                p["status"] = newst
+                p["updated"] = "2026-09-04"
+                save(data)
+                print(f"✅ {pid} → {newst}")
+                return 0
+        print(f"未找到 {pid}")
+        return 1
+
+    if cmd == "audit":
+        # 全量毕业审计
+        bad = 0
+        print("=== 全量毕业审计 ===")
+        for p in parts:
+            if p["status"] == "learned" and not check_part(p):
+                bad += 1
+        print(f"\n审计完成，未达标 learned 卡: {bad}")
+        return 0 if bad == 0 else 1
+
+    print(__doc__)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

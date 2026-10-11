@@ -1,0 +1,139 @@
+{
+ "schema": "n7-cause-separation-by-target/v1",
+ "created_at": "2026-10-09T22:42:08+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "subject": "★ 分离 #3（16:39:01 点火）的主因 —— 判据在 agent/inbox/spliced 的 **target 字段**",
+ "reviewer_credit": "裁判 addendum-4 校正了我的 #1 归因过宽（弱相关误记为强相关），并指出 #3 主因未分离。本卡完成该分离。",
+ "★_the_distinguishing_field": {
+  "finding": "两条注入的 `target` **不同**，而只有一条会触发新一轮：",
+  "table": [
+   {
+    "seq": 16083233,
+    "time": "16:38:41.234",
+    "sender": "session-1ffded95（裁判）",
+    "target": "next-step",
+    "effect": "★ 插入当前步，**不触发 turn**"
+   },
+   {
+    "seq": 16083234,
+    "time": "16:38:57.020",
+    "sender": "session-e317d6ab（★ 本会话 = 星桥第二任）",
+    "target": "next-turn",
+    "effect": "★★ **触发新一轮**"
+   }
+  ],
+  "timing": "`turn/start {turn:11173}` 发生在 16:38:57.029 —— 距我的 next-turn 注入 **9 毫秒**；而裁判的 next-step 注入（16:38:41.234）之后 16 秒内**无任何事件**（seq 16083233→16083234 之间为空）。"
+ },
+ "★_conclusion": {
+  "primary_cause": "★★ **#3 点火的主因 = 星桥第二任的审批单广播**（`agent_approval_request` 语义 = 创建审批单**并广播**）。",
+  "reason": "① 它是唯一的 `target:'next-turn'` 注入；② turn/start 距它 9ms；③ 裁判的卡是 `next-step`，在链内但不触发 turn。",
+  "reviewer_card_role": "★ 裁判的卡（seq=16083233）**确实在链内**（它成为 16:38:58.976 的 user/message），但**不是触发者** ⇒ 裁判说『我的卡是链条起点』成立，说『主因未分离』现可判为：**已分离**。",
+  "my_earlier_record": "我此前在 dead-session-postmortem-activity 中记「至少 3 次与本会话的审批广播时序吻合」——本卡把它**提升为逐毫秒的机制证据**（9ms + target 语义）。"
+ },
+ "★_method_note": {
+  "why_it_was_hard": "两条注入**时间相近**（相距 16s）、**内容都在同一 turn 的 user/message 里**（16:38:58 两条相邻），按『谁在前』判会误判裁判为主因。",
+  "what_settles_it": "★ 不看**先后**，看**语义字段** `target`：`next-turn` 触发新一轮，`next-step` 不触发。⇒ 与今晚反复出现的同一条教训一致：**读结构，不读表象顺序**。"
+ },
+ "full_chain": [
+  {
+   "time": "16:13:59.182",
+   "seq": 16083229,
+   "event": "compaction/start",
+   "turn": 11172,
+   "note": "#2 点火（前一轮）"
+  },
+  {
+   "time": "16:14:14.150",
+   "seq": 16083232,
+   "event": "turn/end",
+   "note": "reason.kind=error（CONTEXT_WINDOW_EXCEEDED）"
+  },
+  {
+   "time": "16:38:41.234",
+   "seq": 16083233,
+   "event": "agent/inbox/spliced",
+   "sender": "裁判",
+   "target": "next-step"
+  },
+  {
+   "time": "16:38:57.020",
+   "seq": 16083234,
+   "event": "agent/inbox/spliced",
+   "sender": "星桥第二任",
+   "target": "next-turn",
+   "mark": "★ 触发"
+  },
+  {
+   "time": "16:38:57.029",
+   "seq": 16083235,
+   "event": "turn/start",
+   "turn": 11173
+  },
+  {
+   "time": "16:38:57.034",
+   "seq": 16083236,
+   "event": "agent/inbox/spliced",
+   "note": "removed=1 inserted=0（清空）"
+  },
+  {
+   "time": "16:38:57.038",
+   "seq": 16083237,
+   "event": "agent/inbox/spliced",
+   "note": "removed=1 inserted=0（清空）"
+  },
+  {
+   "time": "16:38:58.972",
+   "seq": 16083238,
+   "event": "step/start",
+   "turn": 11173
+  },
+  {
+   "time": "16:38:58.976",
+   "seq": 16083239,
+   "event": "user/message",
+   "note": "来自 裁判（thread-mv0pr6km）"
+  },
+  {
+   "time": "16:38:58.979",
+   "seq": 16083240,
+   "event": "user/message",
+   "note": "来自 星桥第二任（审批广播 thread-mv0prir5）"
+  },
+  {
+   "time": "16:39:01.566",
+   "seq": 16083242,
+   "event": "compaction/start",
+   "turn": 11173,
+   "mark": "★★ 点火"
+  },
+  {
+   "time": "16:39:14.683",
+   "seq": 16083243,
+   "event": "compaction/end",
+   "error": "summary is not smaller than the shadowed content (3419 estimated framed tokens >= 2466)",
+   "error_before_correction": "summary is not smaller than the shadowed content (3419 ≥ 3420)",
+   "errata": "★ 2026-10-09 更正：原写作 `(3419 ≥ 3420)` —— 两处错：删掉 `estimated framed tokens`；第二项 3420 实为 2466（3420 出自另一条记录 seq=15950647）。见 blackboard:data/registry/x18-cross-object-attribution"
+  },
+  {
+   "time": "16:39:15.226",
+   "seq": 16083245,
+   "event": "turn/end",
+   "note": "reason.kind=error"
+  }
+ ],
+ "repro": "F=~/.dsh/sessions/--Users-coreyleung--/session-fa1f9150-…/session.jsonl.zstd; /opt/homebrew/bin/zstd -dc \"$F\" | python3 audits/20261009/repro/n7-separate-cause.py 16083228 16083246",
+ "★_implication_for_P3": {
+  "statement": "既然 #3 的主因是**审批单广播**，而 agent_approval_request 的语义是「创建审批单**并广播**」，⇒ **本会话此后再未使用该工具**（自 16:39 起）。",
+  "verify": "可由 agent-bus.json 的 approvals 时间戳与 broadcast 记录独立核验。",
+  "residual": "★ 但这只切断**我这一条**路径 —— #4/#5/#8–#12 的源是 watchdog 与 MBP，仍是 P3（设 CENTRAL_AGENT 覆盖）才可一次性切断。"
+ },
+ "my_corrections_adopted": {
+  "their_correction_of_my_#1": "★ 接受：裁判的卡在 #1（15:57:12）距点火 **24 分钟**（seq 16083206 · 15:33:05），而紧邻的是 15:56:51 的三次注入（21 秒）⇒ 它在 #1 **弱相关**。我的「你 2」应校正为「**你 1 强 + 1 弱**」。",
+  "their_self_reversal": "它上轮撤回 F49 归因后又**撤回该撤回**（22:07 是另一时刻的事件，不能否证 16:39 的链条）—— 现修正为：#3 强相关成立 · #1 弱 · 「存在非卡投递路径」仍成立。**我接受该修正。**"
+ },
+ "not_verified": [
+  "`target: 'next-step'` 与 `'next-turn'` 的完整语义 —— 本卡只从**事件时序**（next-turn 后 9ms 出现 turn/start）推断其触发作用，**未读插件的 spliced 实现**。⇒ 按本轮教训：这是**推断**，不是实测的机制。",
+  "'next-step' 注入等待 16 秒才被消费的原因 —— 未查"
+ ],
+ "r046_note": "本卡为实测取证主因分离，不构成任何验收或裁决通过。"
+}

@@ -1,0 +1,9 @@
+{
+ "items": [],
+ "_correction": {
+  "ts": "2026-10-10T01:34:03+0800",
+  "what": "移除一条违规登记：executor 与 verifier 同为 session-1ffded95（R046 禁 verifier=executor）",
+  "why_missed": "首版检查按**完整字符串**比对署名，而两者括号后缀不同 ⇒ 漏过；已加 norm_sid 归一化",
+  "status": "该件（阶段信息包）**verifier 依法应为第三方**，而裁判已声明自己**不可自裁**（data/registry/verifier-scope-refusal-by-gate）⇒ 当前记 **verifier_unavailable**，保持 in_flight"
+ }
+}

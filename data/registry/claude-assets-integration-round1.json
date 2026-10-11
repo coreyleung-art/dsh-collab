@@ -1,0 +1,52 @@
+{
+ "schema": "claude-assets-integration-round1/v1",
+ "created_at": "2026-10-10T04:04:17+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 考古整合 第一轮（3 项工作，无一项需授权）：memory 索引镜像 · inject 边界门纳入并全扫 · A 欠账二轮补完",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T04:04:17+08:00",
+  "rerunCmd": "hostname"
+ },
+ "authority": "用户 2026-10-10：「去看看是否可以整合回来到我们总目标来」→「继续工作」",
+ "★★_work_done": {
+  "①_memory_索引镜像": {
+   "产物": "`data/registry/claude-memory-index-mirror`（5,158 B · 双板）",
+   "★_why": "★ Claude 的 memory 在 `~/.claude/projects/.../memory/`（**实测 19 篇文档**），**DSH 侧无索引** ⇒ **我今晚做 P26/Wave S 时完全不知道 Q-K 线的存在**。",
+   "action": "★ 把其 `MEMORY.md` 索引（18 条）**镜像成黑板卡** ⇒ **DSH 侧任何会话可发现**",
+   "★_note": "★ 镜像的是**索引**（18 条链接），**非全文**；源变更时本卡应以同样方式更新"
+  },
+  "②_inject_边界门纳入": {
+   "门": "`scripts/gate-plugin-inject.py`（**他建 · v1.0.0 · 只读**）",
+   "★_治什么": "★ **宿主端插件不得 inject 客户端服务**（如 `slots`）⇒ 该条永久 pending ⇒ **`assertEntriesActivated` 失败 ⇒ 整棵插件树加载失败、CLD 完全起不来**",
+   "★_我的独立验证": [
+    "★ `--selftest` **通过**（规则 a 全量挂载点 · 规则 b 查「只修产物未修源」）",
+    "★★ **对全机插件实跑：23 个（host + client）全部 ✅ · `RED 0 · WARN 0`** ⇒ **含事故插件 `dsh-plugin-excalidraw` 已修复**"
+   ],
+   "★_why_it_matters_to_me": "★ **我今晚多次只改 `lib/`**（如 central-inbox 的 `index.js` · `selftest.js`）⇒ **正是这个门的适用形态** ⇒ 今后改插件后应跑它"
+  },
+  "③_A_欠账二轮补完": {
+   "产物": "卡 `data/registry/r006-cases-backfill-complete`",
+   "★_结果": "★ **五项工具的 B/C 全部改用真实判据**（非占位）：sandbox（离幂等 vs 幂等）· gcr（`_synth_gcr*`）· infopack（空/无关/真实包）· official（48h/1h 留证）· review（裸露 vs 时点+复跑命令）",
+   "★_负控": "★ **故意翻转期望 ⇒ 判据正确变红 · 退出码 1** ⇒ **证明非恒绿装饰**",
+   "★_过程中抓到的 3 个缺陷": [
+    "① **`sandbox-script` 只支持 Python 脚本**（`run_once` 用 `sys.executable` 执行）⇒ 我的 bash 负例被当 Python 跑",
+    "② **`_r006_cases()` 写临时文件 ⇒ 触发 selfcheck ②「不写被检对象」** ⇒ 用 `gate-self-exempt` 标记豁免（**第三次应用该约定**）",
+    "③ **我的第一版 B 判据过弱**（`exit is not None` 近乎恒真）⇒ 改为实质判据"
+   ]
+  }
+ },
+ "★_assets_still_pending（需用户裁决或授权）": {
+  "★_Q-K_K3（可自主推进）": "★ **Q-K 上下文存活后端直接治 P26** —— K0-K2.1 ✅（**未挂载**）；**K3 = 检查点产出 + 有界阶梯 + 表面替换 + 并发护栏** ⇒ **我可自主推进**；★ **但其门控告诫必须遵守：K3 能真正缩小窗口之前不得打开 `enableGuard`**",
+  "★_Q-K6_挂载点（须用户裁）": "★ `dsh-collab/devices/` 是**成品仓 ≠ 已挂载区**；profile 里目前**只有 `dsh-plugin-cldvoice` 一个**是从这里 link 的，其余插件全在家目录 `~/dsh-plugin-<x>` ⇒ **挂载点未定**",
+  "Q-K7（挂载会话补）": "★ 运行时 `plugin_name_gate` 离线跑不了（需 `ctx.get('fs')`）",
+  "其它": "★ owner 裁定三项 · P4（须授权）· C4（须解除「不改 profile」）"
+ },
+ "not_verified": [
+  "★ 我**未读** 19 篇 memory 的全部正文（只读索引 + 最相关的 3 篇）",
+  "★ `gate-plugin-inject.py` 的**规则 b（只修产物未修源）**在全机扫描中**是否覆盖了我改过的插件**未逐项核实",
+  "★ Q-K 的插件包 `dsh-plugin-context-survival` 当前**在哪**未定位（其卡称 K0-K2.1 均未挂载）"
+ ],
+ "r046_note": "本卡为整合工作登记，不构成任何验收或裁决通过。"
+}

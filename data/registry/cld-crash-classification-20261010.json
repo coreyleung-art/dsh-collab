@@ -1,0 +1,175 @@
+{
+  "schema": "cld-crash-classification/v1",
+  "created_at": "2026-10-10T02:22:14+08:00",
+  "writer": "session-505612bd-1b12-47a1-91c3-9a6e6b5357a8",
+  "title": "★ CLD 反复崩溃的三层归类 + 两道可核验门（a 宿主/客户端边界 · b 源/产物一致）",
+  "reported_by": "用户：「是智能体错误判断力带来的行为错误导致的错误，还是代码本身的缺陷？因为我发现很多时候你救回来修回来之后，过了没多久，还是会出现崩溃。我没法判断这个」",
+  "★★_question": "要回答的不是「谁错了」，而是**给用户一把能自己判的尺子**：同一处反复崩，是①代码缺陷、②修的地方不是跑的地方、还是③安全网本身失效。三者的外观相同（都是「修好了，过一会儿又崩」），必须用不同的证据分开。",
+  "★★_answer_three_layers": {
+    "layer_①a_插件平面（代码缺陷·已定位）": {
+      "根因": "dsh-plugin-excalidraw 在**宿主平面**声明 inject=['slots']，而 slots 只在客户端平面存在",
+      "运行时代码": "dsh-client-runtime/lib/client.js:35 `super(ctx, \"slots\")`（客户端）",
+      "判据出处": "dsh-app-boot/lib/index.js:1125 assertEntriesActivated：Object.keys(fiber.inject).filter(s => fiber.ctx.get(s) === void 0)",
+      "后果链": "1 条 inject 缺失 ⇒ 整棵插件树加载失败 ⇒ 子进程 exit 1 ⇒ 自动重启",
+      "实测计数": {
+        "全日志 boot 头": 859,
+        "全日志 plugin tree failed": 811,
+        "★ 风暴窗口 2026-10-09T15:21:55.598Z → 15:57:15.993Z（35 分 20 秒）内的 boot": 806,
+        "★ 该窗口内每一 boot 都撞同一因": "806/806 —— 811 − 5（窗口外 10-05T19→5、10-06T09→1 等）",
+        "excalidraw pending": 1610,
+        "dsh-web.log 字节": 1931168
+      },
+      "量级": "一行结构性错误 = **35 分 20 秒内 806 次启动**，同一因，全部落空",
+      "现状": "dsh-plugin-excalidraw 宿主侧 src/index.ts 与 lib 产物**当前都声明 []**，两侧一致 ⇒ 已修平",
+      "★_00:03 那次的现场（行级收据）": {
+        "为何这是同一次": "风暴最后一次 boot 头即 `2026-10-09T15:57:15.993Z`，与 crash-reason.log 的 `pid 29097 started 2026-10-09T15:57:15.991Z` 同一毫秒级时刻 ⇒ **用户 00:03 报的那次崩溃就是风暴的最后一次启动**，不是另一个事件。",
+        "现场原文（dsh-web.log 27791 行起）": [
+          "===== CLD boot 2026-10-09T15:57:15.993Z =====",
+          "dsh web: http://127.0.0.1:49237                ← 先宣告 URL（此时计数被清零，见 layer ③）",
+          "Error: dsh: plugin tree failed to load: dsh: 1 entry did not activate",
+          "dsh-plugin-excalidraw: pending (waiting for service: slots)",
+          "    at assertEntriesActivated (.../dsh-app-boot/lib/index.js:1134:9)",
+          "[exit-trace] CRASH: dsh-crash (pid 29097, code 1, signal null)",
+          "[child-exit] dsh 崩溃(code=1 signal=null) 自动重启 1/3"
+        ],
+        "之后": "下一次 boot 头是 `2026-10-09T16:00:49.034Z` ⇒ 从子进程死（15:57:16）到下次启动之间**空了 213 秒**。该空窗**未取证归因**（可能是壳的退避、也可能是人在这段时间里动作）；它与旧卡时间轴记的「00:00:47 重启中 / 00:01:49 又一次重启」不矛盾，但**两者对不上**，一并留为待查。"
+      }
+    },
+    "layer_①b_壳进程（代码缺陷·已停发 5 天）": {
+      "crash_reason_log": "~/.cld/logs/crash-reason.log 1162 行；reason 计数 dsh-crash-after-child 43 / uncaughtException 9 / dsh-crash 6",
+      "壳错误串": {
+        "reading 'reloading'": 6,
+        "resolveUrl is not a function": 1,
+        "ReferenceError: c is not defined": 1,
+        "ERR_STREAM_WRITE_AFTER_END": 1
+      },
+      "★关键": "9 次壳级 uncaughtException 的**最后一次是 2026-10-04**（ReferenceError: c is not defined，ended 2026-10-04T01:54:46Z）；而活体 app.asar 里带着**明确标注 2026-10-04 的修复**（main.js:596 `★ 2026-10-04 壳修复②：正常路径显式返回（原实现无 return → 调用方读 undefined.reloading 崩壳）`）⇒ **该类已停发 5+ 天**，不是当前问题。",
+      "9 次明细": [
+        "08-29→08-30 reading 'reloading'",
+        "08-30 reading 'reloading'",
+        "09-03 reading 'reloading'",
+        "09-04 ×2 reading 'reloading'",
+        "09-05 resolveUrl is not a function",
+        "10-02 reading 'reloading'",
+        "10-03 ERR_STREAM_WRITE_AFTER_END",
+        "10-04 ReferenceError: c is not defined"
+      ]
+    },
+    "layer_②_修的地方不是跑的地方": {
+      "两个副本": {
+        "仓库副本 ~/dsh-collab/cld/main.js": "867 行（文件 868 行含尾换行）· mtime 2026-08-30 19:08:39 · 含 child-exit 0 处 / 自动重启 0 处",
+        "活体 /Applications/CLD.app/Contents/Resources/app.asar!/main.js": "45998 字节 · 1143 行 · 含 child-exit 4 处 / 自动重启 8 处 / CRASH_RESTART_MAX 4 处 / crashRestartCount 7 处"
+      },
+      "★行号映射（决定性）": "崩溃栈引 `app.asar/main.js:462:55`（Server.<anonymous>，HTTP 处理器读 r.reloading）。**仓库副本** L462 = `const r = reloadDsh();`、L464 = `res.end(... r.reloading ?? true ...)` ⇒ 栈**精确对应仓库副本那一版**。**活体** L462 = `for (const line of text.split(/\\r?\\n/)) {`，与栈无关 ⇒ 崩溃栈无法映射到正在跑的文件上。",
+      "同一缺陷被独立修了两次、两个文件互不相同": [
+        "仓库副本 L453：`// v0.3.2 修复：正常路径必须 return 对象（否则 HTTP 处理器 r.reloading 读 undefined 崩壳）`",
+        "活体 L596：`★ 2026-10-04 壳修复②：…`"
+      ],
+      "★第二个实例（插件侧同病）": "excalidraw 的 inject 于 2026-08-22 从 lib/ 删除但未从 src/ 删除；2026-10-09 的 CJS→ESM 迁移从**仍损坏的 src/** 重新编译 lib/ ⇒ 已删掉的 inject 复活。当时的验证是 `node -e \"import('./lib/index.js')\"` —— **能 import ≠ 能挂载**。"
+    },
+    "layer_③_安全网本身失效（不是坏了，是被另一次正确的修复关掉的）": {
+      "观察": "`自动重启 N/3`：1/3 出现 821 次、2/3 仅 1 次、3/3 仅 1 次 ⇒ **限流器从未推进**",
+      "活体代码": {
+        "L379-380": "const CRASH_RESTART_MAX = 3; let crashRestartCount = 0;",
+        "L508-511": "if (crashed && !gracefulStop) { crashRestartCount += 1; if (crashRestartCount <= CRASH_RESTART_MAX) { … 自动重启 ${crashRestartCount}/3",
+        "L528-531": "★ 2026-10-08 修复（缺陷②／计数不清零）：重启成功后清零崩溃计数。原实现只在首次启动成功(:1025)清零 ⇒ 计数跨重启累加… ; crashRestartCount = 0;"
+      },
+      "★自持循环（dsh-web.log 逐行可见）": [
+        "[child-exit] dsh 崩溃(code=1 signal=null) 自动重启 1/3",
+        "dsh web: http://127.0.0.1:64646          ← 子进程宣告就绪 ⇒ 命中 L531 清零",
+        "Error: dsh: plugin tree failed to load: dsh: 1 entry did not activate",
+        "[child-exit] dsh 崩溃(code=1 signal=null) 自动重启 1/3   ← 又回到 1/3"
+      ],
+      "计数": {
+        "重启后 dsh 就绪": 806,
+        "自动重启 1/3": 821,
+        "dsh web: http://": 852
+      },
+      "★机制": "清零点被移进「重启成功」分支（那是**为另一个 bug 做的正确修复**：原实现跨重启累加 ⇒ 即使每次都自愈成功也会弹框退出）。而子进程**在插件树激活失败之前**就打印了 URL ⇒ 每次崩溃前计数刚被清零 ⇒ 「连崩 3 次就停」这道网**对该失效类永远不可能触发**。两次各自的正确修复，组合出一张死网。"
+    }
+  },
+  "★_给用户的判据（下次自己就能分）": [
+    "读 ~/.cld/logs/crash-reason.log（唯一的结构化崩溃台账）：**错误串相同、行号固定**反复出现 ⇒ 代码缺陷；**每次不同** ⇒ 行为/环境。",
+    "永远核 `自动重启 N/3` 的 N 会不会往上走。**N 不涨 ⇒ 放大器坏了**，别再数崩溃次数，去看清零点。",
+    "`(crash or external kill?)` 这行是壳在承认它**分不清**——但栈就在下面几行。缺的是记录者，不是信息。",
+    "看崩溃栈的行号在**正在跑的那个文件**里是否还是那句话。不是 ⇒ 你在修另一个副本（见 layer ②）。"
+  ],
+  "★_交付物": {
+    "门 A（宿主/客户端边界）": {
+      "文件": "~/dsh-collab/scripts/gate-plugin-inject.py（v1.0.0，751 行）",
+      "文档": "~/dsh-collab/docs/gate-plugin-inject-README.md",
+      "判据": "复刻 assertEntriesActivated：宿主平面入口的 inject 名若只在客户端平面 provide ⇒ RED",
+      "实测": "42 个挂载点 · 0 红 / 0 黄 / 0 跳过（此前 1 黄 dsh-better-sidebar: webRuntime 已查实为**假黄**：该服务由 @deepseek-ai/dsh-web-app 以常量间接形态提供）"
+    },
+    "门 B（源/产物一致）": {
+      "判据": "同一入口的 src 声明集与 lib 产物声明集必须相等（双向）",
+      "实测": "共 61 对 · 27 对实评 0 红 · 34 跳过（跳过理由只有一种：该包无 src/，纯 lib 交付 ⇒ 规则不适用；**跳过 ≠ 通过**，单列）"
+    },
+    "正控": "`--selftest` 10/10 全过，含 1 条**反向正控**（fx-barrel-stale：源侧 barrel 下探后仍抓得住真差异，防止新机制把红洗成绿）",
+    "确定性": "`--json` 连跑 3 次 sha256 相同（00c30d4d35c31276fc0902ac…）",
+    "自身契约": "exit 0=无红 / 1=有红（--strict 下有黄也 1）/ 2=未知旗标；`--strict` 双向实测（构造一个未知服务夹具 ⇒ 无 strict exit 0、有 strict exit 1）"
+  },
+  "★_建门过程中踩出的 7 条（假红与「没检查」冒充「通过」）": {
+    "假红_1_打包器改写": "只认 `export const inject` 会对**每个**打包产物报假红（实测第一版 5 个）",
+    "假红_2_成员赋值": "客户端 bundle minify 成 `n.inject=[…]`（dsh-genui 实测）；`=` 是判据，`ctx.inject(…)` 是调用不是赋值",
+    "假红_3_源侧 barrel": "入口 src/index.ts 只 `export * from './plugin/index'`，真声明在子模块（dsh-genui 宿主实测）",
+    "假红_4_常量间接服务": "漏掉 `const SVC=\"x\"; provide(SVC)` ⇒ 已存在的宿主服务被当成未知 ⇒ 假黄（webRuntime）",
+    "假红_5_只认 main": "@liustack/modlens 无 main、宿主入口在 exports[\".\"] ⇒ 整个包被**静默跳过** = 「没检查」冒充「通过」",
+    "噪声_6_点目录": ".@linxin666.disabled/ 是**已停用**的包，扫它把 2 个早已不在档里的服务算进清单（none 更是 minified 构造器调用被误读）",
+    "已否掉的形态_7": "`super(ctx, 标识符)` 实测新增 7 条、真服务 0 条（全是 mermaid/three/pdfjs 的 `super(x,y)`）⇒ 不留"
+  },
+  "★_需要用户执行的两项": {
+    "C_限流器清零点": {
+      "是什么": "活体 app.asar!/main.js:528-531 的清零点被移进「重启成功」分支 ⇒ 对「先报 URL 后崩」的类永远 1/3，3 次上限失效",
+      "为什么不是我": "在 app.asar 里（打包产物），本会话不改运行物、不重启",
+      "建议判据": "清零应发生在**插件树激活成功之后**，而不是「URL 就绪」；或改成按时间窗计数（如 5 分钟内 3 次）",
+      "风险": "不要退回「跨重启累加」（那是 2026-10-08 修掉的原始 bug ⇒ 每次自愈成功也会弹框退出）"
+    },
+    "D_统一壳的版本": {
+      "是什么": "≥3 个 main.js 版本在流通（仓库 867 行 / 活体 1143 行 / 崩溃栈指向的那一版），行号互不对应",
+      "为什么不是我": "换壳/改 asar 是不可逆动作，按既有约定由用户执行",
+      "判据": "让仓库副本与活体 asar 的 main.js **逐位相同**，并把构建方式写进仓库（现在仓库里连 `child-exit`/`自动重启` 都没有 ⇒ 重启逻辑根本不在仓库）"
+    }
+  },
+  "★_对 00:03 事故卡的更正": {
+    "原卡": "data/registry/cld-crash-20261010-incident.json —— 「哪个子进程」「为何退出」未被记录，日志自己写着 (crash or external kill?) ⇒ 当时结论是「无法归因」",
+    "更正": "**可归因，且已归到具体一行。** 该卡判断「记录者不知道」成立（crash-reason.log 确实说不出子进程为何退出），但由它推出「本次不可归因」**不成立**：同目录下 `dsh-web.log` 的 15:57:15.993Z 那一段**逐行写着原因** —— `dsh-plugin-excalidraw: pending (waiting for service: slots)` → `assertEntriesActivated` → `dsh-crash (pid 29097, code 1)`。⇒ **归因不在崩溃台账里，在现场日志里**；原卡只翻了前者。",
+    "★_原卡还漏掉了一个数（模板性缺陷，值得单独记）": {
+      "事实": "同一 pid 29097，同一分钟：`crash-reason.log:1158` 记 `dsh-crash (pid 29097, **code 1**)`；而机器可读的那份 marker（同文件 1161 行）只留了 `\"exitCode\":0, \"reason\":\"dsh-crash-after-child\"`。",
+      "★_意义": "marker 留下的是**壳自己的退出码（0）**，丢掉的是**子进程的退出码（1）** —— 而 code 1 正是插件树失效的签名（见 layer ①a）。⇒ 这与原卡自己诊断出的第 7 态「报了一个不回答问题的维度」**完全同型，只是发生在崩溃留痕自己身上**：它记了壳的善终（0），没记子进程的恶终（1）。",
+      "可迁移判据": "凡「退出码」类留痕，须问一句：**这是谁的退出码**。父子同记 pid 时，人的直觉会把 0 读成「没崩」。"
+    },
+    "原卡的其它结论不受影响": "「主进程非 OOM」（heap 6–8MB 属实）· 「session-fa1f9150 100% 可解析」· 「zstd exit=0 ≠ 数据完好」· seq 跳号 —— 均未被本次更正触及。"
+  },
+  "evidence": {
+    "日志": [
+      "~/.cld/logs/dsh-web.log（1931168 B，859 boot，811 plugin tree failed，821 自动重启 1/3）",
+      "~/.cld/logs/crash-reason.log（1162 行；43/9/6）",
+      "~/.cld/logs/exit-marker.json（pid 30420，SIGABRT，uptime 7370s）"
+    ],
+    "活体代码": [
+      "/Applications/CLD.app/Contents/Resources/app.asar!/main.js（45998 B / 1143 行；L379-380、L502-546、L596、L1028-1040）",
+      "dsh-client-runtime/lib/client.js:35",
+      "dsh-app-boot/lib/index.js:1125",
+      "@deepseek-ai/dsh-web-app/lib/index.js:28+:175"
+    ],
+    "工具": [
+      "~/dsh-collab/scripts/gate-plugin-inject.py --selftest 10/10 exit 0",
+      "--rule all：规则 a 42 点 0/0/0 · 规则 b 27 对 0 红 · 结论 PASS exit 0",
+      "--json 三次 sha256 相同",
+      "--strict 双向实测"
+    ]
+  },
+  "not_run": [
+    "未重启 CLD（用户动作）",
+    "未执行任何插件代码、未改任何运行物",
+    "未改 app.asar（C、D 两项待用户执行）",
+    "未跑规则 a/b 之外的谓词（入口能否解析、apply 是否存在等）"
+  ],
+  "limits": [
+    "门只复刻 inject 这一条谓词",
+    "规则 b 对无 src/ 的包不适用（34 对跳过）",
+    "服务清单是扫描而非运行时自述，动态 provide 认不出（落 WARN 不落 RED）",
+    "根路径 RUNTIME/PROFILE 写死为模块常量"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "single-session-governance",
+  "title": "单会话中枢 137MB 治理收益回归",
+  "goal": "验证单会话（非叠加场景）下帧索引治理的内存/耗时收益，并确认单会话非 OOM 崩溃源（反向证实多会话叠加才是根因）",
+  "hypothesis": "H1: 单会话 full 在 512MB 顶不崩（峰值<512MB）；H2: tail 同顶存活且峰值低；H3: tail 内存/耗时较 full 改善 >=10x",
+  "kind": "crash",
+  "runner": "runner-crash",
+  "data": [
+    "real-fa1f9150.zstd"
+  ],
+  "params": {
+    "heap": "512,1024",
+    "tail-frames": 200,
+    "clone": "true"
+  },
+  "assertions": [
+    {
+      "id": "R1-single-no-crash",
+      "metric": "fullCrashedAny",
+      "op": "eq",
+      "target": false,
+      "desc": "单会话 full 不崩（反向证实 OOM 源=多会话叠加）"
+    },
+    {
+      "id": "R2-tail-alive",
+      "metric": "minTailPeakMB",
+      "op": "lt",
+      "target": 100,
+      "desc": "tail 存活且峰值 < 100MB"
+    },
+    {
+      "id": "R3-memory-gain",
+      "metric": "maxMemRatio",
+      "op": "gte",
+      "target": 10,
+      "desc": "内存改善 >= 10x"
+    },
+    {
+      "id": "R4-time-gain",
+      "metric": "maxTimeRatio",
+      "op": "gte",
+      "target": 50,
+      "desc": "耗时改善 >= 50x"
+    }
+  ],
+  "status": "pass",
+  "created": "2026-09-05T05:55:00.000Z",
+  "lastResult": {
+    "time": "2026-09-05T05:54:29.589Z",
+    "pass": 4,
+    "fail": 0,
+    "na": 0,
+    "file": "/Users/coreyleung/dsh-collab/guard/tools/labforge/results/single-session-governance.latest.json"
+  },
+  "tags": [
+    "memory",
+    "governance",
+    "regression",
+    "single-session"
+  ]
+}

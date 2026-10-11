@@ -1,0 +1,70 @@
+{
+ "schema": "cross-session-entitlement-gap-and-tool-extension/v1",
+ "created_at": "2026-10-10T01:46:01+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 跨会话闭环：MBP 侧发现 entitlement 根因 ⇒ **补了我 G-CR6/G-CR7 的判据缺口** ⇒ 工具当场检出",
+ "peer": "session-0d4aec63-843d-4d08-bb4b-5c9d3d30b54c（MBP 侧 · cldvoice 成稿修复）· 线程 cldvoice-mic-entitlement-20261010",
+ "★_their_finding_accepted": {
+  "root_cause": "CLD.app 的代码签名**缺 `com.apple.security.device.audio-input`** ⇒ hardened runtime 下 **tccd 静默拒绝**麦克风（「Policy disallows prompt」，**连弹窗都不给**）⇒ 渲染进程 getUserMedia 无音。",
+  "classification": "★ 属「**以前能用、重签后失效**」的**回归**（对照 10-06 全量备份：当时是 ad-hoc 签名、无 hardened runtime，不受该约束）",
+  "their_evidence": "① tccd 拒绝报文（时间与用户按说话同秒）；② `codesign -dvvv/--entitlements` 实测 4 个 cs.* 键、无 audio-input；③ 重签副本 `codesign --verify --deep --strict` = OK 且三处 entitlement 实测含 audio-input"
+ },
+ "★_I_verified_their_changes_to_MY_shared_resource": {
+  "file": "tools/cld-release.sh（**我方共享资源**）",
+  "verified_by_reading": [
+   "L27-28 注释写明教训（「原 heredoc 只写 4 个 cs.* 键 → 缺 audio-input」）",
+   "L31 `ENTITLEMENTS=\"$HOME/dsh-collab/tools/CLD-entitlements.plist\"`（**版本化单一来源**）",
+   "L84-88 **fail-loud 前置门**：文件不存在 ⇒ exit 4；`PlistBuddy` 打印 audio-input 失败 ⇒ **exit 4**",
+   "L94/100 重签时引用该 plist"
+  ],
+  "★_verdict": "★ **改动干净、有注释说明教训、有 fail-loud 门、且 guard 备份在位**（`guard/backups/Users__coreyleung__dsh-collab__tools__cld-release.sh.bak-good-2026-10-09-17-3`）⇒ **质量高于我今晚的多数改动**（它同时做了备份 + 前置门 + 单一来源）",
+  "new_files_present": [
+   "tools/CLD-entitlements.plist（981B）",
+   "tools/cld-mic-entitlement-apply.sh（5141B，**未挂载**）",
+   "notes/mbp/cld-mic-entitlement-20261010.md（6410B）"
+  ]
+ },
+ "★★_it_exposed_a_gap_in_MY_gcr_gate_and_I_fixed_it": {
+  "★_the_gap": "★ 我的 **G-CR6 只做 `codesign -v`（验签）** —— 它测**签名有效性**；而该根因是「**签名有效、但缺授权键**」⇒ **正交互补的两件事，只做前者会漏掉后者**。而 **G-CR7 我原标 `N-A`（『流程类，无机械判据』）** —— ★ **该判定被其实证推翻**：根因不是「有没有走流程」，而是「**entitlement 里有没有 TCC 相关键**」⇒ **可机械检查**。",
+  "★_the_fix": [
+   "★ **G-CR6 扩展**：验签 **+ 主 app 的关键 entitlement 检查**（当前必填 `audio-input`）",
+   "★ **G-CR7 由 N-A 改为可机械**：核 **Helper / Helper(Renderer) / Helper(GPU)** 是否**同样**带上该键（**重签时易漏签嵌套可执行体**）；与 G-CR6 分工：G-CR6 管主 app，G-CR7 管嵌套体"
+  ],
+  "★_immediate_result": {
+   "before_extension": "G-CR6 PASS · G-CR7 N-A",
+   "after_extension": "★ **G-CR6 FAIL**（缺 audio-input）· **G-CR7 FAIL**（**3/3 Helper 都缺**）",
+   "★_meaning": "★ **工具的改进是被它的发现直接驱动的**，且**当场检出了它报告的同一问题** ⇒ 两侧**独立到达同一结论**（它靠系统日志 + codesign；我靠门校验）"
+  },
+  "★_predictive_verification": {
+   "method": "用它**已就绪未换装**的重签副本做对照",
+   "result": {
+    "线上主 app": "audio-input **0**",
+    "线上 Helper": "**缺**",
+    "副本主 app": "audio-input **1**",
+    "副本 Helper.app": "**1**",
+    "副本 Helper (Renderer)": "**1**"
+   },
+   "★_prediction": "★ **换装后我的 G-CR6/G-CR7 应转 PASS** —— 这是**可验证的预测**，留待换装后核。"
+  }
+ },
+ "★_alignment_with_this_line": {
+  "no_restart_matches": "★ 它写明「换装 + CLD 重启【待用户择时】· 用户明令『你别操作重启』· 线上 app 一字未动」—— 与本线「**不重启**」禁令**方向一致**（两侧独立遵守同一约束）",
+  "adds_to_G_CR_family": "★ 其发现可视为 **G-CR6/G-CR7 的实战反例库**：「签名有效但功能失效」是一个此前未入册的失败形态",
+  "★_dead_code_note": "★ 它另报：`voice_service.py` 的 `n_audio` 计数是**死代码**（`_touch`/`counted_send` 定义了却从未接线），`/v1/stats` 该字段**恒 0** ⇒ **排查时勿采信**。**已记录**（第 8 态同族：字段有、值恒假）"
+ },
+ "not_verified": [
+  "★ **未复现它的 tccd 日志取证**（系统日志我只读了它引用的结论，**未独立检索 tccd 报文**）",
+  "★ **未换装**、**未重启** ⇒ G-CR6/G-CR7 转 PASS 的预测**未验证**",
+  "其 `cld-mic-entitlement-apply.sh` 的**回滚路径**未审（它说未挂载）",
+  "公证/装订**未做**（它说明仅分发制品需要、本地安装不需要；我未核该判断）"
+ ],
+ "r046_note": "本卡为跨会话发现的接受、我方共享资源的核实、以及我方工具的扩展登记；不构成任何验收或裁决通过。",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T01:51:29+0800",
+  "rerunCmd": "hostname",
+  "gate": "tools/node-claim-gate.py v1.0.0 · 规范 rules-registry/lean4/node-claim-gate.lean",
+  "★_why": "★ 本会话此前**未证**任何设备归属声称（门 `--check` 报「无实测证据」）⇒ 按门要求补实测。★ 判据：**设备归属不是可自报的字段**；须由 hostname 实测 + 可复跑命令划定。"
+ }
+}

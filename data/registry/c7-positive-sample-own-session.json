@@ -1,0 +1,99 @@
+{
+ "schema": "c7-positive-sample/v1",
+ "created_at": "2026-10-09T21:59:24+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "item": "C7 DoD 正向判据的样本补齐",
+ "title": "★ C7 正向样本：本会话（星桥第二任）2026-10-09 21:46 成功压缩一次 —— 与死会话形成正负对照",
+ "why_this_matters": "C7 的 DoD 正向判据写「活跃窗口 >> 开销的会话上触发 compaction ⇒ 体积降 ≥50%（**样本 ≥1 个真实会话**）」，而此前全部证据都来自**死会话这一个负样本**。本卡补上正向样本，且两项数据在同一条判据上可直接对照。",
+ "sample": {
+  "session": "session-e317d6ab-5302-4b33-b095-947983ba16f4（本会话 = 星桥第二任）",
+  "compactionId": "2a609d98-60d1-4fb6-ac9b-7237ee3b8494",
+  "sourceCommandId": "cmd-ae8c69e4-16",
+  "when": "2026-10-09T21:46:30 → 21:46:58（28 秒）",
+  "seq_range": "535151（start）→ 535152（summary）→ 535154（end）",
+  "result": "★ 成功 —— 有 compaction/summary，无 error 字段",
+  "shadowedTokenCount": 371621,
+  "shadowedRange": {
+   "start": 9,
+   "end": 533891
+  },
+  "summary_chars": 7569,
+  "provider": "deepseek-official",
+  "model": "deepseek-v4-flash-vision-exp",
+  "maxTokens": 8192,
+  "usage": {
+   "inputTokens": 748353,
+   "outputTokens": 3924,
+   "cacheReadTokens": 35200
+  },
+  "session_file_bytes_at_measure": 8271137,
+  "session_turns": 69
+ },
+ "★_contrast": {
+  "note": "同一判据（summary 与 shadowed 的大小关系）上的两个真实样本",
+  "table": [
+   {
+    "dim": "被遮内容 shadowedTokenCount",
+    "mine": "★ 371,621",
+    "dead_session": "2,466 – 3,422",
+    "ratio": "约 108–150 倍"
+   },
+   {
+    "dim": "摘要规模",
+    "mine": "7,569 字符（约 3k tokens）",
+    "dead_session": "约 3.4k tokens（= 压缩器框架开销）",
+    "ratio": "同量级"
+   },
+   {
+    "dim": "判据 summary >= shadowed ？",
+    "mine": "否（3k << 371k）⇒ **通过**",
+    "dead_session": "是（3.4k >= 2.5k）⇒ **失败**",
+    "ratio": "决定性差异"
+   },
+   {
+    "dim": "delta = shadowed − 开销",
+    "mine": "★ **+368,000 左右**（远 > 0）",
+    "dead_session": "★ **−934**（≤ 0）",
+    "ratio": "符号相反"
+   },
+   {
+    "dim": "结果",
+    "mine": "成功 1 / 失败 0",
+    "dead_session": "成功 47 / **失败 106**",
+    "ratio": "—"
+   }
+  ],
+  "conclusion": "⇒ **验证了 C7 §三 的修正判据**：`delta = 被遮内容 − 摘要框架开销`；`delta ≤ 0` ⇒ 不可用。我的样本 delta 远大于 0 且成功；死会话 delta ≤ 0 且 106 次失败。⇒ 该判据**不是事后构造的**，它在两个真实样本上给出了正确方向。"
+ },
+ "DoD_progress": {
+  "正向判据": "★ 部分达标 —— 样本 ≥1 个真实会话 ✓（本卡）；降幅 ≥50% ⇒ 见下",
+  "降幅计算": {
+   "method": "仅算**被遮部分**：shadowed 371,621 tokens → 摘要约 3,000 tokens",
+   "value": "≈ 99.2%（被遮部分）",
+   "caveat": "★ **整体会话降幅未测**：usage.inputTokens = 748,353 提示压缩请求的输入远大于被遮部分（含未遮内容），故不得把 99.2% 说成「会话体积降幅」。**保守记：被遮部分降幅达标，整体降幅 absent。**",
+   "verdict": "正向判据 1/2 达标（样本 ✓ / 整体降幅未测）"
+  },
+  "负控": "★ **未构造** —— 不得构造（构造需制造一个「活跃窗口 < 开销」的会话，风险不可控）",
+  "边界": "未测",
+  "verifier": "★ **未指派** —— 禁自证（本卡作者即样本所属会话，按 S3 不可自任）",
+  "⇒ 结论": "C7 **仍不得记 closed_with_evidence**（三要素中 verifier 缺、负控缺），但正向样本一项由「无」变为「有」。"
+ },
+ "附带确证（回答一个对本人关键的问题）": {
+  "question": "本会话自己有没有 compaction？（若无，则本会话同样处于 P26 风险中）",
+  "answer": "★ **有，且成功运行过 1 次**。直接证据 = 本会话 JSONL 内 `compaction/start` / `summary` / `end` 各 1 条。",
+  "comparison": "死会话同字段为 153 / 47 / 153。",
+  "distance_to_danger": "本会话 7.89 MB / 69 turn；死会话 245 MB / 11,178 turn。⇒ 不在同一量级。",
+  "⚠ 限定": "这**不等于**本会话安全 —— 它只说明当前未处于 P26 区间。P26 的触发条件是「活跃窗口低于压缩器开销」，而非文件大小；本会话的阈值配置未读（见下）。"
+ },
+ "not_verified": [
+  "本会话所用 preset 的名称**未直接读到**（只从行为反推它挂了 compaction）。已排除的路径：profiles/web/package.json 的 bundles（41 项无 compaction）⇒ 说明 preset 层在起作用",
+  "整体会话体积降幅（见 DoD_progress 的 caveat）",
+  "该次压缩是自动水位触发还是命令触发 —— sourceCommandId 前缀为 `cmd-`，但未读插件源码确认其语义"
+ ],
+ "corrected_own_error": {
+  "error": "本轮先前查「compaction 包有几个」时用 `find -name '*compaction*'`，得 3 个 —— 但第 4 个包名为 `dsh-command-compact`（**不含 `compaction` 字面**），故未命中。改用 `*command-compact*` 后找到。",
+  "verdict": "⇒ **锚点 §0.1「4 个 compaction 包」是正确的**；是我方搜索面不匹配。",
+  "handling": "本会话在报告中说的是「未找到」而非「锚点有误」，未造成假指控。属第 2 态同族，第 5 次。"
+ },
+ "r046_note": "本卡为实测登记与样本提供，不构成任何验收或裁决通过；C7 的成立与否须第三方 verifier。"
+}

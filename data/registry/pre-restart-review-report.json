@@ -1,0 +1,119 @@
+{
+ "schema": "pre-restart-review-report/v1",
+ "created_at": "2026-10-10T01:57:16+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 重启前审查报告（四件套）：plugin-preflight **GO**；另两件各有工具缺陷；留下**三项待决**",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T01:57:16+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★★_the_four_steps": {
+  "①_plugin-preflight": {
+   "result": "✅ **GO（可重启上线）** · exit=0",
+   "detail": [
+    "✅ A 组合完整性 exit=0 · 行数=729 · 插件在树=True",
+    "✅ B 真挂载冒烟 state=pass · **生产侧副作用 central-inbox.log 字节增量=0（未污染）**",
+    "✅ C 依赖遮蔽（真遮蔽）shadowed=0",
+    "⚠ 惰性残骸 101 个（**不判红**）"
+   ]
+  },
+  "②_gcr-gate": {
+   "result": "❌ PASS 5 · **FAIL 3** · N-A 9",
+   "fails": [
+    {
+     "gate": "G-CR6",
+     "detail": "主 app **缺 com.apple.security.device.audio-input**"
+    },
+    {
+     "gate": "G-CR7",
+     "detail": "★ 嵌套 Helper **未带** audio-input 的 **4/4**（含 `(Plugin)` —— 本轮由 MBP 侧会话指正后改动态枚举才检全）"
+    },
+    {
+     "gate": "G-CR8",
+     "detail": "死会话 245.2MB ≥200MB（**体积是代理指标**）"
+    }
+   ],
+   "★_are_they_introduced_by_this_round": "★ **否，三条均为既有问题**：G-CR6/G-CR7 我在扩展前**根本没有 entitlement 检查**（今晚才学会检出）；G-CR8 的 245MB 是 2026-10-09 的 P26 遗留。⇒ **本次改动（P2/P2b/P3）未引入任何新 FAIL**。",
+   "★_and_they_point_to_the_next_step": "★ G-CR6/G-CR7 正是**换装重签副本**要解决的 —— 副本实测 `audio-input=1`（主 app + 3 Helper 中已验）"
+  },
+  "③_restart-intent-prepare": {
+   "result": "❌ **崩溃**（工具缺陷，非环境问题）",
+   "★_root_cause": "★ **两 bug 叠加**：① 代码把 shell 重定向符 `>` 与 `2>&1` **当作列表参数**传给 `subprocess.run` —— **列表传参不经 shell ⇒ 那两个被当成字面参数 ⇒ 重定向根本没发生**（其注释写「改列表后不经 shell ⇒ 注入路径结构性消除」—— **该改动正确，但忘同步改重定向**）；② 随后 `open('/tmp/restart-guard.txt')` **无存在性检查** ⇒ `FileNotFoundError` 崩。",
+   "★_secondary_finding": "★ 它**读 `/tmp` 存留证** ⇒ 正是 **R048 时值检查**所指的**易失路径**（同一文件里两处违规）",
+   "action": "★ **不擅自改他人工具** ⇒ 仅登记；**本轮用「落卡」代替留档**"
+  },
+  "④_restart-governor-preflight": {
+   "result": "✅ exit=0（**但两项须注意**）",
+   "detail": [
+    "⚠ **未找到宿主进程** —— 它 `pgrep -f 'dsh/lib/bin.js --profile web'`，而本机 CLD 把 dsh 跑在 Electron 内、命令行形态不同 ⇒ **探测失配（假阴性）**，非真无进程",
+    "总线锁数（持久化）= 0（应为 0）✅",
+    "常驻总线数据文件存在（23,245,438B）✅",
+    "**RESTART_GO 标记：无** ⇒ 其 `go` 会被拒绝（**我们不用它的 go**，由用户手动重启）",
+    "3081：有监听（inject-proxy 正常）✅"
+   ]
+  }
+ },
+ "★★_what_the_restart_will_carry": [
+  {
+   "file": "~/dsh-plugin-central-inbox/lib/index.js",
+   "sha": "c6131f917a1a",
+   "change": "P3 · findCentralAgent 不再返回死会话",
+   "when": "**重启后生效**"
+  },
+  {
+   "file": "~/dsh-plugin-central-inbox/lib/selftest.js",
+   "sha": "122f92cfc6b1",
+   "change": "P2b · CENTRAL 改合成 id",
+   "when": "**重启后生效**"
+  },
+  {
+   "file": "~/.dsh/agent-role-map.json",
+   "sha": "04c96f45d89d",
+   "change": "P2 · 星桥→v2（含新增 星桥v2）",
+   "when": "即时读盘"
+  },
+  {
+   "file": "~/sb-mobile/main-roles.json",
+   "sha": "983ecea32afa",
+   "change": "P2 · 第1条→v2",
+   "when": "即时读盘（A8 运行时读）"
+  },
+  {
+   "file": "~/sb-mobile/server.js",
+   "sha": "89337bc05dac",
+   "change": "P2b · 星桥 prefix 动态读",
+   "when": "★ **需 sb-mobile 服务重启**（CLD 重启**不带**它）"
+  },
+  {
+   "file": "~/Library/LaunchAgents/com.dsh.cron.queue-condense.plist",
+   "sha": "66fbd14a9a3c",
+   "change": "P2 · --to→v2",
+   "when": "★ **已 reload 生效**（不需 CLD 重启）"
+  },
+  {
+   "file": "~/sb-mobile/ios/.../ChatModel.swift",
+   "sha": "75bce8e4db0b",
+   "change": "P2b · 改按角色名",
+   "when": "★ **需重编译 iOS App**"
+  }
+ ],
+ "★★_three_pending_decisions_for_the_owner": {
+  "①_是否同时换装重签副本": "★ 本机 `/Applications/CLD.app` **缺 audio-input**（G-CR6/G-CR7 FAIL）；MBP 侧会话已备好重签副本 `~/CLD-work/CLD.app`（实测 audio-input=1）⇒ **若本次一并换装，可同时解掉两条 FAIL**（且**不额外增加重启次数**）",
+  "②_sb-mobile_是否一并重启": "★ `server.js` 的 P2b 改动**需 sb-mobile 服务重启**才生效（CLD 重启不带它）⇒ **是否一并重启**（它是独立 launchd 服务 `com.dsh.sb-mobile-bridge`，PID 1250）",
+  "③_ios_是否本轮处理": "★ `ChatModel.swift` 需**重编译 iOS App** ⇒ 本轮**未做**，登记待决"
+ },
+ "★_what_I_did_not_do": [
+  "★ **未改 `restart-intent.py` / `restart-governor.sh`**（他人工具，仅登记缺陷）",
+  "★ **未写 `RESTART_GO` 标记**（其语义是「评估通过」，而**评估方不是我**）",
+  "★ **未重启**（用户手动）",
+  "★ **未换装 CLD**（须用户决定）"
+ ],
+ "not_verified": [
+  "★ `restart-governor.sh verify` 与 `post-restart-acceptance.py` **未跑**（须重启后）",
+  "★ **宿主进程是否存在**未单独确证（我只证明 governor 的探测模式与本机失配）",
+  "★ `gcr-gate` 的 G-CR8 用**体积**作事件数代理，未直接解压计数"
+ ],
+ "r046_note": "本卡为重启前审查登记，不构成任何验收或裁决通过。"
+}

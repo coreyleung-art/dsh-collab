@@ -1,0 +1,113 @@
+{
+ "schema": "dead-session-postmortem-activity/v1",
+ "created_at": "2026-10-09T21:55:16+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 首任星桥 session-fa1f9150 在 bricked（05:39:52）之后仍被反复唤醒：9 次 compaction 全失败，turn 11170 → 11178",
+ "why_this_matters": "P3（止血）与 P4（外部失效声明）的紧迫性证据：死会话不是「静止的遗骸」，而是**仍在被点火的活动故障源**。任何 all=true 广播或 unresolvable 回退注入都会命中它。",
+ "bricked_at": "2026-10-09T05:39:52+08:00",
+ "measurement": {
+  "method": "流式全量扫描 session.jsonl.zstd（257,081,605 B），逐行匹配 compaction/* 与 turn/end",
+  "script": "audits/20261009/repro/{c7-delta-distribution,c7-field-locate,c7-postmortem-activity}.py",
+  "scan_time": "2026-10-09T21:55:16+08:00",
+  "sample_window": "全文件（2026-08-16T23:17 → 2026-10-09T19:13:24），非抽样",
+  "source_file_bytes": 257081605
+ },
+ "totals": {
+  "compaction/start": 153,
+  "compaction/end": 153,
+  "compaction/summary": 47,
+  "compaction/prune": 260,
+  "implied_failures": "153 - 47 = 106",
+  "note": "成功 = 有对应 compaction/summary 的 id；47 与 C7 文档的「成功 47」一致"
+ },
+ "postmortem_events": {
+  "count_start_end_pairs": 9,
+  "success": 0,
+  "failures": 9,
+  "window": "2026-10-09 15:57:12 → 19:13:24（死后 10h17m – 13h33m）",
+  "turn_growth": "11170 → 11178（+8 个 turn）",
+  "detail": [
+   {
+    "at": "2026-10-09 15:57:12→25",
+    "turn": 11171,
+    "cid": "c987559b",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 16:13:59→16:14:13",
+    "turn": 11172,
+    "cid": "92cdf1bf",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 16:39:01→14",
+    "turn": 11173,
+    "cid": "3e80ccf1",
+    "result": "失败",
+    "note": "★ C7 文档引用的就是这一条（seq 16083242–16083243）—— 它的扫描时点止于此"
+   },
+   {
+    "at": "2026-10-09 17:34:48→17:35:02",
+    "turn": 11174,
+    "cid": "e839550a",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 17:37:38→17:37:51",
+    "turn": 11175,
+    "cid": "0dedc896",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 18:05:18→18:05:31",
+    "turn": 11176,
+    "cid": "65dbda3f",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 18:56:37→18:56:51",
+    "turn": null,
+    "cid": "d0bf6524",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 19:07:33→19:07:46",
+    "turn": 11177,
+    "cid": "cb6df8d5",
+    "result": "失败"
+   },
+   {
+    "at": "2026-10-09 19:13:12→19:13:24",
+    "turn": 11178,
+    "cid": "9230b5de",
+    "result": "失败"
+   }
+  ]
+ },
+ "★_c7_numeric_reconciliation": {
+  "question": "C7 文档记 compaction/end = 147，本轮实测 153 —— 矛盾吗？",
+  "answer": "不矛盾：是**文件在增长**，不是扫描错误。",
+  "derivation": [
+   "C7 引用的最后一条 compactionId = 3e80ccf1（turn 11173，16:39:14）",
+   "本轮实测该条之后还有 6 条 compaction/end：11174 · 11175 · 11176 · (None, 18:56) · 11177 · 11178",
+   "147 + 6 = 153 ✓"
+  ],
+  "implication": "★ 该会话的 JSONL 是**活跃写入目标**：任何「已统计完成」的结论都有一个**有效期**，必须附统计时点 + 文件字节数，否则读者会把它当成静态事实（第 5 态：看不见失效，在**数字层**的实例）",
+  "corrected_numbers": {
+   "compaction/end": "153（截至 2026-10-09T19:13:24 / 文件 257,081,605 B）",
+   "failures": "106（= 153 − 47），C7 记 100 是基于 147 的旧时点"
+  }
+ },
+ "not_verified": [
+  "★ 这 9 次唤醒的**触发者**未逐条归因 —— 已知其中至少 3 次（turn 11170→11173）与本会话 2026-10-09 的 agent_approval_request 广播时序吻合（见 starbridge-handover-v2 记录），但 11174–11178 这 5 次的点火者**未定位**",
+  "本轮 turn/end 中带 error/codeKCode 字段的条数为 0 —— 与 C7 文档记的 error 码分布不符，疑为字段名不匹配（未排空），**不作为 C7 有误的结论**",
+  "framed tokens 的数字来源（C7 记 2469–3635）在 compaction/* 事件中未命中该键名，出处待查"
+ ],
+ "recommended_actions": [
+  "① P4（死会话外部失效声明）应从「登记事实」升级为**优先动作** —— 它仍在消耗唤醒并产生失败事件",
+  "② 排查并切断回退注入落点（P3 / A3 central-wake.py:28 + A6 queue-condense.plist）",
+  "③ 任何 all=true 广播与 unresolvable 回退注入，在 P3 完成前**一律禁用**（本会话遵守）",
+  "④ 统计口径纪律：涉该会话的数字须附「统计时点 + 文件字节数」（本条已适用）"
+ ],
+ "r046_note": "本卡为实测登记，不构成任何验收或裁决通过；数字为本人流式全量扫描所得，脚本可复跑。"
+}

@@ -1,0 +1,125 @@
+{
+ "schema": "goal-progress-snapshot/v1",
+ "created_at": "2026-10-10T01:49:48+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 目标进度快照（防上下文淹没）—— 用户 2026-10-10 指令：「做这个事情之前，要注意记录之前目标状态，等下回归继续推进工作」",
+ "★_how_to_use": "★ 本卡为**唯一回看入口**：会话被压缩/轮次淹没后，读本卡即可恢复全景。",
+ "goal_id": "goal-6b352bc9-6936-418d-82a9-26b37ddb6291",
+ "goal_scope": "C → A → B（用户指定顺序）· 30 轮上限",
+ "用户长期禁令（**仍然有效**）": [
+  "不重启 CLD（★ 用户将**手动**重启）",
+  "不改 profile（C4 需明确解除）",
+  "不换载体",
+  "不复活首任星桥",
+  "不删历史留痕",
+  "不用 all=true 广播",
+  "不为过门禁削字"
+ ],
+ "★_C_阶段_收敛": {
+  "C-0_verifier 委托": "★ 已做 ⇒ **裁判拒绝**（R046 机械判定：它已是 executor）· 记 `verifier_unavailable` 保持 in_flight",
+  "C-1_U9_修静默截断": "★ **完成** —— 10 处显示截断标 `cut()`（区分「显示截断」vs「语义提取」）· 6 脚本实跑 exit=0 · 读数 17→7",
+  "C-2_M9_首例": "★ **完成** —— `c7-delta-exact.py` 空输入保护（exit 0 + 显式声明为空）· 双向验证",
+  "C-3_边界用例": "★ 已知边界**全测**（空输入/指针不可解/superseded 缺字段/三要素不齐/delta=0 有 37 样本/INJECT_BAD 空值）· 剩余「我没想到的」**不可先验列举**",
+  "C-4_收敛未测面": "★ **完成**（卡 `c4-unmeasured-surfaces-converged`）—— Obsidian 并集 **96**（原记 87）· ★**「grep 超时」被推翻**（实测 0.2s）· A9 被 A8 读取**两处**（均运行时）· 三个 bak diff 6/338/266 行 · PID 1250 运行 1天21小时"
+ },
+ "★_A_阶段_Wave S 工具链": {
+  "状态": "★ **A-0b 完成**（卡 `wave-s-toolchain-complete`）—— 五项工具全部交付，**每项先自测→过沙箱→再对真对象**",
+  "五工具": [
+   "`tools/sandbox-script.py`（#1 地基：临时目录/生产保护/幂等/静默成功 四检）· 自证 4/4",
+   "`tools/gcr-gate.py`（#2 G-CR 17 条）· 自证 5/5 · **已扩展 G-CR6/G-CR7 加 entitlement 检查**",
+   "`tools/infopack-check.py`（#3 信息包 14 项 + 两条硬要求）· 自证 5/5 · 分级判据",
+   "`tools/official-ref-gate.py`（#4 官方校对门）· 自证 4/4 · **揭出全机留证过期**",
+   "`tools/review-gate.py`（#5 审查追踪 + R048 时值检查）· 自证 8/8"
+  ],
+  "A-0c": "★ 每工具均过沙箱（`sandbox-script.py` 四检）",
+  "★_尚存": "★ **A-1..A-5 的「产物」本身**（S2 模板 · S5 脚本已在 #2 · S4 门已在 #4 · S1 框架复用 · S3 追踪已在 #5）—— ⇒ 严格说 Wave S 的**工具面已完成**，**规范面**（把 S1–S5 写成正式交付件）**未做**"
+ },
+ "★_B_阶段_变动": {
+  "B-1_P3_前置定位": "★ **完成** —— CLD 是 **LaunchServices GUI app**（非 launchd daemon）⇒ plist 注入不适用；可行点 = `launchctl setenv`（可设可撤，但**对 GUI app 生效性未证**）；**代价 = 一次重启**",
+  "★_P3_已执行（方案 B）": "★ **代码层已改** `~/dsh-plugin-central-inbox/lib/index.js`（sha `594a9311`→`c6131f91`）—— `findCentralAgent()` 不再返回死会话；preflight **GO**；行为测试 **5/5**",
+  "★★_P2_已执行": "★ **三处活引用全改**（卡 `p2p3-constrained-review-request`）—— A1 `~/.dsh/agent-role-map.json`（`星桥`→v2 + 新增`星桥v2`，sha `04c96f45`）· A9 `~/sb-mobile/main-roles.json`（第 1 条→v2，sha `983ecea3`）· plist `com.dsh.cron.queue-condense`（`--to`→v2，sha `66fbd14a`）· ★ **闭环验证**：用证明缺口的同一脚本复跑 ⇒ **缺口已闭合**",
+  "★_P0_锚点": "★ **发现它已做过**（外部第三方 v3 在位）⇒ 我完成的是 **P0 解锁项**：`continuity-index` 的 **C6/C7/P26 三项 `open`→`in_flight`**（卡 `p0-anchor-and-state-sync`）· beacon 全绿 · 双板相等",
+  "★_P3_自查": "★ 已做（卡 `p3-self-audit`）· **明文声明不满足 R048 独立性**、不得据此记 closed；★ **自查发现 P3 只覆盖两条投递路径中的一条**（`route.js` 的 role-mapped 未覆盖）—— **该缺口已由 P2 闭合**"
+ },
+ "★_跨会话（MBP/mac-mini 侧会话）": {
+  "其发现": "CLD.app 缺 `com.apple.security.device.audio-input` ⇒ hardened runtime 下 **tccd 静默拒绝麦克风**",
+  "★_补了我的工具缺口": "★ 我的 **G-CR6 只验签**、测不到「签名有效但缺授权键」；**G-CR7 我原标 N-A** 被其实证推翻 ⇒ **已扩展**：G-CR6 验签+entitlement · G-CR7 改为可机械核 Helper（**动态枚举**）",
+  "★_它后来又指正我": "★ **Helper 是 4 个不是 3 个**（我漏 `CLD Helper (Plugin).app`）⇒ **已改动态枚举**，现 4/4，负控已验",
+  "★_归属误判": "★ 它自称「MBP 侧」而**实体在 mac-mini** ⇒ **它已自证并订正**（`notes/mac-mini/cldvoice-mic-attribution-correction-20261010`）",
+  "★_本卡之后要做": "★ **基于 Lean4 的身份声称门**（用户 2026-10-10 指令）—— 见下一步"
+ },
+ "★★_未完成与阻塞": {
+  "①_重启前审查": "★ **未做** —— 按四件套：`plugin-preflight` → `restart-intent prepare` → `restart-governor preflight` → **用户手动重启** → `post-restart-acceptance`",
+  "②_P3_plist_未_reload": "★ plist 文件已改但 **launchd 未 reload** ⇒ **该处当前未生效**（我未擅自 reload）",
+  "③_P4_外部失效声明": "★ 未做（涉宿主侧，**须授权**）",
+  "④_C4_preset_注入": "★ 未做（**须用户明确解除「不改 profile」**）",
+  "⑤_owner 裁定三项": "★ 未定 —— C7 整体 · 4 项假 closed · 本阶段产出能否记 closed（证据包 `owner-adjudication-packet`）",
+  "⑥_Lean4 身份声称门": "★ **本轮新增待做**（用户指令）—— 已跑 J44 建前门（`身份声称门` 0 命中 ⇒ 通过）",
+  "⑦_Wave S 规范面": "★ 工具面已完成，**把 S1–S5 写成正式交付件**未做",
+  "⑧_委托回复": "★ `p2p3-constrained-review-request` **等裁判三行结论**（若它指出第五处活引用，可一次重启一起改）"
+ },
+ "★_下一步（按优先级）": [
+  "★★ 1. **Q-K 的 K3**（上下文存活后端 · **直接治 P26**）—— **可自主推进**；★ 但须遵守其门控告诫：**K3 能真正缩小窗口之前不得打开 `enableGuard`**；K0-K2.1 均**未挂载**",
+  "★ 2. **Q-K6 挂载点**（`devices/` 是成品仓 ≠ 已挂载区；profile 里只有 `dsh-plugin-cldvoice` 是从这里 link 的）—— **须用户裁决**",
+  "3. **owner 裁定三项**（C7 整体 / 4 项假 closed / 本阶段产出能否记 closed）—— 待用户拍板",
+  "4. 待授权：**P4 外部失效声明** · 待解除：**C4 preset 注入**",
+  "5. **语音域**：只登记进度 · 审查走独立审查员"
+ ],
+ "★_关键产物位置（回看入口）": {
+  "锚点": "`docs/distributed-agent-network-governance-plan-v4-20261009.md`（v3 · sha `db62634d6477cb1c`）",
+  "索引": "`data/registry/continuity-index`（C6/C7/P26 已 `in_flight`）",
+  "本阶段卡（部分）": [
+   "stage-c-progress",
+   "c4-unmeasured-surfaces-converged",
+   "wave-s-toolchain-complete",
+   "p0-anchor-and-state-sync",
+   "p2p3-constrained-review-request",
+   "p3-self-audit",
+   "p3-prerequisite-located",
+   "cross-session-entitlement-gap-and-tool-extension",
+   "attribution-vs-location-and-helper-enumeration-fix"
+  ],
+  "备份": "`guard/backups/`（p2-20261010-014215 · p0-20261010-014426 · 各工具改动前版本）",
+  "工具": "`tools/sandbox-script.py` · `gcr-gate.py` · `infopack-check.py` · `official-ref-gate.py` · `review-gate.py`"
+ },
+ "r046_note": "本卡为进度快照，不构成任何验收或裁决通过。",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T04:06:50+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_snapshot_updated_at": "2026-10-10T04:06:50+08:00",
+ "★_snapshot_update_note": "★ 本快照已更新（原版为 03:0x）：第 1–3 项**全部完成**；新增已完成项：Lean4 身份声称门 · 自指破坏门（R059）· 换装 CLD · sb-mobile 重启 · iOS 重编译并安装 · P3 三条验收判据",
+ "★★_已完成（本轮累计）": [
+  "C 阶段：C-0~C-4 全完成（verifier 被拒→记 unavailable · U9 静默截断修复 · M9 首例 · 边界用例 · 收敛未测面）",
+  "A 阶段：**工具面 + 规范面 + 两轮欠账补完**——Wave S 五工具（`sandbox-script`/`gcr-gate`/`infopack-check`/`official-ref-gate`/`review-gate`）**全部 `--selfcheck` + `--lean4-check` 6/6 全绿，且 B/C 均为真实判据**（卡 `r006-cases-backfill-complete`）",
+  "★ A：新增两门——**身份声称门**（`node-claim-gate` + Lean4 规范）· **自指破坏门**（`self-destruct-gate` + **R059**）",
+  "B 阶段：P0（锚点 v3 + C6/C7/P26 状态同步）· P2（三处活引用）· P2b（补漏 3 处含 iOS Swift 面）· **P3（代码 + 三条验收判据全过）**",
+  "★ CLD 换装：补 `audio-input` entitlement（**G-CR6/G-CR7 由 FAIL 转 PASS**）· tccd 拒绝流水 **52 → 0** · 弹窗 `authValue=2`（allowed）",
+  "★ 星台 App：iOS 重编译 + 安装到 iPhone 16 Pro · sb-mobile 重启（P2b 生效）",
+  "★ **Claude 产出考古与整合第一轮**：memory 索引镜像成卡 · `gate-plugin-inject.py` 纳入门清单（**全机 23 插件 RED 0/WARN 0**）",
+  "★ **新会话引导缺陷修复**：`new-session-onboarding.md` 报到地址曾指向已 bricked 首任（由 a072636f 发现）",
+  "★ **语音域交接与划界**：交接包 · 划界 A 类 19 项 · 受让人已登记 · 原持有人已更新"
+ ],
+ "★_A_阶段_状态": {
+  "工具面": "★ **完成**（S1–S5 五项工具 + 两门，全部可跑可自证）",
+  "规范面": "★ **完成**（`docs/wave-s-toolchain-delivery-v1.md` 215 行 · 已入 KB）",
+  "★_R006 §5 补课": "★ **已完成**（2026-10-10）：**五项工具全部走全 `--selfcheck` + `--lean4-check`，各 6/6 全绿**（卡 `r006-step5-backfill-complete`）",
+  "★_新欠账（可自主推进）": "★ **五项工具的 `_r006_cases()` 仍是占位** ⇒ B/C 两项**只验证了「布尔运算」，未验证「本门判据能红」** ⇒ 待补每工具的真实合成输入"
+ },
+ "★★_新会话接手须知（★ 若开新会话，从这里开始读）": {
+  "你（新会话）是谁": "★ 星桥（协调者）第三任。第二任 session-e317d6ab 因**上下文过长（19.7 MB）导致思考阶段反复绕圈、表现为「卡停」**而交接。",
+  "第一件事": "★ 读本卡 → 读 `data/registry/claude-work-archaeology-and-integration`（Claude 产出考古 + 整合方案）→ 读 `docs/context-survival-tracker.md`（**Q-K 线，直接治 P26**）",
+  "用户长期禁令（仍然有效）": [
+   "不重启 CLD",
+   "不改 profile",
+   "不换载体",
+   "不复活首任星桥 session-fa1f9150",
+   "不删历史留痕",
+   "不用 all=true 广播",
+   "不为过门禁削字"
+  ],
+  "★_语音域": "★ **已按用户指示移交**：我只登记进度（`voice-domain-progress-register`）· 审查走独立审查员 session-1ffded95 立项 · 负责人 session-0637278c"
+ }
+}

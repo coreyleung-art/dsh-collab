@@ -1,0 +1,39 @@
+{
+ "asks": [
+  "待所有者：锚点是否升 state_version v2→v3（若升，则同批同步 continuity-index 的 C7 状态）；本会话不擅动权威件。",
+  "待第三方：verifier 指派（第 10 条成立 / 形态⑤成立 两项均需他人复核）。",
+  "关联：G-CR17（压缩有效性门）尚属建议未建，应吸收本件『结构性不可表达』写法；G-CR16 同。"
+ ],
+ "at": "2026-10-09T16:47+08:00",
+ "deliverable": "docs/c7-half-fix-clause10-20261009.md",
+ "evidence_pointers": [
+  "docs/c7-half-fix-clause10-20261009.md",
+  "blackboard:data/registry/starbridge-handover-v2",
+  "docs/compaction-lowerbound-crash-20261009.md",
+  "docs/distributed-agent-network-governance-plan-v4-20261009.md#4.3"
+ ],
+ "from": "session-e317d6ab-5302-4b33-b095-947983ba16f4（星桥第二任）",
+ "grade_r030": {
+  "inferred": "压缩器存在常量下界（未读源码）· turn 11171/11172 对应 06:29/06:30 两次 splice（未直接取证）",
+  "measured": "三次报错读数 3435/3450/3419 · 被遮内容 2466 · seq 16083242-16083243 · compactionId 3e80ccf1-200d-42bf-be62-200e4c633fce",
+  "untested": "挂载 compaction 后本形态是否可解 · 其他在役会话是否已落在区间 I 内（均不作陈述）"
+ },
+ "index_sync_status": "★ 未同步：continuity-index 的 C7 条目仍为 open。理由 = 升状态须同时改锚点 state_version（否则两件 state_version 不等 ⇒ beacon-check 红），而锚点是唯一权威件、升版由所有者拍板。本会话按最小授权不擅动权威件。",
+ "item": "C7",
+ "key_findings": [
+  "★ 新增半修可检形态⑤『在位但作用域为空』：现有 4 形态（①激活计数0且无日志 ②依赖装了没挂载 ③修站点不修不变量 ④声明面>证据面）全部装不下 P26 —— 它不是没装、也不是没跑，而是跑了、有日志、有 compactionId，却因判据边界条件在目标区间内恒不成立。判别式：存在区间 I 使机制 M 在 I 上恒不生效，且 M 不自报『我在此区间不适用』。可检特征：自报失败并静默记账。",
+  "★ 第 10 条与第 1 条是同族不同态：第 1 条『compaction 未挂载』= 形态②；第 10 条 = 形态⑤。⇒ 关键结论：**挂载不是第 1 条的修复**，挂载只是把形态②转换成形态⑤ ⇒『compaction 已挂载』不得作为第 1 条关闭的依据。",
+  "W0.1 判据缺陷确证：原判据『触发≥1 且体积降≥50%』在 P26 形态下（触发了、降幅为负）给出**假绿**。修正后负控须写成**结构性不可表达**：计算 delta = 被遮内容 − 摘要框架开销，delta ≤ 0 ⇒ 不得返回『已压缩』状态，只能返回『压缩不可用』状态 —— 这是**状态机层面约束**，不是概率告警。边界 delta=0 ⇒ 判不可用。",
+  "DoD 8 字段首行已按 continuity-index 的 dod._note 所列字段填写（正向判据/负控/边界/测量方法与样本量/阈值/证据形态/审查员/沙箱复跑方式），**仅 C7 这一行**，不代表 dod.full_table 全表补全（该字段仍为 null，勿误读为已建立）。"
+ ],
+ "r046_note": "本卡为 C7 交付物登记与自述，**不构成任何验收或裁决通过**；状态 in_flight 系自评，closed_with_evidence 须待第三方 verifier 出证。",
+ "state_declared": "in_flight",
+ "state_reason": "DoD 已拟 + evidence 已落；**verifier 未定 ⇒ 按 S3「不可自审」不得记 closed_with_evidence**",
+ "subject": "C7 产出：半修第 10 条 + 新增可检形态⑤（在位但作用域为空）+ W0.1 负控修正（含 DoD 8 字段首行）",
+ "verifier": null,
+ "verifier_note": "按 S3/S4 禁自证：本件作者即被审对象，不得充当 verifier。建议 verifier = session-1ffded95（裁判·审查专员，已就本线对账一次）或另一独立会话。",
+ "superseded_by": "blackboard:data/registry/c7-half-fix-clause10-v2",
+ "superseded_at": "2026-10-09",
+ "superseded_reason": "v2 卡取代本卡。取代点：v1 的「三次报错读数 3435/3450/3419」为**抽样结论**，已被 v2 的全量扫描（147 次 compaction/end）取代；且 v2 新增了两项本卡没有的内容 —— ① 勘误开场包 §3.2「框架开销恒在 3.4k」的实测否定 ② 第 7 条证伪条（空结果≠不存在）。★ 本字段于 2026-10-09 由星桥第二任补加 —— 此前该失效只有**单向**标注（v2 卡有 supersedes→v1，v1 卡无 superseded_by），读者若只拿到 v1 卡看不出它已失效，属第 5 态（看不见失效）的实例。",
+ "bidirectional_marking_note": "★ 双向标注现已齐：v2.supersedes → v1（原有）· v1.superseded_by → v2（本次补）。"
+}

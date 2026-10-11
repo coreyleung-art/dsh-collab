@@ -52,6 +52,21 @@ export const ALLOWED_COMMANDS = Object.freeze([]);
  */
 export const ALLOWED_INJECT = Object.freeze(['tools']);
 
+/**
+ * 宿主私有路径的判据模式（R006 ③）。
+ *
+ * ★★ **本常量必须用运行时拼接构造** —— 若写成整条字符串字面量，`scanHostPaths` 会**扫到自己**
+ *    （实测：初版写成字面量后，A 项立刻报 `lib/gate.js:56` 命中三条 —— 判据把自己的模式当成了靶子）。
+ *    这与本模块 `stripLiterals` 要解决的是**同一族**问题：「扫原文会误伤自己」。
+ *    区别：exec 扫描是「剥掉字面量再扫」，而本扫描是「**只看字面量**」⇒ 无法用剥离法，
+ *    只能让模式**不以完整字面量的形态存在**。
+ */
+export const HOST_PATH_PATTERNS = Object.freeze([
+  ['', 'Applications', 'CLD.app'].join('/'),          // => /Applications/CLD.app
+  ['dsh-runtime', 'runtime'].join('/'),               // => dsh-runtime/runtime
+  ['', 'Contents', 'Resources', 'dsh'].join('/')      // => /Contents/Resources/dsh
+]);
+
 /** 明令禁止出现在宿主端 inject 里的服务（客户端专属 + 官方 realm 独占）。 */
 export const FORBIDDEN_INJECT = Object.freeze(['slots', 'compaction', 'toolResultPruner']);
 
@@ -230,6 +245,44 @@ export function gateFreezeProof() {
 }
 
 /** 读取本包源码（供 lean4-check 扫描）。文件缺失如实抛错，不静默跳过。 */
+/**
+ * ★ R006 ③「CLD 自适应」的**源码级判据**：正文里不得出现**宿主私有路径字面量**。
+ *
+ * 为什么并入本模块：它与 `scanExecSites` 同属「源码级耦合检查」，都是扫源码结构和**文本**，
+ * 且 A 项已经是「源码扫描面」的入口 ⇒ 并入 A，**不新增 G 项**（R006 ⑩ 规定 `--lean4-check` 为六项 A–F）。
+ *
+ * ★ 由 `gate-canfail` 方法找到（裁判交接口诀：「一个判据若没有能让它失败的输入，它就不是判据，是日志」）：
+ *   实证——往 cli.js 注入 `const _BAD = '/Applications/CLD.app/x';` ⇒ 本门**原本仍 exit 0**。
+ *   即：我前几天刚修掉的缺陷（硬编码宿主路径）若被改回来，本门**不会红**。
+ *
+ * ★ 判据口径（**只扫字符串字面量，不扫注释**）：
+ *   注释里描述"当年那条废弃路径"是**正当留痕**，不该判红（否则又是"判据太宽会砍掉自己人"）。
+ *   故先用 `stripLiterals` 的**逆用**：只看被引号包围的片段。
+ * @returns {Array<{file:string, line:number, literal:string}>} 命中清单（空 = 通过）
+ */
+export function scanHostPaths(sources, { patterns = HOST_PATH_PATTERNS } = {}) {
+  const hits = [];
+  const litRe = /(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g;
+  for (const [file, raw] of Object.entries(sources)) {
+    const lines = raw.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmed = line.trim();
+      // 行首是注释 ⇒ 跳过（注释中的历史留痕是正当的）
+      if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) continue;
+      litRe.lastIndex = 0;
+      let m;
+      while ((m = litRe.exec(line)) !== null) {
+        const literal = m[2];
+        for (const p of patterns) {
+          if (literal.includes(p)) hits.push({ file, line: i + 1, literal, pattern: p });
+        }
+      }
+    }
+  }
+  return hits;
+}
+
 export function readSources(baseDir, files) {
   const out = {};
   for (const f of files) out[f] = fs.readFileSync(path.join(baseDir, f), 'utf8');

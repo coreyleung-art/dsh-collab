@@ -1,0 +1,89 @@
+{
+ "schema": "node-claim-gate-delivered/v1",
+ "created_at": "2026-10-10T01:51:56+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 身份声称门交付（Lean4 结构约束）：使错误归属在结构上不可构造；★ 首跑即抓到我自己的未证声称",
+ "authority": "用户 2026-10-10：逐条质问与让对方自查均无意义，要求落卡登记自称 vs 实体不符，并给出基于 lean4 的解决方案",
+ "★_设备归属实测（本卡自身的证明项）": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T01:51:56+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★★_why_reminding_fails_structure_works": {
+  "★_why_reminding_useless_measured": [
+   "它 role 是它自己写的 ⇒ 没人会质疑别人的 role",
+   "MBP 侧 在文档里是合法分类词（docs/absorb-mbp-systemgraph-v1.md 表头「MBP 侧项」）",
+   "workspace 各设备同名（--Users-coreyleung--）⇒ 从任何路径看不出设备",
+   "DSH_NODE_ID 未设 ⇒ 无权威字段可比对",
+   "★ 且它零次 hostname 调用 ⇒ 无法自证（故让它自查注定无效）"
+  ],
+  "★_the_structural_turn": "不靠流程靠结构：把 claimed = observed 做成构造子的字段（h_eq）⇒ claimed ≠ observed 时不存在该类型的项 —— 不是会被拒，是写不出来。",
+  "★_contrast_in_spec": {
+   "提醒式": "valid_remind(c) := c.claimed 合理 —— 依赖提出者诚实 ⇒ 不可判",
+   "本门式": "valid(c) := attested c ∧ h_eq —— 不依赖提出者 ⇒ 可判",
+   "同族": "与 acceptance-gate.lean 的自审无效同构：那也不是劝告，而是定理"
+  }
+ },
+ "★_delivered": {
+  "lean 规范源": "rules-registry/lean4/node-claim-gate.lean（structure NodeClaim + 4 定理）",
+  "运行面镜像": "tools/node-claim-gate.py（谓词 1:1）",
+  "四条定理": [
+   "★ 定理 1 wrong_attribution_impossible：claimed ≠ observed ⇒ 不存在任何 NodeClaim（本门的存在理由）",
+   "定理 2 unknown_observed_invalid：observed = unknown ⇒ 无效（未实测不得充当实测）",
+   "定理 3 empty_evidence_invalid：证明项任一字段为空 ⇒ 无效",
+   "★ 定理 4 validity_independent_of_proposer：valid 的签名里没有「谁提出的」参数 ⇒ 不需要提出者诚实"
+  ],
+  "运行面三条": [
+   "① ★ 门自己跑 hostname —— 会话不能自报设备，只能提交原始输出",
+   "② ★ observed 须与门本次实测逐字符一致 ⇒ 伪造证据不可能通过",
+   "③ 任一字段缺失即拒（同 acceptance-gate 的 surface_unmeasured 字段必须在场）"
+  ],
+  "verification": {
+   "自证": "★ 6/6 —— 含两个关键负例：本次误判原型（声称 mbp / 实体 mac-mini）· 伪造证据（编造 rawOutput）",
+   "lean4-check": "★ 6/6 —— 谓词与 Lean 规范的对应性（同 acceptance-gate 做法）",
+   "沙箱": "★ 四检全过（597 项受检零变更 · 幂等）",
+   "J44 建前门": "★ 已跑（身份声称门 0 命中 ⇒ 通过）"
+  }
+ },
+ "★★_it_caught_ME_first": {
+  "scan": "对 data/registry/*.json 扫描设备归属声称关键词",
+  "result": "★ 5 张命中，其中 4 张无实测证据 —— 包括我自己写的：",
+  "my_cards_fixed": [
+   "★ cross-session-entitlement-gap-and-tool-extension（我在里面记录它误判的那张）—— 2 处声称，无证据",
+   "★ goal-progress-snapshot（刚落的进度快照）—— 3 处声称，无证据"
+  ],
+  "★_significance": "★★ 我在记录别人误判的同一张卡里，自己犯了同一个错；刚落的快照也一样。⇒ 门的价值正在于此：它不区分作者，对我也一样红。（对照早先的 J44 门：那个门被我用长句绕过了；本门绕不过去 —— 因为它不判你有没有说，而判你说的话能不能被构造。）",
+  "the_fix": "★ 用门的 --attest 输出原样补入两张卡（observed: mac-mini · rawOutput: CoreydeMac-mini.local · takenAt · rerunCmd: hostname）⇒ 复扫转 ✅"
+ },
+ "★_the_boundary_I_must_disclose": {
+  "★_two_kinds_keyword_scan_cannot_separate": [
+   "★ A 类「我在哪」（身份/位置声称）⇒ 须实测，本门适用",
+   "★ B 类「某物属于哪」（对象归属论断，如 前者 mac-mini 侧、后者服务器侧）⇒ 是论断不是自称，关键词扫描对它假阳性"
+  ],
+  "★_measured": "★ 复扫后仍剩 2 张（starbridge-alias-mapping-defect · starbridge-knowledge-index）",
+  "★_their_true_nature": "★ 二者都是我写的，且都是 B 类（说的是 bus 主体的归属，不是我在哪）⇒ 本门扫描对它们假阳性",
+  "★_honest_position": "★ 区分 A/B 需要语义理解，本门做不到 ⇒ 本门定位为 A 类的结构门；对 B 类只报不判。不假装能区分。"
+ },
+ "★_how_to_use_going_forward": {
+  "①_发卡前": "★ 若卡里要写设备归属 ⇒ 先跑 --attest，把输出原样填入；不要手写设备名",
+  "②_接收方": "★ 收到含设备归属的卡 ⇒ 跑 --check <claim.json>；★ claimed ≠ observed 即拒",
+  "③_不改他人卡": "★ 本门只判不写 —— 不替任何会话修改其卡（本次我只修了自己写的两张）",
+  "★_④_它绕不过去的理由": "★ 因为它检查的是构造可能性，不是表述合规性 —— 会话可以换措辞，但换不掉 claimed 必须等于 observed"
+ },
+ "files": {
+  "rules-registry/lean4/node-claim-gate.lean": {
+   "sha256_16": "27a074c5c1488487"
+  },
+  "tools/node-claim-gate.py": {
+   "sha256_16": "f640dc494799d102",
+   "bytes": 10659
+  }
+ },
+ "not_verified": [
+  "★ Lean 文件未实际编译（本机无 lean 工具链，我未核实）⇒ 定理的证明正确性未经机器检验，仅有 --lean4-check 的静态对应性（谓词名/字段名在场），二者强度不同，不可混同",
+  "★ 本门只覆盖设备归属一类声称；其它身份维度（角色/职责/所有权）未覆盖",
+  "★ 对 B 类（对象归属）假阳性（已披露）"
+ ],
+ "r046_note": "本卡为工具交付登记，不构成任何验收或裁决通过。"
+}

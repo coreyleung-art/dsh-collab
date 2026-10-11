@@ -111,6 +111,135 @@
 - **报告**：~/dsh-collab/research/compute-optimization/bus-queue-solutions-2026W34.md（v1.0.94）。
 - **建议负责人**：协调者 fa1f9150（排期）、4787d717（调研支撑）、3b5efeef（试点会话）
 - **验收标准**：试点会话上下文降 90%；队列积压消除或显著缓解。
+- ★ **2026-10-08 复核修正（本卡「背景」段的归因已过期，勿再据它行动）**：
+  星桥 `session-fa1f9150` 今日实测 **压缩已挂载、且已实际跑过 41 次**（`compaction/start` 41 : `compaction/end` 41，严格配对，**无孤儿 start**）——`standard` 预设里 `compaction-basic` / `command-compact` / `tool-result-pruner` 三者齐全（`@deepseek-ai/dsh/config/agent-presets/standard/agent.cordis.yml`）。
+  ⇒ **失效原因不是「未挂载」，而是阈值算术不可达**：`thresholdTokens = floor(contextWindow × 0.8) = floor(1,000,000 × 0.8) = 800,000`，而适配器默认留 256,000 completion ⇒ 消息侧可达上限仅 `1,048,576 − 256,000 = 792,576` ⇒ **800,000 > 792,576，压力检查永远晚于溢出**，主动压缩永不触发；只剩事后 `agent/request-error` 兜底，而它受 `retainRatio 0.16` 保护的尾部不可裁剪 ⇒ 撞 `:556` 收缩门 `summary is not smaller than the shadowed content (3420 >= 3420)`。
+  ⇒ **处置方向随之改变**：不是「打开开关」，而是**下调 `thresholdRatio`**（如 0.6 ⇒ 600,000，安全低于 792,576）并同步下调 `retainRatio`；因 shipped `standard` 在签名 bundle 内不可改，须走**用户自有预设**（`~/.dsh/.agent-presets/`），与本卡 ①「新建 standard+compaction 继承预设」路线一致，但**配置内容不同**。
+  · 证据：`~/.dsh/sessions/--Users-coreyleung--/session-fa1f9150-…/session.jsonl.zstd` 尾部 `turn/end` → `CONTEXT_WINDOW_EXCEEDED`「requested 1049216 tokens (793216 in the messages, 256000 in the completion)」；`@deepseek-ai/dsh-compaction-basic/lib/index.js:109/:556/:881-882`；`@deepseek-ai/dsh-llm-deepseek/lib/index.js:1735`（`maxTokens ?? 256e3`）。
+
+### CLD-026 · 会话自检每次启动跑 `--fix`，且会**截断**文件；星桥被**误判** corrupt
+- **类型**：缺陷（数据安全）　**优先级**：**P1**　**状态**：new（2026-10-08 本机实测登记；**与用户硬约束直接相关**）
+- **用户约束**：「不可以清理掉任何历史会话记录」⇒ 本卡按最高敏感度对待。
+- **对象**：`app.asar!/scripts/session-doctor.mjs`；触发点 `app.asar!/main.js:1040`
+  `setTimeout(() => { runDoctor({ fix: true }).catch(() => {}); }, 6000)` —— **每次 CLD 启动、web ready 后 6 秒，都会带着 `--fix` 跑一次全库会话自检**（`runDoctor` 形参默认即 `fix = true`，`:913`）。
+- **`--fix` 的真实行为（脚本自述 + 代码双向确认）**：
+  - 自述（`:10-12`）：*"with `--fix`, repairs corrupt sessions that are QUIESCED … first lossless **salvage**, then **truncate** fallback; every write keeps a `.corrupt-<ts>` backup"*
+  - 代码（`:183-194`）：先 `planSalvage` → 成功则 `writeAtomic(file, rebuilt)`；**否则 `rebuildTruncated(...)` 兜底** ⇒ **方法是「截断」**，`outcome.method === "truncate"`。
+  - ⇒ 判据：**「truncate」意味着按 `committedBytes` 截掉尾部事件**（有 `.corrupt-<ts>` 备份，故非永久灭失，但**实时文件的可见历史会变短**）。静默期判定 `quiesced = force || now - st.mtimeMs > staleAfterMs` ⇒ 冷会话天然合格。
+- **★ 星桥为何今天没被截断（关键，必须写准）**：它的失败发生在 `analyzeLog()` 内部，被 `:143-148` 的 `catch` 捕获：
+  ```js
+  } catch (e) {
+    corrupt += 1;
+    lines.push(`corrupt:  ${rel} (structural: ${e.message})`);   // ← 星桥走这条
+    state[rel] = { size: st.size, mtimeMs: st.mtimeMs, verdict: "corrupt" };
+    continue;                                                     // ← 不进入修复分支
+  }
+  ```
+  启动自检原文：`corrupt: sessions/…/session-fa1f9150-…/session.jsonl.zstd (structural: frame at byte 244957020 failed validation: Failed to allocate memory)`；`fixed: 0`。
+- **★★ 但「corrupt」是误判，文件本身完好（本机实测）**：`zstd -dc <file> > /dev/null` **退出码 0、stderr 全空、完整解出 892,080 行**。
+  ⇒ 报错文本自述 `Failed to allocate memory` ⇒ **是校验器解码时 OOM，不是数据损坏**。属「测量对象 ≠ 故障对象」同族（呼应 `B0-星桥激活崩溃-根因诊断.md` §4）。
+- **残余风险（三处，任一成立即触约束）**：
+  1. **分类依赖内存余量**：同一文件在不同内存条件下可能落进**另一个分支**（`issue`/`scanError`/`torn tail`），那条路**会**执行 truncate 兜底。
+  2. **崩溃正是产生 `torn tail` 的成因**：`dsh-web.log` 已多次记录 dsh 在写入中被 SIGABRT 杀掉 ⇒ 真实 torn tail 完全可能出现，届时 `--fix` 的 truncate 兜底即被启用。
+  3. **每次启动都重扫**：state 缓存键为 `size+mtimeMs`，文件一被写就失效 ⇒ 每次启动都对这个 **255 MB** 文件 `readFileSync` 全量读入 + 逐帧解码；**这本身是启动期内存尖峰**（与 CLD-020 同族，且与「启动后不久崩溃」的时间形态相容——**但仅属待测假设，未证**）。
+- **建议方向（未执行，待用户裁定）**：
+  ① 自检改跑 `--fix`→`--no-fix`（只报不修），把**修复决策交还人工**——最符合「不删历史」的约束；
+  ② 或给 doctor 加**体积上限**：超过阈值只标记不读入（避免 255 MB 全量读 + 解码）；
+  ③ 修 `analyzeLog` 的误判（内存不足应报 `memory-pressure` 而非 `corrupt`）；
+  ④ 若保留 `--fix`，截断前必须**双备份 + 明示 `dropped N`**（现已有 `.corrupt-<ts>` 单备份）。
+- **验收标准**：连续 3 次 CLD 启动，日志中星桥不再出现 `corrupt` 误判；或 `--fix` 被降级为只报不修；且全库会话文件**大小与 sha256 零变化**。
+- **已完成的保全（本会话）**：冷备份 `~/dsh-collab/archives/星桥-2026-10-08/session.jsonl.zstd`，**sha256 与原件逐字节一致**（`56d8cfa470d9424b58091e63618931adebbbafbc12187b249227736f2fd5c0ad`）。
+
+### CLD-024 · dsh-tailnet-proxy 不能可靠跟随 GUI 换端口 + 三处未捕获异常自杀
+- **类型**：缺陷（可用性）　**优先级**：**P1**　**状态**：**✅ 已修复并现场验收通过**（2026-10-08 14:27 重启生效 → 14:27–14:51 两次换端口均自动跟随）
+- **对象**：`~/.cld/tools/dsh-tailnet-proxy.mjs`（launchd `com.dsh.remote.plist` 常驻，入口 `100.120.203.20:3081`）
+- **本卡与 CLD-019 同族**：CLD-019 处置的是 `127.0.0.1:3081`（inject-proxy）的上游端口过期并已 closed；**同一病根在 tailnet 侧入口未修**，故另开本卡。CLD-019 的「长期机制=CLD 重启自动 spawn」只重建了进程，**没有解决「换端口后跟随」**。
+- **根因（三处，均已在代码中定位）**：
+  1. **重扫被自身节流锁死** —— `ensureTargetPort()` 用**同一个** `lastScan` 既做周期节流又做失败门禁：`if (Date.now() - lastScan < 60_000) return;`。`ECONNREFUSED` 清空 `targetPort` 后若距上次扫描不足 60s，重扫被直接跳过 ⇒ 端口最长 60s 无法跟随，且可反复重新计时。**文件头注释承诺的「每 60s 重扫一次」在代码中并无定时器**（只有注释，无实现）。
+  2. **未捕获异常杀进程** —— `server.listen()` **无 `error` 监听** ⇒ 僵尸实例占着 3081 时 `EADDRINUSE` 抛栈退出；WebSocket Upgrade 管道 `proxySocket.pipe(socket).pipe(proxySocket)` **两侧均无 error 监听** ⇒ 一次 `read ECONNRESET` 同样整进程退出。launchd KeepAlive 反复重启 ⇒ **崩溃循环**。
+  3. **候选选取不确定且可自环** —— `discoverGuiPort()` 「多候选取**最后**匹配」（lsof 输出顺序无语义），且**不排除代理自身端口**：无 tailnet 回退绑 `0.0.0.0:3081` 时 `127.0.0.1:3081` 也可达并同样返回 `__DSH_BOOT__` ⇒ 转发变自环。
+- **实测证据（`~/.cld/logs/dsh-remote.err.log` / `.out.log`）**：err 日志 30+ 条 `[proxy] 转发失败: ECONNREFUSED（GUI 可能重启，端口待重扫）`；**2 处完整 `EADDRINUSE 100.120.203.20:3081` 栈**、**1 处完整 `read ECONNRESET` 栈**（均 `Node.js v25.9.0`，`node:events:487 throw er; // Unhandled 'error' event`）；out 日志中 `[proxy] GUI 端口 = 3081` **即自环/僵尸指向的实证**。
+- **修复（已落盘，`~/.cld/tools/dsh-tailnet-proxy.mjs`，原文件备份为 `dsh-tailnet-proxy.mjs.bak-20261008-142019`）**：① 拆两个时间常数——周期重扫 **20s**（真的加定时器）+ 失败冷却 **800ms**（防抖但不阻塞恢复）；② 补 `server.on("error")` 退避重试（不再退出）、Upgrade 两端 socket error、`clientError`、上游非 101 响应（原版会永久挂起）、最后兜底 `uncaughtException`/`unhandledRejection`（只记日志不退出）；③ 按 CLD 主进程 **PID 降序**确定性选取 + 显式排除 `p === BIND_PORT` 自环；④ 扫描并发去重（`scanning`）；⑤ 发现失败时不盲目清零——仅当当前目标确实探活失败才清零（避免 lsof 抖动丢端口）。
+- **验证边界（R030）**：已完成 = 代码级定位 + 修复 + `node --check` 语法通过 + **重启后实测验收**（见下）。**未完成 = 僵尸占位 3081 时的不退出重试**（验收项③，需人为构造占位，未做）。
+- **★ 实测验收记录（2026-10-08 14:27–14:51，本机）**：
+  - 14:27:34 `launchctl kickstart -k gui/501/com.dsh.remote` → 新实例 **PID 71130**；
+  - CLD 于 14:27:42 启动，GUI 端口 **56564** → 代理日志 `[proxy] GUI 端口 = 56564（周期重扫）` → `3081` 返回 **HTTP 200**；
+  - 14:50:43 对 dsh 执行 `POST 127.0.0.1:31888/reload`（端口变为 **54409**）→ **25s 内**代理日志 `[proxy] GUI 端口 = 54409（周期重扫）` → `3081` 仍 **HTTP 200**；
+  - **代理实例自 14:27:34 起从未重启**（PID 71130 恒定）；`dsh-remote.err.log` 行数停在 100、mtime 停在 **13:54:32** ⇒ 修复上线后**零新增错误**、**零未捕获栈**。
+  - ⇒ 验收项①②**通过**；「（周期重扫）」标签即新代码独有路径（旧代码**没有定时器**，只有注释承诺）的实证。
+
+### CLD-025 · CLD 崩溃自动重启后窗口指向已死端口（asar 内 `awaitServerUrl` 顺序反转）
+- **类型**：缺陷（功能）　**优先级**：**P1**　**状态**：**✅ 已落盘 + ✅ 已重新公证**（2026-10-08 15:03 落盘 / 15:34 staple 完成，均独立复核全过）；**🟡 野外判据待验**（需下一次 dsh 崩溃自动重启才能观察）
+  · **⚠ 一条遗留卫生问题（非本次引入）**：`Contents/Resources/` 内已存在 5 个**历史 asar 备份**（`app.asar.bak-20260816` / `.bak-20260829-v1` / `.bak-v0.2.0-20260829` / `.bak-v0.3.0-20260829` / `.pre-resolveurl-165917`，8-16～9-05，共 ~464 KB）。它们位于**签名 bundle 内部**、已被封印收编（本次 `--preserve-metadata` 重签同样收录）。⇒ **现不可单独删除**（删一个就要再破封再重签一次）；建议**下次需要改壳时一并清掉**，或在下一次整包重建时从源头排除。
+- **对象**：`/Applications/CLD.app/Contents/Resources/app.asar!/main.js:517-519`（实测 1131 行 / 44890 B，与既有记录一致）
+- **根因**：崩溃自动重启分支里 **`awaitServerUrl()` 与 `resolveUrl = null` 顺序反转**——
+  ```js
+  const urlPromise = awaitServerUrl();  // 517: 注册模块级 resolveUrl
+  lastResolvedUrl = null;               // 518
+  resolveUrl = null;                    // 519: 把刚注册的消费者抹掉
+  ```
+  正确顺序在**同一文件的热重载分支**（`:579-581`）里就是对的（先重置、后 `awaitServerUrl()`）——即 10-04 的壳修复只覆盖了 `/reload` 路径，**漏了崩溃自动重启路径**。
+- **后果链**：新 dsh 打印 URL → `:470 if (resolveUrl)` **为假** → 只落一行 `[url] dsh web URL 就绪但无 await 消费者(重载间隙)` → promise 到 `BOOT_TIMEOUT_MS` 超时 → `.catch(()=>{})` 静默吞掉 → `:521-524 mainWindow.loadURL(u)` **永不执行** ⇒ **窗口停留在崩溃前的死端口**（即用户所述「动态刷新 runtime 地址随机指向」）。
+- **实测证据（`~/.cld/logs/dsh-web.log`）**：`自动重启` 出现 **15 次**，`重启后 dsh 就绪`（`:522` 才写）出现 **0 次**；`[url] … 无消费者` **8 次**。热重载自身经时序核验正常（2026-10-04T01:36 实测）。
+- **附带缺陷**：`crashRestartCount` 仅在**首次启动**成功时清零（`:1025`），**重启成功后不清零** ⇒ 跨越整个 App 生命周期的 3 次累计崩溃即弹 `dialog` 并 `app.quit()`（`:530-535`），即便每次重启都成功。
+- **修复约束（2026-10-08 复核后修正——原卡三处表述有误，逐条更正）**：
+  - **① asar 确实被封存，改后必须重签**：`Contents/_CodeSignature/CodeResources` 的 `files` 段含 `Resources/app.asar`，且实测**可复现**——原始记录 `248c08b5…` == sha1(原始 asar)，换入补丁 asar 后 `codesign --verify --strict` 立刻报 `a sealed resource is missing or invalid` / `file modified: …/app.asar`。⇒ **不重签必然被 macOS 判为签名无效**（此前「可能」应写作「必然」）。
+  - **② Info.plist 的 `ElectronAsarIntegrity` 是【惰性】的，不必同步更新**：原卡担心「改 asar 后 App 拒启」。实测 Electron fuses（`npx @electron/fuses read`）：`EnableEmbeddedAsarIntegrityValidation = Disabled`、`OnlyLoadAppFromAsar = Disabled`、`RunAsNode = Enabled`；且该 hash 本就不匹配当前 asar（声明 `058296e4…` vs 实际整文件 sha256 `0d0cf847…`——electron-builder 写的是 **asar 头部哈希**，与整文件哈希本就不同口径）。⇒ **该字段不参与启动校验，无需改**。
+  - **③ TCC 不会因此重触发**：`codesign -d -r-` 实测 DR = `identifier "com.cld.desktop" and anchor apple generic and certificate 1[…6.2.6] and certificate leaf[…6.1.13] and certificate leaf[subject.OU] = XS7SMKFS42`——**不含内容哈希**。用**同一 Developer ID** 重签后 DR 逐字不变（本次已实测 diff 为空）⇒ CLD-021 的授权churn 来自 **adhoc** 签名（CDHash 绑定），非本路径。
+- **P1 已废止（前提被证伪）**：`~/dsh-collab/cld/` 是**另一条版本线**——HEAD `main.js` 867 行 / v0.3.2 / `mac.identity: null` / 无公证流水线 / `release/` 只有 Windows 产物，而线上 `package.json` version = **0.3.0**。用它重建会**回退** 10-04 的三处壳修复。⇒ 以线上 asar 内 1131 行 `main.js` 为唯一基线。
+- **P3 降级（能力被高估）**：`crashRestartCount` 仅在首次启动（`:1025`）清零 ⇒ 累计 3 次崩溃后壳会弹框并 `app.quit()`，**`/reload` 无法阻止**。P3 只能拉回窗口，治不了「3 次即退出」。
+- **★ P2 执行记录（2026-10-08，两处缺陷一次改完）**：
+  - **基线**：`/Applications/CLD.app/Contents/Resources/app.asar`（185,260 B / 21 文件 / sha256 `0d0cf847…`）。先 `ditto` 全量拷贝至 `/private/tmp/cld-p2-stage/`（asar 指纹一致、签名仍合法）。
+  - **改动（仅 `main.js`，+13 −2，净 +1108 B）**：
+    1. **缺陷①顺序倒置**：崩溃自动重启分支内把 `lastResolvedUrl = null; resolveUrl = null;` **移到** `const urlPromise = awaitServerUrl();` **之前**，与 `reloadDsh()` `:578-581` 的正确顺序对齐（并加 8 行说明注释）。
+    2. **缺陷②计数不清零**：`urlPromise.then((u) => {` 回调**首行**插入 `crashRestartCount = 0;`（并加 3 行说明注释）。
+  - **重打包保真**：`@electron/asar pack` v3.4.1 产出的头部键集与原始**逐项一致**（`size` / `offset`(字符串) / `integrity{algorithm,hash,blockSize,blocks}` / `executable`）——实测「每文件键集一致 ✅」「executable 标志一致 ✅（6 个 scripts/*.sh 保持 `executable:true`，main.js 无）」；**唯一内容差异文件 = `/main.js`**（`862a721f…` → `dc0dba73…`）。回环解包 `diff -r` 全树一致。
+  - **重签方式（不采用已废弃的 `codesign --deep`）**：**只重签外层 bundle**——`codesign --force --sign <Developer ID Application: Zhenyu Liang (XS7SMKFS42)> --options runtime --preserve-metadata=entitlements --timestamp`。比全量 deep 重签**改动面更小**。
+  - **✅ 离线验收全过（实测数据）**：
+    - `codesign --verify --strict` 与 `--verify --deep --strict`：**valid on disk / satisfies its Designated Requirement**。
+    - **主可执行 CDHash 已变**（`e8ea4a69…` → `e4aaa771…`）＝重签确实生效；**7 个嵌套二进制 CDHash 全部未变**（Electron Framework / CLD Helper ×3 / ReactiveObjC / Squirrel…）＝改动面被限制在外层。
+    - **DR 逐字不变**（diff 空）；**entitlements 4 项逐项一致**（`allow-dyld-environment-variables` / `allow-jit` / `allow-unsigned-executable-memory` / `disable-library-validation`）；`Sealed Resources version=2 rules=13 files=18872` 维持。
+    - **封印闭环**：新 `CodeResources` 的 `Resources/app.asar` 记录 `e4558a52…` == sha1(补丁 asar) ✅；旧记录 `248c08b5…` == sha1(原始 asar) ✅。
+    - **功能性读取验证**：用 App 自带 `ELECTRON_RUN_AS_NODE=1 … -e`（只读）读取重打包 asar → Electron 43.4.0 正常读出 `main.js`、`vm.Script` 编译通过、两处修复标记命中、"复位 < 注册" 断言通过；对照组（线上未打补丁）同断言报 **"仍倒置"** ⇒ 断言具备判别力。
+  - **⚠ 公证边界（~~诚实声明~~ → 已于同日解除，见下方落盘记录）**：当时**仅存** `~/.appstoreconnect/private_keys/AuthKey_VA9RR5747M.p8`，全盘未找到 issuer-id、亦无 notarytool keychain profile，故按「**无法重新公证**」结案。**该结论已被推翻**：使用者于 15:2x 线下提供 issuer-id `f2c8d085-5125-4262-8950-63b427f34015` 后，**重签 → 公证 → staple 全链走通**（见下）。初始表述「重签后 `spctl` 报 `rejected / source=Unnotarized Developer ID`」在**提交公证前**成立、**staple 后不成立**。**本机影响：本来也无**——`/Applications/CLD.app` **无 `com.apple.quarantine` 属性**（实测），非隔离应用不经 Gatekeeper 首次评估即可启动；DR 不变 ⇒ TCC 不受影响。
+  - **落盘与回滚**：产物留存 `~/.cld/backups/p2-2026-10-08/`（`app.asar.patched` / `app.asar.orig` / `main.js.patched` / `main.js.orig` / `main.js.diff`）；脚本 `~/.cld/tools/apply-p2-asar-swap.sh`，子命令 `check | apply | verify | rollback`（`apply`/`rollback` 会**先拒绝在 CLD 运行时执行**，且落盘前校验线上 asar 指纹必须等于原始值，否则拒绝覆盖）。
+  - **落盘前置约束**：`Resources/app.asar` 被运行中的 Electron 实例**惰性读取**，替换须在 **CLD 完全退出**后进行（本会话受「不擅自停/重启 CLD」约束，故 `apply` 交由用户执行）。
+  - **★ 落盘记录（2026-10-08 15:03）**：`CLD.app` 内 asar `0d0cf847…` → `6a096321…`；重签后**独立复核**（不依赖脚本自身输出）：
+    - `codesign --verify --strict` 与 `--deep --strict`：**valid on disk / satisfies its DR**；
+    - `CodeResources.files["Resources/app.asar"]` = `e4558a5235f033080ab8a69732a5731e1e190eec` **== 实际 asar sha1**（封印已重新收编补丁内容）；
+    - 主可执行 CDHash `e8ea4a69…` → `e4aaa771…`（变了）；嵌套 Electron Framework `1db15290…`、CLD Helper (Renderer) `1844f133…` **均未变**；
+    - DR 与 4 项 entitlements 与修复前逐字/逐项一致；
+    - `Resources/` 内**无** `app.asar.p2*` 残留（脚本 EXIT trap 已清）；
+    - 落盘前备份 `~/.cld/backups/p2-2026-10-08/app.asar.before-apply-20261008-150306`（sha256 `0d0cf847…`，与原文件一致）。
+  - **脚本自身踩坑（已修）**：macOS `/bin/bash` 为 **3.2.57**，会把 `$ts（` 里紧跟的**全角括号**当作变量名一部分 ⇒ `unbound variable`。修法：`${ts}（`。已在全文件扫描并消除 3 处（另加 EXIT trap 清理 bundle 内临时文件）。
+  - **★ 公证记录（2026-10-08 15:27–15:34，已独立复核）**：提交包 `ditto -c -k --keepParent` 产出 `/tmp/cld-notarize/CLD-0.3.0-p2.zip`（**178 MB**）→
+    `xcrun notarytool submit … --key AuthKey_VA9RR5747M.p8 --key-id VA9RR5747M --issuer f2c8d085-5125-4262-8950-63b427f34015`
+    → submission `96751d07-e520-4a0c-9c81-da5a8e924c7c`，**约 7 分钟**（第 14 次轮询）**Accepted** → `xcrun stapler staple` + `validate` 均成功。
+    复核（不依赖脚本自身输出）：`spctl -a -vvv -t exec` = **`accepted` / `source=Notarized Developer ID` / `origin=Developer ID Application: Zhenyu Liang (XS7SMKFS42)`**；staple 后 **asar sha256 仍 `6a096321…`**、**封印 `files["Resources/app.asar"]` 仍 `e4558a52…` == 实物 sha1**、**主可执行 CDHash 仍 `e4aaa771…`**（staple 不改主二进制）、`--strict` 与 `--deep --strict` 仍通过。
+    **票据位置与新认知**：staple 把公证票据写进 **`Contents/CodeResources`**（2,136 B，内含 Apple CA 链 CMS，mtime 15:34），**不在** `_CodeSignature/CodeResources` 封印的 `files` 段内（`rules2` 的 `^[^/]+$` 规则容忍它）⇒ **不破封**（deep-strict 实测通过）。
+    **⇒ 前向约束（重要）**：票据**绑定当时的主可执行 CDHash** ⇒ **任何一次再次重签都会作废本票据**，须**重新提交公证**（不是重新 staple）。故若日后要做 C-1/C-2 那批 asar 补丁，**必须把「重新公证」计入流程**（同一 issuer-id 可复用）。
+    **⚠ 隐私提示**：本次上传的 178 MB 包含 bundle 内私有 `dsh-runtime` 树，**全量送交 Apple 公证服务**；与 10-06/10-07 同 bundle 的先例一致，但后续每次都要重新确认这一点。
+- **验收标准**：
+  1. **落盘后**：`~/.cld/tools/apply-p2-asar-swap.sh verify` 全绿（签名/DR/entitlements/asar 内容四项）。
+  2. **野外判据**：制造一次 dsh 崩溃自动重启后，`~/.cld/logs/dsh-web.log` 出现 `[child-exit] 重启后 dsh 就绪: http://127.0.0.1:<新端口>`（修复前该串 **15 次自动重启 0 次出现**），且**不再新增** `[url] … 无 await 消费者(重载间隙)`；窗口 URL == 新端口。
+  3. **计数复位**：≥3 次崩溃但每次自愈成功时，壳**不再**弹 `dsh server stopped unexpectedly` 并退出。
+
+### CLD-027 · dsh 每次启动弹默认浏览器（`--no-open` 被配置层切断）—— ✅ 已修（配置层，待用户重启生效）
+- **类型**：缺陷（体验；含信任面外溢）　**优先级**：P2　**状态**：**✅ 已修**（2026-10-08，改**用户层配置**；**待用户自行重启 CLD 生效**，助手未动任何进程）
+- **现象**：每次启动 CLD，除主窗口外还会**弹出一个默认浏览器窗口**，打开 `http://127.0.0.1:<port>` 的 dsh runtime UI —— 即使用者所述「runtime 窗口弹出，只应约束在 CLD 内」。
+- **实测**：`~/.cld/logs/dsh-web.log` 内 `CLD boot` **49** 次 / `dsh web: opening the default browser` **41** 次；末次 boot `2026-10-08T07:36:18Z`（本地 15:36）仍在弹。
+- **排查链（逐层排除，各步均留实证）**：
+  1. **不是 CLD 漏传参**：`ps` 实测在跑的子进程 argv = `CLD --expose-internals …/dsh/lib/bin.js web --port 0 --no-open`；`main.js:427` 亦如此。
+  2. **不是 argv 布局问题**：以 App 自带 Electron 跑自建探针（`ELECTRON_RUN_AS_NODE=1 CLD --expose-internals probe.js web --port 0 --no-open`）⇒ `process.argv.slice(2) = ["web","--port","0","--no-open"]` ✅。
+  3. **不是 dsh 解析链问题**：以 runtime 内 commander **原样复刻**两层解析（外层 `dsh/lib/bin.js` → 内层 `dsh-web-app/lib/startup.js`）⇒ 外层残留 args `["--port","0","--no-open"]`、内层 `opts() = {"open":false,"port":"0"}` ⇒ `openBrowser=false` ✅。
+  4. **⇒ 配置层丢键**：官方层 `dsh-web-app/cordis.patch.yml:141` 是 `openBrowser: !!js ctx.webStartup.openBrowser`（由命令行驱动）；而用户层 `~/.dsh/profiles/web/cordis.patch.yml` 的 `- id: web-runtime` 条目**整段替换**该行 config（该文件第 5 行自带此约定），却**漏 restate `openBrowser`** ⇒ 键缺失 ⇒ 落到 schema 默认 `z.boolean().default(true)`（`dsh-web-app/lib/index.js:32`）⇒ **恒为 true，flag 路径被彻底切断**。
+- **修复**：用户层该行补回 `openBrowser: false`（**字面量**；注释注明要恢复「由命令行控制」则改回 `!!js ctx.webStartup.openBrowser`）。**未改 asar** ⇒ **无需重签、无需重新公证**。
+- **⚠ 承重键**：同一行的 `printUrl: true` **必须保留** —— CLD 靠解析 stdout 的 `dsh web: http://127.0.0.1:<port>` 取 URL 并 `loadURL`；改掉即白屏。
+- **备份**：`~/.dsh/profiles/web/cordis.patch.yml.bak-openbrowser-1791445176`
+- **生效路径**：该配置惰性读取 ⇒ 需 dsh 重启/热重载（CLD 自带 `POST http://127.0.0.1:31888/reload`）。使用者选择**自行重启 CLD**（2026-10-08），助手不介入。
+- **验收判据**：重启后新 boot 段内**不再出现** `dsh web: opening the default browser`；且 `dsh web: http://127.0.0.1:<port>`（printUrl）仍在、CLD 窗口正常加载。
+- **遗留同类风险**：用户层 patch 对**每一行**都是「整段替换 config」⇒ 官方层后续**新增**的任何键都会被**静默吞掉**（不报错）。建议把「dsh 升级后逐行比对官方层 vs 用户层键集」列入例行。本次比对结果：仅 `openBrowser` 一项受损。
+- **相关但本次未动**：`main.js:822-826` 的 `setWindowOpenHandler` 对 loopback 目标返回 `{action:"allow"}` ⇒ 页面内 `window.open()` 会开一个**裸的原生 Electron 窗口**（另一类「弹出」）。本次现象与之无关；若要一并收敛需另批 asar 补丁（**含重签 + 重新公证**）。
 
 ### CLD-022 · node-bridge 日志无轮转撑爆磁盘（71.89 GiB · Data 卷 91%）
 - **类型**：缺陷（资源）　**优先级**：**P0**　**状态**：new（2026-09-11 07:2x 实测登记，CLD 健康域发现+核验）

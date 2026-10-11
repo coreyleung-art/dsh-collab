@@ -1,0 +1,79 @@
+{
+ "schema": "tool-defect-agent-profile-silent-truncate/v1",
+ "created_at": "2026-10-10T03:43:19+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 工具缺陷：`agent_profile` 的 resources 超限【静默截断】（约 20 条上限 · 无报错无告警）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:43:19+08:00",
+  "rerunCmd": "hostname"
+ },
+ "discovered_by": "session-0637278c-cc44-4759-89df-3de23f0fae43（CLD 语音交互能力负责人 · 2026-10-10）",
+ "authority": "其在回复划界卡时主动报告（**非我要求**）",
+ "★★_the_defect": {
+  "现象": "★ `agent_profile` 的 `resources` 字段有**约 20 条上限**，且**超限是静默截断** —— **无报错、无告警、写入返回看似成功**。",
+  "★_它的实测": [
+   "第一次提交 **29 条** ⇒ 写入返回值**看似成功**",
+   "★ **回读核验**才发现**只落库 20 条**",
+   "尾部 **7 条全部丢失**（含 `cld-voice/backend` 真源 · `CLDVoiceIME` · 其梳理报告 · 共享与 C 类声明）",
+   "按 20 条重排后**再回读**，20 条齐全"
+  ],
+  "★_the_rule_it_extracted": "★★ **「写返回成功」≠「按我提交的内容写成」；登记类工具必须【回读断言条数】。**"
+ },
+ "★_my_own_recheck（依它的方法自查）": {
+  "method": "**回读我自己的 `agent_profile`**，逐字段比对我提交的内容",
+  "result": "★ **未被截断** —— `abilities` 提交 9 条 / 落库 9 条；`resources` 提交 11 条 / 落库 11 条",
+  "★_why_mine_was_safe": "★ 我提交时**长句合并在单条内**（如把「工具 + 规则号」写进同一条），**条数本就在 20 以内** ⇒ **未触发上限**。★ 这不是我的纪律好，而是**侥幸** —— 若我按「一事一条」拆开，同样会被截断。"
+ },
+ "★★_why_it_matters": {
+  "①_同族": "★ 与今晚反复出现的「**静默失败**」同族：**降级/截断发生了 · 无报错 · 指标不外露** ⇒ 使用者只看到「结果不对」，无法归因。",
+  "②_影响登记质量": "★ 档案是**跨会话能力登记表**，是**别人判断「谁能干什么」的依据** ⇒ **静默丢字段会让能力登记失真**，而失真是**不可见的**（没人会去数别人档案的条数）。",
+  "③_与 R030 同源": "★ 它自己点出了这一点：**「这与 R030『无验证不陈述』同源，也和今晚『声称先于实测』是同一族问题」**"
+ },
+ "★_suggested_fix（未实施 · 未改他人工具）": [
+  "① **写入时若超限 ⇒ 显式报错或返回被截断的条数**（fail-loud，而非静默）",
+  "② **返回体携带 `accepted_count` / `dropped_count`** ⇒ 调用方可断言",
+  "③ **或**：把上限写进工具描述（**让调用方事前知道**）",
+  "★ **本卡只登记，不改工具** —— `agent_profile` 属运行时工具，改动须走 R006 与独立审查"
+ ],
+ "★_who_should_know": [
+  "★ **PSTD（插件/工具命名与审查管理员）** —— 工具缺陷归其域（`session-b250bf9d` / `455c1807`）",
+  "★ **裁判（独立审查员）** —— 若该缺陷影响既有登记卡的可信度",
+  "★ 所有**依赖档案做判断**的会话"
+ ],
+ "not_verified": [
+  "★ 精确阈值以外的行为仍未验：恰好 20 / 21 / 22 条时分别如何（它验的是 22→20，**边界 20/21 未逐点扫**）",
+  "★ **是否其他 profile 字段（如 `role` 长度）也有静默限制未验**",
+  "★ **该修复由谁执行未定** —— `dsh-plugin-agent-bus` 的属主登记在**已 bricked 的首任星桥名下** ⇒ **须用户裁决归属**（★ 我未擅自改该插件）"
+ ],
+ "r046_note": "本卡为工具缺陷登记，不构成任何验收或裁决通过。",
+ "★★_3项_not_verified_已闭合（由 session-0637278c 受控实验）": {
+  "★_by": "session-0637278c-cc44-4759-89df-3de23f0fae43 · 卡 `notes/mac-mini/agent-profile-cap-measured`",
+  "★_method": "★ **受控实验**（其自陈「非再采一次样」）—— 与我当时「单点实测估计」形成对照",
+  "闭合明细": {
+   "①_精确上限": "★ **恰 20 条** —— **提交 22 → 落库 20**（我原记「约 20 条」，是估计值）",
+   "★_替代假设已排除": "★ **条目仅 3 字符 ⇒ 排除「字符/字节预算」假设** ⇒ **确认限制维度是【条数】，不是【长度】**（这一步是关键：否则无法区分两种机制）",
+   "②_其他字段": "★ **`abilities` 同限**（我原只对自己的两个字段做了比对，未验其他字段）",
+   "③_截断形态": "★ **尾部丢弃**（我原未验是「按规则筛选」还是「尾部截断」）"
+  },
+  "★_its_followup": "★ **它的档案已恢复并回读核验**（⇒ **它自己也没被静默截断留在坏状态**）",
+  "★_significance": "★ 至此该缺陷的**机制已完全刻画**：**条数上限 20 · 尾部丢弃 · 无报错无告警 · 适用于 resources 与 abilities** ⇒ **修复建议可直接落地**（写入超限应显式报错 / 返回 accepted 与 dropped 计数）"
+ },
+ "★★★_第3项_not_verified已闭合_且定位到源码（由 session-0637278c）": {
+  "★_by": "session-0637278c-cc44-4759-89df-3de23f0fae43 · 卡 `notes/mac-mini/agent-profile-cap-source-found`",
+  "★★_源码铁证（我已独立核实）": {
+   "文件": "`~/dsh-plugin-agent-bus/lib/index.js`",
+   "行号": "**L1468 / L1469**",
+   "代码": "```js\\nfunction upsertProfile(agentId, opts) {\\n  const cur = store.profiles.get(agentId) || {...};\\n  if (opts.role !== undefined) cur.role = String(opts.role);\\n  if (Array.isArray(opts.abilities)) cur.abilities = opts.abilities.map(String).slice(0, 20);\\n  if (Array.isArray(opts.resources)) cur.resources = opts.resources.map(String).slice(0, 20);\\n  cur.updatedAt = Date.now();\\n  cur.source = 'self';\\n  store.profiles.set(agentId, cur);\\n  void persist();\\n  return cur;\\n}\\n```",
+   "★_印证": "★ **与它受控实验的「恰 20 条 · 尾部丢弃 · abilities 同限」逐项吻合**"
+  },
+  "★★_它指出的可利用点（我认可）": {
+   "observation": "★ **函数末尾 `return cur` 返回的是【实际落库对象】** ⇒ **调用方本可比较「我提交的」与「实际落库的」，从而当场发现截断** —— **但运行时没做**。",
+   "★_nature": "★ **典型的「可检测但没检测」** —— 与今晚反复出现的「静默失败」同族：**数据就在手边（`cur` 已是截断后的对象），却没有断言**。",
+   "★_fix_direction": "★ **最小修复**：在 `upsertProfile` 内或调用方比较 `opts.X.length` 与 `cur.X.length`，不等则**返回 `truncated: {abilities: n, resources: m}`** 或直接抛错（fail-loud）。★ 更彻底：把 20 改为可配置常量并写进工具描述。"
+  },
+  "★_no_rebuild_risk": "★ 实测 **`~/dsh-plugin-agent-bus/` 无 `src/`** ⇒ **不存在「只修产物未修源 ⇒ 重建复活」的风险**（该风险形态见 `dsh-host-client-inject-boundary` 的 excalidraw 事故）",
+  "★_its_boundary_discipline": "★ 它自陈「**我不自改（非我资源）**」—— **该插件属主是星桥（首任名下），不在其划界内** ⇒ **它守住边界，只报不改** ✓"
+ }
+}

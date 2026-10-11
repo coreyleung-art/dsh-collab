@@ -1,0 +1,67 @@
+{
+ "schema": "p3-prerequisite-located/v1",
+ "created_at": "2026-10-10T00:16:28+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ P3 唯一前置已定位：CLD 是 **LaunchServices 启动的 GUI app** ⇒ 回退注入的覆盖点不是 plist 而是 `launchctl setenv`（代价＝一次重启）",
+ "task": "v3.1 §十 未测项：「回退注入配置源未定位」；本卡给出可执行结论",
+ "★_how_CLD_is_started": {
+  "evidence": [
+   "父进程 = **`1 /sbin/launchd`**（非用户 shell）",
+   "`XPC_SERVICE_NAME=application.com.cld.desktop.24007761.452447283`",
+   "`__CFBundleIdentifier=com.cld.desktop`",
+   "主进程环境变量**仅 14 个**（全为系统级：USER/HOME/PATH/SHELL/TMPDIR/SSH_AUTH_SOCK 等）"
+  ],
+  "verdict": "★ CLD 由 **LaunchServices / XPC** 启动（即用户双击 .app），**不是 launchd daemon**。"
+ },
+ "★_why_plist_injection_does_not_apply": {
+  "fact": "本机有 **12+ 个** `~/Library/LaunchAgents/com.dsh.*.plist` 使用 `EnvironmentVariables`（如 comm-device-daemon 设 `DSH_NODE_ID=mac-mini`；node-bridge 设 `ANTHROPIC_*`）",
+  "why_not_for_CLD": "★ 那是 **launchd daemon 的机制**；GUI app 经 LaunchServices 启动时**不读**该 plist 的 EnvironmentVariables。⇒ **不能用「给 CLD 加一个 plist」来注入 `CENTRAL_AGENT`。**",
+  "also_checked": [
+   "`~/.cld/config.json` ⇒ 只有 `mode`/`remoteUrl`/`remember`/`background`，**无环境变量字段**",
+   "`~/Library/Preferences/com.cld.desktop.plist` ⇒ **无 CENTRAL_AGENT**",
+   "shell 配置（.zshrc 等）⇒ **无 CLD 启动别名**（只有一条 PATH 导出）"
+  ]
+ },
+ "★_the_viable_point_and_its_measured_limits": {
+  "candidate": "`launchctl setenv CENTRAL_AGENT <星桥v2 会话 id>`",
+  "verified_可设可撤": "★ 我用无害变量实测：`launchctl setenv DSH_P3_PROBE …` ⇒ 读回成功；`launchctl unsetenv` ⇒ 读回为空 ⇒ **完全可逆** ✓",
+  "★_verified_not_its_effect_on_GUI_app": "★ **未证** —— 我用 `osascript -e 'do shell script \"echo $DSH_P3_PROBE\"'` 测试 GUI 上下文 ⇒ **读到空值**。⇒ 这可能说明 setenv **对 GUI app 不生效**，也可能是**测试方法问题**（`do shell script` 的环境来源未必等同 LaunchServices）。**不臆断。**",
+  "★_conclusion": "⇒ **P3 方案 A 的可行性仍为「未定」**，须**一次真实重启**才能判定。"
+ },
+ "★_the_real_cost_of_P3": {
+  "statement": "★ **无论走配置层还是代码层，P3 的实际代价都是【一次 CLD 重启】**：",
+  "why": [
+   "配置层：`launchctl setenv` **只对之后启动的进程生效** ⇒ 须重启 CLD",
+   "代码层：改 `lib/index.js:120,125` ⇒ 须重新加载插件（同样需重启）"
+  ],
+  "★_this_is_the_decisive_fact_for_the_user": "★ 用户此前明令「不重启 CLD」⇒ **P3 的授权必然包含对该禁令的一次解除**。这不是我可以自行决定的事。",
+  "可逆性": "★ 配置层**完全可逆**（`launchctl unsetenv` + 再重启一次即回原状）；代码层需改回源码（亦有备份可循）。"
+ },
+ "★_three_options_for_the_user": {
+  "A_配置层_推荐": {
+   "action": "`launchctl setenv CENTRAL_AGENT <星桥v2 id>` → 用户手动重启 CLD → 重启后验证（读插件日志确认注入目标变更）",
+   "pros": "不改代码、不改 profile、**完全可逆**",
+   "cons": "**须一次重启**；且「对 GUI app 是否生效」**须重启后才能判定**（可能失败 ⇒ 白重启一次）",
+   "risk": "低"
+  },
+  "B_代码层": {
+   "action": "改 `~/dsh-plugin-central-inbox/lib/index.js:120`（`NODE_ID === 'mac-mini'` 分支）与 `:125`（`includes('fa1f9150')`）",
+   "pros": "根治；不依赖环境变量传递",
+   "cons": "改他人插件源码；两副本（源码 + profiles）须同步；**仍须重启**",
+   "risk": "中"
+  },
+  "C_不动作": {
+   "action": "维持现状，仅靠「不发 `all=true` 广播」等人为规避",
+   "pros": "零变更",
+   "cons": "★ **已被证伪**：裁判 F72 等证据表明**点火源分布式**（watchdog 4 次 · MBP 3 次），**人为规避覆盖不到** ⇒ 死会话仍会被反复点火（每被唤醒一次固定消耗一次失败）",
+   "risk": "低（但问题持续）"
+  },
+  "★_my_recommendation": "★ 建议 **A**（配置层）。理由：可逆性最高、不改代码、不改 profile；且**即使 A 未生效，也无副作用**（一次重启 + 一条环境变量，撤掉即可）。★ 若 A 重启后验证未生效，再考虑 B —— **两条都不必一次做完**。"
+ },
+ "not_verified": [
+  "`launchctl setenv` 对 LaunchServices 启动的 GUI app 是否生效 —— **本卡的核心未测项**（须重启才能测）",
+  "`~/dsh-plugin-central-inbox/lib/index.js` 与 `~/.dsh/profiles/web/node_modules/...` 两副本的一致性 —— 此前测过一次 sha 相同（594a9311f325367af1b6e），但那是**改动前**，P3 前须复测",
+  "改动 `launchctl setenv` 后是否影响其它读取该变量的进程（除 central-inbox 外是否有他者读取）"
+ ],
+ "r046_note": "本卡为只读前置定位与方案并列，不构成任何验收或裁决通过；执行点须所有者授权。"
+}

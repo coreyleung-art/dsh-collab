@@ -1,0 +1,68 @@
+{
+ "schema": "lint-v2-and-design-vs-implementation/v1",
+ "created_at": "2026-10-10T00:05:49+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "静默截断 lint v2：三判据维度落实（含裁判移交两条）；★ 并如实报告启发式在边界上的失准",
+ "authority": "裁判 f71-followup-accepted-and-scope-decision：**以我方 tools/ 为唯一实现**，其脚本冻结为证据",
+ "★_ownership_settled": {
+  "their_decision": "以我的 `tools/lint-silent-truncation.py` 为**唯一实现**；它**不再改** `scripts/silent-truncation-lint.py`（冻结为证据）",
+  "their_reason": "我三处优于它：`--group` 结构性预防 · `cut(` 判据更精确 · fail-closed 三层",
+  "my_action": "v1（sha `f251622f40f44694`）备份于 `guard/backups/`；已重写为 v2.0.1"
+ },
+ "★_criteria_implemented": {
+  "①_移交·扫描时点+扫描面须打印": "★ 已实现 —— 输出首两行即 `扫描时点：2026-10-10T00:05:12+08:00` 与 `扫描面：<归属>=<路径>(N 文件)`。★ 它 grep 本文件发现「时点相关行 **0 条**」⇒ **我方同病**，其原话：「这是**两侧共同缺口**，不是指责。」",
+  "②_移交·SILENT→UNANNOTATED": "★ 已改名；并新增 `should_report` 作**裁决列**。其原话：「它把『无标注』与『是截断』混为一谈，由 `use` 决定是否该报。」",
+  "③_我方·切片语义": "★ 已实现 **`subject`（对象类型）** 维度：`list[-N:]` ⇒ 不报；`str[:N]` ⇒ 由 `use` 决定",
+  "④_移植时的基座假设审查": "★ 依其建议执行：其 `classify_use()` 的基座假设是「同行/邻近关键词能反映用途」⇒ **在我侧部分成立**（它解决不了 `list[-N:]`，那是**类型**问题不是**用途**问题）⇒ 故取其三分 + 加 `subject` 维度"
+ },
+ "★★_honest_limitations_measured": {
+  "note": "★ 本卡**不声称 v2 已完善**。实跑暴露三类失准，逐条如实登记：",
+  "items": [
+   {
+    "#": 1,
+    "issue": "**docstring 内的 `[:N]` 被当成代码行**",
+    "instance": "我方 3 个脚本的 docstring 各 1 处",
+    "status": "★ **已修**（三引号奇偶跟踪）⇒ UNANNOTATED 由 9 降至 5",
+    "residual_limit": "不解析字符串边界，仅按三引号奇偶 ⇒ 含三引号的单行会翻转状态"
+   },
+   {
+    "#": 2,
+    "issue": "**`for X in Y[-N:]:` 被判 other ⇒ 误报**",
+    "instance": "n7-ignition-source.py L94",
+    "status": "★ **已修**（补 for-in 列表判据）⇒ 该报由 8 降至 3",
+    "residual_limit": "仅覆盖 `for ... in ...:` 形态"
+   },
+   {
+    "#": 3,
+    "issue": "★ **`subject` 启发式在「取 id 前缀」上仍失准**",
+    "instances": [
+     "c7-delta-exact.py L45 `str(dd.get(\"compactionId\"))[:8]` ⇒ 判 str+DISPLAY⇒报（实为取前缀）",
+     "c7-postmortem-activity.py L61 `(cid or \"\")[:8]` ⇒ 判 other+DISPLAY⇒报（实为取前缀）",
+     "c7-field-locate.py L103 `Counter(iso(t)[:13])` ⇒ 判 other+EXTRACT ⇒ **保守报**（实为分组键）"
+    ],
+    "status": "★ **未修** —— 根因是**文本启发式而非 AST 解析** ⇒ 要根治须引入 AST（未来工作）",
+    "★_why_I_did_not_patch_further": "① 继续加正则只会把误报换成另一种误报（本线已反复见）；② 收益有限（3 处）；③ **如实标注比假装修好更有价值**"
+   }
+  ],
+  "current_reading": "我方 7 脚本：UNANNOTATED **5** · **该报 3** · ANNOTATED 0 · 注释提及 0"
+ },
+ "★★_a_transferable_observation": {
+  "statement": "★ **保守规则（`UNKNOWN ⇒ 报`）会把「判不准」转化为「误报」** —— 这与**静默**是**两个方向的失败**：一个**漏报**，一个**误报**。",
+  "why_it_matters": "⇒ 两者**都不能靠调参消除**：调高灵敏度 ⇒ 误报；调低 ⇒ 漏报。⇒ **唯一出路是提高判据精度**（此处：文本启发式 → AST）。⇒ 这与本线早先那条同构：「**说不出来 vs 说出来但不准**」是两个独立问题。",
+  "recommendation": "若该工具要继续演进，**建议引入 AST 判定 `subject`**（`ast.parse` + 节点类型），而非继续堆正则。**本轮不做**（收益/风险比不划算）。"
+ },
+ "★_verification": {
+  "syntax": "✓",
+  "real_run": "✓ exit=0（含逐条明细）",
+  "negative_control": "✓ 归属交叉 ⇒ exit 2（fail-closed 未被破坏）",
+  "regression": "★ 修复前后对照：UNANNOTATED 9→5 · 该报 8→3 · 假阳性减少 5 处",
+  "backup": "guard/backups/lint-silent-truncation-v1-20261010-000452.py"
+ },
+ "files": {
+  "tools/lint-silent-truncation.py": {
+   "sha256_16": "fdafbbe128915e9c",
+   "bytes": 14068
+  }
+ },
+ "r046_note": "本卡为工具版本与局限的登记，不构成任何验收或裁决通过。"
+}

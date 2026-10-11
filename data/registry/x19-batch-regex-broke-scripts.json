@@ -1,0 +1,157 @@
+{
+ "schema": "x19-batch-regex-broke-five-scripts/v1",
+ "created_at": "2026-10-09T22:49:10+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ X19：我为落实「凡截断必标注」而批量正则替换，**同时损坏 5 个取证脚本** —— 又一次「以代理代替实体」",
+ "context": "addendum-7 中我承诺「凡截断必标注」；本次即为落实该承诺时发生的事故。",
+ "★_what_happened": {
+  "intent": "把 5 个取证脚本里的 `X[:N]` 静默截断统一改为 `cut(X, N)`（带显式标注）",
+  "method": "一条正则批量替换：`([A-Za-z_][A-Za-z0-9_\\.\\[\\]\\(\\)\\'\"]*)\\[:\\s*(\\d+)\\]` → `cut(\\1, \\2)`",
+  "fatal_flaw": "★ 字符类**误含 `\\)`** ⇒ 匹配可跨括号边界 ⇒ `json.dumps(dd, ensure_ascii=False)[:140]` 被改成 `json.dumps(dd, ensure_ascii=cut(False), 140)`（**语法错误**）",
+  "blast_radius": "★ **5 个脚本全部语法损坏**（n7-separate-cause · n7-ignition-source · c7-postmortem-activity · c7-field-locate · c7-literal-locate）",
+  "★_what_caught_it": "**「改完立刻跑一次」** —— 我在替换后当场跑了一次想「看截断标注是否出现」，立刻得到 SyntaxError ⇒ 未留下 5 个坏脚本。**若只看替换计数（全部显示「已替换 N 处」），会以为成功。**",
+  "repair_also_failed_once": "第一次修复的正则同样不匹配（`cut(False), 140)` 里 `cut(` 没有闭合括号），反而把 `cut(txt, 220)` 还原成了 `=txt)[:220]` ⇒ **修复动作本身又造成新损坏**。第二次修复才找回形态（`ensure_ascii= False[:140]` → `ensure_ascii=False)[:140]`）。"
+ },
+ "★_it_is_another_proxy_instead_of_entity": {
+  "proxy": "**我写的正则模式**",
+  "entity": "**代码的真实结构**",
+  "result": "正则匹配到了我没想到的边界（括号） ⇒ 替换越界",
+  "position_in_the_family": "★ 这是**第 5 个实例**（我方 4 + 裁判方 1）：",
+  "family": [
+   {
+    "#": 1,
+    "case": "我方 Q4④",
+    "proxy": "注释",
+    "entity": "实现"
+   },
+   {
+    "#": 2,
+    "case": "我方 X16",
+    "proxy": "记忆中的位置",
+    "entity": "断言的真实所在"
+   },
+   {
+    "#": 3,
+    "case": "我方 X18",
+    "proxy": "截断的输出 / 上下文推断",
+    "entity": "逐字原文"
+   },
+   {
+    "#": 4,
+    "case": "裁判 F57",
+    "proxy": "type + 时刻",
+    "entity": "语义字段 target"
+   },
+   {
+    "#": 5,
+    "case": "★ 我方 X19（本条）",
+    "proxy": "我写的正则模式",
+    "entity": "代码的真实结构"
+   }
+  ],
+  "★_and_it_is_the_third_direction": "★ X19 同时是**三向对称第三向**的实例：第三向 = 「**这是我的探针**」产生的偏置（假阳性/虚报证据）。裁判列出的第三向命中是它的 F14/F48/F50/F53/F56 —— **全部是它方的**；**X19 是这一向在我方的首个实例**：我把「我的正则说它匹配了」当成了「它正确地匹配了」，没有问「这是**代码**的结构如此，还是**我的正则**越界了」。"
+ },
+ "★_repaired_state": {
+  "n7-separate-cause": {
+   "syntax": "ok",
+   "sha256_16": "c4ce40efee91842e",
+   "bytes": 3378
+  },
+  "n7-ignition-source": {
+   "syntax": "ok",
+   "sha256_16": "3975513b42b063e5",
+   "bytes": 4285
+  },
+  "c7-postmortem-activity": {
+   "syntax": "ok",
+   "sha256_16": "1700f9f62d347df5",
+   "bytes": 4496
+  },
+  "c7-field-locate": {
+   "syntax": "ok",
+   "sha256_16": "a3bede1ffe7bca37",
+   "bytes": 5211
+  },
+  "c7-literal-locate": {
+   "syntax": "ok",
+   "sha256_16": "3bd87724a860820c",
+   "bytes": 3566
+  }
+ },
+ "★_discipline_derived": [
+  "① **批量文本替换是高危动作** —— 它用**对结构的描述**（正则）代替**结构本身**；⇒ 要么逐文件手改，要么替换后**对每个文件跑一次**（不是只看替换计数）。",
+  "② **「改完立刻跑」不是可选步骤** —— 本次若省掉它，会留下 5 个坏脚本，且下次用到时才发现。",
+  "③ **修复动作本身也需要被验证** —— 我的第一次修复造成了新的损坏（形态从「括号错」变成「丢括号」）。",
+  "④ 全库通用的替代做法：**插入 helper 用手写，不用正则批量**（本次重写的 n7-separate-cause.py 即此做法）。"
+ ],
+ "not_verified": [
+  "除下列外均已实跑：五脚本在**同一文件**上跑通；但各自**输出的数值**未逐项与既有卡片交叉核对",
+  "c7-field-locate 过滤掉的 5 条 turn=null 事件，其语义（为何 null）未查"
+ ],
+ "r046_note": "本卡为被审方的失误自陈与修复记录，不构成任何验收或裁决通过。",
+ "★_addendum_after_real_run": {
+  "added_at": "2026-10-09T22:50:43+08:00",
+  "why": "★ 本卡初版写「其余 4 个仅通过语法检查，未逐个实跑」—— 现**全部实跑完毕**，而实跑暴露了**语法检查完全看不到的 3 个运行期错误**。",
+  "★_key_finding": "**语法通过 ≠ 能跑。** 若我停在 `py_compile` 全绿就收工，会以为 5/5 修好，实际只有 2 个能跑（n7-separate-cause 与 c7-postmortem-activity）。",
+  "runtime_errors_found_by_running": [
+   {
+    "script": "n7-ignition-source",
+    "error": "NameError: name 'cut' is not defined",
+    "root_cause": "★ 我的 helper 插入逻辑假定「最后一个 import 行 = 文件头部」，而该文件的 `from collections import Counter` 在**模块中部** ⇒ helper 被插到 line 101，在调用点（line 69）**之后**。",
+    "note": "⇒ 这仍是**以代理代替实体**：代理=我的插入位置假设，实体=文件的真实 import 布局。"
+   },
+   {
+    "script": "c7-field-locate",
+    "error": "TypeError: cut(list.append(...)) 参数不符 ×2 处",
+    "root_cause": "正则把 `X.append(a[:N])` 改成了 `cut(X.append(a, N))`（**调用错位**）"
+   },
+   {
+    "script": "c7-literal-locate",
+    "error": "TypeError: 同型 ×1 处",
+    "root_cause": "同上"
+   }
+  ],
+  "★_pre_existing_defect_found_while_running": {
+   "script": "c7-field-locate",
+   "error": "TypeError: '<' not supported between NoneType and int",
+   "line": "min(cend_turns) —— 某些 compaction/end 的 turn 为 null",
+   "★_attribution": "★ **该缺陷不是 X19 引入的** —— 它在本轮之前的扫描中就出现过（我在第二轮扫描日志里见过，当时记「让me修正脚本重跑」但**未修完**）。现已修：过滤 None **并如实报告被排除的条数**。",
+   "★_why_this_distinction_matters": "把**自己新造成的问题**与**原有缺陷**混为一谈，会污染两侧的账：既夸大 X19 的破坏面，又让原缺陷逃避登记。"
+  },
+  "final_state": {
+   "n7-separate-cause": {
+    "sha256_16": "c4ce40efee91842e",
+    "bytes": 3378
+   },
+   "n7-ignition-source": {
+    "sha256_16": "3320ea8aae1dab1c",
+    "bytes": 4287
+   },
+   "c7-postmortem-activity": {
+    "sha256_16": "1700f9f62d347df5",
+    "bytes": 4496
+   },
+   "c7-field-locate": {
+    "sha256_16": "89decebf874e631e",
+    "bytes": 5602
+   },
+   "c7-literal-locate": {
+    "sha256_16": "7b3b2c226882d977",
+    "bytes": 3566
+   }
+  },
+  "real_run_results": {
+   "n7-separate-cause": "✓ exit=0（seq 区间实测，截断标注已生效）",
+   "n7-ignition-source": "✓ exit=0 输出 104 行",
+   "c7-postmortem-activity": "✓ exit=0 输出 69 行",
+   "c7-field-locate": "✓ exit=0 输出 108 行",
+   "c7-literal-locate": "✓ exit=0 输出 62 行"
+  },
+  "★_new_data_from_the_repaired_script": {
+   "compaction/end turn 区间": "**140 – 11181**（另有 **5 条 turn=null** 已排除）",
+   "11130–11173 区间内条数": "**105**",
+   "top turns": "11163(9) · 11166(9) · 11164(8) · 11158(7) · 11168(7)",
+   "★_implication": "这**印证并扩展**了 C7 的「失败覆盖 turn 11130–11173」：该区间现为 105 条；且 **turn 最大已到 11181**（我早先记 11178）⇒ **文件仍在增长，统计有时效**（第三次印证）。"
+  }
+ }
+}

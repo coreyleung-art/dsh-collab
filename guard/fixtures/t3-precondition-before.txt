@@ -1,0 +1,5 @@
+# 改前原文（逐字，取自 docs/k6-postrestart-commission-20261010.md 的改前状态）
+# 用途：让判决位/裁判**可复跑**「改前活判据恰 1 处」这一句；本夹具**不改被核对象**，只读。
+⇒ **在役跑的是旧模块实例**（`version 0.11.1` / `stage K5-r006-7of10` / 无 `wiring` 字段），盘面才是 `0.12.0`
+| `--tool-version` | ✅ `0.12.0` | 与 `package.json` 一致 |
+- 调 `csx_status` ⇒ 必须返回 `version 0.12.0` · `stage K6-wiring-3of3` · **含 `wiring` 字段**

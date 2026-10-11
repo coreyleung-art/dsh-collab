@@ -1,0 +1,141 @@
+{
+ "schema": "audit-tool-handover/v1",
+ "created_at": "2026-10-09T23:13:24+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "authority": "用户 2026-10-09 指令：「是不是可以你把跟他重合的审查用的工具交接给整合来他用？」⇒ 用户授权该交接",
+ "★_the_line": "★ **判据 = 工具服务于「审」还是服务于「产」**：",
+ "line_table": [
+  {
+   "bucket": "审查类（服务于「审」）",
+   "action": "**交接**给审查方整合",
+   "why": "S3 不可自审的推论：被审方自持审查工具 ⇒ 尺子的校准权不在第三方手里"
+  },
+  {
+   "bucket": "产物类（服务于「产」）",
+   "action": "**保留**",
+   "why": "它们是被审方的**交付物构建器**，不是尺子；交出去反而使我方无法产出被审对象"
+  }
+ ],
+ "★_handover_list": [
+  {
+   "name": "lint-silent-truncation.py",
+   "bytes": 7970,
+   "sha256_16": "413261e0fee57826",
+   "serve": "审",
+   "verdict": "完全交（full）",
+   "peer": "scripts/silent-truncation-lint.py（它，v1.0.2）",
+   "status": "已标 DEPRECATED，头指向其工具",
+   "my_unique_contribution": [
+    "判据①「该 [:N] 不在**同一行 `cut(` 包裹内**」⇒ 判静默的精确形式（它已认可比它的 ±2 行启发式精确）",
+    "判据②「**分列必须验证归属无交集**」⇒ 我方实测抓到其 F69（宽模式吞窄模式）",
+    "三口径显式声明：code / comments / literal"
+   ],
+   "merge_suggestion": "把它 v1.0.2 的 ±2 行启发式替换为判据①；F69 的 A/B 两序告警保留（已修）"
+  },
+  {
+   "name": "selftest-starbridge-gates.py",
+   "bytes": 5209,
+   "sha256_16": "a8ec2c435abfc6a2",
+   "serve": "审",
+   "verdict": "只交方法（method_only）",
+   "peer": "它的 T6「判据能红门」（计划中，尚未落地）",
+   "status": "本轮交接后标 DEPRECATED",
+   "my_unique_contribution": [
+    "正例 1 项 + **负例 3 项**的结构（负例=注入不合规数据 ⇒ 判据必须红）",
+    "三条判据的注入钩子形式：STARBRIDGE_INJECT_BAD=unresolvable|superseded|closure ⇒ 期望 rc=4|1|5",
+    "★ 一个可迁移的教训：**「响应性用例」与「正例」必须分开命名** —— 期望码被放宽的正例不是正例"
+   ],
+   "merge_suggestion": "作为 T6 的**用例范本**：负例必红的结构 + 正例/响应性用例的命名纪律。★ 我方**保留运行**（自证需要）"
+  },
+  {
+   "name": "freeze-snapshot.py",
+   "bytes": 7107,
+   "sha256_16": "dc21a3d9662d38d0",
+   "serve": "审",
+   "verdict": "只交实现（method_only）",
+   "peer": "它 a-2 中给的「冻结快照五判据」（未工具化）",
+   "status": "本轮交接后标 DEPRECATED",
+   "my_unique_contribution": [
+    "把它的五判据**实现为断言**（①不同目录②0444③hash/字节/mtime 三齐④分列 snapshot 与 live_path_current⑤引用者 mtime ≥ 快照 mtime）",
+    "★ 判据⑤ 的**机械检验**实现（`stat -f '%m %N'` 排序，末行须为引用者）",
+    "★ 一处真实教训：**快照器必须可重入** —— 我第一版被自己的 0444 挡住，且我只修了「副本」这一个站点，manifest.json 又炸了同一错（半修形态③）"
+   ],
+   "merge_suggestion": "五判据的断言实现与「可重入性」均可移植；★ 我方**保留运行**（冻结自己的交付物需要）"
+  }
+ ],
+ "★_retained_list": [
+  {
+   "name": "build-starbridge-index.py",
+   "reason": "M1 索引构建器 —— 被审方交付物；无对应审查工具"
+  },
+  {
+   "name": "build-starbridge-version-registry.py",
+   "reason": "1.0/2.0 版本区别登记构建器 —— 同上"
+  },
+  {
+   "name": "build-state-registry.py",
+   "reason": "状态机登记构建器 —— 同上"
+  }
+ ],
+ "★_how_handover_is_done": {
+  "principle": "★ **不直接改它的文件**（它的文件它改）—— 我只**整理成可合并的形式**并声明",
+  "delivered": [
+   "① 每个工具的：用途 / 我方独有的判据 / 与它对应物的关系 / 合并建议（见 handover_list）",
+   "② 我方文件标 DEPRECATED 并**指向它的对应物**（不删除，留证据链）",
+   "③ 移交后**截断类读数一律以它的工具为准**"
+  ],
+  "not_done": [
+   "★ **未修改它的 scripts/silent-truncation-lint.py** —— 按归属与「审计对象不可变」，其文件的合并由它执行",
+   "★ 未删除我方任何工具（保留证据链；X19/U9/F61/F69 的取证过程依赖这些文件）"
+  ]
+ },
+ "★_why_not_simply_delete": "★ 删掉会让 F69 的**可复现性**消失 —— 它抓到的那个缺陷（宽模式吞窄模式）正是在「两个实现同一判据」的情形下才暴露的。⇒ 保留我方脚本 = 保留**第二个读数源**作为该缺陷的**反例素材**；但其**不再作为任何结论的依据**。",
+ "not_verified": [
+  "它的 T6 是否已落地（我只见其提及，未见其文件）⇒ 若未落地，selftest 的交接是「预置」而非「合并」",
+  "它是否接受该合并建议 —— 本卡是**提案**，不是已完成的事实"
+ ],
+ "r046_note": "本卡为工具归属交接的登记与提案，不构成任何验收或裁决通过；是否合并由审查方决定。",
+ "★_handover_mode_correction": {
+  "added_at": "2026-10-09T23:13:36+08:00",
+  "why": "★ 初版把三个工具一律判「交」，**过粗**。辨析：",
+  "analysis": [
+   {
+    "tool": "lint-silent-truncation.py",
+    "measures": "**任何人的**脚本的截断形态",
+    "mode": "**full（完全交）**",
+    "reason": "它的测量对象**不限于我方** ⇒ 是纯审查工具 ⇒ 尺子应归审查方",
+    "status": "已标 DEPRECATED ✓"
+   },
+   {
+    "tool": "selftest-starbridge-gates.py",
+    "measures": "**我方 3 个构建脚本**的门",
+    "mode": "**method_only（只交方法）**",
+    "reason": "★ 它的**形式**（判据能红门）是可迁的审查方法 = 它的 T6；但它的**用例**绑定我方脚本（STARBRIDGE_INJECT_BAD 注入的是我方三条判据）⇒ **方法交出去，用例留下**，否则我方脚本将失去自证手段",
+    "status": "保留运行；头部注明「方法属审查方 T6，用例属我方自证」"
+   },
+   {
+    "tool": "freeze-snapshot.py",
+    "measures": "**我方产物**的快照完整性",
+    "mode": "**method_only（只交实现）**",
+    "reason": "判据由它给（a-2），实现可移植到它的工具面；但它冻结的**对象是我方产物** ⇒ 我方仍需它来冻结自己的交付物",
+    "status": "保留运行；头部注明「判据来源=裁判 a-2，实现可移植」"
+   }
+  ],
+  "★_the_sharper_line": "★ 更准的界线是 —— **测量对象是「任何人的」还是「我方的」**：· 测任何人 ⇒ 尺子 ⇒ **完全交**；· 测我方（即使形式是审查方法）⇒ **方法交、实例留**。",
+  "why_this_matters": "初版若照「凡审查类全交」执行，我方会**失去对自己交付物的自证手段** —— 而 R046 要求「自证 + 第三方审查」**两者都在场**。⇒ **交掉自证 = 少了一环**。"
+ },
+ "★_handover_list_summary": {
+  "full": [
+   "lint-silent-truncation.py"
+  ],
+  "method_only": [
+   "selftest-starbridge-gates.py",
+   "freeze-snapshot.py"
+  ],
+  "retained_products": [
+   "build-starbridge-index.py",
+   "build-starbridge-version-registry.py",
+   "build-state-registry.py"
+  ]
+ }
+}

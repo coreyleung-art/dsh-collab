@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-context-survival",
-  "version": "0.2.0",
-  "description": "上下文存活守卫（K2 只测量）：与官方 compaction-basic 并存、不替换 ctx.compaction，在会话到达压缩器开销下界之前用非摘要检查点压低活跃窗口",
+  "version": "0.12.12",
+  "description": "上下文存活守卫：K6 三件接线（① 写入 / ② 落盘 / ③ 召回）已接线，开关仍关（enableGuard=false），与官方 compaction-basic 并存、不替换 ctx.compaction",
   "type": "module",
   "main": "lib/index.js",
   "scripts": {

@@ -74,6 +74,430 @@
    "hits": 12,
    "note": "复用 r006-retrofit-scripts.js 的「补课器」模式 + 本轮 r006-debt-remediate 的三态判据；不新建运动式机制；★ 关键：上一轮我用脚本改 3 个文件改坏 3 个（docstring 位置错/引用不存在常量）⇒ 故本件【先做安全的批量改器】：dry-run 默认 + 逐个 py_compile + 失败即回滚 + 不夹带改动",
    "at": "2026-10-09T18:16:55"
+  },
+  {
+   "intent": "检测脚本里静默的字符串截断（[:N] 无计数无标注）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-09T22:56:28"
+  },
+  {
+   "intent": "验证任意判据是否能被不合规输入触发退出码（负控能红）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-09T22:56:28"
+  },
+  {
+   "intent": "判断一条待发输出是否应当直接回应上下文（回应正当性门）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T00:28:12"
+  },
+  {
+   "intent": "规则解析器隐含假设检查",
+   "artifact": "rule-parser-assumption-check",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T00:54:49"
+  },
+  {
+   "intent": "dangling-identifier-reference",
+   "artifact": "dangling-ref-gate",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T00:59:06"
+  },
+  {
+   "intent": "test-script-selfcheck-presence",
+   "artifact": "test-script-gate",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:02:44"
+  },
+  {
+   "intent": "conclusion-evidence-coupling",
+   "artifact": "conclusion-coupling-gate",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:04:58"
+  },
+  {
+   "intent": "blackboard card writer",
+   "artifact": "bb-card-writer",
+   "verdict": "reuse",
+   "hits": 12,
+   "note": "",
+   "at": "2026-10-10T01:08:42"
+  },
+  {
+   "intent": "新建脚本沙箱验证工具：临时目录+假输入、生产路径保护断言、幂等复跑、静默成功检测",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:26:24"
+  },
+  {
+   "intent": "脚本验证",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:26:28"
+  },
+  {
+   "intent": "信息包校验",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:26:28"
+  },
+  {
+   "intent": "静默截断",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:26:28"
+  },
+  {
+   "intent": "沙箱",
+   "artifact": "tools/sandbox-script.py",
+   "verdict": "no-overlap",
+   "hits": 7,
+   "note": "命中 dev-sandbox.py 与 cld-shell-sandbox-test.py。★ 部分重叠但不完全重复：dev-sandbox 的 script 类**只做语法检查**（锚点 §5.2 要求 5 项，它只有 1 项），且其设计定位是**通用 5 类**；本工具补的是**脚本专属的 4 项深度检**（生产保护/幂等/静默成功/临时目录）。★ 诚实声明：本应**先跑此门再建**，实际是**建后补跑**（流程违规，记录在案）；若当时按 J44 判 adapt，则应改造 dev-sandbox.py 而非新建 —— 该争议如实保留，不粉饰。",
+   "at": "2026-10-10T01:26:42"
+  },
+  {
+   "intent": "G-CR 门校验",
+   "artifact": "tools/gcr-gate.py",
+   "verdict": "no-overlap",
+   "hits": 5,
+   "note": "命中 5 条**全为假命中**：均为 hr-*-cross-* / laodeng-cross-* 记录，与「G-CR 门」无关（检索词 G-CR 被按 cross 匹配）。★ 真实的复用来源不是命中项，而是我**主动调用**的 plugin-preflight.py（G-CR1）与 guard_deps_scan.py（G-CR4）——即本工具已按 J44 精神实现「能调用的都不新建」。★ 诚实声明：本应**先跑此门**，实际建后补跑（流程违规）。",
+   "at": "2026-10-10T01:26:47"
+  },
+  {
+   "intent": "信息包校验",
+   "artifact": "tools/infopack-check.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "检索「信息包校验」0 命中。本工具校验锚点 §5.3 的 14 项齐备性 + 两条硬要求（源码路径+行号 / 数字带分子分母）+ 禁易失路径。★ 诚实声明：建后补跑此门。",
+   "at": "2026-10-10T01:26:47"
+  },
+  {
+   "intent": "官方规范校对门",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:29:24"
+  },
+  {
+   "intent": "条款引用门",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:29:24"
+  },
+  {
+   "intent": "官方条款核对",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:29:24"
+  },
+  {
+   "intent": "校对",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:29:24"
+  },
+  {
+   "intent": "guard_doc",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:29:25"
+  },
+  {
+   "intent": "官方",
+   "artifact": "tools/official-ref-gate.py",
+   "verdict": "no-overlap",
+   "hits": 11,
+   "note": "命中 2 条（guard_doc_check 封装 → R-ERR1 黑板写入封装 · im-ops IM技能）**全为假命中**；短词普查「官方」11 条亦全为 [S3] 日期类。另主动核了唯一相关候选 scripts/cahac-clause-ownership-check.py ⇒ 它是 **S0「偏离归属」判据**（查条款是否指定责任方），与「官方规范校对」**不同域**。★ 本工具设计为**封装/调用**既有 guard_doc_check（工具面）**而非重造** ⇒ 符合 J44「能调用/映射/打通的都不新建」。",
+   "at": "2026-10-10T01:29:49"
+  },
+  {
+   "intent": "审查流程登记",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:32:32"
+  },
+  {
+   "intent": "一件一裁",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:32:32"
+  },
+  {
+   "intent": "审查追踪器",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:32:32"
+  },
+  {
+   "intent": "追踪",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:32:32"
+  },
+  {
+   "intent": "verifier",
+   "artifact": "tools/review-gate.py",
+   "verdict": "no-overlap",
+   "hits": 3,
+   "note": "命中 3 条：meeting-verify.py（会议验证，不同域）· stage-review-verifier-request 与 verifier-scope-refusal-by-gate（**均为本线今晚的黑板卡，非工具**）。短词『审查』12 条亦全为卡/规则类。另实查 scripts/audit/ ⇒ **空目录**。★ 但主动发现 S3 的**真正规则依据是 R048**（非锚点 §10 的概述）及其检查清单 docs/submission-timevalue-checklist-v1.md（244 行）⇒ **本工具定位为「R048 + 清单」的机械执行件**（实现其可机械化部分），**不新造制度**。",
+   "at": "2026-10-10T01:33:05"
+  },
+  {
+   "intent": "身份声称门",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:49:30"
+  },
+  {
+   "intent": "设备归属门",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:49:30"
+  },
+  {
+   "intent": "hostname",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T01:49:30"
+  },
+  {
+   "intent": "absolute-word-property-assertion-lint",
+   "artifact": "property-lint",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T02:20:30"
+  },
+  {
+   "intent": "自指破坏门",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T03:12:14"
+  },
+  {
+   "intent": "自我移除检测",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T03:12:14"
+  },
+  {
+   "intent": "自指原语扫描",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T03:12:14"
+  },
+  {
+   "intent": "危险原语",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T03:12:14"
+  },
+  {
+   "intent": "自指",
+   "artifact": "tools/self-destruct-gate.py",
+   "verdict": "no-overlap",
+   "hits": 2,
+   "note": "命中 2 条：R040（规则）· deliver.py。另「kill」6 条为日期/规则/卡片，「self destruct gate」12 条亦然。★ 关键核验：本机已有多处「自指假阳性」处理（bb-absorb.py:174 · auto-reminder-state-check.py:52 等，形如 open(__file__) 后『剥离字符串与注释』）—— ★ 但那是**扫描自己时的元问题**（静态分析把自己检测正则当靶子）；本门针对的是**运行时自指破坏**（动作终止执行者），**不同域**。★ 复用其『剥离字符串与注释』技术（本门 A 项同需）。",
+   "at": "2026-10-10T03:12:27"
+  },
+  {
+   "intent": "DSH 会话发起工具调用时自动进入的分发/判断器：核实是否已有类似功能或能力",
+   "artifact": "call-dispatcher(adapt-from: j44-reuse-gate + bb-dispatch)",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "能力面已存在（j44-reuse-gate --intent 查重 + bb-dispatch 角色分发 + bb-dispatch-learn 自进化）；缺口=挂载点（调用链上必经）与能力面（现有 dispatch 判角色不判能力）",
+   "at": "2026-10-10T04:19:43"
+  },
+  {
+   "intent": "新建一个把已立纪律烧进新件骨架的生成器+合规审计器（gate-scaffold）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T08:25:53"
+  },
+  {
+   "intent": "骨架模板生成器 scaffold",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T08:25:57"
+  },
+  {
+   "intent": "工具骨架 模板 生成（gate-scaffold：新件骨架 + 既有件合规审计）",
+   "artifact": "gate-scaffold.py",
+   "verdict": "no-overlap",
+   "hits": 9,
+   "note": "最接近的既有物是插件骨架族（plugin_pattern_scaffold / brand_plugin_scaffold）：它们生成**插件交付包**（P1–P5 模式），不生成**分析门骨架**、也不审既有件；本件只做后者，并沿用其既有约定（拒覆盖、dry-run 优先）。★另报：本门对同一 intent 给出 12 条命中却**只显示 [S3] 日期、不显示命中是什么** ⇒ 裁决无法进行；而 local-registry.py search 对 scaffold/模板/生成器 **零命中** ⇒ 两通道不一致（非我改，交属主）",
+   "at": "2026-10-10T08:26:12"
+  },
+  {
+   "intent": "把概念/方法论查重补进 J44 的检索面",
+   "artifact": "j44-reuse-gate.py",
+   "verdict": "adapt",
+   "hits": 6,
+   "note": "已存在 j44-reuse-gate.py（S1 命中）与 reuse-before-build skill（S6 命中）；本次裁决=adapt：不新建，改造它（把检索面从『本机资产』扩展到『外部概念/标准』）；今天是该门存在而未被我调用的实证（一跑即命中 6 条）",
+   "at": "2026-10-10T19:34:07"
+  },
+  {
+   "intent": "证据合约 中立审查者 确定性引用校验",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T21:59:45"
+  },
+  {
+   "intent": "证据合约 中立审查者 确定性引用校验",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T22:00:10"
+  },
+  {
+   "intent": "静默截断 检测器",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-10T22:00:16"
+  },
+  {
+   "intent": "新建一个常驻的『角色设计』智能体会话角色：专职设计新的智能体会话角色（输出 role-*.md 规划 + preset），参考吴恩达 agentic workflow 设计逻辑与业界最先进做法",
+   "artifact": "role-designer preset（拟）",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "建前考古命中的既有资产：① 制度 role-creation-process.md（2026-08-17 用户确认固化，§四已指派资源管理者 HR 负责『需求接收/重合评估/浪费检查/流程把关/工具维护』）② 工具 scripts/preset-fit.py（4 维信号评分，实测 82 档案全量评估）③ 插件 ~/dsh-plugin-hr/（v0.2.0，webServer API /hr/api/*）④ preset resource-manager（HR 驾驶舱模式，order=6）⑤ role-appointments/ 目录（8 项）。★ 但【现任 HR 会话 e7bfeea8 已不在】：不在 agent_peers（现 17 活体）、不在 agent-bus profiles。⇒ 裁决=adapt：不新建独立角色，而是在既有 resource-manager 职责下【恢复缺位 + 按调研结论升级为『角色设计』专责】，复用既有制度/工具/plug-in，不重复造轮子。",
+   "at": "2026-10-11T00:43:22"
+  },
+  {
+   "intent": "把「跨会话协作的送达与触发」工具化：让 agent 开工时自动发现【有球在手】（水位/球权/陈旧），而不是靠人主动去看；并评估是否宜以 MCP 服务器承载跨会话协作",
+   "artifact": "cross-session handoff 接线（skill + 启动注入 + 既有 xdom-mail 水位/球权机制）",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "建前考古命中（本机 2301 项索引）：① 插件 dsh-plugin-agent-bus（19 工具：agent_send/broadcast/thread/wake/light/lock/approval_*/restart_*/profile*）② 插件 dsh-plugin-bb-card-send（跨设备卡，双板写+回读）③ 插件 dsh-plugin-central-inbox（卡→自动唤起会话，★ 未登记通道）④ tools/xdom-mail.py（32,849 B，已实现【水位 cursor + 球权 ball + 陈旧检测 --stale-hours】，且 ball 为派生量不落盘）⑤ skills/verify-registry（24 判定器 + 48 反向用例，R030 落地）⑥ 插件 dsh-plugin-mcp-station v0.1.0（持久化 MCP 挂载 + 多模态桥）⑦ devices/awesun-mcp.py（向日葵 MCP 22 工具，跨设备控制）⑧ v6 的 C4「自启动注入（agent preset prompt section）」仍 open。⇒ 裁决=adapt/复用：核心机制【已存在】，缺口在【送达与触发】（xdom status 实测报「给 ext 的信 18.9h 未读」而无任何进程响应）⇒ 不新建消息总线、不新建 MCP 服务器，而是把既有水位/球权/陈旧检测【接进启动注入】并提取为 skill。",
+   "at": "2026-10-11T02:55:53"
+  },
+  {
+   "intent": "新建一个工具：从活体实测生成通讯通道登记的分母（对比矩阵声明 vs 运行时实际检查项），暴露被过滤或被追加的检查项",
+   "artifact": "channel-denominator.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "逐一核过四类候选且均不重复：① channel-audit.py 属【对外通道域】（企微/飞书/钉钉，源 ~/.dsh/channels.json），与 CLD 内部通道矩阵（board-local/board-central/sse-8803/…）不同域 —— 名字撞车但域不同；② comm-invariant-audit.py 管 I1–I7 通信底座不变量，不做分母比对；③ channel-gate-weekly.py 读 channel-changes.jsonl 做变更留痕周审；④ drift-scan/lib/core.js:183 已报活体 total，但【无】任何工具把它与 lib/channel-matrix.json 的声明集做比对 ⇒『声明↔活体』差异检测能力全库不存在（grep -rln 'channel-matrix' 仅命中文档与插件本体，scripts/tools 零命中）。本工具为只读审计，不改插件、不改矩阵，仅新增比对与负控。",
+   "at": "2026-10-11T04:09:08"
+  },
+  {
+   "intent": "新建一个投递可见性告警器：对 agent-bus 的 expired/queued 加阈值判据与退出码，把既有的静默统计量变成会红的告警（含环比增量跟踪）",
+   "artifact": "bus-delivery-alert.py",
+   "verdict": "no-overlap",
+   "hits": 8,
+   "note": "逐一核过四类候选：① ~/dsh-plugin-bus-queue-triage 是成熟工具（R006 齐备），但它的主指标是 expireable（可处置量），total.expired 只是同级上下文数字，无阈值、无退出码语义 —— 本工具【以它为唯一数据源】组合调用，不重实现 bus 解析；② scripts/post-restart-acceptance.py:104-106 有 expired>=1500 判据，但那是【地板判据】（证明 TTL 在回收=机制活着），语义与本工具的【增长告警】相反，且它是一次性重启验收脚本、非周期告警；③ dsh-plugin-guard/lib/*.js 对 expired/agent-bus/queued 零命中 ⇒ cld_health_check 不覆盖此面；④ scripts/ 下无任何 alert/threshold/alarm 命名的工具。⇒ 结论：『周期 + 阈值 + 退出码 + 环比增量』这一层全库不存在。本工具只读 bus（经既有 triage 工具取数）+ 只写自己的状态文件与统一日志。",
+   "at": "2026-10-11T04:13:38"
+  },
+  {
+   "intent": "新建 CAHAC §3 信封符合度测量尺（逐字段出现率 + envelope_ok 分子分母），把此前只存在于文档的「信封符合度 0%」固化成可复跑命令",
+   "artifact": "cahac-envelope-conformance.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "逐一核过全部候选：① 其余 8 支 cahac* 工具（clause-ownership-check / compliance-check / compliance-report / replay-v0.1 / v0.2 / replay / replay-daily / replay-week）对 'envelope' 命中【全为 0】—— compliance-report 管合规率缺席报警、compliance-check 管 Agent Card 字段、replay 族管重放，均不测信封；② grep -rln 'envelope_ok' scripts/ tools/ ⇒ 除本工具外【零命中】；③ J44 门命中的 docs/*.md（distributed-agent-network-governance-plan-v6 / v6.1 / v6-draft-w4 / v6-third-party-review-result）全部是【需求来源】而非既有实现——它们正是【要求】做 W8.1 的那几件，其中 v6.1 §10 W8.1 逐字写明工具名与本判据，并注明「本轮实测 scripts/ 内无任何信封实现，故 0% 此前不可复跑」。⇒ 结论：信封符合度测量能力全库不存在，本工具是把锚点 §12-A 的临时尺固化为命令（口径逐字取自该临时尺，非另立）。本工具只读：不写黑板、不改 inbox/bus、不改任何写入方（锚点 W8.1 自述『建尺不改任何写入方 ⇒ 零风险』）。",
+   "at": "2026-10-11T04:35:33"
+  },
+  {
+   "intent": "新建一个给 agent 用的「我现在该连哪里」工具：从活体进程与 profile 钉值解析出 CLD 的 web 端点，并 HTTP 探活后出三态（可达/不可达/不可判），供 agent 与脚本不再硬编码端口",
+   "artifact": "runtime-endpoint.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "逐一核过候选：① bb-connect-execute.py 是「智能体之间连接的执行器」（Φ8 五步门：确认边→投递通知→登记→留痕），不涉端口；② bb-connect-lab.py 是「智能体网络连接性打分」（孤岛探测×候选穷举×5特征），也不涉端口；③ bb-handshake.py 是黑板【消息】握手（ACK/水位/补漏），非端口握手；④ 全库 grep 'cordis.patch|webserver' 命中 4 支（gate-plugin-inject / plugin-preflight / r006-assess-rest / restart-intent），其中 restart-intent 的 R2 只核【加载路径】（profile link: 目标），不解析也不探活 web 端口 ⇒ 『解析 CLD web 端点』全库不存在。本工具只读：不写任何配置、不改 profile、只读 lsof 输出与 profile 文本 + 一次本机 HTTP 探活。",
+   "at": "2026-10-11T23:11:40"
+  },
+  {
+   "intent": "新建一个「不读矩阵」的独立活体通道枚举器",
+   "artifact": "scripts/channel-denominator.py",
+   "verdict": "adapt",
+   "hits": 0,
+   "note": "不新建。扩既有 scripts/channel-denominator.py（我owner）1.1.0→2.0：其『活体面』现为 drift-scan 输出=矩阵自投影（D-059 已证），故新增【真独立活体面】；launchd 采集复用既有 dsh-plugin-launchd-scan（J44 二次复用），进程/端口面新写。产物仍是同一文件，无平行轮子。",
+   "at": "2026-10-12T00:04:51"
+  },
+  {
+   "intent": "新建一个变异门：要求新控附变异钩子、门自动跑变异、跑不红即拒收（证明判据会红）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T00:16:52"
+  },
+  {
+   "intent": "新建一个变异门：要求新控附变异钩子、门自动跑变异、跑不红即拒收",
+   "artifact": "scripts/mutation-gate.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "本机 0 命中。★ 概念不新（mutation testing 是业界既有技术，本机只是无实现）⇒ 这不是发明，是把既有方法落成本机可跑的门。★ 如实记：本线【先把文件写出来了才补跑本门】，程序顺序违规（J44 是建前门）。★ 与既有门的分工：R006 ⑩B 查「负例是否被拒」（形式），本门查「判据是否因变异而翻转」（有效）。",
+   "at": "2026-10-12T00:16:59"
+  },
+  {
+   "intent": "新建一个不可逆操作前的门：删除前判有无第二副本",
+   "artifact": "scripts/irreversible-gate.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "本机 0 命中同类。★ 与既有门分工：irreversible-gate 查【别处有没有副本】（存在性）；mutation-gate 查【判据会不会红】（有效性）；guard_check_writable 查【能不能写】（许可）。★ 如实记：本线在用户说『直接第二层』后先写了文件再补跑本门。",
+   "at": "2026-10-12T00:39:16"
   }
  ]
 }

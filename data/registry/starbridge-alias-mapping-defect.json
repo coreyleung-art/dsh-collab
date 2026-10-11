@@ -1,0 +1,77 @@
+{
+ "schema": "starbridge-alias-mapping-defect/v1",
+ "created_at": "2026-10-09T21:53:11+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "identity-variant-map.py 把 bus:server:coordinator 错配到 mac-mini 星桥(fa1f9150)名下；而真正的 mac-mini 协调者标识 bus:coordinator 反而未映射",
+ "severity": "中 —— 不影响运行时投递；影响其映射输出（审计读数）",
+ "origin": "P1-c「修别名不一致」调查中，比 v3.1 §2.2 的诊断更深一层",
+ "v31_original_diagnosis": "v3.1 §2.2 四处硬伤#2 只诊断到「别名不一致：bus:coordinator 与 bus:server:coordinator 并存」",
+ "defect": {
+  "file": "~/dsh-collab/cld-health/identity-variant-map.py",
+  "line": "AGENTS 表，session-fa1f9150 的别名列表最后一项",
+  "wrong_entry": "bus:server:coordinator",
+  "missing_entry": "bus:coordinator",
+  "nature": "错配（不是遗漏）——把服务器侧协调者归到 mac-mini 星桥名下；同时真正属于 mac-mini 的标识未映射"
+ },
+ "evidence_chain": [
+  {
+   "#": 1,
+   "fact": "TRUSTED_DEVS 把二者并列：(\"mac-mini\",\"mbp\",\"i9\",\"mac-mini:星桥\",\"server\",\"server:coordinator\")",
+   "pointer": "comm-server/device-daemon.py:171",
+   "supports": "server:coordinator 不等于 mac-mini:星桥"
+  },
+  {
+   "#": 2,
+   "fact": "双向消息证明是两个主体：bus:server:coordinator→fa1f9150「看黑板 notes/collab/bus-convention-sign-…」；fa1f9150→bus:server:coordinator「mac-mini 节点已签署 ✅ … 等 mbp/i9…」",
+   "pointer": "~/.dsh/agent-bus.json threads[].messages[]",
+   "supports": "二者互为对端，非同一主体"
+  },
+  {
+   "#": 3,
+   "fact": "命名空间线索：bus:coordinator 发的卡在 notes/mac-mini/；bus:server:coordinator 发的卡在 notes/collab/",
+   "pointer": "同上（bus-probe-mingjian-1788899359 / bus-convention-sign-*）",
+   "supports": "前者 mac-mini 侧，后者服务器侧（collab=跨设备协作域）"
+  },
+  {
+   "#": 4,
+   "fact": "comm_domains.py COORDINATORS = {\"coordinator\", \"session-fa1f9150-…\"} —— coordinator 与 fa1f9150 并列",
+   "pointer": "comm-server/comm_domains.py:65",
+   "supports": "「coordinator」是被承认的独立标识"
+  },
+  {
+   "#": 5,
+   "fact": "出现次数：bus:server:coordinator 20 次 / bus:coordinator 3 次",
+   "pointer": "~/.dsh/agent-bus.json 全文计数（与 v3.1 §2.3 的 20 / 3 吻合）",
+   "supports": "规模小，但归属错会把两主体读数混算"
+  }
+ ],
+ "impact": [
+  "① 审计读数归属错：该工具若被用于「规范身份」判定，会把服务器侧协调者的往来算进 mac-mini 星桥",
+  "② 下游数字口径：v3.1 §2.2 的「星桥参与消息 22,592 / 3,241 线程」若经此映射聚合，含归属不确定项",
+  "③ 交接盲区：服务器侧协调者是一个**未登记会话** —— 它不在 role-map、不在 profiles 前 15，却是跨设备协作的实际对端之一 ⇒ 它是「271 往来方」中的一员，交接清单里没有它"
+ ],
+ "disposition": {
+  "action_taken": "仅登记，未改文件",
+  "why_not_fix": [
+   "该文件属主是守灯（文件头「守灯 2026-09-11 · 依 HR 指示」），非本会话",
+   "它是 A7 活引用清单成员 —— 改属 P2 范畴，须先过 P1 停点",
+   "其文件头自陈「只读、不重聚合、不改卡、零风险」⇒ 它是审计产物，按「审计对象不可变」应由外部声明其失效，而非我径改"
+  ],
+  "handoff_to": "守灯 session-9910d4b2-80ff-4437-afed-c848dbda22d1（属主）",
+  "requested_verdict": [
+   "① 确认 bus:server:coordinator 的真实主体（服务器 106.53.214.108 上的哪个会话？）",
+   "② 确认 bus:coordinator 是否即 mac-mini 星桥（fa1f9150）",
+   "③ 若① 成立：该别名应从 fa1f9150 名下移出，并为服务器侧协调者单独立条目"
+  ]
+ },
+ "not_verified": [
+  "没有任何一方**明说**「bus:coordinator 就是我」——上述为强证据推论，非直接自述",
+  "服务器侧协调者的会话 id 未知（不在 role-map、不在 profiles）",
+  "该映射是否已对任何已公布数字产生实际影响，未追溯"
+ ],
+ "self_application": {
+  "第 8 态": "本卡结论附 n / distinct / 覆盖范围 —— n=23 条消息（20+3）；distinct=2 个标识；扫描面=~/.dsh/agent-bus.json threads[].messages[] 全量",
+  "R030": "推论与直接证据分开标注；未验证项单列",
+  "三段式③": "不为自己出具裁定 —— 请求的是守灯的裁决，不是我自己的"
+ }
+}

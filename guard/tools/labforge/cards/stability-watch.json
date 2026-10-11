@@ -1,0 +1,48 @@
+{
+  "id": "stability-watch",
+  "title": "CLD 生产稳定性观察（持续断言）",
+  "goal": "持续断言 macmini CLD 生产健康：进程存活、内存有界（RSS 不超 2GB）、无新崩溃、P1 重启机制后稳定；观察型实验（只读采样）",
+  "hypothesis": "H1: P1 自动重启修复后无新崩溃（9-05 启动后 crashToday=0）；H2: RSS 有界（稳态 < 2GB，避免逼近历史 OOM 区）；H3: 进程持续存活",
+  "kind": "correctness",
+  "runner": "runner-observe",
+  "data": [],
+  "params": {},
+  "assertions": [
+    {
+      "id": "S1-process-alive",
+      "metric": "alive",
+      "op": "eq",
+      "target": true,
+      "desc": "CLD dsh 进程存活"
+    },
+    {
+      "id": "S2-no-crash-today",
+      "metric": "crashToday",
+      "op": "eq",
+      "target": 0,
+      "desc": "今日无崩溃 ips"
+    },
+    {
+      "id": "S3-rss-bounded",
+      "metric": "rssMB",
+      "op": "lt",
+      "target": 2048,
+      "desc": "RSS < 2GB（内存有界, 远离历史 OOM 区）"
+    }
+  ],
+  "status": "pass",
+  "created": "2026-09-05T06:20:00.000Z",
+  "lastResult": {
+    "time": "2026-09-05T06:21:56.111Z",
+    "pass": 3,
+    "fail": 0,
+    "na": 0,
+    "file": "/Users/coreyleung/dsh-collab/guard/tools/labforge/results/stability-watch.latest.json"
+  },
+  "tags": [
+    "stability",
+    "observe",
+    "production",
+    "readonly"
+  ]
+}

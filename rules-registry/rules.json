@@ -1,6 +1,6 @@
 {
-  "version": "2.23.5",
-  "lastUpdated": "2026-10-06",
+  "version": "2.23.6",
+  "lastUpdated": "2026-10-08",
   "maintainer": "mac-mini 中枢 (session-fa1f9150)",
   "audit": {
     "ruleCount": 87,
@@ -881,14 +881,27 @@
       ]
     },
     {
+      "id": "R048",
+      "name": "协调者设计/代码工作须经独立审查员审计",
+      "category": "治理",
+      "scope": "星桥(协调者)设计/代码工作域",
+      "status": "enforced",
+      "version": "1.0.1",
+      "source": "老板 2026-10-08 指令：所有设计代码的工作，要跟独立审查员合作完成，经过他的审计",
+      "summary": "星桥（协调者）的设计与代码工作（方案设计/脚本/仓库操作/工程变更等）必须与独立审查员（audit-reviewer 会话）合作完成：方案先行送审、执行中可请其复核、完成后经其审计；审计未过不得视为完成。独立审查员离线时工作排队，不以离线为由绕过。v1.0.1（2026-10-08 裁判提议制度化）：送审件「时值检查」——凡写入实测值（路径/数字/版本/端口/大小/时间/状态）必须三选一：A 自包含可复跑、B 标取值时点+复跑命令、C 指向活体判据入口；裸值禁用于不可逆决策。检查清单 docs/submission-timevalue-checklist-v1.md",
+      "artifacts": [
+        "rules-registry/lean4/acceptance-gate.lean"
+      ]
+    },
+    {
       "id": "R047",
       "name": "插件/工具命名准入门（N1–N8）",
       "category": "治理",
       "scope": "all-bus-devices",
       "status": "enforced",
-      "version": "1.0.4",
+      "version": "1.0.6",
       "source": "星桥 2026-10-05 裁定 · PSTD 管理员提请（notes/mac-mini/pstd-naming-review-20261005）",
-      "summary": "新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.3），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名（R006 §8 归属优先）；豁免须显式声明，禁止声明即豁免。v1.0.1（PSTD 第三方复核收敛）：负例数取运行时实测 15；执行点 P2 落盘前进程内提供、重启即消失；scope 注明各设备各自运行 PSTD 或由本机分发落盘包；登记（黑板卡）无命名门，如需覆盖另立件。v1.0.2：N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 verify-naming-standard.py（星桥机械实测 PASS，19 向量/8 负控）；PSTD 第三方复核通过。v1.0.3：P2 落盘 ~/dsh-plugin-pstd v1.0.3，经 dsh plugin add 挂载（deps+bundles+符号链接齐备，dump-config 合成验证 2026-10-06 01:4x）；重启存活待最近受控窗口验证后改常驻。v1.0.4：存量清单补登 4 例 N3（bb-card-send/channel-gate/drift-scan/launchd-scan 插件行 id 写全包名；裁判 2026-10-06 审计发现，星桥机械复核属实）",
+      "summary": "新插件/新工具名须先过命名门 plugin_name_gate（check/allocate，N1–N8 规范，权威=PSTD 管理员+插件标准 PSTD/1.0.4），不通过不进入 scaffold；存量违规不追溯惩罚，按属主登记清理任务（宽限 7 天）；未经属主确认禁止代改他人插件命名（R006 §8 归属优先）；豁免须显式声明，禁止声明即豁免。v1.0.1（PSTD 第三方复核收敛）：负例数取运行时实测 15；执行点 P2 落盘前进程内提供、重启即消失；scope 注明各设备各自运行 PSTD 或由本机分发落盘包；登记（黑板卡）无命名门，如需覆盖另立件。v1.0.2：N1–N8 正文已落盘 rules-registry/naming-standard-N1-N8-v1.md + 复核器 verify-naming-standard.py（星桥机械实测 PASS，19 向量/8 负控）；PSTD 第三方复核通过。v1.0.3：P2 落盘 ~/dsh-plugin-pstd v1.0.3，经 dsh plugin add 挂载（deps+bundles+符号链接齐备，dump-config 合成验证 2026-10-06 01:4x）；重启存活待最近受控窗口验证后改常驻。v1.0.4：存量清单补登 4 例 N3（bb-card-send/channel-gate/drift-scan/launchd-scan 插件行 id 写全包名；裁判 2026-10-06 审计发现，星桥机械复核属实）。v1.0.5（2026-10-08）：③ 重启存活验证通过——机器重启后 plugin_name_gate 可调用且 std=PSTD/1.0.3（磁盘包在供），执行点改常驻。v1.0.6（2026-10-08）：权威版本 1.0.3→1.0.4（包升 R8 文案+探针，判据未变）；③ 对 1.0.4 **不继承**，待下次重启由裁判复核（判据 std=PSTD/1.0.4）",
       "artifacts": [
         "docs/R006-插件化工具化标准-v3.0.md",
         "rules-registry/naming-standard-N1-N8-v1.md",

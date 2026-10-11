@@ -1,0 +1,395 @@
+{
+ "_meta": {
+  "name": "CLD/DSH 问题路由表（操作→后果概率→处置）",
+  "version": "1.0",
+  "updated": "2026-09-04",
+  "usage": "guard-risk <操作/症状关键词> 或 guard-risk <目标路径>；新问题无命中时按飞轮五步归大类沉淀",
+  "philosophy": "越修越坏 = 每次踩同一批坑。这张表把『做过什么→会坏成什么样(概率)』固化：修前先查后果，坏后按路由处置。"
+ },
+ "operations": [
+  {
+   "id": "OP-asar-shell",
+   "name": "改 CLD 壳 app.asar(main.js)",
+   "risk": "high",
+   "path_hint": "app.asar",
+   "consequences": [
+    {
+     "what": "语法/require 错误 → CLD 起不来",
+     "prob": "0.3",
+     "toolbox": "T5",
+     "guard": "P4 沙箱 node --check 必过"
+    },
+    {
+     "what": "打包丢内容(只 pack 了部分目录) → 壳行为异常",
+     "prob": "0.2",
+     "toolbox": "T5",
+     "guard": "pack 后解包抽查 + grep 关键标记"
+    },
+    {
+     "what": "Node25 API 移除(process.getHeapStatistics) → 字段 null 不报错",
+     "prob": "0.4",
+     "toolbox": "经验沉淀-20260904",
+     "guard": "P0 预查时 node -e 实测当前环境 API"
+    },
+    {
+     "what": "codesign 后系统拦截(少见) → 起不来",
+     "prob": "0.05",
+     "toolbox": "T5",
+     "guard": "adhoc 重签 + codesign -dv 验证"
+    }
+   ],
+   "preflight": "guard-doc-check electron app crash watchdog / child-process-gone",
+   "evidence": "S1/S5/S5fix 三次 asar 修改；S5 踩中 Node25 API；cld-monitor 扫出 8-29/30 历史崩溃",
+   "monitor_findings": [
+    "reloadDsh 无 return → startReloadServer 读 r.reloading=undefined → TypeError 崩壳（POST /reload 即触发，8-29/30 两次实证）→ 已修入 S5fix2",
+    "process.getHeapStatistics 在 Node25 不存在 → heap 字段 null（S5fix 已修）"
+   ]
+  },
+  {
+   "id": "OP-pnpm-add",
+   "name": "dsh plugin add / pnpm 装包",
+   "risk": "critical",
+   "path_hint": "package.json",
+   "consequences": [
+    {
+     "what": "pnpm 全量重写依赖树 → 65+ 个 @deepseek-ai 旧包(rc.6/7)遮蔽 runtime rc.2",
+     "prob": "1.0",
+     "toolbox": "T7",
+     "guard": "P1 备份 + P3 version-check + 改后 guard-check-deps"
+    },
+    {
+     "what": "连环症状: schema.required 崩 / .parse undefined / is-not-a-function / file-reference 挂起",
+     "prob": "0.8",
+     "toolbox": "T7",
+     "guard": "遮蔽归零前不重启"
+    },
+    {
+     "what": "误加无关插件(office/gate/knowledge-tools) 进 profile",
+     "prob": "0.5",
+     "toolbox": "T7",
+     "guard": "审视 pnpm 想装什么，手动改 package.json 优于 pnpm"
+    },
+    {
+     "what": "27+ 个核心包(workspace/host-apiproxy/client-connection/api-remotes)遮蔽 runtime → host 服务异常 → UI 空/connection lost(会话消失隐性元凶)",
+     "prob": "0.9",
+     "toolbox": "T7(更新)",
+     "guard": "改后 guard-check-deps 必须归零; cld-monitor 遮蔽>0 即告警"
+    }
+   ],
+   "preflight": "guard-doc-check pnpm workspace overrides shadowing",
+   "evidence": "2026-09-04 pnpm 事故：65 遮蔽包 → 27 遮蔽清理后 UI 恢复(21:10 实证)"
+  },
+  {
+   "id": "OP-move-package",
+   "name": "移走/删除 profile @deepseek-ai 包(治遮蔽)",
+   "risk": "medium",
+   "path_hint": "profiles/web/node_modules/@deepseek-ai",
+   "consequences": [
+    {
+     "what": "真目录移走时误删依赖 → 插件 ERR_MODULE_NOT_FOUND",
+     "prob": "0.3",
+     "toolbox": "T4",
+     "guard": "mv 非 rm + .bak- 后缀保留 + require.resolve 验证回落 runtime"
+    },
+    {
+     "what": "残留真目录(无后缀)仍遮蔽 → 修了等于没修",
+     "prob": "0.3",
+     "toolbox": "T7",
+     "guard": "移后 guard-check-deps 归零"
+    },
+    {
+     "what": "移错包(如移掉 runtime 才有的) → 解析断链",
+     "prob": "0.2",
+     "toolbox": "T7",
+     "guard": "先确认 runtime 有同包再移 profile 的"
+    }
+   ],
+   "preflight": "guard-doc-check dsh-session resolution shadowing",
+   "evidence": "dsh-session 系 mv 出 profile 后会话恢复"
+  },
+  {
+   "id": "OP-disable-plugin",
+   "name": "cordis.patch.yml 禁用插件",
+   "risk": "high",
+   "path_hint": "cordis.patch.yml",
+   "consequences": [
+    {
+     "what": "禁官方插件 → boot 不完整/依赖挂起(waiting for remote.fileReferences)",
+     "prob": "0.6",
+     "toolbox": "T5",
+     "guard": "禁前查其依赖服务，根治优于 disable"
+    },
+    {
+     "what": "禁 ui-brand-official → 显示 'DSH Local Build' fallback",
+     "prob": "0.9",
+     "toolbox": "T4/WF3",
+     "guard": "用 shadowing 非 disable"
+    },
+    {
+     "what": "补丁 YAML 错 → 整个 bundle 加载失败",
+     "prob": "0.2",
+     "toolbox": "T5",
+     "guard": "P4 YAML 可解析验证"
+    }
+   ],
+   "preflight": "guard-doc-check cordis patch disable plugin dependency",
+   "evidence": "ui-reference disable 留下 boot 不完整遗留(待评估)"
+  },
+  {
+   "id": "OP-add-plugin-host",
+   "name": "加 host 工具插件(defineTool)",
+   "risk": "medium",
+   "path_hint": "dsh-plugin-",
+   "consequences": [
+    {
+     "what": "缺 output: makeOutput() → 'reading render' 崩加载",
+     "prob": "0.7",
+     "toolbox": "T4",
+     "guard": "每个 defineTool 带 output"
+    },
+    {
+     "what": "schema 缺 additionalProperties/required 内联 → JsonSchemaError",
+     "prob": "0.5",
+     "toolbox": "T4",
+     "guard": "mock ctx 冒烟注册(本工具链已验证)"
+    },
+    {
+     "what": "缺 dsh-tools symlink → ERR_MODULE_NOT_FOUND",
+     "prob": "0.6",
+     "toolbox": "T4",
+     "guard": "源码 node_modules/@deepseek-ai/dsh-tools 指向 rc.2"
+    }
+   ],
+   "preflight": "guard-doc-check dsh plugin defineTool makeOutput schema",
+   "evidence": "dsh-plugin-guard v0.1 render bug + v0.2 schema 冒烟抓错"
+  },
+  {
+   "id": "OP-add-plugin-client",
+   "name": "加 client 插件(slot shadowing)",
+   "risk": "medium",
+   "path_hint": "client",
+   "consequences": [
+    {
+     "what": "手写 {type,props} → React error #31 崩侧边栏",
+     "prob": "0.8",
+     "toolbox": "T6",
+     "guard": "React.createElement"
+    },
+    {
+     "what": "ESM export 非 __ModuleLoader__.load → 装了不生效",
+     "prob": "0.7",
+     "toolbox": "T4/WF3",
+     "guard": "exports {default} + load({factory})"
+    },
+    {
+     "what": "priority 不设 -1 → 不 shadow 官方(无效果或冲突)",
+     "prob": "0.4",
+     "toolbox": "WF3",
+     "guard": "priority:-1"
+    }
+   ],
+   "preflight": "guard-doc-check dsh client plugin module loader slot shadowing react",
+   "evidence": "my-brand v0.1-0.4 迭代"
+  },
+  {
+   "id": "OP-session-data",
+   "name": "动 session 数据文件(修复/归档/删除)",
+   "risk": "critical",
+   "path_hint": ".dsh/sessions",
+   "consequences": [
+    {
+     "what": "mv/删 session 文件 → 永久丢会话(无备份不可逆)",
+     "prob": "0.9",
+     "toolbox": "T1",
+     "guard": "数据健康时禁止动文件！先 session_recovery_check"
+    },
+    {
+     "what": "文件在≠列表有: 改文件救不了索引问题 → 白动数据",
+     "prob": "0.8",
+     "toolbox": "T1",
+     "guard": "先分清数据层(文件) vs 索引层(workspace/UI) vs 解析层"
+    },
+    {
+     "what": "误判 doctor sessions:[] 为数据丢失 → 瞎修",
+     "prob": "0.9",
+     "toolbox": "T1",
+     "guard": "doctor sessions 是缓存统计，看 healthy"
+    },
+    {
+     "what": "会话空+connection lost 时勿只查数据层——先查遮蔽(host 核心包旧版), 再查 workspace",
+     "prob": "0.7",
+     "toolbox": "T1/T7",
+     "guard": "guard-check-deps 优先于一切 UI 排查"
+    }
+   ],
+   "preflight": "guard-doc-check dsh session persistence jsonl workspace pending",
+   "evidence": "会话消失全案 2026-09-04"
+  },
+  {
+   "id": "OP-restart",
+   "name": "重启 CLD / dsh",
+   "risk": "medium",
+   "path_hint": "",
+   "consequences": [
+    {
+     "what": "renderer 首查时序竞态 → 会话列表空(偶发, 服务健康)",
+     "prob": "0.3",
+     "toolbox": "T1",
+     "guard": "重启后首窗空 → 关窗重开即好, 勿再重启勿动数据"
+    },
+    {
+     "what": "未等上次写入 flush → 偶发 torn tail(doctor 可修)",
+     "prob": "0.1",
+     "toolbox": "T1",
+     "guard": "优雅退出(osascript quit)优于 pkill"
+    },
+    {
+     "what": "刚改完依赖未验证就重启 → 连环错暴露在用户面前",
+     "prob": "0.5",
+     "toolbox": "T7",
+     "guard": "重启前 dump-config + 遮蔽扫描归零"
+    }
+   ],
+   "preflight": "guard-doc-check dsh workspace init ordering",
+   "evidence": "50467 vs 16870 首窗差异；多次重启触发"
+  },
+  {
+   "id": "OP-runtime-file",
+   "name": "改 runtime 包(@deepseek-ai 在 app 内)",
+   "risk": "critical",
+   "path_hint": "dsh-runtime/runtime",
+   "consequences": [
+    {
+     "what": "动 dsh-tools lib → schema 核心崩(API 漂移)",
+     "prob": "0.9",
+     "toolbox": "红线 P2",
+     "guard": "dsh-tools/lib 绝对红线不改"
+    },
+    {
+     "what": "改任何 runtime 包 → 重签+校验, 否则签名失效",
+     "prob": "0.5",
+     "toolbox": "T5",
+     "guard": "能不改 runtime 就不改; 改走完整五道闸"
+    }
+   ],
+   "preflight": "guard-doc-check electron packaged runtime node_modules codesign",
+   "evidence": "gov schema 教训；runtime 视为只读基座"
+  },
+  {
+   "id": "OP-autoindex",
+   "name": "auto-index / 向量索引进程",
+   "risk": "high",
+   "path_hint": "auto-index",
+   "consequences": [
+    {
+     "what": "全量索引 4.2GB chunks → 内存 4-13GB → OOM 崩 CLD",
+     "prob": "0.9",
+     "toolbox": "T2/T3",
+     "guard": "launchctl unload 停用(plist 保留)"
+    },
+    {
+     "what": "重启用旧版 → 再 OOM",
+     "prob": "0.8",
+     "toolbox": "T3",
+     "guard": "改流式/限量前不复用"
+    }
+   ],
+   "preflight": "guard-doc-check vector index memory streaming",
+   "evidence": "六次 OOM 实证"
+  },
+  {
+   "id": "OP-config-yaml",
+   "name": "改 profile 配置(package.json/cordis/lock)",
+   "risk": "high",
+   "path_hint": "profiles/web",
+   "consequences": [
+    {
+     "what": "bundles 手改错(多/少/名错) → boot 失败或功能缺",
+     "prob": "0.4",
+     "toolbox": "T5",
+     "guard": "dump-config 验证 + 重启实测"
+    },
+    {
+     "what": "漏同步 profile 与源码 node_modules → 解析断",
+     "prob": "0.3",
+     "toolbox": "T4",
+     "guard": "symlink 或实际安装对齐"
+    },
+    {
+     "what": "deps 写进 profile 被 pnpm 重写 → 遮蔽",
+     "prob": "0.5",
+     "toolbox": "T7",
+     "guard": "手改优于 pnpm, 备份先行"
+    }
+   ],
+   "preflight": "guard-doc-check dsh profile bundles cordis config",
+   "evidence": "多次 profile 调整"
+  }
+ ],
+ "symptoms": [
+  {
+   "symptom": "会话列表空/消失",
+   "route": "T1",
+   "first_action": "session_recovery_check(P6) → 数据健康=竞态, 关窗重开; 勿动文件",
+   "prob_damage_actions": "OP-session-data/OP-restart"
+  },
+  {
+   "symptom": "CLD 崩/退出 SIGABRT",
+   "route": "T2",
+   "first_action": "exit-marker + crash-reason.log 分级; 查 OOM/堆上限",
+   "prob_damage_actions": "OP-autoindex"
+  },
+  {
+   "symptom": "连环不相关报错",
+   "route": "T7",
+   "first_action": "guard-check-deps → 遮蔽归零",
+   "prob_cause": "OP-pnpm-add"
+  },
+  {
+   "symptom": "插件装了不生效/报错",
+   "route": "T4",
+   "first_action": "按报错选路(ERR_MODULE_NOT_FOUND/render/schema)",
+   "prob_cause": "OP-add-plugin-host/client"
+  },
+  {
+   "symptom": "web 起不来/boot 不完整",
+   "route": "T5",
+   "first_action": "dump-config exit code + boot 日志段",
+   "prob_cause": "OP-asar-shell/OP-disable-plugin/OP-config-yaml"
+  },
+  {
+   "symptom": "界面 React 崩/空白",
+   "route": "T6",
+   "first_action": "renderer console #31 → createElement",
+   "prob_cause": "OP-add-plugin-client"
+  },
+  {
+   "symptom": "内存飙高(启动/夜间)",
+   "route": "T3",
+   "first_action": "ps 找 auto-index/doctor; launchctl list",
+   "prob_cause": "OP-autoindex"
+  },
+  {
+   "symptom": "崩溃无痕不知道为啥",
+   "route": "T8",
+   "first_action": "exit-marker cleanExit:false → reason 分级",
+   "prob_cause": "OP-asar-shell 前(无看门狗时代)"
+  }
+ ],
+ "flywheel": {
+  "rule": "遇到任何新问题(症状/报错/异常未在 symptoms 命中): 必须走飞轮五步，不许直接试修",
+  "steps": [
+   "1. 归大类: 它是 OP-* 哪个操作引起的? 还是新症状?",
+   "2. 查路由: guard-risk <关键词> 确认无既有条目",
+   "3. 处置: 按工具箱最近邻条目(不完全匹配也先用其通用处置+C1-C7)",
+   "4. 验证: C1-C7 全过才算完",
+   "5. 沉淀: 更新本表(新 operation/symptom + 概率) + 工具箱(新 T 或更新) + 经验沉淀 + 报告留痕 —— 不沉淀=白修, 下次重踩"
+  ],
+  "anti_patterns": [
+   "不归大类直接试修(症状驱动乱试)",
+   "修好不沉淀(同一坑下次再踩 → 越修越坏)",
+   "数据健康时动 session 文件(不可逆)",
+   "重启当修复(竞态下重启可能再踩中)"
+  ]
+ }
+}

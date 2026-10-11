@@ -1,0 +1,73 @@
+{
+ "schema": "p3-self-audit/v1",
+ "created_at": "2026-10-10T01:40:49+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ P3 代码改动**自查**：改动本身正确，但**只覆盖了两条投递路径中的一条** ⇒ **不足以单独止血**",
+ "★★_efficacy_declaration": {
+  "★_what_this_is": "★ **自查（self-audit），不是独立审查**",
+  "★_why_it_cannot_substitute": "★ **R048** 明文：协调者的设计与代码工作须经**独立审查员**审计（**R046 三方分离**：星桥=提出/执行，审查员=裁定）。本自查由**提出者兼执行者**做出 ⇒ **不满足门的第三方要求** ⇒ **不得据此记 closed，也不得替代第三方裁定**。",
+  "status": "∴ 本卡的定位是：**把可供第三方复核的实测证据先摆齐**（降低其复核成本），而非提供裁定。第三方 verifier 仍为 **verifier_unavailable**（保持 in_flight）。"
+ },
+ "★_what_P3_changed": {
+  "files": [
+   {
+    "path": "/Users/coreyleung/dsh-plugin-central-inbox/lib/index.js",
+    "sha256_16_before": "594a9311f325367a",
+    "sha256_16_after": "c6131f917a1a46aa"
+   }
+  ],
+  "diff_scope": "★ **仅一个函数**：`findCentralAgent()`（L115–156）；**无其他改动**",
+  "two_branches": [
+   "① `NODE_ID === 'mac-mini'` 分支：原**硬编码返回死会话** ⇒ 改为**优先 role-map「星桥v2」**，无该键则回落星桥第二任 id",
+   "② 非 mac-mini 分支：原按 `includes('fa1f9150')` **优先匹配** ⇒ 改为**精确定位 role-map「星桥v2」**，其次**排除 DEAD_SESSIONS** 取第一个，最后才 `agents[0]`"
+  ],
+  "★_a_non_obvious_correctness_point": "★ 内联读 role-map 而非调用 `roleMap()` —— 因后者定义于 L187，而本函数在 L133 即被立即调用，其闭包变量 `_roleMapCache` 用 `let`（不提升）⇒ **调用会撞 TDZ**。该点已在代码注释中写明。"
+ },
+ "★★_gap_1_route_js_path_not_covered_MEASURED": {
+  "★_how_found": "★ 由 **C-4 的「route.js 逐行核实」**发现，并**用真实 role-map 实测证实**（非推断）",
+  "the_two_paths": [
+   "★ `index.js::findCentralAgent()` —— **只管「未指定收件人时注入谁」**（P3 已改）",
+   "★ `route.js::resolveTargetId()` 的 **role-mapped 分支** —— **`to=\"星桥\"` 的卡走这里**（**P3 未覆盖**）"
+  ],
+  "★_measured_evidence": {
+   "cmd": "node 脚本 import route.js，用真实 ~/.dsh/agent-role-map.json 跑 resolveTargetId",
+   "roleMap['星桥']": "session-fa1f9150-c949-401f-ba8c-d265f6221676（**= 死会话**）",
+   "case_A_死会话在 list 中": "`{target: session-fa1f9150…, mode: 'direct', reason: 'role-mapped'}` ⇒ ★ **投给死会话**",
+   "case_B_死会话不在 list 中": "`{target: session-fa1f9150…, mode: 'queued-direct', reason: 'role-mapped-offline'}` ⇒ ★ **投给死会话**（「排队等它上线」—— ★ **这正是 P26 持续点火机制**）",
+   "case_C_对照_无效to": "`{target: null, mode: 'skip', reason: 'unresolvable(…)'}` ⇒ **正确行为**（对照组成立，证明 A/B 的命中不是脚本假象）"
+  },
+  "★_conclusion": "★★ **P3 单独不足以止血**：`to=\"星桥\"` 的卡**绕过 P3 的改动**，仍被投给死会话。⇒ **P3 与 P2 耦合**：P3 改**代码路径**，P2 改**映射内容**（`~/.dsh/agent-role-map.json` 的「星桥」键）；**缺一则仍有缺口**。"
+ },
+ "★_gap_2_and_3_other_mappings_still_point_to_the_dead_session": {
+  "A1": "`~/.dsh/agent-role-map.json`：**`星桥 → session-fa1f9150`**（24 个角色键）—— **属 P2，未改**",
+  "A9": "`~/sb-mobile/main-roles.json`：第一条 **`{\"prefix\": \"session-fa1f9150\", \"name\": \"星桥\", …}`** —— **20 条角色白名单**（★ 卡 `live-references-a8-a9` 只记了 1 条，**本轮更正**）；**其读取点两处均在运行时**（`server.js:213` 函数体内 · `:488` 请求 handler 内）⇒ **改它无需重启 A8**",
+  "★_implication": "★ 三处映射（A1 role-map · A9 main-roles · `identity-variant-map`）**均未收敛**，而 P3 只动了**代码里的兜底**。⇒ 与 `live-references-a8-a9` 的 `recommended②` 一致（「P2 须一并处理，否则改 A1 会造成语义分裂」）—— 本轮**把该预警从推测变为实测**。"
+ },
+ "★_side_effects_and_risk_surface": {
+  "scope": "★ 改动**只影响** `NODE_ID === 'mac-mini'` 的新分支与 `findCentralAgent()` 的返回；**不触碰**注入主流程",
+  "other_devices": "★ 其他设备（mbp/i9）走 `agents[0]`+排除死会话分支；且读的是**本机** `~/.dsh/agent-role-map.json` ⇒ **各设备独立，不会互相污染**",
+  "failure_mode": "★ 若 role-map 不可读 ⇒ `try/catch` **回落到星桥第二任 id**（不抛异常、不返回 null）",
+  "loadability": "★ `plugin-preflight` **B 检（真挂载冒烟）pass** 且**生产日志字节增量 = 0**"
+ },
+ "★_reversibility": {
+  "backup": "`guard/backups/central-inbox-index.js-20261010-004529`（**未用 git** —— 该文件有未提交修改，`git checkout` 会丢）",
+  "restore": "`cp` 覆盖即可；当前 sha `c6131f917a1a46aa`"
+ },
+ "★_acceptance_criteria_after_restart": {
+  "★_note": "★ 这三条**是 P3 的验收判据**，须在重启后执行；**四件套不含它们**",
+  "①_主路径": "重启后读 `~/.dsh/central-inbox.log`，确认启动行里**注入目标不再是 `session-fa1f9150`**",
+  "②_★_route 路径": "★ 造一张 `to=\"星桥\"` 的卡 ⇒ 读注入日志确认 `reason` **不再命中 role-mapped**；⇒ **若仍投给死会话，说明缺口 1 未闭合**（预期如此，因 P2 未做）",
+  "③_回归": "确认 `守灯` 等**其他角色**的卡投递不受影响（role-map 未改，应完全不回归）"
+ },
+ "★_verdict": {
+  "改动本身": "★ **正确** —— 逻辑已验证（行为 5/5 PASS）· 加载已验证（preflight B 检 pass）· 副作用面小 · 完全可逆",
+  "★_改动的充分性": "★★ **不充分** —— 只覆盖 `<无显式收件人>` 一条路径；`to=\"星桥\"` 走 `route.js`，**仍投死会话**（已实测）",
+  "★_所以": "★ **P3 不应被记为「止血完成」**；正确记法是「**部分止血，待 P2 闭合**」"
+ },
+ "not_verified": [
+  "死会话当前**是否仍在 `agentBus.list()`** —— 决定走 `direct` 还是 `queued-direct`；**未测**",
+  "`identity-variant-map` 是否也含死会话（三轨中的第三条）—— **未查**",
+  "重启后三条验收判据**均未执行**（须重启后进行）"
+ ],
+ "r046_note": "★ **本卡为自查，不满足 R048 的第三方要求，不构成任何验收或裁决通过**；其目的是**降低第三方复核成本**，而非替代复核。"
+}

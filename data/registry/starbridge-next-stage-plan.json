@@ -1,0 +1,89 @@
+{
+ "schema": "next-stage-plan/v1",
+ "created_at": "2026-10-09T22:07:40+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "下阶段计划（候选与建议）—— 待所有者拍板",
+ "doc": "docs/starbridge-next-stage-plan-20261010.md",
+ "state": "proposed",
+ "dependency_chain": [
+  "Wave S 的门 ──阻塞──> Wave 0 及以后全部",
+  "C7 未关（verifier 未定）──阻塞──> Wave C 无法整体 close",
+  "P1 停点 ──阻塞──> P2",
+  "P0 升版 ──阻塞──> C6/C7/P26 状态同步进 continuity-index"
+ ],
+ "options": [
+  {
+   "id": "A",
+   "name": "建 Wave S 的门",
+   "needs_approval": false,
+   "items": [
+    "S5 G-CR 门校验脚本",
+    "S2 信息包模板",
+    "S4 官方校对门",
+    "S1 沙箱模拟框架",
+    "S3 审查流程"
+   ],
+   "why": "锚点 §14 把 Wave S 排在 Wave 0 前；它 blocked 的原因是**缺建成证据而非缺授权**；且本阶段产出已分别是 S2/S3 的实际运行"
+  },
+  {
+   "id": "B",
+   "name": "处理紧迫活故障（P3/P4/A8/A9）",
+   "needs_approval": true,
+   "why": "实测死会话死后仍被点火 9 次全失败、turn→11178；A8 运行中 PID 1250",
+   "blocker": "P3 方案 A 的前置未查（CLD 启动环境设置位置）——**可自主先查**"
+  },
+  {
+   "id": "C",
+   "name": "补负控 + 收敛证据缺口",
+   "needs_approval": false,
+   "why": "本阶段 12 项声称全无负控 ⇒ 不补，后面做什么都不能记 closed"
+  }
+ ],
+ "recommended_order": [
+  "1. C 补负控（理由：它是本阶段全部声称的前置）",
+  "2. A 建 Wave S 门（理由：阻塞 Wave 0+ 全部；完全可自主）",
+  "3. B 的只读前置（查 CLD 启动环境位置）",
+  "4. B 的改动（须批 + 涉重启窗口）",
+  "5. C4 · 6. P0 · 7. P2"
+ ],
+ "one_line": "先补负控，再建门 —— 因为门本身也要求「负控必须能红」，负控做不出来，门也是空的。",
+ "pending_decisions": {
+  "authorize": [
+   "方案 C + 方案 A + B 的只读前置"
+  ],
+  "approve": [
+   "P3 止血(方案A)",
+   "P4 外部失效声明",
+   "C4 自启动注入",
+   "P0 锚点升版",
+   "P5 preset 补注",
+   "A8/A9 处理(需重启窗口)"
+  ],
+  "assign": {
+   "already": "裁判 session-1ffded95（在线，已委托；但它可能不可裁整体，已设 Q8 请其自答）",
+   "if_refused": [
+    {
+     "session": "session-9910d4b2",
+     "name": "守灯",
+     "why": "【名册席位#4】C1-C7 核验员，职责最对口",
+     "online": false
+    },
+    {
+     "session": "session-4d0e75cf",
+     "name": "独立复核员",
+     "why": "★ 未参与本线建构 ⇒ 无 S3 冲突，理论上最干净",
+     "online": false
+    },
+    {
+     "session": "session-2a15e6b1",
+     "name": "司库(HR)",
+     "why": "负责任命与登记",
+     "online": false
+    }
+   ],
+   "ask": "是否授权唤醒其一？（唤醒=启动会话，有资源成本，故不擅动）"
+  },
+  "suggested_one_line_reply": "「1 批；8 授权唤醒独立复核员（4d0e75cf）；2–7 暂缓」"
+ },
+ "r046_note": "本卡为计划提议，不构成任何验收或裁决通过。"
+}

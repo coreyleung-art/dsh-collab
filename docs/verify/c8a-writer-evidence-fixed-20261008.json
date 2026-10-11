@@ -1,0 +1,36 @@
+{
+ "extracted_at": "2026-10-08T05:07:23Z",
+ "file_set_enumerated": [
+  "audit.jsonl",
+  "audit-20261008-08332.jsonl",
+  "audit-20261008-08521.jsonl",
+  "audit-20261008-09095.jsonl",
+  "audit-20261008-09275.jsonl",
+  "audit-20261008-09455.jsonl",
+  "audit-20261008-10035.jsonl",
+  "audit-20261008-12094.jsonl",
+  "audit-20261008-12272.jsonl",
+  "audit-20261008-12440.jsonl",
+  "audit-20261008-13030.jsonl"
+ ],
+ "file_set_rule": "{audit.jsonl} ∪ {audit-*.jsonl}（★ 连字符坑）",
+ "hits_with_top_level_writer": [
+  {
+   "file": "audit-20261008-12272.jsonl",
+   "line_no": 699,
+   "key": "notes/mac-mini/xwriter-probe-1791432931",
+   "ts": "2026-10-08T12:15:31",
+   "writer": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   "line_sha256": "82491d1789b7de5ae5e04a584a88e8c6f8c5845406d07088b4bd7904356a375d"
+  },
+  {
+   "file": "audit-20261008-12272.jsonl",
+   "line_no": 1336,
+   "key": "notes/mac-mini/xwriter-verify-1791433276",
+   "ts": "2026-10-08T12:21:16",
+   "writer": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   "line_sha256": "e22df9d8e92ec29fb41d40dd730c535eb74bc3cabc871b09ef2580637e08f11a"
+  }
+ ],
+ "note": "★ 轮转≠保留：ARCHIVE_KEEP=10 ⇒ 本证据的可见期约 4h（随写入速率滑动）⇒ 必须在此固定"
+}

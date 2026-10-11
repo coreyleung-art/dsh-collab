@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-doc-check — P0 官方标准预查门（《修复规范-Lean逻辑版-v2》前提 P0）
+在 agent 对 CLD/dsh 底层动刀前，强制先查"最新官方标准"，并把查证证据
+（时间/主题/命中的官方文档/镜像新鲜度/web 来源）写入 gate-state.json。
+guard-gate 会读取该证据：24h 内无有效预查 → 拒绝放行受限区操作。
+
+用法：
+  guard-doc-check "<主题关键词>"                     # 查本地官方镜像并留证
+  guard-doc-check <target-path> --topic "关键词"      # 按目标文件推断领域
+  guard-doc-check "<主题>" --web "url: 结论要点"      # 镜像过期/缺失时用 web 补证
+
+领域自动推断: electron(壳/asar/CLD.app) dsh(运行时/插件/会话) swift(.swift)
+镜像位置:     ~/tech-research/{dsh-docs,electron-docs,swift-docs}（174MB 本地官方文档）
+"""
+import datetime
+import json
+import os
+import re
+import sys
+import time
+
+GUARD_DIR = os.path.expanduser("~/dsh-collab/guard")
+STATE_FILE = os.path.join(GUARD_DIR, "gate-state.json")
+MIRROR_ROOT = os.path.expanduser("~/tech-research")
+STALE_DAYS = 14  # 镜像超过 N 天视为过期，需 --web 补证
+
+DOMAIN_DIRS = {
+    "dsh": "dsh-docs",
+    "electron": "electron-docs",
+    "swift": "swift-docs",
+}
+
+
+def now_iso():
+    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def infer_domain(target):
+    """从路径/主题推断技术领域"""
+    t = target.lower()
+    if re.search(r"\.swift$|swift", t):
+        return "swift"
+    if re.search(r"electron|app\.asar|CLD\.app|framework|node_options|crashreport|heap", t):
+        return "electron"
+    if re.search(r"dsh|@deepseek-ai|profile|plugin|cordis|session|\.dsh/", t):
+        return "dsh"
+    # 主题无特征词 → 看 tech-research 里哪个域有命中
+    return None
+
+
+def mirror_dir(domain):
+    if not domain:
+        return None
+    name = DOMAIN_DIRS.get(domain)
+    if not name:
+        return None
+    d = os.path.join(MIRROR_ROOT, name)
+    return d if os.path.isdir(d) else None
+
+
+def mirror_age_days(domain):
+    d = mirror_dir(domain)
+    if not d:
+        return None
+    try:
+        st = os.stat(d)
+        birth = getattr(st, "st_birthtime", st.st_mtime)
+        return (time.time() - birth) / 86400.0
+    except Exception:
+        return None
+
+
+def _norm(s):
+    """归一化: 空格/下划线/连字符等价，全小写"""
+    return re.sub(r"[\s_\-]+", "", s.lower())
+
+
+def search_mirror(domain, topic, limit=10):
+    """在本地官方镜像里检索主题，返回命中文件列表。
+    匹配: topic 拆词元后全部出现在文件名或文件头部(6KB)；分隔符归一化
+    （NODE_OPTIONS ≡ node options，避免下划线/空格失配漏检）。"""
+    d = mirror_dir(domain)
+    if not d:
+        return []
+    tokens = [t for t in re.split(r"[\s_\-]+", topic.lower()) if t]
+    norm_tokens = [_norm(t) for t in tokens]
+    hits = []
+    for root, dirs, files in os.walk(d):
+        # 跳过 .git 与超大无用目录
+        dirs[:] = [x for x in dirs if not x.startswith(".") and x not in ("node_modules",)]
+        for f in files:
+            if not f.lower().endswith((".md", ".mdx", ".html")):
+                continue
+            fp = os.path.join(root, f)
+            rel = os.path.relpath(fp, d)
+            base = _norm(f)
+            if all(nt in base for nt in norm_tokens):  # 文件名词元全中 → 强命中
+                hits.append(rel)
+                if len(hits) >= limit:
+                    return hits
+                continue
+            try:
+                with open(fp, "r", errors="ignore") as fh:
+                    head = _norm(fh.read(6000))
+                if all(nt in head for nt in norm_tokens):
+                    hits.append(rel)
+            except Exception:
+                pass
+            if len(hits) >= limit:
+                return hits
+    return hits
+
+
+def load_state():
+    if not os.path.exists(STATE_FILE):
+        return {}
+    try:
+        return json.load(open(STATE_FILE))
+    except Exception:
+        return {}
+
+
+def save_state(st):
+    os.makedirs(GUARD_DIR, exist_ok=True)
+    json.dump(st, open(STATE_FILE, "w"), indent=1, ensure_ascii=False)
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+
+    target = sys.argv[1]
+    topic = None
+    web = None
+    if "--topic" in sys.argv:
+        topic = sys.argv[sys.argv.index("--topic") + 1]
+    if "--web" in sys.argv:
+        web = sys.argv[sys.argv.index("--web") + 1]
+
+    domain = infer_domain(target)
+    if not domain:
+        domain = "dsh"  # 无特征默认 dsh（多数故障在这）
+    topic = topic or os.path.basename(target.rstrip("/"))
+
+    print("=== guard-doc-check · P0 官方标准预查 ===")
+    print(f"  目标/主题: {target}")
+    print(f"  领域: {domain}")
+
+    md = mirror_dir(domain)
+    age = mirror_age_days(domain)
+    hits = search_mirror(domain, topic) if md else []
+    stale = age is not None and age > STALE_DAYS
+
+    evidence_note = ""
+    ok = False
+    if hits:
+        ok = True
+        evidence_note = f"本地镜像命中 {len(hits)} 个官方文档"
+        print(f"  ✓ 本地镜像: {md}")
+        print(f"    命中(前{min(len(hits), 5)}):")
+        for h in hits[:5]:
+            print(f"      - {h}")
+        if stale:
+            print(f"  ⚠ 镜像 {age:.0f} 天前拉取（> {STALE_DAYS} 天过期），建议 --web 补官方最新")
+    else:
+        print(f"  ✗ 本地镜像无命中（{'镜像缺失' if not md else '关键词过窄'}）")
+
+    if web:
+        ok = True
+        evidence_note = (evidence_note + " | " if evidence_note else "") + "web 官方来源补证"
+        print(f"  ✓ web 补证: {web[:300]}")
+    elif stale and not hits:
+        print("  ✗ 镜像过期且无命中：必须 --web 提供官方最新来源，否则 P0 不成立")
+
+    if not ok:
+        print("\n❌ P0 未满足：先查官方标准（本地镜像或 --web 官方来源）再动手。")
+        return 1
+
+    # 写入 state（供 guard-gate 校验）
+    st = load_state()
+    checks = st.setdefault("_doc_checks", [])
+    checks.append({
+        "ts": now_iso(),
+        "ts_epoch": int(time.time()),
+        "target": target,
+        "topic": topic,
+        "domain": domain,
+        "mirror_hits": len(hits),
+        "hit_files": hits[:10],
+        "mirror_age_days": round(age, 1) if age is not None else None,
+        "mirror_stale": stale,
+        "web_evidence": web,
+        "note": evidence_note,
+    })
+    # 只保留最近 40 条
+    st["_doc_checks"] = checks[-40:]
+    save_state(st)
+
+    print(f"\n✅ P0 证据已写入 gate-state.json（{now_iso()}）")
+    print("   后续 guard-gate 对受限区操作将校验此记录（24h 有效）")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

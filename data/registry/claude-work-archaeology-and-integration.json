@@ -1,0 +1,79 @@
+{
+ "schema": "claude-work-archaeology-and-integration/v1",
+ "created_at": "2026-10-10T03:56:54+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★★ Claude 近一日 CLD 架构工作考古 + 整合评估（用户问：「是否可以整合回来到我们总目标」）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:56:54+08:00",
+  "rerunCmd": "hostname"
+ },
+ "authority": "用户 2026-10-10：「去考古一下 claude 最近一天内围绕 cld 架构本身…他只是写了库没有给你挂载，你看看是否可以整合回来到我们总目标来」",
+ "★_where_its_outputs_live": {
+  "memory（知识库）": "`~/.claude/projects/-Users-coreyleung/memory/*.md`（**18 条索引于 MEMORY.md**） —— ★ **DSH 侧不读该目录 ⇒ 我不知道它们存在**（这是「不可发现」的根因）",
+  "artifact（产物）": "★ **多数产物其实就在 `~/dsh-collab/`**（scripts/ · docs/ · data/registry/）⇒ **可直接整合**",
+  "session": "`~/.claude/projects/-Users-coreyleung/505612bd-….jsonl`（其工作记录 · 10-10 02:59）"
+ },
+ "★★_the_four_assets_worth_integrating": {
+  "①_Q-K_上下文存活后端": {
+   "★_治什么": "★★★ **直接治 P26**（官方压缩器摘要模板地板 > 被遮内容，**无配置解**）—— **那正是我今晚在治的核心死锁**。它做的是一个**非摘要、有界、保证能缩小**的检查点后端，与官方 `compaction-basic` **并存**（seam b，不接管 `ctx.compaction`）。",
+   "状态": "**K0/K1/K2/K2.1 ✅（均未挂载、未重启）** · **下一步 K3**（检查点产出 + 有界阶梯 + 表面替换 + 并发护栏）",
+   "★_已定且不许重开的判据": [
+    "★ 可选服务一律 `ctx.get()`，**绝不写进 `inject`**（inject 是强依赖，缺一条 ⇒ **整棵插件树加载失败**）",
+    "★ 决策核只收**整数百分比**，不收浮点比率（浮点在边界差 1）",
+    "★ 阈值必须**严格早于**官方 `floor(cw×0.8)`，且**必须是门不是注释**（`preemptPct` 默认 70，`≥80` ⇒ `BAD_PREEMPT`）",
+    "★ **F1 教训**：照抄 ctxwin 的 0.9 会**晚于**官方触发 ⇒ 守卫**永不触发**；固定加性 buffer 在小窗口做不到抢先 ⇒ **只有比率项对所有 cw 成立**",
+    "★★ **K3 门控告诫**：**K3 能真正缩小窗口之前，不得打开 `enableGuard`** —— 抢先只是更早的触发线，若守卫触发却压不下去，官方 0.8 那条安全网已被绕过 ⇒ **会话裸奔到溢出**"
+   ],
+   "进度台账": "`docs/context-survival-tracker.md`（**running tracker · 只追加 · 21,223 B**）",
+   "★_整合动作": "★ **已在 `continuity-index`**（含 Q-K 条目）⇒ **只需把它纳入我的推进序列**：**K3 是我可自主推进的**；**Q-K6（挂载点）须问用户**；**Q-K7（运行时 plugin_name_gate）须挂载会话里补**"
+  },
+  "②_gate-plugin-inject（宿主/客户端 inject 边界门）": {
+   "★_治什么": "★ **宿主端插件不得 inject 客户端服务**（如 `slots`）⇒ 该条永久 pending ⇒ **`assertEntriesActivated` 失败 ⇒ 整棵插件树加载失败、CLD 完全起不来**（`dsh: 1 entry did not activate`）",
+   "实证事故": "`~/dsh-plugin-excalidraw` 的 `lib/index.js` 写了 `inject = ['slots']`；★ **回归根因是「只修产物未修源」**：8月22 改了 `lib/` 没改 `src/`，**2026-10-09 的 CJS→ESM 迁移从 `src/` 重编译 ⇒ bug 复活**",
+   "产物": "`scripts/gate-plugin-inject.py`（**v1.0.0 · 只读 · 复刻官方 `assertEntriesActivated` 谓词**） · 事故归类卡 `data/registry/cld-crash-classification-20261010`",
+   "★_我的独立验证": "★ **`--selftest` 通过**（规则 a 全量挂载点 · 规则 b 查「只修产物未修源」）",
+   "★_整合动作": "★ **纳入我的门清单**（与 G-CR · self-destruct · node-claim 并列）⇒ **改插件/重建 `lib/` 后应跑它**，这正是我今晚差点踩的形态（**我只改过 `lib/`**）"
+  },
+  "③_asar_改壳配方（CLD 活代码在 asar 里）": {
+   "★_治什么": "★★ **CLD 壳的运行代码 = `app.asar!/main.js`（1131 行）**，**不是 `~/dsh-collab/cld/main.js`（867 行旧版）** ⇒ **改壳必须改 asar，否则改了不生效**",
+   "★_关键实测结论": [
+    "★ **改 asar 必然要重签**（`CodeResources` 的 `files` 段含 `Resources/app.asar` ⇒ 否则 `a sealed resource is missing or invalid`）",
+    "★ **TCC 不会重触发**（DR 只锚 `certificate leaf[subject.OU]` ⇒ 同一 Developer ID 重签后 DR 逐字不变）",
+    "★ **重签会作废既有公证票据**（stapler 票据绑定当时主可执行 CDHash）⇒ **须重新提交公证**",
+    "★ **`codesign --deep` 已废弃** ⇒ 只签外层 bundle + `--preserve-metadata=entitlements`（**否则 4 项 entitlements 被丢弃**）",
+    "★ **bash 3.2 陷阱**：`$var` 后紧跟**全角字符**（`（`）时 bash 会把全角并入变量名 ⇒ `unbound variable`；一律写 `${var}（`",
+    "★ **`Contents/Resources/` 内 5 个历史 `app.asar.bak-*` 已被封印收编** ⇒ **单独删除会破封，别顺手删**"
+   ],
+   "产物": "`~/.cld/tools/apply-p2-asar-swap.sh {check|apply|verify|rollback}` · 备份 `~/.cld/backups/p2-2026-10-08/`",
+   "★_整合动作": "★ **纳入我的 CLD 操作知识** —— ★ **我今晚换装 CLD（补 audio-input）时只动了 app bundle 的签名层，未碰 asar ⇒ 未触发此坑**；但**若日后要改壳逻辑，必须走此配方**"
+  },
+  "④_其它已整合或可登记项": {
+   "trae 27 条": "★ **已整合**（`rules-registry/sources/` 归档 + `RULES.md` 走查节 + ChromaDB `rules` 集合 + CLAUDE.md 行为条目）",
+   "feedback_running-ledger": "★ **长项目要自建台账**（用户要求：每次动过追加 running tracker 并同步信标索引）—— ★ **我今晚的 `goal-progress-snapshot` 正是同族做法**",
+   "feedback-no-third-party-dsh-plugins": "★ **dsh 不挂第三方插件**（外部插件多次致 dsh 崩溃 ⇒ 默认只走官方 seam + 配置，社区插件仅作逆向素材 → 自研）"
+  }
+ },
+ "★★_my_assessment（回答用户的问题）": {
+  "结论": "★ **可以整合，而且成本很低** —— 因为**多数产物已落在 `~/dsh-collab/`**（scripts/ · docs/ · data/registry/），**不是散落在不可达处**。",
+  "★_真正的障碍只有两个": [
+   "① **可发现性**：它的 **memory 在 `~/.claude/projects/.../memory/`**，**DSH 侧无索引** ⇒ **我今晚做 Wave S / 修复 P26 相关工作时完全不知道 Q-K 的存在** ⇒ ★ **建议：把 memory 的 18 条索引**（`MEMORY.md`）**镜像成一张黑板卡**（`data/registry/claude-memory-index`）⇒ 让 DSH 侧任何会话都能发现",
+   "② **运行期挂载**：Q-K 的 **Q-K6（挂载点）未定** ⇒ 需用户裁决；**这是唯一需要用户决策的点**"
+  ],
+  "★_integration_plan（按依赖排序）": [
+   "**① 可立即做（无需授权）**：把 memory 索引镜像成黑板卡（消除可发现性障碍）",
+   "**② 可立即做**：把 `gate-plugin-inject.py` 纳入我的门清单（并**在我改过 `lib/` 的插件上跑一遍**）",
+   "**③ 可自主推进**：**Q-K 的 K3**（检查点产出 + 有界阶梯 + 表面替换 + 并发护栏）—— **★ 但受其门控告诫约束：K3 能真正缩小窗口之前不得开 `enableGuard`**",
+   "**④ 须用户裁决**：**Q-K6 挂载点**（`devices/` 是成品仓 ≠ 已挂载区；目前 profile 里只有 `dsh-plugin-cldvoice` 一个是从这里 link 的）",
+   "**⑤ 挂载会话里补**：**Q-K7**（运行时 `plugin_name_gate`，离线跑不了，要 `ctx.get('fs')`）"
+  ]
+ },
+ "not_verified": [
+  "★ 我**未读** `~/.claude/projects/.../memory/` 的**全部 18 条**（只读了 MEMORY.md 索引 + 最相关的 3 条）",
+  "★ 我**未核** `gate-plugin-inject.py` 对**本机全部插件**的扫描结果（只跑了它的 `--selftest`）",
+  "★ 我**未核** Q-K 的 `dsh-plugin-context-survival` 插件包当前在哪（它说 K0-K2.1 均**未挂载**）",
+  "★ `cld-live-code-is-asar.md` 的**判据（1131 行 vs 867 行）我未复跑**，是按它的记录转述"
+ ],
+ "r046_note": "本卡为考古与整合评估登记，不构成任何验收或裁决通过。"
+}

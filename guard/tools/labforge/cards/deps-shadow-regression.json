@@ -1,0 +1,41 @@
+{
+  "id": "deps-shadow-regression",
+  "title": "依赖遮蔽回归（考古 M1: 27 遮蔽包事故守护）",
+  "goal": "守护最痛的历史事故（pnpm 27 遮蔽包→会话丢失）：持续断言 profile 无真实遮蔽 runtime 的 @deepseek-ai 包（排除 .bak/.pnpmcopy 备份残留噪音）",
+  "hypothesis": "H1: 修复后 0 真实遮蔽（27 包已移出, 应保持）；H2: 备份残留(.bak/.pnpmcopy)不计为遮蔽——检测须排除避免误报",
+  "kind": "correctness",
+  "runner": "runner-deps-shadow",
+  "data": [],
+  "params": {},
+  "assertions": [
+    {
+      "id": "D1-no-shadow",
+      "metric": "hasRealShadow",
+      "op": "eq",
+      "target": false,
+      "desc": "无真实遮蔽包(防 27 遮蔽事故复发)"
+    },
+    {
+      "id": "D2-clean-check",
+      "metric": "verdict",
+      "op": "contains",
+      "target": "无真实遮蔽",
+      "desc": "判定为无遮蔽"
+    }
+  ],
+  "status": "pass",
+  "created": "2026-09-05T06:40:00.000Z",
+  "lastResult": {
+    "time": "2026-09-05T06:47:08.012Z",
+    "pass": 2,
+    "fail": 0,
+    "na": 0,
+    "file": "/Users/coreyleung/dsh-collab/guard/tools/labforge/results/deps-shadow-regression.latest.json"
+  },
+  "tags": [
+    "deps",
+    "shadow",
+    "regression",
+    "archaeology"
+  ]
+}

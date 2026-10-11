@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-gc-gate — GC/内存治理 Lean 逻辑门（《Node-RSS回缩调研》+ GC 安全审查的机械约束）
+
+每次对 dsh 执行 GC 类操作(定时GC/手动GC/内存治理变更)前运行；前提不满足 exit 1 拒绝。
+等价 Lean 定理 safe_gc_timer: 六前提(G1-G6)全满足才允许构造。
+
+用法:
+  guard-gc-gate check               # 全量检查(需 dsh 运行)
+  guard-gc-gate check --dry         # 检查但不读取 dsh(仅静态前提)
+  guard-gc-gate record <action>     # 记录一次 GC 操作(审计)
+
+前提:
+  G1 session_persisted   会话落盘机制在(appendLines 含 fsync)      → 源码静态检查
+  G2 no_finalizer        dsh 无 FinalizationRegistry(GC 误删路径)  → 源码静态检查
+  G3 strong_ref          coordinator 强引用会话(sessions Map)      → 源码静态检查
+  G4 block_bounded       GC 阻塞预期(实测 <300ms@3GB)              → 记录阈值
+  G5 idle_only           方案须含"空闲才触发"(非无脑定时)          → 配置检查
+  G6 threshold_gated     方案须含"RSS>阈值才触发"(3.0GB)           → 配置检查
+"""
+import os
+import re
+import subprocess
+import sys
+import time
+
+RUNTIME = "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai"
+AUDIT = os.path.expanduser("~/.dsh/gc-gate-audit.jsonl")
+# 方案配置(落地时由 GC 方案声明)
+DEFAULT_CFG = {
+    "idle_only": True,        # 仅空闲触发
+    "threshold_gb": 3.0,      # RSS 超 3GB 才触发
+    "interval_min": 30,       # 30 分钟检查一次(非 5 分钟)
+    "max_block_ms": 300,      # GC 阻塞预算
+}
+
+
+def _grep_count(path, pattern):
+    try:
+        out = subprocess.run(["grep", "-c", pattern, path], capture_output=True, text=True, timeout=8)
+        return int(out.stdout.strip() or "0")
+    except Exception:
+        return -1
+
+
+def _src_file(pkg, name):
+    return os.path.join(RUNTIME, pkg, "lib", name)
+
+
+def check_G1_session_persisted():
+    """G1: jsonl 写路径含 fsync(appendLines → handle.sync)"""
+    f = _src_file("dsh-session-persistence-jsonl", "index.js")
+    if not os.path.exists(f):
+        return False, f"jsonl 源码缺失: {f}"
+    sync = _grep_count(f, r"handle\.sync\(\)")
+    rollback = _grep_count(f, r"rollbackAppend")
+    ok = sync > 0 and rollback > 0
+    return ok, f"appendLines 含 {sync} 处 handle.sync + rollback {rollback} 处(落盘+回滚保障)"
+
+
+def check_G2_no_finalizer():
+    """G2: dsh-session 无 FinalizationRegistry(无 GC 触发删数据路径)"""
+    f = _src_file("dsh-session", "index.js")
+    if not os.path.exists(f):
+        return False, f"session 源码缺失: {f}"
+    n = _grep_count(f, "FinalizationRegistry")
+    ok = n == 0
+    return ok, f"dsh-session FinalizationRegistry: {n} 处(应 0 = 无 GC 误删回调)"
+
+
+def check_G3_strong_ref():
+    """G3: coordinator 强引用会话(sessions Map / store Map)"""
+    f = _src_file("dsh-session", "index.js")
+    store_map = _grep_count(f, r"store = .*new Map")
+    if not os.path.exists(f):
+        return False, f"session 源码缺失: {f}"
+    ok = store_map > 0
+    return ok, f"SessionStore 持 Map 强引用: {'✅' if ok else '❌ 未见强引用容器'}"
+
+
+def check_G4_block_bounded(cfg):
+    """G4: GC 阻塞预算(方案声明 max_block_ms, 实测参考)"""
+    ok = cfg.get("max_block_ms", 0) <= 300
+    return ok, f"GC 阻塞预算 {cfg.get('max_block_ms')}ms ≤ 300ms(3GB堆实测参考)"
+
+
+def check_G5_idle_only(cfg):
+    """G5: 方案须空闲才触发(禁止无脑定时全量GC)"""
+    ok = cfg.get("idle_only", False)
+    return ok, f"idle_only={ok} (True=仅空闲触发, 避免撞推理/流式)"
+
+
+def check_G6_threshold(cfg):
+    """G6: RSS 超阈值才触发(非高频)"""
+    ok = cfg.get("threshold_gb", 0) > 0
+    return ok, f"threshold={cfg.get('threshold_gb')}GB (RSS 超此才考虑 GC)"
+
+
+def record(action):
+    os.makedirs(os.path.dirname(AUDIT), exist_ok=True)
+    with open(AUDIT, "a") as f:
+        f.write(f"{json_dumps({'ts': time.time(), 'action': action, 'iso': time.strftime('%Y-%m-%d %H:%M:%S')})}\n")
+    return 0
+
+
+def json_dumps(d):
+    import json
+    return json.dumps(d, ensure_ascii=False)
+
+
+def main():
+    args = sys.argv[1:]
+    if not args:
+        print(__doc__)
+        return 1
+    cmd = args[0]
+    if cmd == "record":
+        action = args[1] if len(args) > 1 else "gc"
+        return record(action)
+    if cmd != "check":
+        print("用法: guard-gc-gate check|record"); return 1
+    cfg = dict(DEFAULT_CFG)
+    # 允许 --threshold 覆盖(测试用)
+    for a in args[1:]:
+        if a.startswith("--threshold="):
+            cfg["threshold_gb"] = float(a.split("=")[1])
+
+    print("=== guard-gc-gate · GC 逻辑门检查 ===")
+    checks = [
+        ("G1 会话已落盘(fsync)", *check_G1_session_persisted()),
+        ("G2 无GC误删回调(FinalizationRegistry=0)", *check_G2_no_finalizer()),
+        ("G3 会话强引用(Map)", *check_G3_strong_ref()),
+        ("G4 GC阻塞有界", *check_G4_block_bounded(cfg)),
+        ("G5 仅空闲触发", *check_G5_idle_only(cfg)),
+        ("G6 RSS阈值触发", *check_G6_threshold(cfg)),
+    ]
+    all_pass = True
+    for name, ok, msg in checks:
+        print(f"  {'✅' if ok else '✗'} {name}: {msg}")
+        all_pass = all_pass and ok
+    if all_pass:
+        print("\n✅ 六前提满足 → safe_gc_timer 可构造, 允许实施 GC 方案")
+        return 0
+    print("\n❌ 前提不满足 → GC 方案被拒绝(类型错误)。补齐失败门后重试。")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

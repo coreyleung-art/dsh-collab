@@ -1,16 +1,16 @@
 {
  "_meta": {
   "version": "1.0.0",
-  "built_at": "2026-10-09T21:49:40",
+  "built_at": "2026-10-10T01:02:44",
   "sources": {
-   "S1 工具实体": 334,
+   "S1 工具实体": 341,
    "S2 R006 矩阵": 273,
    "S3 资源登记表": 524,
-   "S4 规则账本": 52,
-   "S5 黑板登记卡": 1000,
+   "S4 规则账本": 54,
+   "S5 黑板登记卡": 1091,
    "S6 skills": 18
   },
-  "total": 2201
+  "total": 2301
  },
  "items": [
   {
@@ -144,7 +144,7 @@
    "kind": "script",
    "name": "inbox-validity-check.py",
    "path": "~/dsh-collab/scripts/inbox-validity-check.py",
-   "desc": "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -305,7 +305,7 @@
    "kind": "script",
    "name": "ghost-session-scan.py",
    "path": "~/dsh-collab/scripts/ghost-session-scan.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -452,7 +452,7 @@
    "kind": "script",
    "name": "stance-auditor.py",
    "path": "~/dsh-collab/scripts/stance-auditor.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -585,14 +585,14 @@
    "kind": "script",
    "name": "cahac-replay-v0.1.py",
    "path": "~/dsh-collab/scripts/cahac-replay-v0.1.py",
-   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
+   "desc": "═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══"
   },
   {
    "src": "S1",
    "kind": "script",
    "name": "absence-claim-lint.py",
    "path": "~/dsh-collab/scripts/absence-claim-lint.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -676,7 +676,7 @@
    "kind": "script",
    "name": "red-team.py",
    "path": "~/dsh-collab/scripts/red-team.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -732,7 +732,7 @@
    "kind": "script",
    "name": "require-graph.py",
    "path": "~/dsh-collab/scripts/require-graph.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -795,7 +795,7 @@
    "kind": "script",
    "name": "r006-debt-assess.py",
    "path": "~/dsh-collab/scripts/r006-debt-assess.py",
-   "desc": ""
+   "desc": "═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══"
   },
   {
    "src": "S1",
@@ -809,7 +809,7 @@
    "kind": "script",
    "name": "r006-recheck.py",
    "path": "~/dsh-collab/scripts/r006-recheck.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处"
+   "desc": "枚举本机全部工具：scripts/ 下的 CLI 工具 + devices/ 下的插件。"
   },
   {
    "src": "S1",
@@ -1206,6 +1206,13 @@
   {
    "src": "S1",
    "kind": "script",
+   "name": "proxy-change-record.py",
+   "path": "~/dsh-collab/scripts/proxy-change-record.py",
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
    "name": "blackboard-subscribe.py",
    "path": "~/dsh-collab/scripts/blackboard-subscribe.py",
    "desc": "blackboard-subscribe v0.1 (HR) — S6 A 级 PoC：黑板订阅检测"
@@ -1243,7 +1250,7 @@
    "kind": "script",
    "name": "local-registry.py",
    "path": "~/dsh-collab/scripts/local-registry.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处"
+   "desc": "★ R006 ⑦：固定路径日志，失败也留痕。"
   },
   {
    "src": "S1",
@@ -1376,7 +1383,7 @@
    "kind": "script",
    "name": "datadir-job-audit.py",
    "path": "~/dsh-collab/scripts/datadir-job-audit.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -1446,7 +1453,7 @@
    "kind": "script",
    "name": "j44-reuse-gate.py",
    "path": "~/dsh-collab/scripts/j44-reuse-gate.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -1605,6 +1612,13 @@
   {
    "src": "S1",
    "kind": "script",
+   "name": "gate-canfail.py",
+   "path": "~/dsh-collab/scripts/gate-canfail.py",
+   "desc": "★ 门自己的负控：给一个【不会红】的判据 ⇒ 本门必须报 ❌"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
    "name": "cahac-compliance-report.py",
    "path": "~/dsh-collab/scripts/cahac-compliance-report.py",
    "desc": "cahac-compliance-report.py — CAHAC 合规率上报 + 缺席可判别（S15/S12 落地）"
@@ -1614,7 +1628,7 @@
    "kind": "script",
    "name": "cahac-replay-week.py",
    "path": "~/dsh-collab/scripts/cahac-replay-week.py",
-   "desc": "★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
+   "desc": "═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══"
   },
   {
    "src": "S1",
@@ -1678,6 +1692,13 @@
    "name": "bb-write.py",
    "path": "~/dsh-collab/scripts/bb-write.py",
    "desc": "bb-write (HR) - 黑板写入/校验工具 (R006 十项标准 / 2026-09-11)"
+  },
+  {
+   "src": "S1",
+   "kind": "script",
+   "name": "silent-truncation-lint.py",
+   "path": "~/dsh-collab/scripts/silent-truncation-lint.py",
+   "desc": "判定该 [:N] 是用于**展示**还是**语义提取**（对侧判据：看结果是否用于展示）"
   },
   {
    "src": "S1",
@@ -1817,7 +1838,7 @@
    "kind": "script",
    "name": "self-report-gate.py",
    "path": "~/dsh-collab/scripts/self-report-gate.py",
-   "desc": "# ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）"
+   "desc": "★ R006 ⑦：固定路径日志；失败也留痕。"
   },
   {
    "src": "S1",
@@ -1943,7 +1964,7 @@
    "kind": "script",
    "name": "deliver.py",
    "path": "~/dsh-collab/scripts/deliver.py",
-   "desc": "# ═══ ★ R006 ⑩ 约束门：--lean4-check 六项 A–F ═══"
+   "desc": "剥离字符串与注释 —— 避免自指假阳性。"
   },
   {
    "src": "S1",
@@ -2013,7 +2034,7 @@
    "kind": "script",
    "name": "wargame-sim.py",
    "path": "~/dsh-collab/scripts/wargame-sim.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "统一日志 (R006 ⑦)。"
   },
   {
    "src": "S1",
@@ -2069,7 +2090,7 @@
    "kind": "script",
    "name": "datadir-audit.py",
    "path": "~/dsh-collab/scripts/datadir-audit.py",
-   "desc": "__version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）"
+   "desc": "# ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══"
   },
   {
    "src": "S1",
@@ -2319,6 +2340,13 @@
   {
    "src": "S1",
    "kind": "plugin",
+   "name": "dsh-plugin-response-justification-gate",
+   "path": "~/dsh-collab/devices/dsh-plugin-response-justification-gate",
+   "desc": "dsh 插件包"
+  },
+  {
+   "src": "S1",
+   "kind": "plugin",
    "name": "dsh-plugin-reflect-collect",
    "path": "~/dsh-collab/devices/dsh-plugin-reflect-collect",
    "desc": "dsh 插件包"
@@ -2340,6 +2368,13 @@
   {
    "src": "S1",
    "kind": "plugin",
+   "name": "dsh-plugin-rule-parser-assumption-check",
+   "path": "~/dsh-collab/devices/dsh-plugin-rule-parser-assumption-check",
+   "desc": "dsh 插件包"
+  },
+  {
+   "src": "S1",
+   "kind": "plugin",
    "name": "dsh-plugin-cldvoice",
    "path": "~/dsh-collab/devices/dsh-plugin-cldvoice",
    "desc": "dsh 插件包"
@@ -2347,8 +2382,22 @@
   {
    "src": "S1",
    "kind": "plugin",
+   "name": "dsh-plugin-dangling-reference-gate",
+   "path": "~/dsh-collab/devices/dsh-plugin-dangling-reference-gate",
+   "desc": "dsh 插件包"
+  },
+  {
+   "src": "S1",
+   "kind": "plugin",
    "name": "dsh-plugin-reflect",
    "path": "~/dsh-collab/devices/dsh-plugin-reflect",
+   "desc": "dsh 插件包"
+  },
+  {
+   "src": "S1",
+   "kind": "plugin",
+   "name": "dsh-plugin-context-survival",
+   "path": "~/dsh-collab/devices/dsh-plugin-context-survival",
    "desc": "dsh 插件包"
   },
   {
@@ -8295,6 +8344,20 @@
    "desc": "✅ 插件/工具命名准入门（N1–N8）（2026-10-05 星桥裁定 · PSTD 提请 · v1.0.6）"
   },
   {
+   "src": "S4",
+   "kind": "rule",
+   "name": "R049",
+   "path": "(RULES.md)",
+   "desc": "✅ 上下文存活运营门（会话限寿 + 交接前置）（2026-10-09 用户批准「写」· 外部第三方 CU 实验台线入账 · v1.0.0）"
+  },
+  {
+   "src": "S4",
+   "kind": "rule",
+   "name": "R050",
+   "path": "(RULES.md)",
+   "desc": "✅ 回应正当性规范（正向约束 · 全局）（2026-10-10T00:40:19+08:00 用户授权入册 · 明令「登记时间戳与授权背景」· 裁判 `session-1ffded95` 起草 · v1.0.0）"
+  },
+  {
    "src": "S5",
    "kind": "bb-card",
    "name": "8803-not-empty-and-receivers-do-not-write-back-laodeng-20260914",
@@ -8390,6 +8453,41 @@
    "kind": "bb-card",
    "name": "acceptance-gate-lean4",
    "path": "blackboard:data/registry/acceptance-gate-lean4",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum-10-response",
+   "path": "blackboard:data/registry/addendum-10-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum-5-response",
+   "path": "blackboard:data/registry/addendum-5-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum-7-triple-symmetry",
+   "path": "blackboard:data/registry/addendum-7-triple-symmetry",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum-8-response",
+   "path": "blackboard:data/registry/addendum-8-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "addendum-9-response",
+   "path": "blackboard:data/registry/addendum-9-response",
    "desc": "黑板登记卡"
   },
   {
@@ -8635,6 +8733,20 @@
    "kind": "bb-card",
    "name": "audit-thread-reopened-independence-three-layers",
    "path": "blackboard:data/registry/audit-thread-reopened-independence-three-layers",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "audit-tool-handover",
+   "path": "blackboard:data/registry/audit-tool-handover",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "audit-tool-handover-accepted",
+   "path": "blackboard:data/registry/audit-tool-handover-accepted",
    "desc": "黑板登记卡"
   },
   {
@@ -8941,6 +9053,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "bus-test-identifiers",
+   "path": "blackboard:data/registry/bus-test-identifiers",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "c7-clause7-and-my-two-undercounts-verdict",
    "path": "blackboard:data/registry/c7-clause7-and-my-two-undercounts-verdict",
    "desc": "黑板登记卡"
@@ -8983,6 +9102,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "c7-positive-sample-own-session",
+   "path": "blackboard:data/registry/c7-positive-sample-own-session",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "c7-substate5-verdict-and-refusing-his-leniency",
    "path": "blackboard:data/registry/c7-substate5-verdict-and-refusing-his-leniency",
    "desc": "黑板登记卡"
@@ -8999,6 +9125,13 @@
    "kind": "bb-card",
    "name": "c7-substate7-verdict-reporting-health",
    "path": "blackboard:data/registry/c7-substate7-verdict-reporting-health",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "caliber-dimension-fail-closed",
+   "path": "blackboard:data/registry/caliber-dimension-fail-closed",
    "desc": "黑板登记卡"
   },
   {
@@ -9186,6 +9319,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "cld-crash-20261010-incident",
+   "path": "blackboard:data/registry/cld-crash-20261010-incident",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "cld-voice-zip-channel-open-20260909",
    "path": "blackboard:data/registry/cld-voice-zip-channel-open-20260909",
    "desc": "黑板登记卡"
@@ -9328,6 +9468,13 @@
    "kind": "bb-card",
    "name": "sync",
    "path": "blackboard:data/registry/concept-dict/sync",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "conclusion-decoupling-is-the-fourth-position",
+   "path": "blackboard:data/registry/conclusion-decoupling-is-the-fourth-position",
    "desc": "黑板登记卡"
   },
   {
@@ -9585,6 +9732,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "dead-session-postmortem-activity",
+   "path": "blackboard:data/registry/dead-session-postmortem-activity",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "deadbeef-verified-and-forever-needs-closure-laodeng-20260914",
    "path": "blackboard:data/registry/deadbeef-verified-and-forever-needs-closure-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -9704,6 +9858,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "discoverable-vs-comparable-and-residual-fail-open",
+   "path": "blackboard:data/registry/discoverable-vs-comparable-and-residual-fail-open",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "disk-cleanup-2026-08-29",
    "path": "blackboard:data/registry/disk-cleanup-2026-08-29",
    "desc": "黑板登记卡"
@@ -9746,6 +9907,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "drg-step-three-mechanized-and-it-caught-itself",
+   "path": "blackboard:data/registry/drg-step-three-mechanized-and-it-caught-itself",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "drift-scan",
    "path": "blackboard:data/registry/drift-scan",
    "desc": "黑板登记卡"
@@ -9755,6 +9923,13 @@
    "kind": "bb-card",
    "name": "dsh-plugin-assert-audit",
    "path": "blackboard:data/registry/dsh-plugin-assert-audit",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "dsh-plugin-context-survival",
+   "path": "blackboard:data/registry/dsh-plugin-context-survival",
    "desc": "黑板登记卡"
   },
   {
@@ -9811,6 +9986,20 @@
    "kind": "bb-card",
    "name": "dsh-plugin-reflect-synthesize",
    "path": "blackboard:data/registry/dsh-plugin-reflect-synthesize",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "dsh-plugin-response-justification-gate",
+   "path": "blackboard:data/registry/dsh-plugin-response-justification-gate",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "dsh-plugin-rule-parser-assumption-check",
+   "path": "blackboard:data/registry/dsh-plugin-rule-parser-assumption-check",
    "desc": "黑板登记卡"
   },
   {
@@ -9963,6 +10152,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "f-segment-ledger-v2",
+   "path": "blackboard:data/registry/f-segment-ledger-v2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f-segment-ledger-v3",
+   "path": "blackboard:data/registry/f-segment-ledger-v3",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "f23-retention-and-independence-paradox",
    "path": "blackboard:data/registry/f23-retention-and-independence-paradox",
    "desc": "黑板登记卡"
@@ -9972,6 +10175,90 @@
    "kind": "bb-card",
    "name": "f38-accepted-and-expectation-overrides-text",
    "path": "blackboard:data/registry/f38-accepted-and-expectation-overrides-text",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f69-fake-split-and-tool-overlap",
+   "path": "blackboard:data/registry/f69-fake-split-and-tool-overlap",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f71-extract-vs-display",
+   "path": "blackboard:data/registry/f71-extract-vs-display",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f71-followup-accepted-and-scope-decision",
+   "path": "blackboard:data/registry/f71-followup-accepted-and-scope-decision",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f71-followup-and-slice-semantics",
+   "path": "blackboard:data/registry/f71-followup-and-slice-semantics",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f72-my-f69-was-fail-open",
+   "path": "blackboard:data/registry/f72-my-f69-was-fail-open",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-counts-unreconciled-and-delay-hypothesis",
+   "path": "blackboard:data/registry/f75-counts-unreconciled-and-delay-hypothesis",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-delivered-is-not-persisted",
+   "path": "blackboard:data/registry/f75-delivered-is-not-persisted",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-delivered-is-not-persisted-our-side",
+   "path": "blackboard:data/registry/f75-delivered-is-not-persisted-our-side",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-four-states-and-why-crash-window-is-unobservable",
+   "path": "blackboard:data/registry/f75-four-states-and-why-crash-window-is-unobservable",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-not-reproduced-with-correction",
+   "path": "blackboard:data/registry/f75-not-reproduced-with-correction",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f75-three-states-mechanical-criteria",
+   "path": "blackboard:data/registry/f75-three-states-mechanical-criteria",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "f85-version-unstated-and-rule-audit-assumption",
+   "path": "blackboard:data/registry/f85-version-unstated-and-rule-audit-assumption",
    "desc": "黑板登记卡"
   },
   {
@@ -9993,6 +10280,13 @@
    "kind": "bb-card",
    "name": "failure-visibility-the-final-name",
    "path": "blackboard:data/registry/failure-visibility-the-final-name",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "fallback-injection-source-located",
+   "path": "blackboard:data/registry/fallback-injection-source-located",
    "desc": "黑板登记卡"
   },
   {
@@ -10180,6 +10474,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "gcr-gate-tool-delivered",
+   "path": "blackboard:data/registry/gcr-gate-tool-delivered",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "governance-gap-plugin-owner-unregistered-20260911",
    "path": "blackboard:data/registry/governance-gap-plugin-owner-unregistered-20260911",
    "desc": "黑板登记卡"
@@ -10189,6 +10490,13 @@
    "kind": "bb-card",
    "name": "green-side-needs-three-axes-laodeng-20260914",
    "path": "blackboard:data/registry/green-side-needs-three-axes-laodeng-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "hash-algorithm-declaration-and-f44",
+   "path": "blackboard:data/registry/hash-algorithm-declaration-and-f44",
    "desc": "黑板登记卡"
   },
   {
@@ -10292,6 +10600,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "hint-not-gate-and-description-vs-criterion",
+   "path": "blackboard:data/registry/hint-not-gate-and-description-vs-criterion",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "hold-and-deviation-alert-20260910",
    "path": "blackboard:data/registry/hold-and-deviation-alert-20260910",
    "desc": "黑板登记卡"
@@ -10315,6 +10630,20 @@
    "kind": "bb-card",
    "name": "home-thread-two-senses-split-and-stale-snapshot-rule-20260914",
    "path": "blackboard:data/registry/home-thread-two-senses-split-and-stale-snapshot-rule-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "hook-a-implemented-not-installed-and-availability-is-a-probability",
+   "path": "blackboard:data/registry/hook-a-implemented-not-installed-and-availability-is-a-probability",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "hook-scope-limited-and-dependency-chain-criterion",
+   "path": "blackboard:data/registry/hook-scope-limited-and-dependency-chain-criterion",
    "desc": "黑板登记卡"
   },
   {
@@ -13078,6 +13407,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "lint-v2-and-design-vs-implementation",
+   "path": "blackboard:data/registry/lint-v2-and-design-vs-implementation",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "live-references-a8-a9",
+   "path": "blackboard:data/registry/live-references-a8-a9",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "live-residual-table-row-20260910",
    "path": "blackboard:data/registry/live-residual-table-row-20260910",
    "desc": "黑板登记卡"
@@ -13143,6 +13486,13 @@
    "kind": "bb-card",
    "name": "magnitude-argument-l2-check-20260914",
    "path": "blackboard:data/registry/magnitude-argument-l2-check-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "mbp-agent-way-decl-report-1791556200",
+   "path": "blackboard:data/registry/mbp-agent-way-decl-report-1791556200",
    "desc": "黑板登记卡"
   },
   {
@@ -13234,6 +13584,20 @@
    "kind": "bb-card",
    "name": "mechanical-detectability-and-seal",
    "path": "blackboard:data/registry/mechanical-detectability-and-seal",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "mechanizability-checked-and-fourth-position-of-self-reference",
+   "path": "blackboard:data/registry/mechanizability-checked-and-fourth-position-of-self-reference",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "mechanizability-criterion-and-self-reference-three-positions",
+   "path": "blackboard:data/registry/mechanizability-criterion-and-self-reference-three-positions",
    "desc": "黑板登记卡"
   },
   {
@@ -13407,6 +13771,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "n7-cause-separation-by-target",
+   "path": "blackboard:data/registry/n7-cause-separation-by-target",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "n7-ignition-source-forensics",
+   "path": "blackboard:data/registry/n7-ignition-source-forensics",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "namespace-registry-v1",
    "path": "blackboard:data/registry/namespace-registry-v1",
    "desc": "黑板登记卡"
@@ -13547,6 +13925,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "owner-adjudication-packet",
+   "path": "blackboard:data/registry/owner-adjudication-packet",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "p-ledger-v2-verification",
    "path": "blackboard:data/registry/p-ledger-v2-verification",
    "desc": "黑板登记卡"
@@ -13589,6 +13974,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "p3-prerequisite-located",
+   "path": "blackboard:data/registry/p3-prerequisite-located",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "p5-behavioral-carrier-review",
    "path": "blackboard:data/registry/p5-behavioral-carrier-review",
    "desc": "黑板登记卡"
@@ -13605,6 +13997,13 @@
    "kind": "bb-card",
    "name": "p5-intent-vs-landing",
    "path": "blackboard:data/registry/p5-intent-vs-landing",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "packet-verified-with-residual-note",
+   "path": "blackboard:data/registry/packet-verified-with-residual-note",
    "desc": "黑板登记卡"
   },
   {
@@ -13904,8 +14303,36 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "project-init-context-survival-backend-20261010",
+   "path": "blackboard:data/registry/project-init-context-survival-backend-20261010",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "property-to-condition-and-unintentional-forgery",
    "path": "blackboard:data/registry/property-to-condition-and-unintentional-forgery",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "property-vs-condition-as-the-recurring-form",
+   "path": "blackboard:data/registry/property-vs-condition-as-the-recurring-form",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "pstd-delivery-verified-and-acceptance-gate-hollow",
+   "path": "blackboard:data/registry/pstd-delivery-verified-and-acceptance-gate-hollow",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "pstd-v101-judge-verified-v100-version-mismatch",
+   "path": "blackboard:data/registry/pstd-v101-judge-verified-v100-version-mismatch",
    "desc": "黑板登记卡"
   },
   {
@@ -13920,6 +14347,13 @@
    "kind": "bb-card",
    "name": "publish-hold-until-review-fixes-20260910",
    "path": "blackboard:data/registry/publish-hold-until-review-fixes-20260910",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "purpose-layer-negative-controls",
+   "path": "blackboard:data/registry/purpose-layer-negative-controls",
    "desc": "黑板登记卡"
   },
   {
@@ -14074,6 +14508,27 @@
    "kind": "bb-card",
    "name": "r046-input-separation-verdict",
    "path": "blackboard:data/registry/r046-input-separation-verdict",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "r050-mode-tension-ruling",
+   "path": "blackboard:data/registry/r050-mode-tension-ruling",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "r050-ruling-execution-report-v101",
+   "path": "blackboard:data/registry/r050-ruling-execution-report-v101",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "r050-tool-commission-to-pstd",
+   "path": "blackboard:data/registry/r050-tool-commission-to-pstd",
    "desc": "黑板登记卡"
   },
   {
@@ -14296,6 +14751,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "restart-precheck-toolchain-located",
+   "path": "blackboard:data/registry/restart-precheck-toolchain-located",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "retention-fix-and-branch-dependent-order-laodeng-20260914",
    "path": "blackboard:data/registry/retention-fix-and-branch-dependent-order-laodeng-20260914",
    "desc": "黑板登记卡"
@@ -14326,6 +14788,55 @@
    "kind": "bb-card",
    "name": "review-toolchain-verified-card-missing-20260910",
    "path": "blackboard:data/registry/review-toolchain-verified-card-missing-20260910",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "review-tooling-iteration-1",
+   "path": "blackboard:data/registry/review-tooling-iteration-1",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rjg-v101-precise-locations-and-second-version-gap",
+   "path": "blackboard:data/registry/rjg-v101-precise-locations-and-second-version-gap",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rjg-v101-verified-three-state",
+   "path": "blackboard:data/registry/rjg-v101-verified-three-state",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rpac-pair-cancel-adopted-and-next-layer-of-auto-execution",
+   "path": "blackboard:data/registry/rpac-pair-cancel-adopted-and-next-layer-of-auto-execution",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rpac-relation-not-value-adopted-and-mechanizability-verdict",
+   "path": "blackboard:data/registry/rpac-relation-not-value-adopted-and-mechanizability-verdict",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rpac-verified-implementation-stronger-than-wording",
+   "path": "blackboard:data/registry/rpac-verified-implementation-stronger-than-wording",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "rpac-your-insight-mechanized-into-a-runnable-gate",
+   "path": "blackboard:data/registry/rpac-your-insight-mechanized-into-a-runnable-gate",
    "desc": "黑板登记卡"
   },
   {
@@ -14396,6 +14907,13 @@
    "kind": "bb-card",
    "name": "same-object-two-granularities-delivery-20260914",
    "path": "blackboard:data/registry/same-object-two-granularities-delivery-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "sandbox-script-tool-delivered",
+   "path": "blackboard:data/registry/sandbox-script-tool-delivered",
    "desc": "黑板登记卡"
   },
   {
@@ -14583,6 +15101,27 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "stage-c-progress",
+   "path": "blackboard:data/registry/stage-c-progress",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "stage-review-v1-response",
+   "path": "blackboard:data/registry/stage-review-v1-response",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "stage-review-verifier-request",
+   "path": "blackboard:data/registry/stage-review-verifier-request",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "stance-criteria-set-v1-20260910",
    "path": "blackboard:data/registry/stance-criteria-set-v1-20260910",
    "desc": "黑板登记卡"
@@ -14653,8 +15192,29 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "starbridge-alias-mapping-defect",
+   "path": "blackboard:data/registry/starbridge-alias-mapping-defect",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "starbridge-handover-v2",
    "path": "blackboard:data/registry/starbridge-handover-v2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-knowledge-index",
+   "path": "blackboard:data/registry/starbridge-knowledge-index",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-next-stage-plan",
+   "path": "blackboard:data/registry/starbridge-next-stage-plan",
    "desc": "黑板登记卡"
   },
   {
@@ -14681,6 +15241,76 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-2",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-2",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-3",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-3",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-4",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-4",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-5",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-5",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-6",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-6",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-7",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-7",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-8",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-8",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-addendum-9",
+   "path": "blackboard:data/registry/starbridge-stage-review-addendum-9",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-request",
+   "path": "blackboard:data/registry/starbridge-stage-review-request",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "starbridge-stage-review-result",
+   "path": "blackboard:data/registry/starbridge-stage-review-result",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "starbridge-v0910-verify-20260909",
    "path": "blackboard:data/registry/starbridge-v0910-verify-20260909",
    "desc": "黑板登记卡"
@@ -14688,8 +15318,22 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "starbridge-version-registry",
+   "path": "blackboard:data/registry/starbridge-version-registry",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "startai-signature-expiry-20261010",
    "path": "blackboard:data/registry/startai-signature-expiry-20261010",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "state-registry",
+   "path": "blackboard:data/registry/state-registry",
    "desc": "黑板登记卡"
   },
   {
@@ -14926,6 +15570,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "tool-merge-completed",
+   "path": "blackboard:data/registry/tool-merge-completed",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "topic-lookup-gate-v1.3.0-20260914",
    "path": "blackboard:data/registry/topic-lookup-gate-v1.3.0-20260914",
    "desc": "黑板登记卡"
@@ -15066,6 +15717,20 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "v2-verified-and-sensitivity-source",
+   "path": "blackboard:data/registry/v2-verified-and-sensitivity-source",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "v2-verified-and-why-numbers-still-incomparable",
+   "path": "blackboard:data/registry/v2-verified-and-why-numbers-still-incomparable",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "v3-audit-response",
    "path": "blackboard:data/registry/v3-audit-response",
    "desc": "黑板登记卡"
@@ -15136,6 +15801,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "verifier-scope-refusal-by-gate",
+   "path": "blackboard:data/registry/verifier-scope-refusal-by-gate",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "verify-041b4177-hold-effective-20260910",
    "path": "blackboard:data/registry/verify-041b4177-hold-effective-20260910",
    "desc": "黑板登记卡"
@@ -15157,6 +15829,13 @@
   {
    "src": "S5",
    "kind": "bb-card",
+   "name": "version-lag-both-ways-and-invariant-form",
+   "path": "blackboard:data/registry/version-lag-both-ways-and-invariant-form",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
    "name": "visual-tools-priority-j48",
    "path": "blackboard:data/registry/visual-tools-priority-j48",
    "desc": "黑板登记卡"
@@ -15173,6 +15852,13 @@
    "kind": "bb-card",
    "name": "watchdog-dead-26days-20260914",
    "path": "blackboard:data/registry/watchdog-dead-26days-20260914",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "wave-s-tool-inventory",
+   "path": "blackboard:data/registry/wave-s-tool-inventory",
    "desc": "黑板登记卡"
   },
   {
@@ -15215,6 +15901,20 @@
    "kind": "bb-card",
    "name": "x10-dirty-key-blocked",
    "path": "blackboard:data/registry/x10-dirty-key-blocked",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "x18-cross-object-attribution",
+   "path": "blackboard:data/registry/x18-cross-object-attribution",
+   "desc": "黑板登记卡"
+  },
+  {
+   "src": "S5",
+   "kind": "bb-card",
+   "name": "x19-batch-regex-broke-scripts",
+   "path": "blackboard:data/registry/x19-batch-regex-broke-scripts",
    "desc": "黑板登记卡"
   },
   {

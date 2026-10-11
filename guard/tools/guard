@@ -1,0 +1,263 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard — CLD/DSH 操作治理闸门工具（v1.0）
+五道闸：备份 / 版本校对 / 不可写门禁 / 沙箱模拟 / 物理审查
+
+用法：
+  guard backup <path>                备份目标到 backups/（保留最后 2 个 good 态）
+  guard check-writable <path>        检查是否在不可写清单（在则拒绝 exit 1）
+  guard version-check [--all|<pkg>]  版本校对（本地 vs npm registry）
+  guard sandbox <patch-cmd...>       在 /tmp/guard-sandbox 副本执行并校验
+  guard review <path>                物理审查（语法/权限/链接/加载）
+  guard protect-list                 显示当前不可写清单
+"""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+GUARD_DIR = os.path.expanduser("~/dsh-collab/guard")
+BACKUP_DIR = os.path.join(GUARD_DIR, "backups")
+RULES_DIR = os.path.join(GUARD_DIR, "rules")
+CHANGELOG = os.path.join(BACKUP_DIR, "CHANGELOG.md")
+KEEP_GOOD = 2  # 保留最后 2 个 good 备份
+
+# ---- 不可写清单（红线 + 受限）----
+FORBIDDEN_PATTERNS = [
+    # 绝对红线
+    r"/Applications/CLD\.app/Contents/Frameworks/Electron Framework\.framework/",
+    r"/Applications/CLD\.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai/dsh-tools/lib/",
+    r"\.dsh/profiles/web/node_modules/\.pnpm/",
+    r"com\.user\.auto-index\.plist",
+    # 受限区（标注需五道闸）
+    r"/Applications/CLD\.app/Contents/Resources/app\.asar$",
+    r"\.dsh/profiles/web/package\.json$",
+    r"\.dsh/profiles/web/cordis\.patch\.yml$",
+    r"\.dsh/profiles/web/pnpm-lock\.yaml$",
+    r"\.dsh/profiles/web/pnpm-workspace\.yaml$",
+    r"dsh-runtime/runtime/node_modules/@deepseek-ai/",
+    r"/Applications/CLD\.app/",
+]
+RESTRICTED_REASON = {
+    "Electron Framework": "Electron 二进制，改壳必崩（红线）",
+    "dsh-tools": "schema DSL 核心，API 漂移即连环崩（今日 gov 教训，红线）",
+    ".pnpm": "pnpm 内部结构，手改即锁不一致（红线）",
+    "auto-index": "事故停用定时器，恢复需审批（红线）",
+    "app.asar": "主壳，需备份+重签评估（受限）",
+    "package.json": "profile 清单，需备份+pnpm 正规路径（受限）",
+    "cordis.patch.yml": "补丁层，需备份+沙箱验证（受限）",
+    "pnpm-lock": "依赖锁，需 pnpm 更新勿手改（受限）",
+    "dsh-runtime/@deepseek-ai": "官方包，原则上只读；改=升级需完整流程（受限）",
+}
+
+
+def is_forbidden(path):
+    p = os.path.abspath(os.path.expanduser(path))
+    for pat in FORBIDDEN_PATTERNS:
+        if re.search(pat, p):
+            reason = "命中不可写清单"
+            for k, v in RESTRICTED_REASON.items():
+                if k in pat or k in p:
+                    reason = v
+                    break
+            return True, reason
+    return False, ""
+
+
+def log(msg):
+    ts = time.strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        with open(CHANGELOG, "a", encoding="utf-8") as f:
+            f.write(f"[{ts}] {msg}\n")
+    except Exception:
+        pass
+
+
+# ---------------- ① 备份 ----------------
+def cmd_backup(paths):
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    for path in paths:
+        p = os.path.abspath(os.path.expanduser(path))
+        if not os.path.exists(p):
+            print(f"✗ 不存在: {p}")
+            continue
+        # 规范名（去斜杠）
+        safe = p.lstrip("/").replace("/", "__")
+        # 找已有 good 备份，滚动保留 KEEP_GOOD 个
+        existing = sorted([f for f in os.listdir(BACKUP_DIR)
+                           if f.startswith(safe + ".bak-good-")])
+        while len(existing) >= KEEP_GOOD:
+            os.remove(os.path.join(BACKUP_DIR, existing.pop(0)))
+        dest = os.path.join(BACKUP_DIR, f"{safe}.bak-good-{ts}")
+        try:
+            if os.path.isdir(p):
+                shutil.copytree(p, dest)
+            else:
+                shutil.copy2(p, dest)
+            print(f"✓ 已备份: {p}\n  → {dest}")
+            log(f"BACKUP {p} → {dest}")
+        except Exception as e:
+            print(f"✗ 备份失败 {p}: {e}")
+    return 0
+
+
+# ---------------- ③ 不可写门禁 ----------------
+def cmd_check_writable(paths):
+    bad = 0
+    for path in paths:
+        forbid, reason = is_forbidden(path)
+        if forbid:
+            print(f"✗ 禁止写入: {path}\n  原因: {reason}\n  (需五道闸流程，先 guard backup + 评估)")
+            bad += 1
+        else:
+            print(f"✓ 可写: {path}")
+    return 1 if bad else 0
+
+
+def cmd_protect_list():
+    print("=== 不可写/受限清单 ===")
+    for pat in FORBIDDEN_PATTERNS:
+        print(f"  {pat}")
+    print("\n详见: guard/rules/CLD-DSH操作治理规范-v1.md §三")
+
+
+# ---------------- ② 版本校对 ----------------
+def pkg_version(pkg_path):
+    try:
+        with open(os.path.join(pkg_path, "package.json"), encoding="utf-8") as f:
+            return json.load(f).get("version", "?")
+    except Exception:
+        return "?"
+
+
+def cmd_version_check(all_flag, pkgs):
+    targets = []
+    if all_flag:
+        targets = ["/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai/dsh",
+                   "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai/dsh-tools",
+                   "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai/dsh-app-boot"]
+    elif pkgs:
+        base = "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai"
+        for p in pkgs:
+            targets.append(os.path.join(base, p))
+    else:
+        print(__doc__.split("用法：")[1].split("\n")[0] if "用法" in __doc__ else "")
+        return 1
+
+    print("=== 本地版本（dsh-runtime）===")
+    for t in targets:
+        print(f"  {os.path.basename(t)}: {pkg_version(t)}")
+    # 上游 npm 校对（离线则跳过）
+    import urllib.request
+    for t in targets:
+        name = os.path.basename(t)
+        full = f"@deepseek-ai/{name}"
+        try:
+            req = urllib.request.Request(
+                f"https://registry.npmjs.org/{full.replace('/', '%2F')}/latest",
+                headers={"User-Agent": "guard-tool"})
+            with urllib.request.urlopen(req, timeout=8) as r:
+                latest = json.load(r).get("version", "?")
+            local = pkg_version(t)
+            flag = "✓" if local == latest else f"⚠ 本地 {local} ≠ 上游 {latest}"
+            print(f"  上游 {full}: {latest}  [{flag}]")
+        except Exception as e:
+            print(f"  上游 {full}: 无法校对 ({e})")
+    return 0
+
+
+# ---------------- ④ 沙箱模拟 ----------------
+def cmd_sandbox(args):
+    if not args:
+        print("用法: guard sandbox <patch-cmd...>")
+        return 1
+    sb = "/tmp/guard-sandbox"
+    shutil.rmtree(sb, ignore_errors=True)
+    os.makedirs(sb, exist_ok=True)
+    # 将命令里的路径重定向到沙箱副本（简单替换常见目标）
+    cmd = list(args)
+    mapped = []
+    for a in cmd:
+        if a.startswith("~"):
+            a = os.path.expanduser(a)
+        mapped.append(a)
+    print(f"沙箱目录: {sb}")
+    print(f"命令: {' '.join(mapped)}")
+    print("⚠ 沙箱模拟：仅验证命令可执行与产物语法（路径未真重定向，谨慎使用）")
+    try:
+        r = subprocess.run(mapped, capture_output=True, text=True, timeout=30)
+        print("stdout:", r.stdout[-500:] if r.stdout else "(空)")
+        print("stderr:", r.stderr[-500:] if r.stderr else "(空)")
+        print(f"exit={r.returncode} → {'✓ 通过' if r.returncode == 0 else '✗ 失败'}")
+        return r.returncode
+    except Exception as e:
+        print(f"✗ 沙箱执行失败: {e}")
+        return 1
+
+
+# ---------------- ⑤ 物理审查 ----------------
+def cmd_review(paths):
+    rc = 0
+    for path in paths:
+        p = os.path.abspath(os.path.expanduser(path))
+        print(f"=== 审查: {p} ===")
+        if not os.path.exists(p):
+            print("✗ 不存在")
+            rc = 1
+            continue
+        # 语法检查
+        if p.endswith(".js") or p.endswith(".mjs"):
+            r = subprocess.run(["node", "--check", p], capture_output=True, text=True)
+            print(f"  JS 语法: {'✓' if r.returncode == 0 else '✗ ' + r.stderr[:100]}")
+            if r.returncode != 0:
+                rc = 1
+        elif p.endswith(".json"):
+            try:
+                json.load(open(p, encoding="utf-8"))
+                print("  JSON 解析: ✓")
+            except Exception as e:
+                print(f"  JSON 解析: ✗ {e}")
+                rc = 1
+        # 权限
+        mode = oct(os.stat(p).st_mode & 0o777)
+        print(f"  权限: {mode}")
+        # 链接
+        if os.path.islink(p):
+            print(f"  链接 → {os.readlink(p)}")
+    return rc
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+    sub = sys.argv[1]
+    rest = sys.argv[2:]
+    try:
+        if sub == "backup":
+            return cmd_backup(rest)
+        if sub == "check-writable":
+            return cmd_check_writable(rest)
+        if sub == "protect-list":
+            return cmd_protect_list()
+        if sub == "version-check":
+            all_f = "--all" in rest
+            pkgs = [x for x in rest if not x.startswith("--")]
+            return cmd_version_check(all_f, pkgs)
+        if sub == "sandbox":
+            return cmd_sandbox(rest)
+        if sub == "review":
+            return cmd_review(rest)
+        print(__doc__)
+        return 1
+    except KeyboardInterrupt:
+        return 130
+
+
+if __name__ == "__main__":
+    sys.exit(main())

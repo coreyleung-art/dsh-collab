@@ -1,0 +1,66 @@
+{
+ "schema": "r006-cases-backfill-complete/v1",
+ "created_at": "2026-10-10T04:03:56+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ R006 §5 欠账补完（第二轮）：五项工具的 B/C 已全部改用**真实判据**（非占位）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T04:03:56+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★★_what_was_the_debt": "★ 通用块 `guard/_r006_block_generic.py` 的 B/C 两项**缺省用占位**（只比 `bool(\"\")` 之类）⇒ 那**只验证了「布尔运算」，没验证「本门判据能红」** —— 而 R006 B/C 的本意正是后者。★ 该欠账由**我方自行登记**（非他人指出）。",
+ "★★_final_state": {
+  "table": [
+   {
+    "tool": "sandbox-script",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "B/C": "★ **真实**（离幂等 vs 幂等：两次跑输出比对）"
+   },
+   {
+    "tool": "gcr-gate",
+    "selfcheck": "4/4",
+    "lean4": "6/6 全绿",
+    "B/C": "★ **真实**（专用块：`_synth_gcr16`/`_synth_gcr8`/`_synth_gcr6_ent`，3 条越界全 FAIL + 3 条合法全 PASS）"
+   },
+   {
+    "tool": "infopack-check",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "B/C": "★ **真实**（空文本 red=17 / 无关文本 red=17 / **真实信息包 red=0**）"
+   },
+   {
+    "tool": "official-ref-gate",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "B/C": "★ **真实**（留证 48h 前 ⇒ 过期 / 1h 前 ⇒ 新鲜）"
+   },
+   {
+    "tool": "review-gate",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "B/C": "★ **真实**（裸露 /tmp+指纹 ⇒ n_bare=2 / 含时点+复跑命令 ⇒ n_bare=0）"
+   }
+  ],
+  "★_verdict": "★ **五项全部 6/6 全绿，且 B/C 均为真实判据** ⇒ A 阶段该欠账**闭合**"
+ },
+ "★★_the_negative_control（证明判据非恒绿）": {
+  "method": "★ 故意翻转 `infopack` 的 B 项期望（True→False）⇒ 看是否变红",
+  "result": "❌ `B 负例全部被拒 — ★ 有负例被放过：['空信息包 ⇒ 应判红（实得 red=17）']` · **退出码 1** ⇒ ★ **判据确实能红**（非恒绿装饰）；恢复后仍 6/6 全绿"
+ },
+ "★★_defects_caught_during_this_round": [
+  "① **`sandbox-script` 只支持 Python 脚本** —— `run_once()` 用 `argv = [sys.executable, script]` 执行 ⇒ **bash 脚本会被当 Python 跑**（`exit=1` + `err` 里是 Python traceback）。★ 我第一版负例写了 bash ⇒ B 项红。⇒ 已改为 Python 样例，并**把该实现事实写进 `_r006_cases` 的 docstring**",
+  "② **`_r006_cases()` 会写临时文件 ⇒ 触发 selfcheck ②「不写被检对象」** ⇒ ★ 已用**通用豁免约定** `gate-self-exempt: begin/end` 标注（**该约定的第三次应用**）",
+  "③ **我的第一版 B 判据过弱**（`exit is not None` 近乎恒真）⇒ 已改为**实质判据**（两次输出确实不同）"
+ ],
+ "★_reusable_artifact": {
+  "path": "guard/_add_r006_cases.py（注入器）+ guard/_cases_{infopack,review,official,sandbox}.py（各工具的真实 B/C）",
+  "★_design": "★ 注入器**只加覆盖函数、不改判据本身**；且**检测已有真实实现时跳过**（幂等）"
+ },
+ "not_verified": [
+  "★ B/C 的**样本数仍偏少**（每工具 1–3 条）⇒ 覆盖面有限，**不等于穷尽**",
+  "★ 各项合成输入**取自本机当前语义**（如真实信息包文件在不在）⇒ 换机器/换版本可能失效（`infopack` 的 C 项已作此处理：取不到真实包即记 False）"
+ ],
+ "r046_note": "本卡为欠账补完登记，不构成任何验收或裁决通过。"
+}

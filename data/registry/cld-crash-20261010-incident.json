@@ -1,0 +1,128 @@
+{
+  "schema": "cld-crash-20261010-incident/v1",
+  "created_at": "2026-10-10T00:03:12+08:00",
+  "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+  "title": "★ CLD 崩溃事件登记（2026-10-10 00:00 前后）—— 含**可见性缺口**与对我方结论的潜在影响",
+  "reported_by": "用户：「刚刚 cld 崩了，已经重启，继续推进任务和目标」",
+  "★_timeline": {
+    "note": "★ 日志为 **UTC**，北京时间为 +8；下列已换算",
+    "events": [
+      {
+        "beijing": "2026-10-09 23:57:15",
+        "what": "旧 CLD 启动（pid 29097）—— 本次崩溃的那一任"
+      },
+      {
+        "beijing": "2026-10-09 23:47–23:53",
+        "what": "memory-trend: heap 6–8MB / rss 147–148MB（旧 CLD，uptime 18h）"
+      },
+      {
+        "beijing": "2026-10-10 00:00 前后",
+        "what": "★ **崩溃**（用户报告）"
+      },
+      {
+        "beijing": "2026-10-10 00:00:47",
+        "what": "重启中（uptime 211s 的新进程）"
+      },
+      {
+        "beijing": "2026-10-10 00:01:49",
+        "what": "★ **又一次重启**（uptime 60s）⇒ 短时间多次重启"
+      }
+    ]
+  },
+  "★_crash_signature": {
+    "marker": "dsh-crash-after-child (pid 29097, code 0, signal null)",
+    "prior_record": "PREVIOUS CLD RUN (pid 29097, started 2026-10-09T15:57:15.991Z) DID NOT EXIT CLEANLY — **no clean-exit record (crash or external kill?)**: last heartb…（日志原文）",
+    "type_classification": "★ 属锚点 §7.4 **P16 家族**（`dsh-crash-after-child`）—— 但见下：**本次不是主进程 OOM**",
+    "★_not_main_process_oom": "memory-trend 实测：**主进程 heap 全程 6–8 MB**（上限 4192MB）· rss 147–163 MB ⇒ **主进程内存正常** ⇒ 崩溃发生在**子进程**侧",
+    "oom_occurrences_in_log": "dsh-web.log 含 28 处 `FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory`，但**均为历史条目**（行号 1753/1826/1939/2016…），**非本次** ⇒ **不作本次归因**"
+  },
+  "★★_visibility_gap": {
+    "what_is_recorded": "崩溃**被记录了**：marker 类型 + pid + 起始时刻 + 心跳时间",
+    "what_is_NOT_recorded": "★ **「哪个子进程」「为何退出」未被记录** —— 日志自己写着 「**crash or external kill?**」⇒ **记录者本身不知道**",
+    "classification": "★ 这是 §4.3 **第 7 态（报了一个不回答问题的维度）**的实例：它报了「没干净退出」（真实的维度），但读者真正要问的是「为何崩、是谁崩」。⇒ 与 `agent_peers` 报 `idle`（活跃性真、可用性假）**同型**。",
+    "why_it_matters": "★ 这**正是本计划要治的东西**，而它今晚在计划执行者自己的载体上又发生了一次。⇒ 可作为 §7 崩溃登记表的**现场补充证据**：现有崩溃留痕**不足以归因**。",
+    "possible_improvement": "留痕可在子进程退出处补记 **child pid + 退出码 + 最后一条事件类型**；本卡**不擅改**（涉及 CLD 壳，须批）"
+  },
+  "★_collateral_finding": {
+    "what": "`dsh doctor`（重启后）报：**死会话 session-fa1f9150 现为 `corrupt`**",
+    "evidence": "doctor exit=1 · sessions 7 项中：`corrupt: session-fa1f9150-…/session.jsonl.zstd (structural: frame at byte 235999203 failed va…)`",
+    "counts": "healthy 452 · corrupt 2 · fixed 0 · unchanged 448",
+    "other_corrupt": "session-fb0e1ccb（known corrupt，历史已知）",
+    "★_why_this_matters_to_me": "★ **我今晚大量结论的数据源就是这个文件**：P26 实测 · 死后点火 12 次 · framed/shadowed 分布 · turn 区间 —— **全部读自它**。⇒ **必须核实它在损坏前可读的部分是否仍可读**，否则那些结论的有效性要重新声明。",
+    "file_size_now": 257087661,
+    "file_size_earlier_tonight": 257081605,
+    "★_still_growing": "★ 比今晚早先记录**大 6,056 B** ⇒ **该文件仍在被写入**（与「死后仍被点火」一致）",
+    "corruption_position": "byte 235,999,203（**中部**，非尾部）"
+  },
+  "★_time_correlation_with_my_activity": {
+    "fact": "我今晚（23:0x–23:5x）多次对该文件做**全量流式解压**（每次 245MB）",
+    "crash_time": "00:00 前后",
+    "★_honest_verdict": "★ **时间上接近，但因果未证**。① 主进程 heap 正常 ⇒ 与我所读文件的大小无直接内存关系；② 该文件本身**已 corrupt** ⇒ 读取它**可能**触发子进程异常，但**我未取证**；③ 我无法排除其它会话/插件的活动。⇒ **记为「时间相关、因果未证」**，不归因给任何一方。",
+    "what_would_settle_it": "子进程级退出留痕（见 visibility_gap 的 possible_improvement）"
+  },
+  "★_my_session_integrity": {
+    "turn_count": 86,
+    "file_bytes": 11763399,
+    "artifacts_intact": [
+      "audits/20261009/owner-verify.sh",
+      "data/registry/owner-adjudication-packet.json",
+      "audits/20261009/repro/starbridge-gates-cases.json",
+      "data/registry/f71-followup-and-slice-semantics.json"
+    ],
+    "verdict": "★ 我方会话与产出**完整**（逐个存在性校验通过）"
+  },
+  "pending": "已回填（见下）",
+  "r046_note": "本卡为事件登记，不构成任何验收或裁决通过。",
+  "★_resolved_the_data_source_question": {
+    "added_at": "2026-10-10T00:04:07+08:00",
+    "question": "死会话文件被 doctor 判 corrupt ⇒ **我今晚基于它的结论是否仍有效**？",
+    "method": "zstd 全量解压 → 逐行 json.loads → 统计失败行",
+    "result": {
+      "总行数": 894750,
+      "可解析": 894750,
+      "解析失败": 0,
+      "缺 type": 0,
+      "解压字节": 640468891,
+      "zstd_exit": 0,
+      "stderr": "空"
+    },
+    "★_verdict": "★ **100.0000% 可解析、0 失败** ⇒ **我今晚基于该文件的结论有效**：P26 全量实测 · 死后点火 12 次 · framed/shadowed 分布 · turn 区间 —— 均建立在可解析事件上。⇒ **无需重新声明其有效性**。"
+  },
+  "★★_tool_judgement_divergence": {
+    "finding": "★ **同一文件，两个工具判定相反**：",
+    "table": [
+      {
+        "tool": "dsh doctor（Node 侧）",
+        "verdict": "**corrupt**",
+        "evidence": "`structural: frame at byte 235999203 failed va…`"
+      },
+      {
+        "tool": "zstd CLI（Homebrew 1.5.7）",
+        "verdict": "**exit=0 · 完整解压**",
+        "evidence": "640,468,891 B · 894,750 行 · stderr 空"
+      }
+    ],
+    "★_byte_level_check": "我读了 byte 235,999,203 处的原始字节：`0c49b98a8532d052185ee1a27511009b` 之后**正是 zstd 帧头魔数 `28b52ffd`** ⇒ doctor 报的是**该帧的校验失败**，而 zstd CLI **以容错方式完成了全部输出**",
+    "★_implication": "★ **zstd 的 `exit=0` 不代表数据完好** —— 它可能是**容错解压**。本次经逐行校验确认数据实际完好（0 失败），**但那是我额外做的验证，不是 zstd exit=0 保证的**。⇒ 这是一条可迁移的判据：**「解压成功」与「数据完好」是两个断言，须分别取证**。",
+    "unresolved": "doctor 的严格校验与 zstd 的容错解压**哪个更符合该文件的真实状态**，本会话**未定** —— 两者观测的是不同性质（doctor 判**帧完整性**，zstd 判**可解出内容**）。"
+  },
+  "★_seq_gap_finding": {
+    "what": "全量统计得 **seq 跳号 78,543 处**；抽查 seq 19→204 区间：**185 个号中缺失 184 个**",
+    "verified": "★ 我核实过**不是我的统计口径问题**（我原先怀疑是按行序比较所致）—— 实测该区间内确实只有 2 个 seq 存在",
+    "★_honest_status": "★ **真缺号成立；原因未定**。可能解释（**均未取证**）：① 不同事件类型共用 seq 空间（本线已见 `reasoning-chunks` 用 `seq0` 而非 `seq`）；② 部分事件被过滤未落盘；③ seq 为预分配号。⇒ **不臆断**，只登记「seq 不连续且幅度大」这一事实。",
+    "relation": "★ 这属「**会话里发生过 vs 文件里有**」的差异面 —— 与第 8 态同族，但**方向相反**（那条是「数据里有、叙述里没有」，这条可能是「发生了但没落盘」）。"
+  },
+  "★_last_event_before_crash": {
+    "last_normal": "2026-10-09 22:09:45 · turn/end · seq=16083331（= 第 12 次点火的结束）",
+    "then": "**1 小时 51 分无任何事件**",
+    "final": "**2026-10-10 00:01:08 · `session/end-seed` · seq=16083332**",
+    "note": "★ `session/end-seed` 出现在**崩溃/重启时刻**（00:01:08）⇒ 疑为**收尾/种子记录**；其语义本会话**未查**（不臆断）"
+  },
+  "★_后续更正（2026-10-10T02:3x）": {
+    "更正卡": "data/registry/cld-crash-classification-20261010（黑板同名键）",
+    "为什么加": "★ 本卡的 ★★_visibility_gap 结论是「**无法归因**」。该结论**只对 crash-reason.log 成立**——同目录的 dsh-web.log 在 15:57:15.993Z 那一段**逐行写着原因**。⇒ 读本卡的人必须同时读更正卡，否则会把「这一个日志没记」误读成「这件事不可归因」。",
+    "★_本卡自己漏掉的那个数": "pid 29097 同一分钟：crash-reason.log 记 `dsh-crash (pid 29097, code 1)`；而机器可读的那份 marker 只留 `\"exitCode\":0, \"reason\":\"dsh-crash-after-child\"` ⇒ **留下的是壳的善终（0），丢掉的是子进程的恶终（1）**，而 code 1 才是插件树失效的签名。这与本卡诊断的第 7 态「报了一个不回答问题的维度」同型，只是发生在崩溃留痕自己身上。",
+    "本卡仍成立的结论": "主进程非 OOM（heap 6–8MB）· session-fa1f9150 100% 可解析 · zstd exit=0 ≠ 数据完好 · seq 跳号 —— 均未被动摇。",
+    "更正卡指出的真因": "dsh-plugin-excalidraw 在宿主平面 inject 了只在客户端平面存在的 `slots` ⇒ assertEntriesActivated 判 1 条未激活 ⇒ 整棵插件树加载失败（本卡「子进程侧」的判断是对的，只是「为何退出」当时没在台账里找到，而在现场日志里）。"
+  }
+}

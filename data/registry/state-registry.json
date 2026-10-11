@@ -1,0 +1,400 @@
+{
+ "schema": "state-registry/v1",
+ "created_at": "2026-10-09T21:58:01+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "item": "C6",
+ "subject": "状态机登记（对齐 item-validity-review-check 五态）",
+ "authority": "锚点 docs/distributed-agent-network-governance-plan-v4-20261009.md §4.2 / §10 Wave C",
+ "states": {
+  "open": "已登记、未开始。无阻塞原因。",
+  "in_flight": "进行中（有人在做，或已部分落地）。",
+  "closed_with_evidence": "已关闭**且有证据**。closure 三要素必须齐：DoD（含边界+负控）· evidence（可解指针）· verifier（第三方，禁自证）。",
+  "regressed": "曾 closed_with_evidence，后回归（原判据不再成立）。须重新走 in_flight。",
+  "blocked": "旁支状态：明确阻塞。必须带 blocked_reason + owner + next_action 三字段。"
+ },
+ "closure_rule": "六者齐备（§11）：正向 ∧ 负控红 ∧ 边界不崩 ∧ 阈值达标 ∧ 沙箱复跑一致 ∧ 官方条款无未声明差异 ⇒ 缺一不得记 closed_with_evidence",
+ "alignment_with_item_validity": {
+  "their_source": "docs/item-validity-index.json（2,642 条，generated_at 2026-10-08T18:49:19Z） + devices/dsh-plugin-item-validity-review-check",
+  "their_states": {
+   "closed": "显式关闭声明或已见回复（通道 A/B）",
+   "stale": "超窗/已被取代（疑似过期，须核依赖后才能关闭）",
+   "open": "未关闭",
+   "unknown": "★ 判不了（缺字段/缺时刻/通道不可见）⇒ 须补字段",
+   "n/a": "不适用"
+  },
+  "mapping": [
+   {
+    "ours": "open",
+    "theirs": "open",
+    "relation": "同义直接对应",
+    "check": "一致"
+   },
+   {
+    "ours": "in_flight",
+    "theirs": "（无）",
+    "relation": "★ item-validity 无「进行中」概念 —— 它把条目当作待办二值（开/关），不区分「有人在做」",
+    "check": "我方多一态；无冲突"
+   },
+   {
+    "ours": "closed_with_evidence",
+    "theirs": "closed",
+    "relation": "★ **判据强度差距**：item-validity 的 closed = 「状态类字段命中关闭词」（作者已声明不必再管）；我方要求三要素齐（DoD + 可解 evidence + 第三方 verifier）⇒ **同名的 closed 不是同一件事**",
+    "check": "★ 须标注：不可跨表直接比较闭环率"
+   },
+   {
+    "ours": "regressed",
+    "theirs": "stale",
+    "relation": "近似：都是「原以为关闭，实际失效」。差别：stale 的原因是「超窗/被取代」（时间/版本维），regressed 的原因是「原判据不再成立」（判据维）",
+    "check": "近似但不等价"
+   },
+   {
+    "ours": "blocked",
+    "theirs": "unknown",
+    "relation": "★★ **关键差异**：item-validity 的 unknown =「**判不了**」（缺字段/缺时刻/通道不可见）；我方的 blocked =「**明确知道原因，但做不了**」（有 reason/owner/next_action）。⇒ 两者是**不同的东西**：一个是信息不足，一个是能力/授权不足",
+    "check": "★ 不同义，不可互替"
+   },
+   {
+    "ours": "（无）",
+    "theirs": "unknown",
+    "relation": "★★ **我方缺失此态**：锚点五态里没有「判不了」。后果：一个「我判不了它是否完成」的项，会被迫二选一 —— 记 open（谎称未开始）或记 blocked（谎称知道原因）。**两者都不准**。",
+    "check": "★ **缺口**"
+   },
+   {
+    "ours": "（无）",
+    "theirs": "n/a",
+    "relation": "我方缺失（不适用）。影响较轻：不适用项可归入 open 并被排除，但缺少显式标记",
+    "check": "缺口（轻）"
+   }
+  ],
+  "conclusion": "★ 两套五态**不是同一套**：3 组可对齐（open / closed≈ / regressed≈stale）、1 组不同义（blocked ≠ unknown）、1 组我方缺失（unknown = 判不了）。⇒ 「对齐」的正确做法不是改名，而是**建立显式映射并标注不可比处**。本条即该映射。"
+ },
+ "items": [
+  {
+   "id": "C1",
+   "name": "单一索引键",
+   "state": "closed_with_evidence",
+   "continuity_index_state": "closed_with_evidence",
+   "sync_pending": false,
+   "local_advance": false,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": "双板写 + 回读断言由 tools/bb_dualwrite.py 保证；判据 = 两板可读且值相等",
+   "evidence": [
+    "blackboard:data/registry/continuity-index"
+   ],
+   "verifier": null,
+   "dod": "双板写 + 回读断言由 tools/bb_dualwrite.py 保证；判据 = 两板可读且值相等",
+   "closure_missing": [
+    "verifier"
+   ]
+  },
+  {
+   "id": "C2",
+   "name": "锚点文档",
+   "state": "closed_with_evidence",
+   "continuity_index_state": "closed_with_evidence",
+   "sync_pending": false,
+   "local_advance": false,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": null,
+   "evidence": [
+    "docs/distributed-agent-network-governance-plan-v4-20261009.md"
+   ],
+   "verifier": null,
+   "dod": null,
+   "closure_missing": [
+    "DoD",
+    "verifier"
+   ]
+  },
+  {
+   "id": "C3",
+   "name": "续接提示词（≤40 行 + 生成脚本）",
+   "state": "closed_with_evidence",
+   "continuity_index_state": "closed_with_evidence",
+   "sync_pending": false,
+   "local_advance": false,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": null,
+   "evidence": [
+    "docs/resume-prompt-starbridge-v3.md",
+    "tools/mk-resume-prompt.py"
+   ],
+   "verifier": "待第三方复核（本件由外部第三方自建，按 S3「不可自审」必须另找复核人）",
+   "dod": null,
+   "closure_missing": [
+    "DoD"
+   ]
+  },
+  {
+   "id": "C4",
+   "name": "自启动注入（agent preset prompt section）",
+   "state": "open",
+   "continuity_index_state": "open",
+   "sync_pending": false,
+   "local_advance": false,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": "需改 CLD preset —— 外部第三方不代做（受约束）",
+   "note": null,
+   "evidence": [],
+   "verifier": null,
+   "dod": null,
+   "closure_missing": null
+  },
+  {
+   "id": "C5",
+   "name": "反遗忘校验",
+   "state": "closed_with_evidence",
+   "continuity_index_state": "closed_with_evidence",
+   "sync_pending": false,
+   "local_advance": false,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": null,
+   "evidence": [
+    "tools/beacon-check.py"
+   ],
+   "verifier": "待第三方复核（同上，禁自证）",
+   "dod": null,
+   "closure_missing": [
+    "DoD"
+   ]
+  },
+  {
+   "id": "C6",
+   "name": "状态机登记（对齐 item-validity-review-check 五态）",
+   "state": "in_flight",
+   "continuity_index_state": "open",
+   "sync_pending": true,
+   "local_advance": true,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": "★ 本轮推进：状态机登记已建（14 项 + 8 wave + 五态对齐 + 3 条缺口标注）。未记 closed_with_evidence —— verifier 未指派（第三方禁自证）。",
+   "evidence": [
+    "blackboard:data/registry/state-registry",
+    "file:~/dsh-collab/tools/build-state-registry.py"
+   ],
+   "verifier": null,
+   "dod": "五态定义 + 与 item-validity 的显式映射 + 不可比处标注（已达标）；★ 负控未构造；verifier 未指派 ⇒ 三要素缺二",
+   "closure_missing": null
+  },
+  {
+   "id": "C7",
+   "name": "证伪门与半修清单",
+   "state": "in_flight",
+   "continuity_index_state": "open",
+   "sync_pending": true,
+   "local_advance": true,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": "★ 本轮推进：v3.1 附一待落盘清单第 3 项（C7 补正三项）**已全落** —— ① v1 卡双向失效标注 ② n/distinct 观测面声明 ③ 第 5–8 态入证伪清单（§八）。★ 证伪条 8–11 入锚点须随 P0 待批（锚点是唯一权威件）。",
+   "evidence": [
+    "file:~/dsh-collab/docs/c7-half-fix-clause10-20261009.md",
+    "blackboard:data/registry/c7-half-fix-clause10",
+    "blackboard:data/registry/c7-half-fix-clause10-v2"
+   ],
+   "verifier": null,
+   "dod": "交付物在位 + 补正三项全落（已达标）；★ 证伪条 8–11 未入锚点（待 P0）；verifier 未指派",
+   "closure_missing": null
+  },
+  {
+   "id": "P26",
+   "name": "会话硬死锁：compaction 下界 > 被遮内容",
+   "state": "in_flight",
+   "continuity_index_state": "open",
+   "sync_pending": true,
+   "local_advance": true,
+   "source": "blackboard:data/registry/continuity-index",
+   "blocked_reason": null,
+   "note": "★ 本轮推进（**诊断侧**）：全量流式扫描确认 —— 死后 9 次 compaction 全失败 · turn 11170→11178 · 105/105 样本 `framed−shadowed ≥ 0`（无一为负）。**修复侧（G-CR16 请求前预算门 / G-CR17 压缩有效性门）仍未建。**",
+   "evidence": [
+    "file:~/dsh-collab/docs/compaction-lowerbound-crash-20261009.md",
+    "blackboard:data/registry/dead-session-postmortem-activity"
+   ],
+   "verifier": null,
+   "dod": "诊断充分（全量扫描 + 逐条明细 + 5 个可复跑脚本）；★ 修复未做 ⇒ 不得记 closed",
+   "closure_missing": null
+  },
+  {
+   "name": "M1 索引（星桥全域索引 10 类）",
+   "state": "in_flight",
+   "note": "★ 本轮新建：data/registry/starbridge-knowledge-index（169 条 / 10 类 / 指针全可解 / 双板相等）。未记 closed_with_evidence：verifier 未指派（第三方禁自证）。",
+   "evidence": [
+    "blackboard:data/registry/starbridge-knowledge-index"
+   ],
+   "dod": "10 类各 ≥1 且指针可解（已达标 10/10）；★ 负控未构造；verifier 未指派 ⇒ 三要素缺二",
+   "verifier": null,
+   "id": "M1-INDEX",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  },
+  {
+   "name": "星桥 1.0 / 2.0 版本区别登记",
+   "state": "in_flight",
+   "note": "★ 本轮新建：data/registry/starbridge-version-registry（14 维差异 + 术语四义 + 引用纪律）",
+   "evidence": [
+    "blackboard:data/registry/starbridge-version-registry"
+   ],
+   "dod": "两主体分列 + 差异逐维 + 引用纪律（已达标）；★ 负控未构造；verifier 未指派",
+   "verifier": null,
+   "id": "P1-f",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  },
+  {
+   "name": "别名映射缺陷登记（移交守灯）",
+   "state": "in_flight",
+   "note": "★ 本轮新建：data/registry/starbridge-alias-mapping-defect。**待守灯裁决**（其属主），本会话不改他人文件。",
+   "evidence": [
+    "blackboard:data/registry/starbridge-alias-mapping-defect"
+   ],
+   "dod": "证据链 5 条；★ 须守灯裁定 3 问 ⇒ 未闭环",
+   "verifier": "守灯 session-9910d4b2-80ff-4437-afed-c848dbda22d1（属主，待其出证）",
+   "id": "P1-c-defect",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  },
+  {
+   "name": "测试标识机读清单",
+   "state": "in_flight",
+   "note": "★ 本轮新建：data/registry/bus-test-identifiers（3 标识 / 12 条消息）",
+   "evidence": [
+    "blackboard:data/registry/bus-test-identifiers"
+   ],
+   "dod": "机读清单已在位；★ 负控（验证排除规则真的生效）未构造",
+   "verifier": null,
+   "id": "P1-d",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  },
+  {
+   "name": "P-7 实例登记增字段「该写入是否外部可见」",
+   "state": "in_flight",
+   "note": "★ 本轮落：p5-intent-vs-landing 增补 visibility_ledger（3 实例 + 结构发现：外部可见是必要条件非充分条件）",
+   "evidence": [
+    "blackboard:data/registry/p5-intent-vs-landing"
+   ],
+   "dod": "字段已在位；★ 未构造负控；verifier 未指派",
+   "verifier": null,
+   "id": "U5",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  },
+  {
+   "name": "★ 死会话死后活动证据",
+   "state": "in_flight",
+   "note": "★ 本轮新建：data/registry/dead-session-postmortem-activity —— 死后 9 次 compaction 全失败，turn 11170→11178。**这是 P3/P4 的紧迫性证据。**",
+   "evidence": [
+    "blackboard:data/registry/dead-session-postmortem-activity",
+    "file:~/dsh-collab/audits/20261009/repro/c7-postmortem-activity.py"
+   ],
+   "dod": "全量流式扫描 + 逐条明细；★ verifier 未指派（须第三方复跑）",
+   "verifier": null,
+   "id": "DEAD-ACTIVITY",
+   "source": "本会话本轮（session-e317d6ab）",
+   "closure_missing": null
+  }
+ ],
+ "waves": [
+  {
+   "id": "S",
+   "name": "门（沙箱模拟框架 / 信息包模板 / 独立审查流程 / 官方校对门 / G-CR 校验脚本）",
+   "state": "blocked",
+   "owner": "待定",
+   "blocked_reason": "只见设计（§5/§6），未见建成证据；各项 DoD 与负控未落盘",
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "C",
+   "name": "信标（C1 索引键 / C2 锚点 / C3 续接提示词 / C4 自启动注入 / C5 反遗忘校验 / C6 状态机登记 / C7 证伪门与半修清单）",
+   "state": "in_flight",
+   "owner": "外部第三方（C1/C3/C5）+ CLD 新会话（C4/C6/C7）",
+   "blocked_reason": null,
+   "note": "C2 早已在位；C1/C3/C5 于 2026-10-09T06:3x 由外部第三方建立；C4/C6/C7 未做",
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "0",
+   "name": "开关合上 + 可观测（W0.1–W0.6）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": "W0.1 判据须按 P26 补负控（见 §7 建议）",
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "1",
+   "name": "P0（W1.1–W1.8）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "2",
+   "name": "结构性（W2.1–W2.10，含唯一高危 W2.5 载体换 SQLite）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "3",
+   "name": "可信（W3.1–W3.3）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "4",
+   "name": "跨设备/载体（W4.1–W4.6）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  },
+  {
+   "id": "5",
+   "name": "长期（W5.1–W5.6，含 W5.5 会话改投影）",
+   "state": "open",
+   "owner": null,
+   "blocked_reason": null,
+   "note": null,
+   "source": "blackboard:data/registry/continuity-index"
+  }
+ ],
+ "gaps": [
+  {
+   "gap": "★ 锚点五态缺 `unknown`（判不了）",
+   "severity": "中高",
+   "why": "「判不了它是否完成」的项被迫二选一：记 open（谎称未开始）或记 blocked（谎称知道原因）。这正是失败可见性体系要治的『不可知被回落成某个已知值』（第 7 态：默认值被读成事实）",
+   "suggest": "向所有者提请：为锚点 §4.2 增补第 6 态 `unknown`（或把 blocked 拆为 blocked/unknown 两支）。**本会话不擅改权威件。**"
+  },
+  {
+   "gap": "★ closed 的判据强度两表不同",
+   "severity": "中",
+   "why": "item-validity 的 closed = 状态字段命中关闭词；我方的 closed_with_evidence 要求三要素齐。⇒ 闭环率**不可跨表比较**",
+   "suggest": "任何引用闭环率的地方须注明出自哪套判据"
+  },
+  {
+   "gap": "closure 三要素的实际齐备率",
+   "severity": "低（本轮已量化）",
+   "why": "见 items[].closure_missing",
+   "suggest": "—"
+  }
+ ],
+ "tally": {
+  "closed_with_evidence": 4,
+  "open": 1,
+  "in_flight": 9
+ },
+ "total_items": 14
+}

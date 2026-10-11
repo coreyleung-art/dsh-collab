@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+doc-sync — 官方更新追踪（文档 + 上游版本 + 变更提示）
+
+主动监控三类官方源，不等出问题才查：
+  1. 文档仓库 HEAD（deepseek-harness master / electron main / swift）
+  2. npm 上游版本（@deepseek-ai/dsh 系 vs 本地 runtime）
+  3. 变化 → 变更影响提示（命中知识库部件 → 建议复审部件卡）
+
+用法：
+  doc-sync                    # 检查全部源，输出 NEW/updated 对比
+  doc-sync --report           # 同上 + 生成变更影响简报(供黑板/报告)
+  doc-sync --init             # 首次：记录当前基线不告警
+状态: ~/dsh-collab/guard/state/doc-sync.json
+"""
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.request
+
+STATE = os.path.expanduser("~/dsh-collab/guard/state/doc-sync.json")
+NPM = "https://registry.npmjs.org"
+GH = "https://api.github.com/repos"
+
+REPOS = [
+    {"key": "dsh-docs", "repo": "deepseek-ai/deepseek-harness", "branch": "master",
+     "mirror": "~/tech-research/dsh-docs", "domain": "dsh"},
+    {"key": "electron-docs", "repo": "electron/electron", "branch": "main",
+     "mirror": "~/tech-research/electron-docs", "domain": "electron", "docs_subdir": "docs"},
+]
+# 与 CLD 直接相关的上游包（对比本地 runtime 版本）
+NPM_PKGS = ["@deepseek-ai/dsh", "@deepseek-ai/dsh-tools", "@deepseek-ai/dsh-session",
+            "@deepseek-ai/dsh-session-persistence-jsonl", "@deepseek-ai/dsh-workspace",
+            "@deepseek-ai/cordis", "@deepseek-ai/dsh-agent"]
+LOCAL_RUNTIME = "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai"
+
+
+def http_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "doc-sync", "Accept": "application/vnd.github+json"})
+    with urllib.request.urlopen(req, timeout=10) as r:
+        return json.loads(r.read().decode())
+
+
+def load_state():
+    try:
+        return json.load(open(STATE))
+    except Exception:
+        return {"repos": {}, "npm": {}, "init": False}
+
+
+def save_state(st):
+    os.makedirs(os.path.dirname(STATE), exist_ok=True)
+    json.dump(st, open(STATE, "w"), indent=1)
+
+
+def local_version(pkg):
+    name = pkg.split("/")[-1]
+    pj = os.path.join(os.path.expanduser(LOCAL_RUNTIME), name, "package.json")
+    try:
+        return json.load(open(pj)).get("version")
+    except Exception:
+        return None
+
+
+def ver_gt(a, b):
+    """数字段比较 a>b（忽略 rc 预发布后缀: 0.1.2-rc.1 > 0.1.1-rc.2）"""
+    def nums(v):
+        core = v.partition("-")[0]
+        try:
+            return [int(x) for x in core.split(".")]
+        except Exception:
+            return [0]
+    return nums(a) > nums(b)
+
+
+def main():
+    init = "--init" in sys.argv
+    st = load_state()
+    news = []
+
+    print("=== doc-sync 官方更新追踪 ===")
+    for r in REPOS:
+        try:
+            data = http_json(f"{GH}/{r['repo']}/commits/{r['branch']}")
+            sha = data.get("sha", "?")
+            when = data.get("commit", {}).get("committer", {}).get("date", "?")
+            prev = st["repos"].get(r["key"])
+            # 文档内容版本 = docs 子树 sha（repo HEAD 含代码改动会误报；docs 子树不变=文档没变）
+            doc_sha = None
+            subdir = r.get("docs_subdir")
+            try:
+                tree = http_json(f"{GH}/{r['repo']}/git/trees/{sha}")
+                for e in tree.get("tree", []):
+                    if e.get("path") == (subdir or "docs") and e.get("type") == "tree":
+                        doc_sha = e.get("sha")
+                        break
+            except Exception:
+                pass
+            doc_ver = (doc_sha or sha)[:12]
+            st["repos"][r["key"]] = {"sha": sha, "doc_sha": doc_sha, "when": when, "repo": r["repo"]}
+            prev_doc = prev.get("doc_sha") if prev else None
+            if prev is None:
+                news.append(f"[{r['key']}] 首次基线: HEAD={sha[:12]} docs={doc_ver} ({when})")
+            elif prev_doc is not None and prev_doc != doc_sha:
+                news.append(f"🆕 [{r['key']}] 文档有更新! docs {prev_doc[:12]} → {doc_ver} (HEAD {sha[:12]})")
+                news.append(f"     源: https://github.com/{r['repo']} · 镜像 {r['mirror']} 建议重拉")
+            elif prev.get("sha", "")[:12] != sha[:12]:
+                # 仅代码更新，文档未变 → info 不告警
+                print(f"  ℹ {r['key']}: 代码更新(HEAD {sha[:12]})但 docs 未变({doc_ver}) — 无需重拉镜像")
+            else:
+                print(f"  ✓ {r['key']}: 无更新 (docs {doc_ver})")
+        except Exception as e:
+            print(f"  ✗ {r['key']}: 查询失败 {str(e)[:100]}")
+
+    print("\n=== npm 上游版本 ===")
+    for pkg in NPM_PKGS:
+        try:
+            data = http_json(f"{NPM}/{pkg}")
+            latest = data.get("dist-tags", {}).get("latest", "?")
+            prev = st["npm"].get(pkg, {}).get("latest")
+            st["npm"][pkg] = {"latest": latest, "ts": int(time.time())}
+            local = local_version(pkg)
+            tag = f"本地={local}" if local else "本机无CLD"
+            mark = ""
+            if prev is not None and prev != latest:
+                mark = "  🆕上游版本变化!"
+            elif local and ver_gt(latest, local):
+                mark = "  ⚠ 上游 > 本地(runtime)"
+            print(f"  {pkg}: latest={latest}  {tag}{mark}")
+        except Exception as e:
+            print(f"  ✗ {pkg}: {str(e)[:80]}")
+
+    if init:
+        st["init"] = True
+        save_state(st)
+        print("\n✅ 基线已记录（--init，下次对比从此开始）")
+        return 0
+
+    save_state(st)
+    if news:
+        print("\n=== 变更通知 ===")
+        for n in news:
+            print(" ", n)
+        print("\n提示: 变更若命中知识库部件，运行 guard-knowledge show <id> 复审部件卡")
+        return 2 if any("🆕" in n or "上游版本变化" in n or "上游 > 本地" in n for n in news) else 0
+    print("\n✅ 无上游变化")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

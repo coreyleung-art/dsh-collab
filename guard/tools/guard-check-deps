@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-check-deps — profile vs runtime 依赖一致性检查（T1）
+
+用途：检测 profile node_modules 里遮蔽 runtime 的 @deepseek-ai 旧包。
+     （pnpm 事故根因：profile 自装 rc.6/rc.7 遮蔽 runtime rc.2）
+
+用法：
+  guard-check-deps                扫描全部 @deepseek-ai，输出不一致项
+  guard-check-deps --fix          将遮蔽包移走（.bak- 保留），回落 runtime
+  guard-check-deps <pkg>          只查指定包
+"""
+import json
+import os
+import shutil
+import sys
+
+PROFILE_NM = os.path.expanduser("~/.dsh/profiles/web/node_modules/@deepseek-ai")
+RUNTIME_NM = "/Applications/CLD.app/Contents/Resources/dsh-runtime/runtime/node_modules/@deepseek-ai"
+
+
+def ver(p):
+    try:
+        with open(os.path.join(p, "package.json"), encoding="utf-8") as f:
+            return json.load(f).get("version", "?")
+    except Exception:
+        return "?"
+
+
+def main():
+    fix = "--fix" in sys.argv
+    only = [a for a in sys.argv[1:] if not a.startswith("--")]
+
+    if not os.path.isdir(PROFILE_NM):
+        print(f"profile @deepseek-ai 目录不存在: {PROFILE_NM}")
+        return 1
+
+    mismatches = []
+    for name in sorted(os.listdir(PROFILE_NM)):
+        if name.endswith((".bak", ".pnpmcopy")) or "." in name and not name.startswith("dsh-"):
+            continue
+        pdir = os.path.join(PROFILE_NM, name)
+        if not os.path.isdir(pdir):
+            continue
+        # 跳过用户自己 link 的（检查是否 symlink）
+        if os.path.islink(pdir):
+            continue
+        pv = ver(pdir)
+        rdir = os.path.join(RUNTIME_NM, name)
+        if os.path.isdir(rdir):
+            rv = ver(rdir)
+            if pv != rv:
+                mismatches.append((name, pv, rv))
+        else:
+            mismatches.append((name, pv, "runtime无"))
+
+    print(f"=== profile vs runtime @deepseek-ai 一致性检查 ===")
+    if not mismatches:
+        print("✓ 全部一致（无遮蔽）")
+        return 0
+
+    print(f"发现 {len(mismatches)} 个不一致（遮蔽 runtime 的旧包）:")
+    for name, pv, rv in mismatches:
+        print(f"  ✗ {name}: profile={pv} runtime={rv}")
+
+    if fix:
+        print("\n=== --fix: 移走遮蔽包（.bak-guardfix 保留）===")
+        moved = 0
+        for name, pv, rv in mismatches:
+            src = os.path.join(PROFILE_NM, name)
+            dst = src + ".bak-guardfix"
+            if os.path.exists(dst):
+                shutil.rmtree(dst)
+            try:
+                shutil.move(src, dst)
+                print(f"  移走 {name} → {name}.bak-guardfix")
+                moved += 1
+            except Exception as e:
+                print(f"  失败 {name}: {e}")
+        print(f"\n已移走 {moved} 个。重启 CLD 后应回落 runtime 版本。")
+        print("提示: 若某插件必须用 profile 版本，先确认其 peer 再恢复。")
+        return 0 if moved else 1
+
+    print(f"\n建议: 运行 `{sys.argv[0]} --fix` 移走遮蔽包，回落 runtime。")
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

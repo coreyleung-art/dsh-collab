@@ -1,0 +1,71 @@
+--- guard/backups/xdom-mail.py.bak-pre-envelope-20261011-230917	2026-10-11 23:09:17
++++ tools/xdom-mail.py	2026-10-11 23:09:35
+@@ -363,8 +363,44 @@
+     if isinstance(obj, dict):
+         obj = {k: v for k, v in obj.items() if k != "sig"}
+     return json.dumps(obj, ensure_ascii=False, sort_keys=True)
++
+ 
++# ═══ ★ W8.2：跨域邮箱的 CAHAC §3 信封注入（2026-10-11 本线新增）═══
++CAHAC_ENVELOPE_VERSION = "1.0"
++XDOM_CHANNEL = "xdom-mail"
+ 
++
++def dedup_key_from(from_party, to_party, body):
++    """与 `~/dsh-comm-shared/identity.js` 的 `dedupKey(from,to,text)` **同构**：
++    `f"{from}|{to}|{sha256(归一化文本)[:16]}"`。★ 本工具不 import JS ⇒ **等价实现**；
++    口径的单一来源在 JS 侧，此处声明为等价实现。"""
++    norm = " ".join((body or "").split())
++    fp = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
++    return f"{from_party}|{to_party}|{fp}"
++
++
++def with_envelope(msg, body):
++    """★ 给信对象注入 CAHAC §3 信封（10 字段口径，逐字取自锚点 §12-A 临时尺）。
++
++    ★ 必须加在**顶层**：尺（`scripts/cahac-envelope-conformance.py`）按**顶层键**判 `h>=6`；
++      嵌进 `envelope:{}` 子对象**不会被计数** ⇒ 那样是凑数，本线不做。
++    ★ 与既有字段的关系：`sender`/`recipient` = `from`/`to` 的信封口径同义；`channel` 本通道恒为
++      `xdom-mail`；`payload` **就是信体**，`body` 保留为**过渡期别名**（代价：卡片体积翻倍）。
++    ★ 时序：**必须在 `sign_obj` 之前**调用 ⇒ 签名覆盖新字段。
++      安全性依据（已核）：`sign_obj` **对称**（本方签、本方验）；协议 §七 明写「各人能验自己的签名、
++      验不了对方的」⇒ 加字段**不会**破坏任何一方的验签。
++    """
++    msg["cahac"] = CAHAC_ENVELOPE_VERSION
++    msg["type"] = "letter"
++    msg["channel"] = XDOM_CHANNEL
++    msg["sender"] = msg.get("from")
++    msg["recipient"] = msg.get("to")
++    msg["priority"] = "urgent" if msg.get("reply_required") else "normal"
++    msg["dedup_key"] = dedup_key_from(msg.get("from"), msg.get("to"), body)
++    msg["payload"] = body
++    return msg
++
++
+ def sign_obj(obj, secret_hex):
+     """HMAC-SHA256(secret, canonical(obj)) 截 16 hex。★ 对称 —— 只有持同一密钥者能验。"""
+     return hmac.new(bytes.fromhex(secret_hex), canonical(obj).encode("utf-8"),
+@@ -608,6 +644,7 @@
+            "reply_required": bool(a.reply_required), "body": body,
+            "ref": list(a.ref or []), "from_session": a.from_session or "",
+            "writer_label": SIDE_LABEL[frm]}      # ★ 人类标签只在这里，不进 HTTP 头（§三①）
++    with_envelope(msg, body)   # ★ W8.2：注入信封（必须在签名之前）
+     msg["signer_fp"] = key_fingerprint(cred["secret"])
+     msg["sig"] = sign_obj(msg, cred["secret"])  # ★ 板侧改动可检出（只有己方能验，见文件头 §一之二）
+     if a.dry_run:
+@@ -711,6 +748,7 @@
+         return die(f"--upto 必须是一条 log 键（{LOG_PREFIX}…）")
+     val = {"party": party, "upto": upto, "at": now_local().isoformat(timespec="seconds"),
+            "by": SIDE_LABEL[party]}
++    with_envelope(val, val.get("body", ""))   # ★ W8.2：本路径同样写信封
+     val["signer_fp"] = key_fingerprint(cred["secret"])
+     val["sig"] = sign_obj(val, cred["secret"])
+     rec = put_verified(key, val)
+@@ -1108,6 +1146,7 @@
+            "subject": "xdom-mail --probe", "ts": now_local().isoformat(timespec="seconds"),
+            "ball": "none", "reply_required": False, "body": "自测探针，可删。",
+            "ref": [], "from_session": "", "writer_label": SIDE_LABEL.get(party, party)}
++    with_envelope(val, val.get("body", ""))   # ★ W8.2：本路径同样写信封
+     val["signer_fp"] = key_fingerprint(cred["secret"])
+     val["sig"] = sign_obj(val, cred["secret"])
+     rec = put_verified(key, val)

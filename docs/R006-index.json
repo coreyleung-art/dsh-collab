@@ -1,0 +1,555 @@
+{
+ "spec": "/Users/coreyleung/dsh-collab/docs/R006-插件化工具化标准-v3.0.md",
+ "spec_sha256_16": "9dbe7085eba53fc2",
+ "spec_lines": 305,
+ "kb": "r006-tooling-standard-kb",
+ "sections": [
+  {
+   "title": "0 · 一句话与适用范围",
+   "anchor": "0-·-一句话与适用范围",
+   "line": 10,
+   "keywords": [
+    "lean4-check",
+    "comm-layer",
+    "bus-bridge",
+    "bb-sub",
+    "--lean4-check",
+    "/opt/comm-layer",
+    "一句话",
+    "十项全达标才交付",
+    "结构上不可绕过",
+    "enforced",
+    "其余七项不可豁免",
+    "一句话与适用范围"
+   ],
+   "summary": "一句话：凡新做插件或工具，十项全达标才交付；第 ⑩ 项要求\"不该发生的路径\"在结构上不可绕过，并自带 --lean4-check 证明。"
+  },
+  {
+   "title": "1 · 为什么有这条标准（历史事故，全部有实据）",
+   "anchor": "1-·-为什么有这条标准历史事故全部有实据",
+   "line": 23,
+   "keywords": [
+    "central-inbox",
+    "restart-guard",
+    "R035",
+    "PATH",
+    "type:module",
+    "ReferenceError",
+    "规律",
+    "缺一项可机械核验的标准",
+    "有一道会撒谎的检查",
+    "为什么有这条标准",
+    "历史事故",
+    "全部有实据"
+   ],
+   "summary": "| 事故 | 缺哪一项 | 后果 |"
+  },
+  {
+   "title": "2 · 十项逐项规格",
+   "anchor": "2-·-十项逐项规格",
+   "line": 38,
+   "keywords": [
+    "十项逐项规格"
+   ],
+   "summary": "> 每项给出：定义 / 验收标准（可机械核验）/ 自检命令 / 反例。"
+  },
+  {
+   "title": "① dsh 插件形态",
+   "anchor": "①-dsh-插件形态",
+   "line": 42,
+   "keywords": [
+    "package.json",
+    "cordis.patch.yml",
+    "lib/index.js",
+    "ERR_MODULE_NOT_FOUND",
+    "dsh-tools",
+    "UNSUPPORTED_SCHEMA",
+    "./lib/index.js",
+    "~/dsh-plugin-openpencil",
+    "dsh-plugin-reflect-collect",
+    "dsh-plugin-reflect-dispatch",
+    "dsh-plugin-cldvoice-activate",
+    "\"type\":\"module\"",
+    "main",
+    "version"
+   ],
+   "summary": "定义：以 dsh 插件形式交付，可被宿主挂载（而非裸脚本）。"
+  },
+  {
+   "title": "② TCC 检测（能力边界自检）",
+   "anchor": "②-tcc-检测能力边界自检",
+   "line": 57,
+   "keywords": [
+    "selfcheck.js",
+    "--selfcheck",
+    "<tool> --selfcheck",
+    "定义",
+    "能力边界",
+    "不能做什么",
+    "验收标准",
+    "自检",
+    "反例",
+    "TCC",
+    "检测",
+    "能力边界自检"
+   ],
+   "summary": "定义：工具必须能自报能力边界——它能做什么、不能做什么、哪些路径\"不该发生\"。"
+  },
+  {
+   "title": "③ CLD 自适应",
+   "anchor": "③-cld-自适应",
+   "line": 63,
+   "keywords": [
+    "--selfcheck",
+    "定义",
+    "验收标准",
+    "自检",
+    "反例",
+    "CLD",
+    "自适应"
+   ],
+   "summary": "定义：不依赖 CLD/宿主内部 API 才能工作；在无 CLD 环境下可独立运行（降级或拒绝，而非崩溃）。"
+  },
+  {
+   "title": "④ dsh 版本自适应",
+   "anchor": "④-dsh-版本自适应",
+   "line": 69,
+   "keywords": [
+    "dsh-runtime",
+    "peerDependencies",
+    "--selfcheck",
+    "node_modules",
+    "定义",
+    "验收标准",
+    "明确降级行为",
+    "自检",
+    "反例",
+    "dsh",
+    "版本自适应"
+   ],
+   "summary": "定义：不锁死某个 dsh/宿主内部 API 版本；peer 依赖走正式声明并被解析。"
+  },
+  {
+   "title": "⑤ 文档化",
+   "anchor": "⑤-文档化",
+   "line": 75,
+   "keywords": [
+    "package.json",
+    "r006.documented",
+    "定义",
+    "独立复现",
+    "验收标准",
+    "自检",
+    "反例",
+    "文档化"
+   ],
+   "summary": "定义：一个读者能据此独立复现的文档。"
+  },
+  {
+   "title": "⑥ 版本管理",
+   "anchor": "⑥-版本管理",
+   "line": 81,
+   "keywords": [
+    "CHANGELOG",
+    "tool-version",
+    "CHANGELOG.md",
+    "package.json",
+    "VERSION",
+    "--tool-version",
+    ".py",
+    "<tool> --tool-version",
+    "const VERSION='1.0.0'",
+    "定义",
+    "单一来源",
+    "验收标准",
+    "2026-09-11 用户批准修订",
+    "版本号只有一个声明处"
+   ],
+   "summary": "定义：版本号单一来源，改动有 CHANGELOG。"
+  },
+  {
+   "title": "⑦ 统一日志",
+   "anchor": "⑦-统一日志",
+   "line": 88,
+   "keywords": [
+    "~/dsh-collab/logs",
+    "print",
+    "定义",
+    "验收标准",
+    "失败也留痕",
+    "自检",
+    "反例",
+    "统一日志"
+   ],
+   "summary": "定义：结构化、可追溯、落盘固定路径。"
+  },
+  {
+   "title": "⑧ 自动落链",
+   "anchor": "⑧-自动落链",
+   "line": 94,
+   "keywords": [
+    "RULES.md",
+    "data/registry/",
+    "GET /data/registry/<key>",
+    "knowledge_search",
+    "定义",
+    "检索到",
+    "验收标准",
+    "自检",
+    "反例",
+    "自动落链"
+   ],
+   "summary": "定义：产出必须被登记，别人能检索到它。"
+  },
+  {
+   "title": "⑨ CLI 治理",
+   "anchor": "⑨-cli-治理",
+   "line": 100,
+   "keywords": [
+    "dry-run",
+    "json-out",
+    "README",
+    "CHANGELOG",
+    "成功 ·",
+    "失败/门失效 ·",
+    "用法或 IO 错误 ③ 存在",
+    "--json",
+    "--json-out",
+    "--help",
+    "--dry-run",
+    "定义",
+    "验收标准",
+    "退出码语义固定"
+   ],
+   "summary": "定义：CLI 行为规范、可预测、可脚本化。"
+  },
+  {
+   "title": "⑩ 约束前置 · 不可绕过（Lean4 逻辑门）",
+   "anchor": "⑩-约束前置-·-不可绕过lean4-逻辑门",
+   "line": 107,
+   "keywords": [
+    "lean4-check",
+    "--lean4-check",
+    "<tool> --lean4-check",
+    "定义",
+    "不该发生的路径",
+    "结构上不可绕过",
+    "验收标准",
+    "没有那个入口",
+    "无法表达",
+    "没有那个能力",
+    "命令白名单",
+    "有那个证明",
+    "失败即停",
+    "拒绝执行"
+   ],
+   "summary": "定义：工具若涉及\"不该发生的路径\"（违规写 / 越权 / 跳步 / 非法引用 / 为局部目标杀全局），约束必须结构上不可绕过，并自带证明。"
+  },
+  {
+   "title": "3 · 交付物模板",
+   "anchor": "3-·-交付物模板",
+   "line": 119,
+   "keywords": [
+    "tool-or-plugin",
+    "package.json",
+    "cordis.patch.yml",
+    "index.js",
+    "selfcheck.js",
+    "R014",
+    "gate.js",
+    "cli.js",
+    "lean4-check",
+    "tool-version",
+    "dry-run",
+    "docs/README.md",
+    "CHANGELOG.md",
+    "~/dsh-collab/logs"
+   ],
+   "summary": ""
+  },
+  {
+   "title": "3.1 `package.json` 最小字段",
+   "anchor": "31-packagejson-最小字段",
+   "line": 136,
+   "keywords": [
+    "dsh-plugin",
+    "lib/index.js",
+    "./cordis.patch.yml",
+    "deepseek-ai",
+    "dsh-tools",
+    "mac-mini",
+    "docs/README.md",
+    "~/dsh-collab/logs",
+    "lib/gate.js",
+    "lean4-check",
+    "`package",
+    "json`",
+    "最小字段"
+   ],
+   "summary": "json"
+  },
+  {
+   "title": "3.2 `selfcheck.js`（② 的落地）",
+   "anchor": "32-selfcheckjs②-的落地",
+   "line": 149,
+   "keywords": [
+    "~/.dsh/profiles",
+    "~/.dsh/plugin-selfcheck",
+    "selfcheck.js",
+    "**★ 血泪条**：不给",
+    "★ 血泪条",
+    "假失败",
+    "`selfcheck",
+    "js`",
+    "的落地"
+   ],
+   "summary": "js"
+  },
+  {
+   "title": "4 · ⑩ 约束门的四种门型与 `--lean4-check` 六项模板",
+   "anchor": "4-·-⑩-约束门的四种门型与---lean4-check-六项模板",
+   "line": 163,
+   "keywords": [
+    "约束门的四种门型与",
+    "`--lean4-check`",
+    "六项模板"
+   ],
+   "summary": ""
+  },
+  {
+   "title": "4.1 四种门型（按场景选，可叠加）",
+   "anchor": "41-四种门型按场景选可叠加",
+   "line": 165,
+   "keywords": [
+    "JSON",
+    "enum",
+    "required",
+    "idle→running→done",
+    "类型锁",
+    "入口门",
+    "Schema 门",
+    "状态机",
+    "四种门型",
+    "按场景选",
+    "可叠加"
+   ],
+   "summary": "| 门型 | 机制 | 适用 |"
+  },
+  {
+   "title": "4.2 `--lean4-check` 六项模板（全绿才交付）",
+   "anchor": "42---lean4-check-六项模板全绿才交付",
+   "line": 174,
+   "keywords": [
+    "dry-run",
+    "GateError",
+    "--dry-run",
+    "Object.isFrozen(...)",
+    "| 源码无危险原语 |",
+    "| 正例可用 | 合法输入必须能通过（",
+    "） |\n|",
+    "外部状态实测一致",
+    "步骤：去字面量定位调用点 → 回原文读实参",
+    "三句口诀",
+    "`--lean4-check`",
+    "六项模板",
+    "全绿才交付"
+   ],
+   "summary": "| 项 | 证明内容 | 实现要点 |"
+  },
+  {
+   "title": "5 · 验收流程（三步，可复制）",
+   "anchor": "5-·-验收流程三步可复制",
+   "line": 189,
+   "keywords": [
+    "lean4-check",
+    "tool-version",
+    "package.json",
+    "dry-run",
+    "RULES.md",
+    "data/registry/",
+    "r006",
+    "收尾",
+    "验收流程",
+    "三步",
+    "可复制"
+   ],
+   "summary": "bash"
+  },
+  {
+   "title": "6 · 常见坑（全部有实据）",
+   "anchor": "6-·-常见坑全部有实据",
+   "line": 207,
+   "keywords": [
+    "cld-voice",
+    "PATH",
+    "~/CLAUDE.md",
+    "cld",
+    "门太宽",
+    "先精确白名单命中，再对非白名单输入判禁用词",
+    "扫描器误伤自己",
+    "空洞通过",
+    "回原文读实参",
+    "假失败",
+    "结果态",
+    "过程态",
+    "检查报错原因",
+    "区分环境问题与包问题"
+   ],
+   "summary": "| # | 坑 | 表现 | 修法 |"
+  },
+  {
+   "title": "7 · 参考实现（已达标实例）",
+   "anchor": "7-·-参考实现已达标实例",
+   "line": 221,
+   "keywords": [
+    "CHANGELOG",
+    "phi-user-sovereignty",
+    "dsh-plugin-cldvoice-activate",
+    "~/dsh-collab/devices/dsh-plugin-cldvoice-activate",
+    "UNSUPPORTED_SCHEMA",
+    "dsh-plugin-agent-way",
+    "agent-bus",
+    "~/dsh-plugin-agent-bus",
+    "selfcheck.js",
+    "cordis.patch.yml",
+    "wargame-engine",
+    "~/dsh-collab/scripts/wargame-engine.py",
+    "dsh-plugin-reflect-enroll",
+    "~/dsh-collab/devices/dsh-plugin-reflect-enroll"
+   ],
+   "summary": "> - §7 参考实现 / §8 补课排期 / §9 检索索引 = 清单·排期·检索类，非规范性 → 编排者（星桥）可自主增补，但须在本文件 CHANGELOG 记明\"非规范性增补\"，并说明未改动任何规范性要求。"
+  },
+  {
+   "title": "8 · 存量工具补课排期（按影响面）",
+   "anchor": "8-·-存量工具补课排期按影响面",
+   "line": 238,
+   "keywords": [
+    "cloudbase-handshake.sh",
+    "device-daemon.py",
+    "cldvoice-activate.sh",
+    "export-marker.py",
+    "deliver.py",
+    "red-team.py",
+    "unit-review.py",
+    "stance-auditor.py",
+    "audience-check.py",
+    "verify-deploy.py",
+    "verify-ui.py",
+    "consistency-scan.py",
+    "优先级 P0（涉及\"不该发生路径\"）",
+    "P1"
+   ],
+   "summary": "优先级 P0（涉及\"不该发生路径\"）：部署/重启类（cloudbase-handshake.sh、device-daemon.py、cldvoice-activate.sh）、发布类（export-marker.py、deliver.py）、凭据类（任何读写凭据的工具）。"
+  },
+  {
+   "title": "8.1 真挂载冒烟存量补课（2026-09-11 用户裁定：**全部 32 个都补**）",
+   "anchor": "81-真挂载冒烟存量补课2026-09-11-用户裁定全部-32-个都补",
+   "line": 245,
+   "keywords": [
+    "~/dsh-plugin-openpencil",
+    "tests/client.test.mjs",
+    "dsh-plugin-reflect-collect",
+    "lib/selfcheck.js",
+    "dsh-plugin-reflect-dispatch",
+    "cli.js",
+    "dsh-plugin-cldvoice-activate",
+    "deepseek-ai",
+    "dsh-tools",
+    "reflect-dispatch",
+    "dsh-plugin-waimai",
+    "dsh-plugin-reflect-",
+    "agent-bus",
+    ".apply("
+   ],
+   "summary": "盘点基线（同日实测，判据见 §2 ① 第 5 项；登记口径：只认\"带接收者的 .apply( 调用 + import 痕迹\"，关键词与函数定义不算）："
+  },
+  {
+   "title": "9 · 检索与索引（怎么在 10 秒内找到本文件）",
+   "anchor": "9-·-检索与索引怎么在-10-秒内找到本文件",
+   "line": 262,
+   "keywords": [
+    "~/dsh-collab/docs/R006-index.json",
+    "r006-tooling-standard-kb",
+    "~/dsh-collab/rules-registry/RULES.md",
+    "R006",
+    "~/CLAUDE.md",
+    "机器索引",
+    "知识库",
+    "规则账本",
+    "会话启动可见",
+    "检索与索引",
+    "怎么在",
+    "10",
+    "秒内找到本文件"
+   ],
+   "summary": "机器索引：~/dsh-collab/docs/R006-index.json（结构化：section → anchor → keywords → 摘要）"
+  },
+  {
+   "title": "快速查询话术（给任何会话）",
+   "anchor": "快速查询话术给任何会话",
+   "line": 269,
+   "keywords": [
+    "R006",
+    "-v3.0.md",
+    "r006-tooling-standard-kb",
+    "锚点速查",
+    "快速查询话术",
+    "给任何会话"
+   ],
+   "summary": ""
+  },
+  {
+   "title": "附 · CHANGELOG",
+   "anchor": "附-·-changelog",
+   "line": 281,
+   "keywords": [
+    "dsh-plugin-cldvoice-activate",
+    "UNSUPPORTED_SCHEMA",
+    "package.json",
+    "json-out",
+    "README",
+    "CHANGELOG",
+    "bb-write.py",
+    "R006",
+    "JSON",
+    "bb-write-README.md",
+    "dsh-tools",
+    "dsh-plugin-reflect-enroll",
+    "comm-layer",
+    "defineTool"
+   ],
+   "summary": "v3.1.1-a（2026-09-13，星桥 · 非规范性更正 §7 清单）：§7 参考实现表里 dsh-plugin-cldvoice-activate 原写\"十项全达标\" —— 该表述不成立：新硬项（①第5项真挂载冒烟）一上手就抓到它 defineTool 抛 UNSUPPORTED_SCHEMA（嵌套 objec"
+  }
+ ],
+ "legacy_docs": [
+  "/Users/coreyleung/dsh-collab/docs/labforge-r006-alignment.md",
+  "/Users/coreyleung/dsh-collab/docs/meeting-verify-r006-ten.md",
+  "/Users/coreyleung/dsh-collab/docs/plugin-eval-rule-v1.md",
+  "/Users/coreyleung/dsh-collab/docs/plugin-selfcheck-spec-v1.md",
+  "/Users/coreyleung/dsh-collab/docs/r006-proposal-lean4-gate-v1.md",
+  "/Users/coreyleung/dsh-collab/docs/wargame-engine-r006-ten.md",
+  "/Users/coreyleung/dsh-collab/docs/wargame-r006-ten.md"
+ ],
+ "reference_impls": [
+  {
+   "name": "dsh-plugin-cldvoice-activate",
+   "path": "~/dsh-collab/devices/dsh-plugin-cldvoice-activate/"
+  },
+  {
+   "name": "dsh-plugin-agent-way (agent-bus)",
+   "path": "~/dsh-plugin-agent-bus/"
+  },
+  {
+   "name": "wargame-engine",
+   "path": "~/dsh-collab/scripts/wargame-engine.py"
+  }
+ ],
+ "quick_queries": {
+  "要做插件/工具 → 需要满足什么": "§2 十项逐项规格 + §3 交付物模板",
+  "约束门怎么写": "§4 四种门型 + --lean4-check 六项模板",
+  "交付前怎么验收": "§5 验收流程（三条命令）",
+  "踩过的坑": "§6 常见坑（7 条）",
+  "照抄哪个实例": "§7 参考实现",
+  "还要补哪些工具": "§8 存量工具补课排期"
+ }
+}

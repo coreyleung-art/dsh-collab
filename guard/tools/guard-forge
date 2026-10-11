@@ -1,0 +1,248 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+guard-forge — 自举门锁（《自举协议-Bootstrap》机械执行）
+把"主动造轮子"变成受约束的受检流程，防瞎造/防重复造/防造而不沉淀。
+
+用法：
+  guard-forge idea "<痛点描述>" [--name 工具名]     # 登记自造想法(自动查车库/知识库是否已有)
+  guard-forge eval <id>                              # 正式评估 P1-P5(forge-ok?)
+  guard-forge build <id> -- <cmd...>                 # 门通过后执行构建(记录产物)
+  guard-forge verify <id> -- <verify-cmd...>         # 验收(exit 0=tool_usable)
+  guard-forge sink <id> --tool <path> [--note ...]   # 沉淀入车库(garage.json)
+  guard-forge garage                                 # 车库清单(状态/层/痛点)
+  guard-forge status <id>                            # 看单个想法状态
+状态: ~/dsh-collab/guard/state/forge.json（想法+状态机: IDEA→EVAL→BUILDING→VERIFY→SINKED）
+车库: ~/dsh-collab/garage.json（自造资产注册表）
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+STATE = os.path.expanduser("~/dsh-collab/guard/state/forge.json")
+GARAGE = os.path.expanduser("~/dsh-collab/garage.json")
+TOOLBOX = os.path.expanduser("~/dsh-collab/cld-dsh-dev-system/docs/高频问题处理工具箱.md")
+
+def load(fp):
+    try:
+        return json.load(open(fp))
+    except Exception:
+        return {}
+
+def save(fp, d):
+    os.makedirs(os.path.dirname(fp), exist_ok=True)
+    json.dump(d, open(fp, "w"), ensure_ascii=False, indent=1)
+
+def nid():
+    return "forge-%d" % int(time.time())
+
+def garage_has(term):
+    """P2: 车库/工具箱是否已有类似轮子"""
+    g = load(GARAGE)
+    for item in g.get("items", []):
+        hay = (item.get("name","") + " " + item.get("pain","")).lower()
+        for t in term.lower().split():
+            if len(t) >= 2 and t in hay:
+                return item
+    return None
+
+def check_exists_tool(term):
+    """检查工具箱/知识库提及"""
+    for fp in (TOOLBOX, os.path.expanduser("~/dsh-collab/cld-dsh-dev-system/knowledge/INDEX.md")):
+        try:
+            txt = open(fp, encoding="utf-8").read()
+            for t in term.split():
+                if len(t) >= 2 and t.lower() in txt.lower():
+                    return fp
+        except Exception:
+            pass
+    return None
+
+def main():
+    if len(sys.argv) < 2:
+        print(__doc__); return 1
+    cmd = sys.argv[1]
+    st = load(STATE)
+    st.setdefault("ideas", [])
+
+    if cmd == "idea":
+        pain = sys.argv[2] if len(sys.argv) > 2 else ""
+        if not pain:
+            print("需传痛点描述"); return 1
+        name = ""
+        if "--name" in sys.argv:
+            name = sys.argv[sys.argv.index("--name") + 1]
+        # P2 预检: 是否已有
+        dup = garage_has(pain) or check_exists_tool(name or pain)
+        iid = nid()
+        st["ideas"].append({"id": iid, "name": name, "pain": pain, "state": "IDEA",
+                            "ts": time.strftime("%Y-%m-%d %H:%M:%S"), "log": []})
+        save(STATE, st)
+        print(f"✅ 想法已登记: {iid}")
+        print(f"   痛点: {pain}")
+        print(f"   状态: IDEA（待 eval）")
+        if dup:
+            print(f"   ⚠ 发现疑似已有轮子: {dup if isinstance(dup,str) else dup.get('name')} —— eval 时 P2 大概率不过，建议先查 guard-recall/车库")
+        return 0
+
+    if cmd == "eval":
+        iid = sys.argv[2] if len(sys.argv) > 2 else ""
+        idea = next((i for i in st["ideas"] if i["id"] == iid), None)
+        if not idea:
+            print(f"未找到 {iid}"); return 1
+        print(f"=== forge eval: {iid} 「{idea['pain']}」 ===")
+        ok = True
+        # P1 pain_verified: 痛点描述是否具体(含证据性词汇)
+        p1 = len(idea["pain"]) >= 12 and any(k in idea["pain"] for k in
+             ["次", "重复", "每次", "人工", "等", "看不到", "查不到", "又", "再", "耗时", "手动"])
+        print(f"  {'✓' if p1 else '✗'} P1 痛点确证: 描述具体且有重复/人工/盲区证据 → {'可造' if p1 else '需补充: 痛了几次? 证据?'}")
+        ok &= p1
+        # P2 not_exists_tool
+        dup = garage_has(idea["pain"])
+        p2 = dup is None
+        if p2:
+            p2msg = "车库/知识库无命中"
+        else:
+            dupname = dup.get("name") if isinstance(dup, dict) else str(dup)
+            p2msg = "已存在 " + dupname + " —— 改用/升级旧轮, 勿重造"
+        print("  %s P2 无现成轮: %s" % ("✓" if p2 else "✗", p2msg))
+        # P3 layer 由 --layer 指定或默认 L1
+        layer = "L1"
+        if "--layer" in sys.argv:
+            layer = sys.argv[sys.argv.index("--layer") + 1]
+        idea["layer"] = layer
+        print(f"  ✓ P3 层级: {layer}（L1工具/L2设计台/L3协议——难造或频繁造→升级L2）")
+        # P4 MVP: 提示语(人判)
+        print(f"  ? P4 最小可用: 自检——本轮只消痛点不追完美?（回答 yes/no）")
+        # P5 bounded: 今日 build 计数
+        today = time.strftime("%Y%m%d")
+        cnt = st.get("_build_today", {}).get(today, 0)
+        p5 = cnt < 3
+        print(f"  {'✓' if p5 else '✗'} P5 有界: 今日已 build {cnt}/3 —— 造轮有瘾时强制回归执行")
+        ok &= p5
+        if ok:
+            idea["state"] = "EVAL_OK"
+            print("\n✅ forge-ok: 前提满足 → 可 build")
+        else:
+            idea["state"] = "EVAL_FAIL"
+            print("\n❌ 前提不满足 → 暂不造。修复前提或放弃（勿空想造车）")
+        save(STATE, st)
+        return 0 if ok else 1
+
+    if cmd == "build":
+        iid = sys.argv[2] if len(sys.argv) > 2 else ""
+        idea = next((i for i in st["ideas"] if i["id"] == iid), None)
+        if not idea:
+            print(f"未找到 {iid}"); return 1
+        if idea.get("state") not in ("EVAL_OK", "BUILDING"):
+            print(f"❌ 需先 eval 通过(当前 {idea.get('state')})"); return 1
+        # P5 计数
+        today = time.strftime("%Y%m%d")
+        st.setdefault("_build_today", {})
+        cnt = st["_build_today"].get(today, 0)
+        if cnt >= 3:
+            print("❌ P5: 今日已 build 3 次，回归执行者身份（造轮有界）"); return 1
+        st["_build_today"][today] = cnt + 1
+        idea["state"] = "BUILDING"
+        idea.setdefault("log", []).append(f"build @ {time.strftime('%H:%M:%S')}")
+        save(STATE, st)
+        # 执行构建命令(如果给了)
+        if "--" in sys.argv:
+            idx = sys.argv.index("--")
+            cmdline = sys.argv[idx+1:]
+            print(f"=== build 执行: {' '.join(cmdline)} ===")
+            r = subprocess.run(cmdline, capture_output=True, text=True)
+            print(r.stdout[-1500:] if r.stdout else "")
+            if r.stderr:
+                print("stderr:", r.stderr[-500:])
+            print(f"exit={r.returncode}")
+            if r.returncode != 0:
+                idea["state"] = "BUILD_FAIL"
+                save(STATE, st)
+                return 1
+        print("✅ build 完成（状态 BUILDING → 待 verify）")
+        return 0
+
+    if cmd == "verify":
+        iid = sys.argv[2] if len(sys.argv) > 2 else ""
+        idea = next((i for i in st["ideas"] if i["id"] == iid), None)
+        if not idea:
+            print(f"未找到 {iid}"); return 1
+        if "--" not in sys.argv:
+            print("需给验收命令: guard-forge verify <id> -- <cmd>"); return 1
+        idx = sys.argv.index("--")
+        cmdline = sys.argv[idx+1:]
+        print(f"=== verify: {' '.join(cmdline)} ===")
+        r = subprocess.run(cmdline, capture_output=True, text=True)
+        print(r.stdout[-1200:] if r.stdout else "")
+        if r.stderr:
+            print("stderr:", r.stderr[-400:])
+        if r.returncode == 0:
+            idea["state"] = "VERIFIED"
+            idea["accept_evidence"] = " ".join(cmdline)
+            save(STATE, st)
+            print("✅ VERIFY 通过 → tool_usable，可 sink")
+            return 0
+        idea["state"] = "VERIFY_FAIL"
+        save(STATE, st)
+        print("❌ VERIFY 失败——修或弃（勿把未验收当完成）")
+        return 1
+
+    if cmd == "sink":
+        iid = sys.argv[2] if len(sys.argv) > 2 else ""
+        idea = next((i for i in st["ideas"] if i["id"] == iid), None)
+        if not idea:
+            print(f"未找到 {iid}"); return 1
+        if idea.get("state") != "VERIFIED":
+            print(f"❌ 需先 VERIFIED(当前 {idea.get('state')})"); return 1
+        tool_path = ""
+        if "--tool" in sys.argv:
+            tool_path = sys.argv[sys.argv.index("--tool") + 1]
+        note = ""
+        if "--note" in sys.argv:
+            note = sys.argv[sys.argv.index("--note") + 1]
+        g = load(GARAGE)
+        g.setdefault("items", [])
+        g["items"].append({
+            "id": iid, "name": idea.get("name") or os.path.basename(tool_path) or "unnamed",
+            "layer": idea.get("layer", "L1"), "pain": idea["pain"],
+            "tool": tool_path, "state": "SINKED",
+            "accept_evidence": idea.get("accept_evidence", ""),
+            "note": note, "ts": time.strftime("%Y-%m-%d %H:%M:%S"),
+        })
+        save(GARAGE, g)
+        idea["state"] = "SINKED"
+        save(STATE, st)
+        print(f"✅ 已沉入车库: {idea.get('name')}")
+        print(f"   车库共 {len(g['items'])} 件资产")
+        print("   记得: 工具箱/知识库/档案三处登记(见协议 §六)")
+        return 0
+
+    if cmd == "garage":
+        g = load(GARAGE)
+        items = g.get("items", [])
+        print(f"=== 车库自造资产 ({len(items)}) ===")
+        for it in items:
+            print(f"  [{it.get('layer')}] {it.get('name')}  state={it.get('state')}")
+            print(f"      痛点: {it.get('pain','')[:60]}")
+            if it.get("tool"):
+                print(f"      产物: {it.get('tool')}")
+        return 0
+
+    if cmd == "status":
+        iid = sys.argv[2] if len(sys.argv) > 2 else ""
+        for i in st["ideas"]:
+            if i["id"] == iid:
+                print(json.dumps(i, ensure_ascii=False, indent=1))
+                return 0
+        print(f"未找到 {iid}")
+        return 1
+
+    print(__doc__)
+    return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,77 @@
+{
+ "schema": "sb-mobile-restart-and-ios-rebuild/v1",
+ "created_at": "2026-10-10T03:19:33+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "sb-mobile 重启完成（P2b 生效）；iOS 重编译进行中（Xcode 27.0 可用）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:19:33+08:00",
+  "rerunCmd": "hostname"
+ },
+ "authority": "用户 2026-10-10：「可以重启重编译」→「做」",
+ "★_sb_mobile_restart": {
+  "before": {
+   "pid": 1250,
+   "started": "Oct 8 04:28:45",
+   "note": "**正是改前的旧实例**（P2b 的 server.js 改动未生效）"
+  },
+  "method": "`launchctl kickstart -k gui/501/com.dsh.sb-mobile-bridge`（它是 KeepAlive 服务）",
+  "after": {
+   "pid": 56945,
+   "started": "Sat Oct 10 03:18:50",
+   "port": "8820 在听",
+   "health": "`{\"ok\":true,\"name\":\"sb-mobile-bridge\",\"port\":8820}` HTTP 200"
+  },
+  "★_P2b_verification": {
+   "method": "复跑 `__starPrefix()` 逻辑（读 main-roles.json 的「星桥」prefix）+ 模拟排序",
+   "result": [
+    "星桥 prefix = `session-e317d6ab` ⇒ **含死会话? 否 ✅**（改前行为是含）",
+    "排序结果: **星桥 → 明鉴 → 老登** ⇒ **星桥在最前 ✅**"
+   ],
+   "meaning": "★ **P2b 的「不再硬编码死会话、改读 main-roles.json」完全生效**"
+  }
+ },
+ "★_ios_rebuild": {
+  "status": "★ **完成：BUILD SUCCEEDED → 已签名 → 已安装到 iPhone 16 Pro**",
+  "toolchain": {
+   "decision": "Xcode 27.0 可用（用 `DEVELOPER_DIR` 即可，无需 sudo）",
+   "★_lesson": "★ 首次 `xcodebuild -version` 报 `requires Xcode, but active developer directory is CLT` ⇒ **我差点据此说「Xcode 不可用」** —— 但实查 `/Applications/Xcode.app` **存在**，只是 `xcode-select` 未指向它。⇒ **「默认路径不可用」≠「实体不存在」，须再探一层**（与今晚「argv 会被 mv 欺骗」同族）"
+  },
+  "build": {
+   "cmd": "xcodebuild -project StarBridge.xcodeproj -scheme StarBridge -configuration Debug -destination 'generic/platform=iOS' -derivedDataPath ./DerivedData build",
+   "result": "** BUILD SUCCEEDED **",
+   "product": "DerivedData/Build/Products/Debug-iphoneos/StarBridge.app（二进制 91,856 B · mtime 03:21）"
+  },
+  "signing": {
+   "identity": "Apple Development: Zhenyu Liang (L65PW2JJCW)",
+   "profile": "iOS Team Provisioning Profile: com.starbridge.mobile",
+   "identifier": "com.starbridge.mobile",
+   "entitlements": [
+    "application-identifier",
+    "get-task-allow"
+   ]
+  },
+  "★_change_verification": {
+   "method": "`strings <binary> | grep -c 'session-fa1f9150'`",
+   "result": "★ **0 次** ⇒ 死会话字面量已不在产物中（改前会以 Swift 字符串字面量进常量区）",
+   "also": "源码含 `let isStarRole = (currentAgentInfo?.role.hasPrefix(\"星桥\") ?? false)`；该局部变量名在符号表查不到属正常（局部 `let` 不保留符号）"
+  },
+  "install": {
+   "device": "iPhone 16 Pro (iPhone17,1) · UDID 00008140-00042D413C09801C",
+   "state_before": "unavailable（未解锁/未信任）⇒ 用户连接后转 **connected**",
+   "result": "**App installed**（bundleID com.starbridge.mobile · sequenceNumber 5888）"
+  }
+ },
+ "not_verified": [
+  "★ 手机端三条验收判据**未执行**（须用户在手机上操作）",
+  "★ 星台 App 的 macOS 目标（StarBridgeMac）本轮未编译",
+  "★ 未做公证/装订（仅分发制品需要）"
+ ],
+ "r046_note": "本卡为操作与验证登记，不构成任何验收或裁决通过。",
+ "★_user_verification_pending": {
+  "①_角色列表": "★ 手机上打开星台 App ⇒ 确认**星桥排在最前**（P2b 改动的效果）",
+  "②_角色直聊": "★ 选「星桥」发消息 ⇒ 应走 `agent` 直达（**改后按角色名判断**，不再依赖会话 id）",
+  "③_回归": "★ 选其他角色（明鉴/老登等）发消息 ⇒ 应仍走 `target=角色名` 路径，**不回归**"
+ }
+}

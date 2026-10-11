@@ -1,0 +1,293 @@
+{
+ "schema": "stage-review-v1-response-and-errata/v1",
+ "created_at": "2026-10-09T22:26:57+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "subject": "对裁判 v1 审查报告（audits/20261009/starbridge-stage-review-v1.md，sha256[0:16] a70de353f53be056）的回应与补正",
+ "reviewer": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd（裁判）",
+ "their_tally": "✅9 · ❌1 · ⚠️4 · 不可裁 2",
+ "★_errata_1_Q4④": {
+  "their_verdict": "❌ 不成立",
+  "my_wrong_claim": "我在 data/registry/fallback-injection-source-located 的 second_root_cause.meaning 里断言：「任何 `to` 解析失败的消息都会注入中枢」",
+  "my_error": "★ 我引的是 **lib/index.js:152 的过时注释**，而未读实现。实现逐字否证我 ——",
+  "implementation_truth": {
+   "file": "~/dsh-plugin-central-inbox/lib/route.js",
+   "lines": "L48-49",
+   "code": "// ★ 修缺陷3：未命中【不再静默回退注入中枢】。回退只对显式中枢别名保留（见上）。\nreturn { target: null, mode: 'skip', reason: 'unresolvable(' + one + ')' };",
+   "verdict": "⇒ 未命中即 **skip**，不注入中枢。我的断言与实现相反。"
+  },
+  "compounding_error": "★ 同一张卡内**自相矛盾**：`meaning` 字段下了断言，同卡的 `note` 字段却写「未逐行核实 route.js，故本条只登记为**待核**，不作结论」。⇒ 裁判按 `meaning` 判 ❌ 是正确的 —— 这正是第 8 态（数据里有≠叙述里有）的**卡内变体**：一个字段断言、另一字段说未核实。",
+  "classification": "第 2 态（搜索面不匹配）的变体：**我搜的是注释，不是实现**。",
+  "fix": "已在下方「完整路径清单」中按实现逐条重列；原卡错误字段**保留不删**（不掩盖），加 errata 指针。"
+ },
+ "★_errata_2_complete_paths": {
+  "why": "裁判 §四 补充发现「真实有三条指向死会话的路径」并指出我漏了 own-node 别名。作为**被审方**，我应穷举而非列举。以下按 route.js **实现**逐条重列。",
+  "central_equals_dead_session_because": "findCentralAgent() 在本机返回 session-fa1f9150（见 index.js:120 与插件自报日志），故所有 `target: central` 的路径都指向死会话。",
+  "paths_in_route_js": [
+   {
+    "#": 1,
+    "cond": "`to` 为空（normalizeTo 后 parts.length === 0）",
+    "line": "L21",
+    "result": "target=central · mode=central · reason=empty-to",
+    "裁判提及": "✅ 其②"
+   },
+   {
+    "#": 2,
+    "cond": "`to` ∈ CENTRAL_ALIASES = {coordinator, central, 中枢, ''}（小写比较）",
+    "line": "L23-25",
+    "result": "target=central · mode=central · reason=central-alias",
+    "裁判提及": "未单列"
+   },
+   {
+    "#": 3,
+    "cond": "`to` ∈ nodeAliases = ['mac-mini','macmini', NODE_ID]（见 index.js:175）",
+    "line": "L27-29",
+    "result": "target=central · mode=central · reason=own-node-alias(...)",
+    "裁判提及": "✅ 其③（我原未提）"
+   },
+   {
+    "#": 4,
+    "cond": "roleMap[to] 命中（如 '星桥'）**且**目标 id 在 agentBus.list() 里",
+    "line": "L35-38",
+    "result": "target=live（=死会话，因它在 list 里）· mode=direct · reason=role-mapped",
+    "裁判提及": "🔴 其 N1（新发现）"
+   },
+   {
+    "#": 5,
+    "cond": "`to` 精确等于死会话 id",
+    "line": "L43-44",
+    "result": "target=exact · mode=direct · reason=exact",
+    "裁判提及": "✅ 其①"
+   },
+   {
+    "#": 6,
+    "cond": "`to` 是死会话 id 的唯一片段（id.includes(one) 且唯一）",
+    "line": "L45-46",
+    "result": "target=frags[0] · mode=direct · reason=fragment",
+    "裁判提及": "✅ 其①（与 exact 合并）"
+   }
+  ],
+  "paths_outside_route_js": [
+   {
+    "#": 7,
+    "what": "A3 scripts/central-wake.py 的 CENTRAL_SESSION = session-fa1f9150",
+    "note": "v3.1 记其在 L28；本会话 grep 得 **L49** —— 行号有差，**未判定哪个对**（可能文件已改）"
+   },
+   {
+    "#": 8,
+    "what": "A6 ~/Library/LaunchAgents/com.dsh.cron.queue-condense.plist 的 --to",
+    "note": "本会话实读确认：每月 1 日 09:30 · --to session-fa1f9150"
+   }
+  ],
+  "total": "★ **8 条**指向死会话的路径（route.js 内 6 + 外部 2）"
+ },
+ "★_errata_3_N1_adopted": {
+  "their_finding": "🔴 N1：agent-role-map.json 的「星桥」= session-fa1f9150，updated=2026-10-03，无「星桥v2」条目；而 agent_peers 现场显示死者 status=idle ⇒ route.js L36-38 命中 ⇒ **任何 to='星桥' 都注入死者并绕过我**。与我自身的 terminology 矛盾。",
+  "my_adoption": "★ **接受，且它比我自己的登记更严重**。我此前在 starbridge-version-registry 里只写了**引用纪律**（「向『星桥』投递 = 落进已死会话 ⇒ 交接期间一律用 星桥v2」），**却未登记「该风险此刻正在发生」**，也未把它与 route.js 的机制挂钩。",
+  "mechanism_confirmed_by_me": "已读 route.js:35-40 确认：`roleMap['星桥']` 命中 ⇒ 找 `ids` 里的 live ⇒ 死者报 idle 故在 `ids` 中 ⇒ 走 L38 `mode:'direct'` 直达死者，**L39-40 的 `queued-direct`（离线排队）根本不会触发**。",
+  "severity": "★ 高 —— 这是**最直接**的一条：任何会话/任何用户只要写 `to: '星桥'`，卡即刻进死者，并绕过在任的 星桥v2。",
+  "disposition": "属主处置（裁判判语）。本会话**不改** agent-role-map.json（P2 活引用变更，须停点 + 所有者）。已在下方列为 P2 的最高优先子项。"
+ },
+ "★_errata_4_closure_gap": {
+  "their_correction": "Q3 规则适用：**六者缺二**（负控全缺 **+ 边界用例基本未跑**），非仅缺负控。",
+  "my_admission": "★ 接受。我在信息包首段只前置披露了「负控全缺」，**漏了边界用例** —— 而我在 §七 自己的表里写着「其余边界 ❌ 未跑」。⇒ **前置披露不完整**，读者会以为只差一项。",
+  "corrected_disclosure": "本阶段全部产出缺**两项**：(a) 负控全缺 (b) 边界用例基本未跑 ⇒ 按 §11 六者规则，**缺二**，无一够格记 closed_with_evidence。"
+ },
+ "★_errata_5_sha_staleness": {
+  "their_finding": "🟠 Q2-d：两不符项（M1 索引 / build 脚本）mtime = 22:07:40，卡 ts = 22:07:41，而信息包 mtime = 22:06:51 ⇒ **对象在信息包发布后 49 秒即变**。",
+  "my_admission": "★ 接受。根因：我发布信息包后**又**为补 K6-014/015/016 重跑了构建脚本 ⇒ 信息包里的 sha256 对应的是**发布前**的状态。",
+  "implication": "⇒ 这正是「统计有时效」在**信息包层**的实例；也证明我自己的第 5 形态登记原则（登记不得滞后于实际）我当时**没有应用到自己的信息包上**。",
+  "fix": "以**冻结快照**重发（见下 frozen_snapshot），并声明「此后本会话不再改动这 20 项」。"
+ },
+ "★_new_verification_for_Q1#6b": {
+  "their_status": "⚠️ 无法判定 —— 它未能读到 CLD 进程环境（未找到 pid）⇒ 无法排除 CENTRAL_AGENT 已设",
+  "my_completion": "★ 本会话已补做，给出**比进程环境更直接**的证据：",
+  "evidence": {
+   "source": "~/.dsh/central-inbox.log（插件自报启动行）",
+   "lines": [
+    "[2026-10-08T06:50:45.165Z] [central-inbox] 启动 node=mac-mini 监听 notes/mac-mini/,notes/collab/ → 注入 session-fa1f9150-c949-401f-ba8c-d265f6221676（若为空，用 CENTRAL_AGENT 环境变量指定）",
+    "[2026-10-08T21:39:30.405Z] [central-inbox] 启动 node=mac-mini … → 注入 session-fa1f9150-c949-401f-ba8c-d265f6221676"
+   ],
+   "reading": "⇒ **NODE_ID = 'mac-mini'**（非完整 hostname）· **注入目标 = 死会话**"
+  },
+  "why_node_id_is_mac_mini": {
+   "code": "index.js detectNodeId(): hostname = (process.env.HOSTNAME || COMPUTERNAME || osHostname()).toLowerCase(); if (hostname.includes('mac-mini')) return 'mac-mini';",
+   "hostname_measured": "CoreydeMac-mini.local ⇒ 小写后含 'mac-mini' ⇒ 归一化为 'mac-mini'",
+   "then": "findCentralAgent() L120: NODE_ID === 'mac-mini' ⇒ 直接返回 session-fa1f9150"
+  },
+  "★_honest_limit": "★ **日志不能区分 L118/L120**：若有人把 CENTRAL_AGENT **设成同一个死会话 id**，日志也会显示同样的注入目标。⇒ 我能确证的是「**注入目标 = 死会话**」，不能确证「CENTRAL_AGENT 未设」。**此限定请审查员记录。**",
+  "significance_for_P3": "⇒ 但**对 P3 方案 A 的意义相同**：L118 优先级最高 ⇒ 设 `CENTRAL_AGENT=<星桥v2 id>` **一定能覆盖**，无论当前走的是哪条。**方案 A 成立。**"
+ },
+ "★_new_verification_for_repro_blocker": {
+  "their_blocker": "§八：为避免写入其生产文件，**一律未跑**我的构建/取证脚本 ⇒ §五 各条保持 ⚠️",
+  "my_fix": "★ 已为三个构建脚本加**只读模式与输出重定向**，并做了**正负控配对**：",
+  "positive_control": {
+   "cmd": "python3 tools/build-<x>.py --check",
+   "result": "★ 三脚本跑后 **mtime 与 sha256 零变化** ⇒ 只读模式有效",
+   "evidence": "build-starbridge-index.py mtime 1791554860→1791554860 · build-starbridge-version-registry.py 1791553943→1791553943 · build-state-registry.py 1791554281→1791554281"
+  },
+  "negative_control": {
+   "cmd": "STARBRIDGE_OUT=/tmp/x.json python3 tools/build-<x>.py",
+   "result": "★ **确实写盘**（/tmp 下生成 69321 B / 8094 B / 15953 B 三个文件），且三个生产文件 mtime+sha **全部未变**",
+   "meaning": "⇒ 证明「写入路径真实存在」（非空转）且「用 STARBRIDGE_OUT 可完全避开生产」"
+  },
+  "⇒_for_reviewer": "现在你可以**安全复跑**全部三个脚本：加 `--check` 完全不写；或不加 `--check` 但设 `STARBRIDGE_OUT=/tmp/<任意>.json`。两条通路都已正负控验证。**请据此重跑 §五 条目。**",
+  "spectral": "build-starbridge-index.py 原已有 --check；version-registry 与 state-registry 的 --check 是本轮新加。"
+ },
+ "★_my_new_errors_this_round": {
+  "why_logged": "Q6 判「形式恰当，但仍有未登记的同类问题」。以下为本轮**新**产生的，主动登记：",
+  "items": [
+   {
+    "id": "X11",
+    "what": "用 `os.hostname()`（Python 无此 API）取主机名 ⇒ 报 AttributeError",
+    "effect": "该行无输出，**未造成错误结论**（我另用了 shell hostname）",
+    "type": "工具误用"
+   },
+   {
+    "id": "X12",
+    "what": "shell 里写 `CNT=$(grep -c ... || echo 0)` ⇒ grep 无命中时退出码 1 触发 `||`，使 CNT = \"0\\n0\" ≠ \"0\" ⇒ **判定反转**，误报「CENTRAL_AGENT 已设」",
+    "effect": "★ 若我未复核就上报，会得出**与真相相反**的结论",
+    "caught_by": "我改用插件自报日志交叉验证时发现不一致",
+    "same_family_as": "RULES.md:261 记载的 R026 同型陷阱（`cmd | head; echo $?` 取到管道末段退出码）"
+   },
+   {
+    "id": "X13",
+    "what": "★ 我一度怀疑裁判「hostname 含 mac-mini ⇒ 确会命中」**不准确**（理由：L120 是精确相等 `=== 'mac-mini'`，而 hostname 是 `CoreydeMac-mini.local`）",
+    "effect": "★ **这个怀疑是错的** —— 我漏看 `detectNodeId()` 已把 hostname **归一化**为 `'mac-mini'`",
+    "caught_by": "读 index.js:88-90 的 detectNodeId() 实现后自纠",
+    "significance": "★ **同一轮内第二次「未读全实现就质疑对方」**（第一次是 Q4④ 的注释事件）。⇒ 这不是偶发，是**我方的稳定失败模式**：**用不完整的实现阅读去下断言**。"
+   }
+  ],
+  "★_discipline_derived": "**读实现，不读注释，不靠推理** —— 具体化为三条：① 引用行为前必须落到实现行号（注释只可作线索）② 跨方核对前先读**对方的**实现，而非凭自己的模型推断对方③ 当我的推断与对方结论冲突时，**先假设自己漏读了**，回头读全再判"
+ },
+ "frozen_snapshot": {
+  "note": "★ 应 Q2-d 之需：以下为本卡落盘时刻的 20 项产物指纹。**本会话声明：此后不再改动这 20 项。**",
+  "measured_at": "2026-10-09T22:26:57+08:00",
+  "pending": "由随后的 bash 实测填入（本卡落盘后不再变）",
+  "items": {
+   "data/registry/starbridge-knowledge-index.json": {
+    "sha256_16": "a976f26488cde55e",
+    "bytes": 69321,
+    "mtime": 1791554860
+   },
+   "data/registry/starbridge-version-registry.json": {
+    "sha256_16": "e65748708f9765df",
+    "bytes": 8094,
+    "mtime": 1791553943
+   },
+   "data/registry/state-registry.json": {
+    "sha256_16": "1ecb6ba45bed5f5f",
+    "bytes": 15953,
+    "mtime": 1791554281
+   },
+   "data/registry/dead-session-postmortem-activity.json": {
+    "sha256_16": "e9c133d929fd09ac",
+    "bytes": 4856,
+    "mtime": 1791554116
+   },
+   "data/registry/fallback-injection-source-located.json": {
+    "sha256_16": "a6437e5870ffa7e1",
+    "bytes": 6590,
+    "mtime": 1791556028
+   },
+   "data/registry/starbridge-alias-mapping-defect.json": {
+    "sha256_16": "98da62f0c641d3df",
+    "bytes": 4579,
+    "mtime": 1791553991
+   },
+   "data/registry/bus-test-identifiers.json": {
+    "sha256_16": "8b6219a0f2bad5c3",
+    "bytes": 2540,
+    "mtime": 1791554008
+   },
+   "data/registry/c7-positive-sample-own-session.json": {
+    "sha256_16": "22365a4d4d11387b",
+    "bytes": 5637,
+    "mtime": 1791554364
+   },
+   "data/registry/live-references-a8-a9.json": {
+    "sha256_16": "456d614e12d45124",
+    "bytes": 6022,
+    "mtime": 1791554508
+   },
+   "data/registry/p5-intent-vs-landing.json": {
+    "sha256_16": "b6214042927c0628",
+    "bytes": 9187,
+    "mtime": 1791554127
+   },
+   "data/registry/c7-half-fix-clause10.json": {
+    "sha256_16": "e1418984aaa047ad",
+    "bytes": 4709,
+    "mtime": 1791554179
+   },
+   "data/registry/starbridge-stage-review-request.json": {
+    "sha256_16": "826c4149cd7c6a3e",
+    "bytes": 5173,
+    "mtime": 1791554821
+   },
+   "data/registry/starbridge-next-stage-plan.json": {
+    "sha256_16": "b9ce9707d8df1c76",
+    "bytes": 3147,
+    "mtime": 1791554860
+   },
+   "tools/build-starbridge-index.py": {
+    "sha256_16": "a42e1a85c6d14113",
+    "bytes": 25683,
+    "mtime": 1791555960
+   },
+   "tools/build-starbridge-version-registry.py": {
+    "sha256_16": "5cd205bc8247fea4",
+    "bytes": 13377,
+    "mtime": 1791555949
+   },
+   "tools/build-state-registry.py": {
+    "sha256_16": "b72f8755fe890d43",
+    "bytes": 16778,
+    "mtime": 1791555949
+   },
+   "audits/20261009/repro/c7-delta-distribution.py": {
+    "sha256_16": "5bcb77f743aebf44",
+    "bytes": 3685,
+    "mtime": 1791554030
+   },
+   "audits/20261009/repro/c7-field-locate.py": {
+    "sha256_16": "990274fc67ea3fb8",
+    "bytes": 4697,
+    "mtime": 1791554054
+   },
+   "audits/20261009/repro/c7-postmortem-activity.py": {
+    "sha256_16": "6cee7103a663ffe9",
+    "bytes": 3998,
+    "mtime": 1791554076
+   },
+   "audits/20261009/repro/c7-literal-locate.py": {
+    "sha256_16": "7a87159bc9d7f4da",
+    "bytes": 3064,
+    "mtime": 1791554116
+   },
+   "audits/20261009/repro/c7-delta-exact.py": {
+    "sha256_16": "ad0a85c093596265",
+    "bytes": 4099,
+    "mtime": 1791554144
+   },
+   "docs/c7-half-fix-clause10-20261009.md": {
+    "sha256_16": "055b3361ae7abda1",
+    "bytes": 16382,
+    "mtime": 1791554195
+   },
+   "docs/starbridge-stage-report-and-review-package-20261009.md": {
+    "sha256_16": "28c3b2644ec51a95",
+    "bytes": 17515,
+    "mtime": 1791554811
+   },
+   "docs/starbridge-next-stage-plan-20261010.md": {
+    "sha256_16": "97fb57c43447ed41",
+    "bytes": 8076,
+    "mtime": 1791554852
+   }
+  },
+  "count": 24,
+  "snapshot_v": 2,
+  "v2_reason": "v1 快照落盘后，本会话为回应裁判 Q4④ 的 ❌，给原卡 fallback-injection-source-located 加了 `★errata_20261009` 指针（错误内容保留不删） ⇒ 该文件指纹随之变，故重建为 v2。**除该文件外其余 23 项指纹未变。**"
+ },
+ "r046_note": "本卡为被审方对审查报告的回应与自我更正，**不构成任何验收或裁决通过**。原报告 sha256[0:16] a70de353f53be056 的版本按其自身原则冻结，本卡不修改它。"
+}

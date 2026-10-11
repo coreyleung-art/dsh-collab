@@ -1,0 +1,303 @@
+{
+  "version": "1.0",
+  "generated": "2026-09-01",
+  "total": 49,
+  "i9_delivered": false,
+  "i9_package": "5店1971张+10CSV（HTTP 8915 交付，notes/i9/return-photos-complete-delivery）",
+  "photos": [
+    {
+      "file": "photo_001.jpg",
+      "source": "learning",
+      "size": 646930,
+      "sha256": "221116ce2fbe9ad3"
+    },
+    {
+      "file": "photo_002.jpg",
+      "source": "learning",
+      "size": 119773,
+      "sha256": "7c9768ac7cee1366"
+    },
+    {
+      "file": "photo_003.jpg",
+      "source": "learning",
+      "size": 123868,
+      "sha256": "0bea2b99f0c4713c"
+    },
+    {
+      "file": "photo_004.jpg",
+      "source": "learning",
+      "size": 114373,
+      "sha256": "0c01ed93438a6e73"
+    },
+    {
+      "file": "photo_005.jpg",
+      "source": "learning",
+      "size": 119750,
+      "sha256": "d7a9db4d13e618fb"
+    },
+    {
+      "file": "photo_006.jpg",
+      "source": "learning",
+      "size": 121549,
+      "sha256": "95c0f186326351a7"
+    },
+    {
+      "file": "photo_007.jpg",
+      "source": "learning",
+      "size": 123004,
+      "sha256": "8fa5ae35a0bfc368"
+    },
+    {
+      "file": "photo_008.jpg",
+      "source": "learning",
+      "size": 124951,
+      "sha256": "8ac685fa6e6f06e1"
+    },
+    {
+      "file": "photo_009.jpg",
+      "source": "learning",
+      "size": 120759,
+      "sha256": "eb2e684b35de4c2c"
+    },
+    {
+      "file": "photo_010.jpg",
+      "source": "learning",
+      "size": 122201,
+      "sha256": "dac14a905cf40cac"
+    },
+    {
+      "file": "photo_011.jpg",
+      "source": "learning",
+      "size": 121908,
+      "sha256": "3b8c956bafefe28c"
+    },
+    {
+      "file": "photo_012.jpg",
+      "source": "learning",
+      "size": 120823,
+      "sha256": "6859cdeaac932f8b"
+    },
+    {
+      "file": "photo_013.jpg",
+      "source": "learning",
+      "size": 802968,
+      "sha256": "2d6a8a5eb3934477"
+    },
+    {
+      "file": "photo_014.jpg",
+      "source": "learning",
+      "size": 133976,
+      "sha256": "1ac4639a39be07f7"
+    },
+    {
+      "file": "photo_015.jpg",
+      "source": "learning",
+      "size": 134955,
+      "sha256": "161d38c0aebd8674"
+    },
+    {
+      "file": "photo_016.jpg",
+      "source": "learning",
+      "size": 130639,
+      "sha256": "a30c5e69aa77433f"
+    },
+    {
+      "file": "photo_017.jpg",
+      "source": "learning",
+      "size": 135136,
+      "sha256": "4c18377c1cf6e328"
+    },
+    {
+      "file": "photo_018.jpg",
+      "source": "learning",
+      "size": 135286,
+      "sha256": "d1626b1d4dec57c1"
+    },
+    {
+      "file": "photo_019.jpg",
+      "source": "learning",
+      "size": 778259,
+      "sha256": "42ef99a5a734b3d9"
+    },
+    {
+      "file": "photo_020.jpg",
+      "source": "learning",
+      "size": 97720,
+      "sha256": "9129aa8c75e9c937"
+    },
+    {
+      "file": "photo_021.jpg",
+      "source": "learning",
+      "size": 94148,
+      "sha256": "29319e83a569c85f"
+    },
+    {
+      "file": "photo_022.jpg",
+      "source": "learning",
+      "size": 93621,
+      "sha256": "8f5a15ca4b043782"
+    },
+    {
+      "file": "photo_023.jpg",
+      "source": "learning",
+      "size": 92722,
+      "sha256": "f5fde6f211762730"
+    },
+    {
+      "file": "photo_024.jpg",
+      "source": "learning",
+      "size": 91299,
+      "sha256": "36e985146c1a2759"
+    },
+    {
+      "file": "photo_025.jpg",
+      "source": "learning",
+      "size": 275408,
+      "sha256": "9a837d4956aa3419"
+    },
+    {
+      "file": "photo_026.jpg",
+      "source": "learning",
+      "size": 127645,
+      "sha256": "7f8b42bc3a148417"
+    },
+    {
+      "file": "photo_027.jpg",
+      "source": "learning",
+      "size": 1847153,
+      "sha256": "6c377c8a6a47a426"
+    },
+    {
+      "file": "photo_028.jpg",
+      "source": "learning",
+      "size": 92500,
+      "sha256": "6f48df80ff78a8ff"
+    },
+    {
+      "file": "photo_029.jpg",
+      "source": "learning",
+      "size": 90455,
+      "sha256": "06c2cc97c269df32"
+    },
+    {
+      "file": "photo_030.jpg",
+      "source": "learning",
+      "size": 868230,
+      "sha256": "a7a40609864d709d"
+    },
+    {
+      "file": "photo_031.jpg",
+      "source": "learning",
+      "size": 597592,
+      "sha256": "4ae3b31f3709e9e4"
+    },
+    {
+      "file": "photo_032.jpg",
+      "source": "learning",
+      "size": 4484407,
+      "sha256": "cbcdd3ef402d86ee"
+    },
+    {
+      "file": "photo_033.jpg",
+      "source": "learning",
+      "size": 519122,
+      "sha256": "eafadca39ffee2a2"
+    },
+    {
+      "file": "客村_photo_001.jpg",
+      "source": "learning",
+      "size": 144715,
+      "sha256": "db6df73b362697a4"
+    },
+    {
+      "file": "客村_photo_002.jpg",
+      "source": "learning",
+      "size": 103032,
+      "sha256": "b82c325fc639d2d5"
+    },
+    {
+      "file": "客村_photo_003.jpg",
+      "source": "learning",
+      "size": 104967,
+      "sha256": "b4a30f755b6e2cdd"
+    },
+    {
+      "file": "客村_photo_004.jpg",
+      "source": "learning",
+      "size": 99786,
+      "sha256": "a928b37bc6733570"
+    },
+    {
+      "file": "江南西_photo_001.jpg",
+      "source": "learning",
+      "size": 1869209,
+      "sha256": "0e003e257852afaa"
+    },
+    {
+      "file": "江南西_photo_002.jpg",
+      "source": "learning",
+      "size": 1847153,
+      "sha256": "6c377c8a6a47a426"
+    },
+    {
+      "file": "江南西_photo_003.jpg",
+      "source": "learning",
+      "size": 106946,
+      "sha256": "2605ca3b6894988e"
+    },
+    {
+      "file": "江南西_photo_004.jpg",
+      "source": "learning",
+      "size": 249203,
+      "sha256": "dc544fe3ac3b568b"
+    },
+    {
+      "file": "江南西_photo_005.jpg",
+      "source": "learning",
+      "size": 778259,
+      "sha256": "42ef99a5a734b3d9"
+    },
+    {
+      "file": "江南西_photo_006.jpg",
+      "source": "learning",
+      "size": 157899,
+      "sha256": "89872e70f5552499"
+    },
+    {
+      "file": "江南西_photo_007.jpg",
+      "source": "learning",
+      "size": 162560,
+      "sha256": "e45f33727967a97b"
+    },
+    {
+      "file": "江南西_photo_008.jpg",
+      "source": "learning",
+      "size": 155492,
+      "sha256": "c8e1e9363fd85aa9"
+    },
+    {
+      "file": "江南西_photo_009.jpg",
+      "source": "learning",
+      "size": 743098,
+      "sha256": "540ef79df5df2ca8"
+    },
+    {
+      "file": "江南西_photo_010.jpg",
+      "source": "learning",
+      "size": 216822,
+      "sha256": "945fc598f553e163"
+    },
+    {
+      "file": "江南西_photo_011.jpg",
+      "source": "learning",
+      "size": 229369,
+      "sha256": "d1f2672cfac1ad3f"
+    },
+    {
+      "file": "江南西_photo_012.jpg",
+      "source": "learning",
+      "size": 627761,
+      "sha256": "4b23a4e7291a9063"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+ "schema": "wave-s-tool-inventory/v1",
+ "created_at": "2026-10-10T00:34:34+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ A-0a Wave S 工具盘点：逐项列「需要什么 / 已有什么 / 缺什么」（用户指令：缺工具就造）",
+ "authority": "用户 2026-10-10：「工具做好不代表要挂载，应该用沙箱做好测完没问题再挂载，**如果这个过程缺工具就造工具**。所以如果 A 缺工具，是不是我们应该先把**工具设计和生成**插入目标工作计划来？」",
+ "★_user_principle_adopted": "★ **工具做好 ≠ 要挂载** —— 先在沙箱做好、测完没问题、再挂载。⇒ 本卡即该原则的第一次应用（先盘点再动手）。",
+ "★_inventory": [
+  {
+   "item": "S1 沙箱模拟框架",
+   "needs": "按产物类型的隔离骨架（锚点 §5.2 五类）",
+   "have": [
+    "`scripts/dev-sandbox.py` —— 已泛化 5 类（plugin/tool/script/config/workflow）",
+    "`scripts/plugin-preflight.py` —— **插件三检完整**（A 组合完整性 · B 真挂载冒烟 · C 依赖遮蔽）",
+    "`scripts/cld-shell-sandbox-test.py` —— CLD 壳行为沙箱（A 子进程崩溃 / B 模式对话框 / C 自动拉起）"
+   ],
+   "★_gap": "★ **`dev-sandbox.py` 的 `script` 类只做语法检查**（实测输出仅「✅ 语法 OK」）——而锚点 §5.2 对脚本/CLI 类要求 **5 项**：临时目录+假输入 · **断言未写生产路径** · **幂等复跑** · **失败态 exit≠0** · **无静默成功**。⇒ **它只有 5 项中的 1 项。**（`config` 类同样只做语法检查）",
+   "verdict": "**部分已有 · 脚本类缺 4 项能力**"
+  },
+  {
+   "item": "S2 信息包模板",
+   "needs": "14 项规格模板 + **缺项即拒的校验器**",
+   "have": "本阶段产出的信息包实例（`starbridge-stage-report-and-review-package-20261009.md`）可作模板来源",
+   "★_gap": "★ **校验器全缺**（现无任何工具检查「14 项是否齐」）",
+   "verdict": "**模板有例 · 校验器全缺**"
+  },
+  {
+   "item": "S3 审查流程登记",
+   "needs": "一件一裁追踪 + 「无 verifier 不得记 closed」**机械可检**",
+   "have": "★ **部分已有**：`tools/build-state-registry.py` 的 `closure_missing` 字段 + `exit 5` 判据门（**已经能机械检出三要素不齐**）；裁判的 `scripts/gate-canfail.py` 可跑用例",
+   "★_gap": "**追踪器缺**（现无「每产物唯一 verifier」的登记与查表）",
+   "verdict": "**判据已有 · 追踪器缺**"
+  },
+  {
+   "item": "S4 官方规范校对门",
+   "needs": "把 `guard_doc_check` 封装为「涉 dsh 设计项必须有条款引用」的准入",
+   "have": "`guard_doc_check`（工具已有，本地官方镜像 `~/tech-research/dsh-docs` + 24h 留证 gate-state.json）",
+   "★_gap": "**封装缺**（现无「无引用即拒」的门）",
+   "verdict": "**工具已有 · 封装缺**"
+  },
+  {
+   "item": "S5 G-CR 十五条校验脚本",
+   "needs": "逐条覆盖 G-CR1–G-CR17（锚点 §7.9），含**负控必红**",
+   "have": "★ **部分可复用**：`plugin-preflight.py` 已覆盖 G-CR2/G-CR4 的思路；`scripts/gate-canfail.py` 提供「判据能红」的通用门",
+   "★_gap": "★ **本体全缺**（无任一脚本逐条校验 17 条门）",
+   "verdict": "**全缺**"
+  }
+ ],
+ "★_what_to_build_and_in_what_order": {
+  "principle": "★ **先造地基**：脚本沙箱是其余工具的自测手段（否则新工具又会像 X19 那样「改完直接在真文件上跑」）",
+  "order": [
+   {
+    "#": 1,
+    "what": "脚本沙箱增强（补 §5.2 缺的 4 项：假输入+临时目录 / 路径白名单断言 / 幂等复跑 / 失败态 exit≠0 与无静默成功）",
+    "why": "★ 它是**其余所有工具的自测基础**；缺它则新工具只能靠「跑坏了再修」——X19 的成因"
+   },
+   {
+    "#": 2,
+    "what": "S5 G-CR 校验脚本（17 条逐条 + 负控）",
+    "why": "锚点 §14 说 Wave S 要排在 Wave 0 之前；它是门"
+   },
+   {
+    "#": 3,
+    "what": "S2 信息包校验器（14 项缺项即拒）",
+    "why": "本阶段信息包手工填的，须机械可检"
+   },
+   {
+    "#": 4,
+    "what": "S4 校对门封装",
+    "why": "成本最低（工具已在）"
+   },
+   {
+    "#": 5,
+    "what": "S3 审查追踪器",
+    "why": "依赖前三者产出的登记格式"
+   }
+  ],
+  "★_each_new_tool_must": "★ **先过沙箱（第 1 项造出的那个），测通再决定是否挂载** —— 用户本轮明令"
+ },
+ "★_self_application_of_the_users_principle": {
+  "honest_note": "★ 用户的原则**指出了我今晚做工具的盲区**：我造的 `lint-silent-truncation.py`、`freeze-snapshot.py` **都是改完直接跑**，靠「跑坏了再发现」兜底 —— **X19（批量正则损坏 5 脚本）正是这么发生的**。⇒ 按该原则，**新工具应先在沙箱测（含负控），再用于真对象**。",
+  "what_this_changes": "★ 后续所有新工具，**在「沙箱自测」与「用于真对象」之间加一道停下点**。"
+ },
+ "not_verified": [
+  "`dev-sandbox.py` 的 `plugin`/`tool`/`workflow` 三类**未逐一实跑**（只跑了 script/config 两类）—— 故其能力评估**仅基于实测的两类 + 源码函数名**",
+  "`cld-shell-sandbox-test.py` **未实跑**（它模拟子进程崩溃，可能与在役 CLD 交互）"
+ ],
+ "r046_note": "本卡为工具盘点，不构成任何验收或裁决通过。"
+}

@@ -1,0 +1,48 @@
+{
+ "schema": "stage-review-verifier-request/v1",
+ "created_at": "2026-10-09T23:15:10+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ verifier 委托（用户已授权）：委托裁判为本阶段产出的 verifier；并请其明确拒绝不可裁部分",
+ "authority": "用户 2026-10-09 指令：「不用唤醒其他复核员，是不是安排给裁判就可以了。」⇒ 视为对该项的授权",
+ "★_what_verifier_is_for": "按 R046 / 锚点 §4.2，closure 三要素 = DoD · evidence · **verifier（第三方，禁自证）**。本阶段全部产出的 verifier 一格**空缺** ⇒ 按 §11「六者缺一不得记 closed_with_evidence」⇒ **无一够格关闭**。本次委托只为**补上这一格**，不是发起新一轮审查。",
+ "★_scope_requested": {
+  "adjudicable": [
+   "v1 已裁的 10 项声称（✅9 ❌1 ⚠️4 中的可裁部分）—— 请以正式裁定的形式出证，而非仅报告形式",
+   "后续 9 轮 addendum 中被其独立复现的事项（目的层负控 · 快照五判据 · N7 主因分离 · X18 · U9 口径 · F61/F69）",
+   "工具交接提案（data/registry/audit-tool-handover）—— 是否接受该合并建议"
+  ],
+  "★_not_adjudicable_by_them": {
+   "note": "★ 以下两项**按其 v1 §一 Q8 的自我声明**为其不可裁，本委托**请其明确拒绝**而非勉强裁：",
+   "items": [
+    {
+     "#": "①",
+     "what": "C7 整体能否 closed_with_evidence",
+     "its_reason": "它参与 P26 取证，按 S3「不可自审」",
+     "its_suggestion": "建议守灯（职责即 C6/C7 核验面）或独立复核员（未参与建构）"
+    },
+    {
+     "#": "②",
+     "what": "是否退回 / 是否准进 P2 停点",
+     "its_reason": "属**计划推进裁量**",
+     "★_user_ruling": "用户本轮已定：**该项归所有者（用户）** ⇒ **不由裁判裁，也不由本会话裁**"
+    }
+   ]
+  },
+  "★_explicitly_excluded": {
+   "what": "4 项假 closed（C1/C2/C3/C5）的**合规性**",
+   "why": "它已在 addendum-5 声明：这些记在 continuity-index 的 closed_with_evidence 上，按锚点 §4.1 该索引的 C1–C7 属**平台健康声明体系**，与「C7 不由我裁」同一体系 ⇒ 该体系排除。",
+   "my_handling": "★ 我**不因用户说「安排给裁判」就把它塞进去** —— 那会制造一次可预见的拒绝，并让「已安排」看起来像「已解决」。⇒ 该项**如实标注为『体系外、无 verifier』**。"
+  }
+ },
+ "★_how_the_gap_will_be_recorded": {
+  "principle": "★ 对**无人可裁**的部分，**记为「未定」而非回落成「已通过」** —— 这是本线反复确立的：共同形式边界②「无能力表达时保留未定，而不是回落到默认值」。",
+  "concretely": [
+   "② 是否退回 / 准进 P2 停点 ⇒ 记 `owner_decision_pending`（归用户），**不影响** C/A 阶段推进",
+   "① C7 整体 ⇒ 记 `verifier_unavailable`（守灯/复核员未唤醒，用户明令不唤醒）⇒ **保持 in_flight**",
+   "4 项假 closed ⇒ 记 `out_of_scope_of_available_verifiers` ⇒ **不擅改数，随 P0 一并处理**"
+  ],
+  "★_what_this_does_not_block": "★ 用户已授权 **C → A → B** 推进，而 C/A 两阶段（收敛证据缺口 · 建 Wave S 门）**均不以 verifier 出证为前置**（它们本身就是在补证据与造门）⇒ **推进不受阻**。真正被阻塞的只有 **P2**（须 P1 停点）与 **Wave C 整体关闭**。"
+ },
+ "state": "in_flight",
+ "r046_note": "本卡为 verifier 委托登记，不构成任何验收或裁决通过。"
+}

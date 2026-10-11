@@ -1,0 +1,131 @@
+--- docs/xdom-diff-20261012/_recon-v111.py	2026-10-12 00:13:57
++++ tools/xdom-mail.py	2026-10-12 00:01:59
+@@ -113,9 +113,15 @@
+ import urllib.request
+ import uuid
+ 
+-VERSION = "1.1.1"
++VERSION = "1.1.2"
+ __version__ = VERSION
+ 
++# ★ 外部线〔1〕对照用（2026-10-12）：两侧去重键【不等价】⇒ 声明不得称「同构」。
++#   ★ 抽成常量是为了让 --selftest 能【真跑两侧对照】而不是去搜 docstring 字面
++#     （搜字面会被「说明这两个字为何错」的说明文字满足 ⇒ 假红；D-053 同族）。
++NODE_BIN = "/opt/homebrew/bin/node"
++JS_IDENTITY = os.path.expanduser("~/dsh-comm-shared/identity.js")
++
+ BOARDS = [("local", "http://127.0.0.1:8792"), ("central", "http://xingqiao.meetfunbp.com:8792")]
+ NS = "notes/xdom"
+ LOG_PREFIX = NS + "/log/"
+@@ -371,9 +377,23 @@
+ 
+ 
+ def dedup_key_from(from_party, to_party, body):
+-    """与 `~/dsh-comm-shared/identity.js` 的 `dedupKey(from,to,text)` **同构**：
+-    `f"{from}|{to}|{sha256(归一化文本)[:16]}"`。★ 本工具不 import JS ⇒ **等价实现**；
+-    口径的单一来源在 JS 侧，此处声明为等价实现。"""
++    """★ 本工具的【自有】去重键口径 —— ★ **与 `~/dsh-comm-shared/identity.js` 的
++    `dedupKey(from,to,text)` **不是等价实现**（2026-10-12 外部线复核 + 本线独立复现，见 D-060）。
++
++    本侧：`f"{from}|{to}|{sha256(空白归一化后的原文).hexdigest()[:16]}"`
++          ⇒ 尾段是 **16 hex 摘要**、**不折小写**。
++    JS 侧：`f"{from}|{canonicalTo}|{contentFingerprint(text)}"`，而 `contentFingerprint`
++          逐字为 `String(t||'').replace(/\\s+/g,' ').trim().toLowerCase().slice(0,512)`
++          ⇒ 尾段是 **归一化原文（≤512 字符）**、**折小写**。
++
++    ⇒ ★ 两处实质差异：**(a) 尾段 摘要 vs 原文** · **(b) 是否折小写**。
++    ★ 二者**论域不同**（JS 侧服务 `central-inbox` / `agent-way` 的板卡去重；本侧服务跨域邮箱），
++      ⇒ ★ **不要求取值相等**。★ 但**旧 docstring 声称「同构 / 等价实现」与事实不符，已删**。
++
++    ★ 为什么不改成与 JS 一致：JS 把**归一化原文**放进键 ⇒ 键长可达 **512 字符且含明文正文**；
++      本侧若照抄，会把正文灌进游标/信件的 `dedup_key` 字段。★ 故**保持摘要口径**，
++      并**在声明上如实**，而不是在实现上盲从。
++    """
+     norm = " ".join((body or "").split())
+     fp = hashlib.sha256(norm.encode("utf-8")).hexdigest()[:16]
+     return f"{from_party}|{to_party}|{fp}"
+@@ -399,6 +419,18 @@
+     msg["dedup_key"] = dedup_key_from(msg.get("from"), msg.get("to"), body)
+     msg["payload"] = body
+     return msg
++
++
++def cursor_value(party, upto):
++    """★ 游标（水位）对象 —— ★★ **绝不放信封**：它不是信（见 D-060 / :751 回归）。
++
++    ★ 为什么抽成纯函数：★ 若把构造留在 `cmd_ack` 里，「游标上不得有信封字段」这条判据
++      **无法被负控**（只能去搜源码字面 ⇒ 依 D-036 教训，绑字面的判据会假红）。
++      ★ 抽出来后，`--selftest` 可以**直接对返回值断言**。
++    """
++    return {"party": party, "upto": upto,
++            "at": now_local().isoformat(timespec="seconds"),
++            "by": SIDE_LABEL[party]}
+ 
+ 
+ def sign_obj(obj, secret_hex):
+@@ -746,9 +778,16 @@
+         upto = msgs[-1][0]
+     if not upto.startswith(LOG_PREFIX):
+         return die(f"--upto 必须是一条 log 键（{LOG_PREFIX}…）")
+-    val = {"party": party, "upto": upto, "at": now_local().isoformat(timespec="seconds"),
+-           "by": SIDE_LABEL[party]}
+-    with_envelope(val, val.get("body", ""))   # ★ W8.2：本路径同样写信封
++    val = cursor_value(party, upto)
++    # ★★ W8.2 回归修复（2026-10-12，D-060）：本行**曾**为
++    #     `with_envelope(val, val.get("body", ""))` —— ★ 那是**错的**：
++    #     `val` 是【游标对象】，**没有 body** ⇒ 取空串 ⇒ 把一封【空信】的信封
++    #     注进了游标：`type="letter"` · `sender/recipient=None` ·
++    #     `dedup_key="None|None|e3b0c44298fc1c14"`（= sha256("")[:16]）。
++    # ★ 危害（潜伏，非现行故障 —— 影响面外部线判「不可判」，本线复核后同意）：
++    #     ① 未来任何按 `type` 分派的读者会把**游标误当信**；
++    #     ② 常量 dedup_key ⇒ 将来按该键去重的读者会把**不同游标判为同一条**。
++    # ★ 已删除，不再注入。★ 信封只加在【真的是信】的两条路径：`cmd_send` 与 `--probe`。
+     val["signer_fp"] = key_fingerprint(cred["secret"])
+     val["sig"] = sign_obj(val, cred["secret"])
+     rec = put_verified(key, val)
+@@ -1094,6 +1133,45 @@
+     chk(bool(re.fullmatch(r"[a-z]+", NS.split("/")[0])), "首段纯小写（合板键语法，违者 400）")
+     chk(slugify("K6 Wiring / 接线") == "k6-wiring", "topic 归一化（中文被剥离，不产生非法键）")
+ 
++    # ⑬ ★★ W8.2 回归负控（D-060）—— ★ 这三条是【新控】。
++    #    ★ 直接回应外部线〔3〕的批评：改前 47、改后仍 47 ⇒ 覆盖面没变。
++    #    ★ 其中第一条若早存在，:751 那次注入【当时就会红】。
++    _cur = cursor_value("int", "notes/xdom/log/20261011T000000-x")
++    _letter_fields = ("type", "dedup_key", "payload", "cahac", "channel",
++                      "sender", "recipient", "signer_fp")
++    _oncur = [f for f in _letter_fields if f in _cur]
++    chk(not _oncur,
++        "★ 负控：游标上不得有信封字段（有则 = W8.2 回归 / D-060）；实际越界=%r" % _oncur)
++    # ★ 正控：信上【必须】有 —— 否则上一条恒绿、什么都测不出
++    _letter = {"from": "int", "to": "ext", "body": "x"}
++    with_envelope(_letter, "x")
++    chk(_letter.get("type") == "letter" and bool(_letter.get("dedup_key")),
++        "正控：信对象上【必须】带信封（type=letter ∧ dedup_key 非空）")
++    # ★★ 口径控（外部线〔1〕）—— ★ 测【事实】，不测措辞。
++    #    ★ 教训（本控初版当场假红）：初版写成「docstring 里不得出现『同构』二字」⇒
++    #      被【说明这两个字为何错】的那句说明文字满足 ⇒ 假红。
++    #      ★ 与 D-053 同族：判据被「提及」满足，而不是被「主张」满足。
++    #    ★ 正确的判据 = 【两侧键确实不等价】—— 那才是「不得称同构」的理由，声明只是推论。
++    _canon = "W8.2 落地：跨域邮箱开始携带 CAHAC §3 信封"
++    _pyk = dedup_key_from("int", "ext", _canon)
++    _jsk = None
++    try:
++        import subprocess as _sp
++        _r = _sp.run([NODE_BIN, "--input-type=module", "-e",
++                      "import {dedupKey} from '%s'; console.log(dedupKey('int','ext',%s))"
++                      % (JS_IDENTITY, json.dumps(_canon))],
++                     capture_output=True, text=True, timeout=20)
++        if _r.returncode == 0:
++            _jsk = (_r.stdout or "").strip()
++    except Exception:
++        _jsk = None
++    if _jsk is None:
++        print("  ⚠  不可判：JS 侧取不到（node 缺失 / 模块不可读）⇒ ★ 不判成立、也不判失败")
++    else:
++        chk(_jsk != _pyk,
++            "★ 事实控：两侧 dedup_key 实际【不等价】（本侧=%r / JS 侧=%r）"
++            "—— ★ 这才是「不得称同构」的理由" % (_pyk, _jsk))
++
+     print(f"\nselftest: {ok} PASS / {fail} FAIL")
+     return 0 if fail == 0 else 1
+ 

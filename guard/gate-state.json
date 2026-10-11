@@ -1,0 +1,180 @@
+{
+ "_doc_checks": [
+  {
+   "ts": "2026-09-04 19:57:39",
+   "ts_epoch": 1788523059,
+   "target": "app.asar crash watchdog",
+   "topic": "app.asar crash watchdog",
+   "domain": "electron",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "https://www.electronjs.org/docs/latest/api/app: app.on(child-process-gone) 官方崩溃检测 API",
+   "note": "web 官方来源补证"
+  },
+  {
+   "ts": "2026-09-04T12:10:26.580Z",
+   "ts_epoch": 1788523826.58,
+   "target": "session persistence",
+   "topic": "session persistence",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "https://example.com: 冒烟测试",
+   "note": "web 补证"
+  },
+  {
+   "ts": "2026-09-04T12:11:02.156Z",
+   "ts_epoch": 1788523862.156,
+   "target": "session persistence",
+   "topic": "session persistence",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "https://example.com: 冒烟测试",
+   "note": "web 补证"
+  },
+  {
+   "ts": "2026-09-05 14:34:10",
+   "ts_epoch": 1788590050,
+   "target": "cordis patch config preparedSessionCacheSize",
+   "topic": "cordis patch config preparedSessionCacheSize",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "official source(0.1.1-rc.2 runtime): dsh-session-persistence-jsonl/lib/index.js:770-780 Config schema 含 preparedSessionCacheSize(z.number().min(1).default(5)); dsh-session-persistence/lib/index.js:787-795 coordinator options 校验 preparedSessionCacheSize>=1; SessionPreparations LRU touch()@170-220: 超 capacity 淘汰最旧 ready 项; live 会话走 inspectLive 不经此缓存; 写入经 serialize per-id 串行不受容量影响; root 键必填 z.string().required() 且 dsh-base 用 !!js dshHomePath(sessions)",
+   "note": "web 官方来源补证"
+  },
+  {
+   "ts": "2026-09-05 16:16:31",
+   "ts_epoch": 1788596191,
+   "target": "session persistence inspect loadStored readFrom loadStoredFrom 读路径契约",
+   "topic": "session persistence inspect loadStored readFrom loadStoredFrom 读路径契约",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "official source(0.1.1-rc.2): api-remotes/lib/index.js:86 冷开走 persistence.inspect → coordinator.inspect → prepareCore → backend.loadStored 全量; readFrom/loadStoredFrom hook 仅服务 readFrom(翻页/恢复); SessionLogScanner seq 从0连续校验(consumer 不能跳帧); decoder 流式逐帧; coordinator readFromCore:938 backend.loadStoredFrom 存在才走后缀读",
+   "note": "web 官方来源补证"
+  },
+  {
+   "ts": "2026-09-05 16:57:22",
+   "ts_epoch": 1788598642,
+   "target": "CLD 壳 main.js stdout dsh web URL resolveUrl 竞态",
+   "topic": "CLD 壳 main.js stdout dsh web URL resolveUrl 竞态",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "official source(本机 app.asar main.js fadc6cfb): 671 let resolveUrl=null; 673 awaitServerUrl() 内 678 resolveUrl=(url)=>{resolve}; 537-539 reloadDsh() 置 resolveUrl=null; 432-443 child.stdout.on(data) 438 匹配 dsh web URL 后 440 无条件 resolveUrl(m[1]) → resolveUrl 为 null(重载间隙/非await期)时 TypeError: resolveUrl is not a function → 壳 uncaughtException。修复方向: 440 前加 if(resolveUrl) 保护; 竞态由 P1 reloadDsh 引入, 16:44 全员唤醒期触发(pid 71861)",
+   "note": "web 官方来源补证"
+  },
+  {
+   "ts": "2026-09-06 02:15:59",
+   "ts_epoch": 1788632159,
+   "target": "CLD dsh 定时GC RSS回缩 NODE_OPTIONS expose-gc require",
+   "topic": "CLD dsh 定时GC RSS回缩 NODE_OPTIONS expose-gc require",
+   "domain": "electron",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": null,
+   "mirror_stale": false,
+   "web_evidence": "local实测(2026-09-06): Electron(ELECTRON_RUN_AS_NODE) 下 NODE_OPTIONS=--expose-gc --require 均被接受(gc-timer 安装成功+main ok); V8 完整GC后 RSS 1239→46MB(回缩96%); 历史白名单教训仅限部分flag, expose-gc/require 实测放行",
+   "note": "web 官方来源补证"
+  },
+  {
+   "ts": "2026-10-01T20:03:22.394Z",
+   "ts_epoch": 1790885002.394,
+   "target": "~/dsh-plugin-agent-bus/lib/index.js",
+   "topic": "agent inbox events followup inject",
+   "domain": "dsh",
+   "mirror_hits": 3,
+   "hit_files": [
+    "agent-lifecycle.md",
+    "defensive-patterns.md",
+    "subsystems/webhook.md"
+   ],
+   "mirror_age_days": 0,
+   "mirror_stale": false,
+   "web_evidence": null,
+   "note": "本地镜像命中 3 个官方文档"
+  },
+  {
+   "ts": "2026-10-05T16:08:22.572Z",
+   "ts_epoch": 1791216502.572,
+   "target": "/Applications/CLD.app",
+   "topic": "Electron app code signing hardened runtime notarization Developer ID",
+   "domain": "dsh",
+   "mirror_hits": 0,
+   "hit_files": [],
+   "mirror_age_days": 3.8,
+   "mirror_stale": false,
+   "web_evidence": "https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution: 官方流程=Developer ID Application 签名(+hardened runtime/--options runtime)→notarytool 公证→stapler 装订; https://www.electronjs.org/docs/latest/tutorial/mac-app-store-submission-guide: Electron 硬化运行时需 entitlements: allow-jit + allow-unsigned-executable-memory + disable-library-validation + allow-dyld-environment-variables, 嵌套代码(framework/helper)须先内后外签名",
+   "note": "web 补证"
+  },
+  {
+   "ts": "2026-10-09T17:30:21.763Z",
+   "ts_epoch": 1791567021.763,
+   "target": "~/dsh-plugin-central-inbox/lib/index.js",
+   "topic": "agent inbox events followup inject",
+   "domain": "dsh",
+   "mirror_hits": 3,
+   "hit_files": [
+    "agent-lifecycle.md",
+    "defensive-patterns.md",
+    "subsystems/webhook.md"
+   ],
+   "mirror_age_days": 7.9,
+   "mirror_stale": false,
+   "web_evidence": null,
+   "note": "本地镜像命中 3 个官方文档"
+  },
+  {
+   "ts": "2026-10-11T09:40:58.891Z",
+   "ts_epoch": 1791711658.891,
+   "target": "~/.dsh/profiles/web/cordis.patch.yml",
+   "topic": "dsh profile cordis patch config override webserver port",
+   "domain": "dsh",
+   "mirror_hits": 1,
+   "hit_files": [
+    "user/guide/github-review.md"
+   ],
+   "mirror_age_days": 9.6,
+   "mirror_stale": false,
+   "web_evidence": null,
+   "note": "本地镜像命中 1 个官方文档"
+  },
+  {
+   "ts": "2026-10-11T09:41:26.470Z",
+   "ts_epoch": 1791711686.47,
+   "target": "~/.dsh/profiles/web/cordis.patch.yml",
+   "topic": "dsh profile cordis patch config override webserver port",
+   "domain": "dsh",
+   "mirror_hits": 1,
+   "hit_files": [
+    "user/guide/github-review.md"
+   ],
+   "mirror_age_days": 9.6,
+   "mirror_stale": false,
+   "web_evidence": null,
+   "note": "本地镜像命中 1 个官方文档"
+  }
+ ],
+ "/Applications/CLD.app/Contents/Resources/app.asar": 3,
+ "_day": "20260905",
+ "/Users/coreyleung/.dsh/profiles/web/cordis.patch.yml": 1,
+ "_tasks": {
+  "/Applications/CLD.app/Contents/Resources/app.asar": 5,
+  "_last": "20260905-165911",
+  "/Users/coreyleung/.dsh/profiles/web/cordis.patch.yml": 1
+ }
+}

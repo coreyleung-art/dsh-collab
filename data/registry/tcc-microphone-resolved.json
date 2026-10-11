@@ -1,0 +1,43 @@
+{
+ "schema": "tcc-microphone-resolved/v1",
+ "created_at": "2026-10-10T03:42:49+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★★★ TCC 层已打通：麦克风弹窗已发生且 authValue=2（allowed）—— 用户已点 ●说话",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:42:49+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_why_this_card": "★ `session-0637278c` 于 03:41 左右报告「**`kTCCServiceMicrophone` 的 `AUTHREQ_PROMPTING` = 0** ⇒ 尚无人点过 ●说话」。**该结论基于当时数据是对的**；★ **但 `03:41:54` 出现了第一条** ⇒ 它查询的时间窗**刚好差了几分钟**。",
+ "★★★_the_evidence_chain": {
+  "①_弹窗发生": {
+   "line": "`2026-10-10 03:41:54.000308  tccd: AUTHREQ_PROMPTING: msgID=422.568, service=kTCCServiceMicrophone, subject=Sub:{com.cld.desktop}`",
+   "★_responsible_path": "★ `responsible_path=/Applications/CLD.app/Contents/MacOS/CLD` · `binary_path=/Applications/CLD.app/Contents/MacOS/CLD`（**不再是备份路径**）",
+   "★_significance": "★ **这正是我的正控判据所预言的那条观测** —— 换装前（03:01~03:03）拒绝里的 `responsible_path` 写的是 `guard/backups/CLD.app.pre-micfix-20261010-030022/...`，**两相对照即铁证**"
+  },
+  "②_授权结果": {
+   "line": "`03:41:55.866  AUTHREQ_RESULT: msgID=422.568, authValue=2, authReason=2, authVersion=1, error=(null)`",
+   "★_semantics": "★ TCC 的 `authValue`：**0=denied · 1=unknown · 2=allowed** ⇒ **`2` = 已授权**",
+   "★_same_msgID": "★ 它与弹窗事件的 `msgID=422.568` **同一条** ⇒ **该弹窗的判决就是 allowed**"
+  },
+  "③_授权记录创建": "`03:41:55.866  tccd: [com.apple.TCC:events] Publishing <TCCDEvent: type=**Create**, service=kTCCServiceMicrophone, identifier=com.cld.desktop> to 3 subscribers`",
+  "④_音频服务进程": "★ `pid=53454  /Applications/CLD.app/Contents/Frameworks/CLD Helper.app/Contents/MacOS/CLD Helper --type=utility --utility-sub-type=**audio.mojom.Audio**` ⇒ **音频服务已被拉起**",
+  "⑤_设备": "★ `JinAudio` · Input Channels=2 · Current SampleRate=48000 · Transport=USB · Default Input Device=Yes",
+  "⑥_换装后拒绝流水": "★ `requires entitlement … audio-input but it is missing`：**换装前 52 条 → 换装后 0 条**（★ 该数字我已独立复跑复现）"
+ },
+ "★★_my_independent_recheck_of_its_numbers": {
+  "52_→_0": "✅ **复现**（我独立跑同判据，换装前窗口 52 · 换装后窗口 0）",
+  "备份路径铁证": "✅ **复现**（`log show` 03:01:40~03:03:30 窗口内可查到 `backups/CLD.app.pre-micfix-20261010-030022/Contents/MacOS/CLD`）"
+ },
+ "★_a_discrepancy_I_caused_and_then_resolved": {
+  "what": "★ 我用自己的 grep 复跑时得到 **3** 条 `AUTHREQ_PROMPTING`（而它说 0）",
+  "★_root_cause": "★ **我没过滤 `service` 维度** —— 我数到的 3 条 `service=` **`kTCCServiceSystemPolicyAppData`**，**与麦克风无关**。⇒ **它的 0（针对 `kTCCServiceMicrophone`）是对的**。",
+  "★_not_self_pollution": "★ 我一度怀疑是它说的「自指污染」，但实测**自匹配条数 = 0** ⇒ **这次不是自指污染，是我的判据维度不全**（少了一个 `service` 约束）。"
+ },
+ "★_remaining_unverified": [
+  "★★ **音频是否真流动** —— TCC 已授权 · 音频服务已起 · 设备正常，但**是否真听到声音只有用户能答**",
+  "★ 若用户仍无声 ⇒ 问题**不在 TCC 层**（已排除）⇒ 应查更上层（`voice-service` ws 8905/8906 → Seeduplex → 前端）"
+ ],
+ "r046_note": "本卡为运行时证据登记，不构成任何验收或裁决通过。"
+}

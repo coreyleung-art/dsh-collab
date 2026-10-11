@@ -16,7 +16,11 @@ AUDIT = sorted(glob.glob(os.path.expanduser('~/dsh-collab/token-monitor/blackboa
 
 # 已知 agent：规范 id ↔ 角色名/别名（来源：agent_profiles 登记 + 会话面板）
 AGENTS = {
-    "session-fa1f9150-c949-401f-ba8c-d265f6221676": ["星桥", "coordinator", "mac-mini:星桥", "mac-mini 星桥", "star-bridge", "mac-mini-coordinator", "bus:server:coordinator"],
+    # ★ 2026-10-10 交接修复：角色别名原挂首任星桥（2026-10-09 因 P26 bricked）。
+    #   别名是**角色**的，不是某个会话的 ⇒ 移交给在任者。首任保留为墓碑注释，
+    #   不占别名（它的历史记录用完整 id 写入，不依赖本表）。
+    #   旧行（留档）: "session-fa1f9150-c949-401f-ba8c-d265f6221676": ["星桥", "coordinator", "mac-mini:星桥", "mac-mini 星桥", "star-bridge", "mac-mini-coordinator", "bus:server:coordinator"],
+    "session-e317d6ab-5302-4b33-b095-947983ba16f4": ["星桥", "coordinator", "mac-mini:星桥", "mac-mini 星桥", "star-bridge", "mac-mini-coordinator", "bus:server:coordinator"],
     "session-a190c54c-ca73-4845-9a65-9dc002d45044": ["明鉴", "明鉴 v3", "mingjian-v3", "a190c54c"],
     "session-f38244df-9225-42ba-ba33-91d1e689edcf": ["明鉴 v2"],
     "session-2a15e6b1-32a9-48b3-a167-8fe0a28e8d82": ["HR", "司库", "HR 司库", "mac HR 司库"],

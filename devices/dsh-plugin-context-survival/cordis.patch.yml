@@ -10,9 +10,19 @@
     - id: context-survival
       name: dsh-plugin-context-survival
       config:
-        # K2：守卫默认关闭。开启后**只测量、只记录**，不产出检查点、不替换表面。
+        # K3：守卫默认关闭。决策核（检查点产出 + 有界阶梯 + 保证能减）已就位并通过自检，
+        # 但**表面替换的接线尚未完成**（仍只测量、只记录，不改会话）。
         # K6 挂载（不可逆）由用户在独立试验会话内执行，先登记后执行。
-        enableGuard: false
+        # ★ 2026-10-10 **用户当面授权启用**（本会话裁决「授权写」，范围 A 改配置 + B 留痕 + C 条款改写；
+        #   并选择「只改配置、重启由用户另定时间」）⇒ 本键由 false 改为 true。
+        #   ★ **生效条件**：需**重启**；重启前守卫**未激活**（**配置就位 ≠ 生效**）。
+        #     ★★ 在役版本与启用态**一律以 `csx_status` 实读为准，此处不写死数字** ——
+        #        （判决/裁判 2026-10-10：**注释是文件的一部分，后人会当事实引用**；写死的数会过期，
+        #        与本项目「数字必须连同它出生的命令一起报」同一条纪律。）
+        #   ★ **回滚条件**：重启后 T3（在役面三项）经独立裁判裁决**未通过** ⇒ 本键改回 false 并重启。
+        #   ★ **回滚点**：guard/backups/enableguard-authorize-20261010-192645/cordis.patch.yml.before
+        #     （before sha256 = ab5da05065f3f031…）
+        enableGuard: true
         # 预算公式（前两项对齐 ctxwin/src/budget.ts，第三项是本插件加的）：
         #   usable      = floor(cw × usableRatio)
         #   limit       = min(maxTokens, floor(cw × limitRatio))
@@ -28,10 +38,17 @@
         #   加性 buffer 在**小窗口**做不到抢先：cw=8192 时 0.9cw+8000 被 usable 夹到 7782，仍晚于官方 6553。
         preemptRatio: 0.7
         bufferTokens: 8000
-        # ★ K2 未消费：本字段在全库**没有任何消费者**（只声明、不生效）——K3 起才用于
-        #   「最新保活」窗口。写在配置里是为了让 K3 的形状可见，但此刻改它**不会有任何效果**。
+        # ★ K3 已消费：由 lib/checkpoint.js 的 splitRetain() 用于「最新保活」窗口——
+        #   保活窗口内的条目**永不进入被遮区**（该不变量由 checkpoint.test.js 扫描断言钉死）。
         retainTokens: 5120
         # 可选：给 limit 再加一层**硬上限**（limit = min(maxTokens, floor(cw × limitRatio))）。
         # 语义是"别的都算完了也要卡在这"，**不是** contextWindow 的兜底值——
         # 拿不到 contextWindow 时本插件如实跳过并告警，绝不拿一个猜的数字顶上（R030）。
         # maxTokens: 65536
+        # ★ K6 ② 落盘：检查点账本的路径模板（'~' 与 '{session}' 会被展开）。
+        #   ★★ 为什么默认**按会话分文件**（与 k6-wiring-plan.md §二 的"单文件"建议不同，此处是修正）：
+        #      session.append 的 seq 是**会话内**编号（每会话从 0 起算）。多会话共用一个文件时，
+        #      同一 seq 在不同会话指向不同内容 ⇒ 召回会把**别会话的正文**当本会话的取回来。
+        #      那比 MISS 更坏：它是"自信地给错"，且与"取不到"同痕、事后无法区分。
+        #   ★ 模板里若删掉 '{session}'，插件**不阻止**但会 WARN（并在 csx_status 里如实标出）。
+        ledgerFile: ~/.dsh/ledger/{session}.jsonl

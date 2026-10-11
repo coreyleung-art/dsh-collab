@@ -1,0 +1,111 @@
+{
+ "schema": "stage-review-request/v1",
+ "created_at": "2026-10-09T22:07:01+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 阶段审查委托：星桥交接计划 2026-10-09 阶段完成度（R046 验收门启动）",
+ "authority": "用户 2026-10-09 指令「委托独立审查员，对阶段完成度进行审查」—— 此为所有者对该项委托的授权",
+ "info_package": {
+  "file": "docs/starbridge-stage-report-and-review-package-20261009.md",
+  "spec": "按锚点 §5.3「信息包规格（14 项）」逐项填写",
+  "sections": [
+   "目标与范围",
+   "声明面(12 项声称)",
+   "未测面",
+   "产物路径+sha256+时刻",
+   "自包含复跑命令",
+   "负控结果",
+   "边界用例结果",
+   "官方规范引用",
+   "已知未覆盖项",
+   "回滚点+演练结果",
+   "提问清单(8 问)",
+   "样本窗",
+   "机制激活证据",
+   "载体身份"
+  ]
+ },
+ "leading_disclosure": {
+  "statement": "★ 本阶段全部产出**均未构造负控** ⇒ 按锚点 §11「六者缺一不得记 closed_with_evidence」，本阶段**无任何一项够格记 closed_with_evidence**，全部应读作「正例已过、负控未测」。",
+  "why_disclosed_upfront": "防止读者把「正例通过」误读为「验证通过」（第 5 态：有声明但为假）。"
+ },
+ "reviewer_assignment": {
+  "status": "已发出委托（在线的唯一专业匹配者）；裁定侧候选待所有者选",
+  "primary": {
+   "session": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd",
+   "name": "裁判 · 独立审查员（审计专员）",
+   "online": true,
+   "match_reason": "其自述 abilities 含「R046 验收门实操（自审无效·surface 声明·evidence_refs 仅用可解引用）」「跨角色声称↔独立复现证据三态对账」「独立重跑与输入分离（字面量自取，不用被审方给的数字）」「否定性结论的观测面声明」—— 与本委托逐项对口",
+   "★_scope_limit": "v3.1 §八载明：它曾就 C7 明示「不由我裁」（因它参与 P26 取证，按 S3 不可自审）。⇒ 本委托**已就此设问 Q8**，请它自行判定本阶段报告是否落入同一不可裁范围。"
+  },
+  "candidates_for_adjudication_side": [
+   {
+    "session": "session-9910d4b2-80ff-4437-afed-c848dbda22d1",
+    "name": "守灯",
+    "role": "【审查名册席位#4】健康声明(C1-C7)核验员 + 重启窗验证协作",
+    "online": false,
+    "note": "职责最对口（C6/C7 正是其核验面）；★ 但不在线，须唤醒"
+   },
+   {
+    "session": "session-4d0e75cf-e4dc-4a1c-bdbe-3329f7378c32",
+    "name": "独立复核员",
+    "role": "跨角色声称↔实证对账；只读取证，代改与不可逆裁决一律不做",
+    "online": false,
+    "note": "★ 未参与本线建构 ⇒ 无 S3 冲突，理论上是最干净的裁定侧；但不在线"
+   },
+   {
+    "session": "session-2a15e6b1-32a9-48b3-a167-8fe0a28e8d82",
+    "name": "司库(HR)",
+    "role": "资源管理 + 成本监察；负责任命与登记",
+    "online": false,
+    "note": "v3.1 §八列的候选来源之一；不在线"
+   }
+  ],
+  "excluded": {
+   "session": "session-b250bf9d-4d0f-4786-be71-01be7d0cc57d",
+   "name": "PSTD",
+   "reason": "★ 其自述档案明载（所有者 2026-10-09 明令）：「不参与星桥交接工作；不接手其 asks；未授权前不向 session-e317d6ab 投递」⇒ **已排除，不委托**。"
+  },
+  "not_eligible": {
+   "session": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   "reason": "★ 死会话。它在 agent_peers 中报 `idle`，但那是第 7 态（报活跃≠报可用）。向其投递会点火失败循环（见 dead-session-postmortem-activity：死后已 9 次全失败）。**绝不委托**。"
+  }
+ },
+ "asks": [
+  {
+   "id": "Q1",
+   "q": "§二 的 12 项声称逐项是否成立？"
+  },
+  {
+   "id": "Q2",
+   "q": "§四 的 sha256 与双板一致性声明是否成立？"
+  },
+  {
+   "id": "Q3",
+   "q": "★ §六「负控全缺」的后果判定：本阶段应整体退回（不得进 P2 停点），还是可接受为 in_flight？"
+  },
+  {
+   "id": "Q4",
+   "q": "三个深度发现是否成立：①P3 源在源码硬编码 ②A1–A7 漏 A8/A9 ③死会话死后仍被点火"
+  },
+  {
+   "id": "Q5",
+   "q": "§八 末行「preset 层 vs profile 层两层差异」是否有未声明的偏离？"
+  },
+  {
+   "id": "Q6",
+   "q": "我方三次自我失误的处置是否恰当？是否仍有未登记的同类问题？"
+  },
+  {
+   "id": "Q7",
+   "q": "§一 的七项禁令遵守声明是否成立？（请勿采信自述，独立核验）"
+  },
+  {
+   "id": "Q8",
+   "q": "★ 你可裁的范围：本报告是否落入你「不可裁 C7 整体」的同一范围？若是请明确拒绝并指出应由谁裁。"
+  }
+ ],
+ "state": "in_flight",
+ "state_reason": "委托已发出；verifier 未出证 ⇒ 不得记 closed_with_evidence。按 R046，作者不得自任 verifier。",
+ "what_this_card_is_not": "本卡为**委托登记**，不是审查结论，也不构成任何项的状态变更。",
+ "r046_note": "本卡由被审方登记委托事实，不构成验收或裁决通过。"
+}

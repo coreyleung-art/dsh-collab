@@ -1,0 +1,73 @@
+{
+ "schema": "post-restart-checklist/v1",
+ "created_at": "2026-10-10T02:00:26+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ 重启后执行清单（换装 CLD + P2/P2b/P3 上线）—— 会话恢复后照此推进",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T02:00:26+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_为何先落此卡": "★ 用户退出 CLD 时**本会话与会话内一切进程都会停** ⇒ 故**清单必须先落盘**，会话恢复后读本卡即可继续，**不依赖上下文**。",
+ "★_what_will_happen_when_you_quit_CLD": [
+  "1. ★ **换装脚本已在 detached 运行**（`launchctl submit` 脱离 CLD 进程树）",
+  "2. 你退出 CLD ⇒ 脚本检测到 ⇒ **备份原 app → 换装重签副本 → `tccutil reset Microphone` → 验收 → 自动重开 CLD**",
+  "3. ★ 失败自动回滚（备份在 `guard/backups/CLD.app.pre-micfix-<ts>/`）",
+  "4. ★ 若你 30 分钟不退 ⇒ 脚本超时退出，**零变更**（可随时重跑）"
+ ],
+ "★★_immediately_after_restart": {
+  "①_验收换装是否成功": {
+   "cmd": "python3 ~/dsh-collab/tools/gcr-gate.py --only G-CR6,G-CR7",
+   "expect": "★ **应转 PASS**（主 app + 4 个 Helper 均含 audio-input）",
+   "why": "换装前 G-CR6/G-CR7 均 FAIL（缺 audio-input）；副本实测 audio-input=1"
+  },
+  "②_跑重启后验收（四件套第 5 步）": {
+   "cmd": "python3 ~/dsh-collab/scripts/post-restart-acceptance.py",
+   "note": "★ **未实跑过**（须重启后才有意义）⇒ 若它自身报错，**如实记录，不假装通过**"
+  },
+  "③_P3_的三条验收判据": [
+   "★ 读 `~/.dsh/central-inbox.log`，确认启动行的**注入目标不再是 `session-fa1f9150`**",
+   "★ **造一张 `to=\"星桥\"` 的卡** ⇒ 读注入日志确认 `reason` **不再命中 role-mapped 指向死会话**（P2 已改 role-map ⇒ 应指向 v2）",
+   "★ 确认其他角色（守灯等）投递**不回归**"
+  ],
+  "④_补跑重启前审查里崩掉的一步": {
+   "cmd": "python3 ~/dsh-collab/scripts/restart-intent.py status mac-mini --set recovered",
+   "note": "★ `prepare` 曾崩（工具 bug：重定向当参数）⇒ 该步**未留档**，用本卡 + status 补"
+  }
+ },
+ "★★_remaining_work_after_verification": {
+  "①_sb-mobile_重启": "★ `~/sb-mobile/server.js` 的 P2b 改动**尚未生效** ⇒ 需重启 `com.dsh.sb-mobile-bridge`（**是否重启由用户定**；它是独立 launchd 服务，PID 1250）",
+  "②_iOS_重编译": "★ `ChatModel.swift` 改动**需重编译星台 App**（Xcode 工程 `~/sb-mobile/ios/StarBridge/`）⇒ 本轮未做",
+  "③_Wave_S_规范面": "★ 工具面已完成（5 个工具）；**把 S1–S5 写成正式交付件**未做",
+  "④_owner_裁定三项": "★ C7 整体 · 4 项假 closed · 本阶段产出能否记 closed（证据包 `owner-adjudication-packet`，命令可直接跑）",
+  "⑤_P4_外部失效声明": "★ 未做（涉宿主侧，**须授权**）",
+  "⑥_C4_preset_注入": "★ 未做（**须明确解除「不改 profile」**）",
+  "⑦_Lean4_门_未编译": "★ `node-claim-gate.lean` **未实际编译**（无 lean 工具链）⇒ 定理正确性未经机器检验"
+ },
+ "★_all_key_artifacts": {
+  "进度快照（回看入口）": "`data/registry/goal-progress-snapshot`",
+  "本轮审查相关": [
+   "`pre-restart-review-report`",
+   "`p2b-missing-live-refs-fixed`",
+   "`p2p3-constrained-review-request`",
+   "`node-claim-gate-delivered`"
+  ],
+  "工具（5+2）": [
+   "`sandbox-script.py`",
+   "`gcr-gate.py`（已扩展 entitlement）",
+   "`infopack-check.py`",
+   "`official-ref-gate.py`",
+   "`review-gate.py`",
+   "★ `node-claim-gate.py`",
+   "★ `goal-progress-snapshot`"
+  ],
+  "备份": [
+   "`guard/backups/p2-20261010-014215/`",
+   "`guard/backups/p2b-20261010-015253/`",
+   "`guard/backups/p0-20261010-014426/`",
+   "`guard/backups/CLD.app.pre-micfix-<ts>/`（换装时生成）"
+  ]
+ },
+ "r046_note": "本卡为重启后执行清单，不构成任何验收或裁决通过。"
+}

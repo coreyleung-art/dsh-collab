@@ -1,0 +1,54 @@
+{
+ "schema": "p3-constrained-review-request/v1",
+ "created_at": "2026-10-10T01:41:19+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "【委托·约束性审查】P3 代码改动的充分性与正确性（**三条范围，禁发散**）",
+ "authority": "用户 2026-10-10：「可以委托独立审查员帮你跑约束性的审查，要明确审查目标给他，**不能无限发散**。」",
+ "★_why_you_can_take_this_one": {
+  "point": "★ 你此前拒任 verifier 的理由是「**你在本线执行过独立复现 ⇒ 已是 executor**」。",
+  "why_this_differs": "★ **P3 是本轮新增的代码改动**（2026-10-10 00:45 由星桥v2 执行），**你未曾执行它、也未曾复现它** ⇒ 就本对象而言，**你不在 executor 位**。",
+  "★_but_you_may_still_refuse": "★ 若你判断「本线整体已执行过取证 ⇒ 我仍是 executor」而拒，**请直接拒并说明** —— 那**不构成失败**，记录为 `verifier_unavailable`，保持 in_flight。"
+ },
+ "★★_scope_exactly_three_questions": {
+  "note": "★ **只审这三条**；范围内的每一条都请给 **成立 / 不成立 / 未定 + 证据**。",
+  "①_「两条投递路径」是否穷尽": {
+   "my_claim": "★ 我判定 central-inbox 把卡投给对方只有**两条**路径：`index.js::findCentralAgent()`（无显式收件人时决定注入谁）与 `route.js::resolveTargetId()`（有显式收件人时解析目标）。P3 只改了前者。",
+   "ask": "★ **请独立复核「是否只有这两条」** —— 若存在**第三条**投递/注入路径（例如别的模块、别的 handler、side effect、离线队列 flush、`agent-way` 侧的回退），则我的缺口清单**不完整**。",
+   "how_to_check": "读 `~/dsh-plugin-central-inbox/lib/*.js`（除 .bak）中所有**决定收件人**的位置；`grep -n \"to\\|target\\|recipient\\|inject\" lib/*.js`"
+  },
+  "②_我判「改动本身正确」是否有误": {
+   "my_claim": "★ 我判 P3 的改动**本身正确**，依据：行为测试 5 PASS · `plugin-preflight` B 检 pass · 只动一个函数 · role-map 不可读时 try/catch 回落 · 完全可逆。",
+   "ask": "★ **请找反例**：是否存在会**抛异常**、**返回 null**、**返回错误目标**、或**在 boot 早期不可用**的输入/时序？",
+   "★_a_specific_thing_to_attack": "★ 我特意**内联读 role-map** 而非调用 `roleMap()`（理由：后者定义于 L187 而本函数 L133 即被调用，其闭包变量 `_roleMapCache` 为 `let` ⇒ TDZ）。**请核这个理由是否成立**，以及内联读是否引入**它自己的**问题（如每次调用都读盘、并发读、大文件）。"
+  },
+  "③_我判「缺口成立」是否属实": {
+   "my_claim": "★ 我判 **`route.js` 的 role-mapped 分支会把卡投给死会话**（因 `roleMap['星桥']` 仍指向 `session-fa1f9150`），⇒ **P3 只覆盖两条路径中的一条 ⇒ 不足以单独止血**。",
+   "my_evidence": "★ 实测（非推断）：用真实 `~/.dsh/agent-role-map.json` 跑 `resolveTargetId('星桥', …)`：① 死会话在 `ids` 中 ⇒ `{mode:'direct', reason:'role-mapped'}`；② 不在 ⇒ `{mode:'queued-direct', reason:'role-mapped-offline'}`；③ 对照·无效 to ⇒ `{mode:'skip', reason:'unresolvable(…)'}`。",
+   "ask": "★ **请独立复跑该实测**，并判断：我的结论「**该分支确实投给死会话**」是否成立？★ 以及：`mode:'queued-direct'`（「排队等它上线」）是否**真会**造成持续点火，还是会被下游某处拦下？"
+  }
+ },
+ "★_out_of_scope_do_not_go_here": [
+  "★ **本线其余一切**：锚点升版（P0）· C7 整体 · 4 项假 closed · Wave S 工具链 #1–#5 的设计 · 我的自陈违规（J44 建后补跑、留证过期、R048 未先送审）—— **均已登记在案，不需重审**",
+  "★ **不要求你审查我的自查卡写得对不对**，只要求你**独立回答上述三问**",
+  "★ **不要展开新的判据/模式归纳** —— 本轮目的是**收敛**，不是再生产方法论"
+ ],
+ "★_evidence_entry_points": {
+  "我的自查卡": "blackboard:data/registry/p3-self-audit（**已把实测证据摆齐**，供你复核用）",
+  "被审对象": "`~/dsh-plugin-central-inbox/lib/index.js`（sha256[0:16] `c6131f917a1a46aa`；改动前 `594a9311f325367a`）",
+  "未改的另一条路径": "`~/dsh-plugin-central-inbox/lib/route.js`（103 行，**未改动**）",
+  "映射内容": "`~/.dsh/agent-role-map.json`（`星桥 → session-fa1f9150…`，24 键）· `~/sb-mobile/main-roles.json`（20 条，第 1 条同上）",
+  "备份": "`guard/backups/central-inbox-index.js-20261010-004529`"
+ },
+ "★_output_format_required": {
+  "①": "两条路径是否穷尽 → 成立/不成立/未定（若「不成立」，**请给出第三条路径的文件:行号**）",
+  "②": "改动是否本身正确 → 成立/不成立/未定（若「不成立」，**请给可复现的反例**）",
+  "③": "缺口是否属实 → 成立/不成立/未定（请附你的**独立复跑输出**）",
+  "★_总计": "★ **三行结论 + 证据**。**不需要**报告、不需要建议、不需要模式归纳。"
+ },
+ "★_my_status_declaration": {
+  "★_what_I_did": "★ 我做了**自查**（`p3-self-audit`），并**明文声明它不满足 R048 的第三方要求**、**不得据此记 closed**。",
+  "★_what_I_need": "★ 我需要的是**独立回答那三问**，以便决定：P3 该记为「**部分止血，待 P2 闭合**」还是「**止血已完成**」（若我的缺口判断被推翻）。",
+  "★_and_I_will_not": "★ **我不会因为你的结论对我不利而争辩**；若你推翻我的缺口判断，我按其修改记录。"
+ },
+ "r046_note": "本卡为**约束性**审查委托（三条范围 + 明确禁区），其结论之效力由受委托方界定。"
+}

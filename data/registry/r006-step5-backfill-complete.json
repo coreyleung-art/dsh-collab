@@ -1,0 +1,116 @@
+{
+ "schema": "r006-step5-backfill-complete/v1",
+ "created_at": "2026-10-10T03:32:03+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ R006 §5 欠账补完：五项工具全部走全 `--selfcheck` + `--lean4-check`（各 6/6 全绿）；★ 补课本身抓出 7 个缺陷",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T03:32:03+08:00",
+  "rerunCmd": "hostname"
+ },
+ "authority": "用户 2026-10-10：「继续推进那件欠账」—— 该欠账由我方于 Wave S 交付说明 §5 自行登记（非他人指出）",
+ "★★_result": {
+  "table": [
+   {
+    "tool": "sandbox-script.py（S1）",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "regression": "✓"
+   },
+   {
+    "tool": "gcr-gate.py（S5）",
+    "selfcheck": "4/4",
+    "lean4": "6/6 全绿",
+    "regression": "PASS 7 · FAIL 1 · N-A 9"
+   },
+   {
+    "tool": "infopack-check.py（S2）",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "regression": "14 项齐 + 硬要求过"
+   },
+   {
+    "tool": "official-ref-gate.py（S4）",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "regression": "GO"
+   },
+   {
+    "tool": "review-gate.py（S3）",
+    "selfcheck": "5/5",
+    "lean4": "6/6 全绿",
+    "regression": "✓"
+   }
+  ],
+  "★_note": "gcr-gate 的 FAIL 从 3 降到 1（换装解决了 G-CR6/G-CR7；剩 G-CR8 = 死会话 245MB，P26 遗留）"
+ },
+ "★★_seven_defects_caught_during_backfill": {
+  "note": "★★ **全部由「改完立刻跑」当场抓住，非上线后** —— 这实证了「这两个开关不是形式」。",
+  "list": [
+   {
+    "#": 1,
+    "defect": "`_strip_lits` 不识别 `r` 前缀 ⇒ 对 raw string 里的 `\\\"`（raw 中**非**转义）剥错边界 ⇒ **判据把自己的模式串当靶子**（`review-gate` 的 A/D 因此判红）",
+    "nature": "**判据实现缺陷**",
+    "fix": "改为正则版并显式区分 raw/normal；模式常量用 `chr()` 拼接生成（源码内无字面引号）"
+   },
+   {
+    "#": 2,
+    "defect": "A/D 因 `selftest()` 的 `write_text`/`rmtree` 判红（`gcr-gate`）",
+    "nature": "★ **不是假阳性，是判据适用面问题** —— 那是**负控实现**（只在 `--selftest` 跑、只碰临时目录）",
+    "fix": "加 `gate-self-exempt` 标记 ⇒ **该通用约定的第二次应用，实证可跨工具复用**"
+   },
+   {
+    "#": 3,
+    "defect": "**豁免顺序错**：`_strip_lits` 把 `# gate-self-exempt: begin` **当注释剥掉**",
+    "nature": "★ **同类错误第二次**（上次是豁免写在判定**之后**）",
+    "fix": "修正为 **先 `_apply_exempt` 再 `_strip_lits`**"
+   },
+   {
+    "#": 4,
+    "defect": "③ CLD 阈值判据不合理（`CLD 出现次数 ≤3`）",
+    "nature": "判据设计错 —— 本门本就要多处判 CLD",
+    "fix": "改为「是否定义了 CLD 常量」"
+   },
+   {
+    "#": 5,
+    "defect": "`sandbox-script` 的 argparse 形态不同（无 `if a.x: sys.exit()` 分支，且 `script` 是**必填位置参数**）",
+    "nature": "结构差异",
+    "fix": "改为在 `parse_args()` **之前**用 `sys.argv` 预检 —— 否则缺 `script` 时 argparse 先报错"
+   },
+   {
+    "#": 6,
+    "defect": "`infopack-check` / `review-gate` 缺 `import os`",
+    "nature": "注入引入的依赖",
+    "fix": "补 import"
+   },
+   {
+    "#": 7,
+    "defect": "**批量正则损坏脚本**（注入时把 `def _apply_exempt` 的 `def ` 吃掉 ⇒ SyntaxError）",
+    "nature": "**X19 同类**",
+    "fix": "**从备份恢复**（`guard/backups/*-before-r006-*.py`）—— **这正是写前备份的用途**"
+   }
+  ]
+ },
+ "★_two_reusable_disciplines_extracted": [
+  "★ **凡「某段文本先被改写、再被裁剪」的流程，改写必须在裁剪之前** —— 否则标记会被裁掉（缺陷③的实证）",
+  "★ **生成代码时，含引号的常量一律用 `chr()` 拼接** —— 源码里不出现字面引号，从根本上避开转义歧义（缺陷①的产物）。★ 今晚 heredoc 内复杂引号已致 SyntaxError **五次**（lint 三引号 · 落卡双引号 · 注入 `'''` · 修复 `'''` · 再修复）"
+ ],
+ "★_reusable_block": {
+  "file": "guard/_r006_block_generic.py",
+  "★_significance": "★ 通用块（与 `gcr-gate` 的专用块同构）⇒ **实证「R006 §5 两步」可跨工具复用**，而非为单一工具定制。差异只在 B/C 的合成输入（工具可定义 `_r006_cases()` 覆盖，缺省用占位并**明示占位**）。"
+ },
+ "files": {
+  "docs/wave-s-toolchain-delivery-v1.md": {
+   "sha256_16": "a29e8e37dea83d40",
+   "bytes": 19171,
+   "lines": 215
+  }
+ },
+ "not_verified": [
+  "★ **B/C 两项多为占用例**（各工具未逐一实现 `_r006_cases()`）⇒ B/C 目前只验证「布尔运算」，**未验证「本门判据能红」**。★ 这是**新欠账**，如实登记。",
+  "★ 五个工具的 `--lean4-check` 是**同一套通用实现**（缺各自的 B/C 定制）⇒ **存在「五份相同实现各自自证」的风险**",
+  "★ 未送第三方审（R048）"
+ ],
+ "r046_note": "本卡为补课登记，不构成任何验收或裁决通过。"
+}

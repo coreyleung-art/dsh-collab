@@ -1,0 +1,22 @@
+{
+ "schema": "claude-memory-index-mirror/v1",
+ "created_at": "2026-10-10T04:03:56+08:00",
+ "writer": "session-e317d6ab-5302-4b33-b095-947983ba16f4",
+ "title": "★ Claude memory 索引镜像（消除「库存在但 DSH 侧不可发现」的障碍）",
+ "★_设备归属实测": {
+  "observed": "mac-mini",
+  "rawOutput": "CoreydeMac-mini.local",
+  "takenAt": "2026-10-10T04:03:56+08:00",
+  "rerunCmd": "hostname"
+ },
+ "★_why": "★ Claude 的 memory 写在 `~/.claude/projects/.../memory/`，**DSH 侧无索引** ⇒ **我今晚做 P26 相关工作/Wave S 时完全不知道 Q-K 线的存在**。⇒ 本卡把其索引镜像到黑板，使 DSH 侧任何会话**可发现**。",
+ "★_source": "`~/.claude/projects/-Users-coreyleung/memory/MEMORY.md`（**只读镜像**；源变更时本卡应以同样方式更新）",
+ "★_mirrored_index": "- [LLM Wiki](llm-wiki-setup.md) — Karpathy-style three-layer knowledge base integrated with Obsidian + Claude Code\n- [Visualization Skills](visualization-skills.md) — 9 skills for architecture diagrams, C4 model, Mermaid, ASCII arch, walkthrough\n- [Integration Plan](integration-plan.md) — Dify (local Docker), AutoGen (MCPHub), LangChain + LangGraph integration, full stack architecture\n- [Verification style](feedback_verification.md) — no executing plugin code / starting services; use node --check; don't restart CLD yourself\n- [CLD profile/runtime skew](cld-profile-runtime-skew.md) — shadowed @deepseek-ai/* copies split module instances → blank GUI or \"本轮运行失败 … reading 'prepare'\"; fix = de-shadow (NOT pnpm install)\n- [claude CLI 装法](claude-cli-install-method.md) — 2026-10-08 从 Homebrew cask 换到官方 native(~/.local/bin);升级用 `claude update`,brew cask 已废\n- [Tavily 搜索](tavily-search.md) — 网络搜索改用 Tavily（付费订阅），key 在 ~/.hermes/.env，调用方式与不回显约定\n- [CLD 活代码在 asar 里](cld-live-code-is-asar.md) — ~/dsh-collab/cld/main.js 是旧版(867行)，运行代码=app.asar!/main.js(1131行)；改壳必须改 asar 而非源码\n- [dsh profile patch 整段替换 config](dsh-profile-patch-replaces-config.md) — 用户层 `- id: X` 的 config 会整段覆盖官方层，漏 restate 的键静默落到 zod 默认值（曾致每次启动弹浏览器）\n- [System One 本地决策头](systemone-lab-local-decision-head.md) — ~/systemone-lab 已有 opendecider + FastAPI :8010 /v1/systemone；Ollama 0.40.0 端点亦存在 → 决策层现成\n- [System One 两处事实纠正](system-one-models-corrections.md) — Clef 只图不视频（官方原文核实）；Laya p95 222.5ms 是中位 5.8ms 的 38 倍\n- [System One 主计划（另一 agent 线）](systemone-master-plan-ref.md) — ~/dsh-collab/docs/SYSTEMONE-MASTER-PLAN.md 只读；§7.1 文件归属（lab/compare/run_all.sh 归对方，cu/** 归我）；§4 那 9 条线索未复现\n- [CU 实验台项目](cu-testbench-project.md) — ~/systemone-lab/cu/ computer-use×System One 实验台；事件 JSONL 是唯一契约，三分档=min(路线,元素)置信度+风险降档，视觉旁路走本机 Vision 不走云；`cu/**` 归我而 lab/compare/run_all.sh 归另一 agent 线\n- [dsh 不挂第三方插件](feedback-no-third-party-dsh-plugins.md) — 外部插件只在信任边界外且多次致 dsh 崩溃；默认只走官方 seam + 配置，社区插件仅作逆向素材 → 自研\n- [dsh 宿主/客户端 inject 边界](dsh-host-client-inject-boundary.md) — 宿主端插件不得 inject 客户端服务(如 slots)，否则该条 pending → assertEntriesActivated 失败 → 整棵插件树加载失败、CLD 起不来；修产物必须同时修源\n- [上下文存活后端线（Q-K）](context-survival-workstream.md) — 台账在 `docs/context-survival-tracker.md`；K2.1 阈值已定「抢先」(<官方0.8，门=BAD_PREEMPT)；开工先读、动过同步索引 Q-K；devices/≠已挂载区（挂载点 Q-K6 待定）\n- [长项目要自建台账](feedback_running-ledger.md) — 用户要求：每次动过追加 running tracker 并同步信标索引，别靠上下文记忆\n- [i9 trae 规则总纲整合](trae-rules-compendium-integration.md) — 27 条已三层轻整合（sources 归档 + RULES.md 走查节 + ChromaDB rules 集合 + CLAUDE.md 行为条目）；不占编号，引用写作 trae:E<n>",
+ "★_the_most_relevant_to_my_goal": [
+  "★★ **Q-K 上下文存活后端**（`context-survival-workstream`）—— **直接治 P26**（官方压缩器摘要模板地板 > 被遮内容）⇒ 详见 `docs/context-survival-tracker.md`；K0-K2.1 ✅ **未挂载**；下一步 **K3**",
+  "★ **`gate-plugin-inject.py`**（`dsh-host-client-inject-boundary`）—— 宿主端 inject 客户端服务 ⇒ **CLD 完全起不来**；产物在 `scripts/`",
+  "★ **asar 改壳配方**（`cld-live-code-is-asar`）—— **CLD 活代码在 `app.asar!/main.js`（1131 行）**，**不是 `~/dsh-collab/cld/main.js`（867 行旧版）**",
+  "★ **`cld-crash-classification-20261010`** —— CLD 崩溃归类卡"
+ ],
+ "r046_note": "本卡为索引镜像（只读转述），不构成任何验收或裁决通过。"
+}

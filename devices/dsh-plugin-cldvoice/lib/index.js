@@ -53,16 +53,20 @@ export function apply(ctx) {
         const raw = JSON.parse(await readBody(req));
         const discussion = Array.isArray(raw.discussion) ? raw.discussion : [];
         const title = String(raw.title || "语音需求").slice(0, 80);
+        // base = 上一版成稿（增量修订底稿）。非空时后端走修订路径：
+        // 只改本轮讨论提到的部分，其余逐字保留（2026-10-10 用户需求）。
+        const base = typeof raw.base === "string" ? raw.base.slice(0, 16000) : "";
         const up = await fetch(GENEBANK + "/api/draft", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ discussion, title, insert: false }),
+          body: JSON.stringify({ discussion, title, insert: false, base }),
         });
         const d = await up.json();
         if (!d.success) return json(res, 500, { ok: false, error: d.error || "draft failed" });
         await mkdir(VOICE_DRAFTS, { recursive: true });
         const ts = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
-        const fname = join(VOICE_DRAFTS, `cldvoice-${ts}.md`);
+        const suffix = base ? "-rev" : "";
+        const fname = join(VOICE_DRAFTS, `cldvoice-${ts}${suffix}.md`);
         // 落盘文件 = 纯总结 + 完整"讨论留痕"(原始语音逐字, 供回溯)
         let disk = (d.content || "").trim();
         if (discussion.length) {
@@ -81,6 +85,36 @@ export function apply(ctx) {
       }
     },
   }), "cldvoice: POST /voice/draft");
+
+  // POST /voice/drafts/save —— 归档当前成稿（2026-10-12 用户产品决策）
+  //   「点清屏算一轮，然后历史成稿自动归档」
+  //   ★ 传的是【当前界面文本】而非 draftId —— 因为用户可在文本框里改，
+  //     按 id 归档会丢掉界面内编辑。
+  ctx.effect(() => webServer.register({
+    kind: "exact", path: "/voice/drafts/save",
+    handler: async (req, res) => {
+      if (req.method !== "POST") return json(res, 405, { ok: false, error: "method not allowed" });
+      try {
+        const raw = JSON.parse(await readBody(req));
+        const content = String(raw.content || "");
+        if (!content.trim()) return json(res, 400, { ok: false, error: "empty content" });
+        const up = await fetch(GENEBANK + "/api/drafts/save", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            content,
+            title: String(raw.title || "语音会议记录").slice(0, 80),
+            edited: raw.edited === true,
+          }),
+        });
+        const d = await up.json();
+        return json(res, up.ok ? 200 : 502, d);
+      } catch (e) {
+        return json(res, 500, { ok: false, error: String((e && e.message) || e) });
+      }
+    },
+  }), "cldvoice: POST /voice/drafts/save");
+
 
   // GET /voice/health
   ctx.effect(() => webServer.register({
