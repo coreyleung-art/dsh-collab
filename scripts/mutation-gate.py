@@ -177,8 +177,14 @@ def check_one(item):
         out["reasons"].append("★ %s" % note)
         return out
     out["mutation_note"] = note
+    # ★ 2026-10-12 B：runtime_fault 不产出文件 ⇒ 探针仍打【原工具】，只是带上注入的环境；
+    #   且 finally 里**不得**对哨兵调 _safe_remove（无文件可删）。
+    is_runtime = (tmp == RUNTIME_SENTINEL)
+    probe_target = tool if is_runtime else tmp
+    probe_env = (item.get("mutation") or {}).get("env") if is_runtime else None
+    out["mutation_kind"] = "runtime_fault" if is_runtime else "py_replace"
     try:
-        mut_rc, mut_out = run_probe(tmp, args)
+        mut_rc, mut_out = run_probe(probe_target, args, env=probe_env)
         mut_ok = probe_ok(mut_rc, mut_out, item.get("probe") or {})
         if mut_ok is None:
             out["verdict"] = V_UNDECIDABLE
@@ -199,10 +205,14 @@ def check_one(item):
                               % ("（标记 %r 命中）" % want if want else ""))
         return out
     finally:
-        try:
-            _safe_remove(tmp, tool_dir)
-        except UnsafeTarget as e:
-            log("★ 拒绝删除（%s），保留 %s" % (e, tmp))
+        if is_runtime:
+            # ★ 无临时文件 ⇒ 无事可做。显式说明而非静默跳过（否则读代码的人会以为漏了清理）。
+            out["cleanup"] = "skipped（runtime_fault 无临时文件）"
+        else:
+            try:
+                _safe_remove(tmp, tool_dir)
+            except UnsafeTarget as e:
+                log("★ 拒绝删除（%s），保留 %s" % (e, tmp))
 
 
 def load_manifest(path):
