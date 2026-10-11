@@ -15,6 +15,7 @@
 > ⑤ 再新增 **§2.12**（第三封已发出：把 S3 那条「不成立」报回 `int` · 独立回读 + 签名自验 · 球权交回）—— **该次追加前** sha16 = `c0ff2fe42bb502e9`。
 > ⑥ 再新增 **§2.13**（只读目录页 + ★ 它带出的真发现：**邮箱没有「线」的载体** ⇒「欠谁一句」不可判；含变异检验与三条自曝）—— **该次追加前** sha16 = `93b6936ca0cd0f3c`。
 > ⑦ 再新增 **§2.14**（三种通讯形态评估：**「两种送达 + 一种陈列」**；★ 硬判据 **即时⇔持久寻址不可兼得**）—— **该次追加前** sha16 = `a4883eabd0be7e76`。
+> ⑧ 再新增 **§2.15**（★★ **更正 §2.14 的一处错事实**：论坛**不是「不存在」**，而是**用户 2026-08-17 已决策建好、运行至今**的既有资产；含**加重后的根因**（信息本就在既有件 `星桥-memory-inheritance` 里）与**同日二次复发**）—— **该次追加前** sha16 = `3cda8bce6755ab05`。
 > ★★ **本件的「当前」sha16 刻意不写在这里** —— 那样会**自指**：写进去的那一刻它就变了。
 > （★ 我确实这么干过一次：先写 `4e1e335408ee1dae`，随即发现**那个数已经不作数** —— 第 4 个活例，
 > 且是新种类：前三个是「**会过期**」，这个是「**不能写进自己**」。）⇒ 当前值由**转发时的正文**给出。
@@ -800,6 +801,88 @@ $ python3 docs/xdom-diff-20261012/probe/mutation_cursor_control.py
 ★ 另修 lint 命中的 3 处绝对断言（「必然」「永远」「一定」）。
 
 ★ **本件只给判据、不代裁**；★ **未建**任何论坛相关物；★ **不宣布任何事项已闭合**。
+> ★★ **本节最后一行已被 §2.15 更正**（「论坛不存在」是错的事实）—— 原文**保留不动**（台账只增不改）。
+
+---
+
+### §2.15 ★ 更正 §2.14：论坛**不是「不存在」**，是**用户已决策建好、运行至今**的既有资产 —— 且 ★★ **我的更正自己又犯了同族错**
+
+> **处理方式（两种件两种做法，依据是仓库成文的，不是我自定）**：
+> - **本台账**自己写着「**只增不改，更正以新件追加**」⇒ 本节是**追加更正**，§2.14 原文**保留**。
+> - **分析交付件** `docs/comm-forms-three-way-evaluation-20261012.md` 则**就地改** ——
+>   依据 `docs/audit-reviewer-handover-v1.md:7`：「看它是『**陈述当前状态**』还是『**记录过去**』：**前者必须改，后者必须保留**」。
+>   该件 §一 那两行属**陈述当前状态** ⇒ 必须改。★ 且**不静默删**：原文逐字留在勘误块里。
+> - 该件指纹链：`2860dcd4e6e8b37d`（初版 159 行）→ `d9872bcba56a95e3`（v1.1）→ **`6f6775df4b6bc0eb`（v1.2 · 274 行）**。
+
+**§2.14 错在哪**：该节把论坛记为「**不存在**」，并在治理段判「论坛是**新通道** ⇒ 撞 R036」（**将来时**）。
+
+**实测（我 firsthand 跑过 · 原始输出）**：
+```
+$ find /Users/coreyleung/dsh-collab -iname '*forum*'
+/Users/coreyleung/dsh-collab/media/hub/forum-server.py
+/Users/coreyleung/dsh-collab/media/hub/forum-data/forum.json
+/Users/coreyleung/dsh-collab/media/hub/human/forum.html
+/Users/coreyleung/dsh-collab/media/reports/forum-export-2026-08-30.md      （共 5 命中）
+$ lsof -nP -iTCP:8091
+Python  1219 coreyleung  4u  IPv4 … TCP 100.120.203.20:8091 (LISTEN)
+```
+另：`~/Library/LaunchAgents/com.media.forum.plist`（KeepAlive）+ `com.media.hub.plist`（8090）·
+数据 **244 帖 / 回帖 0 / 21 位不同作者**（分区 `network 223 / lessons 20 / roles 1`）· 截至 2026-10-12 00:15。
+
+**★ 它不是我该"建"的东西，是用户既有资产**：`media/hub/README.md` 逐字 —
+「**内部论坛（8091 · 用户 2026-08-17 决策「先供内部用」）**」，属主 = **媒体专员 `session-54e809ed`**。
+
+**★★ 根因（比我 §2.13 那类更重 · 自曝）**：不只是"我没为论坛扫过面"。★ **信息本来就在我读得到的既有件里** ——
+`docs/星桥-memory-inheritance-2026-10-08.md` **第 271 / 279 / 311 行**分别记着：
+`com.media.forum.plist`（论坛 8091）·「forum 127.0.0.1 不可达…绑 Tailscale IP `100.120.203.20:8091`」·
+「**论坛任务状态机实证通过**（open→claimed→in_review→done，探针帖 id 28 留演示）」。
+⇒ 我的 launchd grep 模式是 `dsh|bus|inbox|xdom|bb|central`，**不覆盖 `com.media.*`**；而**我没有去读这份既有件**。
+
+**★ 二次复发（同日）**：我为该件派的只读侦察 agent **也**回报「全库 find + grep 无任何 forum 实现」，
+★ 而**它的报告里引用了同一份星桥件**（列为"讨论性提及"）—— **引了，仍报"没有"**。
+⇒ ★ **同一条纪律（未扫面即下结论），一天之内被违反两次**（我一次、我的侦察一次）。
+
+**★★★ 三处结论更正（一处不变、两处变）**：
+
+| # | 命题 | §2.14 / 初版 | 更正后 |
+|---|---|---|---|
+| 1 | 「两种送达 + 一种陈列」的分类 | — | ★ **不变**（论坛确属"陈列"那一类）|
+| 2 | 论坛的治理状态 | 「是**新通道**，**会**撞 R036」 | ★ **已是未登记的活体通道**；且**通道治理面三处全盲**（`channel-denominator.py` / `deviation-ledger-20261011.md` / `v6-draft-w2-20261010.md` 各跑 `grep -c -iE '8091\|8090\|forum\|论坛'` **均 0 匹配 `rc=1`**）⇒ **今天就是通道面的盲区** |
+| 3 | 「244 帖 / 0 回帖」怎么记 | 未记 | ★ **分群**：**216 帖**是 `bus-capture` 自动归档（标题形如「`[自动归档][83ba16f4] 线程 thread-m · 协作纪要`」·正文逐字「**bus-capture 自动沉淀（J36）**」·216 帖逐字含 "J36"）⇒ **成立 = 符合 J36 设计**；余 **28 帖**人工原创 ⇒ **不可判**（表 schema 无收件人/`reply_required` ⇒ 结构上表达不了"等人回"，也就无法把"没回"判成"失约"）|
+
+**★★★ 元教训（本节最该被记住的一条 · 自曝）**：**我的 v1.1 更正，自己又犯了同族错。**
+- v1.1 我把「**通道治理面三处**查不到」写成了「**它今天是"账外"的**」——
+  ★ 而 `data/local-registry-index.json` **逐字有** `service:media-forum 登记（54e809ed…端口 8091…属主=54e809ed）`。
+- 原错：只看 **launchd 的 grep 一个面** ⇒ 断「论坛**不存在**」；
+  更正错：只看 **通道治理的三个文件一个面** ⇒ 断「论坛**账外**」。
+- ⇒ ★★ **"承认错了"的姿态，并不能免疫这个错误家族；换一个投影，照样再犯一次。**
+- **据此定下的判据**：凡下**全局否定**（"不存在""账外""没人认领"）之前，**必须先列出"我扫了哪些面"**；
+  面不齐就只能写「**在我扫过的 N 个面里没有**」，★ **不能写「没有」**。
+
+**★ 第三处自曝（同族 · 判据对象取错）**：帖的时间字段是 **`created`（int epoch，max `1791735346` = 2026-10-12 00:15:46）**，
+我却按 `ts` 去读 ⇒ 渲染出 1970-01-01，并一度以为"时间戳不可用"。**是字段名取错，不是数据坏了。**
+★ 与 §2.13 那两条（读错 `ls -la` 的列 / 数被截断的段）**同一族**。
+
+**复跑命令（★ 自包含 · 绝对路径 · 不含 `/tmp`）**：
+```bash
+find /Users/coreyleung/dsh-collab -iname '*forum*'
+lsof -nP -iTCP:8091
+head -20 /Users/coreyleung/dsh-collab/media/hub/README.md
+grep -n '论坛\|forum\|8091' /Users/coreyleung/dsh-collab/docs/星桥-memory-inheritance-2026-10-08.md | head
+grep -o 'service:media-forum[^"]*' /Users/coreyleung/dsh-collab/data/local-registry-index.json
+for f in scripts/channel-denominator.py docs/deviation-ledger-20261011.md docs/v6-draft-w2-20261010.md; do
+  printf '%-44s ' "$f"; grep -c -iE '8091|8090|forum|论坛' "$f"; done
+python3 -I -c "
+import json;d=json.load(open('/Users/coreyleung/dsh-collab/media/hub/forum-data/forum.json'));P=d['posts']
+print('总',len(P),'| bus-capture',sum(1 for p in P if p.get('author')=='bus-capture'),
+      '| 含J36',sum(1 for p in P if 'J36' in (p.get('content') or '')+(p.get('title') or '')))"
+```
+
+**合规**：本节只做**文档编辑 + 只读探测** ⇒ 落在非通道清单「**只读写本地文件的单次脚本**」一侧
+⇒ **非通道变更，未绕门**（★ 与 portal 附录 A「勿绕门」是两件事，见该件 §六 立论）。
+
+**★ 我不代裁的**：8091 该走「记入偏差台账 / 纳入枚举 / 宣告停用 / 保持现状」中的哪一条 —— 归**用户 / 协调者**。
+★ 且**起草方是协调者（星桥），第三方审查员是我** ⇒ ★ **我不能既起草又审**（R046 自审无效）⇒ 本轮我只出**证据包**。
 
 ---
 
