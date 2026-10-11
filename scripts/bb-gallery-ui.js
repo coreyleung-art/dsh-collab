@@ -12,6 +12,21 @@
 
 // ═══ ★ R006 ② TCC 能力边界自检（--selfcheck）═══
 //   ★ 由 r006-retrofit-apply.py 自动生成（2026-10-09）· .js 版
+//   ★★ 2026-10-12 明鉴修 —— 本文件是【浏览器脚本】：
+//      它被内联进 SystemGraph 页面、喂给 WKWebView(手机) 与 Chrome，
+//      而生成器按【Node 脚本】注入了本块 ⇒ **顶层 `process.argv` 在浏览器抛
+//      `ReferenceError: process is not defined`** ⇒ **整个内联 <script> 当场中止**
+//      ⇒ 其后约 1900 行 UI 逻辑一行都不执行 ⇒ 所有 view 容器空白、每个 tab 报「加载失败」。
+//      ★ 实测复现：Chrome headless --dump-dom ⇒ 18 个 view 容器全空 + 「加载失败」×15；
+//        控制台：`Uncaught ReferenceError: process is not defined`（页面行 208）。
+//      ⇒ 修法：凡 Node 专有原语（process / require）一律加 typeof 守卫；
+//        **浏览器下本块整体静默不生效，Node 下行为不变**。
+//      ⇒ ★ 另需修生成器 r006-retrofit-apply.py，否则下次 retrofit 会把本修覆盖回去。
+const __R006_IS_NODE = (typeof process !== "undefined"
+                        && process !== null
+                        && Array.isArray(process.argv)
+                        && typeof require === "function");
+
 function r006Selfcheck() {
   console.log("== bb-gallery-ui 自查（TCC 能力边界）==");
   console.log("【① 能力清单】");
@@ -22,15 +37,16 @@ function r006Selfcheck() {
   console.log("  · 本工具涉及「修改权限」⇒ 该路径须受控");
   console.log("  · 本工具涉及「访问网络」⇒ 该路径须受控");
   console.log("【③ 依赖完整性】");
-  console.log("  · node " + process.version);
+  console.log("  · node " + (__R006_IS_NODE ? process.version : "(浏览器环境 · 无 node)"));
   console.log("  · 依赖: node 内置模块");
   return 0;
 }
 
-if (process.argv.includes("--selfcheck")) { process.exit(r006Selfcheck()); }
+if (__R006_IS_NODE && process.argv.includes("--selfcheck")) { process.exit(r006Selfcheck()); }
 
-const DSH_LOG = require("os").homedir() + "/dsh-collab/logs/bb-gallery-ui.log";
+const DSH_LOG = __R006_IS_NODE ? (require("os").homedir() + "/dsh-collab/logs/bb-gallery-ui.log") : "";
 function dshLog(msg) {
+  if (!__R006_IS_NODE) return;          // ★ 浏览器下为空操作（原来会因 require 未定义而抛）
   try {
     require("fs").mkdirSync(require("path").dirname(DSH_LOG), { recursive: true });
     require("fs").appendFileSync(DSH_LOG, new Date().toISOString() + " " + msg + "\n");
