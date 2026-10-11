@@ -352,6 +352,71 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C7（2026-10-12）：星桥 10 件产物【指针页】 ══════════
+   裁定（本线提出、星桥接受）：★ **别把长文摊在页面上** —— 10 件合计 874 KB / 7611 行。
+   ⇒ 本页只做三件事：① 一句话现状 ② 按类别聚合 ③ 每件一行元数据（带 mtime）+ 点击下钻。
+   ★ 数据源 = /api/xq-artifacts（文件为唯一权威，逐次实时读盘；不建独立索引）。
+   ★ 红线：那 10 个文件星桥是唯一写入者 —— 本页**只读**。 */
+async function renderXqPointers(){
+  const box=$('view-xq'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/xq-artifacts'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const kb=n=>(n/1024).toFixed(1)+' KB';
+  const escq=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // ── ① 一句话现状 ──
+  box.appendChild(el('h3','','📎 星桥产物指针 · 分布治理主线（'+d.count+' 件）'));
+  box.appendChild(el('div','','<div style="font-size:12px;color:#8b90a3;margin:-6px 0 10px">'
+    +'合计 <b style="color:#e8eaf0">'+kb(d.bytes)+'</b> · <b style="color:#e8eaf0">'+d.lines+'</b> 行'
+    +' · 可读 <b style="color:#e8eaf0">'+d.ok+'/'+d.count+'</b>'
+    +' · 数据截至 '+escq(d.generatedAt)
+    +'<br><span style="color:#5a6072">★ 只出元数据不出正文（874 KB 摊在页面上读不了）；点任意一行下钻。</span>'
+    +'<br><span style="color:#5a6072">写入者：'+escq(d.writer)+'</span></div>'));
+  // ── ② 按类别聚合（★ 先给结构，再给明细）──
+  const byCat={};
+  (d.items||[]).forEach(it=>{const c=it.cat||'其他';(byCat[c]=byCat[c]||[]).push(it)});
+  const agg=el('div','');
+  agg.innerHTML='<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">按类别聚合</div>'
+    +Object.keys(byCat).map(c=>{
+      const g=byCat[c], b=g.reduce((s,x)=>s+(x.bytes||0),0), l=g.reduce((s,x)=>s+(x.lines||0),0);
+      return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #1a2130;min-height:36px">'
+        +'<span style="flex:0 0 70px;font-size:12px;color:#e8eaf0">'+escq(c)+'</span>'
+        +'<span style="flex:0 0 46px;font-size:11px;color:#8b90a3">'+g.length+' 件</span>'
+        +'<span style="flex:1;color:#5a6072;font-size:11px">'+kb(b)+' · '+l+' 行</span></div>';
+    }).join('');
+  box.appendChild(agg);
+  // ── ③ 每件一行（带 mtime）+ ④ 点击下钻 ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">明细（点行下钻）</div>'));
+  const list=el('div','');
+  (d.items||[]).forEach(it=>{
+    const row=el('div','');
+    row.style.cssText='padding:9px 10px;border-bottom:1px solid #1a2130;cursor:pointer;min-height:44px';
+    const stc=it.state==='OK'?'#34c77b':'#e06c75';
+    row.innerHTML='<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="color:'+stc+';flex:0 0 auto">●</span>'
+      +'<span style="flex:1;min-width:0;font-size:12.5px;color:#e8eaf0">'+escq(it.title)+'</span>'
+      +'<span style="flex:0 0 auto;font-size:10.5px;color:#5a6072">'+escq(it.mtime||'—')+'</span></div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px;padding-left:17px">'
+      +'<span style="color:#6ea8ff">'+escq(it.cat)+'</span> · '+(it.lines!=null?it.lines+' 行':'—')+' · '
+      +(it.bytes!=null?kb(it.bytes):'—')
+      +(it.state!=='OK'?' · <span style="color:#e06c75">'+escq(it.state)+'</span>':'')+'</div>'
+      +'<div class="xq-detail" style="display:none;font-size:11px;color:#8b90a3;margin-top:6px;'
+      +'background:#0d1119;border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 17px">'
+      +'<div style="color:#5a6072">路径：'+escq(it.path)+'</div>'
+      +'<div style="margin-top:4px">'+(escq(it.head||'')||'（无摘要）')+'</div>'
+      +'<div style="margin-top:4px;color:#5a6072">★ 正文不在此页展开（10 件 874 KB）—— '
+      +'按裁定「聚合+摘要+下钻」，正文请开文件或走后续专项页。</div></div>';
+    row.onclick=()=>{
+      const dd=row.querySelector('.xq-detail');
+      if(dd) dd.style.display=(dd.style.display==='none')?'block':'none';
+    };
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+}
 /* ══════════ ★★ 2026-10-12 P3（手机体验）：图谱的【列表视图】 ══════════
    用途：小屏（≤768px）替代力导向图 —— 手机上画布挤、节点名缩成 3–4 字符、
         节点被切边、hover 提示不可达 ⇒ 列表能读全内容。
@@ -1701,6 +1766,10 @@ function switchTab(name){
   else if(name==='hardware'){renderHardware()}
   else if(name==='bizmap'&&!window.__bizDone){window.__bizDone=true;renderBizMap()}
   else if(name==='bp'&&!window.__bpDone){window.__bpDone=true;renderBP()}
+  /* ★ C7（2026-10-12）：星桥 10 件产物【指针页】。
+     ★ 按本线裁定「聚合 + 摘要 + 下钻」：不摊正文（10 件 874 KB 摊不动），
+       只给 ① 一句现状 ② 按类别聚合 ③ 每件一行元数据（含 mtime）④ 点行下钻。 */
+  else if(name==='xq'&&!window.__xqDone){window.__xqDone=true;renderXqPointers()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}

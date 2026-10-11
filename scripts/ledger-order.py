@@ -154,9 +154,28 @@ def selfcheck():
     # ② git 源必须覆盖 ≥100 条
     tot += 1; t = git_first_times(); a = len(t) >= 100
     print("  %s ② git 源覆盖 %d 条（≥100）" % ("OK " if a else "★ 不成立", len(t))); ok += a
-    # ③ 时刻列提取必须按【字段行】
-    tot += 1; w = written_time("D-120"); a = bool(w and re.match(r'2026-', w))
-    print("  %s ③ D-120 时刻字段提取成功: %s" % ("OK " if a else "★ 不成立", w)); ok += a
+    # ③★★ 修（2026-10-12，★ 由 `session-c05b831c` 指出）：
+    #   旧写法只验「取数成功」，★ **而没验 `audit()` 【真正消费的那个值】**
+    #   （★ 与「夹具复刻了值没复刻形态」同族）。
+    #   ★ 新判据：★★ **取出的分钟位不得等于时区偏移值**（08:00）。
+    tot += 1
+    w = written_time("D-120")
+    wm = re.search(r'T(\d{2}):([0-9x]{2})', w or "")
+    got = ("%s:%s" % (wm.group(1), wm.group(2))) if wm else None
+    a = bool(got) and got != "08:00"
+    print("  %s ③★ 时刻字段取出的值【不是时区】: %s（★ 旧写法会得 08:00）" % ("OK " if a else "★ 不成立", got)); ok += a
+    # ③b ★★ 新增：通配位（如 1x）必须被标为不可判，★ 不得参与分钟级比对
+    tot += 1
+    rows = audit()
+    wild = [r for r in rows if r.get("wildcard")]
+    nonwild = [r for r in rows if not r.get("wildcard")]
+    a = len(wild) > 0 and all(r.get("delta_min") is None for r in wild)
+    print("  %s ③b 通配位不参与分钟级比对（通配 %d 条 · 可比 %d 条）" % ("OK " if a else "★ 不成立", len(wild), len(nonwild))); ok += a
+    # ③c ★★ 新增：可比对条目的 written 不得全为同一常量（★ 防「空转」）
+    tot += 1
+    vals = set(r["written"] for r in nonwild)
+    a = len(nonwild) == 0 or len(vals) > 1
+    print("  %s ③c 可比对条目的 written 不是单常量（取值 %d 种）" % ("OK " if a else "★ 不成立（★★ 空转）", len(vals))); ok += a
     # ④ 审计须能发现不一致
     tot += 1; rows = audit(); a = any(r["delta_min"] is None or r["delta_min"] != 0 for r in rows)
     print("  %s ④ 审计能发现不一致（实测 %d 条）" % ("OK " if a else "★ 不成立", len(rows))); ok += a
