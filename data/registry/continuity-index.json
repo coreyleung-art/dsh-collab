@@ -940,7 +940,7 @@
  "resume_prompt_generator": "tools/mk-resume-prompt.py",
  "schema": "continuity-index/v1",
  "state_version": 6,
- "updated_at": "2026-10-12T04:26:41+0800",
+ "updated_at": "2026-10-12T04:27:09+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
