@@ -352,6 +352,88 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C6（2026-10-12）：偏差台账页 ══════════
+   裁定（本线）：**按状态聚合计数 + 最近 N 条，不摊全文**。
+   ★ 为什么必须聚合（实测）：该台账 **132 条 · 432 KB · 2513 行**；逐条读不可能看出
+     「闭合率」与「偏差集中在哪条规则」——**聚合才让这两个结构可见**。
+   ★ 数据源 = /api/deviation-ledger（实时读盘，不建索引）。★ 只读。 */
+async function renderDeviationLedger(){
+  const box=$('view-ledger'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/deviation-ledger'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const pct=d.closureRate;
+
+  // ── ① 一句话现状（★ 闭合率是本页最要紧的一个数）──
+  box.appendChild(el('h3','','📒 偏差台账 · 只增不改（'+d.total+' 条）'));
+  box.appendChild(el('div','','<div style="font-size:12px;color:#8b90a3;margin:-6px 0 10px">'
+    +'闭合 <b style="color:'+(pct<20?'#e06c75':'#34c77b')+'">'+d.closed+'</b>/'+d.total
+    +' <b style="color:'+(pct<20?'#e06c75':'#34c77b')+'">('+pct+'%)</b>'
+    +' · 未闭合 <b style="color:#f5b942">'+d.unclosed+'</b>'
+    +' · 文件 mtime '+esc(d.mtime)+' · 数据截至 '+esc(d.generatedAt)
+    +'<br><span style="color:#5a6072">★ 按裁定「按状态聚合 + 最近 N 条，不摊全文」——'
+    +'逐条读 '+d.total+' 条看不出闭合率与偏差集中在哪条规则。</span>'
+    +'<br><span style="color:#5a6072">写入者：'+esc(d.writer)+'</span></div>'));
+  // 闭合率条（可视）
+  box.appendChild(el('div','','<div style="height:8px;background:#1a2130;border-radius:4px;overflow:hidden;margin:0 0 12px">'
+    +'<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#34c77b,#6ea8ff)"></div></div>'));
+
+  // ── ② 按状态聚合 ──
+  const COL={closed_with_evidence:'#34c77b',open:'#e06c75','accepted·open':'#f5b942',other:'#8b90a3',unknown:'#5a6072'};
+  const st=Object.keys(d.byStatus||{}).sort((a,b)=>d.byStatus[b]-d.byStatus[a]);
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">按状态聚合</div>'
+    + st.map(k=>'<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #1a2130;min-height:36px">'
+      +'<span style="flex:0 0 10px;color:'+(COL[k]||'#8b90a3')+'">●</span>'
+      +'<span style="flex:1;font-size:12px;color:#e8eaf0">'+esc(k)+'</span>'
+      +'<span style="flex:0 0 60px;text-align:right;font-size:12px;color:'+(COL[k]||'#8b90a3')+'">'+d.byStatus[k]+' 件</span>'
+      +'<span style="flex:0 0 56px;text-align:right;font-size:11px;color:#5a6072">'
+      +(100*d.byStatus[k]/d.total).toFixed(1)+'%</span></div>').join('')));
+
+  // ── ③ 按规则聚合（★ 偏差集中在哪条规则）──
+  const rr=Object.keys(d.byRule||{}).sort((a,b)=>d.byRule[b]-d.byRule[a]).slice(0,10);
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">'
+    +'按规则聚合（偏差最集中的 10 条规则）</div>'
+    + rr.map(k=>'<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #1a2130;min-height:32px">'
+      +'<span style="flex:0 0 64px;font-size:12px;color:#f5b942">'+esc(k)+'</span>'
+      +'<span style="flex:1"><span style="display:inline-block;height:8px;border-radius:4px;background:#2d5a94;width:'
+      +Math.round(100*d.byRule[k]/d.byRule[rr[0]])+'%;min-width:6px"></span></span>'
+      +'<span style="flex:0 0 44px;text-align:right;font-size:11px;color:#8b90a3">'+d.byRule[k]+' 次</span></div>').join('')));
+
+  // ── ④ 最近 N 条（★ 点行下钻，不摊全文）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#f5b942;font-weight:600;margin:14px 0 4px">最近 '
+    + (d.recent||[]).length + ' 条（点行看该条要点）</div>'));
+  const list=el('div','');
+  (d.recent||[]).forEach(it=>{
+    const row=el('div','');
+    row.style.cssText='padding:9px 10px;border-bottom:1px solid #1a2130;cursor:pointer;min-height:44px';
+    row.innerHTML='<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="flex:0 0 auto;color:'+(COL[it.status]||'#8b90a3')+'">●</span>'
+      +'<span style="flex:0 0 58px;font-size:11.5px;color:#6ea8ff">'+esc(it.id)+'</span>'
+      +'<span style="flex:1;min-width:0;font-size:12px;color:#e8eaf0">'+esc(it.title)+'</span></div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px;padding-left:17px">'
+      +esc(it.status)+' · '+(it.rules&&it.rules.length?esc(it.rules.join(',')):'—')
+      +' · '+esc(it.ts||'—')+'</div>'
+      +'<div class="xq-detail" style="display:none;font-size:11px;color:#8b90a3;margin-top:6px;background:#0d1119;'
+      +'border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 17px">'
+      +'★ 本条正文未在此页展开（按裁定不摊全文）。要看全条请开：'
+      +'<span style="color:#5a6072">'+esc(d.path)+' 搜 '+esc(it.id)+'</span></div>';
+    row.onclick=()=>{const dd=row.querySelector('.xq-detail'); if(dd) dd.style.display=(dd.style.display==='none')?'block':'none';};
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+
+  // ── ⑤ 异常条目（★ 如实列出，不并入某类也不隐藏）──
+  if(d.anomalies&&d.anomalies.length){
+    box.appendChild(el('div','','<div style="font-size:12px;color:#e06c75;font-weight:600;margin:14px 0 4px">'
+      +'★ 状态归一不了的条目（'+d.anomalies.length+' 条，如实列出而非并入某类）</div>'
+      + d.anomalies.map(a=>'<div style="font-size:11px;color:#8b90a3;padding:5px 10px;border-bottom:1px solid #1a2130">'
+        +'<b style="color:#e06c75">'+esc(a.id)+'</b> · '+esc(a.raw)+'</div>').join('')));
+  }
+}
 /* ══════════ ★ C7（2026-10-12）：星桥 10 件产物【指针页】 ══════════
    裁定（本线提出、星桥接受）：★ **别把长文摊在页面上** —— 10 件合计 874 KB / 7611 行。
    ⇒ 本页只做三件事：① 一句话现状 ② 按类别聚合 ③ 每件一行元数据（带 mtime）+ 点击下钻。
