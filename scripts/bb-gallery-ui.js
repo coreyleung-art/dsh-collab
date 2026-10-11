@@ -187,8 +187,38 @@ async function __switchSource(){
     alert('无其他可用数据源(仅当前可达)');
   }
 }
-/* ★ P5b 就地更新器：状态条在 init() 后 600ms 才组好，而重验证命中可能发生在其后
-   （多个 j() 并发完成，顺序不定）⇒ 命中时就地刷新那一项，不重建整个状态条。 */
+/* ★★ 2026-10-12 P5 诊断模式 `?diag=ls`：
+   起因：模型版本重验证实测只命中 1 项而非预期 5 项。
+   假设：大载荷（overview 85244 B / agents 88347 B）写 localStorage 被 quota 静默拒绝
+        （__cacheSet 的 catch(e){} 吞掉了错误）⇒ 未存下 ~ver ⇒ 不命中。
+   ⇒ 本诊断把 localStorage 的真实占用与每个键的大小打到页面上（不再靠猜）。
+   ★ 只在带 ?diag=ls 时生效，不影响正常使用。 */
+if(/[?&]diag=ls/.test(location.search)){
+  setTimeout(function(){
+    var rows=[],total=0;
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i), v=localStorage.getItem(k)||'';
+        total += k.length + v.length;
+        rows.push([k, v.length]);
+      }
+    }catch(e){ rows.push(['★ 读 localStorage 失败: '+e.message,0]); }
+    rows.sort(function(a,b){return b[1]-a[1]});
+    var hitKeys=rows.filter(function(r){return r[0].indexOf('~ver')===0}).length;
+    var apiKeys=rows.filter(function(r){return r[0].indexOf('sgcache:/api/')===0}).length;
+    var d=document.createElement('div');
+    d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:#000;color:#7fff7f;'
+      +'font:11px ui-monospace,monospace;z-index:9999;overflow:auto;padding:10px;white-space:pre-wrap';
+    d.textContent='【localStorage 诊断】\n'
+      +'键总数 = '+rows.length+'  · 总计≈'+(total/1024).toFixed(1)+' KB\n'
+      +'sgcache:/api/* 键 = '+apiKeys+'   ·   ~ver 版本键 = '+hitKeys+'\n'
+      +'__revalHits = '+(window.__revalHits||0)+'\n'
+      +'—— 按大小排序前 25 ——\n'
+      +rows.slice(0,25).map(function(r){return (r[0]+'                                        ').slice(0,44)
+          +' '+(r[1]/1024).toFixed(1)+' KB';}).join('\n');
+    document.body.appendChild(d);
+  },9000);
+}
 function __updateDataState(){
   try{
     const st=document.getElementById('ds-state');
