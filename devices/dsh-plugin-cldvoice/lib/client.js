@@ -639,18 +639,52 @@ window.__ModuleLoader__.load({
     //   ⇒ 现改为：只念【最新一条】+ 去重 + 播报中不叠。
     let lastSpokenReply = '';
     let replySpeaking = false;
+    // ★★★ 2026-10-12（播报池迭代：用户实测驱动）
+    //   ① 串行队列 —— 原实现一个窗口内【只念最后一条】，前面的被【丢弃】⇒ 用户可能永远听不到
+    //   ② only 过滤 —— 只收【当前对话对象】的回话；不在对话态 ⇒ none ⇒ 不念任何东西
+    //      依据：用户实测「为什么突然由另一个会话给我发了一条状态播报的语音」
+    const replyQueue = [];
+    const REPLY_QUEUE_MAX = 5;
+
+    // ★ 投递确认音：本地合成、不调 TTS ⇒ 零延迟。
+    //   与 C（菜单栏）的 Tink 同语义。依据：用户实测「不知道你有没有真的在听」。
+    function ackTone(){
+      try{
+        ensurePlay();
+        const c = (typeof playCtx !== 'undefined') ? playCtx : null;
+        if(!c) return;
+        const o = c.createOscillator(), g = c.createGain();
+        o.type = 'sine'; o.frequency.value = 880;
+        const t0 = c.currentTime;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.12, t0 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.16);
+        o.connect(g); g.connect(c.destination);
+        o.start(t0); o.stop(t0 + 0.18);
+      }catch(e){}
+    }
+
+    // ★ 失败时归还认领 —— 否则认领方播报失败 ⇒【两边都不念】
+    function releaseClaim(key){
+      try{
+        fetch('/voice/release', { method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ key: key, who: 'B-floatball' }) }).catch(function(){});
+      }catch(e){}
+    }
+
+    function drainQueue(){
+      if (replySpeaking) return;
+      const next = replyQueue.shift();
+      if (!next) return;
+      if (replyQueue.length) setEng({ note: '正在念回话（还有 ' + replyQueue.length + ' 条排队）' });
+      speakOneReply(next);
+    }
+
     function speakOneReply(rep) {
       const txt = String((rep && rep.text) || '').trim();
-      if (!txt) return;
+      if (!txt) { replySpeaking = false; drainQueue(); return; }
       replySpeaking = true;
       setEng({ note: '收到回话：' + txt.slice(0, 44) });
-      // ★★★ 2026-10-12 加（治「双入口同播」）：
-      //   B 与 C 都轮询 /voice/replies 并都调 TTS ⇒ 同一句被念两遍，且 TTS 单线程被抢致超时。
-      //   ⇒ 播报前先向后端【原子认领】；认领失败（已被另一边认领）就跳过，不再念。
-      // ★★★ 认领键必须与 C（菜单栏 APP）【逐字节一致】，否则两边各认领各的 ⇒ 仲裁形同没有
-      //   （用户实测「我听到两把不同的声音」）。
-      //   ★ 陷阱：/voice/replies 的 at 是浮点（如 1791737720011.232），
-      //     而 C 用 %.0f 取整 ⇒ 必须同样取整，否则 1791737720011.232 ≠ 1791737720011。
       const _ck = String(Math.round(Number(rep && rep.at) || 0)) + '|' + txt.slice(0, 40);
       fetch('/voice/claim', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ key: _ck, who: 'B-floatball' }) })
@@ -658,45 +692,57 @@ window.__ModuleLoader__.load({
         .then(function (c) {
           if (c && c.ok && c.claimed === false) {
             setEng({ note: '本条回话已由另一入口播报，跳过（避免重复）' });
+            replySpeaking = false; drainQueue();
             return;
           }
-          _speakOneReplyDo(rep, txt);
+          _speakOneReplyDo(rep, txt, _ck);
         })
-        .catch(function () { _speakOneReplyDo(rep, txt); });   // 认领接口不可用时不阻断播报
-      }
-      function _speakOneReplyDo(rep, txt) {
-        void rep;
+        .catch(function () { _speakOneReplyDo(rep, txt, _ck); });
+    }
 
+    function _speakOneReplyDo(rep, txt, _ck) {
+      void rep;
       fetch('http://127.0.0.1:8902/api/tts', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ text: txt.slice(0, 600) }),
       }).then(function (r) { return r.json(); })
         .then(function (d) {
-          if (!d || !d.ok || !d.audio) { setEng({ err: '回话播报失败：' + ((d && d.error) || '无音频') }); replySpeaking = false; return; }
-          ensurePlay();          // ★ 复用：播放上下文
-          playAi(d.audio);       // ★ 复用：逐片解码
-          flushAi();             // ★ 复用：24kHz 播放
-          setTimeout(function () { replySpeaking = false; }, 1200);
+          if (!d || !d.ok || !d.audio) {
+            setEng({ err: '回话播报失败：' + ((d && d.error) || '无音频') });
+            releaseClaim(_ck);
+            replySpeaking = false; drainQueue();
+            return;
+          }
+          ensurePlay();
+          playAi(d.audio);
+          flushAi();
+          setTimeout(function () { replySpeaking = false; drainQueue(); }, 1200);
         })
-        .catch(function (e) { setEng({ err: '回话播报失败：' + String((e && e.message) || e) }); });
+        .catch(function (e) {
+          setEng({ err: '回话播报失败：' + String((e && e.message) || e) });
+          releaseClaim(_ck);
+          replySpeaking = false; drainQueue();
+        });
     }
+
     function pollReplies() {
-      fetch('/voice/replies?since=' + replySince)
+      const only = (talkTarget && talkTarget.id) ? talkTarget.id : 'none';
+      fetch('/voice/replies?since=' + replySince + '&only=' + encodeURIComponent(only))
         .then(function (r) { return r.json(); })
         .then(function (d) {
           if (!d || !d.ok) return;
           if (d.newest && d.newest > replySince) replySince = d.newest;
-          // ★ 只念最新一条（旧的若同一窗口到达，不再一起响）
-          const _reps = (d.replies || []);
-          if (_reps.length) {
-            const _last = _reps[_reps.length - 1];
-            const _t = String((_last && _last.text) || '').trim();
-            if (_t && _t !== lastSpokenReply && !replySpeaking) {
-              lastSpokenReply = _t;
-              if (_reps.length > 1) setEng({ note: '本窗口到 ' + _reps.length + ' 条回话，只念最新一条（避免同时发声）' });
-              speakOneReply(_last);
-            }
+          for (const rep of (d.replies || [])) {
+            const _t = String((rep && rep.text) || '').trim();
+            if (!_t || _t === lastSpokenReply) continue;
+            lastSpokenReply = _t;
+            replyQueue.push(rep);
           }
+          let dropped = 0;
+          while (replyQueue.length > REPLY_QUEUE_MAX) { replyQueue.shift(); dropped++; }
+          if (dropped) setEng({ note: '回话积压，已丢弃最旧 ' + dropped + ' 条' });
+          else if (d.filtered) setEng({ note: '本窗口有 ' + d.filtered + ' 条来自非当前对话对象，未播报' });
+          drainQueue();
         })
         .catch(function () {});
     }
@@ -711,6 +757,10 @@ window.__ModuleLoader__.load({
       ensurePlay();
       if(eng.rec){ // 停止并触发 AI 收尾
         if(ws&&ws.readyState===1){ try{ws.send(JSON.stringify({type:'commit'}));}catch(e){} }
+        // ★★★ 2026-10-12 加（用户实测「不知道你有没有真的在听」）：
+        //   用户点「⏹ 停止」= 话已说完 ⇒ 【立刻】给一声确认音（本地合成，不调 TTS ⇒ 零延迟）。
+        //   与 C（菜单栏）的 Tink 同语义。★ 这是「收到即确认」最小实现。
+        ackTone();
         stopAudio();                       // ★ 立刻释放麦克风（含 track.stop，见 stopAudio 内注）
         // ★ v0.8.1 修（用户报「显示未在听却仍在收 / 没点自己就开始收」）：
         //   原实现把 setEng({rec:false}) 放在 1200ms 的 setTimeout 里 ⇒ 点停止后
