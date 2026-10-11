@@ -23,13 +23,36 @@
 |---|---|---|---|---|
 | **agent-bus** | `~/.dsh/inbox/*.json`（**毫秒命名**的文件队列；`.processed/` 已归档 **8609** 条，`ls … \| wc -l` 实测）· `~/.dsh/agent-bus.json` **24 MB** | ★ **`session-<uuid>`**（`~/.dsh/agent-role-map.json` `.main` 下 **25** 个角色名映射到 session，`len()` 实测） | ★ **有**：`central-wake --interval 60` · `mac-mini-inbox-watch --interval 5` · 7 个 `bb-sub.*` 常驻订阅 | 队列，且有清扫 |
 | **邮箱 xdom** | 黑板 `notes/xdom/log/**`（**15 楼**）+ `notes/xdom/cursor/<party>`（2 键） | ★ **持久角色键**（`ext` / `int`），**与会话解耦** | ★ **无** —— 全机 `grep -rl xdom ~/Library/LaunchAgents/` = **无匹配**；7 个 `bb-sub.*` 的 `--prefixes` **均不含 `notes/xdom/`** | 信 = **签名 + append-only + 不可改 + 水位** |
-| **论坛** | **不存在** | 主题（topic） | —— | —— |
+| **论坛** | ★ **存在**（本件初版误写「不存在」，见下方勘误）：`media/hub/forum-server.py`（18210 B）· `media/hub/forum-data/forum.json`（281 KB）· `media/hub/human/forum.html` · `media/reports/forum-export-2026-08-30.md`（1624 行）· **PID 1219 活体监听 `100.120.203.20:8091`** · launchd `com.media.forum`（KeepAlive）/ `com.media.hub`（8090） | 帖（post）＋ 回帖（reply，机制存在但实测 0 用） | ★ **无收件方唤醒**（没有任何消费者在等它；且属 `com.media.*` 体系，不在 `com.dsh.*` 里） | 帖**持久落盘**（JSON；自 **2026-08-17** 用户决策起运行，mtime 2026-10-12） |
 
-★ **两条我要单独标出来的实测**：
+> ★★ **勘误（自曝 · 本件最严重的一处错：把「不存在」当实测陈述说了出去）**
+> **原文**（本件初版 §一 表格第 3 行）：`| **论坛** | **不存在** | 主题（topic） | —— | —— |`
+> **实测**：论坛**存在且在运行** ——
+>   `find /Users/coreyleung/dsh-collab -iname '*forum*'` ⇒ **5 命中**（server / data / html / 导出件）；
+>   `lsof -nP -iTCP:8091` ⇒ `Python **1219** coreyleung … TCP **100.120.203.20:8091 (LISTEN)**`；
+>   `~/Library/LaunchAgents/` ⇒ `com.media.forum.plist` · `com.media.hub.plist`；
+>   `media/hub/README.md` 逐字：「**内部论坛（8091 · 用户 2026-08-17 决策「先供内部用」）**」，属主 = **媒体专员 `session-54e809ed`**。
+> **根因**：我做 launchd 侦察时 grep 的模式是 `dsh|bus|inbox|xdom|bb|central`，
+>   而它的 plist 叫 **`com.media.forum`** —— **不匹配**。★ 我**没有为"论坛"扫过任何面**，
+>   却在标题写着「实测，非推测」的表格里把它写成事实。
+> **性质**：这**不是错数**（如上方 ①②），是**错的事实**；⇒ 正犯了我这一轮一直挑对端的
+>   「**未扫面即下结论**」（R030 家族）。★ 我要求别人附"扫过的面"，自己却没附。
+> **★ 二次复发（同日）**：我为本件派的只读侦察 agent **也**报了「全库 find + grep 无任何 forum 实现」——
+>   它到过 `media/`（报告里引了 `media/topics/`）却漏了 `media/hub/`，回来报"没有"。
+>   ⇒ ★ **同一条纪律，一天之内被违反两次**（我一次、我的侦察一次）。
+> **影响面**：§二 / §五 的**分类结论不受影响**（论坛确实属"陈列"那一类）；
+>   但 §六 的**时态错了**（已改，见 §六）；§九 里据"不存在"写的边界句已改。
+> **复跑命令**：见 §八 第 5 组。
+
+★ **三条我要单独标出来的实测**：
 - `com.dsh.cron.queue-condense`：**每月 1 日 09:30**，`queue-condense --condense --to session-e317d6ab-…`
   ⇒ ★ **bus 的队列是被"收敛"的** ⇒ 它是**通道，不是档案**。
 - `com.dsh.bb-sub.coordinator` 的订阅前缀 = `notes/collab/,notes/mac-mini/,tasks/central/queue/,notes/i9/`
   ⇒ ★ 黑板订阅**是按前缀的**，而 `notes/xdom/` **不在任何一个订阅里**。
+- ★ **8091 论坛在三处登记处全都查不到**：`scripts/channel-denominator.py` ·
+  `docs/deviation-ledger-20261011.md` · `docs/v6-draft-w2-20261010.md` 各跑
+  `grep -c -iE '8091|8090|forum|论坛'` ⇒ **均返回 0，`rc=1`**
+  ⇒ 它**既不在 7 条枚举、也不在通道分母、也不在偏差台账** ⇒ ★ **它今天是"账外"的**（§六）。
 
 > ★ **勘误（自曝，本件初版两个错数）**：
 > ① 初版写 `.processed/` 有 **8611** 条 —— **错，实测 8609**。
@@ -101,6 +124,19 @@
    而检索要索引，索引要维护 ⇒ ★ **一个论坛的维护成本主要在索引，不在发帖**。
 3. **订阅/唤醒**：论坛**没有"唤醒"这个动作**（你不看就不看）⇒ 若用户要的是"发到论坛会被看到"，
    ★ **那他要的其实是邮箱，不是论坛**。（决策要点，见 §七）
+
+### ★ 实测补充（本次新测 ⇒ 直接改写上面第 1 条的**性质**）
+
+- 8091 **有回帖机制**（`forum-server.py` 的 `add_reply` / `/api/reply`，回帖是**一等结构**），
+  但**回帖数实测 = 0**（244 帖）。
+  ⇒ ★ **沉底不是"机制缺失"，是"无人参与"** —— 这比初版"没有责任主体"的判断更锋利：
+  机制齐备而**零参与**，说明缺的不是**能力**，是**动机/习惯**。
+- 且帖正文里带 `据：thread-msx8se4z 里程碑链 #0-#5` ⇒ **帖在引用 agent-bus 的线程**。
+  ★ 这与 `rules-registry/RULES.md` 的 **J36「总线牵线 + 广场沉淀」（状态 enforced）** 一致：
+  **总线承载"线"（对话），广场承载"沉淀"（结论）**。
+- ⇒ ★ **「244 帖 / 0 回帖」应记为"失败"，还是"符合 J36 的设计"？ 我判【不可判】**
+  —— 我手上有"0 回帖"这个数，但**没有"回复已改走总线"的直接证据**
+  （未做帖↔线程的逐条对照）⇒ ★ **不许**因为看见了 `据：thread-*` 就把它判成"设计"。**不可判 ≠ 不成立。**
 
 ---
 

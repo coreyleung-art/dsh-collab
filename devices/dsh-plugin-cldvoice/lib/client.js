@@ -969,6 +969,52 @@ window.__ModuleLoader__.load({
     // ---------- 悬浮球 UI(portal 到 body) ----------
     function FloatBall(props){
       const s=useEng();
+      const resizeRef=React.useRef(null);
+      // ★★★ 2026-10-12 加：面板可拖拽缩放（用户需求：框固定太挤，要能拉大缩小）
+      //   ★ 面板 right/bottom 定位 ⇒ 把手放【左上角】：往左拖=变宽，往上拖=变高（符合直觉）
+      //   ★ 拖拽期间直接改 DOM 尺寸（不走 React 重渲染，避免卡顿）；松手才写 localStorage。
+      React.useEffect(()=>{
+        const el=resizeRef.current; if(!el) return;
+        const panelEl=()=>el.parentElement;   // 把手是面板的第一个子元素
+        let on=false, sx=0, sy=0, sw=0, sh=0;
+        const down=(e)=>{ const p=panelEl(); if(!p) return;
+          on=true; sx=e.clientX; sy=e.clientY; sw=p.offsetWidth; sh=p.offsetHeight;
+          e.preventDefault(); e.stopPropagation(); };
+        const move=(e)=>{ if(!on) return; const p=panelEl(); if(!p) return;
+          const w=Math.max(260, Math.min(Math.round(window.innerWidth*0.92), sw+(sx-e.clientX)));
+          const h=Math.max(200, Math.min(Math.round(window.innerHeight*0.88), sh+(sy-e.clientY)));
+          p.style.width=w+'px'; p.style.height=h+'px'; p.style.maxHeight='88vh';
+          e.preventDefault(); };
+        const up=()=>{ if(!on) return; on=false; const p=panelEl(); if(!p) return;
+          try{ localStorage.setItem('cldvoice_panel_w', String(p.offsetWidth));
+            localStorage.setItem('cldvoice_panel_h', String(p.offsetHeight)); }catch(e){} };
+        el.addEventListener('mousedown',down);
+        document.addEventListener('mousemove',move);
+        document.addEventListener('mouseup',up);
+        return ()=>{ el.removeEventListener('mousedown',down);
+          document.removeEventListener('mousemove',move);
+          document.removeEventListener('mouseup',up); };
+      },[s.open]);   // ★★★ 必须依赖 s.open：面板是条件渲染的，
+      //   首次渲染时 s.open=false ⇒ 把手不在 DOM ⇒ resizeRef.current 为 null ⇒ 提前 return。
+      //   若依赖是 []，effect 永不重跑 ⇒ 监听器从未注册 ⇒ 用户拖拽【没反应】（实测现象）。
+      // ★ 把手要【看得出可以拖】—— 只放一块渐变没人会去拖它。
+      //   ⇒ 三段斜线（常见的 resize 视觉语汇）+ hover 变亮 + 大一点的命中区。
+      const resizeGrip=React.createElement('div',{
+        ref:resizeRef,
+        title:'↖ 拖拽调整面板大小（往左拖变宽 · 往上拖变高）',
+        style:{position:'absolute',left:0,top:0,width:22,height:22,cursor:'nwse-resize',
+          zIndex:6,borderTopLeftRadius:12,display:'flex',alignItems:'flex-start',
+          justifyContent:'flex-start',padding:'3px 0 0 3px',boxSizing:'border-box',
+          background:'rgba(51,65,85,.55)'},
+        onMouseEnter:(e)=>{ e.currentTarget.style.background='rgba(14,165,233,.55)'; },
+        onMouseLeave:(e)=>{ e.currentTarget.style.background='rgba(51,65,85,.55)'; },
+        onClick:(e)=>e.stopPropagation()},
+        // 三段斜线（纯 CSS，无图片）
+        React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:2}},
+          [0,1,2].map(function(n){
+            return React.createElement('div',{key:n,style:{width:3+n*4,height:2,
+              background:'#94a3b8',borderRadius:1}});
+          })));
       const dragRef=React.useRef(null);
       const movedRef=React.useRef(false);
       // 挂载时同步已存音量到面板(播放时已在 ensurePlay 应用)
@@ -1008,7 +1054,12 @@ window.__ModuleLoader__.load({
       const noteEl=s.note?React.createElement('div',{style:{color:'#94a3b8',marginTop:4}},'· '+s.note):null;
       const errEl=s.err?React.createElement('div',{style:{color:'#f87171',marginTop:4}},'⚠️ '+s.err):null;
 
-      const panelStyle={position:'fixed',right:26,bottom:158,width:330,maxWidth:'92vw',maxHeight:340,
+      // ★★★ 2026-10-12 改（用户需求：「点开麦克风之后的框是固定的非常挤，要让点开后的那个框可以允许用户自定义拉大缩小」）：
+      //   原为 width:330 / maxHeight:340 写死 ⇒ 内容变多后很挤。
+      //   ⇒ 宽高改为读【上次拖拽后记忆的值】，未设过则用默认。
+      const _pw=(()=>{try{const v=parseInt(localStorage.getItem('cldvoice_panel_w')||'',10);return (v&&v>=260&&v<=2000)?v:330;}catch(e){return 330;}})();
+      const _ph=(()=>{try{const v=parseInt(localStorage.getItem('cldvoice_panel_h')||'',10);return (v&&v>=200&&v<=1600)?v:340;}catch(e){return 340;}})();
+      const panelStyle={position:'fixed',right:26,bottom:158,width:_pw,height:_ph,maxWidth:'92vw',maxHeight:'88vh',
         background:'#0f172a',border:'1px solid #1e293b',borderRadius:12,color:'#cbd5e1',fontSize:13,
         boxShadow:'0 12px 40px rgba(0,0,0,.55)',zIndex:2147483645,display:'flex',flexDirection:'column',overflow:'hidden'};
 
@@ -1135,7 +1186,7 @@ window.__ModuleLoader__.load({
           React.createElement('span',{style:{color:'#475569',fontSize:10}},
             s.autoSend?'（关掉即可在发送前修改）':'（默认：只填入，由你发送）')));
 
-      const panel=React.createElement('div',{style:panelStyle},head,stateBar,body,foot);
+      const panel=React.createElement('div',{style:panelStyle},resizeGrip,head,stateBar,body,foot);
       const ball=React.createElement('div',{ref:dragRef,title:'语音会议记录',style:ballStyle,
         onClick:(e)=>{ if(e.detail>1)return; if(movedRef.current){ movedRef.current=false; return; } setEng({open:!s.open}); }},'🎤');
 
