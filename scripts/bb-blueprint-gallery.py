@@ -1989,6 +1989,18 @@ class Handler(BaseHTTPRequestHandler):
                 else:
                     self._send(200, json.dumps(MODEL.status(), ensure_ascii=False))
                 return
+            if path == "/api/xq-artifacts":
+                # ★ C 组（2026-10-12）：星桥交来的 10 件产物的只读元数据。
+                #   裁定：文件为唯一权威（不建独立索引）· 出元数据而非正文 · 三态（OK/MISSING/UNREADABLE）。
+                #   ★ 逐次实时读盘 —— 10 次 stat + 10 次小读，成本可忽略；换来的是**永不陈旧**。
+                try:
+                    self._send(200, json.dumps(build_xq_artifacts(), ensure_ascii=False))
+                except Exception as e:
+                    # ★ 不许静默返空：失败要说出来（本夜 fetch() 静默返空的教训）
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "items": []},
+                        ensure_ascii=False))
+                return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
                 import glob
@@ -2642,6 +2654,66 @@ def get_confirmed_links(graph=None):
     d = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {"links":[]}
     if graph: return [l for l in d["links"] if l.get("graph")==graph]
     return d["links"]
+
+# ══════ ★ C 组（2026-10-12）：星桥交来的 10 件产物的【只读元数据】 ══════
+# ★ 裁定（本线提出、星桥 2026-10-12 逐条接受）：
+#   ① 数据源 = 文件（唯一权威）→ 实时读元组 → 页面；**不建独立索引**。
+#      理由：独立索引会成为第二个真相源；且星桥自己的索引当时是陈旧的
+#      （自报 235/359，实测 408/507）⇒ 索引与文件不同步时没人知道谁对。
+#   ② 时间戳是【双】的：页面侧（前端刷新时刻）+ 每件文件的 mtime（本端点给后者）。
+#   ③ ★ 别把长文摊在页面上 —— 10 件合计约 874 KB / 7611 行。
+#      本端点因此**只出元数据**（行数/字节/mtime/首行摘要），正文靠前端下钻。
+# ★★ 红线：这 10 个文件【星桥是唯一写入者】⇒ 本端点**只读**，不写一个字节。
+XQ_ARTIFACTS = [
+    ("plan-v6.1",   "主线锚点 v6.1",       "docs/distributed-agent-network-governance-plan-v6.1-20261011.md"),
+    ("deviation",   "偏差台账",             "docs/deviation-ledger-20261011.md"),
+    ("gap",         "阶段评审差距清单",      "docs/phase-review-gap-inventory-20261012.md"),
+    ("explored",    "索引探查发现",          "docs/index-explored-findings-20261012.md"),
+    ("arch-store",  "考古·存储节点铺开",     "docs/archaeology-store-node-rollout-20261012.md"),
+    ("arch-net",    "考古·星桥 vs Tailnet",  "docs/archaeology-xingqiao-vs-tailnet-20261012.md"),
+    ("handoff-ext", "对外交接",              "docs/handoff-to-claude-external-20261011.md"),
+    ("incident",    "事故·scripts 丢失",     "docs/incident-and-handoff-20261012-scripts-loss.md"),
+    ("meeting-inf", "会议·上下文膨胀与索引门", "docs/meeting-context-inflation-and-index-gate-20261012.md"),
+    ("analysis-inf", "分析·上下文膨胀与三路混同", "docs/analysis-context-inflation-and-three-way-conflation-20261012.md"),
+]
+
+
+def build_xq_artifacts():
+    """★ 只出元数据，不出正文（见上方裁定的 ③）。★ 只读，不写。"""
+    items = []
+    for key, title, rel in XQ_ARTIFACTS:
+        p = os.path.join(BASE, rel)
+        it = {"key": key, "title": title, "path": rel}
+        try:
+            st = os.stat(p)
+            it["bytes"] = st.st_size
+            it["mtime"] = datetime.datetime.fromtimestamp(st.st_mtime).strftime("%Y-%m-%d %H:%M")
+            n = 0
+            head = ""
+            with open(p, encoding="utf-8", errors="replace") as f:
+                for line in f:
+                    n += 1
+                    if not head and line.strip() and not line.lstrip().startswith("#"):
+                        head = line.strip()[:110]
+            it["lines"] = n
+            it["head"] = head
+            it["state"] = "OK"
+        except FileNotFoundError:
+            it["state"] = "MISSING"                      # ★ 三态：MISSING（缺）≠ EMPTY（空文件）
+        except Exception as e:
+            it["state"] = "UNREADABLE:%s" % type(e).__name__
+        items.append(it)
+    ok = [i for i in items if i.get("state") == "OK"]
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "count": len(items), "ok": len(ok),
+        "bytes": sum(i.get("bytes", 0) for i in ok),
+        "lines": sum(i.get("lines", 0) for i in ok),
+        "writer": "星桥第二任（本端点只读，不写这些文件）",
+        "note": "★ 只出元数据不出正文：10 件合计约 874 KB，摊在页面上读不了（聚合+摘要+下钻）。",
+        "items": items,
+    }
+
 
 def build_health_report():
     """7 项自检: 工作目录/JS语法/Py语法/结构审计/API smoke/版本一致/数据完整 → {healthy, checks}"""
