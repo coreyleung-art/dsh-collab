@@ -139,6 +139,12 @@ async function j(u){
   }catch(e){
     // 4) 缓存兜底(离线/失败) — 拒 null/空对象污染(坏缓存当无缓存)
     const c=__cacheGet(u);
+    /* ★ P5c：兜底时【记下这份缓存有多旧】—— 只显示「离线缓存」不告诉用户数据多旧，
+       等于把「3 天前的数据」和「1 分钟前的数据」呈现成同一个东西。 */
+    try{
+      const ts=__cacheGet('~ts'+u)||0;
+      if(ts){ window.__cacheAgeMs=Math.max(window.__cacheAgeMs||0, Date.now()-ts); }
+    }catch(e2){}
     if(c&&typeof c==='object'&&Object.keys(c).length>0&&c!==null){__dataState.mode='cache';__dataState.online=false;return c;}
     if(c&&Array.isArray(c)&&c.length>0){__dataState.mode='cache';__dataState.online=false;return c;}
     throw e;  // 真失败
@@ -215,7 +221,7 @@ if(/[?&]diag=ls/.test(location.search)){
       }
     }catch(e){ rows.push(['★ 读 localStorage 失败: '+e.message,0]); }
     rows.sort(function(a,b){return b[1]-a[1]});
-    var hitKeys=rows.filter(function(r){return r[0].indexOf('~ver')===0}).length;
+    var hitKeys=rows.filter(function(r){return r[0].indexOf('sgcache:~ver/')===0}).length;  // ★ 修：原写 indexOf('~ver')===0 ⇒ 漏了 sgcache: 前缀 ⇒ 恒为 0 的假读数
     var apiKeys=rows.filter(function(r){return r[0].indexOf('sgcache:/api/')===0}).length;
     var d=document.createElement('div');
     d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:#000;color:#7fff7f;'
@@ -256,7 +262,16 @@ async function __showDataState(){
     //   ★ 用只增不减的计数器，不用 __dataState.mode（后者会被其他端点覆盖）
     const _rh=window.__revalHits||0;
     const mTxt=(_rh>0?(' · 复查命中 '+_rh+' 项(省流量)'):'');
-    st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+mTxt+srcTxt;
+    /* ★ P5c：离线时把【这份缓存有多旧】说清楚。
+       ——「离线缓存」四个字本身不携带新鲜度信息；而本网络今晚已因
+          「一条 3.7 天前的实时性描述被当现状引用」起过争议。 */
+    const _age=window.__cacheAgeMs||0;
+    const aTxt=(!__dataState.online&&_age>0)
+      ? (' · 缓存已 ' + (_age>=3600000 ? Math.round(_age/3600000)+' 小时'
+                       : _age>=60000   ? Math.round(_age/60000)+' 分钟'
+                       :                 Math.round(_age/1000)+' 秒'))
+      : '';
+    st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+aTxt+mTxt+srcTxt;
     st.style.maxWidth='calc(100vw - 28px)';   // ★ 手机上别溢出（P4）
     st.style.textAlign='right';
     if(st.textContent)document.body.appendChild(st);
