@@ -1667,6 +1667,7 @@ def build_index(port):
 <div class="tab" data-tab="xq" data-dom="SYS">📎 星桥产物</div>
 <div class="tab" data-tab="ledger" data-dom="SYS">📒 偏差台账</div>
 <div class="tab" data-tab="gap" data-dom="SYS">🧭 差距盘点</div>
+<div class="tab" data-tab="channel" data-dom="SYS">🛰 通道基线</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1689,6 +1690,7 @@ def build_index(port):
 <div class="main" id="view-xq"></div>
 <div class="main" id="view-ledger"></div>
 <div class="main" id="view-gap"></div>
+<div class="main" id="view-channel"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>

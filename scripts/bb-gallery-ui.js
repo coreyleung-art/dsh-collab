@@ -352,6 +352,85 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C5（2026-10-12）：通道基线页 ══════════
+   ★★ 本页立页理由（实测）：同一条判据 M4① 在三处有**三个不同的真读数**（差 2.4 倍）：
+     v6.1 锚点 19/304=6.25% · 差距件 48/342=14.04% · 本线现测见下。
+     ⇒ 三份都是真的、只是时刻不同 ⇒ **三源并列 + 各标时刻，不合并、不取平均**。
+   ★★ 另一处只有现测才知道：M4① 要**分解成两个条件**（到达率 100% ∧ 落后 ≤60min）。
+     现测显示**新流是通的、卡的是历史存量** —— 而两份文件都没说。
+   ★ 数据源 = /api/channel-baseline（后端现测两块板，只发 GET 不写板）。 */
+async function renderChannelBaseline(){
+  const box=$('view-channel'); if(!box) return;
+  box.innerHTML='<div class="empty">正在现测两块板…</div>';
+  let d;
+  try{ d=await j('/api/channel-baseline'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const L=d.live||{}, lo=L.local||{}, ce=L.central||{};
+
+  box.appendChild(el('h3','','🛰 通道基线 · M4 通讯基线'));
+  // ── ① 现测区（★ 最显眼）──
+  const okA=L.condA_arrival100, okB=L.condB_lag60;
+  box.appendChild(el('div','','<div style="background:#141824;border:1px solid #2d5a94;border-radius:10px;padding:10px 12px;margin:0 0 12px">'
+    +'<div style="font-size:12.5px;color:#f5b942;font-weight:600;margin-bottom:6px">★ 现测（'+esc(d.generatedAt)+'）</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:#e8eaf0;margin-bottom:8px">'
+    +'<span>本机板 <b>'+(lo.n!=null?lo.n:'?')+'</b> 卡</span>'
+    +'<span style="color:#5a6072">·</span>'
+    +'<span>中枢板 <b>'+(ce.n!=null?ce.n:'?')+'</b> 卡</span>'
+    +'<span style="color:#5a6072">·</span>'
+    +'<span>到达率 <b style="color:'+((L.rate||0)>=100?'#34c77b':'#e06c75')+'">'
+    +(L.rate!=null?L.rate+'%':'不可判')+'</b></span></div>'
+    // ★ 分解两个条件 —— 这才是关键
+    +'<div style="font-size:11.5px;padding:6px 0;border-top:1px solid #232a3a">'
+    +'<span style="color:'+(okA?'#34c77b':'#e06c75')+'">'+(okA?'✓':'❌')+' ①a 到达率 == 100%</span>'
+    // ★ 修：此前这里把 JS 表达式写进了字符串字面量 ⇒ 页面上【裸渲染出源码文本】。
+    //   机器预检报「JS 报错 0」而画面是坏的 —— 又一次「不看图会漏」（铁律④）。
+    +'<span style="color:#5a6072"> · '+(L.rate!=null?(L.rate+'%'):'—')+'</span></div>'
+    +'<div style="font-size:11.5px">'
+    +'<span style="color:'+(okB?'#34c77b':'#e06c75')+'">'+(okB?'✓':'❌')+' ①b 中枢落后 ≤60min</span>'
+    +'<span style="color:#5a6072"> · 落后 '+(L.lagMin!=null?L.lagMin+' 分钟':'?')
+    +' · 中枢最新 '+esc((ce.latest||'?'))+'</span></div>'
+    +'<div style="font-size:11.5px;color:#f5b942;margin-top:6px;border-top:1px solid #232a3a;padding-top:6px">'
+    +'★ 分解结论：'+(okB&&!okA?'**新流是通的（落后 '+(L.lagMin)+' 分钟），卡的是历史存量**':
+        (okA&&okB?'两个条件均达':'两个条件均未达'))+'</div>'
+    + (lo.err||ce.err?'<div style="font-size:11px;color:#e06c75;margin-top:4px">★ 探测异常：'+esc(lo.err||ce.err)+'</div>':'')
+    +'</div>'));
+
+  // ── ② 三源并列（★ 不合并、不取平均）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">'
+    +'三源并列（★ 都是真读数，只是时刻不同 —— 不合并、不取平均）</div>'
+    + (d.sources||[]).map(s=>'<div style="padding:8px 10px;border-bottom:1px solid #1a2130;min-height:44px">'
+      +'<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="flex:1;font-size:12px;color:#e8eaf0">'+esc(s.src)+'</span>'
+      +'<span style="flex:0 0 auto;font-size:12px;font-weight:600;color:'+(s.rate==='100.00%'?'#34c77b':'#f5b942')+'">'+esc(s.rate)+'</span></div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px">'
+      +'本机 '+(s.local!=null?s.local:'?')+' · 中枢 '+(s.central!=null?s.central:'?')+' · 时刻 '+esc(s.when)+'</div>'
+      +'<div style="font-size:11px;color:#5a6072;margin-top:2px">'+esc(s.extra)+'</div></div>').join('')));
+
+  // ── ③ M4 三判据 ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">M4 三判据</div>'
+    + (d.m4||[]).map(m=>'<div style="padding:8px 10px;border-bottom:1px solid #1a2130;min-height:44px">'
+      +'<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="flex:0 0 46px;font-size:12px;color:#e06c75">'+esc(m.id)+'</span>'
+      +'<span style="flex:1;font-size:12px;color:#e8eaf0">'+esc(m.judge)+'</span>'
+      +'<span style="flex:0 0 auto;font-size:13px">'+esc(m.verdict)+'</span></div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px;padding-left:46px">'+esc(m.note)+'</div>'
+      +'<div style="font-size:10.5px;color:#5a6072;padding-left:46px">来源：'+esc(m.src)+'</div></div>').join('')));
+
+  // ── ④ P28 通讯通道缺陷族 ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#f5b942;font-weight:600;margin:14px 0 4px">'
+    +'P28 通讯通道缺陷族（'+(d.p28||[]).length+' 条 · 来源 v6.1 §7.10）</div>'
+    + (d.p28||[]).map(p=>'<div style="display:flex;gap:8px;padding:7px 10px;border-bottom:1px solid #1a2130;min-height:38px">'
+      +'<span style="flex:0 0 54px;font-size:11.5px;color:#e06c75">'+esc(p.id)+'</span>'
+      +'<span style="flex:1;font-size:11.5px;color:#8b90a3">'+esc(p.what)+'</span></div>').join('')));
+
+  // ── ⑤ 口径声明 ──
+  box.appendChild(el('div','','<div style="font-size:11px;color:#5a6072;margin:14px 0 0;padding:8px 10px;'
+    +'background:#0d1119;border:1px solid #232a3a;border-radius:8px">'+esc(d.note)
+    +'<br>写入者：'+esc(d.writer)+'</div>'));
+}
 /* ══════════ ★ C3（2026-10-12）：差距盘点页 ══════════
    ★★ 本页的立页理由：该件自己写着「**11 条纯卡在用户** —— 本线不缺待办，**缺裁决**」。
      ⇒ 把「谁在等谁」变成一屏可数的东西，比并列 18 条差距有用得多。
@@ -1927,6 +2006,8 @@ function switchTab(name){
   else if(name==='ledger'&&!window.__ledgerDone){window.__ledgerDone=true;renderDeviationLedger()}
   /* ★ C3（2026-10-12）：差距盘点页 —— ★ 最有行动价值的聚合是【卡在谁】。 */
   else if(name==='gap'&&!window.__gapDone){window.__gapDone=true;renderGapInventory()}
+  /* ★ C5（2026-10-12）：通道基线页 —— ★ 核心是【现测】，不是抄文件。 */
+  else if(name==='channel'&&!window.__chanDone){window.__chanDone=true;renderChannelBaseline()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}
