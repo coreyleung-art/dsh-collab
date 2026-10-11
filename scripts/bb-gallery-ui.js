@@ -352,6 +352,77 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C3（2026-10-12）：差距盘点页 ══════════
+   ★★ 本页的立页理由：该件自己写着「**11 条纯卡在用户** —— 本线不缺待办，**缺裁决**」。
+     ⇒ 把「谁在等谁」变成一屏可数的东西，比并列 18 条差距有用得多。
+   ★ 三态口径沿用该件：✅ 成立 / ❌ 不成立 / ❓ 不可判 / 🟡 部分具备。
+     ★ 「读不到」≠「不存在」—— 未扫的面原样记 ❓，本页**不把 ❓ 并入 ✅ 或 ❌**。
+   ★ 数据源 = /api/gap-inventory（只读）。 */
+async function renderGapInventory(){
+  const box=$('view-gap'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/gap-inventory'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const TRI_C={'✅':'#34c77b','❌':'#e06c75','❓':'#f5b942','🟡':'#e5c07b','?':'#8b90a3'};
+
+  box.appendChild(el('h3','','🧭 差距盘点 · 距离目标还差什么（'+(d.gaps||[]).length+' 条）'));
+  // ── ① 头条：卡在谁（★ 本页最有行动价值的一屏）──
+  const own=d.byOwner||{};
+  const ownKeys=Object.keys(own).sort((a,b)=>own[b]-own[a]);
+  box.appendChild(el('div','','<div style="background:#141824;border:1px solid #2d5a94;border-radius:10px;padding:10px 12px;margin:0 0 12px">'
+    +'<div style="font-size:12.5px;color:#f5b942;font-weight:600;margin-bottom:6px">★ 卡在谁（决定该谁动）</div>'
+    + ownKeys.map(k=>'<div style="display:flex;align-items:center;gap:8px;padding:5px 0;min-height:30px">'
+      +'<span style="flex:1;font-size:12.5px;color:#e8eaf0">'+esc(k)+'</span>'
+      +'<span style="flex:0 0 52px;text-align:right;font-size:13px;font-weight:600;color:'
+      +(k.indexOf('用户')>=0?'#f5b942':'#6ea8ff')+'">'+own[k]+' 条</span></div>').join('')
+    +'<div style="font-size:11.5px;color:#8b90a3;margin-top:6px;border-top:1px solid #232a3a;padding-top:6px">'
+    +'★ 未决问题 '+((d.questions||[]).length)+' 条，其中仍卡 <b style="color:#e8eaf0">'+(d.qStuck||0)+'</b> 条；'
+    +'按卡在谁：'+esc(Object.keys(d.qByOwner||{}).map(k=>k+' '+d.qByOwner[k]).join(' · '))+'</div>'
+    +'<div style="font-size:11px;color:#5a6072;margin-top:4px">'+esc((d.headline||'').replace(/[*]/g,''))+'</div></div>'));
+
+  // ── ② 按三态聚合 ──
+  const byTri=d.byTri||{};
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">按三态聚合（口径沿用该件）</div>'
+    + Object.keys(byTri).sort().map(k=>'<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #1a2130;min-height:34px">'
+      +'<span style="flex:0 0 22px;color:'+(TRI_C[k]||'#8b90a3')+'">'+esc(k)+'</span>'
+      +'<span style="flex:1;font-size:12px;color:#e8eaf0">'+({'✅':'成立','❌':'不成立','❓':'不可判','🟡':'部分具备'}[k]||'—')+'</span>'
+      +'<span style="flex:0 0 48px;text-align:right;font-size:12px;color:'+(TRI_C[k]||'#8b90a3')+'">'+byTri[k]+' 条</span></div>').join('')));
+
+  // ── ③ 里程碑与 Wave ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">里程碑与 Wave</div>'
+    + (d.milestones||[]).map(m=>'<div style="padding:7px 10px;border-bottom:1px solid #1a2130;min-height:38px">'
+      +'<div style="display:flex;align-items:baseline;gap:8px"><span style="flex:0 0 22px;color:'+(TRI_C[m.tri]||'#8b90a3')+'">'+esc(m.tri)+'</span>'
+      +'<span style="flex:1;font-size:12.5px;color:#e8eaf0">'+esc(m.axis)+'</span>'
+      +'<span style="flex:0 0 auto;font-size:11px;color:#8b90a3">'+esc(m.verdict)+'</span></div>'
+      +'<div style="font-size:11px;color:#5a6072;margin-top:2px;padding-left:30px">'+esc(m.note)+'</div></div>').join('')));
+
+  // ── ④ 18 条差距（点行展开证据）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#f5b942;font-weight:600;margin:14px 0 4px">逐条差距（点行看证据）</div>'));
+  const list=el('div','');
+  (d.gaps||[]).forEach(g=>{
+    const row=el('div','');
+    row.style.cssText='padding:9px 10px;border-bottom:1px solid #1a2130;cursor:pointer;min-height:44px';
+    row.innerHTML='<div style="display:flex;align-items:baseline;gap:8px">'
+      +'<span style="flex:0 0 22px;color:'+(TRI_C[g.tri]||'#8b90a3')+'">'+esc(g.tri)+'</span>'
+      +'<span style="flex:0 0 22px;font-size:11px;color:#5a6072">'+g.n+'</span>'
+      +'<span style="flex:1;min-width:0;font-size:12px;color:#e8eaf0">'+esc(g.what)+'</span>'
+      +'<span style="flex:0 0 auto;font-size:10.5px;color:'+(g.owner.indexOf('用户')>=0?'#f5b942':'#8b90a3')+'">'+esc(g.owner)+'</span></div>'
+      +'<div class="xq-detail" style="display:none;font-size:11px;color:#8b90a3;margin-top:6px;background:#0d1119;'
+      +'border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 30px">'+esc(g.ev)+'</div>';
+    row.onclick=()=>{const dd=row.querySelector('.xq-detail'); if(dd) dd.style.display=(dd.style.display==='none')?'block':'none';};
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+
+  // ── ⑤ 口径声明（★ 三态不许混）──
+  box.appendChild(el('div','','<div style="font-size:11px;color:#5a6072;margin:14px 0 0;padding:8px 10px;'
+    +'background:#0d1119;border:1px solid #232a3a;border-radius:8px">'+esc(d.note)
+    +'<br>文件 mtime '+esc(d.mtime)+' · 数据截至 '+esc(d.generatedAt)+' · 写入者：'+esc(d.writer)+'</div>'));
+}
 /* ══════════ ★ C6（2026-10-12）：偏差台账页 ══════════
    裁定（本线）：**按状态聚合计数 + 最近 N 条，不摊全文**。
    ★ 为什么必须聚合（实测）：该台账 **132 条 · 432 KB · 2513 行**；逐条读不可能看出
@@ -1854,6 +1925,8 @@ function switchTab(name){
   else if(name==='xq'&&!window.__xqDone){window.__xqDone=true;renderXqPointers()}
   /* ★ C6（2026-10-12）：偏差台账页 —— 按状态聚合 + 按规则聚合 + 最近 N 条（不摊全文）。 */
   else if(name==='ledger'&&!window.__ledgerDone){window.__ledgerDone=true;renderDeviationLedger()}
+  /* ★ C3（2026-10-12）：差距盘点页 —— ★ 最有行动价值的聚合是【卡在谁】。 */
+  else if(name==='gap'&&!window.__gapDone){window.__gapDone=true;renderGapInventory()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}

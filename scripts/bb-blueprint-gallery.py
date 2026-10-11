@@ -1666,6 +1666,7 @@ def build_index(port):
 <div class="tab" data-tab="bp" data-dom="SYS">📙 商业计划书</div>
 <div class="tab" data-tab="xq" data-dom="SYS">📎 星桥产物</div>
 <div class="tab" data-tab="ledger" data-dom="SYS">📒 偏差台账</div>
+<div class="tab" data-tab="gap" data-dom="SYS">🧭 差距盘点</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1687,6 +1688,7 @@ def build_index(port):
 <div class="main" id="view-bp"></div>
 <div class="main" id="view-xq"></div>
 <div class="main" id="view-ledger"></div>
+<div class="main" id="view-gap"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2012,6 +2014,15 @@ class Handler(BaseHTTPRequestHandler):
                 except Exception as e:
                     self._send(200, json.dumps(
                         {"error": "%s: %s" % (type(e).__name__, e), "recent": []},
+                        ensure_ascii=False))
+                return
+            if path == "/api/gap-inventory":
+                # ★ C3（2026-10-12）：差距盘点（只读）。★ 最有行动价值的聚合是【卡在谁】。
+                try:
+                    self._send(200, json.dumps(build_gap_inventory(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "gaps": []},
                         ensure_ascii=False))
                 return
             if path == "/api/overview":
@@ -2799,6 +2810,91 @@ def build_deviation_ledger(recent=10):
         "anomalies": anomaly,
         "note": "★ 按裁定「按状态聚合 + 最近 N 条，不摊全文」。状态已归一（台账的状态字段嵌了长解释，"
                 "不归一会出现 50+ 个互不相同的状态）。★ anomalies 是归一不了的条目，如实列出而非并入某类。",
+    }
+
+
+def build_gap_inventory():
+    """★ C3（2026-10-12）：差距盘点页的数据源。★ 只读，不写。
+
+    ★ 裁定（本线）：聚合 + 摘要 + 下钻。
+    ★★ 本页最有行动价值的一个聚合是**【卡在谁】** —— 该件本身写着一句结构事实：
+       「**11 条纯卡在用户** —— 本线不缺待办，**缺裁决**」。
+       ⇒ 把「谁在等谁」变成一屏可数的东西，比并列 18 条差距有用得多。
+
+    ★ 三态口径沿用该件自己的定义：✅ 成立 / ❌ 不成立 / ❓ 不可判 / 🟡 部分具备。
+      ★ 「读不到」≠「不存在」—— 该件对未扫的面（mbp/i9、guard/backups）一律记 ❓，
+        本函数**原样保留**，不把 ❓ 并入 ❌ 也不并入 ✅。
+    """
+    p = os.path.join(BASE, "docs/phase-review-gap-inventory-20261012.md")
+    try:
+        s = open(p, encoding="utf-8", errors="replace").read()
+        mtime = datetime.datetime.fromtimestamp(os.stat(p).st_mtime).strftime("%Y-%m-%d %H:%M")
+    except Exception as e:
+        return {"error": "%s: %s" % (type(e).__name__, e), "gaps": []}
+
+    def cells(line):
+        return [c.strip() for c in line.strip().strip("|").split("|")]
+
+    def is_sep(line):
+        return bool(re.match(r"^\|[\s\-:|]+\|$", line.strip()))
+
+    TRI = ("✅", "❌", "❓", "🟡")
+    def tri(v):
+        for t in TRI:
+            if t in v:
+                return t
+        return "?"
+
+    # ── §一 距目标还差什么（18 条）──
+    gaps, milestones, questions = [], [], []
+    mode = None
+    for line in s.splitlines():
+        h = re.match(r"^##\s+([〇一二三四五六七八九十]+)、(.+)$", line)
+        if h:
+            t = h.group(2)
+            if "距目标还差什么" in t:      mode = "gaps"
+            elif "里程碑与 Wave" in t:     mode = "miles"
+            elif "未决问题" in t:          mode = "qs"
+            else:                          mode = None
+            continue
+        if mode and line.strip().startswith("|") and not is_sep(line):
+            c = cells(line)
+            if not c or c[0] in ("#", "轴", "编号"):
+                continue
+            if mode == "gaps" and len(c) >= 5 and c[0].isdigit():
+                gaps.append({"n": int(c[0]), "what": re.sub(r"[*`]", "", c[1]),
+                             "tri": tri(c[2]), "owner": re.sub(r"[*`]", "", c[3]),
+                             "ev": re.sub(r"[*`]", "", c[4])[:150]})
+            elif mode == "miles" and len(c) >= 3:
+                milestones.append({"axis": re.sub(r"[*`]", "", c[0]),
+                                   "verdict": re.sub(r"[*`]", "", c[1]),
+                                   "tri": tri(c[1]), "note": re.sub(r"[*`]", "", c[2])[:110]})
+            elif mode == "qs" and len(c) >= 4:
+                questions.append({"id": re.sub(r"[*`]", "", c[0]),
+                                  "state": re.sub(r"[*`]", "", c[1]),
+                                  "stuck": re.sub(r"[*`]", "", c[2]),
+                                  "owner": re.sub(r"[*`]", "", c[3])})
+
+    def tally(key, items, field):
+        d = {}
+        for it in items:
+            k = it.get(field) or "?"
+            d[k] = d.get(k, 0) + 1
+        return d
+
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mtime": mtime, "path": "docs/phase-review-gap-inventory-20261012.md",
+        "writer": "子代理 449f0720-bae9（受星桥第二任委托）· 本端点只读，不写该文件",
+        "gaps": gaps, "milestones": milestones, "questions": questions,
+        "byTri": tally("tri", gaps, "tri"),
+        "byOwner": tally("own", gaps, "owner"),
+        "qByOwner": tally("own", questions, "owner"),
+        "qStuck": sum(1 for q in questions if "仍卡" in q.get("stuck", "")),
+        "headline": "★ 该件逐字：11 条纯卡在用户（+1 条 Q-L 用户与本线共卡）—— "
+                    "★ 这是本表最大的结构事实：**本线不缺待办，缺裁决**。",
+        "note": "★ 三态沿用该件定义：✅ 成立 / ❌ 不成立 / ❓ 不可判 / 🟡 部分具备。"
+                "★ 「读不到」≠「不存在」—— 未扫的面（mbp/i9、guard/backups）原样记 ❓，不并入他类。",
     }
 
 
