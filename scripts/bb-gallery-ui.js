@@ -1669,6 +1669,48 @@ function __activateView(){
    都不会切换视图 —— 而这三样在手机上是最自然的导航方式。
    ⇒ 加监听即可；__activateView 末尾的 replaceState 在 hash 已相等时不会触发，不冲突。 */
 window.addEventListener('hashchange',function(){ try{ __activateView(); }catch(e){} });
+
+/* ★★ 2026-10-12 P4d（手机体验）：下拉刷新。
+   为什么：手机上「下拉刷新」是通用手势（用户会本能地试），而此前只能靠切 tab
+   或刷浏览器地址栏 —— 对着一屏静态卡片，用户会以为「坏了」。
+   实现要点（都为了不与正常滚动打架）：
+     ① 只在 window.scrollY<=0 时启动监听窗口；
+     ② touchstart/touchmove/touchend 全部 passive（不阻塞滚动）；
+     ③ 阈值 80px；松手后整页重载（与本文件其他「切模式」处同一策略，简单可靠）；
+     ④ 给一条视觉反馈条 —— 否则「拉了没反应」会被读成故障。
+   ★ 边界：桌面鼠标环境不触发（只挂 touch 事件），不影响 Mac 壳。 */
+(function(){
+  var TH=80, sy=0, pulling=false, dist=0, bar=null;
+  function ensureBar(){
+    if(bar&&document.body.contains(bar))return bar;
+    bar=document.createElement('div');
+    bar.id='ptr-bar';
+    bar.style.cssText='position:fixed;left:0;right:0;top:0;height:0;overflow:hidden;'
+      +'background:linear-gradient(#1e3a5f,#0b0e14);color:#6ea8ff;font-size:12px;'
+      +'text-align:center;line-height:34px;z-index:500;transition:height .12s';
+    document.body.appendChild(bar);
+    return bar;
+  }
+  document.addEventListener('touchstart',function(e){
+    if(window.scrollY>0||!e.touches||!e.touches.length){pulling=false;return;}
+    sy=e.touches[0].clientY; pulling=true; dist=0;
+  },{passive:true});
+  document.addEventListener('touchmove',function(e){
+    if(!pulling||!e.touches||!e.touches.length)return;
+    dist=e.touches[0].clientY-sy;
+    if(dist<=0)return;
+    var b=ensureBar();
+    b.style.height=Math.min(dist/2,60)+'px';
+    b.textContent=(dist>TH)?'↓ 松手刷新':'↓ 下拉刷新';
+  },{passive:true});
+  document.addEventListener('touchend',function(){
+    if(!pulling)return;
+    pulling=false;
+    if(dist>TH&&bar){ bar.textContent='正在刷新…'; bar.style.height='34px'; location.reload(); }
+    else if(bar){ bar.style.height='0px'; }
+    dist=0;
+  },{passive:true});
+})();
 // ── Dashboard ──
 function renderRelations(){
   const box=$('view-relations');

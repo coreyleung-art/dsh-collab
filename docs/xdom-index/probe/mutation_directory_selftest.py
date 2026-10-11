@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""mutation_directory_selftest.py — 证明 xdom-directory.py 的 --selftest / 结构门【会变红】（v5，对 v0.4.3）
+"""mutation_directory_selftest.py — 证明 xdom-directory.py 的 --selftest / 结构门【会变红】（v6，对 v0.4.4）
 
 ★ 为什么必须有这一支
   本轮的教训（我对 int 的 S3）：一条控若不能被负控打红，它就是**空转绿**。
@@ -32,6 +32,14 @@
   ★ 且把**告警徽章粘进标题格**。★ M18 打回「截断不留痕」· M19 打回「告警粘回标题格」。
   ★ 两条各自的期望控**不同** —— ★ 只留一条会漏掉「干脆把告警删掉」那种改法。
 
+★ v6（对 v0.4.4）新增 M20 / M21 —— ★ 触发＝活板上**键序与时间序相反**的那一对：
+  `…T0330-…` 的名说 `03:30`、真时间却是 `02:35:13`，而 `…T032424-…` 才是 `03:24:24`。
+  ★ v0.4.3 及以前 §一 标题写「**时间倒序**」，实际做的是 `reversed(idx["posts"])` = **按键倒序**
+  ⇒ ★ **标题断言了数据没算的东西**，而两个真时间**并排印在同一张表里** ⇒ 矛盾在字面上。
+  ★ M20 把呈现序打回 `reversed(posts)` · M21 把轴标注打回「恒写一个轴」。
+  ★★ 与 M17/M18/M19 同一条教训：**这两条也只在【复刻活板形态】的夹具下才变红** ——
+    旧夹具里键序与时间序一致 ⇒ 打不打回都看不出来（★ 这正是它们此前一直没被发现的原因）。
+
 用法: python3 docs/xdom-index/probe/mutation_directory_selftest.py
 """
 import contextlib
@@ -58,6 +66,10 @@ SKEW_GUARD_LINE = '    if ts is not None and kts is not None:\n'
 # ★★ v0.4.3：渲染层的两个锚点（截断留痕 / 告警分列）
 CLIP_RET_LINE = '    return f"{s[:n]}…（原文 {len(s)} 字）"\n'
 SUBJ_CELL_LINE = '                 f"{_clip(p[\'subject\'], 44)} | {warns} |")\n'
+# ★★ v0.4.4：序轴层的两个锚点（呈现序 / 轴标注）
+RENDER_ORDER_LINE = ('    return sorted(posts, key=lambda p: (p["order_epoch"] is None, '
+                     '-(p["order_epoch"] or 0.0), p["key"]))\n')
+AXIS_LABEL_LINE = '        _axc = _AXIS_LABEL.get(p["order_axis"], p["order_axis"])\n'
 GATE_ANCHOR = 'LOG_PREFIX = NS + "/log/"\n'
 
 # ★ mode: "selftest"（比对 PASS/FAIL 是否变红） · "gate"（问门自己：注入的写请求有没有被拒）
@@ -130,6 +142,19 @@ MUTANTS = [
     ("M19 告警**粘回标题格**、告警列置空（★ 打回 v0.4.2 口径）", "selftest", SUBJ_CELL_LINE,
      '                 f"{p[\'subject\'][:44]}{warns} | — |")\n',
      "★★ 渲染正控：**告警不得混进标题格**"),
+
+    # ── ★★ v0.4.4 新加 2 条：把「呈现序跟真时间」与「逐行标轴」分别打回 v0.4.3 口径 ──
+    #    ★ 触发＝活板上**键序与时间序相反**的那一对（`…T0330-…` 名说 03:30、真时间 02:35:13，
+    #      而 `…T032424-…` 才是 03:24:24）。★ v0.4.3 及以前 §一 标题写「时间倒序」而实际按键倒序。
+    #    ★★ 与 M17/M18/M19 同一条教训：**这两条也只有在【复刻活板形态】的夹具下才会变红** ——
+    #      旧夹具里键序与时间序一致 ⇒ 打不打回都看不出来。
+    ("M20 §一 呈现序**打回键序**（★ 打回 v0.4.3 的 `reversed(posts)`）", "selftest",
+     RENDER_ORDER_LINE,
+     "    return list(reversed(posts))\n",
+     "★★ 序正控：**呈现序必须跟真时间**"),
+    ("M21 序轴标注**恒写一个轴**（★ 不再反映真实来源）", "selftest", AXIS_LABEL_LINE,
+     '        _axc = "板封"\n',
+     "★ 渲染轴控：只有键段可用的那行"),
 ]
 
 
