@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# artifact-commit.sh v2.0.0 — 「唯一副本止损」的【持续化机制】
+# artifact-commit.sh v2.0.1 — 「唯一副本止损」的【持续化机制】
 # 起因（2026-10-09 裁判节点② 复核指出）：一次性 `git add -f` 不是机制 ——
 #   「唯一副本止损是持续动作、不是一次动作」。
 #
@@ -30,6 +30,9 @@
 
 set -uo pipefail
 
+# ★ R006 ⑥ 版本【单一来源】—— 其余位置一律引用 $VERSION
+VERSION="2.0.1"
+
 DSH_LOG="$HOME/dsh-collab/logs/artifact-commit.log"
 dsh_log() {
     mkdir -p "$(dirname "$DSH_LOG")" 2>/dev/null
@@ -41,7 +44,7 @@ SECRET_RE='bb-token-[0-9a-z-]{6,}|ghp_[A-Za-z0-9]{20,}|app-v[A-Za-z0-9]{15,}|sk-
 
 usage() {
 cat <<'EOF'
-artifact-commit.sh v2.0.0 — 唯一副本止损的持续化机制
+artifact-commit.sh v2.0.1 — 唯一副本止损的持续化机制
 
   <路径...> -m "说明"        指定路径：add -f → commit → [公开性门] → push
   --snapshot                 定时快照：全放行面 add → commit（★ 恒不 push）
@@ -70,6 +73,26 @@ coverage_gate() {
     git status --porcelain 2>/dev/null | grep '^??' | head -12 | sed 's/^/           /'
     echo "           ★ 修法二选一：放进 .gitignore 白名单（⇒ 有第二副本），或在 .gitignore 里显式忽略（⇒ 设计排除）。"
     return 1
+}
+
+# ═══ ★「已知作废」指纹清单（v2.0.1）═══
+# ★ 为什么要它：★ 泄露值被**轮换作废后**，它仍留在**历史提交**里 ⇒ 公开性门会**永远报红**
+#   ⇒ ★ 一个永远红的门**等于没有门**（会被忽略或绕过）。
+# ★ 正解不是放宽门，是**把「活密钥外泄」与「已废值的历史残留」分开**：
+#   清单只收【已实测作废】的值的**指纹**（★ 不存明文），且**须附实测证据**。
+# ★ 判定「作废」的方法依 `docs/AGENT-NETWORK-CHARTER.md` §凭证分级 ③：
+#   **逐头隔离测试 + 正控**（★ 禁止用单一头的 401 推断「不可写」）。
+DENYLIST="$HOME/.dsh/token-denylist.json"
+
+hit_fp() {  # ★ 与制表侧同算法：sha256(令牌值) 前 8 位
+    local v; v="$(printf '%s' "$1" | grep -oE '[A-Za-z0-9_-]{16,}' | tail -1)"
+    [ -n "$v" ] || v="$1"
+    printf '%s' "$v" | shasum -a 256 | cut -c1-8
+}
+
+is_denylisted() {
+    [ -f "$DENYLIST" ] || return 1
+    grep -q "\"$1\": {" "$DENYLIST" 2>/dev/null
 }
 
 # ═══ ★ 公开性门（v2.0.0 新增 · 修缺陷①）═══
@@ -118,13 +141,23 @@ publicity_gate() {
     else
         rng="$ref"
     fi
-    hits="$(git diff -U0 "$rng" 2>/dev/null | grep -E "^\+" | grep -cE "$SECRET_RE" || true)"
-    if [ "${hits:-0}" -gt 0 ]; then
-        echo "  [BLOCK] ★★ 待推送内容命中【密钥样】${hits} 处 ⇒ ★ 拒绝 push（commit 保留）："
-        git diff -U0 "$rng" 2>/dev/null | grep -E "^\+" | grep -oE "$SECRET_RE" | sort -u | head -8 \
-            | while read -r v; do printf '           ★ %s…(len=%d)\n' "$(printf '%s' "$v" | cut -c1-12)" "${#v}"; done
+    local dead=0 live="" fp h
+    while IFS= read -r h; do
+        [ -n "$h" ] || continue
+        fp="$(hit_fp "$h")"
+        if is_denylisted "$fp"; then dead=$((dead+1)); else live="$live $fp"; fi
+    done < <(git diff -U0 "$rng" 2>/dev/null | grep -E "^\+" | grep -oE "$SECRET_RE" | sort -u)
+    if [ -n "$live" ]; then
+        echo "  [BLOCK] ★★ 待推送内容命中【未列入作废清单】的密钥样 ⇒ ★ 拒绝 push（commit 保留）："
+        for fp in $live; do printf '           ★ 指纹 %s\n' "$fp"; done
+        echo "           （已作废且已登记指纹的命中数 = ${dead}）"
         echo "           ★ 处置：轮换该凭据，或先 git reset --soft 摘掉该文件；★ 本门不代改内容。"
         return 1
+    fi
+    if [ "${dead:-0}" -gt 0 ]; then
+        echo "  [OK·已作废] 公开性门：命中 ${dead} 个值，★ 全部在【已知作废】清单内（附实测证据）"
+        echo "              ★ 清单：${DENYLIST}（0600）· ★ 这不是「无泄露」，是「泄露值已废」。"
+        return 0
     fi
     echo "  [OK]   公开性门：待推送内容未命中密钥样 ✅（★ 启发式，非保证）"
     return 0
@@ -187,7 +220,7 @@ lean4_check() {
 selftest() {
     local fails=0 undec=0 self_abs rc g
     self_abs="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
-    echo "== artifact-commit · --selftest（v2.0.0）=="
+    echo "== artifact-commit · --selftest（v$VERSION）=="
     ST_TMP="$(mktemp -d)"
     cd "$ST_TMP" || return 1
     git init -q . 2>/dev/null; git config user.email t@t; git config user.name t
@@ -239,10 +272,22 @@ selftest() {
         printf '  OK   %-58s %s\n' "N8 正控：safe_rm 肯删临时区内目录" "已删 ✅"
     else printf '  FAIL %-58s\n' "N8 正控：safe_rm 肯删临时区内目录"; fails=$((fails+1)); fi
 
+    # ⑨ ★ 指纹算法两侧一致（★ 否则清单形同虚设）
+    local known; known="$(hit_fp "tok = bb-token-20260829-macmini-abcdef")"
+    if [ "$known" = "$(printf 'bb-token-20260829-macmini-abcdef' | shasum -a 256 | cut -c1-8)" ]; then
+        printf '  OK   %-58s %s\n' "N9 hit_fp 与制表侧同算法" "$known ✅"
+    else printf '  FAIL %-58s\n' "N9 hit_fp 与制表侧同算法"; fails=$((fails+1)); fi
+
+    # ⑩ ★★ 负控：未登记的指纹必须【不被判为已作废】
+    #    ★ 否则「作废清单」会变成恒真放行 —— 门就废了
+    if is_denylisted "deadbeef" || is_denylisted "$(hit_fp 'bb-token-NEVER-REGISTERED-9999')"; then
+        printf '  FAIL %-58s 未登记却放行 ⇒ 门已恒真\n' "N10 负控：未登记指纹不得判作废"; fails=$((fails+1))
+    else printf '  OK   %-58s %s\n' "N10 负控：未登记指纹不得判作废" "正确拒绝 ✅"; fi
+
     cd /tmp || true
     safe_rm "$ST_TMP"; ST_TMP=""
     echo
-    echo "selftest: fails=$fails undecidable=$undec version=2.0.0"
+    echo "selftest: fails=$fails undecidable=$undec version=$VERSION"
     [ "$fails" -eq 0 ] && [ "$undec" -eq 0 ]
 }
 
@@ -253,11 +298,11 @@ cd "$(dirname "$0")/.." || exit 2
 
 case "${1:-}" in
   --help|-h|"")        usage; exit 0 ;;
-  --tool-version)      echo "2.0.0"; exit 0 ;;
+  --tool-version)      echo "$VERSION"; exit 0 ;;
   --selfcheck)
     echo "== artifact-commit 自查（TCC 能力边界）=="
     echo "【① 能力清单】"
-    echo "  · artifact-commit.sh v2.0.0 — 「唯一副本止损」的【持续化机制】"
+    echo "  · artifact-commit.sh v$VERSION — 「唯一副本止损」的【持续化机制】"
     echo "  · 指定路径 add -f → commit →【公开性门】→ push；--snapshot 恒不 push"
     echo "  · 覆盖率断言：无「未跟踪且未被忽略」的第三态"
     echo "【② 不该发生路径清单】"
