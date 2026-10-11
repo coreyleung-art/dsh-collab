@@ -132,11 +132,11 @@
    "evidence": [
     "blackboard:data/registry/continuity-index",
     "docs/deviation-ledger-20261011.md",
-    "~/.dsh/.agent-presets/standard-compact/agent.cordis.yml"
+    "/Users/coreyleung/.dsh/.agent-presets/standard-compact/agent.cordis.yml"
    ],
    "verifier": "★ **missing**：★ 仅「注入完成」这一子项可证；★★ **生效未验** ⇒ 另立 **C4-b**。★ 依 S3，本项不得重新计为「未做」。",
    "scope": "★ **仅限「注入」**（改 6 个预设）；★ 「生效」另立 C4-b",
-   "evidence_note": "★ 下列散文原在 `evidence` 数组里 ⇒ `beacon-check --net` 判 `C4 证据指针可解 = FAIL`（★ `resolve_evidence()` 只认 `blackboard:` / `agentsrc:` / 文件路径）。已改为：可解指针放 `evidence`，散文放本字段。| ★ 2026-10-12 实测：6/6 agent 预设的 persona.text 均含 continuity-index（覆盖率断言缺口=0）| ★ 回滚点 6 个：`guard/backups/*pre-c4*`| ★ 结构级验证：锚点命中 1 次 · 缩进一致 · 占位符未坏"
+   "evidence_note": "★ 下列散文原在 `evidence` 数组里 ⇒ `beacon-check --net` 判 `C4 证据指针可解 = FAIL`（★ `resolve_evidence()` 只认 `blackboard:` / `agentsrc:` / 文件路径）。已改为：可解指针放 `evidence`，散文放本字段。| ★ 2026-10-12 实测：6/6 agent 预设的 persona.text 均含 continuity-index（覆盖率断言缺口=0）| ★ 回滚点 6 个：`guard/backups/*pre-c4*`| ★ 结构级验证：锚点命中 1 次 · 缩进一致 · 占位符未坏 | ★★ 2026-10-12 修正：`~` 开头的路径【不可解】—— `beacon-check.py:114` 逐字 `p = (ROOT / ptr) if not ptr.startswith(\"/\") else Path(ptr)`，★ **不调 `expanduser()`** ⇒ 字面 `~` 被当相对段 ⇒ `ROOT/~/.dsh/…` ⇒ 必然不在。★ 已改为绝对路径。★ 由 `session-int-mbp` 跨机复跑指出。"
   },
   {
    "id": "C4-b",
@@ -933,7 +933,7 @@
  "resume_prompt_generator": "tools/mk-resume-prompt.py",
  "schema": "continuity-index/v1",
  "state_version": 6,
- "updated_at": "2026-10-12T03:34:49+08:00",
+ "updated_at": "2026-10-12T03:42:37+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {

@@ -301,8 +301,13 @@ function buildForceGraph(boxId,cvId,rel,big,onNodeClick){
      ★ 默认策略：≤768px 默认列表（小屏更可读），>768px 默认图谱（保持桌面原样）；
        用户手动切换后记住选择（localStorage），并优先于宽度默认值。 */
   try{
+    /* ★ 2026-10-12 P3：优先 URL 参数 ?graph=list|canvas（便于验证与分享链接），
+       其次 localStorage 记忆，最后按屏宽默认（≤768px 用列表）。 */
+    const q=(location.search.match(/[?&]graph=(list|canvas)/)||[])[1];
     const saved=localStorage.getItem('sg:graphListMode');
-    window.__graphListMode = (saved===null) ? (window.innerWidth<=768) : (saved==='1');
+    if(q==='list')        window.__graphListMode=true;
+    else if(q==='canvas') window.__graphListMode=false;
+    else                  window.__graphListMode=(saved===null)?(window.innerWidth<=768):(saved==='1');
   }catch(e){ window.__graphListMode = (window.innerWidth<=768); }
 
   if(!box.querySelector('.graph-mode-btn')){
@@ -1820,9 +1825,16 @@ function renderBlueprints(){
   // 📐 蓝图(库+详情): 左选右看, 点选即详情不留空
   const box=$('view-blueprints');
   box.innerHTML='';
-  const side=el('div','');side.style.cssText='display:flex;gap:16px;align-items:flex-start';
+  /* ★★★ 2026-10-12 P3b（手机体验·用户实报）：原来这里用【内联 display:flex】且【不带 class】，
+     而 CSS 里的断点写的是 `@media(max-width:1100px){.side{flex-direction:column}.list{width:100%}}`
+     —— 按 class 匹配 ⇒ **从未命中过任何元素（死 CSS）**。
+     后果（用户在手机上实报）：列表死占 250px、详情区仅剩 390−250−16 ≈ 124px
+     ⇒ 「点进具体图谱后右侧内容被挤压很严重很小」。
+     ⇒ 修法：把元素带上它本该有的 class（side / list），并把内联宽度交还给 CSS，
+        这样既有断点复活、且手机形态由 CSS 统一控制（竖屏改为横向条带）。 */
+  const side=el('div','side');
   // 左: 蓝图选择列表
-  const list=el('div','');list.id='bp-sel-list';list.style.cssText='width:250px;flex-shrink:0;max-height:78vh;overflow-y:auto';
+  const list=el('div','list');list.id='bp-sel-list';list.style.cssText='max-height:78vh;overflow-y:auto';
   ALL.blueprints.forEach(b=>{
     const li=el('div','li');li.dataset.bp=b.id;li.style.cssText='background:#141824;border:1px solid #232a3a;border-radius:10px;padding:9px 12px;margin-bottom:7px;cursor:pointer;font-size:12.5px';
     li.innerHTML='<b style="display:block;font-size:12.5px;color:#e8eaf0">'+b.id+'</b>'+
