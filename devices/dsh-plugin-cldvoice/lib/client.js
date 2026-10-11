@@ -1012,6 +1012,21 @@ window.__ModuleLoader__.load({
         background:'#0f172a',border:'1px solid #1e293b',borderRadius:12,color:'#cbd5e1',fontSize:13,
         boxShadow:'0 12px 40px rgba(0,0,0,.55)',zIndex:2147483645,display:'flex',flexDirection:'column',overflow:'hidden'};
 
+      // ★★★ 2026-10-12 加（用户实测原话：「那个进入对话态的交互还是没有改进，
+      //   我都不知道什么时候可以说话什么时候说话没用」）：
+      //   ★ 原状态提示全在【面板最底部】，且只是【按钮变色】⇒ 用户看不出「此刻能不能说话」。
+      //   ⇒ 加【顶部常驻状态条】：圆点 + 一句话，直接回答「现在能不能说」。
+      const talkState = s.rec
+        ? {dot:'#ef4444', bg:'rgba(239,68,68,.16)', text:'正在听你说话 —— 说完点下面的「⏹ 停止」'}
+        : (s.talk
+          ? {dot:'#22c55e', bg:'rgba(34,197,94,.16)', text:'现在可以说话 —— 点下面「🎙 说话」开始 · 发给「'+String(s.talk).slice(0,16)+'」'}
+          : {dot:'#64748b', bg:'rgba(100,116,139,.12)', text:'未在对话态 —— 此时说话不会发出去 · 点下面「💬 进入对话态」'});
+      const stateBar = React.createElement('div',{
+        style:{padding:'6px 12px',background:talkState.bg,borderBottom:'1px solid #1e293b',
+          color:'#e2e8f0',fontSize:11.5,fontWeight:600,display:'flex',alignItems:'center',gap:7},
+        onClick:(e)=>e.stopPropagation()},
+        React.createElement('span',{style:{width:8,height:8,borderRadius:4,background:talkState.dot,flexShrink:0}}),
+        React.createElement('span',{},talkState.text));
       const head=React.createElement('div',{style:{padding:'8px 12px',background:'#111c2e',borderBottom:'1px solid #1e293b',display:'flex',alignItems:'center',gap:8,fontWeight:600,color:'#6ea8ff'}},
         React.createElement('span',{},'🎙 语音会议记录'),
         (s.rows&&s.rows.length)?React.createElement('span',{style:{color:'#475569',fontSize:10,fontWeight:400}},(s.rows.length+' 条')):null,
@@ -1081,10 +1096,9 @@ window.__ModuleLoader__.load({
         React.createElement('div',{style:{display:'flex',gap:8}},
           React.createElement('button',{onClick:()=>toggleRec(),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.rec?'#ef4444':(s.talk?'#0ea5e9':'#10b981'),color:'#fff',cursor:'pointer',fontWeight:600}},
             // ★★★ 2026-10-12 修（用户实测原话：「进入对话态之后我没有交互按钮，也不知道我应该怎么样唤醒」）：
-            //   ● 按钮一直存在，但在面板最底部，且文案不体现对话态
-            //   ⇒ 用户进了对话态看不出该按哪里说话。
+            //   ● 按钮一直存在，但在面板最底部，且文案不体现对话态 ⇒ 用户看不出该按哪里说话。
             //   ⇒ 对话态下：按钮变蓝 + 文案写明「发给谁」。
-            s.rec?'⏹ 停止':(s.talk?('🎙 说话 → 发给「'+String(s.talk).slice(0,14)+'」'):'● 说话''● 说话')),
+            s.rec?'⏹ 停止':(s.talk?('🎙 说话 → 发给「'+String(s.talk).slice(0,14)+'」'):'● 说话')),
           React.createElement('button',{title:'用当前讨论出稿；若已有成稿，则按其底稿做增量修订（只改你提到的部分，不覆盖）',
             onClick:()=>makeDraft(),disabled:!!s.draftBusy,
             style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.draftBusy?'#475569':'#f5b942',color:'#0f172a',cursor:s.draftBusy?'default':'pointer',fontWeight:600}},
@@ -1121,7 +1135,7 @@ window.__ModuleLoader__.load({
           React.createElement('span',{style:{color:'#475569',fontSize:10}},
             s.autoSend?'（关掉即可在发送前修改）':'（默认：只填入，由你发送）')));
 
-      const panel=React.createElement('div',{style:panelStyle},head,body,foot);
+      const panel=React.createElement('div',{style:panelStyle},head,stateBar,body,foot);
       const ball=React.createElement('div',{ref:dragRef,title:'语音会议记录',style:ballStyle,
         onClick:(e)=>{ if(e.detail>1)return; if(movedRef.current){ movedRef.current=false; return; } setEng({open:!s.open}); }},'🎤');
 
