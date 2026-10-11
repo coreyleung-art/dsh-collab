@@ -2356,9 +2356,37 @@ function renderVersions(){
     const v=bps[b];
     html+='<tr><td>'+b+'</td><td><b>'+v.version+'</b></td><td>'+v.ts+'</td><td><a href="#" data-bp="'+b+'" onclick="event.preventDefault();openBp(this.dataset.bp)">查看架构图 ↗</a></td></tr>';
   });
-  html+='</table><h3 style="margin:18px 0 8px;font-size:14px">📋 版本日志（'+(ALL.versions?.entries||[]).length+' 条）</h3>';
-  let es=(ALL.versions?.entries||[]).slice().reverse().slice(0,40).map(e=>'<div class="ver-item"><b>'+e.action+' · '+e.bp+'</b> <span class="t">'+e.ts+'</span><div>'+e.detail+'</div></div>').join('');
-  box.appendChild(el('div','',html+es));
+  /* ★★ 2026-10-12 P8（逐页看图发现）：版本日志【与我自己的裁定不一致】。
+     现状：`slice(0,40)` 把当日 19 条**全摊**在页面上 —— 每条都是长描述，
+           手机上要滑很久。★ 而我在「10 件产物上页面」里的裁定明写：
+           **台账页 = 按状态聚合的计数 + 最近 N 条，不摊全文**。
+     ⇒ 本页按同一条裁定改：① 先给【按动作聚合的计数】② 再给【最近 8 条】
+       ③ 末尾一个【展开全部 N 条】按钮（下钻），而不是一上来全摊。 */
+  const allEntries=(ALL.versions?.entries||[]).slice().reverse();
+  const agg={};
+  allEntries.forEach(e=>{const a=e.action||'其他';agg[a]=(agg[a]||0)+1});
+  const aggTxt=Object.keys(agg).map(a=>'<span class="pill dim" style="margin-right:6px">'+a+' '+agg[a]+'</span>').join('');
+  html+='</table><h3 style="margin:18px 0 4px;font-size:14px">📋 版本日志（'+allEntries.length+' 条）</h3>'
+    +'<div style="font-size:11.5px;color:#8b90a3;margin-bottom:8px">按动作聚合：'+aggTxt+'</div>';
+  const RECENT=8;
+  const mk=arr=>arr.map(e=>'<div class="ver-item"><b>'+e.action+' · '+e.bp+'</b> <span class="t">'+e.ts+'</span><div>'+e.detail+'</div></div>').join('');
+  const wrap=el('div','');
+  wrap.innerHTML=mk(allEntries.slice(0,RECENT));
+  wrap.dataset.full='0';
+  const holder=el('div','',html);
+  holder.appendChild(wrap);
+  if(allEntries.length>RECENT){
+    const more2=el('button','','▾ 展开全部 '+allEntries.length+' 条');
+    more2.style.cssText='margin:8px 0;padding:6px 12px;font-size:12px';
+    more2.onclick=()=>{
+      const full=wrap.dataset.full==='1';
+      wrap.innerHTML=mk(full?allEntries.slice(0,RECENT):allEntries);
+      wrap.dataset.full=full?'0':'1';
+      more2.textContent=full?('▾ 展开全部 '+allEntries.length+' 条'):('▴ 只看最近 '+RECENT+' 条');
+    };
+    holder.appendChild(more2);
+  }
+  box.appendChild(holder);
 }
 function renderProjects(){
   // 🗂 项目视图 = 维度导航入口(不再重复蓝图卡片; 点维度 → 📐蓝图 定位该维度首蓝图)
