@@ -99,6 +99,12 @@ async function j(u){
   if(__STATIC){
     const r=await fetch(__apiFile(u),{cache:'no-store'});return r.json();
   }
+  /* ★ P5c 测试钩子 `?diag=offline`：强制跳过网络、直接走缓存兜底分支。
+     目的：让「离线态 UI」**可被截图验证**，而不是只做到「代码结构在位」。
+     ★ 位置很重要：必须放在【重验证分支之前】—— 否则模型版本命中时会先 return 缓存
+       （那条路径语义上属于「在线且数据新」，不是离线），钩子永远不触发。
+     ★ 只在带该参数时生效，不影响正常使用。 */
+  if(/[?&]diag=offline/.test(location.search)){ throw new Error('diag=offline 强制离线'); }
   // 2) ★ 模型版本重验证：版本未变且缓存新鲜 ⇒ 直接返回缓存，免去整段网络传输
   const _ep=(u.match(/^\/api\/([a-z0-9-]+)/)||[])[1];
   let _rev=null;                       // ★ 本次取回时的模型版本（供写入 ~ver 用）
@@ -123,10 +129,6 @@ async function j(u){
     }
   }
   // 3) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
-  /* ★ P5c 测试钩子 `?diag=offline`：强制跳过网络、直接走缓存兜底分支。
-     目的：让「离线态 UI」**可被截图验证**，而不是只做到「代码结构在位」。
-     ★ 只在带该参数时生效，不影响正常使用。 */
-  if(/[?&]diag=offline/.test(location.search)){ throw new Error('diag=offline 强制离线'); }
   try{
     const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
     const r=await fetch(__BASE+u,{signal:ctrl.signal});clearTimeout(t);
