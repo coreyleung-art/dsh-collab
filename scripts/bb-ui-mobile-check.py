@@ -183,6 +183,31 @@ def check_a4b(js_src, css):
     return True, "内联侧栏 %s 均在 768 断点内有处理" % [i[1] for i in items]
 
 
+# ══════════════ A7 · 不可丢失的修复（防回归断言）══════════════
+# ★★ 立此判据的原因（2026-10-12 实测）：本轮我**两次**在追加移动端规则时
+#    「替换」掉了已有的 `.detail{width:100%!important}`（P3b 的修复），
+#    两次都靠人眼比对才发现。⇒ **凡「改好了会被人改回去」的东西，都该有门。**
+#    ★ 这批断言查的是【修复的存在性】，不查样式是否好看 —— 存在性是可机械判定的。
+NONREGRESS = {
+    ".detail 竖屏独占整宽（P3b 用户实报的挤压修复）": ".detail{width:100%!important",
+    "asset-thumb 手机放大（P9）": ".asset-thumb{height:150px!important",
+    "状态条底部留白（P6）": "padding-bottom:calc(46px",
+    "状态条淡出（P6）": "opacity:.42",
+    "子tab 换行（P4c）": "flex-wrap:wrap!important",
+    "全宽化 620px 覆盖（P1）": "width:620px",
+    "安全区用基础值+inset（P1 修正·防桌面回归）": "calc(12px + env(safe-area-inset-top))",
+    "touch-action 去 300ms 延迟（P1）": "touch-action:manipulation",
+}
+
+
+def check_a7(css):
+    """★ 反向断言：这八条修复**必须仍在**。少一条 ⇒ FAIL（有人把它改回去了）。"""
+    missing = [k for k, v in NONREGRESS.items() if v not in css]
+    if missing:
+        return False, "★ 以下修复已被改动/丢失（疑似被覆盖回去）: %s" % missing
+    return True, "八条不可丢失的修复全部在位"
+
+
 # ══════════════ A1/A6 · 浏览器侧（横向溢出 / 首屏）══════════════
 def _chrome_render(url, out_html, mobile=True):
     if not os.path.exists(CHROME):
@@ -295,6 +320,7 @@ def main():
     ok, d = check_a3(py, css); rows.append(("A3  安全区在位", ok, d))
     ok, d = check_a4(js, css); rows.append(("A4  固定宽覆盖", ok, d))
     ok, d = check_a4b(js, css); rows.append(("A4b 内联侧栏解放", ok, d))
+    ok, d = check_a7(css);      rows.append(("A7  修复不得丢失", ok, d))
     if a.static_only:
         rows.append(("A1  横向溢出", None, "UNCOVERED（--static-only）"))
     else:

@@ -230,7 +230,22 @@ a{color:#6ea8ff;text-decoration:none}
   #ds-state.awake{opacity:1}
   #ds-state:active{opacity:1}
 
-  /* 详情区：竖屏独占整宽（原来被 250px 列表挤到约 124px）—— ★ 勿删：P3b 的修复 */
+  /* ── ★★ P9 图库缩略图：手机上【方向反了】────────────────────────────────
+     实测：`.asset-thumb` 基础（桌面）height:130px，而 768 档把它改成 **100px**、
+     480 档更小 ⇒ **手机上的缩略图比桌面还小**。
+     ★ 而这一页【图片就是内容本身】（架构图 / ER 图 / 节点网络图）——
+       100px 高的缩略图**看不清**，等于逼用户一张张点开。
+     ⇒ 手机档改为【放大】而不是缩小：2 列网格下每格约 170px 宽，150px 高更接近
+       架构图的可辨比例；点开后仍是 app 内已有的查看器（am-img 90vw × 78vh）。
+     ★ 教训：响应式不等于「小屏一律变小」——**当元素就是内容时，小屏应更大**。 */
+  .asset-thumb{height:150px!important}
+  .asset-thumb .ph{font-size:38px!important}
+  .asset-grid{gap:10px}
+  /* 卡片文字区对齐：标题最多 2 行，避免同排卡片高度参差 */
+  .asset-info b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;min-height:2.4em}
+
+  /* ★ 详情区：竖屏独占整宽（原来被 250px 列表挤到约 124px）—— ★ 勿删：P3b 的修复（曾被误删两次，已核回） */
   .detail{width:100%!important;min-width:0!important;box-sizing:border-box}
 
   /* ── ★ P4c 子tab 行：改为【换行】而不是横滑 ────────────────────────────────
