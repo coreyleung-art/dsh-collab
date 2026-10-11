@@ -144,7 +144,7 @@ if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
 
 
 # ═══ ★ R006 ⑥ 唯一版本声明处 ═══（★ 全文件**只此一处**，`--tool-version` 自动反查源码自证）
-VERSION = "0.4.3"
+VERSION = "0.4.4"
 
 
 import argparse
@@ -314,6 +314,59 @@ def _parse_keyts(s):
         return None
 
 
+# ═══ ★★ v0.4.4 序轴层：把「先后」与「名字」分开 ═══════════════════════════════
+#   ★ 触发：活板 2026-10-12 第 19/20 楼 —— `…T0330-…` 的名说 03:30、真时间 02:35:13，
+#     而 `…T032424-…` 才是 03:24:24 ⇒ ★ **键序与时间序在这一对上是反的**。
+#   ★★ 而本页 §一 的标题当时写着「**时间倒序**」，实际做的是 `sorted()` + `reversed()` = **按键倒序**
+#     ⇒ ★ **标题断言了数据没算的东西**；★ 且它把两个真时间**并排印在同一行里**
+#     ⇒ **页面自己推翻自己，矛盾在字面上**。（同族：判据的对象取错了。）
+_AXIS_LABEL = {"board": "板封", "field-ts": "自述ts",
+               "field-epoch": "自述ms", "key": "键段⚠"}
+
+
+def _epoch_of(v):
+    """⇒ epoch 秒（解析不了则 None）。★ 纯数字按**量级**判毫秒/秒（epoch 毫秒 > 1e11）。"""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, float)):
+        return (v / 1000.0) if v > 1e11 else (float(v) if v > 0 else None)
+    if isinstance(v, str) and len(v) >= 19:
+        return _parse_iso(v)
+    return None
+
+
+def _order_epoch(board_ts, m, key):
+    """⇒ (排序用 epoch 秒 | None, 实际用到的轴名)。
+
+    ★★ 轴的优先级 —— **从最不可自述，到最可自述**：
+      ① `board` —— 信封 `ts`，**服务器收到那一刻** ⇒ ★ 本板上**唯一不由写信方填**的时间；
+      ② `field-ts` / `field-epoch` —— 信里的 `ts` / `sent_at_epoch_ms` ⇒ ★ **写信方自己填的**；
+      ③ `key` —— 键段 ⇒ ★ **写信方自己取的名字**，比 ② 更弱（它连「这是时间」都不自称）。
+
+    ★ 三态：① ② **能算**；★ 落到 ③ 时**这一行的先后不是读出来的，是名字给的** ⇒
+      渲染层**必须把它标出来**（`键段⚠`），否则读者会把「名字的序」当成「事实的序」。
+    ★ 诚实附注：★ 今天**没有一例活板数据能区分 ① 与 ②**（活板两处 板封 ≡ 自述）——
+      ① 这一级**目前只有单测控**在护，**不是**由活板逼出来的。
+    """
+    for raw, axis in ((board_ts, "board"), (m.get("ts"), "field-ts"),
+                      (m.get("sent_at_epoch_ms"), "field-epoch")):
+        e = _epoch_of(raw)
+        if e is not None:
+            return e, axis
+    e = _parse_keyts(_key_ts(key) or "")
+    return (e, "key") if e is not None else (None, "key")
+
+
+def _render_order(posts):
+    """⇒ §一 的**呈现序**：真时间倒序，无时间者垫底（同时间按键序稳定）。
+
+    ★★ 为什么单列成一个函数（v0.4.4）：v0.4.3 及以前这里是 `reversed(idx["posts"])`，
+      而 `posts` 是**键序** ⇒ ★ 渲染出的「时间倒序」其实是**键序倒序**。
+      ★ 单列出来，变异探针才能**一行**把它打回旧口径（M20）。
+    """
+    return sorted(posts, key=lambda p: (p["order_epoch"] is None, -(p["order_epoch"] or 0.0), p["key"]))
+
+
 def _post_warnings(key, m, schema, ts, frm_ok, to_ok):
     """⇒ 该封的告警码列表。★ **不判哪个时间源权威** —— 只报「不一致」这个事实。"""
     out = []
@@ -426,12 +479,27 @@ def log(msg):
 
 
 # ═══ 取数（唯一外部依赖：一次 GET，list 里 value 内联）═══
-def fetch_list(base, prefix, timeout=40):
-    """GET <base>/<prefix> ⇒ {key: value}。★ 只读（GET）。"""
+def fetch_list(base, prefix, timeout=40, with_ts=False):
+    """GET <base>/<prefix> ⇒ {key: value}（`with_ts=True` 时 ⇒ `(values, {key: 板封 ts})`）。★ 只读（GET）。
+
+    ★★ v0.4.4：`with_ts=True` 时**连信封里的 `ts` 一起取回** ——
+      它是这块板上**唯一不由写信方填**的时间（**服务器收到那一刻**写的）。
+      ★ v0.4.3 及以前本函数**只留 `value`、把信封 `ts` 丢掉** ⇒ 排序没有独立时间可用，
+      退化成**键序**；★ 而键段是**写信方自己取的名字**，活板已证**可以与真实时间相反**
+      （`…T0330-…` 键名 03:30 / 真时间 02:35:13，而 `…T032424-…` 才是 03:24:24）。
+    """
     with urllib.request.urlopen(f"{base}/{prefix}", timeout=timeout) as r:
         d = json.loads(r.read().decode("utf-8"))
     lst = d.get("list", d)
-    return {k: (v.get("value", v) if isinstance(v, dict) else v) for k, v in lst.items()}
+    vals, bts = {}, {}
+    for k, v in lst.items():
+        if isinstance(v, dict):
+            vals[k] = v.get("value", v)
+            if isinstance(v.get("ts"), str) and v["ts"]:
+                bts[k] = v["ts"]
+        else:
+            vals[k] = v
+    return (vals, bts) if with_ts else vals
 
 
 def _ref_class(r):
@@ -555,10 +623,16 @@ def _undecidable(posts, inferred, dangling):
 
 
 # ═══ 聚合（纯函数）═══
-def build_index(logs, cursors):
+def build_index(logs, cursors, board_ts=None):
     """⇒ {posts[], edges_fact[], edges_inferred[], undecidable[], threading{}, unread{}, totals{}}。
 
-    ★ 时间序一律用**键序**（键前缀 `%Y%m%dT%H%M%S`）⇒ 不依赖各板 ts 解析差异。
+    ★ **`posts` 一律按【键序】建** —— ★ 这不是显示序，是**规则序**：
+      `_infer_edges` 的「顺序邻接」（P1 冻结 `infer:handoff-next-utterance-v1`）**定义在键序上**，
+      ★ 换排序会**改变那 7 条边** ⇒ ★ **不得为了让页面好看而改规则序**。
+    ★★ v0.4.4 起每封另带 `order_epoch` / `order_axis`：**呈现序**用**真时间**（`_render_order`），
+      ★ 只有 §一 的渲染层消费它 ⇒ **规则序与呈现序彻底分开**。
+      ★ v0.4.3 及以前两者是同一个 `reversed(posts)`，而标题写成「时间倒序」
+      ⇒ ★ 活板把 02:35:13 那封排到 03:24:24 **之上**，**标题与数据当场矛盾**。
     """
     keys = sorted(k for k in logs if k.startswith(LOG_PREFIX))
     alias = _build_alias(logs)                 # ★ v0.4：会话 ID ↔ 参与方名（语料内自证）
@@ -567,6 +641,8 @@ def build_index(logs, cursors):
         m = logs[k] or {}
         schema = _schema_of(m)
         ts, ts_src = _ts_of(m)
+        # ★★ v0.4.4：呈现序用**真时间**（板封 → 自述 → 键段），与上面的**规则序（键序）**分开
+        oe, oax = _order_epoch((board_ts or {}).get(k), m, k)
         ball_raw, ball_present = _ball_of(m)
         ball, ball_ok = _norm_party(ball_raw, alias)
         frm, frm_ok = _norm_party(m.get("from"), alias)
@@ -586,6 +662,7 @@ def build_index(logs, cursors):
                       "requires_reply": requires, "subject": m.get("subject") or "",
                       "ref": list(refs), "ref_fields": ref_fields,
                       "schema": schema, "ts_src": ts_src,
+                      "order_epoch": oe, "order_axis": oax,
                       "ball_present": ball_present, "ball_field": ("ball" if "ball" in m
                                                                    else ("awaiting" if "awaiting" in m
                                                                          else None)),
@@ -678,17 +755,29 @@ def render_md(idx, board):
           "| ★ **现在还欠谁一句** | ★ **不可判** | 需把「要求回复」降级为「已回」；"
           f" 事实边仅 **{T['edges_fact']}** 条 ⇒ 算不出来（见 §三 R1–R6） |", ""]
 
-    L += ["## 一、逐封账目（时间倒序 · ★ 只放**事实**，推断不在此表）", "",
-          "| 楼（键尾） | 时间 | schema | from→to | 球 | **要求回** | 标题 | 告警 |",
+    L += ["## 一、逐封账目（★ 序 = **真时间**倒序 · ★ 每行标出**读到的**轴 · ★ 只放**事实**，推断不在此表）", "",
+          "| 楼（键尾） | 时间 ⟨序轴⟩ | schema | from→to | 球 | **要求回** | 标题 | 告警 |",
           "|---|---|---|---|---|---|---|---|"]
-    for p in reversed(idx["posts"]):
+    # ★★ v0.4.4：呈现序用**真时间**（`_render_order`）。
+    #   ★ v0.4.3 及以前这里是 `reversed(idx["posts"])`（posts 是**键序**），标题却写「时间倒序」
+    #     ⇒ 活板把 `…T0330`（真时间 02:35:13）排到 `…T032424`（03:24:24）**之上**，
+    #     ★ 而两个真时间就并排印在同一张表里 ⇒ **页面自己推翻自己**。
+    for p in _render_order(idx["posts"]):
         # ★ v0.4.3：告警**移出标题格**（★ v0.4.2 及以前把它粘在标题后面 ⇒ 两样东西同格无分隔，
         #   ★ 读者会把「键格式告警」读成「标题的一部分」）。
         warns = ("⚠ " + " · ".join(p["warnings"])) if p["warnings"] else "—"
-        L.append(f"| `{_short(p['key'])}` | {p['ts']} | `{p['schema']}` | {p['from']}→{p['to']} | "
+        # ★★ v0.4.4：**把实际用到的轴印出来** —— ★ 落到 `键段⚠` 的那行，其先后**是名字给的**。
+        _axc = _AXIS_LABEL.get(p["order_axis"], p["order_axis"])
+        L.append(f"| `{_short(p['key'])}` | {p['ts']} ⟨{_axc}⟩ | `{p['schema']}` | {p['from']}→{p['to']} | "
                  f"{p['ball']} | {'★ **是**' if p['requires_reply'] else '否'} | "
                  f"{_clip(p['subject'], 44)} | {warns} |")
     L += ["",
+          "> ★★ **序轴怎么读**：`板封` = 服务器收到那一刻（★ **不由写信方填**）· "
+          "`自述ts` / `自述ms` = 信里**自己填的**时间 · **`键段⚠`** = **只有键名里有时间** "
+          "⇒ ★ 那一行的**先后是名字给的，不是读出来的**。",
+          "> ★ 活板实证（2026-10-12）：`…T0330-…` 键段说 `03:30`，真时间却是 `02:35:13`；"
+          "★ 而排在它**后面**的 `…T032424-…` 才是 `03:24:24` "
+          "⇒ ★ **这一对的键序与时间序是反的**（v0.4.3 及以前本页正是这样排的）。",
           "> ★ 「要求回=是」**不等于**「现在还欠」—— 前者是这封的属性，后者要看后面有没有人回过。"
           "本页**只印前者**。", ""]
 
@@ -930,6 +1019,35 @@ def _fixture_shortkey():
     }, {}
 
 
+def _fixture_key_vs_time():
+    """★★ v0.4.4 夹具：逐字复刻**活板 2026-10-12 第 19/20 楼那一对**的【键-时间关系】。
+
+    ★ 活板实形（★ **不是我编的**，两封都在板上）：
+      · `notes/xdom/log/20261012T0330-int-accepts-three-findings-and-answers-two`
+        —— 键段**短形态**、**名字说 `03:30`**，而 `sent_at_epoch_ms` = **02:35:13**；
+      · `notes/xdom/log/20261012T032424-int-discipline-triple-and-to-2bd0`
+        —— 键段**长形态**、`ts` = **03:24:24**。
+      ⇒ ★ **键序（T0324 < T0330）与时间序（02:35 < 03:24）正好相反。**
+
+    ★★ 为什么必须有它（★ 与 M17 同一条教训）：v0.4.3 及以前 §一 的标题写「**时间倒序**」，
+      而排序是 `reversed(idx["posts"])` = **按键倒序** ⇒ ★ 在这个夹具上
+      **标题与数据当场互相矛盾**；★ 而**旧夹具里键序与时间序是一致的** ⇒ 这个矛盾**根本看不见**。
+    """
+    return {
+        # ★ 长键段，键段 03:24:24 == ts 03:24:24（对齐）· 键序在前
+        LOG_PREFIX + "20261012T032424-int-longkey-aligned": {
+            "topic": "T-KT", "from": "int", "to": "ext", "ball": "ext",
+            "ts": "2026-10-12T03:24:24+08:00", "reply_required": True, "ref": [],
+            "from_session": "e317d6ab-5302-4b33-b095-947983ba16f4",
+            "subject": "长键段 · 键与 ts 对齐（时间上**较晚**）"},
+        # ★ 短键段，名字说 03:30 而真时间 02:35:13 · 键序在后、时间序在前
+        LOG_PREFIX + "20261012T0330-int-shortkey-skewed": {
+            "topic": "T-KT", "from": "int", "to": "ext", "awaiting": "ext",
+            "sent_at_epoch_ms": _ms_of("2026-10-12T02:35:13"), "reply_required": True,
+            "subject": "短键段 · 名字说 03:30，真时间 02:35:13（时间上**较早**）"},
+    }, {}
+
+
 def selftest():
     ok = fail = 0
 
@@ -1110,8 +1228,13 @@ def selftest():
     _rx_short = render_md(build_index({LOG_PREFIX + "20261012T060100-int-v9-shortsubj": {
         "topic": "T-RX", "from": "int", "to": "ext", "ts": "2026-10-12T06:01:00",
         "ball": "ext", "reply_required": True, "subject": "短的标题", "ref": []}}, {}), "local")
-    chk("…" not in _rx_short,
-        "★ 渲染**负控**：短标题 ⇒ **不得**出现「…」（证明上一条不是恒真）")
+    # ★★ v0.4.4 修一处**控的对象取宽了**：这条负控原来扫**整页** ——
+    #   ★ 页面别处只要印一个「…」它就**假红**。★ 本版 §一 的说明行里就有（`…T0330-…`）
+    #   ⇒ 它当场红了，而**它要管的其实只有【标题格】**。⇒ 现在只扫标题格。
+    _rs_rows = [ln.split("|") for ln in _rx_short.splitlines()
+                if ln.startswith("| `20261012T060100") and ln.count("|") == 9]
+    chk(bool(_rs_rows) and all("…" not in r[7] for r in _rs_rows),
+        "★ 渲染**负控**：短标题 ⇒ **标题格**不得出现「…」（证明上一条不是恒真）")
     # ★★ 告警必须**搬走**、不能被**丢掉** —— 用短键段夹具（它必产两条时间告警）
     _sk_logs, _ = _fixture_shortkey()
     _rx_w = render_md(build_index(_sk_logs, {}), "local")
@@ -1317,7 +1440,8 @@ def main(argv=None):
     L("run board=%s dry_run=%s guard=clean(%dB)" % (a.board, a.dry_run, nbytes))
     base = BOARDS[a.board]
     try:
-        logs = fetch_list(base, LOG_PREFIX)
+        # ★★ v0.4.4：连**信封 `ts`** 一起取 —— 它是本板上唯一**不由写信方填**的时间
+        logs, board_ts = fetch_list(base, LOG_PREFIX, with_ts=True)
         try:
             cursors = fetch_list(base, CUR_PREFIX)
         except Exception:
@@ -1327,10 +1451,15 @@ def main(argv=None):
         L("IO-ERROR board=%s %s: %s" % (a.board, type(e).__name__, e))
         return 2
 
-    idx = build_index(logs, cursors)
+    idx = build_index(logs, cursors, board_ts)
     t = idx["totals"]
-    L("ok board=%s posts=%d req_reply=%d fact=%d inferred=%d"
-      % (a.board, t["posts"], t["requires_reply"], t["edges_fact"], t["edges_inferred"]))
+    # ★ v0.4.4：把**序轴分布**也写进日志 —— ★ 落到 `键段⚠` 的行数一变多，就是板上时间源退化
+    _axc = {}
+    for _p in idx["posts"]:
+        _axc[_p["order_axis"]] = _axc.get(_p["order_axis"], 0) + 1
+    L("ok board=%s posts=%d req_reply=%d fact=%d inferred=%d axis=%s"
+      % (a.board, t["posts"], t["requires_reply"], t["edges_fact"], t["edges_inferred"],
+         ",".join(f"{k}:{v}" for k, v in sorted(_axc.items()))))
     print(json.dumps(idx, ensure_ascii=False, indent=1) if a.json
           else render_md(idx, a.board))
     return 0

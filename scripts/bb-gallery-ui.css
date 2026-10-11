@@ -209,4 +209,19 @@ a{color:#6ea8ff;text-decoration:none}
     font-size:11.5px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* 详情区：竖屏独占整宽（原来被 250px 列表挤到约 124px） */
   .detail{width:100%!important;min-width:0!important;box-sizing:border-box}
+
+  /* ── ★ P4c 子tab 行：改为【换行】而不是横滑 ────────────────────────────────
+     现状（768 断点内已有）：`.tabs{flex-wrap:nowrap;overflow-x:auto}` + 隐藏滚动条
+     ⇒ ★ 有 tab 藏在右侧而**用户不知道**（手机截图实证：「规则图谱」被切）。
+     ★ 选「换行」而不是「加箭头提示」的理由：每域**只有 4–5 个 tab**（实测 DASH 4 /
+       SYS 5 / GRAPH 5 / CARRIER 4），换行最多两排（约 70px 竖向代价）
+       ⇒ **全部可见，比让用户去猜/去滑更彻底**。
+     ★ 只有当极窄屏连一个 tab 都放不下时才仍会横滑 ⇒ 补一条右侧渐隐作为兜底提示。 */
+  .tabs{flex-wrap:wrap!important;overflow-x:visible!important}
+  .tab{flex:0 0 auto}
+  @media(max-width:340px){
+    .tabs{flex-wrap:nowrap!important;overflow-x:auto!important;
+      -webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent 100%);
+      mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent 100%)}
+  }
 }
