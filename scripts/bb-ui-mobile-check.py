@@ -44,7 +44,13 @@ BASE = "http://127.0.0.1:8798"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
 MOBILE_W = 390          # iPhone 16 Pro 逻辑宽
+# ★ 桌面专属词：这些词在桌面成立、在竖屏是错的（或不可能发生）
+#   滚轮/hover/右键/双击 —— 手机没有这些输入方式
 DESKTOP_WORDS = ("滚轮", "hover", "右键", "双击")
+# ★ 2026-10-12 追加（逐页看图发现）：「从左侧/右侧选择」这类【只在某一布局下成立的方位词】
+#   实例：蓝图详情占位文案写「从左侧选择蓝图」—— 而竖屏下列表已在【上方横条带】。
+#   ⇒ 判据：用户可见文案里不得出现与布局绑定的方位词。
+LAYOUT_WORDS = ("从左侧", "从右侧", "左侧选择", "右侧选择", "左边选择", "右边选择")
 
 # ★ 全部 18 个功能页（实测自活体页面 data-tab；用于 --all-pages 逐页查）
 ALL_PAGES = ("philosophy", "original", "workflow", "planarchive", "bp",
@@ -70,6 +76,9 @@ def check_a2(js_src, py_src):
             for w in DESKTOP_WORDS:
                 if w in t:
                     bad.append((name, w, t[:80]))
+            for w in LAYOUT_WORDS:                      # ★ 2026-10-12 追加：布局绑定方位词
+                if w in t:
+                    bad.append((name, "布局方位词:" + w, t[:80]))
     return (len(bad) == 0, bad)
 
 

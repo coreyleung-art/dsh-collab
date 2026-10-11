@@ -2018,7 +2018,11 @@ function renderBlueprints(){
   side.appendChild(list);
   // 右: 详情区(openBp 填充)
   const detail=el('div','detail');detail.id='bp-detail-area';detail.style.cssText='flex:1;min-width:0;background:#0d1119;border:1px solid #232a3a;border-radius:12px;padding:16px';
-  detail.innerHTML='<div style="color:#8b90a3;font-size:13px;padding:40px 0;text-align:center">📐 从左侧选择蓝图查看详情<br><span style="font-size:11px">架构图/鱼骨图/时间线/动态图</span></div>';
+  /* ★ 2026-10-12 P6（逐页看图发现）：原文案是「从**左侧**选择蓝图查看详情」——
+     ★ 那是【只在桌面成立】的方位词：竖屏下蓝图列表已在【上方横滑条带】，
+       而详情在下方 ⇒ 「左侧」在手机上是错的（与先前治的「滚轮/hover」同族）。
+     ⇒ 改为【两端都成立的中性措辞】。 */
+  detail.innerHTML='<div style="color:#8b90a3;font-size:13px;padding:40px 0;text-align:center">📐 点选蓝图查看详情<br><span style="font-size:11px">架构图/鱼骨图/时间线/动态图</span></div>';
   side.appendChild(detail);
   box.appendChild(side);
   // 深链/恢复: 若之前有选中 curBp, 重新打开
