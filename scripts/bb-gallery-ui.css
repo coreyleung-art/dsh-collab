@@ -143,9 +143,17 @@ a{color:#6ea8ff;text-decoration:none}
 
 /* ① 安全区：刘海 + 底部横条。★ 用 @supports 守卫，不支持 env() 的浏览器整块跳过 */
 @supports(padding:env(safe-area-inset-bottom)){
-  .top{padding-top:calc(10px + env(safe-area-inset-top))}
+  /* ★★ 2026-10-12 修正（自引入的桌面回归）：
+     原来写的是 `.top{padding-top:calc(10px + env(...))}` / `.foot{padding-bottom:calc(10px + env(...))}`，
+     而本块【无 media 限定】、按能力生效 ⇒ 在桌面上 env() 求值为 0 ⇒ 实际值变成 10px，
+     **覆盖掉基础 .top 的 12px 与 .foot 的 14px** ⇒ 桌面被我的安全区改动波及。
+     ⇒ 改为「**基础值 + inset**」：桌面逐像素恢复原状，手机仍拿到安全区补偿。
+       · .top 基础 padding:12px 20px ⇒ padding-top 取 12px
+       · .foot 基础 padding:14px 20px ⇒ padding-bottom 取 14px
+       · body 无基础 padding ⇒ 直接用 env() 正确（桌面为 0，无变化） */
+  .top{padding-top:calc(12px + env(safe-area-inset-top))}
   body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
-  .foot{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  .foot{padding-bottom:calc(14px + env(safe-area-inset-bottom))}
   /* ★ 2026-10-12 修正：这两个元素【锚点不同】，不可共用一条规则！
      · #ds-state  靠 bottom 锚定（右下角）⇒ 加 bottom 正确
      · #src-badge 靠 top 锚定（右上角）、【没有 bottom】⇒ 给它加 bottom 会让它

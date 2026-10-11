@@ -233,6 +233,8 @@ if(/[?&]diag=ls/.test(location.search)){
     d.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:#000;color:#7fff7f;'
       +'font:11px ui-monospace,monospace;z-index:9999;overflow:auto;padding:10px;white-space:pre-wrap';
     d.textContent='【localStorage 诊断】\n'
+      +'★ 视口: innerWidth='+window.innerWidth+' devicePixelRatio='+window.devicePixelRatio
+      +'  __graphListMode='+window.__graphListMode+'\n'
       +'键总数 = '+rows.length+'  · 总计≈'+(total/1024).toFixed(1)+' KB\n'
       +'sgcache:/api/* 键 = '+apiKeys+'   ·   ~ver 版本键 = '+hitKeys+'\n'
       +'__revalHits = '+(window.__revalHits||0)+'\n'
