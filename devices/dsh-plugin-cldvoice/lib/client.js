@@ -647,7 +647,11 @@ window.__ModuleLoader__.load({
       // ★★★ 2026-10-12 加（治「双入口同播」）：
       //   B 与 C 都轮询 /voice/replies 并都调 TTS ⇒ 同一句被念两遍，且 TTS 单线程被抢致超时。
       //   ⇒ 播报前先向后端【原子认领】；认领失败（已被另一边认领）就跳过，不再念。
-      const _ck = String(rep && rep.at || '') + '|' + txt.slice(0, 40);
+      // ★★★ 认领键必须与 C（菜单栏 APP）【逐字节一致】，否则两边各认领各的 ⇒ 仲裁形同没有
+      //   （用户实测「我听到两把不同的声音」）。
+      //   ★ 陷阱：/voice/replies 的 at 是浮点（如 1791737720011.232），
+      //     而 C 用 %.0f 取整 ⇒ 必须同样取整，否则 1791737720011.232 ≠ 1791737720011。
+      const _ck = String(Math.round(Number(rep && rep.at) || 0)) + '|' + txt.slice(0, 40);
       fetch('/voice/claim', { method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ key: _ck, who: 'B-floatball' }) })
         .then(function (r) { return r.json(); })
