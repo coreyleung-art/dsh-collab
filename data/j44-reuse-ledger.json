@@ -514,6 +514,14 @@
    "hits": 1,
    "note": "★ 不新建工具：在既有插件 dsh-plugin-agent-bus/lib/index.js 的 flushQueue()（:1382-1412）内加 expired>0 写卡；★ 告警卡形态复用既有 data/ops/drift-alert/<ts> 的键形与字段（type/from/ts/count）",
    "at": "2026-10-12T02:40:29"
+  },
+  {
+   "intent": "把跨域邮箱目录页生成器升到 v0.4.0（schema 适配 v1/v2、参与方归一、R7/R8、warnings、共线两栏、reply_to_key 计入事实边）",
+   "artifact": "docs/xdom-index/xdom-directory.py",
+   "verdict": "adapt",
+   "hits": 7,
+   "note": "适配既有的 channel-denominator/xdom-mail 同族只读派生口径；本工具不自建新载体、不写板",
+   "at": "2026-10-12T02:46:07"
   }
  ]
 }

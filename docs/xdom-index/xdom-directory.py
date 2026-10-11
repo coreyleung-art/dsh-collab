@@ -1089,10 +1089,22 @@ def registry_card():
         "path": "dsh-collab/docs/xdom-index/xdom-directory.py",
         "readme": "dsh-collab/docs/xdom-index/README.md",
         "what": "跨域邮箱只读目录页：把 notes/xdom/log/** 派生成目录页；边分 fact/inferred 两栏",
-        "board_write": "never（★ 结构门：源码无 PUT/POST/DELETE/PATCH · 无 Request(/method=/data=）",
+        # ★ 措辞**必须准确**：`PUT`/`POST` 这些**字面量确实出现在本文件里** ——
+        #   但只出现在**字符串**（正/负控样本、说明文字）中；结构门**先剥注释与字符串**再扫
+        #   ⇒ ★ 准确的说法是「**代码面（剥注释/字符串后）无写原语**」，**不是**「全文无此字面量」。
+        "board_write": "never（★ 结构门：**代码面**无写原语 —— 剥注释/字符串后扫描，"
+                       "无 Request( / method= / data= 调用点；"
+                       "★ 字面量 PUT/POST/DELETE 只出现在**字符串**（控的样本）里）",
         "unified_log": "~/dsh-collab/logs/xdom-directory.log",
         "r006": {"①": "N/A 独立脚本（声明偏离）", "②": "--selfcheck", "⑥": "--tool-version 自证单一来源",
                  "⑦": "统一日志", "⑧": "本卡", "⑩": "--lean4-check A–F"},
+        # ★ ⑧ 的缺口**写在卡上**，不藏在 README 里 —— 谁都不会因为少一条链而拿不到页，
+        #   但**谁都得知道这条链现在是 pull-only**
+        "r006_8_gap": "★ pull-only（有已知风险）：本工具只**打印**登记卡，"
+                      "**没有**把 `data/registry/xdom-directory` 推上板的能力（源码无写原语）"
+                      "⇒ 该链目前只能由**人/别的工具 pull 后落地**。",
+        "schema_support": ["v1: ts/ball/ref/from_session",
+                           "v2: sent_at_epoch_ms/awaiting/reply_to_key/thread/from_label_hint"],
         "created": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }, ensure_ascii=False, indent=1))
     return 0
