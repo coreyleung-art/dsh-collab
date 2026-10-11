@@ -193,8 +193,12 @@ python3 -I tools/bb_dualwrite.py --key data/registry/xdom-directory \
     --json-file .tmp-xdom-baseline/card-044.json --writer ext-claude-code
 # ⇒ ok key=data/registry/xdom-directory writer=ext-claude-code retry=0 equal=True elapsed=1435ms
 ```
-★ **独立回读（写/观测分离 E20/E23）**：两板 `PUT=200 GET=200` · `version=0.4.4` · 两板 `_sha` 相等 = **`1af68b7d0d9c4ccb`**。
+★ **独立回读（写/观测分离 E20/E23）**：两板 `PUT=200 GET=200` · 两板 `_sha` 相等 = **`1af68b7d0d9c4ccb`**。
 ★ **写者必须 ASCII**（§5.2 那条坑）。
+★★ **两处 `version` 不是一回事**（★ 前几轮我在这里写含糊过 ⇒ 现在拆开写）：
+★ **信封 `version` = `4`** —— ★ **板上的单调修订号**（第 4 次写这条键）；
+★ **卡内字段 `version` = `"0.4.4"`** —— ★ **工具版本**。★ 二者**同名不同物**，★ 引用时必须说是**哪一个**。
+★ **同族**：★★ **判据的对象取错了**（★ 台账 §11.4 那行写的是「卡 `version=0.4.4`」，★ 指的是**卡内字段**；★ 台账只增不改，故在该处**不重写**，**在此说清**）。
 
 ### 7.6 ★★ 信：**改过一次才发**（★ 本轮最该记的一条）
 
