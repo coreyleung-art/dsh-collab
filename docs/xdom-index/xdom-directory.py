@@ -210,17 +210,29 @@ def _fact_edges(posts):
     """★ 事实边：`ref` 指向 `notes/xdom/log/**` **且目标键确实存在**。
 
     ⇒ 返回 (边列表, 悬空数)。★ 悬空 = 看起来像信键、但板上查无此键 ⇒ **不算事实边**，单列。
+
+    ★★ **方向（写死，别猜）**：边 **A → B** 表示「**B 的 `ref` 逐字含有 A 的键**」
+       ⇒ 即 **`src` = 被引用的那封（更早），`dst` = 发出引用的那封（更晚）**。
+       ★ 与 P1 冻结件 `line-rule-evidence-20261012.md` §三 的 `#14 → #15` **同向**
+         （该件原文：「`#15` 的 `ref` = `#14` 的键」）—— ★ 两件必须能逐条对上，否则读的人会以为矛盾。
+    ★ **它断言的是「B 自称承自 A」**（引用自证），★ **不是**「B 是 A 的回复」——
+       引用是作者自己留的字据；「回复」是更强的断言，事实边**不替它作保**。
     """
     have = {p["key"] for p in posts}
+    order = {p["key"]: i for i, p in enumerate(posts)}
     edges, dangling = [], 0
-    for p in posts:
-        for r in (p.get("ref") or []):
+    for b in posts:
+        for r in dict.fromkeys(b.get("ref") or []):        # ★ 去重：同一封里重复列同一个键只算一条
             if not (isinstance(r, str) and r.startswith(LOG_PREFIX)):
+                continue                                   # ★ 非信键形态 ⇒ 归 path/other，不进事实边
+            if r not in have:
+                dangling += 1                              # ★ 悬空：像信键但板上查无此键
                 continue
-            if r in have:
-                edges.append({"src": p["key"], "dst": r, "kind": "fact", "via": "ref"})
-            else:
-                dangling += 1
+            if r == b["key"]:
+                continue                                   # ★ 自指不计
+            edges.append({"src": r, "dst": b["key"], "kind": "fact",
+                          "via": "dst.ref → src", "declared_at": b["key"],
+                          "src_earlier": order[r] < order[b["key"]]})
     return edges, dangling
 
 
@@ -333,9 +345,11 @@ def build_index(logs, cursors):
         "threads": sorted(({"topic": t, "posts": n} for t, n in topics.items()),
                           key=lambda x: (-x["posts"], x["topic"])),
         "threading": {"topics": len(topics), "topics_reused": len(reused),
-                      "ref_edges_to_letters": ref_cls["letter"],
+                      "ref_edges_to_letters": ref_cls["letter"],   # 信键【形态】的 ref 条数
                       "ref_to_paths": ref_cls["path"], "ref_other": ref_cls["other"],
                       "dangling_letter_refs": dangling,
+                      "ref_resolved": len(facts),                   # ★ 落地成事实边的条数
+                      "ref_identity": "信键形态 ref = 事实边 + 悬空（+ 自指/重复，本语料通常为 0）",
                       "ball_eq_to": collinear, "posts_seen": len(posts)},
         "unread": unread,
         "totals": {"posts": len(posts), "requires_reply": len(owed),
@@ -379,14 +393,21 @@ def render_md(idx, board):
 
     L += ["## 二、边（★ 两栏分开 —— 事实 / 推断）", "",
           f"### 2.1 事实边（**{T['edges_fact']}** 条 · `ref` 回指且目标键存在 · 可核）", "",
-          "| 源（键尾） | → 目标（键尾） | 依据 |", "|---|---|---|"]
+          "★ **方向读法（写死）**：**A → B** = 「**B 的 `ref` 逐字含有 A 的键**」"
+          "⇒ **A 是更早那封，B 是发出引用的那封**（与 P1 冻结件 §三 同向）。",
+          "★ 它断言的是「**B 自称承自 A**」—— ★ **不是**「B 是 A 的回复」。", "",
+          "| 更早（A · 被引用） | → 更晚（B · 发引用） | 依据 | A 早于 B？ |", "|---|---|---|---|"]
     if idx["edges_fact"]:
         for e in idx["edges_fact"]:
-            L.append(f"| `{_short(e['src'])}` | `{_short(e['dst'])}` | `{e['via']}` |")
+            L.append(f"| `{_short(e['src'])}` | `{_short(e['dst'])}` | `{e['via']}` | "
+                     f"{'是' if e['src_earlier'] else '★ **否**'} |")
     else:
-        L.append("| —— | —— | ★ 本语料**没有**事实边 |")
-    L += ["", f"> ★ 另有 **{TH['dangling_letter_refs']}** 条 `ref` 看着像信键、**板上查无此键** ⇒ "
-          "**不计入事实边**（悬空引用）。", ""]
+        L.append("| —— | —— | —— | ★ 本语料**没有**事实边 |")
+    L += ["",
+          f"> ★ 对账式：信键**形态**的 `ref` **{TH['ref_edges_to_letters']}** 条 "
+          f"= 事实边 **{TH['ref_resolved']}** + 悬空 **{TH['dangling_letter_refs']}**"
+          "（+ 自指/重复，本语料通常为 0）。",
+          "> ★ **悬空** = 看着像信键、**板上查无此键** ⇒ **不计入事实边**。", ""]
 
     L += [f"### 2.2 推断边（**{T['edges_inferred']}** 条 · ★ 顺序邻接，**不是回复** · 未写板）", "",
           f"规则 `{RULE_ID}`（{RULE_NAME}）："
@@ -572,7 +593,9 @@ def selftest():
     chk(E["totals"]["edges_fact"] == 1, "★ 边控：事实边 = 1（只有 k1→k3 那条 ref 回指且目标存在）")
     chk(E["edges_fact"][0]["src"] == K("20261010T100000", "ext-k1")
         and E["edges_fact"][0]["dst"] == K("20261010T120000", "int-k3"),
-        "★ 边控：事实边逐字是 k1 → k3")
+        "★ 边控：事实边逐字是 **k1 → k3**（src=被引用=更早 · dst=发引用=更晚）")
+    chk(E["edges_fact"][0]["src_earlier"] is True,
+        "★ 边控：事实边带「A 早于 B」实测 = True（★ 方向若反了这条也会红）")
     chk(E["threading"]["dangling_letter_refs"] == 1,
         "★ 边控：悬空信键 ref = 1（k4 指向板上不存在的键）⇒ **不计入事实边**")
     chk(E["totals"]["edges_inferred"] == 4,
