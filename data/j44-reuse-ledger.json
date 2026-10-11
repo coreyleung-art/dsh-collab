@@ -522,6 +522,70 @@
    "hits": 7,
    "note": "适配既有的 channel-denominator/xdom-mail 同族只读派生口径；本工具不自建新载体、不写板",
    "at": "2026-10-12T02:46:07"
+  },
+  {
+   "intent": "做运行时载荷指纹门：改动前后比对端点载荷指纹(形状+计数+长度)，塌缩即红",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:00:40"
+  },
+  {
+   "intent": "做可失败性门：正控+反控+变异检验，证明判据会红",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:00:50"
+  },
+  {
+   "intent": "改动前后断言：基线绿 且 改点命中 且 改后红",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:00:50"
+  },
+  {
+   "intent": "建一个检测假绿的工具",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:00:51"
+  },
+  {
+   "intent": "对端点响应做指纹并在改动前后比对",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:00:51"
+  },
+  {
+   "intent": "契约快照",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:01:06"
+  },
+  {
+   "intent": "can-fail",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:01:07"
+  },
+  {
+   "intent": "变异检验",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:01:07"
   }
  ]
 }

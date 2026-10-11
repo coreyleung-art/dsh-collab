@@ -274,13 +274,21 @@ def _parse_iso(s):
 
 
 def _parse_keyts(s):
-    """★ v0.4.1：两种长度都试（`%Y%m%dT%H%M%S` → `%Y%m%dT%H%M`）；都不成才 None。"""
-    for fmt in ("%Y%m%dT%H%M%S", "%Y%m%dT%H%M"):
-        try:
-            return time.mktime(time.strptime(s, fmt))
-        except (ValueError, TypeError):
-            continue
-    return None
+    """⇒ 键段时间的 epoch 秒。★ 按**长度**选格式：13 位 = `%Y%m%dT%H%M` · 15 位 = `%Y%m%dT%H%M%S`。
+
+    ★★ 为什么**不能**写成「先试长的、失败再试短的」（v0.4.1 实测踩到）：
+      ★ Python 的 `%M` / `%S` 都**接受 1–2 位**数字 ⇒
+      `strptime("20261012T0305", "%Y%m%dT%H%M%S")` **不报错**，
+      而是把 `0305` 拆成 `03:00:05`（★ **静默**、错 5 分钟）
+      ⇒ 判据会拿一个**假时间**去比 ⇒ ★ 这本身就是一条「判据取错对象」。
+    """
+    fmt = {13: "%Y%m%dT%H%M", 15: "%Y%m%dT%H%M%S"}.get(len(s))
+    if fmt is None:
+        return None
+    try:
+        return time.mktime(time.strptime(s, fmt))
+    except (ValueError, TypeError):
+        return None
 
 
 def _post_warnings(key, m, schema, ts, frm_ok, to_ok):
@@ -1016,6 +1024,10 @@ def selftest():
     chk(W_KEY_VS_FIELD not in _al["warnings"],
         "★ 负控：短键段**且**时间对齐（键 03:05 == epoch 03:05）⇒ **不得**亮"
         "（★ 证明上一条不是「短键段就必亮」的恒真判据）")
+    chk(_parse_keyts("20261012T0305") == _parse_iso("2026-10-12T03:05:00"),
+        "★★ 解析控：短键段必须解析成 **03:05:00** —— ★ 若图省事写成「先试 15 位格式、失败再试 13 位」，"
+        "`strptime('20261012T0305','%Y%m%dT%H%M%S')` **不报错**，会把 `0305` 拆成 **03:00:05**"
+        "（★ `%M`/`%S` 接受 1–2 位）⇒ 静默错 5 分钟 ⇒ 判据拿到假时间")
 
     # ★ R8 正控：造一封 `to` 是**合法会话 ID 但映射表里没有** 的信
     _unk = "session-ffffffff-ffff-ffff-ffff-ffffffffffff"

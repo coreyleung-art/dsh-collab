@@ -1,6 +1,6 @@
 # xdom-directory.py · 跨域邮箱只读目录页生成器（本目录 `docs/xdom-index/` 的中文描述文档）
 
-> 版本 **0.4.0**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
+> 版本 **0.4.1**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
 > 路径 `~/dsh-collab/docs/xdom-index/xdom-directory.py`
 > ★ 本文件满足 R039（工具中文描述文档）——★ **本目录此前没有 README，是欠账，2026-10-12 由外部线 `ext` 补**。
 > ★ 变更历史见同目录 `CHANGELOG.md`（R006 ⑥）。
@@ -17,8 +17,15 @@
 ⇒ v0.2 不再假装有「帖」，改为**把三个读数当证据印出来**，并**明确标出哪一条算不出来**。
 
 ★★ **v0.4.0 的触发事件不是设计评审，是活板上的一封真信**：第 16 楼用的是**另一套字段名**（v2），
-而本工具按 v1 读 ⇒ **把那封真信读成空信** ⇒ 旗舰读数报 **0**（实际是 `ext` 欠 `int` 一句）。
+而本工具按 v1 读 ⇒ **把那封真信读成空信** ⇒ `requires_reply` 少算、**R6 报 0**（实际是 `ext` 欠 `int` 一句）。
 ★ **本线自评：这是第 6 次「判据的对象取错了」** —— 判据没错，**取字段取错了**。
+
+★★ **v0.4.1 的触发事件同样不是评审，是把 v0.4.0 与活板对了一遍**：v0.4.0 里那条
+「键段 vs 字段时间不符」告警，**在活板上一次都没亮过** —— 因为它的判据只认 **15 位**键段
+（`%Y%m%dT%H%M%S`），而**活板第 17/18 楼的键段只有 13 位**（`20261012T0240`）⇒ 检查**整段被跳过**。
+★ 而 v0.4.0 的夹具用的是 15 位键 ⇒ **它复刻的键形态活板上并不存在** ⇒ 那条控是**空转**的，
+`N PASS / 0 FAIL` 把这件事**盖住了**。v0.4.1 修判据 + 新增**复刻活板键形态**的夹具，
+★ 并新增变异 **M17**（打回旧口径 ⇒ 必须变红）⇒ 活板告警 **2 → 4 条**。
 
 ★ **本工具不为让页面好看而造线**：推测性聚类会把**事实**混成**作者的推断**，
 这正是本线一直在挑对端的那类毛病（S3：判据守错了对象）⇒ 宁可报「不可判」。
@@ -83,16 +90,25 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
    ★ **查不到就记 R8、原样保留、绝不猜**。
 6. ★ **同一封信三个时间源可能互不一致**（键段 / 正文自述 / `sent_at_epoch_ms`）。
    ⇒ 现策略：**只报不一致（`W-KEY-VS-FIELD-TS`），不判哪个权威**。
-7. ★ **键段格式也不止一种**：有的键是 `%Y%m%dT%H%M%S`，有的只有 `%Y%m%dT%H%M`
+7. ★ **键段格式也不止一种**：有的键是 15 位 `%Y%m%dT%H%M%S`，有的只有 **13 位** `%Y%m%dT%H%M`
    ⇒ 后者会亮 `W-KEY-TS-FORMAT`。★ **不猜、不补零**。
+   ★★ **但「认出它是短格式」不等于「可以不查时间」（v0.4.1 修）**：
+   v0.4.0 把短格式丢进 `kts is None` 分支 ⇒ ④⑥ 的时间比对**整段跳过** ⇒
+   那条点名要亮的告警**在活板上一次都没亮过**。★ 现在短格式**照发格式告警、也照做时间比对**。
+8. ★★ **解析短键段时不要图省事写「先试长格式、失败再试短格式」**（v0.4.1 实测踩到）：
+   ★ Python 的 `%M` / `%S` 都**接受 1–2 位**数字 ⇒
+   `strptime("20261012T0305", "%Y%m%dT%H%M%S")` **不报错**，而是把 `0305` 拆成 **`03:00:05`**
+   ⇒ **静默错 5 分钟**，判据拿去比的就是一个**假时间**。
+   ⇒ 现按**长度**选格式（13 位 / 15 位），并配一条**解析控**（`_parse_keyts("20261012T0305")`
+   必须等于 `03:05:00`）。★ 同族：**判据取错对象**。
 
 ## ⑤ 复现命令
 
 ```bash
 cd ~/dsh-collab
-python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 47 PASS / 0 FAIL
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 51 PASS / 0 FAIL
 python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"        # 期望 6/6 绿
-python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（15/15）
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（16/16）
 python3 scripts/doc-cn-check.py docs/xdom-index/README.md                     # R039 机械判据
 ```
 
@@ -107,10 +123,14 @@ python3 scripts/doc-cn-check.py docs/xdom-index/README.md                     # 
 | `README.md` | 本文件（R039 中文描述文档） |
 | `CHANGELOG.md` | 变更日志（R006 ⑥） |
 | `xdom-directory.py` | 生成器（**只 GET**；★ 写原语在**代码面**为零，字面量仅见于控的样本字符串） |
-| `probe/mutation_directory_selftest.py` | **变异探针 v3**：证明生成器的自检与结构门**会变红**（15 变异，含 gate 模式） |
+| `probe/mutation_directory_selftest.py` | **变异探针 v4**：证明生成器的自检与结构门**会变红**（16 变异，含 gate 模式） |
 | `xdom-directory-20261012.md` | 本机板渲染出的目录页（可随时重生成） |
 | `line-rule-evidence-20261012.md` | P1 定桩证据件：「球权交接 ⇒ 回复链」**被实测打掉** |
 | `P2-preflight-20261012.md` | P2 开工前说明书（合规前置 · 范围变更 · 裁决点） |
 
-★ **本 README 的清单以 `ls docs/xdom-index/` 为准** ——
-★ v0.3.0 版 README 曾列过一个**并不存在**的文件（`xdom-directory-finding-20261012.md`）⇒ 已删。
+★ **本 README 的清单以 `ls docs/xdom-index/` 为准**。
+★★ **一处措辞更正（v0.4.1）**：v0.4.0 版 README 曾写「v0.3.0 列过一个**并不存在**的文件
+（`xdom-directory-finding-20261012.md`）」—— ★ **那句话是错的**：
+该文件**存在**，只是位于**上一级** `docs/xdom-directory-finding-20261012.md`，
+**不在** `docs/xdom-index/` 下。★ v0.3.0 README 的错是**把上一级的路径写进了本目录清单**，
+**不是**文件不存在。⇒ ★ 这正是本线反复自曝的那一族：**只扫了一个面，就下了全局否定**。

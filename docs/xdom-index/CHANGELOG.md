@@ -8,6 +8,75 @@
 
 ---
 
+## [0.4.1] 2026-10-12 · ★ 触发事件是**把 v0.4.0 与活板对了一遍**（不是评审，是实测）
+
+**触发**：落盘 v0.4.0 后按惯例做「落盘物 vs 活板」对照 ⇒ ★ 发现 **v0.4.0 自己宣称「必亮」的那条告警，
+在活板上一次都没亮过**。
+
+★ 活板 `notes/xdom/log/**` 的两封 v2 信，键段**只有 13 位**（`20261012T0240` / `20261012T0330`，
+`%Y%m%dT%H%M`，**只到分钟**）；而 `_KEY_TS_RE` 只认 **15 位**（`%Y%m%dT%H%M%S`）
+⇒ 短键段落进 `kts is None` 分支 ⇒ ★ **「键段 vs 字段时间不符」这条检查整段被跳过**。
+★★ 而 v0.4.0 里点名「键段 02:40 vs epoch 02:02:02 ⇒ 差 38 分钟 ⇒ **必亮**」的那封信，
+**恰恰就是短键段的那封** ⇒ ★ **实测活板 warnings 仅 2 条，全是 `W-KEY-TS-FORMAT`**，那条一条都没有。
+
+★ **本线自评：又是「判据守错了对象」，而且这次更难看 —— 连控都是空转的**：
+v0.4.0 的 v2 夹具用的是 **15 位**键（`…T024000`）⇒ ★ **它复刻的键形态活板上根本不存在**
+⇒ `N PASS / 0 FAIL` **把这件事盖住了**。（对照旧账：这条控当时是被变异 M15 打红过的 ——
+★ **说明「能被变异打红」也不等于「复刻了活板」**。两条要一起满足。）
+
+### 改动
+
+| # | 改动 | 它的**控制**是什么 |
+|---|---|---|
+| ① | **短键段也解析**：新增 `_KEY_TS_SHORT_RE`（13 位）；`_key_ts` 两种都返回 | 夹具控 + 变异 **M17**（打回旧口径 ⇒ 必须变红） |
+| ② | **格式告警照发、时间检查不再跳过**：短形态 → `W-KEY-TS-FORMAT`（语义不变），但下面那段时间比对**不再 `elif` 掉** | 正控（短键段 02:40 vs epoch 02:02:02 ⇒ 差 38 分钟 ⇒ **必须**亮） |
+| ③ | **按长度选解析格式**（13→`%Y%m%dT%H%M`，15→`%Y%m%dT%H%M%S`） | ★ **解析控**：见下面「自己踩的第二个坑」 |
+| ④ | **新增夹具 `_fixture_shortkey()`**：逐字复刻**活板真实键形态**（13 位），两封 —— 一封差 38 分钟、一封对齐 | 正控（必亮）**+ 负控**（对齐 ⇒ **不得**亮，证非恒真） |
+| ⑤ | 措辞更正：★ **不再把 R6 叫「旗舰读数」** | 〇表的旗舰是「现在还欠谁一句」，v0.3.0/v0.4.0 **都印「不可判」**；R6 是「最新一封天然「尚未被回」」 |
+| ⑥ | README 措辞更正：v0.4.0 说 `xdom-directory-finding-20261012.md`「**并不存在**」—— ★ **那句话是错的** | 实测：该文件**在**，位于**上一级** `docs/`，只是 v0.3.0 把它错列进了 `docs/xdom-index/` 清单 |
+
+### ★★ 落这一版时**自己踩的第二个坑**（★ 一并记下，因为它是同族）
+
+「短键段怎么解析」最省事的写法是「**先试 15 位格式，失败再试 13 位**」—— ★ 实测**不报错，但答案是错的**：
+
+```
+>>> time.strptime("20261012T0305", "%Y%m%dT%H%M%S")   # ★ 不抛异常
+time.struct_time(... tm_hour=3, tm_min=0, tm_sec=5 ...)     ⇒ 解析成 03:00:05（错 5 分钟）
+```
+
+★ 原因：Python 的 `%M` / `%S` **接受 1–2 位**数字 ⇒ `0305` 被拆成 `03` + `0` + `5`。
+★★ ⇒ 若照那样写，判据会拿一个**静默错 5 分钟的假时间**去比 —— ★ **判据取错对象**的同族。
+⇒ 现按**长度**选格式，并配**解析控**（`_parse_keyts("20261012T0305")` 必须等于 `03:05:00`）。
+
+### 活板实测（同一时刻，v0.4.0 → v0.4.1）
+
+| 读数 | v0.4.0 | **v0.4.1** |
+|---|---|---|
+| `warnings` 条数 | **2**（全是 `W-KEY-TS-FORMAT`） | **4** ⇒ ★ 两封 v2 信**各自**多出 `W-KEY-VS-FIELD-TS` |
+| 其余读数 | 18 楼 · 要求回 11 · 事实边 4 · 推断边 9 · 共线 18/18 · 归一后参与方 2 | ★ **全部不变**（★ 本次只动告警，不动账目） |
+
+### 复跑（★ 自包含绝对路径 · 不含 `/tmp`）
+
+```bash
+cd /Users/coreyleung/dsh-collab
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"          # 期望 51 PASS / 0 FAIL, rc=0
+python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"       # 期望 6/6 绿, rc=0
+python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"      # 期望 0.4.1
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"  # 期望 16/16 变红, rc=0
+python3 -I docs/xdom-index/xdom-directory.py --dry-run --json | python3 -c \
+  "import sys,json; d=json.load(sys.stdin); print(len(d['warnings']), d['warnings'])"   # 期望 4 条（含 2 条 VS-FIELD）
+```
+
+★ **本版对照旧版跑法**（★ v0.3.0 可从自动快照取回，用于核「改前/改后」而不是只信记述）：
+```bash
+cd /Users/coreyleung/dsh-collab
+git log --oneline -- docs/xdom-index/xdom-directory.py          # 找 VERSION 为 0.3.0 的那个快照
+git show <sha>:docs/xdom-index/xdom-directory.py > ~/dsh-collab/.tmp-xdom-baseline/xdom-directory-v030.py
+python3 -I ~/dsh-collab/.tmp-xdom-baseline/xdom-directory-v030.py --dry-run --json | head -c 400
+```
+
+---
+
 ## [0.4.0] 2026-10-12 · ★ 触发事件是**活板上的一封真信**，不是设计评审
 
 **触发**：活板 `notes/xdom/log/**` 长出**第 16 楼**（`…int-s3-reproduced-and-conceded`），
@@ -25,7 +94,7 @@
 | ② | **参与方归一**：剥 `session-` 前缀 + **语料内自证**映射（v1 信自己声明的 `(from, from_session)` 对） | 归一键控 + 变异 **M13**（不剥前缀 ⇒ 变红）· ★ **不猜**：归一不了**原样保留**并记 R8 |
 | ③ | **R7**：`reply_required=true` 但**两套球权字段都缺** ⇒ 旧口径**静默丢弃** | R7 正控（造一封无球权的 rr 信 ⇒ R7=1）**与**负控（正常夹具 ⇒ R7=0，证非恒真） |
 | ④ | **R8**：参与方归一失败 | R8 正控：`to` 是合法会话 ID 但映射表里没有 ⇒ R8=1，**且原样保留不猜** |
-| ⑤ | **`warnings` 五种**：`W-UNKNOWN-SCHEMA` / `W-NO-TIME` / `W-PARTY-UNRESOLVED` / `W-KEY-TS-FORMAT` / `W-KEY-VS-FIELD-TS` | 告警控（键段 02:40 vs epoch 02:02:02 ⇒ 差 38 分钟 ⇒ 必亮）· 变异 **M15** · ★ **不判哪个时间源权威**，只报不一致 |
+| ⑤ | **`warnings` 五种**：`W-UNKNOWN-SCHEMA` / `W-NO-TIME` / `W-PARTY-UNRESOLVED` / `W-KEY-TS-FORMAT` / `W-KEY-VS-FIELD-TS` | 告警控（键段 02:40 vs epoch 02:02:02 ⇒ 差 38 分钟 ⇒ 必亮）· 变异 **M15** · ★ **不判哪个时间源权威**，只报不一致 **★ 勘误（v0.4.1）：本条控在 0.4.0 里是【空转的】** —— 夹具用 15 位键，而活板那封信的键是 **13 位** ⇒ 该告警在活板上一次都没亮过。见上方 `[0.4.1]`** |
 | ⑥ | **共线读数两栏并印**：`ball_eq_to`（归一后）与 `ball_eq_to_raw`（原始串比） | ★ **归一非空转控**：两栏**必须不同**（活板实测 18/18 vs 16/18） |
 | ⑦ | **`reply_to_key` 计入事实边**，逐边标 `via`（`dst.ref → src` / `dst.reply_to_key → src`） | 事实边控 + 变异 **M14**（丢掉 `reply_to_key` ⇒ 变红） |
 
