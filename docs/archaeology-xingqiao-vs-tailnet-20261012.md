@@ -233,3 +233,176 @@ git log --format="%h %ad" --date=short --all -- docs/ | tail -1          # d7a6f
 ---
 
 *本件为【证据 + 三态判定】，不是最终裁定。★ 不宣布任何事项已闭合。*
+
+---
+
+# 补遗 · 第二轮换面重跑（2026-10-12 03:1x）
+
+> **出件**：同一子代理 `136de40c-5ef3-4fba-b852-eb896435d7cc` 的**第二轮**（★ 换方法：★ **不再从 `docs/` 起搜，改为先建全量候选面**）
+> **落盘**：2026-10-12T03:1x · 星桥第二任代落
+> ★★ **本补遗【不改上文】** —— ★ 上文是**第一轮的如实记录**；★★★ **本补遗推翻其中一处结构性判断**。
+> ★ 本线已亲验本补遗的关键读数（★ 见 §补四）。
+
+## 补〇 · 两个元层面的坑（★ 影响任何复跑者）
+
+**坑 1 · 自污染。** ★★ **本件（上一轮报告）已被落盘，成了文档库内的文件**：
+```
+$ ls -la docs/archaeology-xingqiao-vs-tailnet-20261012.md
+-rw-r--r--  1 coreyleung  staff  27919 Oct 12 02:15
+$ grep -ciI "xingqiao\|tailscale\|tailnet" docs/archaeology-xingqiao-vs-tailnet-20261012.md
+63
+```
+★ ⇒ 它使 `docs/` 从 **616 → 623**、`xingqiao` 计数 **+19 行** ⇒ ★★ **两轮计数【不可直接比】**；★ 本轮已**全部剔除自指件**。
+★★ **本线的责任**：★ 这是我按「探明就落档」指令落盘造成的 —— ★ **落盘件会反过来成为下一轮的面。**
+
+**坑 2 · 假阳性陷阱（★ 必做，否则会误判「最早 xingqiao」）。**
+★ 板 KV 里 `data/investigate/lbs-poi-alignment`（ts `2026-09-01T09:03:36`）含 `xingqiao` —— ★★ **但原文是字段名 `for_xingqiao`（指【角色】「星桥」），不是服务器名** ⇒ **假阳性**。
+★★ 另有方法学更正：★ **KV 的 `ts` 是【末次写】而非【首现】**。
+
+## 补一 · ★★★★★ 本轮的钥匙：设计的起点【不叫 xingqiao】
+
+★★ **它叫 `comm-server`，定案于 2026-09-03（用户定案），落笔于 2026-09-04T02:16:42 / 02:17:32** ——
+★★★ **早于字面量 `xingqiao` 首现（09-06 19:07）【2 天 17 小时】。**
+
+★ **新扫的两个面（第一轮完全没扫）**：
+- ★ `data/blueprint/`（蓝图本体 · 8 个 .md）
+- ★ `token-monitor/blackboard/snapshot.json`（★ **本机板全量 KV 66,273 键 + 时间戳**）
+
+★★ **最早成文逐字**（`data/blueprint/agent-network/blueprint-agent-network-v1.3.md`）：
+- `:5`｜`> 依据：research/agent-network-blueprint-candidate.md + **用户定案 2026-09-03**（永续通讯根治·彻底持久化工作流）+ comm-server-blueprint-task-1788459402432 + i9 失联教训（心跳假阳性/数据分叉/无自动健康 ack）`
+- `:26`｜`- **comm-server**：通讯根治线（新·用户定案） — 独立 hub-spoke 通讯服务器：单一事实源 + 统一裁决健康 + 三端独立连接`
+- `:35`｜`1. **通讯星型中心化**：黑板 :8792 在 mac-mini——i9/MBP 全连 mac-mini，mac-mini 异常 = 全网断`
+- `:42`｜`- cs0-1 架构定案 [done] — hub-spoke：独立服务器中心，mac-mini/i9/MBP 各自独立连接；单一事实源 + 服务器统一裁决健康…；mac-mini 重启不影响 i9/MBP`
+- `:57`｜`- cs3-1 mac-mini 接入 [todo] — 连 comm-server，**黑板降级为本地缓存/只读归档**`
+
+★ **原始任务卡**（★ 从 KV 66,273 键中找到）：`notes/session-f38244df/comm-server-blueprint-task-1788459402432` ——
+★ **板 `ts` 与【键名 epoch】均为 `1788459402432` = 2026-09-04T02:16:42**（★ 逐字相同）。
+★ 其 `value.content` 逐字：
+> `【用户要求】把跨设备通讯架构根治作为持久化蓝图项目推进（用户原话：彻底持久化工作流，别再每次手修）。`
+> `①现状缺陷（用户亲自指出）：通讯星型中心化在 mac-mini 黑板 :8792——i9/MBP 都连 mac-mini，mac-mini 异常=全网断；...`
+> `②用户方向（可行性已验证）：独立通讯服务器 hub-spoke——...；mac-mini/i9/MBP 三端各自独立连接；单一事实源 + 服务器统一裁决健康`
+> `**③备选：i9 desktop-p8e7op1 在 Tailscale 直连可达（100.118.15.71，8ms，SSH22 开）——无独立服务器时先建机器直连通道 + 双心跳标准健康协议**`
+
+★★★ **⇒ 在最早的任务卡里：中枢 = 【② 号方向】；Tailscale 直连 = 【③ 号「备选」】，前置条件是「无独立服务器时」。**
+
+## 补二 · ★★★★★ 推翻上一轮的一处【结构性判断】
+
+★ 上文 §七 判定：「**两者被显式分层的唯一成文出处 = `perpetual-comms-convergence-plan-v2.md:22-23`（09-08）** ⇒ **在该分层口径下「互补」成立**」。
+
+★★ **本轮更正**：★★★ **更早（09-04）的成文不是「互补」，而是「主 + 备（带退役计划）」** ——
+- `blueprint-agent-network-v1.3.md:43`｜`- cs0-2 备选方案评估 [done] — i9 desktop-p8e7op1（100.118.15.71，8ms，SSH22 开）——**无独立服务器时先建机器直连通道** + 双心跳标准健康协议`
+- `:47`｜`- cs1-2 直连备选 [todo] — i9 机器直连通道（Tailscale 100.118.15.71 已验证可达）——**若服务器就绪则此线降级为 fallback 文档**`
+
+★★ **⇒ 最早成文里，Tailscale 直连与中枢不是「各担不同功能的双轨」，★★★ 而是【同一条功能轴上的主方案与备选方案】，且备选明写了退役计划。**
+★★ **⇒ 「互补」口径最早只见于 09-08（`channel-map.py` 的三分法），★★★ 晚于「主/备」4 天。**
+
+★★ **另补：SOP 最早（09-04）就把中枢访问控制写成【仅 Tailscale/白名单】**
+`blueprint-agent-network-v1.3.md:84`｜`3. 端口开放 + 访问控制(仅 Tailscale/白名单)`
+★ ⇒ ★★ **这比 09-11 的 tailnet-only 方案又早 2 个月。**
+
+## 补三 · ★★ 「双轨」的【原义】不是 xingqiao vs tailnet
+
+★ `comm-server/dual-track-plan-v1.md:1` 标题自述 `# Comm-Server 双轨制接入方案 v1（cs3 · 用户选定）`，★ 而其「双轨」逐字是 `本机黑板主（8ms）+ 中枢跨设备（40-180ms 公网）`。
+★ `channel-map.py:92` 又证 `("i9/MBP → mac 直连黑板", "tailscale", "100.120.203.20:8792")` —— ★ **tailnet 是【本机黑板那条轨】的传输手段**。
+★★ **⇒「xingqiao vs tailnet 双轨」是 2026-10-02 才出现的【后起语义】。**
+
+## 补四 · ★★ 本轮新增的三条正面材料（★ 第一轮未读）
+
+**① 可核验的互补判据（三分法）** —— `comm-server/channel-map.py`
+```
+:8    tailscale: 对端 IP 属 100.x 网段 (tailnet)
+:9    server:    对端 = xingqiao 106.53.214.108 (公网)
+:124  判读: 实时消息(SSE/黑板直连)=tailscale; 信封队列/心跳/注册=server; 本机agent=local
+```
+**② 互备矩阵（★ 既是互补也是冗余）** —— `comm-server/migration-plan-v1.md`
+```
+:4    > 原则：**同步双轨、本地通道维持、备灾不抹旧**（R031 通讯永续 + Φ9 约束前置）
+:12   I1 本地通道永不抹除（双轨并行，**非替换**）——中枢挂→本地照常
+:63   | 服务器挂 | 服务器通讯层 | **本地 bb-sub + 本机黑板照常** | 自动 |
+:64   | mac-mini 挂 | 本地黑板 | **服务器通讯层接管**（i9/MBP 直连中枢） | 需配置 fallback 地址 |
+```
+**③ 用户级原方向 D02（2026-09-08）** —— `data/registry/user-direction-scan-20260909-022441`
+> `| D02 | 2026-09-08 | **区分 Tailscale vs 服务器路径**；消息管理/分发路由做多设备污染隔离 | done | 4 | 0 |`
+★★ ⇒ **用户原方向就是「区分」，不是合并「互补」。**
+
+## 补五 · ★★ 暴露漂移的记录★★【前移一个月】
+
+★ 上文所引最早的暴露记录是 10-08 / 10-12。★★ **本轮在板 KV 里找到更早的两件**：
+- ★ `data/registry/internal-docs-publicly-readable-access-control-invalid-20260910`（ts **2026-09-10T15:28:22**）
+- ★★ `data/registry/central-blackboard-anonymous-public-write-20260913` —— 逐字：
+> `"anonymous_write_proved": "从本机(公网)直接 PUT http://106.53.214.108:8792/<ns>/<key> → 200（data/registry 与 notes/ 两个命名空间各一次），DELETE 亦 200；探针键已删净（回读 404）"`
+> `"sibling_service_has_auth": "同机 8791（总线桥）无 token 返回 401 —— 同一台机器上两个服务一个 401 一个敞开"`
+> `"recommendation": "安全组收回「全部端口」，改为仅放行 80/443（...）；黑板自身加 token 或★ **改绑私网（Tailscale）** 是★ **设计层决定**，需用户裁"`
+
+★★★ **⇒ 结论：★ 暴露面早在【2026-09-13】就被实测并写成卡，★★ 且当时就把「改绑 Tailscale」提为设计层选项** —— ★★ **本线 2026-10-12 的发现，是同一个问题的【第二次报告】，而不是首次发现。**
+
+## 补六 · ★ 两条如实并列、不合并的活体事实
+
+★ **① `/data/` 体积两次读数不同**：
+```
+第一轮：central /data/ ⇒ 200 size=15961831
+本  轮：central /data/ ⇒ 200 size=8895504      （−7.07 MB）
+```
+★★ **⇒ 同一端点、同一命令、两次读数不同。★ 本补遗【不主张原因】**（★ 可能是键清理/回收/迁移），★ **仅如实并列登记** —— ★ 按章程不许两值合并成一句。
+
+★ **② 本线的 curl 不是干净的外部视角**（★ 与台账 D-073 一致）：★ `route -n get default` ⇒ `interface: utun5`（代理/VPN 类）⇒ ★★ **「公网可达」的裁定应引台账的 tcpdump 第三方视角**（`eth0 In IP 120.230.80.3.9225 > 10.1.0.14.8792: Flags [S]`），★ **不得据本机 curl 单独下判**。
+
+## 补七 · ★★ 最终表述（三态 · ★ 取代上文 §七 的单一结论）
+
+★★ **在「2026-09-04 最早成文」口径下** ⇒ ★★★ **「互补」【不成立】**（当时是**主/备**，且备选带退役计划）。
+★★ **在「2026-09-08 ~ 09-09 三分法」口径下** ⇒ ★★ **「互补」【成立】**，★ 且**用户原方向 D02 即要求「区分」**。
+★★ **「自始至今稳定互补」** ⇒ ★ **不成立**。
+★★ **「自始设计为可互换冗余」** ⇒ ★ **也不成立**（09-09 明文禁止当备胎）。
+
+★ ⇒ ★★ **本线的「互补」直觉，在 09-08 之后的实现口径下是对的；★★ 但在【最早的设计意图】下，Tailscale 直连是【备用方案】—— ★ 这两件事同时为真。**
+
+## 补八 · 复跑（本补遗新增部分）
+
+```bash
+cd /Users/coreyleung/dsh-collab
+
+# ★ 钥匙：蓝图地层（比 docs/ 早 2 天 17 小时）
+sed -n '5p;26p;35p;42p;43p;47p;57p;84p' data/blueprint/agent-network/blueprint-agent-network-v1.3.md
+
+# ★ 板端 KV 原件（键名 epoch 与板 ts 逐字相同）
+python3 - <<'PY'
+import json,datetime
+d=json.load(open("token-monitor/blackboard/snapshot.json",encoding="utf-8",errors="replace"))
+st=d["state"]; print("KV 键数:",len(st))
+k="notes/session-f38244df/comm-server-blueprint-task-1788459402432"
+print("ts=",st[k]["ts"]); print(json.dumps(st[k]["value"],ensure_ascii=False,indent=1))
+print("键名 epoch ->", datetime.datetime.fromtimestamp(1788459402.432).isoformat())
+print("blueprint 板端 ts=", st["data/blueprint/agent-network"]["ts"])
+PY
+
+# ★ 互补/互备正证
+sed -n '8p;9p;92,98p;124p' comm-server/channel-map.py
+sed -n '4p;12p;63p;64p'    comm-server/migration-plan-v1.md
+
+# ★ 暴露漂移（比上文所引早一个月）
+python3 - <<'PY'
+import json
+d=json.load(open("token-monitor/blackboard/snapshot.json",encoding="utf-8",errors="replace"))
+st=d["state"]
+for k in ["data/registry/central-blackboard-anonymous-public-write-20260913",
+          "data/registry/internal-docs-publicly-readable-access-control-invalid-20260910"]:
+    print("="*60); print(k,"| ts=",st[k]["ts"]); print(json.dumps(st[k]["value"],ensure_ascii=False,indent=1)[:1000])
+PY
+
+# ★ 自污染复核
+grep -ciI "xingqiao\|tailscale\|tailnet" docs/archaeology-xingqiao-vs-tailnet-20261012.md   # 63（衍生物）
+
+# ★ 假阳性陷阱复现
+python3 - <<'PY'
+import json
+d=json.load(open("token-monitor/blackboard/snapshot.json",encoding="utf-8",errors="replace"))
+for k,v in d["state"].items():
+    s=json.dumps(v,ensure_ascii=False)
+    if "xingqiao" in s and (v.get("ts") or "").startswith("2026-09-01"):
+        print(v.get("ts"),"|",k)   # → for_xingqiao（指角色，非服务器）⇒ 假阳性
+PY
+```
+
+---
+
+*★ 本补遗为【证据 + 三态】，★ 不主张已闭合。★ 上文 §七 的单一结论以本补遗 §补七 为准。*
