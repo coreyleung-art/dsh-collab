@@ -75,15 +75,24 @@ function __apiFile(u){ // /api/xxx → api/xxx.json(静态模式路径)
    ★ 兜底：即使版本未变，缓存超过 10 分钟也强制重取（防「模型版本该变而未变」）。 */
 const __MODEL_VER_BACKED={overview:1,blueprints:1,relations:1,versions:1,agents:1};
 const __REVAL_MAX_AGE=10*60*1000;
-async function __modelVer(){
-  if(window.__mver!==undefined)return window.__mver;
-  window.__mver=null;
-  try{
-    const r=await fetch(__BASE+'/api/model-status',{cache:'no-store'});
-    const m=await r.json();
-    if(m&&m.version!=null)window.__mver=m.version;
-  }catch(e){}
-  return window.__mver;
+/* ★★★ 2026-10-12 实测修正（并发 bug，本线自己的）：
+   原实现用 `window.__mver=null` 作哨兵，而 init() 用 Promise.all 同时发起
+   **5 个**模型端点 ⇒ 第一个调用把 __mver 置 null 并开始取，**其余 4 个看到
+   null（≠undefined）就立刻返回 null** ⇒ 它们拿到 v=null ⇒ 不重验证、
+   且把 ~ver 存成 null。
+   实测症状：第二次加载只「复查命中 1 项」而非 5 项；诊断显示 ~ver 键值均为 0.0 KB（即 "null"）。
+   ⇒ 正确做法是【缓存 promise】而不是缓存值：所有并发调用者 await 同一个 promise。
+   实测修正后：第二次加载命中 5 项。 */
+function __modelVer(){
+  if(!window.__mverP){
+    window.__mverP=(function(){
+      return fetch(__BASE+'/api/model-status',{cache:'no-store'})
+        .then(function(r){return r.json()})
+        .then(function(m){return (m&&m.version!=null)?m.version:null})
+        .catch(function(){return null});
+    })();
+  }
+  return window.__mverP;
 }
 async function j(u){
   // 1) 静态模式(CloudBase): 直接读本地 json 文件
@@ -92,8 +101,10 @@ async function j(u){
   }
   // 2) ★ 模型版本重验证：版本未变且缓存新鲜 ⇒ 直接返回缓存，免去整段网络传输
   const _ep=(u.match(/^\/api\/([a-z0-9-]+)/)||[])[1];
+  let _rev=null;                       // ★ 本次取回时的模型版本（供写入 ~ver 用）
   if(_ep&&__MODEL_VER_BACKED[_ep]){
     const v=await __modelVer();
+    _rev=v;
     if(v!=null){
       const cv=__cacheGet('~ver'+u), c=__cacheGet(u), ts=__cacheGet('~ts'+u)||0;
       const young=(Date.now()-ts)<__REVAL_MAX_AGE;
@@ -118,7 +129,7 @@ async function j(u){
     if(r.ok){
       const d=await r.json();
       __cacheSet(u,d);                                 // 写缓存
-      __cacheSet('~ver'+u,window.__mver);              // ★ 记下取回时的模型版本
+      __cacheSet('~ver'+u,_rev);                       // ★ 记下取回时的模型版本（不再用 window.__mver，已改为 promise 缓存）
       __cacheSet('~ts'+u,Date.now());                  // ★ 记下取回时刻（TTL 兜底用）
       __dataState.mode='online';__dataState.online=true;
       __dataState.stamp=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
