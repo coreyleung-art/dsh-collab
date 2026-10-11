@@ -64,21 +64,29 @@ def _mins(hhmm):
 
 
 def audit(ledger=LEDGER):
+    """★ 「时刻」列 vs git 真实（★ 两个字段都锚定在 T 之后；通配位标不可比）"""
     t = git_first_times(ledger)
     rows = []
     for did in sorted(t):
         w = written_time(did, ledger)
         if not w:
             continue
-        wm = re.search(r'(\d{2}):(\d{2})', w)
+        # ★★ 锚定 T：旧写法会在通配时刻时【滑到时区】+08:00 并抓到 08:00
+        wm = re.search(r'T(\d{2}):([0-9x]{2})', w)
         rm = re.search(r'T(\d{2}):(\d{2})', t[did]["time"])
         if not wm or not rm:
             continue
+        if 'x' in wm.group(2):
+            rows.append({"id": did, "written": "%s:%s" % (wm.group(1), wm.group(2)),
+                         "real": "%s:%s" % (rm.group(1), rm.group(2)),
+                         "delta_min": None, "wildcard": True,
+                         "note": "★ 台账写的是通配时刻 ⇒ 不可精确比对"})
+            continue
         d = _mins("%s:%s" % (wm.group(1), wm.group(2))) - _mins("%s:%s" % (rm.group(1), rm.group(2)))
         rows.append({"id": did, "written": "%s:%s" % (wm.group(1), wm.group(2)),
-                     "real": "%s:%s" % (rm.group(1), rm.group(2)), "delta_min": d})
+                     "real": "%s:%s" % (rm.group(1), rm.group(2)),
+                     "delta_min": d, "wildcard": False})
     return rows
-
 
 def cmd_table(as_json=False):
     t = git_first_times()
@@ -117,12 +125,22 @@ def cmd_audit(as_json=False):
     print("== 「时刻」列审计（★ 列 vs git）==")
     if not rows:
         print("  ★ 无对比数据 ⇒ 【不可判】（★ 分母为 0，不得读作通过）"); return 0
-    bad = 0
+    bad = 0; wild = 0
     for r in rows:
-        tag = "— 一致" if r["delta_min"] == 0 else ("★ 列比真【晚】%d 分" % r["delta_min"] if r["delta_min"] > 0 else "★ 列比真【早】%d 分" % (-r["delta_min"]))
-        if r["delta_min"] != 0: bad += 1
+        d = r.get("delta_min")
+        # ★★ 通配位（★ 如台账写 09:1x）⇒ 【不可精确比对】，★ 不得当 0 也不得当有值
+        if d is None:
+            wild += 1
+            print("  %-8s 列 %-6s 真 %-6s ★★ 不可判（★ 台账写的是通配时刻）" % (r["id"], r["written"], r["real"]))
+            continue
+        if d == 0:
+            tag = "— 一致"
+        elif d > 0:
+            tag = "★ 列比真【晚】%d 分" % d; bad += 1
+        else:
+            tag = "★ 列比真【早】%d 分" % (-d); bad += 1
         print("  %-8s 列 %-6s 真 %-6s %s" % (r["id"], r["written"], r["real"], tag))
-    print("  ⇒ 比对 %d 条 · ★ 不一致 %d 条" % (len(rows), bad))
+    print("  ⇒ 比对 %d 条 · ★ 不一致 %d 条 · ★★ 不可判（通配）%d 条" % (len(rows), bad, wild))
     return 0
 
 
@@ -140,8 +158,8 @@ def selfcheck():
     tot += 1; w = written_time("D-120"); a = bool(w and re.match(r'2026-', w))
     print("  %s ③ D-120 时刻字段提取成功: %s" % ("OK " if a else "★ 不成立", w)); ok += a
     # ④ 审计须能发现不一致
-    tot += 1; rows = audit(); a = any(r["delta_min"] != 0 for r in rows)
-    print("  %s ④ 审计能发现不一致（实测 %d 条中 %d 条不一致）" % ("OK " if a else "★ 不成立", len(rows), sum(1 for r in rows if r["delta_min"] != 0))); ok += a
+    tot += 1; rows = audit(); a = any(r["delta_min"] is None or r["delta_min"] != 0 for r in rows)
+    print("  %s ④ 审计能发现不一致（实测 %d 条）" % ("OK " if a else "★ 不成立", len(rows))); ok += a
     print("\n== 负控 %d/%d ==" % (ok, tot))
     return 0 if ok == tot else 1
 

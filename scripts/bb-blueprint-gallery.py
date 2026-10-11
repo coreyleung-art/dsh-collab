@@ -1664,6 +1664,7 @@ def build_index(port):
 <div class="tab" data-tab="hardware" data-dom="CARRIER">🖥 硬件载体</div>
 <div class="tab" data-tab="bizmap" data-dom="CARRIER">🌍 跨节点资产</div>
 <div class="tab" data-tab="bp" data-dom="SYS">📙 商业计划书</div>
+<div class="tab" data-tab="xq" data-dom="SYS">📎 星桥产物</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1683,6 +1684,7 @@ def build_index(port):
 <div class="main" id="view-hardware"></div>
 <div class="main" id="view-bizmap"></div>
 <div class="main" id="view-bp"></div>
+<div class="main" id="view-xq"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2665,25 +2667,25 @@ def get_confirmed_links(graph=None):
 #      本端点因此**只出元数据**（行数/字节/mtime/首行摘要），正文靠前端下钻。
 # ★★ 红线：这 10 个文件【星桥是唯一写入者】⇒ 本端点**只读**，不写一个字节。
 XQ_ARTIFACTS = [
-    ("plan-v6.1",   "主线锚点 v6.1",       "docs/distributed-agent-network-governance-plan-v6.1-20261011.md"),
-    ("deviation",   "偏差台账",             "docs/deviation-ledger-20261011.md"),
-    ("gap",         "阶段评审差距清单",      "docs/phase-review-gap-inventory-20261012.md"),
-    ("explored",    "索引探查发现",          "docs/index-explored-findings-20261012.md"),
-    ("arch-store",  "考古·存储节点铺开",     "docs/archaeology-store-node-rollout-20261012.md"),
-    ("arch-net",    "考古·星桥 vs Tailnet",  "docs/archaeology-xingqiao-vs-tailnet-20261012.md"),
-    ("handoff-ext", "对外交接",              "docs/handoff-to-claude-external-20261011.md"),
-    ("incident",    "事故·scripts 丢失",     "docs/incident-and-handoff-20261012-scripts-loss.md"),
-    ("meeting-inf", "会议·上下文膨胀与索引门", "docs/meeting-context-inflation-and-index-gate-20261012.md"),
-    ("analysis-inf", "分析·上下文膨胀与三路混同", "docs/analysis-context-inflation-and-three-way-conflation-20261012.md"),
+    ("plan-v6.1",   "锚点",   "主线锚点 v6.1",       "docs/distributed-agent-network-governance-plan-v6.1-20261011.md"),
+    ("deviation",   "台账",   "偏差台账",             "docs/deviation-ledger-20261011.md"),
+    ("gap",         "评审",   "阶段评审差距清单",      "docs/phase-review-gap-inventory-20261012.md"),
+    ("explored",    "评审",   "索引探查发现",          "docs/index-explored-findings-20261012.md"),
+    ("arch-store",  "考古",   "考古·存储节点铺开",     "docs/archaeology-store-node-rollout-20261012.md"),
+    ("arch-net",    "考古",   "考古·星桥 vs Tailnet",  "docs/archaeology-xingqiao-vs-tailnet-20261012.md"),
+    ("handoff-ext", "交接",   "对外交接",              "docs/handoff-to-claude-external-20261011.md"),
+    ("incident",    "事故",   "事故·scripts 丢失",     "docs/incident-and-handoff-20261012-scripts-loss.md"),
+    ("meeting-inf", "膨胀分析", "会议·上下文膨胀与索引门", "docs/meeting-context-inflation-and-index-gate-20261012.md"),
+    ("analysis-inf", "膨胀分析", "分析·上下文膨胀与三路混同", "docs/analysis-context-inflation-and-three-way-conflation-20261012.md"),
 ]
 
 
 def build_xq_artifacts():
     """★ 只出元数据，不出正文（见上方裁定的 ③）。★ 只读，不写。"""
     items = []
-    for key, title, rel in XQ_ARTIFACTS:
+    for key, cat, title, rel in XQ_ARTIFACTS:
         p = os.path.join(BASE, rel)
-        it = {"key": key, "title": title, "path": rel}
+        it = {"key": key, "cat": cat, "title": title, "path": rel}
         try:
             st = os.stat(p)
             it["bytes"] = st.st_size
