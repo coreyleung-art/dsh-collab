@@ -74,7 +74,11 @@ seg = m.group(1) if m else ''
 txt = re.sub(r'<[^>]+>', ' ', seg)
 txt = re.sub(r'\s+', ' ', txt).strip()
 over = [int(n) for n in re.findall(r'style="[^"]*?(?<![-\w])width:(\d+)px', body) if int(n) > 390]
-print("  预检  : view 文本长度=%d · JS 报错=%s · 渲染体内 >390px 内联宽=%s · 「加载失败」=%d"
-      % (len(txt), errs, sorted(set(over)) or '无', body.count('加载失败')))
+print("  预检  : view 文本长度=%d · JS 报错=%s · 渲染体内 >390px 内联宽=%s · 渲染文本「加载失败」=%d"
+      % (len(txt), errs, sorted(set(over)) or '无',
+         # ★ 2026-10-12 修：原来用 body.count() 查原始 HTML 串 ⇒ 会命中 title/属性里的字样
+         #   （实测：「列表模式」出现在按钮 title 里，导致 1440 宽也误报列表模式）。
+         #   ⇒ 改为在【剥标签后的渲染文本】里查。
+         re.sub(r'<[^>]+>', ' ', body).count('加载失败')))
 print("          首 90 字: %s" % txt[:90])
 PY
