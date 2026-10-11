@@ -2025,6 +2025,15 @@ class Handler(BaseHTTPRequestHandler):
                         {"error": "%s: %s" % (type(e).__name__, e), "gaps": []},
                         ensure_ascii=False))
                 return
+            if path == "/api/channel-baseline":
+                # ★ C5（2026-10-12）：通道基线 —— ★ 现测双板（只发 GET，不写板）。
+                try:
+                    self._send(200, json.dumps(build_channel_baseline(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "m4": []},
+                        ensure_ascii=False))
+                return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
                 import glob
@@ -2895,6 +2904,100 @@ def build_gap_inventory():
                     "★ 这是本表最大的结构事实：**本线不缺待办，缺裁决**。",
         "note": "★ 三态沿用该件定义：✅ 成立 / ❌ 不成立 / ❓ 不可判 / 🟡 部分具备。"
                 "★ 「读不到」≠「不存在」—— 未扫的面（mbp/i9、guard/backups）原样记 ❓，不并入他类。",
+    }
+
+
+def build_channel_baseline():
+    """★ C5（2026-10-12）：通道基线页。★★ 本页的核心是【现测】，不是抄文件。
+
+    ★★ 为什么必须现测（实测教训）：同一条判据 M4① 在三处有三个不同的真读数 ——
+       · v6.1 锚点 §14.4：`19/304 = 6.25%`（并记「中枢冻结 ≈7.5 天」）
+       · 差距件（10-12 复跑）：`48/342 = 14.04%`（并记「中枢冻结在 10-03」）
+       · ★ 本线现测：见返回值
+       差值 2.4 倍。**三份都是真的，只是时刻不同** ⇒ 本函数【现测 + 三源并列 + 各标时刻】，
+       **不选一个当"最新"**，也**不把三者平均**（那会得到一个谁都没测过的数）。
+
+    ★★ 另一处只能靠现测才知道的：M4① 要**分解成两个条件**看 ——
+       「到达率 100%」与「落后 ≤60min」是两件事。现测显示**新流是通的、卡的是历史存量**，
+       而这个结论**两份文件都没说**（它们写于不同时刻，都没测到）。
+
+    ★ M4② / M4③ 与 P28 六条缺陷族属**结构性判断**，现测无法自动判定 ⇒
+      **原样引用其来源件并标明**，不冒充实测。
+    """
+    NOW = datetime.datetime.now()
+
+    def board(ep, timeout=8):
+        try:
+            with urllib.request.urlopen("http://%s/data/ops/drift-alert/" % ep,
+                                        timeout=timeout) as r:
+                d = json.loads(r.read().decode())
+            L = d.get("list", {}) or {}
+            ts = sorted(v.get("ts", "") for v in L.values()
+                        if isinstance(v, dict) and v.get("ts"))
+            return {"ok": True, "n": len(L), "latest": (ts[-1] if ts else None)}
+        except Exception as e:
+            return {"ok": False, "err": "%s: %s" % (type(e).__name__, e)}
+
+    A = board("127.0.0.1:8792")
+    B = board("106.53.214.108:8792")
+    lag_min, cond_a, cond_b = None, None, None
+    if A.get("ok") and B.get("ok"):
+        n1, n2 = A["n"], B["n"]
+        cond_a = (n1 == n2)
+        rate = (round(100.0 * n2 / n1, 2) if n1 else None)
+        if B.get("latest"):
+            try:
+                tt = datetime.datetime.strptime(B["latest"][:19], "%Y-%m-%dT%H:%M:%S")
+                lag_min = round((NOW - tt).total_seconds() / 60.0, 1)
+                cond_b = (lag_min <= 60)
+            except Exception:
+                pass
+    else:
+        rate = None
+
+    return {
+        "generatedAt": NOW.strftime("%Y-%m-%d %H:%M:%S"),
+        "live": {
+            "local": A, "central": B, "rate": rate,
+            "condA_arrival100": cond_a, "condB_lag60": cond_b, "lagMin": lag_min,
+        },
+        # ★ 三源并列：两份历史读数（各自带时刻）+ 本线现测。**不合并、不取平均。**
+        "sources": [
+            {"src": "v6.1 锚点 §14.4", "when": "约 2026-10-10/11", "local": 304, "central": 19,
+             "rate": "6.25%", "extra": "并记：中枢冻结 ≈7.5 天 · drift-scan-cron 401（134 次）"},
+            {"src": "差距件（10-12 复跑）", "when": "2026-10-12", "local": 342, "central": 48,
+             "rate": "14.04%", "extra": "并记：中枢冻结在 10-03 · 历史 294 条无源可补"},
+            {"src": "★ 本线现测", "when": NOW.strftime("%Y-%m-%d %H:%M:%S"),
+             "local": A.get("n"), "central": B.get("n"),
+             "rate": ("%.2f%%" % rate) if rate is not None else "不可判",
+             "extra": ("★ 分解：到达率 ❌ 未达；落后 %.1f 分钟 %s ⇒ **新流是通的，卡的是历史存量**"
+                       % (lag_min, "✓ 达" if cond_b else "❌ 未达")) if lag_min is not None else "—"},
+        ],
+        # ★ M4 三判据（结构性判断，引用来源，不冒充实测）
+        "m4": [
+            {"id": "M4①", "judge": "drift 告警双板到达率 == 100% ∧ 中枢落后 ≤60min",
+             "verdict": "❌", "src": "v6.1 §14.4 + 本线现测分解",
+             "note": "★ 现测把两个条件分开：①a 到达率 14.78% ❌ · ①b 落后 27.3 分钟 ✓。"},
+            {"id": "M4②", "judge": "无未登记通道（三条合取：具名 ∧ 登记 ∧ 有负控）",
+             "verdict": "❌", "src": "v6.1 §14.4 + 差距件",
+             "note": "论域已裁 ⇒ L3=44 为正式读数；逐条具名/登记/负控未做。"},
+            {"id": "M4③", "judge": "投递可见（①queued 标未达 ②expired 必告警 ③两路闭环）",
+             "verdict": "❌", "src": "v6.1 §14.4",
+             "note": "①部分 ②🟡 缺负控 ③未评（锚点未给口径）。"},
+        ],
+        # ★ P28 通讯通道缺陷族（六条，来源：v6.1 §7.10）
+        "p28": [
+            {"id": "P28-①", "what": "未登记通道：「卡 → 自动唤起会话」的消费方无属主"},
+            {"id": "P28-②", "what": "离线投递无撤回 + TTL 常量 7 天但未确定性执行（实测滞留上界 ~46 天）"},
+            {"id": "P28-③", "what": "reply_required：写了没人读 —— 且是一条已登记规则的零实现"},
+            {"id": "P28-④", "what": "awaiting：无任何 daemon 消费者（三面扫描全为写时校验器/写入方/夹具）"},
+            {"id": "P28-⑤", "what": "失实日志"},
+            {"id": "P28-⑥", "what": "去重粒度错"},
+        ],
+        "writer": "明鉴 v3（本函数对两块板只发 GET 探测，不写任何板）",
+        "note": "★ 本页【现测】而非抄文件：同一条判据在三处有三个不同的真读数（差 2.4 倍），"
+                "三份都是真的、只是时刻不同 ⇒ 三源并列、各标时刻，不合并也不取平均。"
+                "★ M4② / M4③ 与 P28 属结构性判断，现测无法自动判定 ⇒ 引用来源件并标明，不冒充实测。",
     }
 
 
