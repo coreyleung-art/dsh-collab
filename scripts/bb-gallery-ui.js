@@ -280,6 +280,15 @@ async function __showDataState(){
     st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+aTxt+mTxt+srcTxt;
     st.style.maxWidth='calc(100vw - 28px)';   // ★ 手机上别溢出（P4）
     st.style.textAlign='right';
+    /* ★★ P6：装载后先全亮 4 秒（让人看到它更新了），随后交给 CSS 淡出；
+       触摸/点击时恢复全亮（CSS :active + awake 类）。这样它既随时可见又不长期遮挡内容。 */
+    st.classList.add('awake');
+    setTimeout(function(){ try{ st.classList.remove('awake'); }catch(e){} }, 4000);
+    st.addEventListener('touchstart',function(){
+      st.classList.add('awake');
+      clearTimeout(st.__awakeT);
+      st.__awakeT=setTimeout(function(){ st.classList.remove('awake'); }, 4000);
+    },{passive:true});
     if(st.textContent)document.body.appendChild(st);
     /* ★★ 2026-10-12 P4b（手机体验）：【数据截至时间】—— 我裁定的「双时间戳」之②。
        ① 页面侧 = __dataState.stamp（上一条「更新 HH:MM」，**数据到达本机的时刻**）

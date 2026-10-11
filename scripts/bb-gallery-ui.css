@@ -207,7 +207,22 @@ a{color:#6ea8ff;text-decoration:none}
     flex:0 0 auto!important;width:136px;margin-bottom:0!important;padding:8px 10px!important}
   #bp-sel-list .li b{
     font-size:11.5px!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  /* 详情区：竖屏独占整宽（原来被 250px 列表挤到约 124px） */
+  /* ── ★★ P6 状态条遮挡（逐页看图发现，第 1/2 页均复现）────────────────────
+     现象：#ds-state（右下角浮动状态条）**压住页面最后几行内容**，在列表类页面上
+          会长期挡住一条目 —— 而它是固定定位，不随滚动让开。
+     取证：iOS 模拟器截图逐页看，治理哲学页遮住「无验证的成功=未成…」、
+           原创资产页同样遮住一条。
+     修法：给 body 预留底部空间（状态条高度 + 安全区），条本身继续浮动。
+     ★ 这是【系统性】问题，故修在 body 而不是逐页修。 */
+  body{padding-bottom:calc(46px + env(safe-area-inset-bottom))}
+  /* ★★ 状态条自动淡出：仅加底部留白只解决「滚到底时」不被挡；
+     条是固定定位，**在任意滚动位置都会压住它正下方那一行**。
+     ⇒ 常驻但低透明度（0.42），触摸时恢复全亮 —— 既随时可读，又不长期遮挡。 */
+  #ds-state{max-width:calc(100vw - 24px);opacity:.42;transition:opacity .3s ease}
+  #ds-state.awake{opacity:1}
+  #ds-state:active{opacity:1}
+
+  /* 详情区：竖屏独占整宽（原来被 250px 列表挤到约 124px）—— ★ 勿删：P3b 的修复 */
   .detail{width:100%!important;min-width:0!important;box-sizing:border-box}
 
   /* ── ★ P4c 子tab 行：改为【换行】而不是横滑 ────────────────────────────────
