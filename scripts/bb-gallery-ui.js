@@ -123,6 +123,10 @@ async function j(u){
     }
   }
   // 3) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
+  /* ★ P5c 测试钩子 `?diag=offline`：强制跳过网络、直接走缓存兜底分支。
+     目的：让「离线态 UI」**可被截图验证**，而不是只做到「代码结构在位」。
+     ★ 只在带该参数时生效，不影响正常使用。 */
+  if(/[?&]diag=offline/.test(location.search)){ throw new Error('diag=offline 强制离线'); }
   try{
     const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
     const r=await fetch(__BASE+u,{signal:ctrl.signal});clearTimeout(t);
