@@ -357,3 +357,151 @@ git -C ~/dsh-collab log --diff-filter=A --format='%ai %h %s' -- docs/ | tail -3 
 ---
 
 *本件为【证据 + 三态判定】，不是最终裁定。★ 不宣布任何事项已闭合。*
+
+---
+
+# 补遗 · 第二遍重跑（2026-10-12 03:0x）
+
+> **出件**：同一子代理 `809fd306-71f1-44bd-a599-10dc4a72c006` 的**独立重跑**（★ 非复述）
+> **落盘**：2026-10-12T03:0x · 星桥第二任代落
+> ★★ **本补遗【不改上文】** —— ★ 上文是**第一遍的如实记录**，★ 本补遗**追加更正与新增**。
+> ★★★ **本线已亲验本补遗的全部关键读数**（★ 见 §补四）。
+
+## 补〇 · 两个坑（★ 影响任何复跑者）
+
+**坑 1 · `rg` 不存在。** `which rg` exit=1 ⇒ ★ 任何用 `rg` 得出的「0 命中」都是 **exit 127 的假零**。本遍全程改用 Python `str.count` / `grep` 复核。
+
+**坑 2 · ★★ 上一遍的报告【已落盘】，成为本遍的「既有资产」。** 实测：
+```
+-rw-r--r--  1 coreyleung  staff  33877 Oct 12 02:16 docs/archaeology-store-node-rollout-20261012.md   (359 行)
+```
+★ ⇒ **「重新来一遍」时，上一遍的结论本身已是一份本地文档，必须把它计入面** —— ★ 否则会把自己的旧输出当成「新发现」。
+
+## 补一 · ★★★ 本遍最重要的新发现：真实门店服务器【确实存在】
+
+**来源**：`data/blueprint/gallery/hardware-nodes.json`（mtime `2026-09-07 16:06`）
+
+★ **本线亲验（★ 实测输出）**：
+```
+硬件表节点总数: 17
+  hw:srv-tianhe        天河店服务器     Win10  向日葵1687489763  店铺服务器  在线
+  hw:srv-foshan        佛山店服务器     Win10  向日葵1696416965  店铺服务器  离线
+  hw:srv-jiangnanxi    江南西店服务器   Win10  向日葵1676234999  店铺服务器  离线
+--- 带 E2 registry_ref 的 ---
+  node-macmini   → E2:data/discovery/agents/mac-mini
+  node-pci9      → E2:data/discovery/agents/i9
+  node-mbp       → E2:data/discovery/agents/mbp
+```
+
+★★ ★ **硬件表 17 节点 = 5 device + 8 server + 3 cloud + 1 local**；★★ **只有 3 个带 `registry_ref`（E2），且全是自有设备**；★★★ **三台门店服务器一律无 `registry_ref`，全部走「向日葵远控」而非「Tailscale + 黑板」。**
+
+★ ⇒ ★★ **门店服务器与智能体节点：同表不同组、同表不同通道。**
+★★ **这是拓扑登记层的【隐式区分】，但未被任何文档显式命名为「两圈」。**
+
+## 补二 · ★★ 本遍新扫的面（上一遍完全未扫）
+
+| 新面 | 量 | 关键命中 |
+|---|---|---|
+| ★ `data/blueprint/` | **363 文件 / 21 蓝图** | 三台门店服务器 · `distributed-network` 蓝图 · `merchant-ops-ai` 蓝图 |
+| ★ `data/local-registry-index.json` | **2301 条目** | 节点工具族 12 件 |
+| ★ `scripts/` 节点工具族 | — | `node-onboard-gui.py`（412 行）· `node-join-notify.py` |
+| ★ `research/` MCP 服务化线 | — | `three-end-automation-roadmap.md` · `procurement-mcp-service.md` |
+| ★ ERP 物理库 | grep SQL | `tenant_id` 列**实测存在** |
+
+### 补二·1 ★★ ★ 21 个蓝图，**没有任何一个同时覆盖两圈**
+★ **圈一蓝图** `data/blueprint/distributed-network/blueprint-distributed-network-v1.0.md`（2026-09-09）—— ★★ **本线亲验：「门店」出现次数 = 0**
+- `:12`｜`| name | 跨设备分布式智能体节点网络 |`
+- `:22`｜`- **node-net**：节点网络 — **4 设备拓扑(mac-mini宿主/MBP/i9/iPhone)** + Tailscale + 设备资产表`
+- `:32`｜`- dn1-1 4 设备组网 [done] — mac-mini/MBP/i9 Tailscale 100.x 全在线`
+- `:43`｜`- dn3-3 接入模板标准化 [todo] — node 接入模板/任命提示词（新设备即插即用）`
+
+★ **圈二产品蓝图** `data/blueprint/merchant-ops-ai/blueprint-merchant-ops-ai-v1.0.md`（2026-09-06）
+- `:6`｜`> 核心商业依据(妙记1): 自研 AI 运营工具产品化——自动改价/上下架/竞品监控/库存联动; **人效 20→50 店/人; 千店边际递减**; 可泛化宠物/餐饮垂类`
+- `:24`｜`- **merchant-ui**：商家界面线 — 单店看板…+ AI 建议确认流 + **SaaS 订阅形态**`
+- `:31`｜`- mo-2 用户对象边界 [done] — **单商家/自有+代理门店(非代运营服务商, 服务商走 mtm ops)**`
+- `:53-54`｜（考量登记）`**门店接入形态谱系**…A远程(软件·已共识)→B U盘钥(服务商随身)→C 带屏盒`／`启用 gate: ①软能力验证 ②商业模式确认 ③客户形态选型 ④硬件预算批准 —— 全满足才进硬件化`
+
+### 补二·2 ★★★ 「自助接入」这一规模化必备件【只做在圈一】
+`scripts/node-onboard-gui.py`（**412 行** · mtime `2026-10-12 00:21`）—— ★ **本线亲验（★ 实测行号）**：
+```
+:67   BB = "http://127.0.0.1:8792"  # 本机黑板（GUI 跑在 mac-mini）
+:75   - 通过黑板任务卡协议与 mac-mini 中枢（100.120.203.20:8792）双向联通
+:99   - 黑板地址：http://100.120.203.20:8792
+:107  2. 确认本机到 mac-mini 黑板连通（curl http://100.120.203.20:8792/clock）
+```
+★ **判读**：该工具**硬编码圈一语义** —— Tailscale 内网 IP · 要求节点具备本地 `bash`/文件/CLD 能力 · **默认授予任务卡执行 + 写权**。
+★★ **⇒ 它【不能被直接用于门店投放】**（门店不在 tailnet、不应有写权、无 CLD）。
+★★★ **⇒ 「自助接入」这个规模化必备件，只做在圈一。**
+
+### 补二·3 ★ ERP：租户列**物理存在，但无真实租户值** ⇒ 「有列无隔离」
+`erp-workspace/chuheng_erp/flower-server-java-patch/items_backup_before_migration.sql` ⇒ 列含 `tenant_id`，★ **值全部为 `'tenant-default'`**。
+
+### 补二·4 ★ 多租户设计其实很细（08-17，上一遍漏扫）
+`research/procurement-mcp-service.md:52-53`｜`- 起步：每租户 API Key + tenant_id 注入` / `- 数据隔离：共享库 + tenant_id 行级（数据库 RLS 行级安全 + 中间件自动注入双保险）；敏感租户可库级隔离；审计日志记录 tenant/tool/参数/结果/时间。`
+`research/three-end-automation-roadmap.md:71-74,89`｜`门店侧：三端能力封装为 MCP 工具集` → `多租户：API Key/OAuth + **RLS 行级隔离** + 配额 + 超量计费 + 限流审计` → `开放：**面向外部花店提供订阅式 MCP 服务**`
+
+## 补三 · ★★ 两圈之分：补一层「拓扑层」（上一遍只找到文档层）
+
+★ 上文 §六 已给**文档层**（08-22 三档信任模型 + 用户确认）的完整证据 —— ★ **本补遗不重复**。
+★ **本遍新增【拓扑层】**：`hardware-nodes.json` 把 17 节点分为 `device / server / cloud / local` 四组；
+★ **门店服务器在 `server` 组、走向日葵远控、无 E2 ref**；★ **三台自有设备在 `device` 组、走 Tailscale、有 E2 ref**。
+★★ **⇒ 分组与通道本身即区分，但未被文档命名。**
+
+## 补四 · ★★★ 上文的一处【更正】（★ 本遍自报）
+
+★ 上文 §三 写「**没有一台真实门店机器在跑节点**」——
+★★ **措辞需更正为**：★ **有三台真实门店服务器存在并已登记**（天河**在线** / 佛山离线 / 江南西离线，均 Win10，向日葵远控），
+★★★ **但它们【不是智能体节点】**（无 E2 `registry_ref`、无 tailnet、无节点协议）。
+
+★ ⇒ **结论方向不变**（★ 仍无「投放」），★★ **但事实基础更正。**
+
+## 补五 · 本线亲验记录（★ 本条补遗的关键读数由本线独立复跑，非采信）
+
+| # | 子代理声称 | 本线复跑 | 判定 |
+|---|---|---|---|
+| 1 | 硬件表 17 节点 · 3 台门店服务器 · 仅 3 个带 E2 ref | ★ **逐字一致** | ✅ 成立 |
+| 2 | 圈一蓝图 `distributed-network` 通篇零「门店」 | ★ `str.count('门店')` = **0** | ✅ 成立 |
+| 3 | `node-onboard-gui.py` 硬编码 Tailscale 内网 IP | ★ `:75`/`:99`/`:107` 均为 `100.120.203.20:8792` | ✅ 成立 |
+
+## 补六 · 复跑（本补遗新增部分）
+
+```bash
+# 三台门店服务器 + E2 ref 有无
+python3 - <<'PY'
+import json
+h=json.load(open('/Users/coreyleung/dsh-collab/data/blueprint/gallery/hardware-nodes.json',encoding='utf-8'))
+for n in h['nodes']:
+    if '店' in (n.get('name') or ''): print(n['id'], n['name'], n['os'], n['ip'], n['role'], n['status'])
+print('带 E2 ref:', [(n['id'],n.get('registry_ref')) for n in h['nodes'] if n.get('registry_ref')])
+PY
+
+# 圈一蓝图零门店
+python3 -c "print(open('/Users/coreyleung/dsh-collab/data/blueprint/distributed-network/blueprint-distributed-network-v1.0.md',encoding='utf-8').read().count('门店'))"   # 期望 0
+
+# 自助接入工具硬编码 Tailscale
+sed -n '67p;75p;99p;107p' /Users/coreyleung/dsh-collab/scripts/node-onboard-gui.py
+
+# 21 个蓝图
+python3 -c "import json;d=json.load(open('/Users/coreyleung/dsh-collab/data/blueprint/gallery/static-export/api/blueprints.json',encoding='utf-8'));print(len(d))"
+
+# ERP tenant_id 有列无隔离
+grep -o "'tenant-default'" /Users/coreyleung/dsh-collab/erp-workspace/chuheng_erp/flower-server-java-patch/items_backup_before_migration.sql | sort -u
+```
+
+## 补七 · ★ 结论更新（★ 方向不变，事实基础更硬）
+
+★★ **圈二不是空白，也远不是零星痕迹。** 它有：
+★ 三档信任模型设计（08-22，**用户确认**）· ★ **实跑通过的租户隔离 PoC**（9/9、7/7）· ★ 三方共识 + 模拟试点验收 · ★ 带预算的「分布式落店」方案 · ★ **独立产品蓝图 `merchant-ops-ai`（千店/SaaS）** · ★★ **以及三台【已经真实存在并登记】的门店服务器**。
+
+★★ **它卡住的地方非常具体**：
+★★★ **真实门店服务器【在表里，但不在节点网络里】** —— 无 E2 注册、无 tailnet、无节点协议；
+★ 唯一那件「规模化投放必备的接入自助工具」（`node-onboard-gui.py`）**硬编码了圈一语义**（Tailscale 内网 + CLD + 写权），**门店用不了**；
+★ 而圈一的蓝图 `distributed-network` v1.1 **通篇零「门店」**。
+
+⇒ ★ **「两圈不同的逻辑」用户说对了**，而且本机 **08-22 就用「信任内部 vs 公网投放门店启用多租户」把它写清楚并取得确认**。
+★★★ **但那份写在 `research/cost-governance/`，而 10 月所有治理叙事都建在 `distributed-agent-network-governance-plan-v6.1`（门店=0 命中）之上。**
+⇒ ★★★ **圈二不是没想过 —— 是想了、验证了、连门店机器都登记了，然后被后续治理主线遗忘在另一个目录里。**
+
+---
+
+*★ 本补遗为【证据 + 三态判定】，不是最终裁定。★ 不宣布任何事项已闭合。*

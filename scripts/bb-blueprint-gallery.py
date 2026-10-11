@@ -32,11 +32,79 @@ VERSION_MAP = os.path.join(GALLERY_DIR, "version-map.json")
 AGENTS_FILE = os.path.expanduser("~/.dsh/agent-bus.json")
 VERSION = "v1.4.0"  # 与 SystemGraph 壳/三端同版(见 ~/system-graph-app/VERSION-MANIFEST.md)
 
+# ─────────── ★ A 组「数据实时化」：单一权威内存模型（2026-10-12 明鉴） ───────────
+# 依据：docs/systemgraph-internal-completion-plan-20261008.md §十一（裁判 2026-10-08 有条件通过）
+#   前置2「权威源单一 = 内存模型」由 bb-model-store.py 承载；文件变更与 SSE 事件
+#   都**只作「触发重读」信号**，不以事件载荷直接改模型。
+#   本文件里只有 MODEL.reload()（在 bb-model-store 内）能改模型。
+# ★ 未构造成功时 MODEL 为 None，全部取数函数**自动退回改造前的直读路径** ——
+#   即本改造是「叠加」而非「替换」，模型层坏了不会让管理器整体不可用（失败可见性）。
+MODEL = None
+
+def _model_watch_keys():
+    """要监听的板书键面：关系图/版本台账/阶段 + 每个蓝图各一键。
+
+    ★ 这些正是 get_relations()/get_registry()/get_versions() 会 fetch 的键。
+      get_registry() 原实现对每个蓝图各打一次 HTTP（21 次）⇒ 模型化后降到 0 次往返。
+    """
+    ks = ["data/blueprint/relations", "data/blueprint/versionlog", "data/blueprint/stages"]
+    for _b in bp_dims():
+        ks.append("data/blueprint/" + _b)
+    return ks
+
+def _init_model(bb_url=None, poll_interval=3.0, sse_url="http://127.0.0.1:8803/events"):
+    """构造模型对象并赋给全局 MODEL（**不在此启动后台线程**，起线程是 main() 的事，
+    这样 --selfcheck 之类的一次性调用不会拉起常驻线程）。"""
+    global MODEL
+    try:
+        import importlib.util as _ilu
+        # ★ 用 __file__ 拼【绝对路径】。裸相对路径在「进程 cwd 目录被整体替换」时会静默失效：
+        #   spec_from_file_location 内部是 `except OSError: pass`，会把 getcwd() 抛的 Errno 2
+        #   吞掉，最后报出的错误看起来像「文件不存在」，真因却是「进程抱着一个死 inode」。
+        #   （2026-10-12 实测事故，详见 /api/health 的 H0「工作目录」项）
+        _here = os.path.dirname(os.path.abspath(__file__))
+        _spec = _ilu.spec_from_file_location("_bbms", os.path.join(_here, "bb-model-store.py"))
+        _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+        MODEL = _mod.ModelStore(
+            bb_url or BB,
+            watch_keys=_model_watch_keys(),
+            watch_files=[AGENTS_FILE],
+            poll_interval=poll_interval,     # 补1：兜底轮询 <10s（构造时强校验）
+            sse_url=sse_url,                 # 主路径：事件驱动
+            log=lambda m: print("[model] " + str(m), flush=True),
+        )
+        return MODEL
+    except Exception as e:
+        print("[model] 初始化失败，全部取数退回首读路径: %s: %s" % (type(e).__name__, e), flush=True)
+        MODEL = None
+        return None
+
 # ───────────────────────── 数据层 ─────────────────────────
 
 def fetch(path, timeout=6):
+    """取黑板一个键的值。
+
+    ★ A 组改造（2026-10-12）：
+      ① 优先走内存模型 MODEL —— 不再每次请求打 HTTP。
+         get_registry() 原本对 21 个蓝图各打一次 ⇒ 模型化后降为 0 次往返。
+      ② 未纳入监听的键：仍按旧路径取一次（**保证不空窗**），同时登记进监听面，
+         使**后续**请求收敛到模型 —— 不做长期双轨。
+      ③ ★ 顺带修掉旧实现的静默缺陷：旧代码是 `except Exception: return {}`，
+         把「黑板不可达」与「键内容为空」混为一谈（判据：空 ≠ 无）。
+         现在不可达时仍返回 {}（保持调用方兼容），但状态可由
+         MODEL.board_state(key) 读出为 UNREACHABLE，并经 /api/model-status 暴露。
+    """
+    p = path.lstrip("/")
+    if MODEL is not None:
+        st = MODEL.board_state(p)
+        if st != "UNWATCHED":
+            v = MODEL.board_value(p, None)
+            if isinstance(v, dict):
+                return v
+            return {} if v is None else v      # 兼容旧的「一律返回 dict」预期
+        MODEL.add_watch(p)                      # 登记；下一次 reload 起由模型供给
     try:
-        with urllib.request.urlopen(BB + "/" + path.lstrip("/"), timeout=timeout) as r:
+        with urllib.request.urlopen(BB + "/" + p, timeout=timeout) as r:
             return json.loads(r.read().decode())
     except Exception:
         return {}
@@ -117,8 +185,13 @@ def get_versions():
 
 def get_agents():
     try:
-        with open(AGENTS_FILE, encoding="utf-8") as f:
-            d = json.load(f)
+        # ★ A 组改造（2026-10-12）：优先从内存模型取 —— 消除「每次请求全量读 24MB
+        #   agent-bus.json」的开销（改造前实测该端点约 96ms/次，文件 24,095,823 B）。
+        #   模型里暂无值时退回直读 ⇒ 任何情况下都不比改造前更差。
+        d = MODEL.file_value(AGENTS_FILE, None) if MODEL is not None else None
+        if not isinstance(d, dict) or not d.get("profiles"):
+            with open(AGENTS_FILE, encoding="utf-8") as f:
+                d = json.load(f)
         profs = d.get("profiles", [])
         out = []
         for p in profs:
@@ -1901,6 +1974,20 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/health":
                 self._send(200, json.dumps(build_health_report(), ensure_ascii=False))
                 return
+            if path == "/api/model-status":
+                # ★ A 组（2026-10-12）：模型层的自述端点。
+                #   暴露：版本号 version（任一路变化即自增）· 板书三态计数
+                #   （OK / EMPTY / UNREACHABLE）· 每键状态 · 文件监听元组 · SSE 状态与事件数。
+                #   ★ 三态用词严格：UNREACHABLE（不可判）**不得**被读作 EMPTY（真无）。
+                #   ★ 这也是修掉 fetch() 旧「静默返空」缺陷后可被外部看见的那一面。
+                if MODEL is None:
+                    self._send(200, json.dumps(
+                        {"model": None,
+                         "note": "模型未初始化（_init_model 失败或未调用）⇒ 全部取数走直连路径"},
+                        ensure_ascii=False))
+                else:
+                    self._send(200, json.dumps(MODEL.status(), ensure_ascii=False))
+                return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
                 import glob
@@ -2628,6 +2715,9 @@ def main():
     ap.add_argument("--render-all", action="store_true", help="只重渲全部蓝图快照")
     ap.add_argument("--selfcheck", action="store_true", help="TCC 自检")
     ap.add_argument("--tool-version", action="store_true")
+    # ★ A 组回滚开关（2026-10-12）：加 --no-model 即退回改造前的直读路径，
+    #   不必改代码。任何取数异常都可用它一键回退。
+    ap.add_argument("--no-model", action="store_true", help="A 组回滚开关：跳过内存模型，取数全走直连")
     if "--lean4-check" in sys.argv:
         return lean4_check()
     args = ap.parse_args()
@@ -2648,6 +2738,20 @@ def main():
     except Exception as e:
         print("快照预渲染失败(忽略):", e)
     import os as _os; _os.environ["SGPORT"]=str(args.port)  # 供 /api/health 自检
+    # ★ A 组（2026-10-12）：**先把内存模型起起来，再开 HTTP 服务**，
+    #   使第一个请求就能命中模型（而不是先冷跑再等下一次轮询）。
+    if getattr(args, "no_model", False):
+        print("⚙ --no-model：跳过内存模型，全部取数走直连路径（本次改造的回滚态）")
+    else:
+        _m = _init_model()
+        if _m is not None:
+            _m.start()
+            _s = _m.status()
+            print("🧠 A 组内存模型已起：version=%s · 监听板书键 %d 个 · 文件 %d 个 · 兜底轮询 %.1fs · SSE %s"
+                  % (_s["version"], _s["boardTally"]["watched"], len(_s["files"]),
+                     _s["pollInterval"], _s["sse"]["url"] or "(关)"))
+        else:
+            print("⚠ 内存模型未起（见上方 [model] 行）⇒ 全部取数退回首读路径，服务照常")
     from http.server import ThreadingHTTPServer
     host = args.host
     srv = ThreadingHTTPServer((host, args.port), Handler)
