@@ -1770,6 +1770,8 @@ function switchTab(name){
      ★ 按本线裁定「聚合 + 摘要 + 下钻」：不摊正文（10 件 874 KB 摊不动），
        只给 ① 一句现状 ② 按类别聚合 ③ 每件一行元数据（含 mtime）④ 点行下钻。 */
   else if(name==='xq'&&!window.__xqDone){window.__xqDone=true;renderXqPointers()}
+  /* ★ C6（2026-10-12）：偏差台账页 —— 按状态聚合 + 按规则聚合 + 最近 N 条（不摊全文）。 */
+  else if(name==='ledger'&&!window.__ledgerDone){window.__ledgerDone=true;renderDeviationLedger()}
   else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
   else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
   else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}

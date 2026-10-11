@@ -1665,6 +1665,7 @@ def build_index(port):
 <div class="tab" data-tab="bizmap" data-dom="CARRIER">🌍 跨节点资产</div>
 <div class="tab" data-tab="bp" data-dom="SYS">📙 商业计划书</div>
 <div class="tab" data-tab="xq" data-dom="SYS">📎 星桥产物</div>
+<div class="tab" data-tab="ledger" data-dom="SYS">📒 偏差台账</div>
 </div>
 <div class="main on" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
@@ -1685,6 +1686,7 @@ def build_index(port):
 <div class="main" id="view-bizmap"></div>
 <div class="main" id="view-bp"></div>
 <div class="main" id="view-xq"></div>
+<div class="main" id="view-ledger"></div>
 <div class="foot">blueprint-gallery {VERSION} · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
 <script src="vendor/d3.min.js"></script>
 <script>{JS_UI}</script>
@@ -2001,6 +2003,15 @@ class Handler(BaseHTTPRequestHandler):
                     # ★ 不许静默返空：失败要说出来（本夜 fetch() 静默返空的教训）
                     self._send(200, json.dumps(
                         {"error": "%s: %s" % (type(e).__name__, e), "items": []},
+                        ensure_ascii=False))
+                return
+            if path == "/api/deviation-ledger":
+                # ★ C6（2026-10-12）：偏差台账聚合 + 最近 N 条（只读）。
+                try:
+                    self._send(200, json.dumps(build_deviation_ledger(), ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps(
+                        {"error": "%s: %s" % (type(e).__name__, e), "recent": []},
                         ensure_ascii=False))
                 return
             if path == "/api/overview":
@@ -2714,6 +2725,80 @@ def build_xq_artifacts():
         "writer": "星桥第二任（本端点只读，不写这些文件）",
         "note": "★ 只出元数据不出正文：10 件合计约 874 KB，摊在页面上读不了（聚合+摘要+下钻）。",
         "items": items,
+    }
+
+
+def build_deviation_ledger(recent=10):
+    """★ C6（2026-10-12）：偏差台账的【聚合 + 最近 N 条】。★ 只读，不写。
+
+    ★ 按本线裁定：**按状态聚合计数 + 最近 N 条，不摊全文**。
+      理由（实测）：该台账 **132 条 · 432 KB · 2513 行**；逐条读不可能看出
+      「闭合率」与「偏差集中在哪条规则」——**聚合才让这两个结构可见**。
+
+    ★★ 实测出来的真数字（本函数每次实时重算，故随台账增长而变）：
+       132 条中只有 **6 条 closed_with_evidence（4.5%）**，未闭合 122 条；
+       规则频次最高是 **R030「无验证不陈述」22 次**。
+
+    ★ 状态归一：台账的「状态」字段里**嵌了长解释**（如 `★ open —— 已修；★ 行为生效须重载；…`），
+      故必须归一，否则会得出 50+ 个互不相同的「状态」（实测如此）。
+      归一序：closed/已闭合/已修并经验证 → closed_with_evidence；accepted → accepted·open；
+      open → open；表格分隔符或空 → unknown（★ 不并入 open，也不当作闭合）。
+    """
+    p = os.path.join(BASE, "docs/deviation-ledger-20261011.md")
+    try:
+        s = open(p, encoding="utf-8", errors="replace").read()
+        mtime = datetime.datetime.fromtimestamp(os.stat(p).st_mtime).strftime("%Y-%m-%d %H:%M")
+    except Exception as e:
+        return {"error": "%s: %s" % (type(e).__name__, e), "items": []}
+
+    secs = re.split(r"(?m)^##\s+(D-\d+)\s*[·:：]\s*(.+)$", s)
+    entries = []
+    for i in range(1, len(secs), 3):
+        entries.append((secs[i], secs[i + 1].strip(), secs[i + 2] if i + 2 < len(secs) else ""))
+
+    def norm(v):
+        t = re.sub(r"[*`\s]", "", v)
+        if ("closed" in t.lower()) or ("已闭合" in t) or ("已修并经验证" in t):
+            return "closed_with_evidence"
+        if "accepted" in t.lower():
+            return "accepted·open"
+        if t.lower().startswith("open") or "★open" in t:
+            return "open"
+        if t.startswith("---") or not t:
+            return "unknown"
+        return "other"
+
+    stat, rules, rows, anomaly = {}, {}, [], []
+    for did, title, body in entries:
+        m = re.search(r"\|\s*\*{0,2}状态\*{0,2}\s*\|\s*(.+?)\s*\|\s*$", body, re.M)
+        v = m.group(1) if m else ""
+        k = norm(v)
+        stat[k] = stat.get(k, 0) + 1
+        if k in ("other", "unknown"):
+            anomaly.append({"id": did, "raw": re.sub(r"[*`]", "", v)[:80]})
+        mr = re.search(r"\|\s*\*{0,2}规则号\*{0,2}\s*\|\s*(.+?)\s*\|", body)
+        rs = sorted(set(re.findall(r"R\d{2,3}", mr.group(1)))) if mr else []
+        for r in rs:
+            rules[r] = rules.get(r, 0) + 1
+        mt = re.search(r"\|\s*\*{0,2}时刻\*{0,2}\s*\|\s*(.+?)\s*\|", body)
+        rows.append({"id": did, "title": re.sub(r"[*`]", "", title)[:110],
+                     "status": k, "rules": rs,
+                     "ts": re.sub(r"[*`]", "", mt.group(1)).strip()[:40] if mt else ""})
+
+    total = len(entries)
+    closed = stat.get("closed_with_evidence", 0)
+    return {
+        "generatedAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "mtime": mtime, "path": "docs/deviation-ledger-20261011.md",
+        "writer": "星桥第二任（本端点只读，不写该文件）",
+        "total": total, "closed": closed,
+        "closureRate": (round(100.0 * closed / total, 1) if total else 0.0),
+        "unclosed": stat.get("open", 0) + stat.get("accepted·open", 0),
+        "byStatus": stat, "byRule": rules,
+        "recent": list(reversed(rows))[:recent],
+        "anomalies": anomaly,
+        "note": "★ 按裁定「按状态聚合 + 最近 N 条，不摊全文」。状态已归一（台账的状态字段嵌了长解释，"
+                "不归一会出现 50+ 个互不相同的状态）。★ anomalies 是归一不了的条目，如实列出而非并入某类。",
     }
 
 
