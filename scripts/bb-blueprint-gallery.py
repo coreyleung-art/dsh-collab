@@ -2556,12 +2556,25 @@ def get_confirmed_links(graph=None):
     return d["links"]
 
 def build_health_report():
-    """6 项自检: JS语法/Py语法/结构审计/API smoke/版本一致/数据完整 → {healthy, checks}"""
+    """7 项自检: 工作目录/JS语法/Py语法/结构审计/API smoke/版本一致/数据完整 → {healthy, checks}"""
     import subprocess, datetime
     here = os.path.dirname(os.path.abspath(__file__))
     checks=[]
     def add(name, ok, detail, advice=""):
         checks.append({"name":name,"ok":bool(ok),"detail":str(detail)[:120],"advice":advice})
+    # H0 ★ 工作目录存活(2026-10-12 新增)
+    #   事故: 2026-10-12 00:21 本目录被 git checkout 整体替换, 而 10-08 起的常驻进程
+    #   仍抱着旧目录的 inode ⇒ os.getcwd() 抛 [Errno 2]。此前这项故障被 H3 冒名报成
+    #   "audit 模块异常" —— 真因在 cwd, 不在 audit(判据的域取错了) ⇒ 单列一项,
+    #   让"进程抱着一个已被替换的目录"能被直接读出, 而不是藏在别的项的异常里。
+    try:
+        _cwd=os.getcwd()
+    except OSError as _e:
+        _cwd=None; _cwd_err=f"{type(_e).__name__}: {_e}"
+    if _cwd is None:
+        add("工作目录", False, f"cwd 已失效(目录被替换) {_cwd_err}", "重启后端进程以取得有效 cwd")
+    else:
+        add("工作目录", True, _cwd, "")
     # H1 JS 语法
     jsf=os.path.join(here,"bb-gallery-ui.js")
     _NODE = "/opt/homebrew/bin/node"
@@ -2574,7 +2587,12 @@ def build_health_report():
     # H3 结构审计(导入 audit 模块)
     try:
         import importlib.util
-        _sp=importlib.util.spec_from_file_location("_ga","bb-gallery-audit.py")
+        # ★ 2026-10-12 修: 原来用裸相对路径 "bb-gallery-audit.py"。相对路径会经
+        #   os.getcwd() 解析, 而 spec_from_file_location 内部是 `except OSError: pass`
+        #   —— 一旦本进程的 cwd 目录被整体替换(git checkout / rm -rf + 重建), getcwd()
+        #   抛的 Errno 2 被静默吞掉, 加载时才炸, 报出的错看起来像"文件不存在",
+        #   真因却是"进程抱着一个已成死 inode 的旧目录"。⇒ 一律用 here 拼绝对路径。
+        _sp=importlib.util.spec_from_file_location("_ga",os.path.join(here,"bb-gallery-audit.py"))
         _gm=importlib.util.module_from_spec(_sp); _sp.loader.exec_module(_gm)
         _r=_gm.audit(os.path.join(here,"bb-blueprint-gallery.py"))
         add("结构审计", _r["summary"]["errors"]==0, f"{_r['summary']['tabs']}Tab {_r['summary']['errors']}错 {_r['summary']['warnings']}警",
