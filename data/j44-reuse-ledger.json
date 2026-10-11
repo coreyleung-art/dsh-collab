@@ -586,6 +586,22 @@
    "hits": 0,
    "note": "",
    "at": "2026-10-12T03:01:07"
+  },
+  {
+   "intent": "新建一个告警写入器用于总线过期消息",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:05:25"
+  },
+  {
+   "intent": "新建一个沉淀链扫描器",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-12T03:05:37"
   }
  ]
 }
