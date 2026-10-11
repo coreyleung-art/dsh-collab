@@ -157,7 +157,26 @@ async function __showDataState(){
     const srcTxt={funnel:'· 实时数据',cloud:'· 镜像数据',local:'· 本机数据',other:''}[__SRC]||'';
     const vTxt=(__dataState.stamp?(' 更新 '+__dataState.stamp):'');
     st.textContent=(__dataState.online?('● 在线'+vTxt):(__dataState.mode==='cache'?'◌ 离线缓存'+vTxt:''))+srcTxt;
+    st.style.maxWidth='calc(100vw - 28px)';   // ★ 手机上别溢出（P4）
+    st.style.textAlign='right';
     if(st.textContent)document.body.appendChild(st);
+    /* ★★ 2026-10-12 P4b（手机体验）：【数据截至时间】—— 我裁定的「双时间戳」之②。
+       ① 页面侧 = __dataState.stamp（上一条「更新 HH:MM」，**数据到达本机的时刻**）
+       ② 数据侧 = 后端模型版本 + 模型最近重读时刻（/api/model-status，A 组已交付）
+       ★ 为什么必须有②：两者频率不同 —— 页面刷新 ≠ 数据变化。
+         只显示①会把「服务端 3 天没动的旧数据」读成「刚刚更新」（本网络今晚已因
+         「一条 3.7 天前的实时性描述被当现状引用」起过争议）。
+       ★ 且 /api/model-status 的三态（OK/EMPTY/UNREACHABLE）能顺带暴露「板不可达」，
+         不再是静默返空。 */
+    fetch(__BASE+'/api/model-status',{cache:'no-store'}).then(function(r){return r.json()}).then(function(m){
+      if(!m||m.model===null||m.version==null)return;
+      var t=m.lastChange?new Date(m.lastChange*1000):null;
+      var hh=t?(String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')):'';
+      var tally=m.boardTally||{};
+      var unreach=(tally.UNREACHABLE||0);
+      st.textContent += ' · 数据 v'+m.version+(hh?(' @'+hh):'')
+        + (unreach?(' · ⚠ '+unreach+' 源不可达'):'');
+    }).catch(function(){});
   }
 }
 function $(id){return document.getElementById(id)}
@@ -201,6 +220,71 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★★ 2026-10-12 P3（手机体验）：图谱的【列表视图】 ══════════
+   用途：小屏（≤768px）替代力导向图 —— 手机上画布挤、节点名缩成 3–4 字符、
+        节点被切边、hover 提示不可达 ⇒ 列表能读全内容。
+   ★ 口径：用【与图谱同一份 rel 数据】渲染，不另建数据源 ⇒ 两者永不漂移。
+   ★ 点击条目调用同一个 onNodeClick ⇒ 行为与点节点一致。 */
+function renderGraphAsList(box, rel, onNodeClick){
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  /* ★★ 2026-10-12 实测修正：rel 有【两种数据形状】，不能只读一种！
+     · 模式图（agents/rules/mech/knowledge/…）  ⇒ 有 rel.nodes
+     · 蓝图关系图（relations / bp-graph）        ⇒ **没有 rel.nodes**，用 rel.blueprints + rel.edges，
+       节点是 buildForceGraph 内部才从 blueprints 转出来的。
+     第一版只读 rel.nodes ⇒ 蓝图关系页渲染成「节点 0 · 关系 53」且每条关系两端标签全空。
+     ⇒ 此处按形状补齐；并统一把边的 source/target（可能是对象）归一成 id。 */
+  let nodes = rel.nodes;
+  if((!nodes || !nodes.length) && rel.blueprints && rel.blueprints.length){
+    nodes = rel.blueprints.map(function(id){return {id:id,label:id,dim:'蓝图',color:'#6ea8ff'};});
+  }
+  nodes = nodes || [];
+  const edges = rel.edges || [];
+  const eid = function(x){ return (x && typeof x==='object') ? (x.id||'') : (x==null?'':String(x)); };
+  const wrap=document.createElement('div');wrap.className='graph-list';
+  wrap.appendChild(el('div','','<div style="font-size:12px;color:#8b90a3;margin:4px 0 10px">'
+    +'📋 列表模式 · 节点 <b style="color:#e8eaf0">'+nodes.length+'</b>'
+    +' · 关系 <b style="color:#e8eaf0">'+edges.length+'</b>'
+    +' <span style="color:#5a6072">· 与图谱同源，点击条目效果同点节点</span></div>'));
+  const groups={};
+  nodes.forEach(n=>{const k=n.dim||n.kind||'其他';(groups[k]=groups[k]||[]).push(n)});
+  Object.keys(groups).forEach(k=>{
+    const g=document.createElement('div');
+    g.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:10px 0 4px">'
+      +esc(k)+' <span style="color:#5a6072;font-weight:400">('+groups[k].length+')</span></div>'));
+    groups[k].forEach(n=>{
+      const row=document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;'
+        +'border-bottom:1px solid #1a2130;cursor:pointer;min-height:42px';
+      row.innerHTML='<span style="width:9px;height:9px;border-radius:50%;flex:0 0 9px;background:'
+        +(n.color||'#8b90a3')+'"></span>'
+        +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px">'
+        +esc(n.label||n.id)+'</span>'
+        +'<span style="color:#5a6072;font-size:10.5px;flex:0 0 auto">'+esc(n.dim||'')+'</span>';
+      row.onclick=()=>{ if(typeof onNodeClick==='function') onNodeClick(n); };
+      g.appendChild(row);
+    });
+    wrap.appendChild(g);
+  });
+  if(edges.length){
+    const nm={};nodes.forEach(n=>nm[n.id]=n);
+    const ge=document.createElement('div');
+    ge.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">'
+      +'关系 <span style="color:#5a6072;font-weight:400">('+edges.length+')</span></div>'));
+    edges.forEach(e=>{
+      const sid=eid(e.source), tid=eid(e.target);
+      const s=nm[sid]||{}, t=nm[tid]||{};
+      const row=document.createElement('div');
+      row.style.cssText='padding:7px 10px;border-bottom:1px solid #1a2130;font-size:11.5px;color:#8b90a3';
+      row.innerHTML='<span style="color:'+(e.color||'#8b90a3')+'">■</span> '
+        +esc(s.label||sid||'(?)')+' <span style="color:#5a6072">→</span> '+esc(t.label||tid||'(?)')
+        +(e.type?' <span style="color:#5a6072;font-size:10.5px">('+esc(e.type)+')</span>':'');
+      ge.appendChild(row);
+    });
+    wrap.appendChild(ge);
+  }
+  if(!nodes.length) wrap.appendChild(el('div','empty','无可显示节点'));
+  box.appendChild(wrap);
+}
 function buildForceGraph(boxId,cvId,rel,big,onNodeClick){
   const box=document.getElementById(boxId);
   const cv=document.getElementById(cvId);
@@ -208,6 +292,49 @@ function buildForceGraph(boxId,cvId,rel,big,onNodeClick){
   const tip=box.querySelector('.graph-tip');
   const isAgents = rel.mode==='agents';
   const isRules = rel.mode==='rules';
+
+  /* ══════════ ★★ 2026-10-12 P3（手机体验）：图谱【列表模式】 ══════════
+     为什么：力导向图在 390px 手机上本质难用（画布挤、节点名缩成 3-4 字符、
+     节点被切边、hover 提示不可达）⇒ 提供【列表】作为小屏替代视图。
+     ★ 实现放在 buildForceGraph 内部 ⇒ 全文件 17 处图谱页【一次性全部获得】，
+       无需逐页改（这是选这个注入点的唯一理由）。
+     ★ 默认策略：≤768px 默认列表（小屏更可读），>768px 默认图谱（保持桌面原样）；
+       用户手动切换后记住选择（localStorage），并优先于宽度默认值。 */
+  try{
+    const saved=localStorage.getItem('sg:graphListMode');
+    window.__graphListMode = (saved===null) ? (window.innerWidth<=768) : (saved==='1');
+  }catch(e){ window.__graphListMode = (window.innerWidth<=768); }
+
+  if(!box.querySelector('.graph-mode-btn')){
+    const tog=document.createElement('button');
+    tog.className='graph-mode-btn';
+    tog.textContent = window.__graphListMode ? '🕸 切到图谱' : '📋 切到列表';
+    tog.title='小屏建议用列表模式（更易读）';
+    tog.style.cssText='margin:0 0 8px 0;padding:6px 12px;font-size:12px';
+    tog.onclick=()=>{
+      window.__graphListMode=!window.__graphListMode;
+      try{localStorage.setItem('sg:graphListMode',window.__graphListMode?'1':'0')}catch(e){}
+      location.reload();                     // 简单可靠：各图谱页重渲染路径多，整页重载最稳
+    };
+    box.insertBefore(tog, box.firstChild);
+  }
+  if(window.__graphListMode){
+    /* ★★ 2026-10-12 实测修正：光 append 列表不够 —— 调用方（如 renderRelations）先建了
+       graph-box(height:70vh) + canvas + 图例 + 提示，列表被 append 在它们【之后】
+       ⇒ 那块空画布仍占 70vh，列表被挤到屏幕下方（首屏完全看不到）。
+       ⇒ 必须把画布侧整体隐藏、并把容器高度解成 auto。
+       ★ 注意：CSS 在 ≤768px 有 `.graph-box{height:46vh!important}`，
+         普通内联样式赢不了 ⇒ 必须用 setProperty(..., 'important')。 */
+    try{
+      if(cv) cv.style.display='none';
+      if(tip) tip.style.display='none';
+      box.querySelectorAll('.graph-legend,.graph-hint,.graph-tip').forEach(function(e){e.style.display='none'});
+      box.style.setProperty('height','auto','important');
+      box.style.setProperty('min-height','0','important');
+    }catch(e){}
+    renderGraphAsList(box, rel, onNodeClick);
+    return;
+  }
 
   let nodes, links;
   const isMech = rel.mode==='mech';
@@ -1531,6 +1658,12 @@ function __activateView(){
   }
   if(location.hash!=='#'+start)history.replaceState(null,'','#'+start);
 }
+/* ★★ 2026-10-12 P4（手机体验）：hash 前进/后退。
+   实测：全文件只有 history.replaceState，**没有任何 hashchange 监听** ⇒
+   ① 浏览器后退键 ② iOS 的「边缘右滑返回」 ③ 直接改地址栏 hash
+   都不会切换视图 —— 而这三样在手机上是最自然的导航方式。
+   ⇒ 加监听即可；__activateView 末尾的 replaceState 在 hash 已相等时不会触发，不冲突。 */
+window.addEventListener('hashchange',function(){ try{ __activateView(); }catch(e){} });
 // ── Dashboard ──
 function renderRelations(){
   const box=$('view-relations');
@@ -1905,7 +2038,7 @@ function notifyMgr(event, detail, level){
   };
 })();
 function renderLabView(box){
-  // 🧪 连接实验室 · 图呈现: 实线=已有边 · 虚线=潜在候选(虚线可 hover/点击看原因)
+  // 🧪 连接实验室 · 图呈现: 实线=已有边 · 虚线=潜在候选(虚线可 轻点/点击 看原因)
   box.appendChild(el('h3','', '🧪 连接实验室 · 潜在连接图(虚线=候选 · 轻点看理由 · 点击虚线展开完整原因)'));
   const ctl=el('div','');ctl.style.cssText='margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px';
   ctl.innerHTML='<span><span style="color:#f5b942">┅┅ 黄虚线</span>=中潜候选</span>'+

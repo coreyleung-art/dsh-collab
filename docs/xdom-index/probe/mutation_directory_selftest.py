@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""mutation_directory_selftest.py — 证明 xdom-directory.py 的 --selftest / 结构门【会变红】（v4，对 v0.4.1）
+"""mutation_directory_selftest.py — 证明 xdom-directory.py 的 --selftest / 结构门【会变红】（v5，对 v0.4.3）
 
 ★ 为什么必须有这一支
   本轮的教训（我对 int 的 S3）：一条控若不能被负控打红，它就是**空转绿**。
@@ -27,6 +27,11 @@
   ⇒ ★ N PASS / 0 FAIL **掩盖了**这件事。M17 把「短键段不再跳过」打回旧口径，
     期望只有**新夹具**（复刻活板 12 位键）能把它打红。
 
+★ v5（对 v0.4.3）新增 M18 / M19 —— ★ 触发是**我自己的一个自曝**：
+  v0.4.2 及以前渲染标题用 `f"{p['subject'][:44]}{w}"` —— **静默硬切无省略号**，
+  ★ 且把**告警徽章粘进标题格**。★ M18 打回「截断不留痕」· M19 打回「告警粘回标题格」。
+  ★ 两条各自的期望控**不同** —— ★ 只留一条会漏掉「干脆把告警删掉」那种改法。
+
 用法: python3 docs/xdom-index/probe/mutation_directory_selftest.py
 """
 import contextlib
@@ -50,6 +55,9 @@ SESSION_MATCH_LINE = '    mm = _SESSION_RE.match(v)\n'
 REPLY_TO_LINE = '    rk = m.get("reply_to_key")\n'
 SKEW_LINE = '            out.append(W_KEY_VS_FIELD)\n'
 SKEW_GUARD_LINE = '    if ts is not None and kts is not None:\n'
+# ★★ v0.4.3：渲染层的两个锚点（截断留痕 / 告警分列）
+CLIP_RET_LINE = '    return f"{s[:n]}…（原文 {len(s)} 字）"\n'
+SUBJ_CELL_LINE = '                 f"{_clip(p[\'subject\'], 44)} | {warns} |")\n'
 GATE_ANCHOR = 'LOG_PREFIX = NS + "/log/"\n'
 
 # ★ mode: "selftest"（比对 PASS/FAIL 是否变红） · "gate"（问门自己：注入的写请求有没有被拒）
@@ -111,6 +119,17 @@ MUTANTS = [
     ("M17 短键段**跳过**时间检查（★ 打回 v0.4.0 口径）", "selftest", SKEW_GUARD_LINE,
      "    if ts is not None and kts is not None and len(kts) == 15:\n",
      "★★ **本组最重要的一条**：短键段**也**必须做「键段 vs 字段时间」检查"),
+
+    # ── ★★ v0.4.3 新加 2 条：把「截断留痕」与「告警分列」分别打回 v0.4.2 口径 ──
+    #    ★ 这两条的直接触发是**我自己的一个自曝**：v0.4.2 及以前渲染标题用
+    #      `f"{p['subject'][:44]}{w}"` —— ★ **静默硬切、无省略号**，
+    #      ★ 且把**告警徽章粘进标题格**。活板实证见源码 `_clip()` 文档串。
+    ("M18 截断**不留痕**（★ 打回 v0.4.2 的静默硬切）", "selftest", CLIP_RET_LINE,
+     "    return s[:n]\n",
+     "★ 渲染正控：超长标题"),
+    ("M19 告警**粘回标题格**、告警列置空（★ 打回 v0.4.2 口径）", "selftest", SUBJ_CELL_LINE,
+     '                 f"{p[\'subject\'][:44]}{warns} | — |")\n',
+     "★★ 渲染正控：**告警不得混进标题格**"),
 ]
 
 

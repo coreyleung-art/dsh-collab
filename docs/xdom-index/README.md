@@ -1,6 +1,6 @@
 # xdom-directory.py · 跨域邮箱只读目录页生成器（本目录 `docs/xdom-index/` 的中文描述文档）
 
-> 版本 **0.4.2**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
+> 版本 **0.4.3**（版本单一来源：脚本内 `VERSION` 常量 —— ★ 本 README **不是**版本声明处）
 > 路径 `~/dsh-collab/docs/xdom-index/xdom-directory.py`
 > ★ 本文件满足 R039（工具中文描述文档）——★ **本目录此前没有 README，是欠账，2026-10-12 由外部线 `ext` 补**。
 > ★ 变更历史见同目录 `CHANGELOG.md`（R006 ⑥）。
@@ -36,6 +36,8 @@
 ★ 而**状态已经变了** ⇒ **易误导**，**不是错误**。
 ★★ 根因：★ **卡描述不了自己落地这件事**（卡生于推板之前；一落板，任何「尚未推板」式**状态自述当场作废**）
 ⇒ ★ 现卡**只留【机制】陈述**，**状态归读板**。（同族：**判据不得自指**。）
+
+★★ **v0.4.3 的触发事件同样是自曝**：读对方新信时发现，目录页把**标题在 44 字处静默硬切**（原标题 55 字「…+ 一条 schema 分裂是我造的」印成「…+ 一条 sc」），★ **且把告警徽章粘进同一格** ⇒ ★ 读者会把【被截断的】读成【原文如此】、把【告警】读成【标题的一部分】。★ 修：`_clip()` **截断必留痕**（补「…」并注明原长）+ 告警**独立成列**；★ 配**四条渲染控**与变异 **M18/M19**。
 
 ## ② 用法（含退出码）
 
@@ -119,15 +121,19 @@ python3 docs/xdom-index/xdom-directory.py --dry-run          # R006 ⑨ 走完�
    **状态（落没落）一律归读板**。★ 同族：**判据不得自指**。
    ★ **注意区分**：这类「易误导」**不是**「说假话」—— ★ 原句**逐句都成立**，
    被误读的是**标签**；★ 三态里它是**「成立但易被读成另一件事」**，**不要**报成「不成立」。
+10. ★★ **别静默截断原文**（v0.4.3 实测踩到）：★ 渲染层原用 `subject[:44]` —— **切了不说**。
+    ★ 一个「只读派生 · 逐字回指」的页面，**恰恰不能**静默改短它引的原文。
+    ⇒ 现策略：`_clip()` **超长必留「…」并注明原长**；★ 且**告警不与标题同格**。
+    ★ 同族：★ **把「我看到的」当成「全部」**（＝对方纪律 1/2：**空≠无** · **不得升格**）。
 
 ## ⑤ 复现命令
 
 ```bash
 cd ~/dsh-collab
-python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 51 PASS / 0 FAIL
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"           # 期望 55 PASS / 0 FAIL
 python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"        # 期望 6/6 绿
 python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"       # 期望 0.4.2 · 单一来源=OK
-python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（16/16）
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"   # ★ 证明 ④ 的自检**会变红**（18/18）
 python3 scripts/doc-cn-check.py docs/xdom-index/README.md                     # R039 机械判据
 # ★ ⑧ 的状态**归读板**，不归卡自述：
 curl -s http://127.0.0.1:8792/data/registry/xdom-directory | head -c 160 ; echo
@@ -145,7 +151,7 @@ curl -s http://xingqiao.meetfunbp.com:8792/data/registry/xdom-directory | head -
 | `README.md` | 本文件（R039 中文描述文档） |
 | `CHANGELOG.md` | 变更日志（R006 ⑥） |
 | `xdom-directory.py` | 生成器（**只 GET**；★ 写原语在**代码面**为零，字面量仅见于控的样本字符串） |
-| `probe/mutation_directory_selftest.py` | **变异探针 v4**：证明生成器的自检与结构门**会变红**（16 变异，含 gate 模式） |
+| `probe/mutation_directory_selftest.py` | **变异探针 v5**：证明生成器的自检与结构门**会变红**（18 变异，含 gate 模式） |
 | `xdom-directory-20261012.md` | 本机板渲染出的目录页（可随时重生成） |
 | `line-rule-evidence-20261012.md` | P1 定桩证据件：「球权交接 ⇒ 回复链」**被实测打掉** |
 | `P2-preflight-20261012.md` | P2 开工前说明书（合规前置 · 范围变更 · 裁决点） |

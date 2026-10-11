@@ -130,13 +130,13 @@
    "state": "closed_with_evidence",
    "v6_6_update": "★ 2026-10-12 本线：★★ **C4 已注入完成**—— **6/6 agent 预设**的 `persona.text` 各追加两行（引用索引键 + 开工三步）；★ **故不再是 blocked** —— 原 `blocked_reason`「需改 CLD preset」**已完成**。★★ 但★ **不记 `closed`**：① 生效未验（预设挂载时读取 ⇒ 需新会话）② S3（本线自证不算数）。★ 回滚点 6 个：`guard/backups/*pre-c4*`。★ 详见台账 **D-098 / D-099**。",
    "evidence": [
-    "2026-10-12 实测：6/6 agent 预设的 persona.text 均含 continuity-index（覆盖率断言缺口=0）",
-    "回滚点 6 个：guard/backups/*pre-c4*",
-    "结构级验证：锚点命中 1 次 · 缩进一致 · 占位符未坏",
-    "blackboard:data/registry/continuity-index"
+    "blackboard:data/registry/continuity-index",
+    "docs/deviation-ledger-20261011.md",
+    "~/.dsh/.agent-presets/standard-compact/agent.cordis.yml"
    ],
    "verifier": "★ **missing**：★ 仅「注入完成」这一子项可证；★★ **生效未验** ⇒ 另立 **C4-b**。★ 依 S3，本项不得重新计为「未做」。",
-   "scope": "★ **仅限「注入」**（改 6 个预设）；★ 「生效」另立 C4-b"
+   "scope": "★ **仅限「注入」**（改 6 个预设）；★ 「生效」另立 C4-b",
+   "evidence_note": "★ 下列散文原在 `evidence` 数组里 ⇒ `beacon-check --net` 判 `C4 证据指针可解 = FAIL`（★ `resolve_evidence()` 只认 `blackboard:` / `agentsrc:` / 文件路径）。已改为：可解指针放 `evidence`，散文放本字段。| ★ 2026-10-12 实测：6/6 agent 预设的 persona.text 均含 continuity-index（覆盖率断言缺口=0）| ★ 回滚点 6 个：`guard/backups/*pre-c4*`| ★ 结构级验证：锚点命中 1 次 · 缩进一致 · 占位符未坏"
   },
   {
    "id": "C4-b",
@@ -933,7 +933,7 @@
  "resume_prompt_generator": "tools/mk-resume-prompt.py",
  "schema": "continuity-index/v1",
  "state_version": 6,
- "updated_at": "2026-10-12T03:26:51+08:00",
+ "updated_at": "2026-10-12T03:34:49+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -947,7 +947,7 @@
   {
    "id": "C",
    "name": "信标（C1 索引键 / C2 锚点 / C3 续接提示词 / C4 自启动注入 / C5 反遗忘校验 / C6 状态机登记 / C7 证伪门与半修清单）",
-   "note": "C2 早已在位；C1/C3/C5 于 2026-10-09T06:3x 由外部第三方建立并记 closed（★ C3/C5 verifier 标「待第三方复核」，C1 无 verifier 字段 ⇒ 与 §5.1「未证不得记 closed」冲突，待裁）；C6/C7 已 in_flight（2026-10-10T01:44）；**C4 未做**（需改 CLD preset）。",
+   "note": "★ **C4 自启动注入已注入（2026-10-12）**；★ 其【生效验证】另立 **C4-b**。",
    "owner": "外部第三方（C1/C3/C5）+ CLD 新会话（C4/C6/C7）",
    "state": "in_flight",
    "updated": "2026-10-10T07:16:53+08:00"

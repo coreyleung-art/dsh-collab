@@ -65,6 +65,17 @@
   ⇒ 修法**不是改口**，是**把状态从卡里拿掉**：卡**只留【机制】陈述**（恒真），
     **状态由读板得出**，不由卡自述。★ 键名 `r006_8_gap` **保留不变**（不破坏既有消费方）。
 
+★ v0.4.2 → v0.4.3 的改动（★ 触发事件是**读对方新信时撞出来的一个自曝**）
+  ★ 撞见方式：我读 int 新信时，目录页那一格印成「…+ 一条 sc ⚠W-KEY-TS-FORMAT/W-KEY-VS-FIELD-TS」。
+    ★ 回查原文：`subject` 实为「…+ 一条 schema 分裂是我造的」（**55 字**）。
+  ★★ 缺陷（v0.4.0–v0.4.2 一直在）：`f"{p['subject'][:44]}{w}"` ——
+    ① ★ **静默硬切、无省略号** ⇒ 读者把【被截断的】读成【原文就是这样】；
+    ② ★ 把**告警徽章粘进标题格** ⇒ 两样东西同格无分隔。
+  ★★ 同族：★ **把「我看到的」当成「全部」** —— ★ 正是对方纪律 1/2（空≠无 · 不得升格）。
+  ⇒ ① 新增 `_clip(s, n)`：超长补「…」**并注明原长**；② 告警**独立成列**（★ 搬家，不丢）；
+    ③ 新增**四条渲染控**（长标题必留痕 · 短标题**不得**留痕【负控】· 告警**不得**在标题格 ·
+       告警**必须**在告警列**且一条不少**）；④ 探针新增 **M18 / M19**（分别打回这两处）。
+
 ★ 本支定位（五条，写死）
   ① **只读**：网络侧**只 GET**，**不写板上任何键**（★ 结构门封堵，见 `--lean4-check`）。
   ② **派生**：整页可由 log 重建 ⇒ 读模型，不是新的事实来源。
@@ -133,7 +144,7 @@ if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
 
 
 # ═══ ★ R006 ⑥ 唯一版本声明处 ═══（★ 全文件**只此一处**，`--tool-version` 自动反查源码自证）
-VERSION = "0.4.2"
+VERSION = "0.4.3"
 
 
 import argparse
@@ -630,6 +641,22 @@ def _short(k):
     return k[len(LOG_PREFIX):] if k.startswith(LOG_PREFIX) else k
 
 
+def _clip(s, n):
+    """★ 截断**必须留痕**（v0.4.3）：超长时补「…」**并注明原长**。
+
+    ★★ 为什么要为它单写一个函数（★ 本线自曝，2026-10-12）：v0.4.2 及以前这里是
+      `p['subject'][:44]` —— ★ **静默硬切、无省略号** ⇒ ★ 读者会把【被截断的】
+      读成【原文就是这样】。★ 活板实证（int-accepts-three-findings-…）：
+      原文「…（配额：是，共用）+ 一条 schema 分裂是我造的」（**55 字**），
+      ★ 页面渲染成「…（配额：是，共用）+ 一条 sc」—— ★ 且**告警徽章被粘进同一格**。
+    ★ 同族：**把「我看到的」当成「全部」** —— ★ 正是对方纪律 1/2（空≠无 · 不得升格）。
+    """
+    s = s or ""
+    if len(s) <= n:
+        return s
+    return f"{s[:n]}…（原文 {len(s)} 字）"
+
+
 def render_md(idx, board):
     T, TH, U = idx["totals"], idx["threading"], idx["undecidable"]
     L = ["# 跨域邮箱 · 目录页（只读派生 · v" + VERSION + "）", "",
@@ -652,13 +679,15 @@ def render_md(idx, board):
           f" 事实边仅 **{T['edges_fact']}** 条 ⇒ 算不出来（见 §三 R1–R6） |", ""]
 
     L += ["## 一、逐封账目（时间倒序 · ★ 只放**事实**，推断不在此表）", "",
-          "| 楼（键尾） | 时间 | schema | from→to | 球 | **要求回** | 标题 |",
-          "|---|---|---|---|---|---|---|"]
+          "| 楼（键尾） | 时间 | schema | from→to | 球 | **要求回** | 标题 | 告警 |",
+          "|---|---|---|---|---|---|---|---|"]
     for p in reversed(idx["posts"]):
-        w = (" ⚠" + "/".join(p["warnings"])) if p["warnings"] else ""
+        # ★ v0.4.3：告警**移出标题格**（★ v0.4.2 及以前把它粘在标题后面 ⇒ 两样东西同格无分隔，
+        #   ★ 读者会把「键格式告警」读成「标题的一部分」）。
+        warns = ("⚠ " + " · ".join(p["warnings"])) if p["warnings"] else "—"
         L.append(f"| `{_short(p['key'])}` | {p['ts']} | `{p['schema']}` | {p['from']}→{p['to']} | "
                  f"{p['ball']} | {'★ **是**' if p['requires_reply'] else '否'} | "
-                 f"{p['subject'][:44]}{w} |")
+                 f"{_clip(p['subject'], 44)} | {warns} |")
     L += ["",
           "> ★ 「要求回=是」**不等于**「现在还欠」—— 前者是这封的属性，后者要看后面有没有人回过。"
           "本页**只印前者**。", ""]
@@ -1069,6 +1098,29 @@ def selftest():
         "topic": "T-V2", "from": "int", "to": "ext", "reply_required": True}}, {})
     chk(W_UNKNOWN_SCHEMA in [w["warn"] for w in _un["warnings"]],
         "★ schema 负控：两套字段名都认不出 ⇒ 亮 `W-UNKNOWN-SCHEMA`（★ 不静默丢信）")
+
+    # ═══ ★★ v0.4.3 渲染控：截断留痕 + 告警不再粘进标题格 ═══
+    _long_subj = "标题" * 30                      # 60 字 ⇒ 必被截
+    _rx_long = render_md(build_index({LOG_PREFIX + "20261012T060000-int-v9-longsubj": {
+        "topic": "T-RX", "from": "int", "to": "ext", "ts": "2026-10-12T06:00:00",
+        "ball": "ext", "reply_required": True, "subject": _long_subj, "ref": []}}, {}), "local")
+    chk("…（原文 60 字）" in _rx_long,
+        "★ 渲染正控：超长标题 ⇒ **必须**带「…」**并注明原长**"
+        "（★ v0.4.2 及以前是 `subject[:44]` **静默硬切**，读者会读成「原文如此」）")
+    _rx_short = render_md(build_index({LOG_PREFIX + "20261012T060100-int-v9-shortsubj": {
+        "topic": "T-RX", "from": "int", "to": "ext", "ts": "2026-10-12T06:01:00",
+        "ball": "ext", "reply_required": True, "subject": "短的标题", "ref": []}}, {}), "local")
+    chk("…" not in _rx_short,
+        "★ 渲染**负控**：短标题 ⇒ **不得**出现「…」（证明上一条不是恒真）")
+    # ★★ 告警必须**搬走**、不能被**丢掉** —— 用短键段夹具（它必产两条时间告警）
+    _sk_logs, _ = _fixture_shortkey()
+    _rx_w = render_md(build_index(_sk_logs, {}), "local")
+    _wrows = [r for r in (ln.split("|") for ln in _rx_w.splitlines())
+              if len(r) == 10 and r[1].strip().startswith("`20261012T0240")]   # ★ 只取 §一 的 **8 列**行
+    chk(bool(_wrows) and all("W-KEY" not in r[7] for r in _wrows),
+        "★★ 渲染正控：**告警不得混进标题格**（★ v0.4.2 及以前 `f\"{subject[:44]}{w}\"` 正把它粘在那里）")
+    chk(bool(_wrows) and all("W-KEY" in r[8] for r in _wrows),
+        "★★ 渲染正控：告警**必须落在告警列**、且**一条不少**（★ 证明它是【搬家】不是【丢掉】）")
 
     # ═══ ★ ⑩ 结构门自控：扫描器**不是空转** ═══
     chk(scan_forbidden(_FIXTURE_CLEAN_SRC) == [],

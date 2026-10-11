@@ -8,6 +8,53 @@
 
 ---
 
+## [0.4.3] 2026-10-12 · ★ 触发事件是**读对方新信时撞出来的一个自曝**
+
+**触发**：读 `int` 新信（`…int-discipline-triple-and-to-2bd0`）时，注意到目录页那一格印着
+「…+ 一条 sc ⚠W-KEY-TS-FORMAT/W-KEY-VS-FIELD-TS」。★ 回查原文：`subject` 实为
+「…+ 一条 schema 分裂是我造的」（**55 字**）。
+
+★★ **缺陷（v0.4.0–v0.4.2 一直在）**：`f"{p['subject'][:44]}{w}"` ——
+| # | 毛病 | 后果 |
+|---|---|---|
+| ① | **静默硬切、无省略号** | ★ 读者把【被截断的】读成【原文就是这样】 |
+| ② | **告警徽章粘进标题格** | ★ 两样东西同格无分隔 ⇒ 把「键格式告警」读成「标题的一部分」 |
+
+★★ **同族**：★ **把「我看到的」当成「全部」** —— ★ 正是对方纪律 1/2（**空 ≠ 无** · **不得升格**）。
+★ 我拿这条当**回信里的自曝实例**，比当谈资有用。
+
+### 改动
+
+| # | 改动 | 它的**控制**是什么 |
+|---|---|---|
+| ① | 新增 `_clip(s, n)`：超长补「…」**并注明原长** | ★ 渲染正控（长标题 ⇒ **必须**留痕）**+ 负控**（短标题 ⇒ **不得**留痕）· 变异 **M18** |
+| ② | 告警**独立成列**（★ 参数表加「告警」列） | ★ 渲染正控 ×2（告警**不得**在标题格 · 告警**必须**在告警列**且一条不少**）· 变异 **M19** |
+| ③ | `VERSION` → `0.4.3` | R006 ⑥ `--tool-version` 自证单一来源 |
+
+★ **②的第二条控是关键的**：它证明告警是**搬家**、**不是丢掉** —— ★ 只写「不得在标题格」会漏掉「干脆删掉」。
+
+### 渲染实测（同一时刻 · 两封真有告警的信）
+
+| 读数 | v0.4.2 | **v0.4.3** |
+|---|---|---|
+| 标题格 | `…+ 一条 sc ⚠W-KEY-TS-FORMAT/W-KEY-VS-FIELD-TS` | **`…+ 一条 sc…（原文 55 字）`** |
+| 告警 | ★ 粘在标题格里 | **独立列**：`⚠ W-KEY-TS-FORMAT · W-KEY-VS-FIELD-TS` |
+| 其余读数 | 20 楼 · 要求回 13 · 事实边 6 · 推断边 11 | ★ **全部不变**（本次只动渲染，不动账目） |
+
+### 复跑（★ 自包含绝对路径 · 不含 `/tmp`）
+
+```bash
+cd /Users/coreyleung/dsh-collab
+python3 docs/xdom-index/xdom-directory.py --selftest ; echo "rc=$?"          # 期望 55 PASS / 0 FAIL
+python3 docs/xdom-index/xdom-directory.py --lean4-check ; echo "rc=$?"       # 期望 6/6 绿
+python3 docs/xdom-index/xdom-directory.py --tool-version ; echo "rc=$?"      # 期望 0.4.3 · 单一来源=OK
+python3 docs/xdom-index/probe/mutation_directory_selftest.py ; echo "rc=$?"  # 期望 18/18 变红
+# ★ 渲染实测（标题须带「…（原文 N 字）」、告警须在末列）：
+python3 docs/xdom-index/xdom-directory.py | grep -E 'int-accepts-three|int-s3-reproduced'
+```
+
+---
+
 ## [0.4.2] 2026-10-12 · ★ 触发事件是**把 ⑧ 卡真的推上板之后，回头读自己推上去的那张卡**
 
 **触发**：⑧ 落链由外部写手（`tools/bb_dualwrite.py`）**真的落地**后，回读板上的卡 ——
