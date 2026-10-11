@@ -33,6 +33,8 @@ __version__ = "1.1.0"   # ★ R006 ⑥ 唯一版本声明处
 LOG = os.path.expanduser("~/dsh-collab/logs/mutation-gate.log")
 DEFAULT_MANIFEST = os.path.expanduser("~/dsh-collab/guard/mutation-manifest.json")
 MUT_PREFIX = ".mutgate-"
+# ★ 2026-10-12 B：runtime_fault 无临时文件 ⇒ 用哨兵代替路径（check_one 据此跳过清理）
+RUNTIME_SENTINEL = "__RUNTIME__"
 V_PASS, V_REJECT, V_UNDECIDABLE = "PASS", "REJECT", "UNDECIDABLE"
 
 
@@ -72,13 +74,22 @@ def _safe_remove(path, tool_dir):
 
 
 # ══════════════ 探针 ══════════════
-def run_probe(tool, args, timeout=600):
-    """★ 返回 (rc, out)。★ rc=None ⇒ 不可判，不是失败。"""
+def run_probe(tool, args, env=None, timeout=600):
+    """★ 返回 (rc, out)。★ rc=None ⇒ 不可判，不是失败。
+
+    ★ 2026-10-12 B（载荷指纹门）：新增 `env` 形参，**默认 None ⇒ 与旧版逐字同行为**
+      （向后兼容，不动任何既有调用点）。供 runtime_fault 类变异注入运行时条件，
+      例如把数据源指向死地址，以检验「载荷内容闸」在数据真缺失时是否会红。
+    """
     if not os.path.exists(tool):
         return None, "工具不存在：%s" % tool
+    runenv = None
+    if env:
+        runenv = dict(os.environ)
+        runenv.update({str(k): str(v) for k, v in env.items()})
     try:
         r = subprocess.run([sys.executable, tool] + list(args), capture_output=True,
-                           text=True, timeout=timeout,
+                           text=True, timeout=timeout, env=runenv,
                            cwd=os.path.dirname(os.path.abspath(tool)) or ".")
     except subprocess.TimeoutExpired:
         return None, "探针超时（%ss）⇒ 不可判" % timeout
@@ -104,9 +115,22 @@ def apply_mutation(tool, mut):
 
     ★ 副本放【与原文件同目录】（依赖 `__file__` 定位资源的工具才跑得起来），
       故用 .mutgate- 前缀，**用后一律经 _safe_remove**。
+
+    ★★ 2026-10-12 B（载荷指纹门）新增第二种变异：`runtime_fault`
+      —— 它**不产出任何临时文件**，靠**环境变量**注入运行时条件（如把数据源指向死地址），
+      用于检验「载荷内容闸」在数据真缺失时是否会红。
+      ★ 因无文件可指，它返回【哨兵】RUNTIME_SENTINEL 而非路径；check_one 识别后
+        **跳过清理**（对不存在的文件调 _safe_remove 语义是错的，虽会被白名单拦住）。
+      ★ 选 env 而非源码替换的理由：**不改被测工具一个字节** ⇒ 测的是「运行环境变了它会怎样」，
+        而不是「源码被改坏了它会怎样」——后者对「内容闸是否真的会红」是弱证据。
     """
+    if mut.get("kind") == "runtime_fault":
+        env = mut.get("env")
+        if not isinstance(env, dict) or not env:
+            return None, "runtime_fault 缺 env（或为空）⇒ 不可判"
+        return RUNTIME_SENTINEL, "runtime_fault：注入环境 %s（★ 无临时文件，不产生清理目标）" % sorted(env.keys())
     if mut.get("kind") != "py_replace":
-        return None, "未知变异类型 %r（冻结枚举：py_replace）⇒ 不可判" % mut.get("kind")
+        return None, "未知变异类型 %r（冻结枚举：py_replace / runtime_fault）⇒ 不可判" % mut.get("kind")
     find, repl = mut.get("find"), mut.get("replace")
     if not isinstance(find, str) or not find:
         return None, "py_replace 缺 find ⇒ 不可判"
