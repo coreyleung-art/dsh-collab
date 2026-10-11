@@ -1,6 +1,6 @@
 {
   "name": "dsh-plugin-cldvoice",
-  "version": "0.12.2",
+  "version": "0.13.0",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
