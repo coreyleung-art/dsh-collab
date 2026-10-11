@@ -573,7 +573,7 @@ window.__ModuleLoader__.load({
       fetch('/voice/send', {
         method:'POST', headers:{'content-type':'application/json'},
         body: JSON.stringify({ to: talkTarget.id || undefined, name: talkTarget.title,
-                               text: t, sender: 'ui' }),
+                               text: t, sender: 'ui', origin: 'floatball-talk' }),
       }).then(function(r){ return r.json(); })
         .then(function(j){
           if (j && j.ok) { setEng({ note: '已发给「' + (j.title || talkTarget.title) + '」· 等它回话' }); return; }
@@ -607,7 +607,7 @@ window.__ModuleLoader__.load({
       fetch('/voice/send', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: name, text: text, sender: 'ui' }),
+        body: JSON.stringify({ name: name, text: text, sender: 'ui', origin: 'floatball-voice' }),
       }).then(function (r) { return r.json().then(function (j) { return { code: r.status, j: j }; }); })
         .then(function (x) {
           const j = x.j || {};

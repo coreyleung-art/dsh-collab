@@ -145,8 +145,12 @@ def fwd_once(check=False):
 
 
 # ═══════════ E2 注册表：G5 判定 + 写时变更 ═══════════
+# ★ 2026-10-10 交接修复：首任星桥（session-fa1f9150-c949-4…）已于 2026-10-09 因 P26 bricked，
+#   而本表**仍把它广播为「星桥(协调者)」** —— 读 data/discovery/agents/mac-mini 的任何 agent
+#   都会看到一个**死掉的协调者**。角色属「任次」不属「某个会话」⇒ 移交给在任者。
+#   旧行（留档）：星桥(协调者) => session-fa1f9150-c949-401f-ba8c-d265f6221676
 REGISTRY_SESSIONS = [
-    {"session_id": "session-fa1f9150-c949-401f-ba8c-d265f6221676", "role": "星桥(协调者)"},
+    {"session_id": "session-e317d6ab-5302-4b33-b095-947983ba16f4", "role": "星桥(协调者)"},
     {"session_id": "session-a190c54c-ca73-4845-9a65-9dc002d45044", "role": "明鉴(SystemGraph架构)"},
     {"session_id": "session-2a15e6b1-32a9-48b3-a167-8fe0a28e8d82", "role": "HR司库"},
 ]
