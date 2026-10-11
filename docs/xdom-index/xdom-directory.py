@@ -67,7 +67,12 @@ def selfcheck():
     print("  · 把 `notes/xdom/log/**` 派生为一页只读目录（Markdown / JSON 两形）")
     print("  · 报三个读数：楼数 · 要求回复的楼数 · 「现在还欠谁一句」= 不可判")
     print("  · 边分两类并**分栏**：fact（ref 指信键且目标键存在）/ inferred（顺序邻接推断）")
-    print("  · 不可判清单 R1–R6 逐条带计数（R5 结构性，印「结构性不可判」不印 0）")
+    print("  · 不可判清单 **R1–R8** 逐条带计数（R5 结构性，印「结构性不可判」不印 0）")
+    print("  · **schema 适配**：v1(`ts`/`ball`/`ref`/`from_session`) 与 "
+          "v2(`sent_at_epoch_ms`/`awaiting`/`reply_to_key`/`thread`/`from_label_hint`) **并读**")
+    print("  · **参与方归一**：剥 `session-` 前缀 + 语料内自证映射；★ 归一不了记 **R8**、**不猜**")
+    print("  · **warnings** 五种（unknown-schema / 无时间 / 归一失败 / 键段格式 / 键段 vs 字段时间不符）")
+    print("  · 共线读数 **两栏并印**（归一后 vs 原始串比）⇒ 证明归一非空转")
     print("  · 水位未读：按 `cursor/<party>` 的 `upto` 与**键序**比较")
 
     print("【② 不该发生路径清单】")
@@ -313,11 +318,24 @@ def _code_only(src):
 
 
 def scan_forbidden(src):
-    """⇒ 命中的禁止原语列表（空 = 干净）。**纯函数**，可对合成样本做正/负控。"""
+    """⇒ 命中的禁止原语列表（空 = 干净）。**纯函数**，可对合成样本做正/负控。
+
+    ★★ v0.4.0 **修了一处自家门的假阳性**（★ 被 `--lean4-check` 自己逼出来的）：
+      旧式 `\\bcompile\\b` 会把 **`re.compile(...)`** 判成「使用了内建 `compile`」
+      ⇒ ★ 本版一加正则常量，门立刻变红。**但红的是门，不是代码。**
+      ⇒ ★ 判据改对：**裸名**（内建 `eval` / `exec` / `compile` / `__import__`）
+        只认**非属性访问**的出现（前面不能是 `.`）——
+        ★ `re.compile` 与内建 `compile` **是两个不同的东西**，混淆它们就是又一次「判据取错对象」。
+    ★ **反面风险（★ 必须自证没被削弱）**：改写后**真的** `compile(...)` 调用**仍须命中**
+      ⇒ `--lean4-check` 的 A 项现在带**两个正控**（写请求注入 + 内建调用注入）。
+    """
     code = _code_only(src)
     hits = []
     for name in _FORBIDDEN_IDENT:
-        pat = r"\b" + re.escape(name).replace(r"\.", r"\s*\.\s*") + r"\b"
+        if "." in name:
+            pat = r"\b" + re.escape(name).replace(r"\.", r"\s*\.\s*") + r"\b"
+        else:
+            pat = r"(?<![\w.])" + re.escape(name) + r"\b"
         if re.search(pat, code):
             hits.append(name)
     for pat in _FORBIDDEN_PAT:
@@ -759,6 +777,41 @@ def _fixture_edges():
     return logs, {}
 
 
+# ★ 第 16 楼 `sent_at_epoch_ms` 的**实测值**（★ 不是我算的，是直读活板抄下来的）
+_V2_EPOCH_MS = 1791741722561
+# ★ 第 16 楼 `to` 的会话 ID（★ 注意：v1 写 `from_session` 时**不带** `session-` 前缀，v2 写 `to` 时**带** —— 同一台机器两种写法）
+_V2_SESSION = "005a2c58-7439-4ad5-bebf-815b29c2ca4a"
+
+
+def _fixture_v2():
+    """★ v2 schema 夹具 —— 逐字复刻活板第 16 楼的**字段形态**（值亦取自实测）。
+
+    ★ 它存在的理由（★ 本线**第 6 次**「判据取错对象」）：
+      v0.3.0 只认 v1 字段名 ⇒ 把这封**真信**读成 `ts=None` `ball=None` `ref=[]`
+      ⇒ `requires_reply=False` ⇒ ★ **从「欠账」里静默消失**（旗舰读数 R6 报 0）。
+      ⇒ 本夹具把那条**当时没有被任何控制覆盖的分支**做成有控的。
+
+    ★ 一并覆盖：`reply_to_key` 计入事实边 · 键段 vs 字段时间不符告警 ·
+      **归一后 vs 原始串** 共线两栏必然分叉（证明归一**非空转**）。
+    """
+    logs = {
+        # v1 楼：★ 只为让 `_build_alias` 能把会话 ID 映射到参与方名 ——
+        #   ★ 映射**只能**从语料内自证（同一封信自己声明 (名字, 会话ID)），不写死
+        LOG_PREFIX + "20261012T020000-ext-v1-anchor": {
+            "topic": "T-V2", "from": "ext", "to": "int", "from_session": _V2_SESSION,
+            "ts": "2026-10-12T02:00:00", "ball": "int",
+            "reply_required": True, "subject": "v1 锚点", "ref": []},
+        # ★ v2 楼：逐字复刻第 16 楼 —— **没有** ts / ball / ref / from_session
+        LOG_PREFIX + "20261012T024000-int-v2-replica": {
+            "topic": "T-V2", "from": "int", "to": "session-" + _V2_SESSION,
+            "sent_at_epoch_ms": _V2_EPOCH_MS, "awaiting": "ext",
+            "reply_to_key": LOG_PREFIX + "20261012T020000-ext-v1-anchor",
+            "thread": "T-V2", "from_label_hint": "星桥",
+            "reply_required": True, "subject": "v2 复刻", "writerLabel": "星桥"},
+    }
+    return logs, {}
+
+
 def selftest():
     ok = fail = 0
 
@@ -836,11 +889,78 @@ def selftest():
     chk(E["threading"]["ball_eq_to"] == 5 and E["threading"]["posts_seen"] == 6,
         "★ 共线控：ball==to = 5/6 ⇒ **不是 100%** ⇒ 该分支有否例（真语料上是 15/15，故本夹具特意破一例）")
 
+    # ═══ ★★ v0.4 schema 适配控（★ 本组存在的理由：v0.3.0 把真信读成【空信】）═══
+    V = by(*_fixture_v2())
+    VA = build_index(*_fixture_v2())
+    R2_ = V[LOG_PREFIX + "20261012T024000-int-v2-replica"]
+    chk(V[LOG_PREFIX + "20261012T020000-ext-v1-anchor"]["schema"] == "v1"
+        and R2_["schema"] == "v2",
+        "★ schema 控：v1 楼判 v1 · v2 楼判 v2（**判据是字段名存在性**，不是内容）")
+    chk(R2_["requires_reply"] is True,
+        "★★ **回归控（本组最重要的一条）**：v2 信 `awaiting='ext'` ⇒ requires_reply=**True**"
+        "（★ v0.3.0 此处置 False ⇒ 它从「欠账」里【静默消失】）")
+    chk(R2_["ball"] == "ext" and R2_["ball_field"] == "awaiting" and R2_["ball_present"] is True,
+        "★ 球权控：v2 的 `awaiting` 读作球权（★ 与 v1 的 `ball` 同义），且标出**取自哪个字段**")
+    chk(R2_["to"] == "ext" and R2_["to_raw"] == "session-" + _V2_SESSION and R2_["party_ok"] is True,
+        "★ 归一键控：`to=session-…` **剥前缀后归一到 `ext`**（★ 原始串保留在 `to_raw`，不改事实）")
+    chk(R2_["ts_src"] == "sent_at_epoch_ms" and R2_["ts"] is not None,
+        "★ 时间控：v2 无 `ts` ⇒ 回落到 `sent_at_epoch_ms` 并**标出来源字段**")
+    chk(LOG_PREFIX + "20261012T020000-ext-v1-anchor" in R2_["ref"]
+        and R2_["ref_fields"][LOG_PREFIX + "20261012T020000-ext-v1-anchor"] == "reply_to_key",
+        "★ ref 控：v2 的 `reply_to_key` 计入 ref，且**标出字段名**（消费方不必猜它是哪来的）")
+    chk(W_KEY_VS_FIELD in R2_["warnings"],
+        "★ 告警控：键段 02:40 vs epoch **02:02:02** ⇒ 差 38 分钟 ⇒ `W-KEY-VS-FIELD-TS` 必亮"
+        "（★ 只报「不一致」，**不判哪个权威**）")
+    chk(VA["totals"]["edges_fact"] == 1
+        and VA["edges_fact"][0]["via_field"] == "reply_to_key"
+        and VA["edges_fact"][0]["via"] == "dst.reply_to_key → src",
+        "★ 事实边控：v2 的 `reply_to_key` **能**落成事实边（★ v0.3.0 处它 ref=[] ⇒ 这条边根本不存在）")
+    chk(VA["threading"]["ball_eq_to"] == 2 and VA["threading"]["ball_eq_to_raw"] == 1,
+        "★★ **归一非空转控**：共线读数据**归一后=2/2** 而 **原始串比=1/2**"
+        "（v2 楼 `awaiting='ext'` vs `to='session-…'` ⇒ **逐字比必然不等**；归一后 `ext`==`ext`）"
+        "⇒ ★ 两栏**必须不同**，否则说明归一根本没生效 —— ★ 而差的那一封正是活板第 16 楼")
+    chk({u["code"]: u["count"] for u in VA["undecidable"]}["R7"] == 0,
+        "★ R7 负控：本夹具两封**都有**球权字段 ⇒ R7=0（★ 证明 R7 不是恒真判据）")
+
+    # ★ R8 正控：造一封 `to` 是**合法会话 ID 但映射表里没有** 的信
+    _unk = "session-ffffffff-ffff-ffff-ffff-ffffffffffff"
+    VU = build_index(dict(_fixture_v2()[0],
+                          **{LOG_PREFIX + "20261012T030000-int-v8-unknown": {
+                              "topic": "T-V2", "from": "int", "to": _unk,
+                              "sent_at_epoch_ms": _V2_EPOCH_MS, "awaiting": "ext",
+                              "reply_required": True, "subject": "未知会话", "ref": []}}), {})
+    _u8 = {u["code"]: u for u in VU["undecidable"]}
+    chk(_u8["R8"]["count"] == 1 and VU["totals"]["parties"].count(_unk) == 1,
+        "★ R8 正控：会话 ID 合法但**映射表里没有** ⇒ R8=1（★ 且**不猜**：原样保留在参与方里）")
+    chk(W_PARTY in [w["warn"] for w in VU["warnings"] if w["key"].endswith("int-v8-unknown")],
+        "★ 告警控：归一失败同时亮 `W-PARTY-UNRESOLVED`（★ 读数与告警**两处都要看得见**）")
+
+    # ★ 负控：v2 信若把 `awaiting` 也拿掉 ⇒ 必须是 R7（★ 而不是**静默丢弃**）
+    _r7 = build_index(dict(_fixture_v2()[0],
+                           **{LOG_PREFIX + "20261012T040000-int-v7-noball": {
+                               "topic": "T-V2", "from": "int", "to": "ext",
+                               "sent_at_epoch_ms": _V2_EPOCH_MS,
+                               "reply_required": True, "subject": "两套球权字段都缺", "ref": []}}), {})
+    chk({u["code"]: u for u in _r7["undecidable"]}["R7"]["count"] == 1,
+        "★ R7 正控：rr=true 且**两套球权字段都缺** ⇒ R7=1（★ v0.3.0 此处【静默丢弃】、连不可判清单都进不去）")
+
+    # ★ 空信负控：两套字段名都认不出 ⇒ 必须亮 UNKNOWN-SCHEMA，**不许**静默当空信
+    _un = build_index({LOG_PREFIX + "20261012T050000-int-v9-opaque": {
+        "topic": "T-V2", "from": "int", "to": "ext", "reply_required": True}}, {})
+    chk(W_UNKNOWN_SCHEMA in [w["warn"] for w in _un["warnings"]],
+        "★ schema 负控：两套字段名都认不出 ⇒ 亮 `W-UNKNOWN-SCHEMA`（★ 不静默丢信）")
+
     # ═══ ★ ⑩ 结构门自控：扫描器**不是空转** ═══
     chk(scan_forbidden(_FIXTURE_CLEAN_SRC) == [],
         "★ 门控：干净样本（合法只读 GET）⇒ 无命中")
     chk(len(scan_forbidden(_FIXTURE_DIRTY_SRC)) >= 1,
         "★ 门控：脏样本（注入写请求）⇒ 必命中（证扫描器非空转）")
+    chk(scan_forbidden(_FIXTURE_BUILTIN_SRC) == ["compile"],
+        "★ 门控：★ **第二正控** —— 真调用内建 `compile(...)` ⇒ 仍须命中"
+        "（★ v0.4.0 把裸名判据改成「只认非属性访问」后，这一条证明它**没被削弱**）")
+    chk(scan_forbidden(_FIXTURE_RE_COMPILE_SRC) == [],
+        "★ 门控：★ **负控** —— `re.compile(...)` **不得**命中"
+        "（★ 旧判据在此**假阳性**：`re.compile` 与内建 `compile` 是两个东西）")
 
     print(f"\nselftest: {ok} PASS / {fail} FAIL")
     return 0 if fail == 0 else 1
@@ -852,6 +972,10 @@ _FIXTURE_CLEAN_SRC = ('import urllib.request, json\n'
                       '    d = json.loads(r.read().decode("utf-8"))\n')
 _FIXTURE_DIRTY_SRC = ('import urllib.request\n'
                       'req = urllib.request.Request(u, data=b"x", method="PUT")\n')
+# ★ 第二组正控（★ v0.4.0 修裸名判据后**必须**补）：真调用内建 `compile` **仍须**命中
+_FIXTURE_BUILTIN_SRC = 'code = compile(src, "<s>", "exec")\n'
+# ★ 负控（★ 证明「裸名只认非属性访问」这条判据本身有控、且不误伤同名的另一个函数）
+_FIXTURE_RE_COMPILE_SRC = 'import re\nPAT = re.compile(r"^x")\n'
 
 
 # ═══ ★ R006 ⑩ `--lean4-check` 六项模板 A–F ═══
@@ -868,10 +992,14 @@ def lean4_check():
     src = open(os.path.abspath(__file__), encoding="utf-8").read()
     own = scan_forbidden(src)
 
-    # A 源码无危险原语（★ 含**正控**：证明扫描器不是空转 —— 否则「0 命中」什么也不证明，坑 3）
+    # A 源码无危险原语（★ 含**两个正控 + 一个负控**：证扫描器既非空转、也不误伤同名函数 —— 坑 3）
     pos_ctl = scan_forbidden(_FIXTURE_DIRTY_SRC)
-    c("A", "源码无危险原语（剥注释/字符串后扫描）", not own,
-      "自身命中=%s · ★正控命中=%s" % (own or "无", pos_ctl))
+    pos_builtin = scan_forbidden(_FIXTURE_BUILTIN_SRC)
+    neg_re_compile = scan_forbidden(_FIXTURE_RE_COMPILE_SRC)
+    a_ctl = bool(pos_ctl) and bool(pos_builtin) and not neg_re_compile
+    c("A", "源码无危险原语（剥注释/字符串后扫描）", (not own) and a_ctl,
+      "自身命中=%s · ★正控(写请求)=%s · ★正控(内建compile)=%s · ★负控(re.compile 不误伤)=%s"
+      % (own or "无", pos_ctl, pos_builtin or "★未命中(异常!)", neg_re_compile or "无"))
 
     # B 负例全部被拒（★ 逐条实测，不是列表声明）
     negs = ['import subprocess\nsubprocess.run(["ls"])\n',
