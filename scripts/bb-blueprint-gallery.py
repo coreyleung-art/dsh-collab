@@ -1641,7 +1641,7 @@ def build_index(port):
     _ui_reload()  # 热重载: 每次请求读最新 UI 文件(改 js/css 免重启, 部署即生效)
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return f"""<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>系统架构管理器 · System Graph Manager</title><style>{CSS}</style></head><body>
 <div class="top"><h1>🗺 系统架构管理器</h1><span class="sub">System Graph Manager · 蓝图+智能体+规则+机制+图库 · {now}</span></div>
 <div class="domains" id="domains"></div>

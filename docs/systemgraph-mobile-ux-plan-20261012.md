@@ -9,21 +9,36 @@
 
 ## §0 一句话
 
-**这个页面从来没有为手机做过适配** —— 有 `viewport` meta，**但零 `@media`、零触摸事件、零安全区**；每页只是**靠 flex/grid 碰巧换行**，所以「总览」好看、「图谱」灾难。
+★★ **2026-10-12 更正（原句作废）**：~~这个页面从来没有为手机做过适配 —— 有 `viewport` meta，但零 `@media`、零触摸事件、零安全区；每页只是靠 flex/grid 碰巧换行。~~
+★ **错在哪**：我 grep 的是 `bb-gallery-ui.js` 与 `bb-blueprint-gallery.py`，**漏了 `bb-gallery-ui.css`** —— 而 CSS 当然住在 CSS 文件里。**这是「面的域」错误，我把错的结论写进了本文件第一版与卡片。**
+
+★ **更正后的正确论断**：
+
+> **这个页面【已经做过一轮手机适配】**（`bb-gallery-ui.css` 里有 **3 档断点** 1100/768/480，768px 下 **30+ 条规则**：触摸高亮、tab 横滑、画布按视口高、表格横滑、浮层全宽化）。
+> **但有三个真缺口**：
+> **① 无安全区**（`viewport-fit` / `env(safe-area-*)` 命中 **0**）⇒ 底部状态条被 iPhone 横条裁切（**截图实证**）
+> **② 4 处固定宽没被接住**（`400/420/440/620px`，而现有覆盖规则只匹配 **`width:360px`**）⇒ 节点详情浮层等仍会溢出
+> **③ 交互仍是桌面语义**（`hover` 逻辑十余处、提示语写「滚轮缩放 · hover 高亮」）⇒ **手机没有滚轮与 hover —— 这是功能缺口，不是美化**
+
+⇒ 因此本规划的**工作量比第一版小得多**：不是「重建响应式」，而是**补三个洞 + 建判据防退化**。
 
 ---
 
 ## §1 实测现状（证据，非印象）
 
-### 1.1 移动端设施：全零
+### 1.1 移动端设施：**逐文件实测（★ 含 `.css` —— 第一版漏了它，这就是致错原因）**
 
-| 项 | 命中数 | 含义 |
-|---|---|---|
-| `@media` 媒体查询 | **0** | ★ **无任何响应式断点** |
-| `touchstart`/`touchend`/`touchmove`/`pointerdown` | **0** | ★ 无触摸事件处理 |
-| `touch-action` / `user-select` / `overscroll-behavior` / `-webkit-overflow-scrolling` | **0** | 无移动端滚动与手势调优 |
-| `viewport-fit` / `env(safe-area-*)` | **0** | ★ **无安全区**（刘海/底部横条） |
-| `viewport` meta | 有（`width=device-width,initial-scale=1.0`） | 只是「有」，没配套 |
+| 项 | `.css` | `.js` | `.py` | 合计 | 含义 |
+|---|---|---|---|---|---|
+| `@media` | **4** | 0 | 0 | **4** | ★★ **有 3 档断点**（1100 / 768 / 480）—— 第一版报「0」是**错的** |
+| `-webkit-overflow-scrolling` | 有 | — | — | — | 已在 768px 块中启用（tab 与表格横滑） |
+| `touchstart`/`touchmove`/`pointerdown` | 0 | **0** | 0 | **0** | ★ 无 **JS** 触摸事件（但 CSS 侧有 `-webkit-tap-highlight-color` 与 `overflow-x:auto` 兜底） |
+| `touch-action` | **0** | 0 | 0 | **0** | ★ 无（真缺口，见下） |
+| `viewport-fit` / `env(safe-area-*)` | **0** | 0 | 0 | **0** | ★ **无安全区**（真缺口，截图实证底部被裁） |
+| `viewport` meta | — | — | 有 | 有 | `width=device-width,initial-scale=1.0`（**缺 `viewport-fit=cover`**） |
+
+★ **768px 块实际已做的（30+ 条）**：`-webkit-tap-highlight-color:transparent` · `-webkit-text-size-adjust:100%` · `.tabs{flex-wrap:nowrap;overflow-x:auto}` + 隐藏滚动条 · `.graph-box{height:46vh!important}` · `.tbl{display:block;overflow-x:auto}` · `.svg-wrap{overflow:auto}` · `.asset-modal .am-box{max-width:98vw}` · **`[style*="position:fixed"][style*="width:360px"]{width:auto!important;left:12px!important;right:12px!important}`**（浮层全宽化）
+★ **480px 块**：标题/正文再缩一档 · `.graph-box{height:42vh}` · 资产网格固定 2 列
 
 ### 1.2 必然溢出的固定宽度
 
@@ -50,7 +65,7 @@
 
 | # | 问题 | 影响 | 证据 |
 |---|---|---|---|
-| **M1** | **无响应式断点** | 所有页在窄屏靠运气换行 | `@media` 命中 **0** |
+| **M1** | ~~无响应式断点~~ → ★ **更正：断点已有（3 档），但有具体缺项** | 不是「没有」，是「没接住」：安全区、`touch-action`、四处固定宽、桌面措辞 | `@media` 实际 **4** 处（第一版误报 0，因漏扫 `.css`） |
 | **M2** | **hover-only 交互在手机不可达** | ★ **功能缺失**（看详情/看协议/看摘要/看能力簇 都靠 hover） | `hover 看详情` 等十余处 |
 | **M3** | **无安全区** | 底部状态条被 iPhone 横条遮挡/裁切 | `viewport-fit`/`env(safe-area)` 命中 **0**；截图中 `● 在线` 被裁 |
 | **M4** | **固定宽溢出** | 弹层/面板超出屏幕 | `400/420/440/620px` 四处 |
@@ -66,11 +81,11 @@
 
 ## §3 优化方案（五期，每期可独立验收）
 
-### P1 · 基础适配（**收益最大、风险最低，应先做**）
-- 新增 `@media (max-width: 768px)` 与 `(max-width: 430px)` 两档断点
-- `viewport-fit=cover` + 四边 `env(safe-area-inset-*)` 内边距
-- 四处固定宽 → `min(<N>px, calc(100vw - 32px))`
-- **全局兜底**：`* { max-width: 100% }` + `html,body { overflow-x: hidden }`（★ 但**不是**用 `hidden` 掩盖问题，须**同时**修根因）
+### P1 · 补洞（**不是重建响应式 —— 断点已在**）
+- ~~新增 `@media (max-width: 768px)` 与 `(max-width: 430px)` 两档断点~~ → ★ **更正：两档断点（768/480）已在，只需在其中补缺项**
+- `viewport-fit=cover`（改 `bb-blueprint-gallery.py:1644`）+ 四边 `env(safe-area-inset-*)` 内边距
+- ★ **扩展已有的全宽化规则**：现有 `[style*="width:360px"]` → 改为覆盖 `width:400px|420px|440px|620px`（或抽成统一类名）
+- 补 `touch-action: manipulation`（去掉 300ms 点击延迟）
 - 验收：**每页 `documentElement.scrollWidth <= innerWidth`**
 
 ### P2 · 交互从 hover 迁到 tap（**功能补全，不是美化**）

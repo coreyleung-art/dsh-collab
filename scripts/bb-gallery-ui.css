@@ -131,3 +131,57 @@ a{color:#6ea8ff;text-decoration:none}
 .tabs[data-active-dom="GRAPH"] .tab:not([data-dom="GRAPH"]){display:none}
 .tabs[data-active-dom="CARRIER"] .tab:not([data-dom="CARRIER"]){display:none}
 @media(max-width:768px){.domains{padding:6px 8px}.domain-btn{padding:6px 10px;font-size:12px}}
+
+/* ══════════ ★ 手机体验 P1（2026-10-12 明鉴）· 只补三个真缺口 ══════════
+   背景：本文件 768/480 断点内【已有】30+ 条移动端规则（触摸高亮 / tab 横滑 / 画布视口高 /
+        表格横滑 / 浮层全宽化）。★ 本块【不动既有断点结构】，避免波及桌面。
+   ★ 实测三缺口（详见 docs/systemgraph-mobile-ux-plan-20261012.md）：
+     ① 无安全区 ⇒ 底部状态条被 iPhone 横条裁切（手机实况截图实证）
+     ② 全宽化规则只匹配 width:360px，而实有 400/420/440/620 四处【未被接住】
+     ③ 无 touch-action ⇒ 移动端 300ms 点击延迟
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ① 安全区：刘海 + 底部横条。★ 用 @supports 守卫，不支持 env() 的浏览器整块跳过 */
+@supports(padding:env(safe-area-inset-bottom)){
+  .top{padding-top:calc(10px + env(safe-area-inset-top))}
+  body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+  .foot{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  /* ★ 2026-10-12 修正：这两个元素【锚点不同】，不可共用一条规则！
+     · #ds-state  靠 bottom 锚定（右下角）⇒ 加 bottom 正确
+     · #src-badge 靠 top 锚定（右上角）、【没有 bottom】⇒ 给它加 bottom 会让它
+       同时具备 top 与 bottom ⇒ 被上下拉伸成一条【竖长面板】（真机截图实测到了）
+     ⇒ 分开写，各改各自的锚点。 */
+  #ds-state{
+    bottom:calc(10px + env(safe-area-inset-bottom))!important;
+    right:calc(12px + env(safe-area-inset-right))!important}
+  #src-badge{
+    top:calc(12px + env(safe-area-inset-top))!important;
+    right:calc(14px + env(safe-area-inset-right))!important}
+
+  /* ★ 兜底不变量：任何同时被写上 top 与 bottom 的固定浮层都会被拉伸。
+     此处显式给这两个元素一个确定高度语义，防止将来有人再犯同一错。 */
+  #ds-state,#src-badge{height:auto!important;max-height:none!important}
+}
+
+@media(max-width:768px){
+  /* ③ 触摸：去掉 300ms 延迟、防双击缩放误触 */
+  body,a,button,.tab,.domain-btn,.card,.pill,.vsb,[onclick]{touch-action:manipulation}
+
+  /* ② 全宽化规则扩展：原规则只匹配 width:360px ⇒ 补上实有的 400/420/440/620 四处
+     （节点详情浮层 / 计划档案浮层等，实测在 390px 视口上会溢出屏幕） */
+  [style*="position:fixed"][style*="width:360px"],
+  [style*="position:fixed"][style*="width:400px"],
+  [style*="position:fixed"][style*="width:420px"],
+  [style*="position:fixed"][style*="width:440px"],
+  [style*="position:fixed"][style*="width:620px"]{
+    width:auto!important;min-width:0!important;
+    left:10px!important;right:10px!important;
+    top:calc(64px + env(safe-area-inset-top))!important;
+    max-height:74vh!important;overflow-y:auto!important}
+
+  /* 画布不超视口（图谱页横向溢出的兜底） */
+  .graph-box{max-width:100%;box-sizing:border-box}
+
+  /* 触摸目标下限（WCAG 建议 44px；此处取 34px 以兼顾既有排版密度，仅对主要可点元素） */
+  .tab,.domain-btn,.vsb,button{min-height:34px;display:inline-flex;align-items:center}
+}
