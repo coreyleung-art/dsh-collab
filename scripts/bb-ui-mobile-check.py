@@ -46,6 +46,12 @@ CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 MOBILE_W = 390          # iPhone 16 Pro 逻辑宽
 DESKTOP_WORDS = ("滚轮", "hover", "右键", "双击")
 
+# ★ 全部 18 个功能页（实测自活体页面 data-tab；用于 --all-pages 逐页查）
+ALL_PAGES = ("philosophy", "original", "workflow", "planarchive", "bp",
+             "dash", "projects", "versions", "assets",
+             "blueprints", "agents", "relations", "rules", "mech",
+             "knowledge", "systems", "hardware", "bizmap")
+
 
 def _read(p):
     with open(p, encoding="utf-8") as f:
@@ -255,6 +261,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--static-only", action="store_true")
+    ap.add_argument("--all-pages", action="store_true", help="A1 逐页查全部 18 个功能页（慢）")
     a = ap.parse_args()
     if a.selftest:
         print("════ bb-ui-mobile-check · 负控矩阵 ════")
@@ -274,7 +281,9 @@ def main():
     if a.static_only:
         rows.append(("A1  横向溢出", None, "UNCOVERED（--static-only）"))
     else:
-        for tab in ("dash", "relations"):
+        # ★ 2026-10-12：默认查 dash/relations（快）；--all-pages 查全部 18 个功能页
+        tabs = ALL_PAGES if getattr(a, "all_pages", False) else ("dash", "relations")
+        for tab in tabs:
             ok, d = check_a1(tab)
             rows.append(("A1  %s 无溢出" % tab, ok, d))
     print("  %-20s %-10s %s" % ("判据", "结果", "说明"))
