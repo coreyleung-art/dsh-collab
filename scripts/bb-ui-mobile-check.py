@@ -117,6 +117,57 @@ def check_a4(js_src, css):
     return (len(uncovered) == 0), detail
 
 
+# ══════════════ A4b · 内联 flex 侧栏的固定宽必须在移动端被解放 ══════════════
+def check_a4b(js_src, css):
+    """★★ 2026-10-12 由用户实报缺陷新增。
+
+    ★ 为什么 A4 抓不到它：A4 只查「宽 > 视口宽」；而蓝图库页的侧栏是 **250px < 390px**，
+      不超视口 ⇒ A4 判过。但它与详情区同处一个 flex 行，**250px 不让步**
+      ⇒ 详情区只剩 390−250−16 ≈ 124px ⇒ 用户原话「右侧内容被挤压很严重很小」。
+      ★ 而且该容器用的是【内联 display:flex 且不带 class】，使 CSS 里那条
+      `@media(max-width:1100px){.side{flex-direction:column}.list{width:100%}}`
+      **从未命中过任何元素（死 CSS）**。
+
+    口径（本器显式声明，避免过度声称）：
+      查 JS 里「同一句 cssText 内既有 width:Npx 又有 flex-shrink:0」的子元素；
+      要求 CSS 的 max-width:768px 块中出现该元素的 id 选择器（即移动端有专门处理）。
+      ★ 本判据【只覆盖带 id 的情形】；无 id 的内联侧栏记 UNCOVERED，不冒充通过。
+    """
+    items = []
+    for m in re.finditer(r"cssText='([^']*)'", js_src):
+        st = m.group(1)
+        w = re.search(r"(?<![-\w])width:(\d+)px", st)
+        if not w or "flex-shrink:0" not in st:
+            continue
+        # 往上找同一语句里的 id 赋值（形如 X.id='foo';X.style.cssText=...）
+        start = js_src.rfind("\n", 0, m.start())
+        line_ctx = js_src[start:m.end()]
+        idm = re.search(r"\.id\s*=\s*'([A-Za-z0-9_-]+)'", line_ctx)
+        items.append((int(w.group(1)), idm.group(1) if idm else None))
+
+    if not items:
+        return True, "无「内联固定宽 + flex-shrink:0」的子元素"
+
+    mobile = ""
+    mm = re.search(r"@media\(max-width:768px\)\s*\{(.*?)\n\}", css, re.S)
+    if mm:
+        mobile = mm.group(1)
+    # 取所有 768 断点块（可能有多个）
+    mobile = "".join(re.findall(r"@media\(max-width:768px\)\s*\{(.*?)\n\}", css, re.S))
+
+    uncovered, noid = [], []
+    for wpx, eid in items:
+        if not eid:
+            noid.append(wpx)
+        elif ("#" + eid) not in mobile:
+            uncovered.append("%s(%dpx)" % (eid, wpx))
+    if uncovered:
+        return False, "★ 移动断点(768px)未处理的内联侧栏: %s" % uncovered
+    if noid:
+        return None, "UNCOVERED：有 %s px 的内联侧栏但无 id，本判据覆盖不到（不冒充通过）" % noid
+    return True, "内联侧栏 %s 均在 768 断点内有处理" % [i[1] for i in items]
+
+
 # ══════════════ A1/A6 · 浏览器侧（横向溢出 / 首屏）══════════════
 def _chrome_render(url, out_html, mobile=True):
     if not os.path.exists(CHROME):
@@ -189,6 +240,13 @@ def selftest():
     ok, d = check_a4(js, css)
     ck("正控 A4：当前源码必须绿", ok, d)
 
+    # A4b 负控：造一个「250px + flex-shrink:0」且移动断点没处理的侧栏 ⇒ 必须红
+    fake = js + "\nvar x=el('div','');x.id='zz-nowhere';x.style.cssText='width:250px;flex-shrink:0';"
+    ok, d = check_a4b(fake, css)
+    ck("★ 负控 A4b：未解放的内联侧栏必须红", not ok, d)
+    ok, d = check_a4b(js, css)
+    ck("正控 A4b：当前源码必须绿", ok, d)
+
     print("\n  %s" % ("负控矩阵全过（%d 项）" % 8 if not fails else "失败: %s" % ", ".join(fails)))
     return 1 if fails else 0
 
@@ -212,6 +270,7 @@ def main():
     ok, d = check_a2b(js);     rows.append(("A2b 触摸等价", ok, d))
     ok, d = check_a3(py, css); rows.append(("A3  安全区在位", ok, d))
     ok, d = check_a4(js, css); rows.append(("A4  固定宽覆盖", ok, d))
+    ok, d = check_a4b(js, css); rows.append(("A4b 内联侧栏解放", ok, d))
     if a.static_only:
         rows.append(("A1  横向溢出", None, "UNCOVERED（--static-only）"))
     else:
