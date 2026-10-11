@@ -1079,8 +1079,12 @@ window.__ModuleLoader__.load({
         draftArea);
       const foot=React.createElement('div',{style:{padding:'8px 12px',borderTop:'1px solid #1e293b'}},
         React.createElement('div',{style:{display:'flex',gap:8}},
-          React.createElement('button',{onClick:()=>toggleRec(),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.rec?'#ef4444':'#10b981',color:'#fff',cursor:'pointer',fontWeight:600}},
-            s.rec?'⏹ 停止':'● 说话'),
+          React.createElement('button',{onClick:()=>toggleRec(),style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.rec?'#ef4444':(s.talk?'#0ea5e9':'#10b981'),color:'#fff',cursor:'pointer',fontWeight:600}},
+            // ★★★ 2026-10-12 修（用户实测原话：「进入对话态之后我没有交互按钮，也不知道我应该怎么样唤醒」）：
+            //   ● 按钮一直存在，但在面板最底部，且文案不体现对话态
+            //   ⇒ 用户进了对话态看不出该按哪里说话。
+            //   ⇒ 对话态下：按钮变蓝 + 文案写明「发给谁」。
+            s.rec?'⏹ 停止':(s.talk?('🎙 说话 → 发给「'+String(s.talk).slice(0,14)+'」'):'● 说话''● 说话')),
           React.createElement('button',{title:'用当前讨论出稿；若已有成稿，则按其底稿做增量修订（只改你提到的部分，不覆盖）',
             onClick:()=>makeDraft(),disabled:!!s.draftBusy,
             style:{flex:1,border:'none',borderRadius:6,padding:'7px 0',background:s.draftBusy?'#475569':'#f5b942',color:'#0f172a',cursor:s.draftBusy?'default':'pointer',fontWeight:600}},
