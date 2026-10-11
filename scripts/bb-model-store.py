@@ -186,6 +186,29 @@ class ModelStore:
             return default
         return rec.get("value") if rec.get("value") is not None else default
 
+    def board_envelope(self, key):
+        """返回与黑板**原始响应同形**的信封 {key, ts, value, version(, state)}。
+
+        ★★ 为什么必须有这个方法（2026-10-12 实测事故）：
+          调用方（bb-blueprint-gallery 的 get_registry / get_relations / get_versions）
+          是按【信封】解包的 —— 它们写的是 `fetch(key).get("value", {})`。
+          而 `fetch()` 改造前返回的就是黑板原始响应（信封）。
+          我第一版改造让 fetch() 直接返回**已解包的 value** ⇒ 调用方 `.get("value")`
+          在 value 里找不到 "value" 键 ⇒ 静默得到 {} ⇒ **所有走黑板的端点全空**
+          （bpCount/edgeCount/versionCount 全 0、blueprints/relations/entries 全 []）。
+          ★ 而我的冒烟测试只查 HTTP 状态码（200 + 空载荷照样通过）⇒ 没拦住。
+          ⇒ 结论：**改函数返回契约时，必须核所有调用点的解包方式**；
+             **冒烟必须查载荷内容，不能只查状态码**。
+        """
+        with self._lk:
+            rec = self._board.get(key)
+        if not rec:
+            return {}
+        return {"key": key, "ts": rec.get("ts"),
+                "value": rec.get("value"), "version": rec.get("boardVersion"),
+                # state 是额外字段（旧契约没有），便于调用方判三态；不影响旧解包
+                "state": rec.get("state")}
+
     def board_state(self, key):
         with self._lk:
             rec = self._board.get(key)

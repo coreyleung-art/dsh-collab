@@ -199,6 +199,42 @@ def run(negctl=False):
     except Exception as e:
         print("  ✗ 读 /api/model-status 失败：%s: %s" % (type(e).__name__, e))
 
+    # ───────── ★ 内容闸：只查 HTTP 码会放过「200 + 空载荷」─────────
+    #   ★ 2026-10-12 血的教训：我第一版接线把 fetch() 的返回契约改了（信封 → value），
+    #     调用方 `.get("value", {})` 全部取空 ⇒ 所有走黑板的端点返回 200 但载荷为空。
+    #     我的冒烟只查状态码 ⇒ 39/39「全过」，**完全没拦住**，是用户在手机上先发现的。
+    #   ⇒ 判据：**冒烟必须查载荷内容，不能只查状态码**；「链路通」≠「有数据」。
+    print()
+    print("══════ 内容闸（查载荷，不只看状态码）══════")
+    content_ok = True
+    REQUIRE = [                       # (端点, 取值路径, 下界, 说明)
+        ("overview", "bpCount", 10, "蓝图数"),
+        ("overview", "edgeCount", 10, "关系边数"),
+        ("overview", "versionCount", 1, "版本台账条数"),
+        ("overview", "agentCount", 10, "agent 数"),
+    ]
+    try:
+        with urllib.request.urlopen(LIVE + "/api/overview", timeout=20) as rr:
+            ov = json.loads(rr.read().decode())
+        for _ep, k, lo, desc in REQUIRE:
+            v = ov.get(k) or 0
+            ok = v >= lo
+            content_ok &= ok
+            print("  %s /api/%-10s %-14s = %-5s (要求 >= %s)"
+                  % ("OK  " if ok else "FAIL", _ep, desc, v, lo))
+        for ep, key, lo in (("blueprints", None, 10), ("relations", "edges", 10),
+                            ("versions", "entries", 1), ("agents", None, 10)):
+            with urllib.request.urlopen(LIVE + "/api/" + ep, timeout=20) as rr:
+                d = json.loads(rr.read().decode())
+            n = len(d) if key is None else len((d or {}).get(key, []))
+            ok = n >= lo
+            content_ok &= ok
+            print("  %s /api/%-10s %-14s = %-5s (要求 >= %s)"
+                  % ("OK  " if ok else "FAIL", ep, key or "条数", n, lo))
+    except Exception as e:
+        content_ok = False
+        print("  ✗ 内容闸读取失败：%s: %s" % (type(e).__name__, e))
+
     M.stop()
     shutil.rmtree(workdir, ignore_errors=True)
 
@@ -244,10 +280,11 @@ def run(negctl=False):
     print("══════ 总判 ══════")
     print("  四路验收      : %s" % ("通过" if allpass else "未通过"))
     print("  活体集成      : %s" % ("通过" if live_ok else "未通过"))
+    print("  内容闸        : %s" % ("通过" if content_ok else "未通过"))
     if neg_ok is not None:
         print("  负控矩阵      : %s" % ("通过" if neg_ok else "未通过"))
     print("  ★ 本 harness 只出实测；不代替独立复核。")
-    rc = 0 if (allpass and live_ok and (neg_ok is not False)) else 1
+    rc = 0 if (allpass and live_ok and content_ok and (neg_ok is not False)) else 1
     return rc
 
 

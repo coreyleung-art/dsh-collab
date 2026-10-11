@@ -506,6 +506,14 @@
    "hits": 9,
    "note": "已有 scripts/artifact-commit.sh v1.0.3（「唯一副本止损的持续化机制」，2026-10-09 建）⇒ 不新建，扩它。改了什么：① 补【公开性门】（v1.0.3 无条件 push 到公开仓）② 补【覆盖率断言】（git add -A 在未放行目录上命中 0 ⇒ 恒真空动作）③ 补 --snapshot（恒不 push）④ 修 R006 ⑥⑦⑨⑩ 缺口（--tool-version/--help/未知旗标 exit 2/lean4 七项）⑤ 修 dsh_log 死代码 ⑥ 加 safe_rm（今晚事故教训）",
    "at": "2026-10-12T01:06:06"
+  },
+  {
+   "intent": "给 dsh-plugin-agent-bus 的 expired（DLQ）接告警：flushQueue 里 expired>0 时写黑板告警卡",
+   "artifact": "dsh-plugin-agent-bus",
+   "verdict": "adapt",
+   "hits": 1,
+   "note": "★ 不新建工具：在既有插件 dsh-plugin-agent-bus/lib/index.js 的 flushQueue()（:1382-1412）内加 expired>0 写卡；★ 告警卡形态复用既有 data/ops/drift-alert/<ts> 的键形与字段（type/from/ts/count）",
+   "at": "2026-10-12T02:40:29"
   }
  ]
 }

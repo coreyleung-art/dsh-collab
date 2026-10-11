@@ -98,10 +98,11 @@ def fetch(path, timeout=6):
     if MODEL is not None:
         st = MODEL.board_state(p)
         if st != "UNWATCHED":
-            v = MODEL.board_value(p, None)
-            if isinstance(v, dict):
-                return v
-            return {} if v is None else v      # 兼容旧的「一律返回 dict」预期
+            # ★★ 必须返回【信封】而不是 value —— 调用方写的是
+            #    `fetch(k).get("value", {})`（7 处），这是改造前的契约。
+            #    我第一版让这里直接返回 value ⇒ 调用方取不到 "value" 键
+            #    ⇒ 静默拿到 {} ⇒ 所有走黑板的端点全空（2026-10-12 实测事故）。
+            return MODEL.board_envelope(p)
         MODEL.add_watch(p)                      # 登记；下一次 reload 起由模型供给
     try:
         with urllib.request.urlopen(BB + "/" + p, timeout=timeout) as r:

@@ -18,6 +18,24 @@
      ⇒ 消费方从 `--json` 取 `ref` 恒得空（本线据此曾算错「事实边 = 0」）。本版显式给出。
   ④ 补 **R006 ②⑦⑩**（`--selfcheck` / 统一日志 / `--lean4-check`）与 **⑥**（版本单一来源自证）。
 
+★ v0.3 → v0.4 的改动（★ 触发事件是**活板上的一封真信**，不是我坐着想的）
+  ★ 2026-10-12 02:4x，活板长出**第 16 楼**，**用的是另一套字段名**（v2）：
+    v2 有 `awaiting` / `reply_to_key` / `sent_at_epoch_ms` / `thread` / `from_label_hint`；
+    v1 有 `ts` / `ball` / `ref` / `from_session`。
+  ★★ v0.3.0 按 v1 读 ⇒ 第 16 楼被读成**空信**（`ts=None` `ball=None` `ref=[]`）⇒ **旗舰读数 R6=0 是错的**
+     （实际 `reply_required=true ∧ awaiting='ext'` ⇒ **ext 欠 int 一句**）。
+     ⇒ ★ 这是本线**第 6 次**「判据的对象取错了」（S3 同族）：**判据没错，取字段取错了**。
+  ① **schema 适配**：v1/v2 双字段名并读（`ball`/`awaiting` · `ts`/`sent_at_epoch_ms` · `ref`/`reply_to_key`）。
+  ② **参与方归一**：剥 `session-` 前缀 + **语料内自证**映射（v1 的 `from`+`from_session` 互证出的 会话↔名字 表）
+     ⇒ ★ **不猜**：归一不了就**原样保留**并记 **R8**。
+  ③ **R7**：`reply_required=true` 但**两套球权字段都缺** ⇒ 旧口径**静默丢弃** ⇒ 现**单列**。
+  ④ **R8**：参与方归一失败。
+  ⑤ **warnings**：`W-UNKNOWN-SCHEMA` / `W-NO-TIME` / `W-PARTY-UNRESOLVED` /
+     `W-KEY-TS-FORMAT` / `W-KEY-VS-FIELD-TS`（★ 同一封信**三个时间源**可能互不一致）。
+  ⑥ **共线读数两栏并印**：`ball_eq_to`（**归一后**）与 `ball_eq_to_raw`（**原始串比**）
+     ⇒ ★ raw 那一栏就是 v0.3.0 的**假否例**：拿缺失的 `ball` 去比**会话 ID** 形态的 `to` ⇒ 必然不等。
+  ⑦ **`reply_to_key` 计入事实边**，并**逐边标 `via`**（`dst.ref → src` 还是 `dst.reply_to_key → src`）。
+
 ★ 本支定位（五条，写死）
   ① **只读**：网络侧**只 GET**，**不写板上任何键**（★ 结构门封堵，见 `--lean4-check`）。
   ② **派生**：整页可由 log 重建 ⇒ 读模型，不是新的事实来源。
@@ -81,7 +99,7 @@ if __name__ == "__main__" and "--selfcheck" in _r006_sys.argv:
 
 
 # ═══ ★ R006 ⑥ 唯一版本声明处 ═══（★ 全文件**只此一处**，`--tool-version` 自动反查源码自证）
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 
 import argparse
@@ -106,6 +124,145 @@ CUR_PREFIX = NS + "/cursor/"
 _NO_BALL = (None, "", "none")
 RULE_ID = "infer:handoff-next-utterance-v1"          # ★ P1 冻结命名，不得叫「回复链」
 RULE_NAME = "顺序邻接推断"
+
+
+# ═══ ★ v0.4.0 schema 适配层（v1 / v2 双写）═══════════════════════════════════
+#   ★ 为什么要适配而不是「叫对方别写两套」：★ 两套**都在板上、都是真的** ——
+#     我无权改别人的信；★ **读不懂是读方的缺陷**（v0.3.0 把真信读成空信）。
+_V1_KEYS = ("ts", "ball", "ref", "from_session")
+_V2_KEYS = ("sent_at_epoch_ms", "awaiting", "reply_to_key", "thread", "from_label_hint")
+_SESSION_RE = re.compile(r"^(?:session-)?"
+                         r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$")
+_KEY_TS_RE = re.compile(r"^" + re.escape(LOG_PREFIX) + r"(\d{8}T\d{6})")
+_PARTY_RE = re.compile(r"^[a-z][a-z0-9_-]{0,31}$")
+_TS_SKEW_S = 60          # ★ 键段时间 vs 字段时间 超过这个差 ⇒ W-KEY-VS-FIELD-TS
+
+W_UNKNOWN_SCHEMA = "W-UNKNOWN-SCHEMA"
+W_NO_TIME = "W-NO-TIME"
+W_PARTY = "W-PARTY-UNRESOLVED"
+W_KEY_TS = "W-KEY-TS-FORMAT"
+W_KEY_VS_FIELD = "W-KEY-VS-FIELD-TS"
+
+
+def _schema_of(m):
+    """⇒ "v1" | "v2" | "mixed" | "unknown"。★ 判据是**字段名的存在性**，不是内容。"""
+    v1 = any(k in m for k in _V1_KEYS)
+    v2 = any(k in m for k in _V2_KEYS)
+    if v1 and v2:
+        return "mixed"
+    if v2:
+        return "v2"
+    if v1:
+        return "v1"
+    return "unknown"
+
+
+def _build_alias(logs):
+    """★ 会话 ID → 参与方名 的映射，**只用语料内自证**（v1 信里 `from` 与 `from_session` 同时给出）。
+
+    ★★ 为什么不写死：★ 写死就等于**我在给协议定身份** —— 那是协议方的事，不是读方的事。
+    ⇒ ★ 只在**同一封信自己声明**的 (名字, 会话ID) 对上建映射；★ 对不上 ⇒ 归一失败（R8），**不猜**。
+    """
+    alias = {}
+    for k, m in (logs or {}).items():
+        if not k.startswith(LOG_PREFIX) or not isinstance(m, dict):
+            continue
+        frm, sid = m.get("from"), m.get("from_session")
+        if not (isinstance(frm, str) and isinstance(sid, str)):
+            continue
+        mm = _SESSION_RE.match(sid)
+        if mm and _PARTY_RE.match(frm):
+            alias[mm.group(1)] = frm
+    return alias
+
+
+def _norm_party(v, alias):
+    """⇒ (归一后的名字, 是否归一成功)。★ 归一不了就**原样返回**，绝不猜、绝不丢。"""
+    if not isinstance(v, str) or not v:
+        return v, True                      # ★ 空值不是「归一失败」，R7/R1 另有判据
+    mm = _SESSION_RE.match(v)
+    if mm:
+        sid = mm.group(1)
+        if sid in alias:
+            return alias[sid], True
+        return v, False                     # ★ 认出是会话 ID 但映射表里没有 ⇒ R8
+    return v, True
+
+
+def _ball_of(m):
+    """⇒ (球权原始值, 该字段是否存在)。★ v2 的 `awaiting` 语义 = v1 的 `ball`（都是「下一个该说话的人」）。"""
+    if "ball" in m:
+        return m.get("ball"), True
+    if "awaiting" in m:
+        return m.get("awaiting"), True
+    return None, False
+
+
+def _refs_of(m):
+    """⇒ (ref 值列表, {值: 字段名})。★ v2 的 `reply_to_key` 是**单值**、语义 = ref 回指。"""
+    out, fields = [], {}
+    for r in (m.get("ref") or []):
+        if isinstance(r, str) and r and r not in fields:
+            out.append(r)
+            fields[r] = "ref"
+    rk = m.get("reply_to_key")
+    if isinstance(rk, str) and rk and rk not in fields:
+        out.append(rk)
+        fields[rk] = "reply_to_key"
+    return out, fields
+
+
+def _ts_of(m):
+    """⇒ (显示用时间串, 来源字段名)。★ v2 只有 `sent_at_epoch_ms`（epoch 毫秒）。"""
+    ts = m.get("ts")
+    if isinstance(ts, str) and ts:
+        return ts, "ts"
+    ms = m.get("sent_at_epoch_ms")
+    if isinstance(ms, (int, float)) and ms > 0:
+        try:
+            return time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(ms / 1000.0)), "sent_at_epoch_ms"
+        except (OSError, ValueError, OverflowError):
+            return None, "sent_at_epoch_ms"
+    return None, None
+
+
+def _key_ts(key):
+    """⇒ 键段里的 `%Y%m%dT%H%M%S`（没有则 None）。"""
+    mm = _KEY_TS_RE.match(key)
+    return mm.group(1) if mm else None
+
+
+def _parse_iso(s):
+    try:
+        return time.mktime(time.strptime(s[:19], "%Y-%m-%dT%H:%M:%S"))
+    except (ValueError, TypeError):
+        return None
+
+
+def _parse_keyts(s):
+    try:
+        return time.mktime(time.strptime(s, "%Y%m%dT%H%M%S"))
+    except (ValueError, TypeError):
+        return None
+
+
+def _post_warnings(key, m, schema, ts, frm_ok, to_ok):
+    """⇒ 该封的告警码列表。★ **不判哪个时间源权威** —— 只报「不一致」这个事实。"""
+    out = []
+    if schema == "unknown":
+        out.append(W_UNKNOWN_SCHEMA)
+    if ts is None:
+        out.append(W_NO_TIME)
+    if not (frm_ok and to_ok):
+        out.append(W_PARTY)
+    kts = _key_ts(key)
+    if kts is None:
+        out.append(W_KEY_TS)
+    elif ts is not None:
+        a, b = _parse_keyts(kts), _parse_iso(ts)
+        if a is not None and b is not None and abs(a - b) > _TS_SKEW_S:
+            out.append(W_KEY_VS_FIELD)
+    return out
 
 
 # ═══ ★ ⑩ 结构门：禁止原语（★ 冻结 tuple，不可变）════════════════════════════
@@ -230,8 +387,10 @@ def _fact_edges(posts):
                 continue
             if r == b["key"]:
                 continue                                   # ★ 自指不计
+            field = (b.get("ref_fields") or {}).get(r, "ref")     # ★ v0.4：标出**哪个字段**回指的
             edges.append({"src": r, "dst": b["key"], "kind": "fact",
-                          "via": "dst.ref → src", "declared_at": b["key"],
+                          "via": "dst.%s → src" % field, "declared_at": b["key"],
+                          "via_field": field,
                           "src_earlier": order[r] < order[b["key"]]})
     return edges, dangling
 
@@ -254,6 +413,8 @@ def _infer_edges(posts):
                     "rule": RULE_ID, "rule_name": RULE_NAME,
                     "basis": {"src_reply_required": a["reply_required"],
                               "src_ball": a["ball"], "src_to": a["to"],
+                              "src_ball_field": a.get("ball_field"),
+                              "src_schema": a.get("schema"),
                               "dst_is_first_from_recipient": True},
                 })
                 break
@@ -285,6 +446,11 @@ def _undecidable(posts, inferred, dangling):
     tail = posts[-1] if posts else None
     r6 = [tail["key"]] if (tail and tail["reply_required"] and tail["ball"] == tail["to"]) else []
 
+    # ★ v0.4 R7：旧口径下这封信 `requires_reply=False` 被**静默丢弃** ⇒ 「欠账」里看不见它
+    r7 = [p["key"] for p in posts if p["reply_required"] and not p.get("ball_present")]
+    # ★ v0.4 R8：归一失败 ⇒ 参与方身份存疑 ⇒ 与该封有关的一切计数都不可判
+    r8 = [p["key"] for p in posts if not p.get("party_ok", True)]
+
     return [
         {"code": "R1", "name": "to 非已知参与方（无从去找回信）", "count": len(r1), "items": r1,
          "kind": "count"},
@@ -298,6 +464,10 @@ def _undecidable(posts, inferred, dangling):
          "items": [], "kind": "structural"},
         {"code": "R6", "name": "最新一封天然「尚未被回」", "count": len(r6), "items": r6,
          "kind": "count"},
+        {"code": "R7", "name": "reply_required ∧ 两套球权字段都缺（★ 旧口径【静默丢弃】）",
+         "count": len(r7), "items": r7, "kind": "count"},
+        {"code": "R8", "name": "参与方归一失败（认出是会话 ID，但映射表里没有）",
+         "count": len(r8), "items": r8, "kind": "count"},
     ]
 
 
@@ -308,27 +478,44 @@ def build_index(logs, cursors):
     ★ 时间序一律用**键序**（键前缀 `%Y%m%dT%H%M%S`）⇒ 不依赖各板 ts 解析差异。
     """
     keys = sorted(k for k in logs if k.startswith(LOG_PREFIX))
-    posts, ref_cls, topics = [], {"letter": 0, "path": 0, "other": 0}, {}
+    alias = _build_alias(logs)                 # ★ v0.4：会话 ID ↔ 参与方名（语料内自证）
+    posts, ref_cls, topics, warns = [], {"letter": 0, "path": 0, "other": 0}, {}, []
     for k in keys:
         m = logs[k] or {}
+        schema = _schema_of(m)
+        ts, ts_src = _ts_of(m)
+        ball_raw, ball_present = _ball_of(m)
+        ball, ball_ok = _norm_party(ball_raw, alias)
+        frm, frm_ok = _norm_party(m.get("from"), alias)
+        to, to_ok = _norm_party(m.get("to"), alias)
+        refs, ref_fields = _refs_of(m)
         topic = m.get("topic") or "(无题)"
         rr = bool(m.get("reply_required"))
-        ball = m.get("ball")
         requires = rr and ball not in _NO_BALL
-        refs = m.get("ref") or []
+        wl = _post_warnings(k, m, schema, ts, frm_ok, to_ok)
+        for w in wl:
+            warns.append({"key": k, "warn": w})
         for r in refs:
             ref_cls[_ref_class(r)] += 1
         topics[topic] = topics.get(topic, 0) + 1
-        posts.append({"key": k, "ts": m.get("ts"), "from": m.get("from"), "to": m.get("to"),
+        posts.append({"key": k, "ts": ts, "from": frm, "to": to,
                       "topic": topic, "ball": ball, "reply_required": rr,
                       "requires_reply": requires, "subject": m.get("subject") or "",
-                      "ref": list(refs)})          # ★ v0.3：per-post ref **显式给出**（旧版漏了）
+                      "ref": list(refs), "ref_fields": ref_fields,
+                      "schema": schema, "ts_src": ts_src,
+                      "ball_present": ball_present, "ball_field": ("ball" if "ball" in m
+                                                                   else ("awaiting" if "awaiting" in m
+                                                                         else None)),
+                      "ball_raw": ball_raw, "from_raw": m.get("from"), "to_raw": m.get("to"),
+                      "party_ok": bool(frm_ok and to_ok and ball_ok),
+                      "warnings": wl})
 
     owed = [p for p in posts if p["requires_reply"]]
     reused = {t: n for t, n in topics.items() if n >= 2}
     facts, dangling = _fact_edges(posts)
     inferred = _infer_edges(posts)
-    collinear = sum(1 for p in posts if p["ball"] == p["to"])
+    collinear = sum(1 for p in posts if p["ball"] == p["to"])                     # ★ 归一后
+    collinear_raw = sum(1 for p in posts if p["ball_raw"] == p["to_raw"])         # ★ 原始串比（v0.3 口径）
 
     unread = {}
     for ck, cm in (cursors or {}).items():
@@ -350,10 +537,18 @@ def build_index(logs, cursors):
                       "dangling_letter_refs": dangling,
                       "ref_resolved": len(facts),                   # ★ 落地成事实边的条数
                       "ref_identity": "信键形态 ref = 事实边 + 悬空（+ 自指/重复，本语料通常为 0）",
-                      "ball_eq_to": collinear, "posts_seen": len(posts)},
+                      "ball_eq_to": collinear, "posts_seen": len(posts),
+                      # ★ v0.4：共线两栏并印 —— 左列是**归一后**（正确口径），右列是**原始串比**（v0.3 旧口径）
+                      "ball_eq_to_raw": collinear_raw,
+                      "ball_eq_to_note": "左=归一后（正确）；右=原始串比（v0.3 旧口径，混 schema 时必然偏小）",
+                      "schema_counts": {s: sum(1 for p in posts if p["schema"] == s)
+                                        for s in sorted({p["schema"] for p in posts})}},
         "unread": unread,
+        # ★ v0.4：警告是【读数】不是【异常】—— 不抛、不拦，只印（谁都不会因为多一条警告而拿不到页）
+        "warnings": warns,
         "totals": {"posts": len(posts), "requires_reply": len(owed),
                    "edges_fact": len(facts), "edges_inferred": len(inferred),
+                   "warnings": len(warns),
                    "parties": sorted({p["from"] for p in posts} | {p["to"] for p in posts})},
     }
 
@@ -373,7 +568,9 @@ def render_md(idx, board):
          "> ★★ **轴首横幅：下面两类边性质不同，别混读** ——",
          f"> **事实边（{T['edges_fact']} 条）** = `ref` 逐字回指**且目标键存在** ⇒ 可核；",
          f"> **推断边（{T['edges_inferred']} 条）** = 规则「{RULE_NAME}」的产物，"
-         f"★ **只表示顺序邻接，不表示「回复」**，★ **未写板**。", ""]
+         f"★ **只表示顺序邻接，不表示「回复」**，★ **未写板**。", "",
+         "> ★ **schema**：" + " · ".join(f"`{s}`×{n}" for s, n in TH["schema_counts"].items())
+         + f" · 警告 **{T['warnings']}** 条（见 §五）", ""]
 
     L += ["## 〇、★ 三个读数 —— 第三个【算不出来】，不许写成 0", "",
           "| 读数 | 值 | 口径 |", "|---|---|---|",
@@ -383,10 +580,13 @@ def render_md(idx, board):
           f" 事实边仅 **{T['edges_fact']}** 条 ⇒ 算不出来（见 §三 R1–R6） |", ""]
 
     L += ["## 一、逐封账目（时间倒序 · ★ 只放**事实**，推断不在此表）", "",
-          "| 楼（键尾） | 时间 | from→to | 球 | **要求回** | 标题 |", "|---|---|---|---|---|---|"]
+          "| 楼（键尾） | 时间 | schema | from→to | 球 | **要求回** | 标题 |",
+          "|---|---|---|---|---|---|---|"]
     for p in reversed(idx["posts"]):
-        L.append(f"| `{_short(p['key'])}` | {p['ts']} | {p['from']}→{p['to']} | "
-                 f"{p['ball']} | {'★ **是**' if p['requires_reply'] else '否'} | {p['subject'][:44]} |")
+        w = (" ⚠" + "/".join(p["warnings"])) if p["warnings"] else ""
+        L.append(f"| `{_short(p['key'])}` | {p['ts']} | `{p['schema']}` | {p['from']}→{p['to']} | "
+                 f"{p['ball']} | {'★ **是**' if p['requires_reply'] else '否'} | "
+                 f"{p['subject'][:44]}{w} |")
     L += ["",
           "> ★ 「要求回=是」**不等于**「现在还欠」—— 前者是这封的属性，后者要看后面有没有人回过。"
           "本页**只印前者**。", ""]
@@ -421,11 +621,18 @@ def render_md(idx, board):
     if not idx["edges_inferred"]:
         L.append("| —— | —— | 无 |")
     L += ["",
-          f"> ★ **先决条件读数**：`ball == to` 实测 **{TH['ball_eq_to']} / {TH['posts_seen']}** ——",
-          "> 该比值**越接近满分，这条规则越没有独立信息**（`ball` 只是 `to` 的重述）。",
-          "> ★ 这正是本仓库反复记的「空转绿」形态：**控是绿的，但它证明不了什么**。", ""]
+          "> ★ **先决条件读数（★ v0.4 两栏并印 —— 这两栏【必须】不同，否则归一没生效）**：",
+          "> | 口径 | 读数 | 依据 |", "> |---|---|---|",
+          f"> | ★ **归一后**（正确） | **{TH['ball_eq_to']} / {TH['posts_seen']}** | "
+          "参与方名剥前缀后再比 |",
+          f"> | 原始串比（v0.3 旧口径） | **{TH['ball_eq_to_raw']} / {TH['posts_seen']}** | "
+          "`ball` 与 `to` 逐字比 |", ">",
+          "> ★ 该比值**越接近满分，这条规则越没有独立信息**（`ball` 只是 `to` 的重述）。",
+          "> ★ 这正是本仓库反复记的「空转绿」形态：**控是绿的，但它证明不了什么**。",
+          "> ★★ **两栏之差就是 schema 双写的代价**：混 schema 时旧口径**必然偏小**"
+          "（v2 信没有 `ball` / 而 `to` 是带前缀的会话 ID）⇒ 旧口径会把**正常的信**误报成「共线被破」。", ""]
 
-    L += ["## 三、不可判清单 R1–R6（★ R5 是**结构性**的，不印 0）", "",
+    L += ["## 三、不可判清单 R1–R8（★ R5 是**结构性**的，不印 0）", "",
           "| 码 | 条件 | 命中 | 说明 |", "|---|---|---|---|"]
     for u in U:
         n = "★ **结构性不可判**" if u["count"] is None else str(u["count"])
@@ -446,7 +653,20 @@ def render_md(idx, board):
         L.append(f"| `{p}` | `{u['upto']}` | {u['unread']} |")
     if not idx["unread"]:
         L.append("| —— | —— | 无 |")
-    L.append("")
+    L += ["",
+          f"## 五、警告（**{T['warnings']}** 条 · ★ **是读数不是异常** —— 不抛、不拦、不静默丢信）", "",
+          "| 键（尾） | 码 |", "|---|---|"]
+    if idx["warnings"]:
+        for w in idx["warnings"]:
+            L.append(f"| `{_short(w['key'])}` | `{w['warn']}` |")
+    else:
+        L.append("| —— | 本语料无警告 |")
+    L += ["",
+          "> ★ `W-UNKNOWN-SCHEMA` = 两套字段名都认不出（**不是**「空信」，别静默丢）· "
+          "`W-NO-TIME` = 无任何可用时间源 · `W-PARTY-UNRESOLVED` = 认得出是会话 ID 但映射表里没有 · "
+          "`W-KEY-TS-FORMAT` = 键段不是 `%Y%m%dT%H%M%S` · "
+          "`W-KEY-VS-FIELD-TS` = 键段时间与字段时间差 > " + str(_TS_SKEW_S) + " 秒。",
+          "> ★★ **本页仍然不判哪个时间源权威** —— 只把不一致**印出来**。", ""]
     return "\n".join(L)
 
 
