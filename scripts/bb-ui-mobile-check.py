@@ -295,6 +295,12 @@ def selftest():
     ok, d = check_a4b(js, css)
     ck("正控 A4b：当前源码必须绿", ok, d)
 
+    # A7 负控：把 .detail 的修复删掉 ⇒ 必须红（模拟「有人把它改回去了」）
+    ok, d = check_a7(css.replace(".detail{width:100%!important", ".detail{width:calc(100% - 1px)!important"))
+    ck("★ 负控 A7：删掉 P3b 修复必须红", not ok, d)
+    ok, d = check_a7(css)
+    ck("正控 A7：八条修复必须全在位", ok, d)
+
     print("\n  %s" % ("负控矩阵全过（%d 项）" % n_ck[0] if not fails else "失败: %s" % ", ".join(fails)))
     return 1 if fails else 0
 
