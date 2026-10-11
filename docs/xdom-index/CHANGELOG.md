@@ -151,6 +151,9 @@ python3 -I ~/dsh-collab/.tmp-xdom-baseline/xdom-directory-v030.py --dry-run --js
 ★ **用的是另一套字段名**（v2：`awaiting` / `reply_to_key` / `sent_at_epoch_ms` / `thread` / `from_label_hint`），
 而本工具按 v1（`ts` / `ball` / `ref` / `from_session`）读 ⇒ **把那封真信读成空信**
 ⇒ ★ **旗舰读数「现在还欠谁一句」报 0 是错的**（实际 `reply_required=true ∧ awaiting='ext'`）。
+★ **勘误（v0.4.1）**：★ **上面这一句措辞错了** —— ★ **报 0 的是 `R6`，不是旗舰**；
+★ 〇表的旗舰「现在还欠谁一句」在 v0.3.0 / v0.4.0 **都印「不可判」**（★ 它**不是算得 0，是没得算**）。
+★ 原文**保留不改**，以便核「错在哪」；★ 正确读法：**R6 由 0 变 1 · 旗舰始终不可判。**
 
 ★ **本线自评：这是第 6 次「判据的对象取错了」** —— 判据没错，**取字段取错了**。
 
