@@ -421,8 +421,21 @@ function buildForceGraph(boxId,cvId,rel,big,onNodeClick){
     }else tip.style.display='none';
   });
   cv.addEventListener('mouseleave',()=>{hover=null;hoverEdge=null;tip.style.display='none';render()});
+  // ★★ 2026-10-12 P2：触摸等价 —— 手机没有 mousemove/hover，上面那段提示在手机上【永远不触发】。
+  //    修法用【合成事件桥接】而不是复制一份命中检测：把 pointerdown 转成一条 mousemove 事件，
+  //    直接复用上面已有的 findNode/findEdge + tip 渲染逻辑 ⇒ 零重复、将来改一处两处都生效。
+  //    ★ 只桥接非鼠标指针（鼠标仍走原生 mousemove，避免重复触发）。
+  cv.addEventListener('pointerdown',ev=>{
+    if(ev.pointerType==='mouse')return;
+    const r=cv.getBoundingClientRect();
+    cv.dispatchEvent(new MouseEvent('mousemove',{
+      clientX:ev.clientX, clientY:ev.clientY, bubbles:true, cancelable:true}));
+  },{passive:true});
   cv.addEventListener('click',ev=>{
-    const n=findNode(ev);if(n){clickHandler(n)}
+    const n=findNode(ev);
+    if(n){clickHandler(n)}
+    // ★ 点空白处 ⇒ 收起提示（否则触摸弹出的 tip 会一直挂着，手机上没有 mouseleave 来收）
+    else if(tip){tip.style.display='none';hover=null;hoverEdge=null;render()}
   });
   // 背景粒子（Obsidian 氛围）
   const stars=[];for(let i=0;i<90;i++)stars.push({x:Math.random()*S.w,y:Math.random()*S.h,a:Math.random()*0.5+0.05,r:Math.random()*1.2+0.2});
@@ -635,7 +648,7 @@ function renderMechanism(){
     '<div class="gl"><span class="d1" style="background:#e06c75"></span>🔒锁(授权谁做)</div>'+
     '<div class="gl"><span style="color:#8b90a3">点击节点看详情</span></div>';
   gb.appendChild(lg);
-  gb.appendChild(el('div','graph-hint','协议→门→锁→执行 · hover 看摘要 · 点击看详情/文档'));
+  gb.appendChild(el('div','graph-hint','协议→门→锁→执行 · 轻点看摘要 · 点击看详情/文档'));
   j('/api/mech-graph').then(g=>{buildForceGraph('mech-force-box','mech-force-canvas',g,true)});
   const tb=el('div');tb.style.cssText='margin-top:14px';
   tb.innerHTML='<table class="tbl"><tr><th>类型</th><th>数量</th><th>说明</th></tr>'+
@@ -693,7 +706,7 @@ function renderKnowledge(){
     '<div class="gl"><span class="d1" style="background:#e8eaf0"></span>蓝图</div>'+
     '<div class="gl"><span class="d1" style="background:#c678dd"></span>论文类报告</div>';
   gb.appendChild(lg);
-  gb.appendChild(el('div','graph-hint','知识内核：论文/调研支撑体系设计 · 拖拽/缩放/hover/点击看详情'));
+  gb.appendChild(el('div','graph-hint','知识内核：论文/调研支撑体系设计 · 拖拽/双指缩放/轻点看详情'));
   j('/api/knowledge-graph').then(g=>{
     // 过滤
     let nodes=g.nodes, edges=g.edges;
@@ -803,7 +816,7 @@ function renderPlanArchive(){
     Object.keys(tc).forEach(k=>{lgH+='<div class="gl"><span class="d1" style="background:'+tc[k]+'"></span>'+k+'</div>';});
     lgH+='<div class="gl"><span class="d1" style="background:#8b90a3"></span>灰边=属域 · 蓝边=关联蓝图</div>';
     lg.innerHTML=lgH;gb.appendChild(lg);
-    gb.appendChild(el('div','graph-hint','📋 '+d.itemCount+' 项计划/版本档案 · 域(大圆)→条目(小圆)→蓝图 · 拖拽/缩放/hover/点击看详情'));
+    gb.appendChild(el('div','graph-hint','📋 '+d.itemCount+' 项计划/版本档案 · 域(大圆)→条目(小圆)→蓝图 · 拖拽/双指缩放/轻点看详情'));
     box.appendChild(gb);
     if(d.nodes&&d.nodes.length)buildForceGraph('pa-force-box','pa-force-canvas',d,false);
 
@@ -1245,7 +1258,7 @@ function renderHwTopo(box){
   }).catch(function(e){box.appendChild(el('div','empty','加载失败'))});
 }
 function renderHwComm(box){
-  box.appendChild(el('h3','', '🛰 设备通讯桥 · 设备↔设备真实通道（边=通讯通道 · 绿通/红断 · hover 看协议）'));
+  box.appendChild(el('h3','', '🛰 设备通讯桥 · 设备↔设备真实通道（边=通讯通道 · 绿通/红断 · 轻点看协议）'));
   const gb=el('div','graph-box');gb.id='hwc-force-box';gb.style.cssText='height:58vh;width:100%;margin-bottom:12px';
   const cv=document.createElement('canvas');cv.id='hwc-force-canvas';
   gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
@@ -1259,7 +1272,7 @@ function renderHwComm(box){
     lgH+='<div class="gl"><span class="d1" style="background:#34c77b"></span>● 探通</div>'+
          '<div class="gl"><span class="d1" style="background:#e06c75"></span>● 断开</div>';
     lg.innerHTML=lgH;gb.appendChild(lg);
-    gb.appendChild(el('div','graph-hint','hover 边看通道协议 · 绿=实时探通 红虚线=断开 · 平行线=同对端多通道 · 点击节点详情'));
+    gb.appendChild(el('div','graph-hint','轻点边看通道协议 · 绿=实时探通 红虚线=断开 · 平行线=同对端多通道 · 点击节点详情'));
     box.appendChild(gb);
     if(d.nodes&&d.nodes.length)buildForceGraph('hwc-force-box','hwc-force-canvas',d,true);
     // 通道明细表
@@ -1322,7 +1335,7 @@ function renderSystems(){
       '<div class="gl"><span class="d1" style="background:#98c379"></span>工具</div>'+
       '<div class="gl"><span style="color:#8b90a3">蓝线=归属 · 灰线=依赖</span></div>';
     gb.appendChild(lg);
-    gb.appendChild(el('div','graph-hint','🗄 系统↔蓝图归属 + 系统间依赖 · 拖拽/缩放/hover/点击详情'));
+    gb.appendChild(el('div','graph-hint','🗄 系统↔蓝图归属 + 系统间依赖 · 拖拽/双指缩放/轻点详情'));
     if(d.graph)buildForceGraph('sys-force-box','sys-force-canvas',d.graph,true);
     // 统计卡
     const alive=d.alive||0,total=d.total||0;
@@ -1371,7 +1384,7 @@ function renderRules(){
     '<div class="gl"><span class="d1" style="background:#8b90a3"></span>红边=约束蓝图</div>'+
     '<div class="gl"><span class="d1" style="background:#34c77b"></span>绿边=相关智能体</div>';
   gb.appendChild(lg);
-  gb.appendChild(el('div','graph-hint','规则节点按分类着色 · hover 看摘要 · 点击规则看详情/蓝图看架构/智能体看档案'));
+  gb.appendChild(el('div','graph-hint','规则节点按分类着色 · 轻点看摘要 · 点击规则看详情/蓝图看架构/智能体看档案'));
   j('/api/rule-graph').then(g=>{buildForceGraph('rules-force-box','rules-force-canvas',g,true)});
   // 规则分类统计表
   const tb=el('div');tb.style.cssText='margin-top:14px';
@@ -1538,7 +1551,7 @@ function renderRelations(){
   box.appendChild(gb);
   // 图例
   const legend=el('div','graph-legend');legend.innerHTML=LEGEND_HTML;gb.appendChild(legend);
-  gb.appendChild(el('div','graph-hint','🖱 拖拽 · 滚轮缩放 · hover 高亮 · 点击进详情'+(window.__foldChildren?' · 子蓝图已折叠，点击父节点看子树':'')));
+  gb.appendChild(el('div','graph-hint','👆 拖拽 · 双指缩放 · 轻点高亮 · 点击进详情'+(window.__foldChildren?' · 子蓝图已折叠，点击父节点看子树':'')));
   buildForceGraph('rel-force-box','rel-force-canvas',ALL.relations,true);
   // 子树点击提示：父节点有 children 的
   gb.addEventListener('click',ev=>{
@@ -1722,7 +1735,7 @@ async function openBp(id){
         const dgb=el('div','graph-box');dgb.id='bp-dyn-box';dgb.style.cssText='height:66vh;width:100%;position:relative';
         const dcv=document.createElement('canvas');dcv.id='bp-dyn-canvas';
         dgb.appendChild(dcv);dgb.appendChild(el('div','graph-tip',''));vw.appendChild(dgb);
-        dgb.appendChild(el('div','graph-hint','🌀 '+id+' 动态图 · 蓝图→主线→阶段→子阶段 · 拖拽/缩放/hover 高亮/点击子阶段看说明'));
+        dgb.appendChild(el('div','graph-hint','🌀 '+id+' 动态图 · 蓝图→主线→阶段→子阶段 · 拖拽/双指缩放/轻点子阶段看说明'));
         j('/api/bp-graph/'+id).then(g=>{buildForceGraph('bp-dyn-box','bp-dyn-canvas',g,true)});
         // buildForceGraph 需 box 容器——临时用 dgb 挂 boxId? 改用 id
       } else {
@@ -1770,7 +1783,7 @@ function renderAgents(){
 }
 // ── 网络视图(原逻辑) ──
 function renderNetView(box){
-  box.appendChild(el('h3','', '🤖 智能体网络 · 力导向（含父子层级 · 拖拽/缩放/hover/点击看详情）'));
+  box.appendChild(el('h3','', '🤖 智能体网络 · 力导向（含父子层级 · 拖拽/双指缩放/轻点看详情）'));
   const bar=el('div','');bar.style.cssText='margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
   const fbtn=el('button','',window.__foldAgents?'📂 展开子代理':'📁 折叠子代理');
   fbtn.onclick=()=>{window.__foldAgents=!window.__foldAgents;renderAgents()};
@@ -1809,7 +1822,7 @@ function renderCapView(box){
       '<div class="gl"><span class="d1" style="background:#8b90a3"></span>智能体(域色)</div>'+
       '<div class="gl"><span style="color:#8b90a3">黄边=拥有该能力 · '+g.agentCount+' agent · '+g.capEdges+' 能力边</span></div>';
     gb.appendChild(lg);
-    gb.appendChild(el('div','graph-hint','hover 能力簇看谁具备 · 点击 agent 看能力明细 · 能力词条归并去噪(331→11 簇)'));
+    gb.appendChild(el('div','graph-hint','轻点能力簇看谁具备 · 点击 agent 看能力明细 · 能力词条归并去噪(331→11 簇)'));
     box.appendChild(gb);
     if(g.nodes&&g.nodes.length)setTimeout(()=>buildForceGraph('cap-force-box','cap-force-canvas',g,false),80);
     // 能力簇分布表
@@ -1827,7 +1840,7 @@ function renderCapView(box){
 }
 // ── 权限视图(agent → 资源, R027 该不该: 独占红/共享蓝) ──
 function renderPermView(box){
-  box.appendChild(el('h3','', '🔑 权限图谱 · R027「该不该」(Agent → 资源: 红=独占 · 蓝=共享 · hover 看详情)'));
+  box.appendChild(el('h3','', '🔑 权限图谱 · R027「该不该」(Agent → 资源: 红=独占 · 蓝=共享 · 轻点看详情)'));
   const gb=el('div','graph-box');gb.id='perm-force-box';gb.style.cssText='height:62vh;width:100%;margin-bottom:10px';
   const cv=document.createElement('canvas');cv.id='perm-force-canvas';
   gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
@@ -1893,7 +1906,7 @@ function notifyMgr(event, detail, level){
 })();
 function renderLabView(box){
   // 🧪 连接实验室 · 图呈现: 实线=已有边 · 虚线=潜在候选(虚线可 hover/点击看原因)
-  box.appendChild(el('h3','', '🧪 连接实验室 · 潜在连接图(虚线=候选 · hover看理由 · 点击虚线展开完整原因)'));
+  box.appendChild(el('h3','', '🧪 连接实验室 · 潜在连接图(虚线=候选 · 轻点看理由 · 点击虚线展开完整原因)'));
   const ctl=el('div','');ctl.style.cssText='margin-bottom:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px';
   ctl.innerHTML='<span><span style="color:#f5b942">┅┅ 黄虚线</span>=中潜候选</span>'+
     '<span><span style="color:#34c77b">┅┅ 绿虚线</span>=高潜候选</span>'+

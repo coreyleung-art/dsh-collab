@@ -917,9 +917,11 @@
    "ask": "C4 自启动注入是否值得做 —— 它是 M0 唯一缺口，代价是改 CLD preset（须批 + 涉重启窗口）",
    "id": "Q-P",
    "owner": "用户（须授权/须批）",
-   "urgent": true,
+   "urgent": false,
    "state": "answered",
-   "v6_6_update": "★ 2026-10-12 已做（用户 2026-10-12 裁：「计划本身我都同意过了」）。"
+   "v6_6_update": "★ 2026-10-12 已做（用户 2026-10-12 裁：「计划本身我都同意过了」）。",
+   "voided": true,
+   "voided_reason": "★ 2026-10-12 用户裁（「计划本身我都同意过了」）⇒ **C4 已做**（6/6 预设，D-098/D-099）；★ 待验者另立 **C4-b**。"
   },
   {
    "ask": "索引「本地副本」与「板值」是否合并为单一来源 —— 实测二者独立且可漂移（P27 第四层）",
@@ -931,7 +933,7 @@
  "resume_prompt_generator": "tools/mk-resume-prompt.py",
  "schema": "continuity-index/v1",
  "state_version": 6,
- "updated_at": "2026-10-12T03:17:07+08:00",
+ "updated_at": "2026-10-12T03:26:51+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
