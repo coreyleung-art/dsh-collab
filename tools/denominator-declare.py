@@ -59,8 +59,34 @@ DECLARE_MARKERS = ["口径", "★ 面", "复跑命令", "时刻", "分母 =", "�
 
 
 def para_of(text, pos, back=260, fwd=160):
-    """★ 取 pos 附近的上下文（★ 同句或紧邻）。"""
+    """★ 取 pos 附近的上下文（★ 同句或紧邻）。
+
+    ★★ 2026-10-13 修（ext E-1）：★ 本函数**只应作展示用** ——
+      ★ 原实现把它同时用作【口径词判定】⇒ ★★ 260 字外的无关口径词也算「已申报」
+      ⇒ **假阴性**（★ 实例：「通过率 87%。\\n本段讲窗口：窗口为 24h，与本数字无关。」⇒ 判「已申报」）。
+    ★ 判定改用 `same_unit_declared()`（★ 按句/段判），见下。
+    """
     return text[max(0, pos - back): pos + fwd]
+
+
+# ★★ 句子/段落边界（★ 中英文）
+_SENT_SPLIT = re.compile(r'[\n\u3002\uff01\uff1f!?;；]+')
+
+
+def same_unit_declared(text, pos):
+    """★ ★★ E-1 的正确判法：**口径词必须与数字在【同一句】**。
+
+    ★ 立据（ext E-1）：★ 原用【字符窗】⇒ **把「距离」当成了「关联」** ⇒
+      ★★ 一句无关的「本段讲窗口：窗口为 24h」就能把裸数 87% 洗白。
+    ★ 三态：★ 同句含口径词 ⇒ True；★ 否则 False（★ 不作「不可判」，★ 因为句界是可判的）。
+    """
+    # ★ 定位 pos 所在的句：向前找最近句界，向后找最近句界
+    starts = [0] + [m.end() for m in _SENT_SPLIT.finditer(text)]
+    ends = [m.start() for m in _SENT_SPLIT.finditer(text)] + [len(text)]
+    lo = max((s for s in starts if s <= pos), default=0)
+    hi = min((e for e in ends if e >= pos), default=len(text))
+    sentence = text[lo:hi]
+    return any(w in sentence for w in CALIBER_WORDS), sentence
 
 
 def scan_text(text):
@@ -68,19 +94,22 @@ def scan_text(text):
     out = []
     for m in RE_PCT.finditer(text):
         ctx = para_of(text, m.start())
-        declared = any(w in ctx for w in CALIBER_WORDS)
+        # ★★ 2026-10-13 修（ext E-1）：判定改用【同句】而非【字符窗】
+        declared, _sent = same_unit_declared(text, m.start())
         out.append({"kind": "pct", "value": m.group(0), "declared": declared,
                     "ctx": ctx.replace("\n", " ")[:120]})
     for m in RE_RATIO_RAW.finditer(text):
         if is_ratio_noise(m.group(1), m.group(2), text, m.start()):
             continue          # ★ 负控：端口 / 日期不算比值
         ctx = para_of(text, m.start())
-        declared = any(w in ctx for w in CALIBER_WORDS)
+        # ★★ 2026-10-13 修（ext E-1）：判定改用【同句】而非【字符窗】
+        declared, _sent = same_unit_declared(text, m.start())
         out.append({"kind": "ratio", "value": m.group(0), "declared": declared,
                     "ctx": ctx.replace("\n", " ")[:120]})
     for m in RE_COUNT.finditer(text):
         ctx = para_of(text, m.start())
-        declared = any(w in ctx for w in CALIBER_WORDS)
+        # ★★ 2026-10-13 修（ext E-1）：判定改用【同句】而非【字符窗】
+        declared, _sent = same_unit_declared(text, m.start())
         out.append({"kind": "count", "value": m.group(0), "declared": declared,
                     "ctx": ctx.replace("\n", " ")[:120]})
     return out
