@@ -12,7 +12,9 @@
 ★★ 用法：
   subagent-work-checklist.py --stage pre   [--module M1] [--prompt-file f.txt]
   subagent-work-checklist.py --stage mid
-  subagent-work-checklist.py --stage post  [--artifacts <dir>]
+  subagent-work-checklist.py --stage post
+  ★★ 2026-10-13 修（ext F-4）：原写 `[--artifacts <dir>]` —★ 而 `add_argument` **并无此项**
+     （★ 实有：`--stage` · `--prompt-file` · `--module` · `--selftest` · `--version`）⇒ 已删。
   subagent-work-checklist.py --selftest
 
 三态：`--prompt-file` 给了但读不到 ⇒ 「不可判」；未给 ⇒ 只列清单不判分。

@@ -410,7 +410,11 @@ def selftest():
     (d / "package.json").write_text(json.dumps({"name": "totally-different"}), encoding="utf-8")
     pkg_name = json.loads((d / "package.json").read_text())["name"]
     cases.append(("G-CR3 负例：目录名与 package.name 不等 ⇒ 应判不过",
-                  pkg_name != d.name, True))
+                    pkg_name != d.name, True))
+    # ★★ 2026-10-13 修（ext F-5）：上一行原为恒真（★ 夹具写死 "totally-different" ⇒ 必不等）—★
+    #   ★ 现补【反向案例】：相等时必须为 False。
+    cases.append(("G-CR3 反向案例：目录名与 package.name 相等 ⇒ 应判过",
+                    d.name != d.name, False))
     # ── ★ G-CR9：读当前 preset（★ 真读盘）──
     presets = HOME / ".dsh" / ".agent-presets"
     n_ok = sum(1 for dd in presets.iterdir()

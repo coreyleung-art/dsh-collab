@@ -104,8 +104,16 @@ def render_prompt(items):
 
 def check_prompt(text):
     """★ 门：提示词是否含【既有 lint 清单】。"""
-    hits = [m for m in ("lint-inventory", "既有 lint", "evidence-channel-guard",
-                        "csx-canfail-check", "text-assertion-lint") if m in text]
+    # \u2605\u2605\u2605 2026-10-13 \u4fee\uff08ext F-1\uff09\uff1a\u539f\u7b2c\u4e00\u4e2a token \u5c31\u662f**\u5de5\u5177\u81ea\u5df1\u7684\u540d\u5b57**\uff0c
+    #   \u21d2 \u2605\u2605 **\u53ea\u8981\u63d0\u793a\u8bcd\u91cc\u51fa\u73b0 `lint-inventory` \u5c31\u5224\u300c\u5df2\u542b\u6e05\u5355\u300d**\uff08\u2605 \u5047\u7ed3\u679c\uff09\u3002
+    #   \u2605 \u73b0\uff1a\u8981\u6c42\u771f\u7684\u3010\u6e05\u5355\u5185\u5bb9\u3011\uff08\u2605 \u5177\u4f53\u5de5\u5177\u540d \u00b7 \u6216\u300c\u65e2\u6709 lint\u300d\u77ed\u8bed\uff09\uff0c\u2605 \u4e0d\u518d\u63a5\u53d7\u5de5\u5177\u81ea\u540d\u3002
+    SOURCES = {"\u65e2\u6709 lint", "\u65e2\u6709lint", "evidence-channel-guard", "csx-canfail-check",
+               "text-assertion-lint", "absolute-claim-lint", "absence-claim-lint", "selftest-audit",
+               "false-result-patterns", "beacon-cover-check", "atomic-write-guard", "live-read-guard",
+               "denominator-declare", "correction-ledger-gen"}
+    hits = [m for m in SOURCES if m in text]
+    # \u2605 \u2605 **\u53ea\u63d0\u5de5\u5177\u540d\u4e0d\u7b97**\uff1a\u82e5 hits \u91cc\u53ea\u6709 `lint-inventory` \u672c\u8eab \u21d2 \u5224\u672a\u542b
+    hits = [h for h in hits if h != "lint-inventory"]
     return (len(hits) > 0), hits
 
 def selfcheck():

@@ -49,7 +49,8 @@ CHECKS = [
     # \u2605\u2605 2026-10-13 \u4fee\uff08ext E-2\uff09\uff1a\u539f\u6ce8\u6807\u542b `== None or` \u800c**\u7f16\u8bd1\u5f0f\u4e0d\u542b**
     #   \u21d2 \u2605\u2605 **\u58f0\u660e\u4e0e\u6267\u884c\u4e0d\u4e00\u81f4**\uff08\u2605 \u6b63\u662f\u672c\u4ed3\u8981\u6293\u7684\u90a3\u4e00\u65cf\uff09\u3002
     #   \u2605 \u73b0\u8865\u4e0a\uff1a`== None or` / `is None or` / **\u96c6\u5408\u5b57\u9762\u91cf `{0, None}`**\uff08\u2605 ext E-3 变\u4f53 B\uff09\u3002
-    ("P2", r'in\s*\(\s*0\s*,\s*None\s*\)|==\s*None\s*or|is\s+None\s+or|not\s+in\s*\(0,\s*None\)',
+    # ★★ 2026-10-13 修（ext F-6）：【声明串与编译式同步】—★ 原声明串含 == None or/is None or 而编译式不含（有意收窄）。
+    ("P2", r'not\s+in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]',
      '\u2605 `None` \u88ab\u5f53\u7eff\uff08\u2605 \u5f02\u5e38\u8def\u5f84\u4e0e\u6210\u529f\u540c\u5f62\uff09\u2014\u2605 D-231',
      # \u2605\u2605 2026-10-13 \u518d\u4fee\uff08\u2605 \u672c\u7eb3\u81ea\u67e5\uff09\uff1a\u4e0a\u4e00\u7248\u8865\u4e86 `== None or` / `is None or`
      #   \u21d2 \u2605\u2605 **\u62a5\u4e86 33 \u5904\u5047\u9633\u6027**\uff08\u2605 \u5b9e\u4f8b `if gap is None or gap > 1:` \u2014\u2605
