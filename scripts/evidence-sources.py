@@ -211,7 +211,14 @@ def compare_methods(cmds):
     return {"n_cmds": len(norm), "distinct": len(set(norm)), "same_method_twice": same,
             "same_method_twice_raw": raw_same,
             "commands": norm, "commands_raw": raw,
+            # ★★★ 字段语义（★ 必读，★ 由 session-c05b831c 实测 3/6 命中后要求挂在本字段名下）：
+            #   ★ equivalence_possible = True  仅表示「两次只在【空白】上不同」。
+            #   ★★ flag 序 / 引号 等差异 ⇒ same=False ⇒ 【同样会被判为两源】，但【不】触发本字段。
+            #   ★★★ 故**本字段为 False【≠】确认不等价** —★ 它只意味着「不是空白差异」。
             "equivalence_possible": same and not raw_same,
+            "equivalence_semantics": "★ True = 两次仅在【空白】上不同；"
+                                     "★★ False = 【不是空白差异】，"
+                                     "★ **不等于「确认不等价」**（★ flag 序/引号等差异则触发不了它）",
             "note": ("★★ **归一后相同、原文不同** ⇒ "
                      "★ 可能是【等价重述】，★★ **工具不替人判**"
                      if (same and not raw_same) else ""),
@@ -349,6 +356,15 @@ def selfcheck():
     # ★★★ 新增（★ 由 session-c05b831c 建议）：归一后相同、原文不同 ⇒ 可能等价重述，★ 并列报出
     t("⑥o 归一后相同但原文不同 ⇒ 报【可能等价】（★ 不替人判）",
       compare_methods(["grep -rl waves .", "grep  -rl  waves ."])["equivalence_possible"] is True)
+    # ★★★ 新增（★ session-c05b831c 的构造性验证）：内层空白才是触发条件
+    t("⑥q 内层空白 ⇒ 触发 equivalence_possible（★ 命中）",
+      compare_methods(["a  b", "a b"])["equivalence_possible"] is True)
+    t("⑥r 内层 tab ⇒ 触发（★ 命中）",
+      compare_methods(["a\tb", "a b"])["equivalence_possible"] is True)
+    t("⑥s 外层空白 ⇒ **不**触发（★ raw 也相同）",
+      compare_methods(["a b", "  a b  "])["equivalence_possible"] is False)
+    t("⑥t 字段语义已挂在字段名下（★ 它的建议）",
+      "不等于" in compare_methods(["a b", "a b"])["equivalence_semantics"])
     t("⑥p flag 换序仍算【两源】（★ 边界已明写）",
       compare_methods(["grep -rl x .", "grep -l -r x ."])["verdict"] == "EVIDENCE")
     t("⑥n 空命令列 ⇒ UNSTATED（★ 不得读作合格）",
