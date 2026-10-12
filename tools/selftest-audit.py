@@ -271,8 +271,22 @@ def main():
     if a.run:
         bad = [r for r in n_st if r.get("run_exit") not in (0, None)]
         print("  ★ 实跑：%d 个 selftest · 非 0 退出 %d 个" % (len(n_st), len(bad)))
-        for r in bad:
+        for r in bad[:20]:
             print("     ❌ %s exit=%s" % (r["file"], r.get("run_exit")))
+        if len(bad) > 20:
+            print("     … 另有 %d 个" % (len(bad) - 20))
+        # ★★★ 2026-10-12 新增（D-228）：【探针自检】—— 防「探针坏而报告说全坏」
+        #   ★ 立据：本线第一次跑 `scripts/` 面时，用 `p2.status`（★ 正确是 `returncode`）
+        #   ★★ ⇒ **341 个全部被记成 `ERR:AttributeError`** ⇒ 报告说「341 个全非 0」，
+        #      而**手动跑其中一个 ⇒ `exit=0`** —— ★ **那不是工具坏，是探针坏。**
+        #   ★★★ ⇒ 故加：**非 0 比例 > 90% 且有 ≥3 个 ⇒ 主动报「疑似探针故障，不报为工具缺陷」**。
+        _ratio = (len(bad) / len(n_st)) if n_st else 0
+        if len(n_st) >= 3 and _ratio > 0.90:
+            print()
+            print("  ⚠️⚠️ **疑似【探针故障】，不是工具缺陷** ——")
+            print("        %d/%d = %.0f%% 非 0" % (len(bad), len(n_st), _ratio * 100))
+            print("        ★ 若真如此高的比例，更可能是【调用方式错】而非工具全坏。")
+            print("        ★★ 请先【手动跑其中一个】核（★ 本线曾因 `p2.status` 误写致 341 个全报错）。")
         print()
     if n_taut:
         print("  ❌ %d 个工具的【自证含恒真条目】 ⇒ 依「一个断言若从未红过就不是判据」，它们不是判据" % len(n_taut))
