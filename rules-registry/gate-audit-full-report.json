@@ -17754,7 +17754,14 @@
   {
    "file": "deviation-ledger-20261011.md",
    "path": "/Users/coreyleung/dsh-collab/docs/deviation-ledger-20261011.md",
-   "line": 6106,
+   "line": 6110,
+   "text": "| **规则号** | ★ **D-221/D-228**（★ 同批）· ★ **判据必须能红** · ★ **S3** |",
+   "category": "paper"
+  },
+  {
+   "file": "deviation-ledger-20261011.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/deviation-ledger-20261011.md",
+   "line": 6150,
    "text": "*本台账只增不改。★ **任何 `closed` 状态必须附独立 verifier**（S3 不可自审）。*",
    "category": "paper"
   },
@@ -38383,6 +38390,6 @@
  ],
  "summary": {
   "structural": 728,
-  "paper": 4828
+  "paper": 4829
  }
 }
