@@ -257,9 +257,16 @@ def main():
                 print("        %s  `%s`" % (t["pattern"], t["snippet"]))
         print()
     if n_nocall:
-        print("  ⚠️  **未调本地函数（★ 可能只调了库函数或常量；须人工看）**：")
+        # ★★ 2026-10-12 降级（D-227）：本项是【启发式】，实测会【假报】——
+        #   ★ `incident-regression` 与 `principle-landing-check` 被它报「未调本地函数」，
+        #   ★★ 而实跑均 `exit=0` 且输出含【反向对照】（★ 真自证）。
+        #   ★ 原因：它们用 `_t(...)` / 直接 `print`，★ **不通过 `cases.append`**。
+        #   ★★★ ⇒ 故本项从【警告】降为【信息】，并明写【硬证据是 `--run`】。
+        print("  ℹ️  【信息·非警告】未调本地函数的（%d 个）：" % len(n_nocall))
+        print("     ★ 本项是【启发式】，会假报 —— ★ **硬证据是 `--run`**（真跑看 exit）。")
+        print("     ★ 已知假报：incident-regression / principle-landing-check 用 `_t()` 与 `print`，非 `cases.append`。")
         for r in n_nocall[:12]:
-            print("     %s" % r["file"])
+            print("       %s" % r["file"])
         print()
     if a.run:
         bad = [r for r in n_st if r.get("run_exit") not in (0, None)]
