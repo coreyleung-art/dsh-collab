@@ -192,16 +192,33 @@ def check_errors(claims):
 def compare_methods(cmds):
     """★★★ 接受【实际命令串】，工具自己比对是否相同。
     ★ 由 session-c05b831c 建议（2026-10-12）：★★ **收命令串而非布尔** —★ **那才机械可判**。
-    ★ 为何优于 `type@method`：★ **后者仍需调用方自己写方法标识**；
-      ★★ **本函数连标识都不需要人写** —★ 直接拿命令比。
+
+    ★★★ **边界（★ 必读，★ 由 session-c05b831c 实测五例后要求明写）**：
+      ★ 本函数**只做【空白归一】**（★ 折叠连续空白 + 去首尾）；
+      ★★ **flag 序、引号、路径写法等【语义等价】【不归一】** —★
+      ★ 实测：`-rl` ↔ `-l -r` ⇒ distinct=2；`'waves'` ↔ `"waves"` ⇒ distinct=2。
+      ★★ ⇒ ★ **故本函数判的是「归一后是否字面相同」，【不是「是否同一个方法」】。**
+      ★ 它能挡「原样重复」，★★ **不能挡「等价重述」**。
+
+    ★★ **为何仍值得用**：★ 它把「自报」换成了「工具自比」，★★ **而且它会把【原文】一并报出** —★
+      ★ 故读者可自行判「是否等价」（★ 工具不替人判）。
     """
     norm = [re.sub(r"\s+", " ", (c or "").strip()) for c in cmds]
     same = len(set(norm)) < len(norm)
+    # ★★★ 新增（★ 它的建议②）：并列报出【原文】与【归一后】，★ 工具不替人判等价
+    raw = [(c or "").strip() for c in cmds]
+    raw_same = len(set(raw)) < len(raw)
     return {"n_cmds": len(norm), "distinct": len(set(norm)), "same_method_twice": same,
-            "commands": norm,
+            "same_method_twice_raw": raw_same,
+            "commands": norm, "commands_raw": raw,
+            "equivalence_possible": same and not raw_same,
+            "note": ("★★ **归一后相同、原文不同** ⇒ "
+                     "★ 可能是【等价重述】，★★ **工具不替人判**"
+                     if (same and not raw_same) else ""),
             "verdict": "NOT_EVIDENCE" if same else ("UNSTATED" if not norm else "EVIDENCE"),
-            "reason": ("★★ **两次命令字面相同 ⇒ 同法两次 ⇒ n 不增**"
-                       if same else "★ 命令字面不同 ⇒ 可计入多源")}
+            "reason": ("★★ **两次命令归一后相同 ⇒ 同法两次 ⇒ n 不增**"
+                       if same else "★ 命令字面不同 ⇒ 可计入多源"
+                       "（★ **但本函数只判空白，★★ 等价重述例如 flag 换序仍算两源**）")}
 
 
 def cmd_methods(cmds, as_json=False):
@@ -329,6 +346,11 @@ def selfcheck():
       compare_methods(["grep -c PEND x", "grep  -c   PEND x"])["same_method_twice"] is True)
     t("⑥m 两串不同 ⇒ 不算同法",
       compare_methods(["grep -c PEND x", "awk /^PEND/ x"])["same_method_twice"] is False)
+    # ★★★ 新增（★ 由 session-c05b831c 建议）：归一后相同、原文不同 ⇒ 可能等价重述，★ 并列报出
+    t("⑥o 归一后相同但原文不同 ⇒ 报【可能等价】（★ 不替人判）",
+      compare_methods(["grep -rl waves .", "grep  -rl  waves ."])["equivalence_possible"] is True)
+    t("⑥p flag 换序仍算【两源】（★ 边界已明写）",
+      compare_methods(["grep -rl x .", "grep -l -r x ."])["verdict"] == "EVIDENCE")
     t("⑥n 空命令列 ⇒ UNSTATED（★ 不得读作合格）",
       compare_methods([])["verdict"] == "UNSTATED")
     t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
