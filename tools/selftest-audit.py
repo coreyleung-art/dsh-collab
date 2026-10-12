@@ -148,7 +148,18 @@ def audit(roots=None, run=False):
                 p = subprocess.run([sys.executable, os.path.join(ROOT, rel), "--selftest"],
                                    capture_output=True, text=True, timeout=90,
                                    stdin=subprocess.DEVNULL)
-                return rel, p.returncode           # ★ returncode，不是 status
+                rc = p.returncode                  # ★ returncode，不是 status
+                # ★★★ 2026-10-12（D-232）：【不支持】不一定返 `2` —★
+                #   ★ 实测：6 个脚本用 **`rc=1` + 「用法:」/`不认识的参数`** 表示用法错；
+                #   ★ 而其中两个还**明确写了「本工具【没有】--selftest 入口」** —★ 那是对的做法。
+                #   ★★☃ ⇒ 故按【输出内容】也认一遍，归入「不支持」。
+                blob = ((p.stdout or "") + (p.stderr or ""))[:2000]
+                marks = ("用法:", "用法：", "usage:", "不认识的参数",
+                         "unrecognized", "没有】--selftest", "没有 --selftest",
+                         "本工具【没有】")
+                if rc != 0 and any(mk in blob for mk in marks):
+                    return rel, 2
+                return rel, rc
             except subprocess.TimeoutExpired:
                 return rel, "TIMEOUT"
             except Exception:

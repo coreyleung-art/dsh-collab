@@ -6241,5 +6241,65 @@ r["run_exit"] = p.status          # ★★ 同一个错！正确是 p.returncode
 | **状态** | ★ **`accepted`**（★ 已修；★ **「30/30」已纠正为 28·1·1**） |
 
 ---
+## D-232 · ★★★★ **【那 6 个「无标记 rc=1」全是【不支持】+ 一个真 bug 的归属判定】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-12T23:45:22+08:00**（★ 跑 `date`） |
+| **规则号** | ★ **D-229/D-230**（★ 同批）· ★ **不代裁归属** · ★ **S3** |
+| **★★☃ 一、那 6 个逐条核完** | ★
+| 脚本 | ★ 实际输出 | 判 |
+|---|---|---|
+| `clean-external.py` | ★ `用法: clean-external.py <in.md> <out.md>` | ★ 不支持 |
+| `inplace-pointer-audit.py` | ★★ `❌ 不认识的参数: --selftest` · **「本工具【没有】--selftest 入口（明鉴已知未结项）」** | ★ 不支持（★ **明说**） |
+| `verification-level-lint.py` | ★★ 同上，且写「**这里明确说出来，而不是静默跑默认扫描**」 | ★ 不支持（★ **明说**） |
+| `send-repair-report.py` | ★ 打印帮助后 rc=1 | ★ 不支持 |
+| `stance-derive.py` / `stance-redact.py` | ★ `用法: <in.md> <out.md> --audience` | ★ 不支持 |
+
+★★☃ ⇒ ★ **6 个【全不是缺陷】** —★ 而其中两个还**明确说「本工具没有该入口」**，★ **那是对的做法。** |
+| **★★☃ 二、修法（★ 已交付）** | ★ `classify_run` 现在**按【输出内容】**也认一遍：
+```python
+marks = ("用法:", "usage:", "不认识的参数", "unrecognized", "没有】--selftest", …)
+if rc != 0 and any(mk in blob for mk in marks):
+    return rel, 2          # ★ 归入「不支持」，不算缺陷
+```
+★ ★ 理由：**不支持的返回码不统一**（★ 有的 2、有的 1）⇒ 只能按内容认。 |
+| **★★☃ 三、而一个【真 bug】的归属判定** | ★ `scripts/lock-audit.py:91` 逐字：
+```python
+acquired = lk.get("acquiredAt", 0)
+age_h = (time.time() - acquired / 1000) / 3600 if acquired else 0
+```
+★★ **而现测 `agent-bus.json` 的 `locks` 段**：
+```
+★ locks 数: 1
+★★ acquiredAt 类型分布: {'dict': 1}
+★ sample = {'session-a190c54c-…': 1791815424754}
+```
+★★☃ ⇒ ★★★ **`acquiredAt` 是【一个 dict】，而代码当它是数字除以 1000**
+★ —★ ★ **而它是一支【审计工具】⇒ 在真实数据上【必崩】。** |
+| **★★☃ 四、而本纳【不改它】—★ 因归属不明** | ★ 判据三条：
+★① **无登记卡** —★ `data/registry/{dsh-plugin-lock-audit, lock-audit}` 均 **404**；
+★② **git 历史里它出现在【别人的批量补课提交】里**（`6a4a08b`、`80c12ee`）；
+★③ ★★ **`docs/lock-audit-README.md` 逐字**：
+> ★「2026-10-03 存量补课（`r006-retrofit-scripts.js` 生成）」
+> ★「**本批未改动脚本逻辑**（只加版本常量与文档）」
+★★☃ ⇒ ★ **故那个 TypeError 是【原脚本的 bug】，丌归补课批**；
+★ ★ **而它【无明确属主】⇒ 依【不代裁归属】本纳【不改」，★ 只记建议。** |
+| **★ 五、给属主的建议（★ 不代裁）** | ★
+```python
+# ★ 建议：acquiredAt 可能是 dict（★ 键=会话 id、值=时间戳）
+v = lk.get("acquiredAt", 0)
+if isinstance(v, dict):
+    v = max(v.values()) if v else 0     # ★ 取最新的一个
+acquired = v if isinstance(v, (int, float)) else 0
+age_h = (time.time() - acquired / 1000) / 3600 if acquired else 0
+```
+★ 并建议加一条**负控**：★ 造一个 `acquiredAt` 为 `dict` 的样本 ⇒ **必须不崩**。 |
+| **不可判** | ★ **`scripts/` 面重跑的四分类** —★ 后台仍在跑（★ 进程 70581）。 |
+| **纠正** | ★ **交付**：★ **6 个逐条核清（★ 全不支持）** · ★ **`classify_run` 改按内容认** · ★ **1 个真 bug 的定位与归属判定**。★ **建议（★ 不代裁）**：★ ① ★★ **不支持的返回码不统一 ⇒ 只能按内容认**；★ ② ★ **凡审计工具，必在【真数据】上跑一次**。 |
+| **审查员** | ★ 本纳自核 + 读盘 + 归属判定 · ★ **无第三方 verifier** ⇒ 依 S3，**不主张已闭合** |
+| **状态** | ★ **`open`**（★ 已定位；★ **归属不明 ⇒ 不改，交建议**） |
+
+---
 
 *本台账只增不改。★ **任何 `closed` 状态必须附独立 verifier**（S3 不可自审）。*
