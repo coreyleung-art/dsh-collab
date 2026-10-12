@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "default": "deny",
+  "_note": "★ P1（2026-10-12）系统架构管理器可写枢纽的授权表。★ default 必须为 deny —— 本实现只支持 fail-closed。★ 真实内容动词（page.* / relation.*）已注册但【不授权任何人】，等 D1 裁决后再逐条授权。",
+  "principals": {
+    "session-a190c54c-ca73-4845-9a65-9dc002d45044": {
+      "label": "明鉴 v3（P1 实施者）",
+      "grants": [
+        {"resource": "probe", "actions": ["write"], "_why": "P1 自证用：只写沙盒键 data/registry/sg-write-probe"}
+      ]
+    }
+  }
+}

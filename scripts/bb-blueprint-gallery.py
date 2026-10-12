@@ -1750,6 +1750,154 @@ def _run_execute_after_confirm(frm, to, reason=""):
     except Exception:
         return False  # 通知失败不阻断建边(边已确认落盘)
 
+# ══════════ ★ P1（2026-10-12 明鉴）：可写枢纽 · R1 写端点与动词层 + R2 授权 ══════════
+# ★★ 为什么这样做（本线 2026-10-12 迭代规划 §3 分期表）：
+#   现状是【只读看板】（后端只有 do_GET、47 个 GET 端点、0 写能力）。
+#   P1 = R1 写端点与动词层 + R2 授权模型，**两者绑在同一期，不可拆** ——
+#   ★ 规划原话：「没有它，其余七件全是空谈；且**鉴权必须在写存在之前就位，
+#     否则会先长出无鉴权的写**」。
+#
+# ★★ 三条设计决定（都在任何 D1 答案下安全）：
+#   ① **默认拒绝**（default deny）：ACL 里没有的 principal ⇒ 一律拒。
+#      ⇒ 这样**不需要先知道 D1 的授权范围**（D1 只决定往 ACL 里放谁），先建机制是安全的。
+#   ② **动词注册表**而非 ad-hoc 路径：加一个能力 = 往表里加一行（声明它要什么资源+动作），
+#      而不是往 if 链里加一个分支 ⇒ 权限粒度天然到「资源 × 动作」。
+#   ③ **每一次写尝试都留痕**（含被拒的）—— 这是本晚反复验证过的一条：
+#      静默是故障最好的藏身处（fetch() 静默返空、expired 静默丢弃、裁决静默……）。
+#
+# ★★★ 本版的安全边界（**发布即安全**）：
+#   · 只有 `probe.write` 一个动词**被授权**，它只写一个**沙盒键** `data/registry/sg-write-probe`；
+#   · 真实内容动词（`page.*` / `relation.*`）**已注册但 ACL 不授权任何人** ⇒ **默认拒绝**；
+#   · ⇒ 现在发上去，**最坏情况也只是有人写了一个探针键**，动不了蓝图与关系。
+SG_ACL_PATH = os.path.join(BASE, "data/registry/sg-acl.json")
+SG_WRITE_AUDIT = os.path.join(BASE, "logs/sg-write-audit.jsonl")
+SG_PROBE_KEY = "data/registry/sg-write-probe"
+# ★★ P2（2026-10-12）：R3 页面级内容寻址 —— 每页一个可寻址的内容档。
+#   · 地址形式：`page:<view-name>`（如 `page:goal`），落盘键 `data/sg-page/<view-name>`
+#   · ★ ACL 的资源粒度随之到【单页】`page:<name>` ⇒ 可以「只授权某几页」，
+#     这正是 R3 的回报（没有寻址就只能「整站授权」或「不授权」）。
+#   · ★★ 版本模型：**append-only 历史**（`history[]`，每条带 `seq`）——
+#     回滚不是删历史，而是**追加一条 restore 记录**。⇒ 任何写都可退，且退的过程本身也留痕。
+SG_PAGE_PREFIX = "data/sg-page/"
+
+
+def sg_page_key(view):
+    return SG_PAGE_PREFIX + view
+
+
+def sg_page_read(view):
+    """★ 读页面内容档。★ 读不到 ⇒ 返回空档（**不抛异常**），并标明是空档还是读失败。"""
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8792/%s" % sg_page_key(view), timeout=8) as r:
+            d = json.loads(r.read().decode())
+        v = d.get("value")
+        if isinstance(v, dict) and isinstance(v.get("history"), list):
+            return {"ok": True, "doc": v}
+        return {"ok": True, "doc": {"history": []}, "note": "键存在但无 history ⇒ 视为空档"}
+    except Exception as e:
+        # ★ 区分「空档」与「读失败」—— 本晚反复的教训：二者不可混
+        return {"ok": False, "doc": {"history": []}, "err": "%s: %s" % (type(e).__name__, e)}
+
+
+def sg_page_state(doc):
+    """★ 由 append-only 历史**重放**出当前状态（不存 current，避免两份真相）。"""
+    st = {}
+    for h in doc.get("history") or []:
+        op = h.get("op")
+        if op == "set_field":
+            st[h.get("key")] = h.get("value")
+        elif op in ("add_block", "restore"):
+            st[h.get("key")] = h.get("value")
+    return st
+
+
+def sg_page_write(view, principal, entry):
+    """★ 追加一条历史（**只增不改**）并回读断言。"""
+    cur = sg_page_read(view)
+    if not cur["ok"]:
+        return False, "读页面档失败：%s" % cur.get("err"), None
+    doc = cur["doc"]
+    hist = doc.get("history") or []
+    entry = dict(entry)
+    entry["seq"] = len(hist) + 1
+    entry["at"] = datetime.datetime.now().isoformat()
+    entry["by"] = principal
+    hist.append(entry)
+    doc["history"] = hist
+    doc["view"] = view
+    try:
+        body = json.dumps(doc, ensure_ascii=False).encode()
+        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_page_key(view),
+                                    data=body, method="PUT",
+                                    headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(rq, timeout=8) as r:
+            r.read()
+        # ★ 回读断言（不只信 PUT 返回）
+        back = sg_page_read(view)
+        n = len((back.get("doc") or {}).get("history") or [])
+        if n != len(hist):
+            return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(hist), n), None
+        return True, "已追加 seq=%d 并回读（history=%d 条）" % (entry["seq"], n), entry
+    except Exception as e:
+        return False, "写页面档失败：%s: %s" % (type(e).__name__, e), None
+
+# ★ 动词注册表：每个动词声明所需【资源 × 动作】。★ 加能力=加一行。
+SG_VERBS = {
+    # ── 沙盒（唯一被授权的动词；只写探针键）──
+    "probe.write":        {"resource": "probe",    "action": "write"},
+    # ── 真实内容动词：**已注册、默认拒绝**（等 D1 裁决后再授权）──
+    "page.set_field":     {"resource": "page",     "action": "write"},
+    "page.add_block":     {"resource": "page",     "action": "write"},
+    "relation.add_edge":  {"resource": "relation", "action": "write"},
+    "relation.remove_edge": {"resource": "relation", "action": "write"},
+}
+
+
+def sg_load_acl():
+    """★ 读 ACL。文件不存在或读不动 ⇒ 视为**空 ACL** ⇒ 默认全拒（fail-closed）。"""
+    try:
+        with open(SG_ACL_PATH, encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+
+def sg_check(principal, resource, action):
+    """★ R2 核心判定。★ 返回 (allowed: bool, reason: str)。
+
+    ★★ 默认拒绝（fail-closed）：
+      · principal 为空 / ACL 无此 principal / grants 不覆盖 ⇒ **拒**
+      · 资源与动作须**同时**命中一条 grant（`*` 支持通配）
+      ★ 本函数**不抛异常**（鉴权路径不许因异常而"放行"）。
+    """
+    if not principal:
+        return False, "无 principal（缺 X-SG-Principal 头）⇒ 默认拒绝"
+    acl = sg_load_acl()
+    if acl.get("default", "deny") != "deny":
+        # ★ 即使有人把 default 改成 allow，本函数也**不认** —— 见下方显式断言
+        return False, "★ ACL 的 default 不是 deny ⇒ 拒绝加载（本实现只支持 fail-closed）"
+    p = (acl.get("principals") or {}).get(principal)
+    if not p:
+        return False, "principal 不在 ACL 中 ⇒ 默认拒绝"
+    for g in (p.get("grants") or []):
+        r_ok = g.get("resource") in ("*", resource)
+        a_ok = action in (g.get("actions") or []) or "*" in (g.get("actions") or [])
+        if r_ok and a_ok:
+            return True, "命中 grant：resource=%s actions=%s" % (g.get("resource"), g.get("actions"))
+    return False, "principal 存在但其 grants 未覆盖 %s/%s ⇒ 拒绝" % (resource, action)
+
+
+def sg_audit(rec):
+    """★ 写尝试留痕（含被拒的）。★ 失败也不阻断请求（只记 stderr）。"""
+    try:
+        os.makedirs(os.path.dirname(SG_WRITE_AUDIT), exist_ok=True)
+        with open(SG_WRITE_AUDIT, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception as e:
+        sys.stderr.write("⚠️ sg_audit 写入失败：%s\n" % e)
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *a):
         # BaseHTTPRequestHandler 会为每个请求调本方法 —— 记录访问日志(含错误码)
@@ -2233,6 +2381,81 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, json.dumps({"error": "not found"}))
         except Exception as e:
             self._send(500, json.dumps({"error": str(e)}))
+
+    # ══════════ ★ P1（2026-10-12）：写端点 · R1 动词层 + R2 授权 ══════════
+    def _sg_reply(self, code, principal, verb, reason, t0, extra=None):
+        """★ 统一出口：**先留痕再回包**（含被拒的）—— 静默是故障最好的藏身处。"""
+        body = {"ok": code < 400, "code": code, "reason": reason}
+        if extra:
+            body.update(extra)
+        sg_audit({"ts": datetime.datetime.now().isoformat(),
+                  "principal": principal, "verb": verb, "code": code,
+                  "reason": reason, "ms": round((datetime.datetime.now() - t0).total_seconds() * 1000, 1),
+                  "peer": self.client_address[0] if self.client_address else ""})
+        self._send(code, json.dumps(body, ensure_ascii=False))
+
+    def do_POST(self):
+        """★ P1（R1 写端点与动词层）：**一切写都走这里**，没有 ad-hoc 写路径。
+
+        契约：`{verb, target, payload, expected_version?}`
+        身份：`X-SG-Principal: <session-id>`（**缺失即拒**）
+        授权：`sg_check(principal, 动词所需 resource, action)` —— ★ **默认拒绝**
+        留痕：**每一次尝试都写** `logs/sg-write-audit.jsonl`（allow 与 deny 都写）
+
+        ★★ 本版安全边界：只授权 `probe.write`（写沙盒键），
+           真实内容动词已注册但**不授权任何人** ⇒ 发上去最坏只写一个探针键。
+        """
+        t0 = datetime.datetime.now()
+        principal = (self.headers.get("X-SG-Principal") or "").strip()
+        try:
+            n = int(self.headers.get("Content-Length") or 0)
+            raw = self.rfile.read(n) if n else b""
+            req = json.loads(raw.decode("utf-8")) if raw else {}
+            if not isinstance(req, dict):
+                raise ValueError("body 必须是对象")
+        except Exception as e:
+            self._sg_reply(400, principal, "", "请求体不是合法 JSON 对象：%s" % type(e).__name__, t0)
+            return
+
+        verb = (req.get("verb") or "").strip()
+        target = str(req.get("target") or "").strip()
+        spec = SG_VERBS.get(verb)
+
+        # ① 动词必须在**白名单**里（未注册 ⇒ 拒；扩容=往表里加一行，而不是加分支）
+        if not spec:
+            self._sg_reply(400, principal, verb,
+                           "★ 未注册的动词 ⇒ 拒绝（动词层是白名单：%s）" % ",".join(sorted(SG_VERBS)), t0)
+            return
+        # ② 授权 —— 默认拒绝
+        ok, why = sg_check(principal, spec["resource"], spec["action"])
+        if not ok:
+            self._sg_reply(403, principal, verb, "★ 授权拒绝：%s" % why, t0)
+            return
+        # ③ 执行（本版只有 probe.write 会被授权到这）
+        if verb == "probe.write":
+            payload = req.get("payload") or {}
+            rec = {"by": principal, "at": datetime.datetime.now().isoformat(),
+                   "note": payload.get("note") or "(无备注)", "v": int(time.time() * 1000)}
+            try:
+                body = json.dumps(rec, ensure_ascii=False).encode()
+                rq = urllib.request.Request("http://127.0.0.1:8792/%s" % SG_PROBE_KEY,
+                                            data=body, method="PUT",
+                                            headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(rq, timeout=8) as r:
+                    back = json.loads(r.read().decode())
+                # ★ 回读断言（不只信 PUT 的返回）
+                chk = json.loads(urllib.request.urlopen(
+                    "http://127.0.0.1:8792/%s" % SG_PROBE_KEY, timeout=8).read().decode())
+                got = ((chk.get("value") or {}).get("by"))
+                self._sg_reply(200, principal, verb,
+                               "已写沙盒键并回读；回读 by=%s" % got,
+                               t0, {"target": target, "key": SG_PROBE_KEY, "readback": chk.get("value")})
+            except Exception as e:
+                self._sg_reply(502, principal, verb, "写沙盒键失败：%s: %s" % (type(e).__name__, e), t0)
+            return
+        # ④ 已授权但**尚未实现**的动词 —— 如实报，不假装成功
+        self._sg_reply(501, principal, verb,
+                       "★ 动词已注册且已授权，但执行体**尚未实现**（P2 起逐步落地）⇒ 如实报未实现", t0)
 
     def _send_bytes(self, data, ctype, enc=None):
         """发送字节/文本（区分二进制图）"""
