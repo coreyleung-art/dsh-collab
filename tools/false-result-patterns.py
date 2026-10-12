@@ -51,7 +51,11 @@ CHECKS = [
     #   \u2605 \u73b0\u8865\u4e0a\uff1a`== None or` / `is None or` / **\u96c6\u5408\u5b57\u9762\u91cf `{0, None}`**\uff08\u2605 ext E-3 变\u4f53 B\uff09\u3002
     ("P2", r'in\s*\(\s*0\s*,\s*None\s*\)|==\s*None\s*or|is\s+None\s+or|not\s+in\s*\(0,\s*None\)',
      '\u2605 `None` \u88ab\u5f53\u7eff\uff08\u2605 \u5f02\u5e38\u8def\u5f84\u4e0e\u6210\u529f\u540c\u5f62\uff09\u2014\u2605 D-231',
-     re.compile(r'not\s+in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|==\s*None\s*or|is\s+None\s+or')),
+     # \u2605\u2605 2026-10-13 \u518d\u4fee\uff08\u2605 \u672c\u7eb3\u81ea\u67e5\uff09\uff1a\u4e0a\u4e00\u7248\u8865\u4e86 `== None or` / `is None or`
+     #   \u21d2 \u2605\u2605 **\u62a5\u4e86 33 \u5904\u5047\u9633\u6027**\uff08\u2605 \u5b9e\u4f8b `if gap is None or gap > 1:` \u2014\u2605
+     #      \u2605 \u90a3\u662f\u3010\u6b63\u5e38\u7684\u7a7a\u503c\u68c0\u67e5\u3011\uff0c\u4e0d\u662f\u300cNone \u5f53\u7eff\u300d\uff09\u3002
+     #   \u2605 \u53ea\u6709\u3010**\u628a None \u4e0e 0 \u653e\u8fdb\u540c\u4e00\u96c6\u5408**\u3011\u624d\u662f\u672c\u5f62\u6001\uff08\u2605 \u96c6\u5408\u6210\u5458\u5224\u65ad\uff09\u3002
+     re.compile(r'not\s+in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]')),
     ("P4", r'grep.*\\u00a7|\u00a7',
      '\u2605 `grep` \u578b\u5224\u636e\u7528\u957f\u4e32\uff08\u2605 \u68c0\u6d4b\u9762\u7a84\uff09\u2014\u2605 D-237',
      re.compile(r"re\.search\(\s*[\"'][^\"']{18,}[\"']\s*,\s*\w+\.(?:stdout|body|stdout\s*or\s*[\"']{2})\s*\)")),
