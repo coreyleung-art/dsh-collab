@@ -1,0 +1,482 @@
+[
+ {
+  "sec": "### 0.1.1 用户目标措辞（逐字 · 一手载体）",
+  "line": 123,
+  "kind": "open",
+  "text": "with open(p,'rb') as fh, dctx.stream_reader(fh) as r:"
+ },
+ {
+  "sec": "### 0.1.3 三态声明",
+  "line": 185,
+  "kind": "❌",
+  "text": "**声明 C：「原文载体是 agent-bus 消息 `bus-mv2jsn1s-g94urelp`」—— ❌ 不成立（该说法不完整）**"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 222,
+  "kind": "❌",
+  "text": "| S-1 | **每条活体通道都有可复跑探测** ⇒ `drift_scan` 检查项数 ≥ 通道总数 | `drift_scan` → `total=12`；通道侧：`channel_gate` **7 条**（`gate.js:22-30` 逐字：`local-agent-bus`/`board-local`/`board-central`/`bus-8791`/`sse-8803`/`tailscale-direct`/`launchd-daemo"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 223,
+  "kind": "❌",
+  "text": "| S-2 | **中断的可发现时间 ≤ 1 个巡检周期**（`com.dsh.cron.drift-scan` 每 30 分钟 ⇒ 阈值 **≤60 min**） | 中枢侧告警**最后一次到达**（★ **板级 `ts`**）停在 `2026-10-03T13:27:35+08:00`，冻结 **≈7.5 天**（★ 同一张卡的**内层 `value.ts`** ＝ `2026-10-03T12:30:49.275`，两者差 **56m46s** ——"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 224,
+  "kind": "❌",
+  "text": "| S-3 | **投递三态可区分且落在输出面**：`delivered` / `queued` / `expired` 必须在**卡面或日志或返回体**可读，`queued` **不得**被呈现为「已发」 | `queued` 真达率 **不可判**（★ 唯一出处为源码注释自述、窗口未载明、修复前口径）；可复现口径＝全量终态分布（★ **以复跑命令取值，不写死数字**；本线两次实测已不同：`delivered 31228 / expired 2377 /"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 225,
+  "kind": "❌",
+  "text": "| S-4 | **无单点**：关键链路任一节点挂掉不得同时带走订阅面 | SSE 8803 与黑板**同进程**（同一 PID 1221）；`bb-sub` **8 个**订阅端随之全断 ❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 236,
+  "kind": "❌",
+  "text": "| H-1 | **假绿数 = 0**：凡判据，其**分母为 0 时必须报「不可判」而非 OK**（复现谓词：造空分母 ⇒ **必须红**） | 已具名 ≥3 处（C7 遮蔽扫描 0 包报 OK / drift 跨机 401 只打印成功侧 / 有界重试 822 次恒记 1/3）；**本轮又新增第 4 例**（0.1.3 ★）❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 237,
+  "kind": "❌",
+  "text": "| H-2 | **每条静默失败路径有告警读者** | `launchctl list` 中处于失败终态且无告警通道的任务 ≥8（含 `com.external-link.digest` exit 127）❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 238,
+  "kind": "❌",
+  "text": "| H-3 | **健康检查须覆盖通讯通道** | 现覆盖 **0 条**通讯通道；且 `/health` 是命名空间列举的**假阳性**（`{\"total\":0}` 空壳）❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 239,
+  "kind": "❌",
+  "text": "| H-4 | **告警送达率**（双板）= 100% | 见 M4①（**现状 6.25%**）❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 250,
+  "kind": "❌",
+  "text": "| I-1 | **信封符合度**（CAHAC §3 字段级采样） | **0%**（`notes/collab` 全量 **564** 张，复跑命令见 §7.10 的复跑段：`signature` 0/564 · `channel` 0/564 · `priority` 2/564 · `dedup_key` 0/564 …；实际字段是自造 schema `from`/`to`/`subject`/`_via`）❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 251,
+  "kind": "❌",
+  "text": "| I-2 | **四项业界等价物到位**：能力卡+签名 / 任务生命周期 / **认证授权** / 版本协商 | 能力卡 §11 未实现（实际用 `agent_profile`，schema 不同）；邮箱 §7 未实现；错误码 §13 未实现 ❌ |"
+ },
+ {
+  "sec": "### 0.1.4 目标拆解：四维可判项（每维给可执行判据）",
+  "line": 252,
+  "kind": "❌",
+  "text": "| I-3 | **协议一致性套件**存在且可跑（非离线脚本） | `scripts/bb-channel.py` 存在但是**离线脚本、不在运行时链路里** ⇒ 定义了没接入 ❌ |"
+ },
+ {
+  "sec": "### 0.1.5 四维与里程碑的挂靠",
+  "line": 276,
+  "kind": "待/未",
+  "text": "| 保持领先 L-1/L-2 | **§12 业界面 + §15 开放项 2** | 投入顺序待用户裁；未裁前不得记领先 |"
+ },
+ {
+  "sec": "## ★ 0.3 Wave S 实际交付清单（v5 新增；来源：`docs/wave-",
+  "line": 322,
+  "kind": "待/未",
+  "text": "**★ 待核项（v5 不替其裁决）**：交付说明对 `sandbox-script.py` 同时给出 `--selfcheck` **5/5** 与 `--selftest` **4/4**。经比对 §2 与 §3 上下文，二者**应为不同检查**（`--selfcheck` 属 R006 §5 三步之①，`--selftest` 属自证矩阵），**但 v5 未逐一实跑复核** ⇒ 记为「**未测**」，**不并入任一侧**。"
+ },
+ {
+  "sec": "## 3.1 L1 载体：SQLite/WAL 为当前最优",
+  "line": 362,
+  "kind": "❌",
+  "text": "| Kafka compaction | 强 | 分区消费 | 强 | 重（JVM） | **体积上界=key 空间** | 无 | ❌ 过重 |"
+ },
+ {
+  "sec": "## 3.1 L1 载体：SQLite/WAL 为当前最优",
+  "line": 363,
+  "kind": "❌",
+  "text": "| CRDT | — | — | — | — | **无天赋**（eg-walker：图单调增长） | 无 | ❌ 不解决有界 |"
+ },
+ {
+  "sec": "### 3.4.3 领先层 —— **保守结论：仅 1 项候选，且属阴性证据**",
+  "line": 431,
+  "kind": "❌",
+  "text": "| **「7 类消息分级」是否领先？** | **FIPA-ACL** 早在 2002 年就有标准化的 communicative act / **performative 库**（[SC00037J 官方 PDF 镜像](https://ppgia.pucpr.br/~fabricio/ftp/Aulas/Mestrado/AS/Aula3/SC00037J_FIPA_Performatives_Spec.pdf) —— ★ **本轮读取被拒（`Unsu"
+ },
+ {
+  "sec": "### 3.4.3 领先层 —— **保守结论：仅 1 项候选，且属阴性证据**",
+  "line": 432,
+  "kind": "❌",
+  "text": "| **「黑板+邮箱双模」是否领先？** | A2A **Artifacts + `contextId`**（黑板等价）与 **push notification**（邮箱等价）**同一规范内并存**（[A2A v1.0 spec](https://github.com/a2aproject/A2A/blob/v1.0.0/docs/specification.md)）· MCP 亦同（`_meta` 共享态 + Tasks 轮询） | ❌ **不成立**"
+ },
+ {
+  "sec": "## 4.1 四件套",
+  "line": 568,
+  "kind": "待/未",
+  "text": "| ④ 自启动注入 | agent preset prompt section | 新会话首回合即引用索引键 —— ★ **仍未做（C4）**<br>★ **兑现路径（v6.1 登记）**：依用户 2026-10-11 裁决「**放回 v6 整体按步骤做**」⇒ **不单独施工**；★ 建议做法见 **§18.2 第 1 条**（开工先跑 `event-bus --status`）与 **§18.3**（`xdom-mail status --stale-"
+ },
+ {
+  "sec": "## 4.2 状态机与闭环三要素",
+  "line": 575,
+  "kind": "open",
+  "text": "`open → in_flight → closed_with_evidence →(回归) regressed → in_flight`；旁支 `blocked(reason,owner,next_action)`。"
+ },
+ {
+  "sec": "### P26（含 v5 补现状）",
+  "line": 743,
+  "kind": "❌",
+  "text": "| **二 · 模板地板**（**终局死因**） | 摘要**强制 8 段**且 \"never drop a section\" ⇒ 摘要体量有结构性下界；判据「摘要必须小于被遮内容」（`:556`）⇒ 活跃窗口低于该下界时**压缩在数学上永久失效** | `:218`（8 段指令）· `:322`（`frameSummary`）· `:556`（判据） | ❌ **无配置解**：`BASIC_COMPACT_CONFIG_KEYS`（`:28`）**十把键"
+ },
+ {
+  "sec": "### ★ P27 判据失明族（v5 新增 · 本版最重要的一条）",
+  "line": 767,
+  "kind": "待/未",
+  "text": "| **内部不一致** | `waves[C].note` 写「C4/C6/C7 未做」（10-09 口径）；同份索引 `items` 段 C6/C7 已 `state=in_flight`、`updated=2026-10-10T01:44:37` | **只读 waves 的人低估进度**；两段不一致而 `state_version` 仍为 3 |"
+ },
+ {
+  "sec": "### P28-① 未登记通道：「卡 → 自动唤起会话」的**消费方无属主**",
+  "line": 848,
+  "kind": "open",
+  "text": "m=json.load(open(os.path.expanduser('~/dsh-plugin-drift-scan/lib/channel-matrix.json')))['matrix']"
+ },
+ {
+  "sec": "### P28-① 未登记通道：「卡 → 自动唤起会话」的**消费方无属主**",
+  "line": 850,
+  "kind": "open",
+  "text": "g=open(os.path.expanduser('~/dsh-plugin-channel-gate/lib/gate.js')).read()"
+ },
+ {
+  "sec": "### P28-② 离线投递：**无撤回能力** + TTL 常量 7 天但**未确定性",
+  "line": 927,
+  "kind": "open",
+  "text": "d=json.load(open(os.path.expanduser('~/.dsh/agent-bus.json')))"
+ },
+ {
+  "sec": "### ★ §11 Agent Card 未实现 —— 复测（实际用 `agent_pr",
+  "line": 1180,
+  "kind": "待/未",
+  "text": "### ★ §11 Agent Card 未实现 —— 复测（实际用 `agent_profile`）"
+ },
+ {
+  "sec": "### ★ §11 Agent Card 未实现 —— 复测（实际用 `agent_pr",
+  "line": 1192,
+  "kind": "待/未",
+  "text": "⇒ §11 Agent Card **未实现**，在位的是**自由文本能力登记表** `agent_profile`（字段仅 `role`/`abilities`/`resources`）。"
+ },
+ {
+  "sec": "## §7.10 P28 小结（供 v6 §7 表内使用）",
+  "line": 1261,
+  "kind": "待/未",
+  "text": "| — | §11 Agent Card | **未实现** | `profiles` 82 条，Card 四字段 0 命中 | 能力发现/认证 |"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1715,
+  "kind": "❌",
+  "text": "- **C4 自启动注入** ❌ `open` —— **需改 CLD preset**，外部第三方不代做"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1716,
+  "kind": "open",
+  "text": "- **Wave 0（开关合上+可观测）** —— `open`（W0.1 挂载 compaction+约束钉住 · W0.2 定位现存压缩来源 · W0.3 机制激活计数 · W0.4 注入器合并 · W0.5 子进程内存监控 · W0.6 装载前事件数门）"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1717,
+  "kind": "open",
+  "text": "- **Wave 1（P0）** —— `open`（W1.1 持久幂等键 · W1.2 熔断 · W1.3 根因指标 · W1.4 floodgate 改造 · W1.5 L4 可观测化 · W1.6 `expires_at`+DLQ · W1.7 accumulator upsert+rotation · W1.8 定位 inbox 物化点）"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1718,
+  "kind": "open",
+  "text": "- **Wave 2（结构性；含唯一高危）** —— `open`（W2.1 token bucket · W2.2 优先级/公平 · W2.3 inbox 分箱四件套 · W2.4 泄洪态 · **W2.5 载体换 SQLite（独立窗口+回滚演练）** · W2.6 DLQ 重放 · W2.7 两级确认 · W2.8 大对象外置 · W2.9 TTL/lease · W2.10 周期键改覆盖式+历史另存）"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1719,
+  "kind": "open",
+  "text": "- **Wave 3（可信）** —— `open`（W3.1 X-Writer HMAC · W3.2 identitySource 入卡 · W3.3 归属四级分档）"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1720,
+  "kind": "open",
+  "text": "- **Wave 4（跨设备/载体）** —— `open`（W4.1 端口固定 · W4.2 黑板 GC · W4.3 ts+HLC · W4.4 换代率告警 · W4.5 凭据纪律 · W4.6 订阅唤醒 PoC）"
+ },
+ {
+  "sec": "# §10 WBS（**39 项** + v5 状态重标）",
+  "line": 1721,
+  "kind": "open",
+  "text": "- **Wave 5（长期）** —— `open`（W5.1 判据入工具 · W5.2 规则标样本窗 · W5.3 能力前置清单 · W5.4 名册扩席 · W5.5 会话改投影 · W5.6 OTel）"
+ },
+ {
+  "sec": "## ★ 10.2 `starbridge-next-stage-plan` 三方案的",
+  "line": 1737,
+  "kind": "❌",
+  "text": "| **B 处理紧迫活故障** | 排第 4（须批） | ❌ **未动**：死会话死后仍被点火 **9 次全失败**、turn→**11178**；`~/sb-mobile/server.js` **PID 1250**；`main-roles.json` 第二份角色映射 |"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1765,
+  "kind": "open",
+  "text": "- **W6.1 跃迁方属主登记（治 P28-① / R062）** —— `open`"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1772,
+  "kind": "open",
+  "text": "- **W6.2 双板到达率 SLO 化 + FAIL 逐条归因（治 P28-⑥ 的可观测前置）** —— `open`"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1779,
+  "kind": "open",
+  "text": "- **W6.3 队列 TTL 确定性执行** —— `open`（★ **并入 W1.6 / W2.9，不另立交付**）"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1787,
+  "kind": "open",
+  "text": "- **W6.4 `reply_required` 落实现或从规则注销（治 P28-③）** —— `open`"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1794,
+  "kind": "open",
+  "text": "- **W6.5 `awaiting` 消费者顶班或注销（治 P28-④）** —— `open`"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1801,
+  "kind": "open",
+  "text": "- **W6.6 日志-代码一致性门（治 P28-⑤ / R060）** —— `open`"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1808,
+  "kind": "open",
+  "text": "- **W6.7 去重粒度升至【内容项】** —— `open`（★ **并入 W1.1 持久幂等键，不另立交付**）"
+ },
+ {
+  "sec": "### W6 段（通讯面，本轮新增）",
+  "line": 1817,
+  "kind": "open",
+  "text": "- **W6.8 §3 信封落地上线** —— `open`（★ **归属 W8.1 建尺 + W8.2 inbox 注入，不另立交付**；本处只补：字段子集建议 `cahac`/`channel`/`dedup_key`，且**卡面与消息面须同时非 0**）"
+ },
+ {
+  "sec": "## ★ 11.1 现状（v5 新增：逐项标 DoD/负控有无）",
+  "line": 1959,
+  "kind": "❌",
+  "text": "| Wave S 五门 + 两门 | ✅（各附自证矩阵） | 🟡 部分（`N-A` 7 条非通过） | ❌ **缺独立 verifier** |"
+ },
+ {
+  "sec": "## ★ 11.1 现状（v5 新增：逐项标 DoD/负控有无）",
+  "line": 1960,
+  "kind": "❌",
+  "text": "| C1 / C2 | 🟡 简述 | ❌ | ❌ C1 无 verifier |"
+ },
+ {
+  "sec": "## ★ 11.1 现状（v5 新增：逐项标 DoD/负控有无）",
+  "line": 1961,
+  "kind": "❌",
+  "text": "| C3 / C5 | 🟡 简述 | ❌ | ❌ verifier 待补 |"
+ },
+ {
+  "sec": "## ★ 11.1 现状（v5 新增：逐项标 DoD/负控有无）",
+  "line": 1962,
+  "kind": "❌",
+  "text": "| P26 / Q-K | ✅（§5 判据矩阵 + 负控 1 已达标） | ✅ 负控 1；负控 2/3 **纯半达标** | ❌ 待 ① 完成 |"
+ },
+ {
+  "sec": "## ★ 11.1 现状（v5 新增：逐项标 DoD/负控有无）",
+  "line": 1963,
+  "kind": "❌",
+  "text": "| R049 | ✅ | ❌ | 🟡 **由人执行，未机器化** |"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2032,
+  "kind": "open",
+  "text": "rows=[json.loads(l) for l in open(os.path.expanduser('~/dsh-collab/logs/bb-card-send.log'),encoding='utf-8',errors='replace') if l.strip()]"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2044,
+  "kind": "open",
+  "text": "m=json.load(open(os.path.expanduser('~/dsh-plugin-drift-scan/lib/channel-matrix.json')))['matrix']"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2046,
+  "kind": "open",
+  "text": "g=open(os.path.expanduser('~/dsh-plugin-channel-gate/lib/gate.js')).read()"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2063,
+  "kind": "open",
+  "text": "l=json.load(open('/tmp/collab-list.json'))['list']; c={k:0 for k in CAHAC}"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2070,
+  "kind": "open",
+  "text": "d=json.load(open(os.path.expanduser('~/.dsh/agent-bus.json')))"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2089,
+  "kind": "open",
+  "text": "d=json.load(open(os.path.expanduser('~/.dsh/agent-bus.json')))"
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2105,
+  "kind": "open",
+  "text": "print('文件数',len(fs),'条目',sum(sum(1 for _ in open(f,encoding='utf-8',errors='replace')) for f in fs))\""
+ },
+ {
+  "sec": "### §12 通讯面 SLO",
+  "line": 2119,
+  "kind": "❌",
+  "text": "⇒ **M4 判定：❌ 不成立**（与 v5 §14 中 M0/M2/M3 的 ❌ 同族）。"
+ },
+ {
+  "sec": "# A. 信封符合度（W8.1 建成前，用此临时尺；建成后以 W8.1 脚本为准）",
+  "line": 2204,
+  "kind": "open",
+  "text": "try: o=json.load(open(f,encoding='utf-8'))"
+ },
+ {
+  "sec": "# ★ 口径统一（W4-3）：对齐报告工具 cahac-compliance-rep",
+  "line": 2266,
+  "kind": "open",
+  "text": "for ln in open(f,encoding='utf-8'):"
+ },
+ {
+  "sec": "## 14.2 执行序（v5 §14 原样承继 + 实测补注）",
+  "line": 2447,
+  "kind": "open",
+  "text": "| Wave 0–5 | **全 `open`**，WBS **39 项完成 0 项** | `docs/execution-audit-anchor-v5-20261010.md:51,260` |"
+ },
+ {
+  "sec": "## 14.2 执行序（v5 §14 原样承继 + 实测补注）",
+  "line": 2448,
+  "kind": "open",
+  "text": "| 下一步 | **`C4` 自启动注入**（= M0 唯一缺口） | `docs/execution-audit-anchor-v5-20261010.md:171`（`C4 自启动注入 \\| open \\| blocked_reason：需改 CLD preset（外部第三方不代做）`） |"
+ },
+ {
+  "sec": "## 14.2 执行序（v5 §14 原样承继 + 实测补注）",
+  "line": 2449,
+  "kind": "open",
+  "text": "| NATS 影子 PoC | 仍 `open`，**未开工** | v5 §15 Q-C |"
+ },
+ {
+  "sec": "## 14.2 执行序（v5 §14 原样承继 + 实测补注）",
+  "line": 2452,
+  "kind": "open",
+  "text": "171:| C4 自启动注入 | `open` | `blocked_reason`：需改 CLD preset（外部第三方不代做） |"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2462,
+  "kind": "❌",
+  "text": "494: | **M0** 审查与校对门可跑；信标四件套在位 ⇒ 新会话 ≤5 分钟恢复计划认知 | ❌ **不成立** | **C4 自启动注入未做** ⇒ 新会话不会自动恢复认知，每次需人工指路 |"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2464,
+  "kind": "❌",
+  "text": "496: | **M2** 真积压 ≤10；限速无边界缺陷；风暴期关键消息通过率 ≥90%；端口固定 | ❌ `open` | 依赖 Wave 1–2 |"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2465,
+  "kind": "❌",
+  "text": "497: | **M3** 载体迁移完成且 I1–I4 成立；归属可验；黑板有 GC；时序可全序复原；订阅唤醒上线；**25 类崩溃坑零复发** | ❌ `open` | 依赖 Wave 2–4 |"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2471,
+  "kind": "❌",
+  "text": "| **M0** 审查与校对门可跑；信标四件套在位 ⇒ 新会话 ≤5 分钟恢复计划认知 | ❌ **不成立** | **C4 自启动注入未做** ⇒ 新会话不会自动恢复认知，每次需人工指路。★ 本轮复核：`C4` 仍 `open`（`execution-audit-anchor-v5-20261010.md:171`） | ①`C4` 落成（agent preset prompt section）②新会话**冷启动实测** ≤5 分钟恢复认知（须给实测记录"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2472,
+  "kind": "❌",
+  "text": "| **M1** compaction 生效、单会话体积降 ≥50%；装载超限拒绝而非崩；子进程内存可见；同内容重放 0 重复；熔断可触发；风暴系统自动发现；一卡一次注入 | 🟡 **部分具备** | Wave S 门已备（审查/校对/沙箱/信息包/G-CR）；★ 但**开关未合**（Wave 0 未开工）。★ 本轮复核：Wave 0–5 全 `open`，**39 项 0 完成** | ①Wave 0 合闸 ②逐条给「触发 ≥1 且体积降 ≥50%」等*"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2473,
+  "kind": "❌",
+  "text": "| **M2** 真积压 ≤10；限速无边界缺陷；风暴期关键消息通过率 ≥90%；端口固定 | ❌ `open` | 依赖 Wave 1–2 | ①真积压读数 ≤10（现 **103**，v5 §12 `:467`）②风暴期关键消息通过率 ≥90%（实测）③端口固定：**3 次重启地址不变**（v5 §11 `:435` 判据） |"
+ },
+ {
+  "sec": "## 14.3 M0–M3（承继 v5 §14，判定按 v5 自己的实测）",
+  "line": 2474,
+  "kind": "❌",
+  "text": "| **M3** 载体迁移完成且 I1–I4 成立；归属可验；黑板有 GC；时序可全序复原；订阅唤醒上线；**25 类崩溃坑零复发** | ❌ `open` | 依赖 Wave 2–4 | ①`W2.5` 载体换：I1–I4 成立 + `30,755` 行一致 + 幂等重跑 0 新增（v5 §11 `:434`）②黑板 GC/TTL 在位（现 `DELETE 0`）③**订阅唤醒上线**（现订阅者指向已 bricked 会话，见下）④同类崩溃复发 = 0 "
+ },
+ {
+  "sec": "### 三条判据（我采纳建议 ①②③，但**各自收紧**，理由随条给）",
+  "line": 2490,
+  "kind": "❌",
+  "text": "| **M4①** | **drift 告警双板到达率 == 100%**，且**中枢侧最新告警落后 ≤ 2×巡检周期（30 min ⇒ ≤60 min）** | `curl -s http://127.0.0.1:8792/data/ops/drift-alert/` ⇒ `total= 304`；`curl -s http://106.53.214.108:8792/data/ops/drift-alert/` ⇒ `total= 19` ⇒ **未达"
+ },
+ {
+  "sec": "### 三条判据（我采纳建议 ①②③，但**各自收紧**，理由随条给）",
+  "line": 2491,
+  "kind": "❌",
+  "text": "| **M4②** | **不存在未登记通道**。判据须写成**三条合取**：①每条活体通道**具名** ②至少登记在 `drift` 矩阵 **12** 项 或 `channel_gate` 枚举 **7** 条 之一 ③每条**有负控（造断 ⇒ 必红）** | `drift_scan` 实测 ⇒ `total: 12`（`scannedAt 2026-10-10T15:54:58.119Z`，`driftCount: 1`）。`channel_gate"
+ },
+ {
+  "sec": "### 三条判据（我采纳建议 ①②③，但**各自收紧**，理由随条给）",
+  "line": 2492,
+  "kind": "❌",
+  "text": "| **M4③** | **投递可见**。判据须写成三层：①`queued` 在**输出面**（卡面/日志/返回体）**显式标「未达」** ②`expired` **必须产生告警** ③判据用**「运行面状态 + 收端转录」两路闭环**，**不得只看 bus 状态字段** | 代码级：`~/dsh-plugin-agent-bus/lib/index.js:84` ⇒ `const QUEUE_TTL_MS = 7 * 864e5;`（**7 天**）；`"
+ },
+ {
+  "sec": "### M4 判定与解除条件",
+  "line": 2504,
+  "kind": "❌",
+  "text": "| **M4 通讯基线**（drift 双板通 · 无未登记通道 · 投递可见） | ❌ **不成立**（① 6.25% / ② 具名 1 条未登记 / ③ 静默 + 真达率不可判） | ①a 双板到达率 **100%** 且**连续 7 天**；①b 中枢落后 **≤60 min**；①c `drift-scan-cron.py:87-89` 补认证头（**经 `channel_gate` 登记变更单**，通道 = `board-central`）；①d"
+ },
+ {
+  "sec": "## 14.5 复跑块（★ 本节所有会变的数字，一条命令全出）",
+  "line": 2544,
+  "kind": "❌",
+  "text": "**本节一句话**：**M0 ❌ · M1 🟡 · M2 ❌ · M3 ❌ · M4 ❌**；M4 是 v6 唯一为「目标原话」而设的里程碑，**三条判据全部不成立，且三条的现状读数我都独立复跑过**。"
+ },
+ {
+  "sec": "# §15 未决问题",
+  "line": 2548,
+  "kind": "open",
+  "text": "**沿用 v4，状态未变（九条）**：**Q-A** 去重淘汰语义（建议分层）· **Q-B** 端口固定值（你定）· **Q-C** 是否引入 NATS（先影子 PoC）· **Q-D** 注入器保留哪个（建议 SSE）· **Q-E** HMAC 密钥分发（本机 0600）· **Q-G** 自启动注入批准 · **Q-H** 载体换独立窗口安排 · **Q-I** `item-validity-review-check` 是否收编为闭环判定器（其 o"
+ },
+ {
+  "sec": "# §15 未决问题",
+  "line": 2550,
+  "kind": "❌",
+  "text": "**Q-F** ❌ **已废**（v3 改题记录保留）：原「挂载 compaction 批准」不再适用官方 `compaction-basic`（机制二无配置解）；用户 2026-10-09 以「**立项**」改为自研后端（见 Q-K）。"
+ },
+ {
+  "sec": "# §15 未决问题",
+  "line": 2555,
+  "kind": "待/未",
+  "text": "**Q-L** R049 接入 C4（自启动注入）—— 待做；★ **与 C4 是同一件事**，M0 依赖它。"
+ },
+ {
+  "sec": "## 18.1 CCEP · 永续通讯协议（五原则）",
+  "line": 2699,
+  "kind": "❌",
+  "text": "**禁止事项**：❌ 不验证就切换 · ❌ 单端先行切换 · ❌ 物理复制插件 · ❌ 依赖人类手工重连 · ❌ 破坏性变更不留回滚路径。"
+ }
+]
