@@ -101,6 +101,7 @@ def cmd_scan(path):
 
 
 def selfcheck():
+    src = open(__file__, encoding="utf-8").read()
     print("== 负控矩阵 ==")
     ok = 0; tot = 0
     def t(name, cond):
@@ -117,6 +118,29 @@ def selfcheck():
       verdict(["regex", "regex-string"])["n"] == 1)
     t("⑥ 三条同类 ⇒ n=1 仍 NOT_EVIDENCE",
       verdict(["own-extraction", "own-production", "own-memory"])["verdict"] == "NOT_EVIDENCE")
+    # ★★★ ⑥ 「能被否决」的负控（★ 由 session-c05b831c 建议）：
+    #   ★ 饲【真有多源】者 ⇒ 须通过；
+    #   ★★ 饲【单源而「自报多源」】者 ⇒ **须红** —― ★ **后者才是它的守门能力所在**。
+    #   ★ 实现依据：本工具**不收 `n` 字段**，只收【来源清单】并**自己数**。
+    t("⑥a 【真多源】须通过（★ 吞入正向）",
+      verdict(["own-extraction", "git"])["verdict"] == "EVIDENCE")
+    t("⑥b 【单源】不得因「声称多源」而通过（★ 吞入反向・守门）",
+      verdict(["own-extraction"])["verdict"] == "NOT_EVIDENCE")
+    # ★★★ ★ 到此一步重踏了今晚同一个坑：刚才判据命中的是【docstring 里的 `n=` 文案】，★ **不是代码**。
+    #   ★ 修法：先剥 docstring 与注释，再判。★ 同族：「注释不控事」。
+    import re as _re
+    _q3 = chr(39) * 3
+    _code = src.split(_q3)
+    _code = "".join(p for i, p in enumerate(_code) if i % 2 == 0)  # ★ 丢掉三引号块内容
+    _code = _re.sub(r"(?m)^\s*#.*$", "", _code)                     # ★ 丢掉注释
+    # ★★★ 致命一步：判据的面必须【排除判据自身】。
+    #   ★ 本函数体内含 "--n" / "add_argument('n'" 等字面串
+    #   ★ 不剔除 ⇒ 自指污染 ⇒ 6c 误判（★ 2026-10-12 实测，★ 修了四次）
+    _i = _code.find("def selfcheck")
+    if _i > 0:
+        _code = _code[:_i]
+    t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
+      ("--n" not in _code) and ("add_argument('n'" not in _code) and ("add_argument(\"n\"" not in _code))
     print("\n== 负控 %d/%d ==" % (ok, tot))
     return 0 if ok == tot else 1
 
