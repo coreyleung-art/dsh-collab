@@ -48,10 +48,42 @@ fi
 
 echo "[3/5] API smoke(临时服务 $PORT)"
 rm -f ~/.systemgraph-user-closed 2>/dev/null
+# ★★★ 2026-10-13 明鉴 v3 修（实测触发）：**端口占用前置检查 + 退出清理**
+#   起因：8891 有残留进程（上一次 gate 自己起的，没清）⇒ 新服务 `Address already in use`
+#         ⇒ 后续 curl 全失败 ⇒ 脚本以 **难懂的 exit=7** 退出，而**不报「端口被占」**。
+#   ★ 这是 R006 §6 坑 #5 的同族：「检查项必须区分环境问题与包问题」——端口占用是**环境问题**。
+#   ⇒ ① 起服务前：若端口被占 ⇒ **明确报「端口被占（环境问题）」并给出占用者**，exit 2
+#      ② 注册退出清理：无论成功失败都杀掉本脚本起的临时服务（防下次残留）
+_ppid=$(lsof -nP -i :$PORT -t 2>/dev/null | head -1)
+if [ -n "$_ppid" ]; then
+  _cmd=$(ps -p "$_ppid" -o command= 2>/dev/null | head -c 120)
+  echo "  ❌ 端口 $PORT 已被占用（★ 环境问题，非代码问题）"
+  echo "     占用者 pid=$_ppid: $_cmd"
+  echo "     ⇒ 处置：kill $_ppid 后重跑；★ 本脚本不会自动杀它（不越权处理他人进程）"
+  exit 2
+fi
 pkill -f "^.*python3? .*bb-blueprint-gallery.py --port $PORT" 2>/dev/null || true
 nohup /usr/bin/python3 "$PY" --port $PORT >/tmp/gate-srv.log 2>&1 &
 SRV_PID=$!
-sleep 4
+# ★ 退出清理（★ 防下次残留 —— 本次残留正是因此产生）
+trap 'kill $SRV_PID 2>/dev/null || true' EXIT INT TERM
+# ★★★ 2026-10-13 明鉴 v3 二次修（实测触发）：**`sleep 4` 是【过程态】判据，必须改为【结果态】**
+#   起因：`main()` 的启动顺序是 ① render_all_snapshots() ② _init_model() ③ 才开端口
+#         ⇒ 快照渲染+模型启动都在开端口之前 ⇒ **4 秒内端口未开** ⇒ curl 得 000 ⇒ 误判「门禁失败」。
+#   ★ 这正是 R006 §6 坑 #4 的原文：「**判据要选【结果态】（就绪）而非【过程态】**」。
+#   ⇒ 改为**轮询就绪**（最多 60s），并就绪后额外验一次「服务真在答」。
+READY=0
+for _i in $(seq 1 30); do
+  sleep 2
+  if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 4 "http://127.0.0.1:$PORT/" 2>/dev/null)" = "200" ]; then
+    echo "  ⏱ 服务就绪（用时 $((_i*2))s）"; READY=1; break
+  fi
+done
+if [ $READY != 1 ]; then
+  echo "  ❌ 服务 60s 内未就绪（★ 环境/启动问题，非端点问题）"
+  echo "     日志尾部:"; tail -5 /tmp/gate-srv.log 2>/dev/null | sed 's/^/       /'
+  exit 2
+fi
 SMOKE_OK=1
 for ep in "" "api/overview" "api/philosophy" "api/blueprints" "api/cap-view" "api/plan-archive" "api/biz-assets"; do
   code=$(curl -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:$PORT/$ep" --max-time 6)
