@@ -1,6 +1,6 @@
 # CLD 跨会话跨设备分布式智能体节点网络 · 治理架构管理计划书 **v7**
 
-> **state_version**: 7 ｜ **updated_at**: 2026-10-13T03:49:55+08:00（★ 由 `date` 实读，非估算）
+> **state_version**: 7 ｜ **updated_at**: 2026-10-13T04:08:07+08:00（★ 由 `date` 实读，非估算）
 > **本件为锚点基线**（连续性信标四件套之①）· **取代 v6.1**（`docs/distributed-agent-network-governance-plan-v6.1-20261011.md`，sha256 `bf5a4e6b…`，★ **保留未改**）
 > **成稿时刻**：2026-10-12T21:35:13+08:00（+08:00）
 > **起草**：星桥第二任 `session-e317d6ab`（协调者）
@@ -103,11 +103,23 @@
 
 ```bash
 $ /Applications/Tailscale.app/Contents/MacOS/Tailscale status
-100.120.203.20   coreymac-mini    coreyleung@  macOS
-100.118.15.71    desktop-p8e7op1  coreyleung@  windows
-100.98.251.77    iphone171        coreyleung@  iOS
-100.112.111.120  macbook-pro-2    coreyleung@  macOS
+100.120.203.20   coreymac-mini    coreyleung@  macOS    -
+100.118.15.71    desktop-p8e7op1  coreyleung@  windows  active; direct 192.168.1.5:41641
+100.98.251.77    iphone171        coreyleung@  iOS      offline, last seen 7d ago
+100.112.111.120  macbook-pro-2    coreyleung@  macOS    offline, last seen 14m ago
 ```
+
+> ★★ **2026-10-13 补正记录（★ 对外部审查 #1 的回应）**：
+> ★ 外部线 `ext` 于本日复跑时该命令返 **`Logged out.`** ⇒ ★★ **则该读数当时不可复跑**（★ 它的三态判是对的）。
+> ★ 用户于 **2026-10-13** 重启 Tailscale 后，★★ **本纳复跑：9/9 逐字命中**（★ 见上块）。
+> ★ ★ **复跑命令**：`/Applications/Tailscale.app/Contents/MacOS/Tailscale status`
+>   （★ **读时刻**：2026-10-13T04:08:07+08:00；★ 退出码 **0**；★ 阳性对照：`Tailscale version` ⇒ `1.104.1`）
+>
+> ★★★ **结论不变：4 节点属主全为 `coreyleung@` ⇒ 「②设备独立 ⇒ ③主体独立」不成立。**
+>
+> ★ ★ **另附一个偶得的侧证**：本次输出里 `macbook-pro-2` 为 **纯 `offline`**、
+>   `desktop-p8e7op1` 为 **真 `active`** —★ ★ 而本仓 D-217 记的坑是「**刚断开的行同时含 active 与 offline**」。
+>   ★★ 故本次样本【无中间态】—★ **而那正是 `!l.includes('offline')` 那个修正拄住的情形**。
 ★★ **⇒ 4 节点，属主【全为 `coreyleung@`】** ⇒ ★★ **「设备独立性 ⇒ 主体独立性」不成立。**
 
 ★ 注：★ **`tailscale status` 是【外部控制面】**（数据来自 Tailscale 控制服务器）——

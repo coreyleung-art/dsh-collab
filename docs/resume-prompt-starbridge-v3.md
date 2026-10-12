@@ -37,4 +37,4 @@
 - **R030**：不陈述没验证的东西；算不出的记 `absent`，**绝不填 0 冒充通过**。
 - **closure 三要素**：DoD（含边界+负控）· evidence（可解指针）· **verifier（第三方，禁自证）**。
 - **半修清单**：开关装上 ≠ 机制生效 ≠ 结果可控；**不可逆动作（重启/改 profile/载体换）先登记后执行**。
-<!-- generated from state_version=7; anchor_sha256=052083d6054d3c55… -->
+<!-- generated from state_version=7; anchor_sha256=4a860c5b8ecdc316… -->
