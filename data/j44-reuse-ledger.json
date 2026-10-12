@@ -602,6 +602,14 @@
    "hits": 0,
    "note": "",
    "at": "2026-10-12T03:05:37"
+  },
+  {
+   "intent": "新建 SystemGraph 写接口客户端（调 8798 /api/write 动词层）",
+   "artifact": "dsh-plugin-sg-write",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "已读码逐项排除：① bb_dualwrite.py / bb-card-put.py / put-card.py / bb-write.py 均为 8792 板键 PUT 客户端（X-Blackboard-Token / 卡值语义 / 板键寻址 / 无 expected_seq）；② bb-bp-register.py:51,227 自称「SystemGraph 生效」但读码确认只 GET /api/blueprints，所谓生效是重启服务(:213-218)；③ systemgraph-publish.sh / bb-gallery-export.py 是静态导出发布，方向不同（仅抄其 dry-run 范式）。四项差异：协议(板 PUT vs 动词层 POST) / 鉴权(X-Blackboard-Token vs X-SG-Principal) / 寻址(key vs page:|graph:) / 冲突语义(无 vs expected_seq→409)。实证：全机 grep X-SG-Principal 仅 4 处且全非客户端；/api/write 调用点 0 命中。",
+   "at": "2026-10-12T22:36:56"
   }
  ]
 }

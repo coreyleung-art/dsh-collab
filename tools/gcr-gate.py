@@ -380,29 +380,43 @@ def selftest():
     #   ★ 实证：未标注前 A/D 两项因本函数的 `write_text` 与 `shutil.rmtree` 判红
     #     —— **那不是假阳性，是判据的适用面问题**（详见 docs/wave-s-toolchain-delivery-v1.md §4）。
     import tempfile
+    # ★★★ 2026-10-12（D-204 / v7 更正账 19）重写说明 —★ **本函数旧版的五条「负例」是恒真字面量**：
+    #   ★ 旧版 `("G-CR14 负例 port=0", 0 == 0, True)` —★★ **`0 == 0` 永远为 True**；
+    #   ★ 旧版 `("G-CR8 负例 245MB ≥ 200MB", mb >= 200, True)` 且 `mb = 245.0` 写死；
+    #   ★★ ⇒ **四条负例【从未调用被测判据函数】** ⇒ 对 11 个判据函数的**可信负控数 = 0**，
+    #     而它报「自证 5/5」。
+    #   ★ 而本仓**早已写好三个纯函数合成器**（`_synth_gcr16/_synth_gcr8/_synth_gcr6_ent`）—★ 旧版一个都没用。
+    #   ★★★ 修法：**真调合成器 + 喂能红的输入 + 断言它真的红了**；并各配一条**反控**（喂好输入 ⇒ 必须绿）。
     cases = []
-    # ① gcr3 负例：构造 name ≠ 目录名
+    # ── ★ 负控：喂【该红】的输入 ⇒ 判据函数必须返回 False（实得也必须是 False）──
+    real_cw = THRESHOLDS["context_window_default"]
+    cases.append(("G-CR16 负例：★ 真调 `_synth_gcr16(real+1)` ⇒ 必须不过",
+                  _synth_gcr16(real_cw + 1), False))
+    cases.append(("G-CR8 负例：★ 真调 `_synth_gcr8(245.0)` ⇒ 必须不过",
+                  _synth_gcr8(245.0), False))
+    cases.append(("G-CR6 负例：★ 真调 `_synth_gcr6_ent(空串)` ⇒ 必须不过",
+                  _synth_gcr6_ent(""), False))
+    # ── ★ 反控：喂【该绿】的输入 ⇒ 必须返回 True（防判据恒红）──
+    cases.append(("G-CR16 反控：喂 `real_cw` ⇒ 必须过",
+                  _synth_gcr16(real_cw), True))
+    cases.append(("G-CR8 反控：喂 `10.0` ⇒ 必须过",
+                  _synth_gcr8(10.0), True))
+    cases.append(("G-CR6 反控：喂 audio-input ⇒ 必须过",
+                  _synth_gcr6_ent("audio-input"), True))
+    # ── ★ G-CR3：真造 name ≠ 目录名的目录并读回 ──
     tmp = Path(tempfile.mkdtemp(prefix="gcr-neg-"))
     d = tmp / "dsh-plugin-wrongname"
     d.mkdir(parents=True)
     (d / "package.json").write_text(json.dumps({"name": "totally-different"}), encoding="utf-8")
-    # 直接测判据函数的核心比对（不改 HOME）
     pkg_name = json.loads((d / "package.json").read_text())["name"]
-    cases.append(("G-CR3 负例 name≠目录名", pkg_name != d.name, True))
-    # ② gcr8 负例：阈值逻辑
-    mb = 245.0
-    cases.append(("G-CR8 负例 245MB ≥ 200MB", mb >= 200, True))
-    # ③ gcr14 负例：port=0
-    cases.append(("G-CR14 负例 port=0", 0 == 0, True))
-    # ④ gcr16 负例：config window > 真实上限
-    cases.append(("G-CR16 负例 window>真实上限", 1_000_000 > THRESHOLDS["context_window_default"] - 256_000, True))
-    # ⑤ gcr9 正例：当前 preset 应全挂
+    cases.append(("G-CR3 负例：目录名与 package.name 不等 ⇒ 应判不过",
+                  pkg_name != d.name, True))
+    # ── ★ G-CR9：读当前 preset（★ 真读盘）──
     presets = HOME / ".dsh" / ".agent-presets"
     n_ok = sum(1 for dd in presets.iterdir()
                if (dd / "agent.cordis.yml").exists()
                and "compaction" in (dd / "agent.cordis.yml").read_text(encoding="utf-8", errors="replace"))
     cases.append(("G-CR9 正例 preset 挂载数 >0", n_ok > 0, True))
-    # 清理
     import shutil
     shutil.rmtree(tmp, ignore_errors=True)
 
