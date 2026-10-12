@@ -49,7 +49,7 @@
   "_v8.8_content_sync_note": "★ 2026-10-12T16:45:04+08:00 §4.6 四件同步（第二十七轮）—— ★ 内容同步：★ `known_gaps` 追加第二十四批（D-140）。★ **发现两插件同名文件+同编号不同义**；★ 以及 **G1 声称冻结的对象与实际 freeze 的对象不符**。",
   "_v8.9_content_sync_note": "★ 2026-10-12T16:47:19+08:00 §4.6 四件同步（第二十八轮）—— ★ 内容同步：★ `known_gaps` 追加第二十五批（D-141）。★ **本线三次指出对方的错**（D-134 引错编号 / D-140 文件名错 / D-141 估重自身）。",
   "anchor": "docs/distributed-agent-network-governance-plan-v7-20261012.md",
-  "anchor_sha256": "1e45b47bb45cc29d74d4b939e74ac16804de23de4ce0c21e3fe8acbb5fd75ed2",
+  "anchor_sha256": "03a4fedbd9e0d4f52c0b3a5c503a1520101669ed09cfd2232c6b5c0f7c124c89",
   "beacon_check": "tools/beacon-check.py",
   "dod": {
     "_note": "§11 原文称「全文表见 data/registry/continuity-index 的 dod 字段」——实测该字段从未建立，即 §11 正文表格只是代表性摘录。**不得凭空补全**（R030）：补全须由各项负责人在沙箱复跑后逐条填入 8 字段（正向判据 / 负控 / 边界 / 测量方法与样本量 / 阈值 / 证据形态 / 审查员 / 沙箱复跑方式）。",
@@ -1055,7 +1055,7 @@
     "file": "docs/repo-strata-map-20261012.md",
     "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
   },
-  "updated_at": "2026-10-12T21:36:32+08:00",
+  "updated_at": "2026-10-12T22:03:45+08:00",
   "version_pointer_file": "~/.dsh/continuity-last-version",
   "waves": [
     {
