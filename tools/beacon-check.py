@@ -359,15 +359,20 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     #   ⇒ 修法：PASS 时【必须明写它当前是缺席还是在位】，让读者一眼看到实情。
     dod = (idx.get("dod") or {}).get("full_table")
     dod_declared = bool((idx.get("dod") or {}).get("_status"))
+    # ★★★ 2026-10-13【替换】（★ W2 §3.4 · ★ M5）：原判据判的是【缺席有没有被声明】—★
+    #   ★★ 而那是【掩盖性 PASS】：★ 缺席给了声明 ⇒ 判 PASS ⇒ **读者会以为 DoD 齐备**。
+    #   ★ W2 :554 逐字：「不得在保留旧 PASS 的同时并列新 FAIL —★ 否则读者会取绿」
+    #   ★ 故现【替换】为：判【全文表在不在】—★ 缺席就是缺席。
     if dod is not None:
-        check("dod.full_table 缺席是显式声明的", True, "★ 全文表【在位】")
+        check("dod 全文表在位（★ 替换后）", True, "★ 全文表【在位】")
     elif dod_declared:
-        check("dod.full_table 缺席是显式声明的", True,
-              "★★ 注意：**`full_table` 当前【缺席】**，仅有显式缺席声明 ⇒ "
-              "★ 「有多少项有 DoD」**不可判**，★ 不得读作「DoD 齐备」")
+        check("dod 全文表在位（★ 替换后）", False,
+              "★★ **`full_table` 缺席**（★ 仅有缺席声明）⇒ "
+              "★★ **「有多少项有 DoD」不可判，★ 不得读作「DoD 齐备」**；"
+              "★ 旧判据将此判为 PASS ⇒ **掩盖性 PASS**（★ W2 §3.4）")
     else:
-        check("dod.full_table 缺席是显式声明的", False,
-              "既没内容也没缺席声明 ⇒ 读者会以为它有")
+        check("dod 全文表在位（★ 替换后）", False,
+              "既没内容也没缺席声明")
 
     # ---- 7. 自检覆盖缺口（B10 = P27 族）：以下三条**此前全无**，
     #         故「校验全绿而事实已变」在本台上曾结构性地看不见（本线 2026-10-10 实测）。
@@ -405,15 +410,30 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     # 7c. closed_with_evidence 须有 verifier；**但只查字段存在会给判据开后门** ⇒
     #     值仍是"待复核"类的，单列 PENDING，使「全绿」不能掩盖「未验证」。
     closed = [it for it in items if it.get("state") == "closed_with_evidence"]
+    # ★★★ 2026-10-13【替换】（★ W2 §3.4 · ★ M5）：原判据判【字段在不在】—★
+    #   ★★ 而 6/6 的值全是【占位串】（「待第三方复核」·「★ missing」）⇒ 原判据 PASS。
+    #   ★ 故现【替换】为：判【值是否有效】（★ 非占位）。
+    _PLACEHOLDER = re.compile(r"待第三方复核|待复核|待|pending|unavailable|未到位|TBD|missing", re.I)
     missing = [it["id"] for it in closed if not it.get("verifier")]
-    check("closed 项 verifier 字段齐备（B10③）", not missing,
-          f"{'/'.join(missing)} 记为 closed 却无 verifier 字段 ⇒ §5.1「未证不得记 closed」")
-    unverified = [it["id"] for it in closed
-                  if it.get("verifier") and re.search(r"待|pending|unavailable|未到位|TBD",
-                                                      str(it["verifier"]), re.I)]
-    if unverified:
-        pend("closed 项审查员已到位（§11 六者之「审查员」）",
-             f"{'/'.join(unverified)} 记为 closed_with_evidence，而 verifier 仍是待复核 ⇒ **未验证 ≠ 已关闭**")
+    _ph = [it["id"] for it in closed
+           if it.get("verifier") and _PLACEHOLDER.search(str(it["verifier"]))]
+    if missing:
+        check("closed 项 verifier 有效（★ 替换后）", False,
+              f"{'/'.join(missing)} 记为 closed 却无 verifier 字段 ⇒ §5.1「未证不得记 closed」")
+    elif _ph:
+        check("closed 项 verifier 有效（★ 替换后）", False,
+              "★★ **%d/%d 项的 verifier 仍是【占位串】**（★ %s）⇒ "
+              "★ 「字段齐备」不等于「已验证」；★ 旧判据将此判为 PASS ⇒ **掩盖性 PASS**"
+              % (len(_ph), len(closed), "/".join(_ph)))
+    else:
+        check("closed 项 verifier 有效（★ 替换后）", True,
+              "★ %d 项的 verifier 均非占位串" % len(closed))
+    # ★★★ 2026-10-13（★ W2 §3.4）：本段【已删】—★
+    #   ★ 它原是一条【追加】的 PEND（★ 在旧 PASS 旁边并列）—★
+    #   ★★ 而 W2 :554 逐字：「不得在保留旧 PASS 的同时并列新 FAIL —★ 否则读者会取绿」。
+    #   ★ 现已将旧 PASS 【替换】为 FAIL（★ 见上「closed 项 verifier 有效（★ 替换后）」）⇒
+    #   ★ 故本条 PEND 【重复且弱于 FAIL】⇒ **删掉**，★ 避免两处同诉。
+    #   ★ 保留一行说明供后人可追。
 
     # ---- 8. 本地副本 ↔ 板值一致（★ G-CR18 **④**，锚点 §7.9 四项之末）
     #     本台今日两次翻车的形态就是这条：本地文件与板值分叉、★块与键数都对不上，而无人察觉
@@ -675,18 +695,26 @@ def selftest() -> int:
     case("closed 项无证据指针",
          lambda d: {**d, "items": [{**i, "evidence": []} if i["id"] == "C1" else i for i in d["items"]]},
          "C1 有 evidence 指针")
-    case("dod 缺席未声明",
-         lambda d: {**d, "dod": {"full_table": None}}, "缺席是显式声明")
+    # ★★ 2026-10-13（★ W2 §3.4 替换后同步）：判据已改名为「在位」
+    #   ★ 故反例也要改：★ 现「缺席」本身就应报红。
+    case("dod 全文表缺席（★ 替换后）",
+         lambda d: {**d, "dod": {"full_table": None}}, "全文表在位（★ 替换后）")
 
     # ---- B10 三条新判据的反例（**新判据不带反例 = 又一道不会红的门**）
     case("updated_at 非 RFC 3339 规范形",
          lambda d: {**d, "updated_at": "2026-10-10T07:00:00+0800"}, "RFC 3339 规范形")
     case("updated_at 落在未来（按感觉估时间）",
          lambda d: {**d, "updated_at": "2099-01-01T00:00:00+08:00"}, "未落在未来")
+    # ★★ 2026-10-13（★ W2 §3.4 替换后同步）：判据改为「有效」—★
+    #   ★ 故加【两个】反例：① 无字段 ② **字段在而值是占位串**（★ 后者正是旧判据看不见的）。
     case("closed 项无 verifier 字段",
          lambda d: {**d, "items": [{k: v for k, v in i.items() if k != "verifier"}
                                    if i["id"] == "C1" else i for i in d["items"]]},
-         "verifier 字段齐备")
+         "closed 项 verifier 有效（★ 替换后）")
+    case("closed 项 verifier 是占位串（★ 新增反例）",
+         lambda d: {**d, "items": [{**i, "verifier": "待第三方复核"}
+                                   if i["id"] == "C1" else i for i in d["items"]]},
+         "closed 项 verifier 有效（★ 替换后）")
     case("waves 记 open 而其 items 已有 closed",
          lambda d: {**d, "waves": [{**w, "state": "open"} if w["id"] == "C" else w
                                    for w in d["waves"]]},
