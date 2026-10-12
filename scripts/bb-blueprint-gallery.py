@@ -2039,6 +2039,227 @@ def sg_owner_alive(session_id):
     return False, "★ 不在存活列表内（共 %d 个会话）⇒ 挂起 + 告警" % len(ids), len(ids)
 
 
+# ══════════ ★ P5.1（2026-10-12 明鉴）：缺口检出层 + 台账 + 冻结基线棘轮 ══════════
+# ★★ 缺口族是【贴着本夜实测出的真问题】定义的，不是我拍脑袋的六族。
+#   实测：结构性六族（必填/类型/悬空/孤儿/重复）在真数据上**全部为 0**
+#   ⇒ ★ **一个永远报 0 的检出器就是恒真判据**（本晚反复的教训）
+#   ⇒ 故把它们**降为「负控主语」**（造一个假缺口 ⇒ 必须报出来），
+#     而**主产出**是本夜真正测到的三族：G1 台账落后 / G2 产物未登记 / G3 订阅指向死会话。
+#
+# ★★ 两档严重度（抄 EventCatalog Linter ✅已核实原文）：
+#     `error` = 通道级/结构级 ⇒ **拦**（不该放它过去）
+#     `warn`  = 内容级/登记级 ⇒ **派单**（值得有人去补，但不该阻断）
+#
+# ★★ 冻结基线棘轮（抄 ArchUnit `FreezingArchRule` ✅已核实原文）：
+#     存量缺口不可能一次补齐，**全量派单会淹死人**（Roadie 自家示例：104 实体 / 90 不合格）
+#     ⇒ ① 首次运行把现存缺口**全部记入基线（冻结）**
+#        ② 之后**只把不在基线里的当「新增」**（才可派发）
+#        ③ 缺口修掉 ⇒ 下轮检出里没有它 ⇒ **自动从基线收缩**
+#        ④ ★ **「改基线」须显式开关**（防「改基线假装清零」——ArchUnit 用
+#           `freeze.store.default.allowStoreUpdate=false` 防 CI 里偷偷改）
+SG_GAP_PREFIX = "data/sg-gap/"
+SG_GAP_BASELINE = "data/registry/sg-gap-baseline"
+
+GAP_FAMILIES = {
+    "G1": {"name": "版本台账落后（产物版本 > 台账）", "severity": "warn"},
+    "G2": {"name": "产物存在但台账从未登记", "severity": "warn"},
+    "G3": {"name": "订阅/指令指向死会话", "severity": "error"},
+    "G4": {"name": "页面档引用死键", "severity": "warn"},
+    "A": {"name": "必填字段缺失", "severity": "error"},
+    "B": {"name": "字段类型错", "severity": "error"},
+    "C": {"name": "引用悬空", "severity": "error"},
+    "D": {"name": "孤儿（无任何边）", "severity": "warn"},
+    "E": {"name": "重复 ID", "severity": "error"},
+}
+
+
+def sg_gap_id(family, subject):
+    """★ gapId = 族 + subject 指纹。★ 同 (族, 对象) ⇒ 同 id ⇒ **重算幂等**（不产生重复条目）。"""
+    import hashlib
+    return "%s-%s" % (family, hashlib.sha256(str(subject).encode("utf-8")).hexdigest()[:12])
+
+
+def _snap_latest_versions():
+    """★ 从快照产物推导每个蓝图的最新版本（与 D1 的 --sync-from-artifacts 同源口径）。"""
+    d = os.path.expanduser("~/dsh-collab/data/blueprint/gallery/snapshots")
+    rx = re.compile(r"^(.+?)-(arch|fish|tl|flow|timeline|dyn)-v(\d*)_?(\d*)(?:[_-].*?)?-(\d{8})-(\d{6})\.svg$")
+    latest = {}
+    try:
+        for f in os.listdir(d):
+            m = rx.match(f)
+            if not m or not m.group(3):
+                continue
+            k = (int(m.group(3)), int(m.group(4) or 0))
+            b = m.group(1)
+            if b not in latest or k > latest[b][0]:
+                latest[b] = (k, "v%s.%s" % (m.group(3), m.group(4) or 0))
+    except Exception:
+        pass
+    return latest
+
+
+def _vk(v):
+    m = re.search(r"v(\d+)\.(\d+)", str(v or ""))
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
+def sg_detect_gaps():
+    """★ 检出层（**只读，零副作用**）。返回 (gaps, meta)。
+
+    ★★ 每条缺口带：family / severity / subject / evidence / gapId。
+    ★★ 检不出任何东西时**不返回空成功** —— meta 里给出「扫过的面 + 各类判据命中数」，
+       否则「0 条」无法区分「真干净」与「检出器坏了」（本晚反复的同一件事）。
+    """
+    gaps = []
+    scanned = {}
+
+    # ── 读数据（读不到 ⇒ 记入 meta，不静默当 0）──
+    bps, err1 = None, None
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8798/api/blueprints", timeout=12) as r:
+            bps = json.loads(r.read().decode())
+    except Exception as e:
+        err1 = "%s: %s" % (type(e).__name__, e)
+    rel = {}
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8792/data/blueprint/relations", timeout=10) as r:
+            rel = (json.loads(r.read().decode()).get("value") or {})
+    except Exception:
+        pass
+    vl = {}
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8792/data/blueprint/versionlog", timeout=10) as r:
+            vl = (json.loads(r.read().decode()).get("value") or {})
+    except Exception:
+        pass
+    scanned["blueprints"] = (len(bps) if isinstance(bps, list) else ("读失败：" + (err1 or "?")))
+    scanned["edges"] = len(rel.get("edges") or [])
+    scanned["versionlogBlueprints"] = len(vl.get("blueprints") or {})
+
+    # ── G1 / G2：版本台账落后与未登记 ──
+    recorded = vl.get("blueprints") or {}
+    latest = _snap_latest_versions()
+    g1 = g2 = 0
+    for b, (k, ver) in sorted(latest.items()):
+        if b not in recorded:
+            gaps.append({"family": "G2", "severity": GAP_FAMILIES["G2"]["severity"], "subject": b,
+                         "evidence": "产物 %s 存在（快照目录），但台账 blueprints 无此条" % ver})
+            g2 += 1
+        else:
+            cur = _vk(recorded[b].get("version"))
+            if cur is None or k > cur:
+                gaps.append({"family": "G1", "severity": GAP_FAMILIES["G1"]["severity"], "subject": b,
+                             "evidence": "台账 %s < 产物 %s" % (recorded[b].get("version"), ver)})
+                g1 += 1
+    scanned["G1"] = g1
+    scanned["G2"] = g2
+
+    # ── G3：订阅/指令指向死会话（★ error）──
+    g3 = 0
+    live, lerr = sg_live_agents()
+    if live is None:
+        scanned["G3"] = "UNCOVERED（存活列表不可判：%s）" % lerr
+    else:
+        try:
+            import subprocess as _sp
+            out = _sp.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "event-bus.py"),
+                           "--status"], capture_output=True, text=True, timeout=20).stdout
+            targets = set(re.findall(r"->\s*(session-[0-9a-f-]+)", out))
+            dead = sorted(t for t in targets if t not in live)
+            for t in dead:
+                n = out.count("-> " + t)
+                gaps.append({"family": "G3", "severity": GAP_FAMILIES["G3"]["severity"], "subject": t,
+                             "evidence": "event-bus 有 %d 条 PENDING 指向它，而它不在存活列表内（活体 %d 个）" % (n, len(live))})
+                g3 += 1
+            scanned["G3"] = g3
+        except Exception as e:
+            scanned["G3"] = "UNCOVERED（%s: %s）" % (type(e).__name__, e)
+
+    # ── 结构性 A–E（真数据上为 0 ⇒ 作为【负控主语】）──
+    ids = [b.get("id") for b in (bps or []) if isinstance(b, dict)]
+    nodes = set(rel.get("blueprints") or []) | set(i for i in ids if i)
+    edges = rel.get("edges") or []
+    A = [b.get("id") for b in (bps or []) if isinstance(b, dict) and not all([b.get("id"), b.get("dim"), b.get("version")])]
+    B = [i for i, e in enumerate(edges) if not isinstance(e, dict) or not all(isinstance(e.get(x), str) for x in ("from", "to", "type"))]
+    C = [(e.get("from"), e.get("to")) for e in edges if isinstance(e, dict) and (e.get("from") not in nodes or e.get("to") not in nodes)]
+    touched = set()
+    for e in edges:
+        if isinstance(e, dict):
+            touched.add(e.get("from"))
+            touched.add(e.get("to"))
+    D = sorted(x for x in nodes if x not in touched)
+    from collections import Counter as _C
+    E = [k for k, v in _C(ids).items() if v > 1]
+    for x in A:
+        gaps.append({"family": "A", "severity": "error", "subject": str(x), "evidence": "缺 id/dim/version 之一"})
+    for i in B:
+        gaps.append({"family": "B", "severity": "error", "subject": "edge#%d" % i, "evidence": "from/to/type 非 str"})
+    for f, t in C:
+        gaps.append({"family": "C", "severity": "error", "subject": "%s->%s" % (f, t), "evidence": "端点不在节点集内"})
+    for x in D:
+        gaps.append({"family": "D", "severity": "warn", "subject": str(x), "evidence": "无任何边相连"})
+    for x in E:
+        gaps.append({"family": "E", "severity": "error", "subject": str(x), "evidence": "id 重复出现"})
+    scanned.update({"A": len(A), "B": len(B), "C": len(C), "D": len(D), "E": len(E)})
+
+    for g in gaps:
+        g["gapId"] = sg_gap_id(g["family"], g["subject"])
+    return gaps, scanned
+
+
+def sg_gap_ratchet(gaps, update_baseline=False):
+    """★ 冻结基线棘轮。返回 (new_gaps, frozen_count, baseline_size, note)。
+
+    ★★ 语义（抄 ArchUnit FreezingArchRule）：
+      · 首次运行 ⇒ 把当前全部缺口写进基线（**存量冻结**）⇒ new_gaps = []（不派发存量）
+      · 之后 ⇒ 只在基线里的 = 冻结；不在的 = **新增**（可派发）
+      · 缺口修掉 ⇒ 下轮检出没有它 ⇒ **基线自动收缩**（写回时以本轮为准）
+      · ★ `update_baseline=True` 是**显式开关**：**只有它才允许改基线**
+        （防「改基线假装清零」——ArchUnit 用 allowStoreUpdate=false 防的正是这个）
+    """
+    cur_ids = sorted({g["gapId"] for g in gaps})
+    base, ok = None, True
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8792/%s" % SG_GAP_BASELINE, timeout=8) as r:
+            base = (json.loads(r.read().decode()).get("value") or {})
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            base, ok = None, True          # ★ 404 = 无基线（首次）—— 不是失败
+        else:
+            ok = False
+    except Exception:
+        ok = False
+    if not ok:
+        return None, None, None, "★ 基线读不到（非 404）⇒ **不可判**，不当作「首次」也不当作「无新增」"
+    if base is None:
+        # 首次 ⇒ 冻结存量
+        sg_baseline_write(cur_ids)
+        return [], len(cur_ids), len(cur_ids), "★ 首次运行 ⇒ 存量 %d 条全部冻结（不派发）" % len(cur_ids)
+    known = set(base.get("frozenIds") or [])
+    new = [g for g in gaps if g["gapId"] not in known]
+    if update_baseline:
+        sg_baseline_write(cur_ids)
+        return new, len(cur_ids), len(cur_ids), "★ 已显式更新基线（%d 条）" % len(cur_ids)
+    return new, len(known & set(cur_ids)), len(known), (
+        "存量冻结 %d · 本轮新增 %d（★ 未显式更新基线 ⇒ 基线不动）" % (len(known & set(cur_ids)), len(new)))
+
+
+def sg_baseline_write(ids):
+    """★ 写棘轮基线（**只在首次或显式 update 时调用**）。"""
+    try:
+        body = json.dumps({"frozenIds": ids, "at": datetime.datetime.now().isoformat(),
+                           "n": len(ids)}, ensure_ascii=False).encode()
+        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % SG_GAP_BASELINE,
+                                    data=body, method="PUT",
+                                    headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(rq, timeout=8) as r:
+            r.read()
+        return True
+    except Exception as e:
+        sys.stderr.write("⚠️ sg_baseline_write 失败：%s\n" % e)
+        return False
+
+
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
     """★ P4 · R8（2026-10-12）：乐观锁 —— **并发互斥的机械保证**。
 
@@ -2601,6 +2822,25 @@ class Handler(BaseHTTPRequestHandler):
                     "note": "★ fail-closed：拿不到存活列表 ⇒ 判「不存活」（挂起），绝不「因为查不到所以放行」。"
                             "★ 存活判定不缓存；只有 bus 端口缓存 30s（重启会漂移）。",
                 }, ensure_ascii=False))
+                return
+            if path == "/api/sg-gaps":
+                # ★ P5.1（2026-10-12）：缺口检出 + 棘轮（只读；★ 只有显式带 update_baseline=1 才改基线）
+                try:
+                    ups = "update_baseline=1" in (self.path.split("?", 1)[1] if "?" in self.path else "")
+                    gaps, scanned = sg_detect_gaps()
+                    new, frozen, bsize, note = sg_gap_ratchet(gaps, update_baseline=ups)
+                    self._send(200, json.dumps({
+                        "scanned": scanned, "total": len(gaps),
+                        "newGaps": new, "newCount": (len(new) if new is not None else None),
+                        "frozenCount": frozen, "baselineSize": bsize,
+                        "byFamily": {f: sum(1 for g in gaps if g["family"] == f) for f in GAP_FAMILIES},
+                        "ratchetNote": note,
+                        "families": GAP_FAMILIES,
+                        "note": "★ 缺口族贴着【本夜实测的真问题】；结构性 A–E 在真数据上为 0 ⇒ 它们是【负控主语】。"
+                                "★ 棘轮：存量冻结、只报新增；★ 改基线须显式 update_baseline=1（防「改基线假装清零」）。",
+                    }, ensure_ascii=False))
+                except Exception as e:
+                    self._send(200, json.dumps({"error": "%s: %s" % (type(e).__name__, e)}, ensure_ascii=False))
                 return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
