@@ -106,6 +106,10 @@ def render(idx, anchor, anchor_v) -> str:
     L.append(f"**③ 跑反遗忘校验** `python3 {idx['beacon_check']} --net` —— 必须 exit 0 才继续；有红先报，别绕。"
              f"（`--net` 抽检黑板指针；不加会显示 `SKIP`——**未抽检 ≠ 通过，别读成全绿**。）")
     L.append("")
+    L.append("")
+    L.append("★★ **④ 派子代理前必做**：跑 `python3 tools/lint-inventory.py --prompt` → 把【既有 lint/gate 清单】粘进提示词。"
+             " ★ 立据（D-209）：本仓 tools/ 下已有 **10** 个 lint/gate 正好管着当晚所有坑，★★ **而 20 个子代理一个都没引用**；门：`--check` 未含清单 ⇒ exit 1。")
+
     L.append("## 复述题（第 3 步之后立刻回答，答完再动手）")
     L.append("")
     if w:

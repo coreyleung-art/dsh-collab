@@ -1,0 +1,171 @@
+#!/bin/bash
+# hb-watchdog.sh — 重启互保协议（MBP 提案 v0 · 星桥侧实现 2026-10-04）
+# 职责：①每 30s 写本机心跳 data/health/hb-mac-mini（双板双头）②读对端心跳 hb-mbp
+#       ③未结 ticket + 对端换新代 ⇒ 写 peer-up 卡 + 自唤本机会话 + 结 ticket
+#       ④超窗 ⇒ peer-down-escalation 卡 + 日志（不自动替用户决策）
+# 心跳值：{node, boot_epoch, app_pid, dsh_port, ts, boot_iso}
+# boot_epoch 来源：~/.cld/logs/exit-marker.json 的 startedAt（壳 boot 时写，跨版本稳定）
+# 用法：hb-watchdog.sh [--selftest] [--once]
+# 由 launchd 每 30s 调 --once（配额滚动后装载，见 cron-ready/）
+set -u
+NODE=mac-mini
+PEER=mbp
+HB_KEY="data/health/hb-$NODE"
+PEER_KEY="data/health/hb-$PEER"
+TICKET_DIR="$HOME/dsh-collab/data/restart-tickets"
+LOG="$HOME/dsh-collab/logs/peer-watchdog.log"
+BB_LOCAL="http://127.0.0.1:8792"
+BB_CENTRAL="http://xingqiao.meetfunbp.com:8792"
+WINDOW_SEC=${WINDOW_SEC:-600}
+FRESH_SEC=${FRESH_SEC:-180}
+MARKER="$HOME/.cld/logs/exit-marker.json"
+
+log() { echo "[$(date +%H:%M:%S)] $1" >> "$LOG"; }
+
+boot_epoch() {
+  [ -f "$MARKER" ] && python3 -c "
+import json,sys,datetime
+d=json.load(open('$MARKER'))
+s=d.get('startedAt','')
+try: print(int(datetime.datetime.fromisoformat(s.replace('Z','+00:00')).timestamp()))
+except Exception: print('')
+" 2>/dev/null
+}
+
+dsh_port() { curl -s -m 2 http://127.0.0.1:31888/health 2>/dev/null | python3 -c 'import json,sys;print(json.load(sys.stdin).get("url","").rsplit(":",1)[-1])' 2>/dev/null; }
+app_pid()  { lsof -nP -iTCP:31888 -sTCP:LISTEN 2>/dev/null | tail -1 | awk '{print $2}'; }
+
+# ★ 2026-10-04 MBP 2935 升级：bb_put 失败传播（双板 200 才 return 0；否则 return 1）
+#   调用方（开票/结票/心跳）据此 fail-closed——「告警不等于阻断」，写失败必须让调用方拒绝动作。
+bb_put() { # key payload → 双板双头写，回读断言
+  python3 - "$1" "$2" "$BB_LOCAL" "$BB_CENTRAL" "$HOME/dsh-collab/data/restart-tickets/.tok" << 'PYEOF'
+import json, sys, urllib.request, os
+key, payload, local, central, tokfile = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
+try: tok = open(os.path.expanduser("~/.dsh/blackboard-token")).read().strip()
+except Exception: tok = ""
+def put(url, headers):
+    req = urllib.request.Request(url+"/"+key, data=payload.encode(), method="PUT",
+        headers={"Content-Type":"application/json", **headers})
+    with urllib.request.urlopen(req, timeout=15) as r: return r.status
+l = put(local, {"Authorization":"Bearer "+open(os.path.expanduser("~/.dsh/board-token")).read().strip()})
+c = put(central, {"X-Webhook-Token":open(os.path.expanduser("~/.dsh/webhook-token")).read().strip(),"X-Blackboard-Token":tok})
+print("local", l); print("central", c)
+sys.exit(0 if l == 200 and c == 200 else 1)
+PYEOF
+}
+
+bb_get() { # key → 值 JSON（中央板优先，本机板兜底）
+  python3 - "$1" "$BB_CENTRAL" "$BB_LOCAL" << 'PYEOF'
+import json, sys, os, urllib.request
+key, central, local = sys.argv[1], sys.argv[2], sys.argv[3]
+tok = open("/Users/coreyleung/.dsh/blackboard-token").read().strip()
+for url, hdrs in [(central, {"X-Webhook-Token":open(os.path.expanduser("~/.dsh/webhook-token")).read().strip(),"X-Blackboard-Token":tok}),
+                  (local, {"Authorization":"Bearer "+open(os.path.expanduser("~/.dsh/board-token")).read().strip()})]:
+    try:
+        req = urllib.request.Request(url+"/"+key, headers=hdrs)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            d = json.load(r); v = d.get("value", d); v = v.get("value", v) if isinstance(v.get("value", v), dict) else v
+            print(json.dumps(v, ensure_ascii=False)); break
+    except Exception: continue
+else:
+    print("null")
+PYEOF
+}
+
+write_hb() {
+  local epoch port pid iso
+  epoch=$(boot_epoch); port=$(dsh_port); pid=$(app_pid); iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+  : "${epoch:=0}"; : "${port:=0}"; : "${pid:=0}"
+  if ! bb_put "$HB_KEY" "{\"node\":\"$NODE\",\"boot_epoch\":$epoch,\"app_pid\":$pid,\"dsh_port\":$port,\"ts\":$(date +%s),\"boot_iso\":\"$iso\"}"; then
+    log "⚠️ 心跳双板写异常（bb_put 返回非 0）"; return 1
+  fi
+}
+
+close_ticket() {
+  rm -f "$TICKET_DIR/$1.json"
+  local now=$(date +%s)
+  bb_put "notes/mbp/restart-closed-$1" "{\"from\":\"hb-watchdog-mac-mini\",\"ts\":$now,\"ticket\":\"$1\",\"observed_boot_epoch\":${boot:-0}}" >/dev/null
+  log "ticket $1 结清（对端已换新代，结票卡已写板）"
+}
+
+scan_board_tickets() {
+  # ★ 2026-10-04 MBP 346 复核 P1 修复：票据载体=板卡 notes/mac-mini/restart-notice-<ticket>（对端写我方前缀）
+  local list
+  list=$(bb_get "notes/mac-mini/" 2>/dev/null)
+  echo "$list" | python3 -c "
+import json,sys
+try:
+    d=json.load(sys.stdin)
+    ks=[k for k in (d.get('list') or {}) if 'restart-notice-' in k]
+    for k in ks: print(k)
+except Exception: pass
+" 2>/dev/null
+}
+
+check_tickets() {
+  [ -d "$TICKET_DIR" ] || mkdir -p "$TICKET_DIR"
+  # 板卡票同步到本地记录（只记录不删除板卡——板卡由结票卡与 TTL 治理）
+  for bk in $(scan_board_tickets); do
+    tid="${bk##*restart-notice-}"
+    [ -n "$tid" ] || continue
+    [ -f "$TICKET_DIR/$tid.json" ] || bb_get "$bk" > "$TICKET_DIR/$tid.json" 2>/dev/null
+  done
+  local t peer_hb boot epoch now ts
+  for t in "$TICKET_DIR"/*.json; do
+    [ -f "$t" ] || continue
+    local tick=$(basename "$t" .json)
+    local expect=$(python3 -c "import json;print(json.load(open('$t')).get('expect_boot_newer_than',0))" 2>/dev/null)
+    local probe_at=$(python3 -c "import json;print(json.load(open('$t')).get('probe_at',0))" 2>/dev/null)
+    local down_from=$(python3 -c "import json;print(json.load(open('$t')).get('down_from',0))" 2>/dev/null)
+    now=$(date +%s)
+    # ★ 证据有效性守卫（2026-10-04 幻影升级修复）：probe_at 缺失/非法或晚于 down_from ⇒ 无效票，
+    #   只记日志不升级（升级动作必须基于有效探窗，禁止对无效票 fail-open）
+    case "$probe_at" in ''|*[!0-9.]*) log "ticket $tick 无效（probe_at=$probe_at），跳过"; rm -f "$t"; continue;; esac
+    [ "$now" -ge "${probe_at%.*}" ] || continue
+    peer_hb=$(bb_get "$PEER_KEY")
+    boot=$(echo "$peer_hb" | python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('boot_epoch',0))" 2>/dev/null)
+    ts=$(echo "$peer_hb" | python3 -c "import json,sys;d=json.load(sys.stdin);print(d.get('ts',0))" 2>/dev/null)
+    boot_i=${boot%%.*}; expect_i=${expect%%.*}; ts_i=${ts%%.*}
+    if [ -n "${boot:-}" ] && [ "${boot_i:-0}" -gt "${expect_i:-0}" ] && [ $((now - ${ts_i:-0})) -lt $FRESH_SEC ]; then
+      log "对端换新代 boot=$boot > expect=$expect ⇒ peer-up + 自唤"
+      bb_put "notes/collab/peer-up-$PEER-$tick" "{\"from\":\"hb-watchdog-mac-mini\",\"ts\":$now,\"subject\":\"对端 $PEER 已重启恢复（新代 boot=$boot）\"}" >/dev/null
+      # 自唤：本机会话未在线时由 central-inbox 0.2.13 自动续活；此处再补一次 agent-bus 探活指针
+      curl -s -m 3 -X POST "http://127.0.0.1:$(dsh_port)/agent-bus/api/flush" >/dev/null 2>&1 || true
+      close_ticket "$tick"
+    elif [ $((now - ${probe_at:-0})) -gt "$WINDOW_SEC" ]; then
+      # ★ 2026-10-04 MBP 3119 语义修正：升级只对「心跳过期(offline)」；「心跳新鲜但未换代(up-same)」
+      #   =重启未发生，只记本地日志不写公开卡；test:true 的测试票一律跳过升级。
+      is_test=$(python3 -c "import json;print(1 if json.load(open('$t')).get('test') else 0)" 2>/dev/null)
+      if [ "$is_test" = "1" ]; then log "ticket $tick 为测试票，跳过升级并本地结清"; rm -f "$t"; continue; fi
+      peer_hb=$(bb_get "$PEER_KEY")
+      hb_ts=$(echo "$peer_hb" | python3 -c "import json,sys;print(json.load(sys.stdin).get('ts',0))" 2>/dev/null)
+      hb_ts_i=${hb_ts%%.*}
+      if [ -n "${hb_ts:-}" ] && [ $((now - ${hb_ts_i:-0})) -lt $FRESH_SEC ]; then
+        log "ticket $tick 超窗但心跳新鲜（up-same=重启未发生）⇒ 不升级，本地结清"
+        rm -f "$t"
+      else
+        log "ticket $tick 超窗且心跳过期 ⇒ escalation 卡 + 请示用户"
+        bb_put "notes/collab/peer-down-escalation-$PEER-$tick" "{\"from\":\"hb-watchdog-mac-mini\",\"ts\":$now,\"subject\":\"对端 $PEER 超窗未回且心跳过期（判据：hb_ts=${hb_ts_i:-none}，窗口 ${WINDOW_SEC}s），请用户裁决\"}" || log "⚠️ 升级卡写失败"
+        rm -f "$t"
+      fi
+    fi
+  done
+}
+
+selftest() {
+  local ok=0
+  t() { [ "$1" = "$2" ] && echo "  ✅ $3" || { echo "  ❌ $3 (期望 $2 实际 $1)"; ok=1; }; }
+  echo "hb-watchdog 自测（纯函数层）:"
+  t "$(boot_epoch | grep -cE '^[0-9]+$')" "1" "S1 boot_epoch 取到（当前会话在跑）"
+  t "$(echo '{"boot_epoch":10,"ts":'$(date +%s)'}' | python3 -c 'import json,sys;d=json.load(sys.stdin);print(1 if d["boot_epoch"]>5 and (int(__import__("time").time())-d["ts"])<'"$FRESH_SEC"' else 0)')" "1" "S2 换新代+鲜度判据成立（正样本，FRESH_SEC=$FRESH_SEC）"
+  t "$(echo '{"boot_epoch":10,"ts":'$(( $(date +%s) - 300 ))'}' | python3 -c 'import json,sys;d=json.load(sys.stdin);print(1 if d["boot_epoch"]>5 and (int(__import__("time").time())-d["ts"])<'"$FRESH_SEC"' else 0)')" "0" "S3 心跳过期不算在线（负样本）"
+  t "$(echo '{"boot_epoch":3,"ts":'$(date +%s)'}' | python3 -c 'import json,sys;d=json.load(sys.stdin);print(1 if d["boot_epoch"]>5 and (int(__import__("time").time())-d["ts"])<'"$FRESH_SEC"' else 0)')" "0" "S4 未换新代不算恢复（负样本）"
+  return $ok
+}
+
+[ "${1:-}" = "--selftest" ] && { selftest; exit $?; }
+
+mkdir -p "$TICKET_DIR" "$(dirname "$LOG")"
+write_hb
+check_tickets
+exit 0

@@ -7,7 +7,8 @@
   rules-cli.py approve <id>             # 总线审核通过 → enforced
   rules-cli.py reject <id> <reason>     # 总线拒绝 → rejected
   rules-cli.py update <id> <field> <value>  # 更新字段
-  rules-cli.py sync                     # 同步到黑板（data/rules/）+ 生成全量快照
+  rules-cli.py pull                     # ★【方向反转·推荐】从 RULES.md 拉取并更新 rules.json（MD=源）
+  rules-cli.py sync                     # 同步到黑板（data/rules/）+ 生成全量快照（★ 默认不再覆盖 RULES.md；旧行为加 --emit-md）
   rules-cli.py audit                    # 审计（enforced/pending/rejected 统计）
 """
 import json, os, sys, time, urllib.request
@@ -98,6 +99,106 @@ def cmd_update(data, rid, field, value):
     else:
         print(f"❌ 字段 {field} 不存在")
 
+def cmd_pull(data, dry_run=False):
+    """★ 方向反转（2026-10-12 明鉴 v3 · 用户授权 · 见 R061「账本单一真相源纪律」）:
+    **从 RULES.md 解析 → 更新 rules.json**。
+
+    ★ 为什么反转：原先 `sync` 的方向是 `json → md`（从 json 生成并覆盖 md），
+      但**事实上 MD 才是手工编辑且更丰富的一方**（✅ 标题 / 授权背景 / 计数口径 / 分区注）
+      ⇒ **声明的源 ≠ 实际的源** ⇒ 实测漂移 12 条（R049–R060），且 `rules-cli` 读 json（旧）、
+      `rules-integrity.py` 读 md（新）⇒ **两个工具两个答案而无人对账**。
+    ★★ 反转后：**MD = 源，json = 派生产物** —— 方向与事实一致（R061(a)）。
+    ★ 幂等：按 id 合并 —— **MD 有而 json 无 ⇒ 新增**；**两侧都有 ⇒ 保留 json 已有值，仅【补空字段】**；
+      **json 独有 ⇒ 保留**（并打印提示，不静默删）。★★ **pull 是【补差】不是【覆盖】**。
+    """
+    import re as _re
+    md_file = os.path.join(os.path.dirname(RULES_FILE), "RULES.md")
+    if not os.path.exists(md_file):
+        print("❌ pull 失败：RULES.md 不存在（MD 是源，源不在无从拉取）"); return
+    md = open(md_file, encoding="utf-8").read()
+    blocks = _re.split(r'(?m)^(?=## )', md)
+    js = {str(r.get("id")): r for r in (data.get("rules") or []) if r.get("id")}
+    added, updated, orphan, skipped = [], [], [], []
+    for b in blocks:
+        m = _re.match(r'^## +([A-Za-z0-9-]+)\b', b)
+        if not m: continue
+        rid = m.group(1)
+        if rid.startswith('治理哲学'): continue
+        # 跳过【分区标题】这类非规则小节（无 ✅/⏳/❌ 标记且无 分类 行）
+        has_cat = _re.search(r'(?m)^-\s*分类\s*[:：]', b)
+        if not has_cat:
+            skipped.append(rid); continue
+        title = b.split('\n', 1)[0]
+        nm = _re.match(r'^## +%s\b\s*[✅⏳❌]?\s*(.*)$' % _re.escape(rid), title)
+        name = (nm.group(1).strip() if nm else '')
+        def f(field):
+            mm = _re.search(r'(?m)^-\s*%s\s*[:：]\s*(.+)$' % field, b)
+            return mm.group(1).strip() if mm else ''
+        cl = f('分类')
+        cat = _re.split(r'\|', cl)[0].strip()
+        mm = _re.search(r'范围:\s*([^|]+)', cl); scope = (mm.group(1).strip() if mm else '')
+        mm = _re.search(r'状态:\s*([^|]+)', cl); status = (mm.group(1).strip() if mm else '')
+        status = _re.sub(r'\*\*', '', status)
+        status = _re.split(r'[（(]', status)[0].strip()
+        rec = {'name': name, 'category': cat, 'scope': scope, 'status': status,
+               'summary': _re.sub(r'\n\s*', '', f('摘要'))}
+        if rid not in js:
+            newr = {'id': rid, 'name': name, 'category': cat, 'scope': scope,
+                    'status': status or 'enforced', 'version': '1.0.0',
+                    'source': 'rules-registry/RULES.md（pull 拉取）',
+                    'summary': rec['summary'], 'detail': '',
+                    'added': '2026-10-12', 'approvedBy': '见 RULES.md 各条授权背景',
+                    'enforcedBy': 'process'}
+            det = f('详情')
+            if det: newr['details'] = _re.sub(r'\n\s*', '', det)[:1500]
+            data['rules'].append(newr); added.append(rid)
+        else:
+            # ★★ 2026-10-12 明鉴 v3 修（dry-run 实测发现）:
+            #   第一版**以 MD 为准覆盖全部字段** ⇒ 实测会改 **35 条 name**，
+            #   把 MD 标题里的**日期/授权**（如「（2026-09-09 用户裁决吸收 · …）」）
+            #   污染进结构化字段。★ 而「切到第一个括号前」又会**丢掉真属名称的部分**
+            #   （如 R006 的「（10 项）」）—— 两侧都不对。
+            # ⇒ 正解：**pull 是【补差】，不是【覆盖】** —— 已有值就保留（人工核定过），
+            #   只在**字段为空**时才从 MD 补。★ 与「json 独有则保留」同一精神。
+            ch = []
+            for k in ('name', 'category', 'scope', 'status', 'summary'):
+                if rec[k] and not str(js[rid].get(k) or '').strip():
+                    ch.append(k + ':补空'); js[rid][k] = rec[k]
+            if ch: updated.append((rid, ch))
+    for rid in js:
+        if rid not in _re.findall(r'(?m)^## +([A-Za-z0-9-]+)\b', md):
+            orphan.append(rid)
+    print("★ pull（MD → JSON，方向已反转）")
+    print("  新增 %d 条: %s" % (len(added), ' '.join(added) if added else '（无）'))
+    print("  更新 %d 条: %s" % (len(updated), ' '.join('%s(%s)' % (r, ','.join(c)) for r, c in updated[:8]) if updated else '（无）'))
+    print("  ★ json 独有（保留不动，未静默删）: %s" % (' '.join(orphan) if orphan else '（无）'))
+    print("  跳过非规则小节: %s" % (' '.join(skipped) if skipped else '（无）'))
+    if dry_run:
+        print("  ★ --dry-run：未写盘"); return
+    # 计算口径三要素并入 audit（与 RULES.md 首行同口径）
+    ids = [str(r.get('id')) for r in data['rules']]
+    n_r = len([i for i in ids if _re.match(r'^R\d{3}$', i)])
+    n_j = len([i for i in ids if _re.match(r'^J\d+$', i)])
+    n_e = len([i for i in ids if i.startswith('R-ERR')])
+    # ★ 2026-10-12 明鉴 v3 补：pull 亦须同步 **版本号**（从 MD 首行读）
+    #   ★ 实测发现：我改 MD 版本号后未同步 ⇒ json 停在旧版 ⇒ **又制造了一次漂移**
+    #     （这正是本条要治的事，故 pull 必须把 version 一并拉回）。
+    _vm = _re.search(r'>\s*v([0-9.]+)\s*\|', md)
+    if _vm and _vm.group(1) != data.get('version'):
+        print("  ★ 版本号同步: %s → %s（源 RULES.md 首行）" % (data.get('version'), _vm.group(1)))
+        data['version'] = _vm.group(1)
+    _nm = _re.search(r'>\s*v[0-9.]+\s*\|\s*(\d+)\s*条', md)
+    if _nm and int(_nm.group(1)) != len(ids):
+        print("  ⚠️ 计数不符: MD 声明 %s 条 / json 实际 %d 条（★ 不静默改 MD，请人工查明）" % (_nm.group(1), len(ids)))
+    data['audit'] = {"ruleCount": len(ids),
+                     "enforced": sum(1 for r in data['rules'] if r.get('status') == 'enforced'),
+                     "advisory": sum(1 for r in data['rules'] if r.get('status') == 'advisory'),
+                     "breakdown": "R%d · J%d · R-ERR%d" % (n_r, n_j, n_e),
+                     "updated": "2026-10-12 pull（MD → JSON）"}
+    save(data)
+    print("  ✅ 已写 %s（口径 R%d · J%d · R-ERR%d = %d）" % (os.path.basename(RULES_FILE), n_r, n_j, n_e, len(ids)))
+
+
 def cmd_sync(data):
     """同步到黑板（data/rules/）+ 生成全量快照"""
     # 全量快照
@@ -138,6 +239,14 @@ def cmd_sync(data):
         if r.get("detail"): md.append(f"- 详情: {r['detail']}")
         md.append("")
     md_file = os.path.join(os.path.dirname(RULES_FILE), "RULES.md")
+    # ★★★ 方向反转（2026-10-12 明鉴 v3 · 用户授权 · 见 R061）：
+    #   本函数原先会**从 rules.json 生成并覆盖 RULES.md** —— 但事实是 **MD 才是源**。
+    #   ⇒ 自本次起：**默认【不生成/不覆盖 MD】**，仅显式 `--emit-md` 才走旧路径
+    #     （保留能力，但不再是默认；★ 且旧路径的守卫一并保留）。
+    #   ⇒ 正确方向：`rules-cli.py pull`（MD → JSON）。
+    if "--emit-md" not in sys.argv:
+        print("ℹ️ 已跳过 RULES.md 生成（方向已反转为 MD→JSON；如需旧行为请加 --emit-md，见 R061）")
+        return
     # ★★ 守卫（HR 2026-09-11，星桥「两份表示漂移」触发）:
     #   本函数会**从 rules.json 生成并覆盖 RULES.md**。而实测 RULES.md 已被人**手工编辑**
     #   （R035 加入 + HR 今晚的 R033/R034 合裁 + 计数修正），**领先于源** ⇒
@@ -234,6 +343,7 @@ def main():
     elif cmd == "approve" and len(args) > 1: cmd_approve(data, args[1])
     elif cmd == "reject" and len(args) > 2: cmd_reject(data, args[1], args[2])
     elif cmd == "update" and len(args) > 3: cmd_update(data, args[1], args[2], args[3])
+    elif cmd == "pull": cmd_pull(data, dry_run=("--dry-run" in sys.argv))
     elif cmd == "sync": cmd_sync(data)
     elif cmd == "audit": cmd_audit(data)
     else:

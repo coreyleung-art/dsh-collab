@@ -1,12 +1,13 @@
 {
-  "version": "2.23.10",
+  "version": "2.23.11",
   "lastUpdated": "2026-10-12",
   "maintainer": "mac-mini 中枢 (session-fa1f9150) → 2026-10-12 由 明鉴 v3 (session-a190c54c) 代管回填 R049–R060",
   "audit": {
     "ruleCount": 78,
     "enforced": 69,
     "advisory": 9,
-    "updated": "2026-10-12 代管回填 R049–R061（源 RULES.md v2.23.10）"
+    "breakdown": "R61 · J13 · R-ERR4",
+    "updated": "2026-10-12 pull（MD → JSON）"
   },
   "rules": [
     {

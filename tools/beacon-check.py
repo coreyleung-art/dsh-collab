@@ -488,6 +488,27 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
                   "已读 %d 个目录、均为空 ⇒ 无未处理告警" % len(_ok)
                   + ("（读不到：" + ",".join(_unread) + "）" if _unread else ""))
 
+    # ★★ 2026-10-12（D-209）：既有 lint 清单就位检查 —★ 防「重造轮子」。
+    #   ★ 立据：本仓 tools/ 下已有 10 个 lint/gate 正好管着当晚所有坑，
+    #   ★★ 而当晚 20 个子代理【一个都没引用】—★ **逐条实测 0 次**。
+    #   ★ 故本条把清单【浮到每次必跑的输出里】⇒ 不靠记忆。
+    try:
+        _li = subprocess.run([sys.executable, str(ROOT / "tools" / "lint-inventory.py"), "--json"],
+                             capture_output=True, text=True, timeout=20)
+        _items = json.loads(_li.stdout)
+        _rows = len(_items)
+        _miss = [i["tool"] for i in _items if not i.get("present")]
+        if _rows == 0:
+            skip("既有 lint 清单就位（D-209）", "清单为空 ⇒ 不可判（不冒充通过）")
+        elif _miss:
+            check("既有 lint 清单就位（D-209）", False,
+                  "★★ 表内工具缺失：" + ",".join(_miss) + " ★ 修后自然转绿")
+        else:
+            check("既有 lint 清单就位（D-209）", True,
+                  "★ %d/%d 工具在位 · ★★ 派子代理前请跑 `python3 tools/lint-inventory.py --prompt` 并粘入提示词" % (_rows - len(_miss), _rows))
+    except Exception as e:
+        skip("既有 lint 清单就位（D-209）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
 
 
