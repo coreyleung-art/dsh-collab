@@ -1968,10 +1968,22 @@ SG_VERBS = {
     "page.set_field":     {"resource": "page",     "action": "write", "resource_from": "view"},
     "page.add_block":     {"resource": "page",     "action": "write", "resource_from": "view"},
     "page.rollback":      {"resource": "page",     "action": "write", "resource_from": "view"},
-    # ── 关系动词：**已注册、默认拒绝**（P3）──
-    "relation.add_edge":  {"resource": "relation", "action": "write"},
-    "relation.remove_edge": {"resource": "relation", "action": "write"},
+    # ── 关系动词（P3）★★ resource_from="graph" ⇒ ACL 粒度到【单图】`relation:<name>` ──
+    "relation.add_edge":  {"resource": "relation", "action": "write", "resource_from": "graph"},
+    "relation.remove_edge": {"resource": "relation", "action": "write", "resource_from": "graph"},
+    "relation.restore_edge": {"resource": "relation", "action": "write", "resource_from": "graph"},
 }
+
+
+def sg_graph_of(target):
+    """★ R4 寻址：`graph:<name>` ⇒ `<name>`。返回 (name, err)。"""
+    t = str(target or "").strip()
+    if not t.startswith("graph:"):
+        return None, "target 须形如 `graph:<name>`，收到 %r" % t[:40]
+    n = t.split(":", 1)[1].strip()
+    if not n or not re.match(r"^[a-z0-9_-]+$", n):
+        return None, "图名不合法（只允许 [a-z0-9_-]+）：%r" % n[:40]
+    return n, None
 
 
 def sg_view_of(target):
@@ -2369,6 +2381,29 @@ class Handler(BaseHTTPRequestHandler):
                     "note": "★ 当前状态由 append-only 历史**重放**得出（不存 current，避免两份真相）。",
                 }, ensure_ascii=False))
                 return
+            if path == "/api/sg-graph":
+                # ★ P3（2026-10-12）：读图档（R4 连线编辑 + 墓碑历史）。只读。
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                gname = ""
+                for kv in q.split("&"):
+                    if kv.startswith("name="):
+                        gname = kv[5:]
+                if not re.match(r"^[a-z0-9_-]+$", gname or ""):
+                    self._send(400, json.dumps({"error": "缺 name= 或名字不合法"}, ensure_ascii=False))
+                    return
+                r = sg_graph_read(gname)
+                doc = r.get("doc") or {"entries": []}
+                st = sg_graph_state(doc)
+                self._send(200, json.dumps({
+                    "name": gname, "key": sg_graph_key(gname),
+                    "readable": r["ok"], "readErr": r.get("err"),
+                    "entries": doc.get("entries") or [],
+                    "edges": sg_graph_edges(doc),
+                    "tombs": [k for k, v in st.items()
+                              if isinstance(v, dict) and not v.get("present") and v.get("edge")],
+                    "note": "★ 边集由 append-only 历史重放得出；★ 删除走墓碑 ⇒ 删过的边仍可回滚。",
+                }, ensure_ascii=False))
+                return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
                 import glob
@@ -2586,6 +2621,12 @@ class Handler(BaseHTTPRequestHandler):
                 self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % verr, t0)
                 return
             resource = "page:%s" % view
+        elif spec.get("resource_from") == "graph":
+            gname, gerr = sg_graph_of(target)
+            if gerr:
+                self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % gerr, t0)
+                return
+            resource = "relation:%s" % gname
         ok, why = sg_check(principal, resource, spec["action"])
         if not ok:
             self._sg_reply(403, principal, verb, "★ 授权拒绝（resource=%s）：%s" % (resource, why), t0)
@@ -2656,7 +2697,32 @@ class Handler(BaseHTTPRequestHandler):
                             "state": sg_page_state(sg_page_read(view)["doc"])})
             return
 
-        # ⑤ 已授权但**尚未实现**的动词 —— 如实报，不假装成功
+        # ⑤ 关系图动词（P3 · R4 连线编辑）
+        if verb in ("relation.add_edge", "relation.remove_edge", "relation.restore_edge"):
+            gname, gerr = sg_graph_of(target)
+            if gerr:
+                self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % gerr, t0)
+                return
+            payload = req.get("payload") or {}
+            edge = payload.get("edge")
+            if not isinstance(edge, dict) or not edge.get("from") or not edge.get("to"):
+                self._sg_reply(400, principal, verb, "缺 payload.edge（且须含 from/to）", t0)
+                return
+            ekey = sg_edge_key(edge)
+            # ★ restore_edge：把某条墓碑边恢复（append 一条 add），**仍不删历史**
+            op = {"relation.add_edge": "add_edge",
+                  "relation.remove_edge": "remove_edge",
+                  "relation.restore_edge": "add_edge"}[verb]
+            entry = {"op": op, "key": ekey, "edge": edge, "via": verb}
+            ok2, why2, ent = sg_graph_write(gname, principal, entry)
+            cur = sg_graph_read(gname)
+            self._sg_reply(200 if ok2 else 502, principal, verb, why2, t0,
+                           {"graph": gname, "edgeKey": ekey, "seq": (ent or {}).get("seq"),
+                            "present": bool((sg_graph_state(cur["doc"]).get(ekey) or {}).get("present")),
+                            "edges": sg_graph_edges(cur["doc"])})
+            return
+
+        # ⑥ 已授权但**尚未实现**的动词 —— 如实报，不假装成功
         self._sg_reply(501, principal, verb,
                        "★ 动词已注册且已授权，但执行体**尚未实现**（后续期逐步落地）⇒ 如实报未实现", t0)
 
