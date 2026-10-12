@@ -1779,6 +1779,103 @@ SG_PROBE_KEY = "data/registry/sg-write-probe"
 #   · ★★ 版本模型：**append-only 历史**（`history[]`，每条带 `seq`）——
 #     回滚不是删历史，而是**追加一条 restore 记录**。⇒ 任何写都可退，且退的过程本身也留痕。
 SG_PAGE_PREFIX = "data/sg-page/"
+# ★★ P3（2026-10-12）：R4 连线编辑 —— 关系图可写，**粒度到「图」**。
+#   · 地址形式：`graph:<name>`，落盘键 `data/sg-graph/<name>`
+#   · ★★ 纪律同 R6：**边的删除走【墓碑】而不是真删** ⇒ 删过的边仍可回滚。
+#     历史 append-only（`entries[]`，每条带 `seq`），边集由历史**重放**得出。
+#   · ★ ACL 资源 = `relation:<graph>` ⇒ 与 R3 同构：**可以只授权某几张图**。
+#     ★★ 真实 `relations` 图（data/blueprint/relations）**不在 grants 里** ⇒ 默认拒绝。
+SG_GRAPH_PREFIX = "data/sg-graph/"
+
+
+def sg_graph_key(name):
+    return SG_GRAPH_PREFIX + name
+
+
+def sg_edge_key(e):
+    """★ 边的身份 = (from, to, type) 三元组。★ 不参与身份的字段变更 ⇒ 视为同一条边的新状态。"""
+    return "%s|%s|%s" % (str(e.get("from") or "").strip(),
+                         str(e.get("to") or "").strip(),
+                         str(e.get("type") or "connects").strip())
+
+
+def sg_graph_read(name):
+    """★ 读图档。★ 三态分开（P2 的教训）：**404 键不存在 = 空图（可写）** · 无 entries = 空图 · 其它 = 真失败。"""
+    url = "http://127.0.0.1:8792/%s" % sg_graph_key(name)
+    try:
+        with urllib.request.urlopen(url, timeout=8) as r:
+            d = json.loads(r.read().decode())
+        v = d.get("value")
+        if isinstance(v, dict) and isinstance(v.get("entries"), list):
+            return {"ok": True, "doc": v}
+        return {"ok": True, "doc": {"entries": []}, "note": "键存在但无 entries ⇒ 视为空图"}
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return {"ok": True, "doc": {"entries": []}, "note": "键不存在 ⇒ 空图（首次写入）"}
+        return {"ok": False, "doc": {"entries": []}, "err": "HTTP %s: %s" % (e.code, e.reason)}
+    except Exception as e:
+        return {"ok": False, "doc": {"entries": []}, "err": "%s: %s" % (type(e).__name__, e)}
+
+
+def sg_graph_state(doc):
+    """★ 由 append-only 历史**重放**出当前边集。
+
+    ★★ 墓碑语义：`add_edge` ⇒ 该边在；`remove_edge` ⇒ 该边**不在**（但历史里留着它的存在与删除记录）。
+      ⇒ 删过的边**可回滚**（再 append 一条 add 即可），且**删除本身也留痕**。
+    """
+    st, unknown = {}, []
+    for h in doc.get("entries") or []:
+        op = h.get("op")
+        if op in ("add_edge", "remove_edge"):
+            st[h.get("key")] = {"present": op == "add_edge", "edge": h.get("edge"),
+                                "seq": h.get("seq"), "at": h.get("at"), "by": h.get("by")}
+        elif op == "restore_edge":
+            st[h.get("key")] = {"present": bool(h.get("present")), "edge": h.get("edge"),
+                                "seq": h.get("seq"), "at": h.get("at"), "by": h.get("by")}
+        else:
+            unknown.append(op)
+    if unknown:
+        st["__unknown_ops__"] = {"present": False, "edge": None,
+                                 "seq": None, "at": None, "by": None,
+                                 "note": "★ 未识别的 op：%s（不静默跳过）" % sorted(set(map(str, unknown)))}
+    return st
+
+
+def sg_graph_edges(doc):
+    """★ 重放后**仍在的边**（`present=True` 的那些）。"""
+    st = sg_graph_state(doc)
+    return [v["edge"] for k, v in st.items()
+            if isinstance(v, dict) and v.get("present") and v.get("edge")]
+
+
+def sg_graph_write(name, principal, entry):
+    """★ 追加一条历史（只增不改）并回读断言。"""
+    cur = sg_graph_read(name)
+    if not cur["ok"]:
+        return False, "读图档失败：%s" % cur.get("err"), None
+    doc = cur["doc"]
+    ents = doc.get("entries") or []
+    entry = dict(entry)
+    entry["seq"] = len(ents) + 1
+    entry["at"] = datetime.datetime.now().isoformat()
+    entry["by"] = principal
+    ents.append(entry)
+    doc["entries"] = ents
+    doc["name"] = name
+    try:
+        body = json.dumps(doc, ensure_ascii=False).encode()
+        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_graph_key(name),
+                                    data=body, method="PUT",
+                                    headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(rq, timeout=8) as r:
+            r.read()
+        back = sg_graph_read(name)
+        n = len((back.get("doc") or {}).get("entries") or [])
+        if n != len(ents):
+            return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(ents), n), None
+        return True, "已追加 seq=%d 并回读（entries=%d 条）" % (entry["seq"], n), entry
+    except Exception as e:
+        return False, "写图档失败：%s: %s" % (type(e).__name__, e), None
 
 
 def sg_page_key(view):
