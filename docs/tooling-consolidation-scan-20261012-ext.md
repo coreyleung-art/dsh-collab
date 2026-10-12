@@ -157,7 +157,7 @@ cd /Users/coreyleung/dsh-collab
 
 # 1. 重复度（§二 全部数字）
 ls -1 tools/*.py | wc -l
-for p in 'lean4-check' 'selftest' 'def check(' ; do printf '%-14s %s\n' "$p" "$(grep -l "$p" tools/*.py | wc -l)"; done
+for p in 'lean4-check' 'selftest' 'def check(' ; do printf '%-14s %s\n' "$p" "$(grep -l "$p" tools/*.py | wc -l)"; done   # 期望 9 / 26 / 9
 for s in mutation lint gate check guard release; do printf '%-9s %s\n' "$s" "$(ls -1 tools/ | grep -c -- "-$s")"; done
 
 # 2. 两个「已存在却未接线」的通用机制
@@ -170,7 +170,7 @@ import json,urllib.request
 for t,b in (('local','http://127.0.0.1:8792'),('central','http://xingqiao.meetfunbp.com:8792')):
     d=json.loads(urllib.request.urlopen(b+'/data/registry/continuity-index',timeout=30).read().decode())
     v=d['value']
-    mine=sum(1 for e in v.get('evidence_index',[]) if e.startswith(('docs/xdom-index/','docs/xdom-outbox/20261012-ext-reply','docs/ext-open-work','blackboard:data/registry/xdom-directory')))
+    mine=sum(1 for e in v.get('evidence_index',[]) if e.startswith(('docs/xdom-index/','blackboard:data/registry/xdom-directory','docs/xdom-outbox/20261012-ext-reply','docs/review-m4-domain-20261012-ext','docs/comm-forms-three-way-evaluation','docs/ext-open-work')))
     print(t,'板 v=',d.get('version'),'我的字段=',('_ext_xdom_index_sync_note' in v),'我的条目=',str(mine)+'/10')
 "
 # ★ 期望：两板均 我的字段=True · 我的条目=10/10
@@ -178,6 +178,21 @@ for t,b in (('local','http://127.0.0.1:8792'),('central','http://xingqiao.meetfu
 # 4. 事故件（164 个文件的代价）
 sed -n '1,20p' docs/incident-and-handoff-20261012-scripts-loss.md
 ```
+
+---
+
+## 八之二、★★ 本件自身的两处自曝（★ 跑了一遍复跑块才抓到）
+
+★ 我把 §八 的复跑块**真跑了一遍**，✓ 抓到**我自己**两处「**判据与正文对不上**」：
+
+1. ★ 表格原写 `def check(` = **12** —— ★ 而**带左括号**的实测是 **9**（12 是**更宽**口径 `def check` 含 `check_*` 的数）。
+   ⇒ ★ **数与命令对不上**（★ 同族：**判据的对象取错了**）。★ 已改：一律用 **9** 并注明口径。
+2. ★ 复跑块第 3 步的前缀元组**少写两项**（漏了 `docs/review-m4-domain-20261012-ext` 与
+   `docs/comm-forms-three-way-evaluation`）⇒ ★ 跑出来是 **8/10**，★ **看起来像「我的条目掉了两条」**
+   —— ★ 而我当时**正在**用这条命令验证「丢失更新有没有复发」⇒ ★★ **一条会误报坏消息的判据**。
+   ★ 已补齐 ⇒ 复跑得 **10/10**。
+
+★★ **这两处若没跑一遍就发出去，本件就会变成「我指责别人判据取错对象、而我自己也取错」的实例。**
 
 ---
 
