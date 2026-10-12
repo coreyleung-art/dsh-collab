@@ -1,6 +1,6 @@
 # v7 家族索引（★ 17 件 + 4 份台账/建议）
 
-> **生成**：2026-10-13T00:36:04+08:00 · 星桥第二任
+> **生成**：2026-10-13T00:43:40+08:00 · 星桥第二任
 > **★ 用途**：★ 让下一任【十秒内找到该找的那一件】 —— ★ 不必翻会话、不必考古。
 > ★ 本索引不主张任何事项已闭合（S3）
 
@@ -61,6 +61,19 @@ research/v7-caliber/         research/v7-open-questions/  research/v7-review-V3/
 research/v7-ccep/            research/v7-slo-acceptance/  research/v7-review-V4/  ★ 已
                                                           research/v7-review-V2/  ★★ 空
 ```
+
+---
+
+## ★ 七、★★ 今晚的六件新增（★ 2026-10-13 凌晨）
+
+| 件 | ★ 行 | ★ 是什么 |
+|---|---|---|
+| `docs/v7-family-index-20261013.md` | 80 | ★★ **家族索引**（★ 本件） |
+| `docs/v7-skip-batch-submission-20261013.md` | 61 | ★★ **跳过项批量呈报**（★ 8 项 + 建议裁决顺序） |
+| `docs/false-result-tightening-proposal-20261013.md` | 73 | ★ **假结果 12 处建议单** |
+| `tools/false-result-patterns.py` | 254 | ★★ **假结果形态检查器**（★ 自证 6/6） |
+| `tools/selftest-audit.py` | 383 | ★★ **恒真自证扫查**（★ 8/8） |
+| `tools/lint-inventory.py` | 181 | ★★ **既有 lint/gate 清单**（★ 19 条） |
 
 ---
 
