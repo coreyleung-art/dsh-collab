@@ -21,7 +21,7 @@
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
-import argparse, json, urllib.request, datetime, html, os, math, re, sys, time, threading
+import argparse, json, urllib.request, datetime, html, os, math, re, sys, time, threading, subprocess
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BB = "http://127.0.0.1:8792"
@@ -1955,6 +1955,90 @@ def sg_page_state(doc):
 SGW_LOCK = threading.Lock()
 
 
+# ══════════ ★ P5.0（2026-10-12 明鉴）：反向指导 · 属主存活校验 ══════════
+# ★★ 为什么这是 P5 的【地基】而不是可选（本线实测）：
+#   反向派发要复用的那条派生通道，其消费方现在是【死会话】——
+#   `event-bus` 的 PENDING 全部指向 `session-fa1f9150-c94`（首任星桥，2026-10-09 因 P26 bricked），
+#   而 `~/.dsh/agent-role-map.json` 里含该 id 的次数 = 0（已从角色映射移除），且 pending 仍在累积。
+#   ⇒ ★ **在这个状态下做 P5，每派发一次就是往黑洞发一次** —— 是 11.5h 互等事故的加强版
+#     （那次至少有人等，这次连收件人都不存在）。
+#
+# ★ 实现选择（J44：复用优先）：**不另造存活源**，复用 `xingduo-wake.py` v5 的两件：
+#   ① `find_agent_bus_port()` —— ★ **动态探测**（v3 写死 61698 ⇒ CLD 重启端口漂移 ⇒ 投递静默失效数日）
+#   ② `target_live(port)` —— `agents[].id` **成员资格**；★ **查询失败保守返回 False**
+#      （原注释逐字：「宁漏一轮不刷死会话」）
+#
+# ★★ 本实现的两条纪律：
+#   ① **fail-closed**：探测失败 / 端口找不到 / 解析异常 ⇒ **一律判「不存活」⇒ 挂起**
+#      （绝不「因为查不到所以放行」）
+#   ② **存活判定不缓存**：每次现查（存活列表随时会变；缓存会把「刚死」当「还活着」）
+#      ★ 只有【端口】缓存 30s —— 端口在 CLD 生命周期内稳定，但重启会漂移，故不能永久缓存。
+SG_BUS_PORT_CACHE = {"port": None, "at": 0.0}
+
+
+def sg_find_bus_port(force=False):
+    """★ 动态探测 agent-bus 端口。★ 探测失败返回 None（调用方须按 fail-closed 处理）。"""
+    now = time.time()
+    c = SG_BUS_PORT_CACHE
+    if not force and c["port"] and (now - c["at"]) < 30:
+        return c["port"]
+    ports = set()
+    try:
+        r = subprocess.run(["/usr/sbin/lsof", "-nP", "-iTCP", "-sTCP:LISTEN"],
+                           capture_output=True, text=True, timeout=10)
+        for line in r.stdout.splitlines():
+            m = re.search(r"CLD.*?127\.0\.0\.1:(\d+)", line)
+            if m:
+                ports.add(int(m.group(1)))
+    except Exception as e:
+        sys.stderr.write("⚠️ sg_find_bus_port: lsof 失败 %s\n" % e)
+        return None
+    for p in sorted(ports):
+        try:
+            req = urllib.request.Request("http://127.0.0.1:%d/agent-bus/api/state" % p, method="GET")
+            with urllib.request.urlopen(req, timeout=3) as resp:
+                if resp.status == 200:
+                    resp.read(64)
+                    c["port"], c["at"] = p, now
+                    return p
+        except Exception:
+            continue
+    return None
+
+
+def sg_live_agents():
+    """★ 返回当前存活会话 id 集合。★ 拿不到 ⇒ 返回 (None, 原因) —— **不可判，不是空集**。
+    ★★ 三态纪律：「拿不到」与「一个都没有」必须分开（本晚反复的同一件事）。"""
+    port = sg_find_bus_port()
+    if port is None:
+        return None, "bus 端口探测失败（CLD 未运行或端口漂移）"
+    try:
+        req = urllib.request.Request("http://127.0.0.1:%d/agent-bus/api/state" % port, method="GET")
+        with urllib.request.urlopen(req, timeout=6) as r:
+            data = json.loads(r.read().decode())
+        agents = data.get("agents") or []
+        ids = {a.get("id") for a in agents if isinstance(a, dict) and a.get("id")}
+        return ids, None
+    except Exception as e:
+        return None, "%s: %s" % (type(e).__name__, e)
+
+
+def sg_owner_alive(session_id):
+    """★ P5.0 核心：属主是否存活。★ 返回 (alive: bool, reason: str, live_count: int|None)。
+
+    ★★ fail-closed：拿不到存活列表 ⇒ **alive=False**（挂起），**不是**「不详就放行」。
+    """
+    if not session_id or not str(session_id).strip():
+        return False, "未提供 owner", None
+    sid = str(session_id).strip()
+    ids, err = sg_live_agents()
+    if ids is None:
+        return False, "★ 存活列表不可判 ⇒ fail-closed 判「不存活」：%s" % err, None
+    if sid in ids:
+        return True, "在存活列表内（共 %d 个会话）" % len(ids), len(ids)
+    return False, "★ 不在存活列表内（共 %d 个会话）⇒ 挂起 + 告警" % len(ids), len(ids)
+
+
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
     """★ P4 · R8（2026-10-12）：乐观锁 —— **并发互斥的机械保证**。
 
@@ -2500,6 +2584,22 @@ class Handler(BaseHTTPRequestHandler):
                     "tombs": [k for k, v in st.items()
                               if isinstance(v, dict) and not v.get("present") and v.get("edge")],
                     "note": "★ 边集由 append-only 历史重放得出；★ 删除走墓碑 ⇒ 删过的边仍可回滚。",
+                }, ensure_ascii=False))
+                return
+            if path == "/api/sg-owner-check":
+                # ★ P5.0（2026-10-12）：属主存活校验（只读）。★ fail-closed。
+                #   ★ 三态分列：alive=true / alive=false / liveUnavailable（拿不到存活列表 ⇒ 不可判）
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                owner = ""
+                for kv in q.split("&"):
+                    if kv.startswith("owner="):
+                        owner = kv[6:]
+                alive, why, n = sg_owner_alive(owner)
+                self._send(200, json.dumps({
+                    "owner": owner, "alive": alive, "reason": why,
+                    "liveCount": n, "verdict": ("可派发" if alive else "挂起+告警"),
+                    "note": "★ fail-closed：拿不到存活列表 ⇒ 判「不存活」（挂起），绝不「因为查不到所以放行」。"
+                            "★ 存活判定不缓存；只有 bus 端口缓存 30s（重启会漂移）。",
                 }, ensure_ascii=False))
                 return
             if path == "/api/overview":
