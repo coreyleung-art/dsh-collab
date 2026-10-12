@@ -20,3 +20,25 @@ Traceback (most recent call last):
   File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 641, in http_error_default
     raise HTTPError(req.full_url, code, msg, hdrs, fp)
 urllib.error.HTTPError: HTTP Error 401: Unauthorized
+Traceback (most recent call last):
+  File "/Users/coreyleung/dsh-collab/scripts/bb-request-watch.py", line 170, in <module>
+    main()
+  File "/Users/coreyleung/dsh-collab/scripts/bb-request-watch.py", line 163, in main
+    set_watermark(c["key"], c["version"])
+  File "/Users/coreyleung/dsh-collab/scripts/bb-request-watch.py", line 99, in set_watermark
+    put(WM_NS, {"wm": wm, "ts": datetime.datetime.now().isoformat(timespec="seconds")})
+  File "/Users/coreyleung/dsh-collab/scripts/bb-request-watch.py", line 89, in put
+    with urllib.request.urlopen(req, timeout=6) as r:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 214, in urlopen
+    return opener.open(url, data, timeout)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 523, in open
+    response = meth(req, response)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 632, in http_response
+    response = self.parent.error(
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 561, in error
+    return self._call_chain(*args)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 494, in _call_chain
+    result = func(*args)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/urllib/request.py", line 641, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 401: Unauthorized

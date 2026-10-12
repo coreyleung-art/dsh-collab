@@ -10563,6 +10563,20 @@
    "category": "paper"
   },
   {
+   "file": "v7-progress-table-20261012.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/v7-progress-table-20261012.md",
+   "line": 13,
+   "text": "| **①** | M6 门负控真化 | ★ **部分完成** | ★ **`gcr-gate` 已修**：5 条恒真负例 → **8 条真负控/反控**（★ 可信负控 0→3 · ★ 造坏已验证能红）· D-212",
+   "category": "paper"
+  },
+  {
+   "file": "v7-progress-table-20261012.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/v7-progress-table-20261012.md",
+   "line": 20,
+   "text": "★ **`bus-pending-age.py` 已建**（★ 把「expired 告警」判据做成可跑门）· D-219",
+   "category": "paper"
+  },
+  {
    "file": "server-change-window-plan-20261002.md",
    "path": "/Users/coreyleung/dsh-collab/docs/server-change-window-plan-20261002.md",
    "line": 26,
@@ -38397,6 +38411,6 @@
  ],
  "summary": {
   "structural": 728,
-  "paper": 4830
+  "paper": 4832
  }
 }
