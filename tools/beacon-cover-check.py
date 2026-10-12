@@ -249,14 +249,27 @@ def selftest(now=None) -> int:
 
     # C2 正例 / 负例
     cases.append(("C2 正例：规范且未超前", c2_timestamp(_fixture(), now)["verdict"], "PASS"))
-    cases.append(("C2 负控：未来时间戳 ⇒ 必红",
-                  c2_timestamp(_fixture(updated_at="2026-10-11T00:20:00+08:00"), now)["verdict"], "FAIL"))
+    # ★★★ 2026-10-12 修（D-225，★ 本门自证自己抓到的）：
+    #   ★ 旧版负控把时间戳【硬编码】为 `2026-10-11T00:20:00+08:00` —— ★ 写它【当时】确实是未来；
+    #   ★★ 而 `now` 是【运行时取的】⇒ 到 2026-10-12 该时间已成【过去】⇒ 判 PASS（★ 而那是对的）
+    #      ⇒ **负控随时间失效** ⇒ 本门自证报 `14/15`。
+    #   ★★★ 修法：负控时间戳【相对于 now 生成】，不再硬编码。
+    _ahead = (now + dt.timedelta(hours=3)).isoformat(timespec="seconds")
+    cases.append(("C2 负控：未来时间戳（now+3h）⇒ 必红",
+                  c2_timestamp(_fixture(updated_at=_ahead), now)["verdict"], "FAIL"))
     cases.append(("C2 负控：偏移缺冒号 ⇒ 必红",
                   c2_timestamp(_fixture(updated_at="2026-10-10T07:00:00+0800"), now)["verdict"], "FAIL"))
     cases.append(("C2 负控：缺时区 ⇒ 必红",
                   c2_timestamp(_fixture(updated_at="2026-10-10T07:00:00"), now)["verdict"], "FAIL"))
     cases.append(("C2 负控：缺字段 ⇒ 必红",
                   c2_timestamp({k: v for k, v in _fixture().items() if k != "updated_at"}, now)["verdict"], "FAIL"))
+    # ★★ 新增正控：同一时间戳在【不同的 now】下判定必须相反（★ 证明这是真判据、不是恒真）
+    #   ★ 即：t 在 now 之后 ⇒ FAIL；t 在 now 之前 ⇒ PASS
+    _t = (now + dt.timedelta(hours=1)).isoformat(timespec="seconds")
+    cases.append(("C2 正控：同一时间戳 · now 提前 ⇒ 必红",
+                  c2_timestamp(_fixture(updated_at=_t), now)["verdict"], "FAIL"))
+    cases.append(("C2 正控：同一时间戳 · now 推后 ⇒ 必绿",
+                  c2_timestamp(_fixture(updated_at=_t), now + dt.timedelta(hours=2))["verdict"], "PASS"))
 
     # C3 正例 / 负例
     cases.append(("C3 正例：closed 均有 verifier", c3_verifier(_fixture())["verdict"], "PASS"))
