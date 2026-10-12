@@ -706,6 +706,14 @@
    "hits": 0,
    "note": "",
    "at": "2026-10-13T01:20:55"
+  },
+  {
+   "intent": "把多端版本管理+发布门禁编排做成插件（sysgraph release plugin）",
+   "artifact": "dsh-plugin-sysgraph-release",
+   "verdict": "adapt",
+   "hits": 2,
+   "note": "★ 裁决=adapt（不新建，改造已有）：本机【已有完整体系】——~/system-graph-app/scripts/sysgraph-version.sh（227 行，check/release/status + 我 2026-10-13 加的内容指纹/不可判态/rsync+失败即停）+ VERSION-MANIFEST.md（四处版本台账）+ 三闸发布门禁（bb-gallery-gate.sh / bb-blueprint-content-check.py / bb-blueprint-integrity.py）。⇒ 本插件【不新造版本管理逻辑】，而是把【已跑通的过程】封装为 R006 十项达标插件（P2 形态 + 工具 + CLI）。★ 两条 S5 命中（mbp-release-officer-registered / self-report-release-hold-violation）经查均为【黑板事件卡】（发布相关的事件留痕），非可复用工具 ⇒ 不构成重叠。★ 实证：v1.5.0 已由该脚本成功发布（check exit=0 · 四处一致 · 内容指纹 3dd1e99951e7a1be）。",
+   "at": "2026-10-13T03:21:18"
   }
  ]
 }
