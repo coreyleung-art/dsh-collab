@@ -352,10 +352,21 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
             check(f"{it['id']} 证据指针可解", True)
 
     # ---- 6. dod 全文表：缺席必须**显式**，不能是"看起来有"
+    # ★★ 2026-10-12（v7 更正账 / W4 发现）：本条【判据不误】，但【PASS 文案曾自欺】——
+    #   ★ 旧文案只说「缺席是显式声明的」⇒ ★★ 读者会读成「dod 没问题」，
+    #   而实情是 **`full_table` 本来就缺席** ⇒ 「有多少项有 DoD」是【不可判】。
+    #   ⇒ 修法：PASS 时【必须明写它当前是缺席还是在位】，让读者一眼看到实情。
     dod = (idx.get("dod") or {}).get("full_table")
-    check("dod.full_table 的缺席是显式声明的",
-          (dod is not None) or bool((idx.get("dod") or {}).get("_status")),
-          "既没内容也没缺席声明 ⇒ 读者会以为它有")
+    dod_declared = bool((idx.get("dod") or {}).get("_status"))
+    if dod is not None:
+        check("dod.full_table 缺席是显式声明的", True, "★ 全文表【在位】")
+    elif dod_declared:
+        check("dod.full_table 缺席是显式声明的", True,
+              "★★ 注意：**`full_table` 当前【缺席】**，仅有显式缺席声明 ⇒ "
+              "★ 「有多少项有 DoD」**不可判**，★ 不得读作「DoD 齐备」")
+    else:
+        check("dod.full_table 缺席是显式声明的", False,
+              "既没内容也没缺席声明 ⇒ 读者会以为它有")
 
     # ---- 7. 自检覆盖缺口（B10 = P27 族）：以下三条**此前全无**，
     #         故「校验全绿而事实已变」在本台上曾结构性地看不见（本线 2026-10-10 实测）。
@@ -744,6 +755,11 @@ def main():
     ap.add_argument("--accept-shrink", action="store_true",
                     help="显式接受索引体量骤降（推进守恒基线）；不确认就别用，红线是刻意的")
     ap.add_argument("--selftest", action="store_true")
+    # ★★ 2026-10-12（v7 更正账 / W1 发现）：`PEND`/`SKIP` 此前【只打印、不进退出码】
+    #   ⇒ ★ 在脚本化场景（`beacon-check || exit`）下被【静默忽略】——★ 即「越严重的项越不报警」。
+    #   ⇒ 修法：加 `--strict`，使 PEND/SKIP 也导致非零退出。★ 默认行为不变（向后兼容）。
+    ap.add_argument("--strict", action="store_true",
+                    help="把 PEND/SKIP 也算作非零退出（★ 供 hook/CI 用；默认只算 FAIL）")
     a = ap.parse_args()
 
     if a.selftest:
@@ -765,6 +781,10 @@ def main():
 
     rc = run(ROOT, net=a.net, accept_shrink=a.accept_shrink)
     print()
+    # ★★ 2026-10-12（D-213）：`--strict` 下 PEND/SKIP 也算非零退出
+    #   ★ 立据：旧行为下 `PEND 1` 而 `exit=0` ⇒ 脚本化时被静默忽略。
+    if a.strict and rc == 0 and (PENDING or SKIPPED):
+        rc = 1
     bad = [r for r in RESULTS if not r[2] and r[0] == "FAIL"]
     warn = [r for r in RESULTS if not r[2] and r[0] == "WARN"]
     tail = f"（{len(warn)} 条 WARN，{len(SKIPPED)} 条 SKIP，{len(PENDING)} 项待复核）"
