@@ -294,8 +294,13 @@ def main():
     if a.selftest:
         return selftest()
     roots = a.root or ["tools", "scripts", "docs"]
-    hits = audit([r for r in roots if r != "docs"]) + audit_md([r for r in roots if r != "docs"] or ["docs"])
-    files = discover(roots)
+    # ★★ 2026-10-13 修（D-259）：原写 `[r for r in roots if r != "docs"] or ["docs"]`
+    #   ⇒ 左边非空（tools/scripts）⇒ **`or` 永不生效** ⇒ `audit_md` 扫错面 ⇒ **P6 永远 0 命中**。
+    #   ★ 修法：py 面与 md 面分别定。
+    py_roots = [r for r in roots if r != "docs"] or ["tools", "scripts"]
+    md_roots = [r for r in roots] if a.root else ["docs"]
+    hits = audit(py_roots) + audit_md(md_roots)
+    files = discover(py_roots) + [p for p in discover(md_roots) if p.endswith(".md")]
     if a.json:
         print(json.dumps({"scanned": len(files), "hits": hits}, ensure_ascii=False, indent=1))
         return 0
