@@ -48,6 +48,32 @@ def classify(name):
     return "unknown:" + n
 
 
+def parse_source(s):
+    """★★ 修（2026-10-12，★ 由 session-c05b831c 指出架构漏洞）：
+    ★ 来源可写成 `type@method`（如 `own-extraction@grep-A`）。
+    ★ 为什么：★★ **旧接口靠调用方【声明】同法**（布尔旗标）—★
+    ★ **而调用方不声明，工具就按 n=2 计** ⇒ 无法阻止「同法两次被记作两源」。
+    ★★ 新接口：★ **方法标识写在源里**，工具**自己看它重不重** —★ 不接受空口声明。
+    """
+    if "@" in (s or ""):
+        t, _, meth = s.partition("@")
+        return t, meth
+    return s, ""
+
+
+def dedupe_by_method(sources):
+    """★★★ 同【方法标识】只算一条（★ 即使来源类型不同）"""
+    seen, kept, dropped = set(), [], []
+    for s in sources:
+        t, m = parse_source(s)
+        if m:
+            if m in seen:
+                dropped.append(s); continue
+            seen.add(m)
+        kept.append(s)
+    return kept, dropped
+
+
 def count_independent(sources):
     """★ 返回 (n, 明细)。n = 【假设类】的种数（不是来源个数）"""
     classes = {}
@@ -57,6 +83,12 @@ def count_independent(sources):
 
 
 def verdict(sources, method=None):
+    # ★★★ 修（★ 由 session-c05b831c 指出）：**先按【方法标识】去重** —★
+    #   ★ 旧接口只能靠调用方声明同法（布尔旗标）；**而不声明时工具就按 n=2 计**。
+    #   ★★ 现在：来源写成 `type@method` ⇒ 工具**自己看方法标识重不重**。
+    sources, _dropped_methods = dedupe_by_method(sources or [])
+    if _dropped_methods:
+        method = dict(method or {}); method["deduped"] = _dropped_methods
     """★★ 新增（2026-10-12，★ 由 session-c05b831c 建议）：【同法两次 ⇒ n 不增】
     ★ 理由：★ 同法两次，**来源数仍是 1** —★ 与「判据的独立来源数 n」**同一把尺**。
     ★ 两次结果一致时，若**方法标识相同** ⇒ 该结果不计入证据数。
@@ -227,6 +259,11 @@ def selfcheck():
                     {"claim": "B", "falsifier": "R-1"}])["verdict"] == "OVERREPORTED")
     t("⑥i 无声称 ⇒ UNSTATED（★ 不得读作合格）",
       check_errors([])["verdict"] == "UNSTATED")
+    # ★★★ 新增（★ 由 session-c05b831c 指出架构漏洞）：源里的方法标识相同 ⇒ 去重
+    t("⑥j 【同方法标识】的两来源 ⇒ 自动去重（★ 无需声明）",
+      verdict(["own-extraction@grep-A", "git@grep-A"])["verdict"] == "NOT_EVIDENCE")
+    t("⑥k 不同方法标识 ⇒ 不去重（★ 仍可作证据）",
+      verdict(["own-extraction@grep-A", "git@grep-B"])["verdict"] == "EVIDENCE")
     t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
       ("--n" not in _code) and ("add_argument('n'" not in _code) and ("add_argument(\"n\"" not in _code))
     print("\n== 负控 %d/%d ==" % (ok, tot))
