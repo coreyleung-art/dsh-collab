@@ -17761,7 +17761,14 @@
   {
    "file": "deviation-ledger-20261011.md",
    "path": "/Users/coreyleung/dsh-collab/docs/deviation-ledger-20261011.md",
-   "line": 6150,
+   "line": 6297,
+   "text": "★ 并建议加一条**负控**：★ 造一个 `acquiredAt` 为 `dict` 的样本 ⇒ **必须不崩**。 |",
+   "category": "paper"
+  },
+  {
+   "file": "deviation-ledger-20261011.md",
+   "path": "/Users/coreyleung/dsh-collab/docs/deviation-ledger-20261011.md",
+   "line": 6305,
    "text": "*本台账只增不改。★ **任何 `closed` 状态必须附独立 verifier**（S3 不可自审）。*",
    "category": "paper"
   },
@@ -38390,6 +38397,6 @@
  ],
  "summary": {
   "structural": 728,
-  "paper": 4829
+  "paper": 4830
  }
 }
