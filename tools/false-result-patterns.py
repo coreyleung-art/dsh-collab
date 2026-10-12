@@ -278,7 +278,7 @@ def selftest():
 def scan_file_text(src):
     """★ 供自证用：直接扫一段源码文本。"""
     code = strip_docstrings(src)
-    return [1 for _c, _h, _w, rx in CHECKS if rx.search(code)]
+    return [1 for _c, _h, _w, rx in CHECKS if rx is not None and rx.search(code)]
 
 
 def main():
