@@ -21,7 +21,7 @@
 """
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
-import argparse, json, urllib.request, datetime, html, os, math, re, sys, time
+import argparse, json, urllib.request, datetime, html, os, math, re, sys, time, threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BB = "http://127.0.0.1:8792"
@@ -1848,36 +1848,49 @@ def sg_graph_edges(doc):
             if isinstance(v, dict) and v.get("present") and v.get("edge")]
 
 
-def sg_graph_write(name, principal, entry):
-    """★ 追加一条历史（只增不改）并回读断言。"""
-    cur = sg_graph_read(name)
-    if not cur["ok"]:
-        return False, "读图档失败：%s" % cur.get("err"), None
-    doc = cur["doc"]
-    ents = doc.get("entries") or []
-    entry = dict(entry)
-    entry["seq"] = len(ents) + 1
-    entry["at"] = datetime.datetime.now().isoformat()
-    entry["by"] = principal
-    ents.append(entry)
-    doc["entries"] = ents
-    doc["name"] = name
-    try:
-        body = json.dumps(doc, ensure_ascii=False).encode()
-        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_graph_key(name),
-                                    data=body, method="PUT",
-                                    headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(rq, timeout=8) as r:
-            r.read()
-        back = sg_graph_read(name)
-        n = len((back.get("doc") or {}).get("entries") or [])
-        if n != len(ents):
-            return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(ents), n), None
-        sg_register_watch(sg_graph_key(name))         # ★ R5：登记监听 ⇒ 写后版本可 bump
-        return True, "已追加 seq=%d 并回读（entries=%d 条）" % (entry["seq"], n), entry
-    except Exception as e:
-        return False, "写图档失败：%s: %s" % (type(e).__name__, e), None
+def sg_graph_write(name, principal, entry, expected_seq=None):
+    """★★ P4（R8）：**读 → 校验 expected_seq → 追加 → PUT → 回读** 整段在同一把锁内。
 
+    ★ 为什么不能只靠外部门禁（实测）：门禁读 seq 与写函数再读 seq 之间**没有原子性**
+      ⇒ 两个并发写都读到 5、都通过 ⇒ **双写都成功且都报 seq=6**（TOCTOU 竞态）。
+    ⇒ 修：把权威校验放进锁内。★ 外部门禁保留为**快速失败**（少一次网络），但**不作数**。
+    ★ 返回 (ok, reason, entry, conflict)；conflict 非空 ⇒ 应回 409。
+    """
+    with SGW_LOCK:
+        cur = sg_graph_read(name)
+        if not cur["ok"]:
+            return False, "读图档失败：%s" % cur.get("err"), None, None
+        doc = cur["doc"]
+        ents = doc.get("entries") or []
+        actual = len(ents)
+        if expected_seq is not None and int(expected_seq) != actual:
+            return False, ("★ 冲突：expected_seq=%s 但当前为 %s ⇒ 请取新 seq 后重试"
+                           % (expected_seq, actual)), None, {
+                "conflict": {"expected": int(expected_seq), "actual": actual},
+                "targetKind": "graph", "targetName": name,
+                "current": sg_graph_edges(doc)}
+        entry = dict(entry)
+        entry["seq"] = actual + 1
+        entry["at"] = datetime.datetime.now().isoformat()
+        entry["by"] = principal
+        ents.append(entry)
+        doc["entries"] = ents
+        doc["name"] = name
+        try:
+            body = json.dumps(doc, ensure_ascii=False).encode()
+            rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_graph_key(name),
+                                        data=body, method="PUT",
+                                        headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(rq, timeout=8) as r:
+                r.read()
+            back = sg_graph_read(name)
+            n = len((back.get("doc") or {}).get("entries") or [])
+            if n != len(ents):
+                return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(ents), n), None, None
+            sg_register_watch(sg_graph_key(name))
+            return True, "已追加 seq=%d 并回读（entries=%d 条）" % (entry["seq"], n), entry, None
+        except Exception as e:
+            return False, "写图档失败：%s: %s" % (type(e).__name__, e), None, None
 
 def sg_page_key(view):
     return SG_PAGE_PREFIX + view
@@ -1929,6 +1942,17 @@ def sg_page_state(doc):
         # ★ 不静默：把没识别的 op 挂到 state 上让人看得见
         st["__unknown_ops__"] = sorted(set(str(u) for u in unknown))
     return st
+
+
+# ★★★ P4 · R8（2026-10-12）：**写串行锁**。
+#   ★ 为什么必须有（实测）：第一版把乐观锁做成「门禁先读 seq → 写函数再读一次 → PUT」，
+#     而**两次读之间没有原子性** ⇒ 两个并发写都读到 seq=5、都通过门禁、然后各自追加
+#     ⇒ **双写都成功且都报 seq=6**（一个覆盖另一个）。这是典型的 **TOCTOU（检查时/使用时）竞态**。
+#   ⇒ 修：把「读 → 校验 expected_seq → 追加 → PUT → 回读」**整段放进同一把锁**。
+#   ★ 边界（如实说）：`threading.Lock` 只保证**同一进程内**串行。
+#     本服务是 ThreadingHTTPServer（多线程、单进程）⇒ 够用；
+#     ★ 若将来起**多个后端进程**，这把锁不够，需换成跨进程互斥（如文件锁）。
+SGW_LOCK = threading.Lock()
 
 
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
@@ -1995,38 +2019,46 @@ def sg_register_watch(key):
         return False
 
 
-def sg_page_write(view, principal, entry):
-    """★ 追加一条历史（**只增不改**）并回读断言。"""
-    cur = sg_page_read(view)
-    if not cur["ok"]:
-        return False, "读页面档失败：%s" % cur.get("err"), None
-    doc = cur["doc"]
-    hist = doc.get("history") or []
-    entry = dict(entry)
-    entry["seq"] = len(hist) + 1
-    entry["at"] = datetime.datetime.now().isoformat()
-    entry["by"] = principal
-    hist.append(entry)
-    doc["history"] = hist
-    doc["view"] = view
-    try:
-        body = json.dumps(doc, ensure_ascii=False).encode()
-        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_page_key(view),
-                                    data=body, method="PUT",
-                                    headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(rq, timeout=8) as r:
-            r.read()
-        # ★ 回读断言（不只信 PUT 返回）
-        back = sg_page_read(view)
-        n = len((back.get("doc") or {}).get("history") or [])
-        if n != len(hist):
-            return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(hist), n), None
-        sg_register_watch(sg_page_key(view))          # ★ R5：登记监听 ⇒ 写后版本可 bump
-        return True, "已追加 seq=%d 并回读（history=%d 条）" % (entry["seq"], n), entry
-    except Exception as e:
-        return False, "写页面档失败：%s: %s" % (type(e).__name__, e), None
+def sg_page_write(view, principal, entry, expected_seq=None):
+    """★★ P4（R8）：同 sg_graph_write —— **整段读-校验-写在同一把锁内**。
+    ★ 返回 (ok, reason, entry, conflict)；conflict 非空 ⇒ 应回 409。
+    """
+    with SGW_LOCK:
+        cur = sg_page_read(view)
+        if not cur["ok"]:
+            return False, "读页面档失败：%s" % cur.get("err"), None, None
+        doc = cur["doc"]
+        hist = doc.get("history") or []
+        actual = len(hist)
+        if expected_seq is not None and int(expected_seq) != actual:
+            return False, ("★ 冲突：expected_seq=%s 但当前为 %s ⇒ 请取新 seq 后重试"
+                           % (expected_seq, actual)), None, {
+                "conflict": {"expected": int(expected_seq), "actual": actual},
+                "targetKind": "page", "targetName": view,
+                "current": sg_page_state(doc)}
+        entry = dict(entry)
+        entry["seq"] = actual + 1
+        entry["at"] = datetime.datetime.now().isoformat()
+        entry["by"] = principal
+        hist.append(entry)
+        doc["history"] = hist
+        doc["view"] = view
+        try:
+            body = json.dumps(doc, ensure_ascii=False).encode()
+            rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_page_key(view),
+                                        data=body, method="PUT",
+                                        headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(rq, timeout=8) as r:
+                r.read()
+            back = sg_page_read(view)
+            n = len((back.get("doc") or {}).get("history") or [])
+            if n != len(hist):
+                return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(hist), n), None, None
+            sg_register_watch(sg_page_key(view))
+            return True, "已追加 seq=%d 并回读（history=%d 条）" % (entry["seq"], n), entry, None
+        except Exception as e:
+            return False, "写页面档失败：%s: %s" % (type(e).__name__, e), None, None
 
-# ★ 动词注册表：每个动词声明所需【资源 × 动作】。★ 加能力=加一行。
 SG_VERBS = {
     # ── 沙盒（P1 的动词；只写探针键）──
     "probe.write":        {"resource": "probe",    "action": "write"},
@@ -2760,7 +2792,12 @@ class Handler(BaseHTTPRequestHandler):
                 entry = {"op": "rollback", "key": tgt.get("key"), "value": tgt.get("value"),
                          "restored_from": seq,
                          "prev_value": sg_page_state(cur["doc"]).get(tgt.get("key"))}
-            ok2, why2, ent = sg_page_write(view, principal, entry)
+            ok2, why2, ent, cfl = sg_page_write(view, principal, entry,
+                                                expected_seq=req.get("expected_seq"))
+            if cfl:
+                # ★ P4：锁内权威校验发现冲突 ⇒ 409（含 actual 与 current，便于直接重试）
+                self._sg_reply(409, principal, verb, why2, t0, cfl)
+                return
             self._sg_reply(200 if ok2 else 502, principal, verb, why2, t0,
                            {"view": view, "key": entry.get("key"), "seq": (ent or {}).get("seq"),
                             "state": sg_page_state(sg_page_read(view)["doc"])})
@@ -2786,7 +2823,12 @@ class Handler(BaseHTTPRequestHandler):
                   "relation.remove_edge": "remove_edge",
                   "relation.restore_edge": "add_edge"}[verb]
             entry = {"op": op, "key": ekey, "edge": edge, "via": verb}
-            ok2, why2, ent = sg_graph_write(gname, principal, entry)
+            ok2, why2, ent, cfl = sg_graph_write(gname, principal, entry,
+                                                 expected_seq=req.get("expected_seq"))
+            if cfl:
+                # ★ P4：锁内权威校验发现冲突 ⇒ 409
+                self._sg_reply(409, principal, verb, why2, t0, cfl)
+                return
             cur = sg_graph_read(gname)
             self._sg_reply(200 if ok2 else 502, principal, verb, why2, t0,
                            {"graph": gname, "edgeKey": ekey, "seq": (ent or {}).get("seq"),
