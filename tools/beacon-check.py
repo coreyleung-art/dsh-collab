@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import glob
 import hashlib
 import json
 import os
@@ -565,6 +566,27 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
                   % len([h for h in _fh if h.get("check") == "P5"]))
     except Exception as e:
         skip("假结果形态（D-244）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
+    # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
+    #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
+    #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。
+    #   ★ 逻辑：`research/v7-*/` 目录★ **空 ⇒ 不可判（SKIP），不得默认已审**。
+    try:
+        _v7dirs = sorted(d for d in glob.glob(os.path.join(str(ROOT), "research", "v7-*"))
+                         if os.path.isdir(d))
+        if not _v7dirs:
+            skip("审查/调研目录非空（D-258）", "未找到 research/v7-* 目录 ⇒ 不可判")
+        else:
+            _empty = [d for d in _v7dirs if not os.listdir(d)]
+            if _empty:
+                skip("审查/调研目录非空（D-258）",
+                     "★★ %d 个空目录：%s ★ 空 ⇒ 【不可判】（★ 不得读成已审）"
+                     % (len(_empty), ",".join(os.path.basename(d) for d in _empty[:4])))
+            else:
+                check("审查/调研目录非空（D-258）", True,
+                      "★ %d 个 v7-* 目录均非空" % len(_v7dirs))
+    except Exception as e:
+        skip("审查/调研目录非空（D-258）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
     return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
 
