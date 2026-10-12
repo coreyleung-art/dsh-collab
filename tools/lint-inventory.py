@@ -114,7 +114,11 @@ def check_prompt(text):
     hits = [m for m in SOURCES if m in text]
     # \u2605 \u2605 **\u53ea\u63d0\u5de5\u5177\u540d\u4e0d\u7b97**\uff1a\u82e5 hits \u91cc\u53ea\u6709 `lint-inventory` \u672c\u8eab \u21d2 \u5224\u672a\u542b
     hits = [h for h in hits if h != "lint-inventory"]
-    return (len(hits) > 0), hits
+    # ★★ 2026-10-13 再修（ext 第三轮）：原 `len(hits) > 0` → ★★ **只提一个工具名即放行**；
+    #   ★ 而「提及一个名字」≠「粘入清单」 ⇒ ★ 现要求 **≥ 2**（★ 或【既有 lint】短语单独成立）。
+    if hits == ["既有 lint"] or hits == ["既有lint"]:
+        return True, hits          # ★ 该短语本身即表示知道清单存在
+    return (len(hits) >= 2), hits
 
 def selfcheck():
     """★ 真调被测判据（不是恒真）。"""
@@ -141,13 +145,21 @@ def selfcheck():
     else:
         print("  ❌ 负控：空提示词居然判通过")
     # ★★ 负控：含一个关键词 ⇒ 必须通过
+    # ★★ 2026-10-13 改（ext 第三轮 F-1）：判据已从「≥1 token」改为「≥ 2」
+    #   ★ 故本自证同步：只提一个工具名 ⇒ 必须【不认】（★ 新负控）
     tot += 1
     r, h = check_prompt("请先跑 csx-canfail-check")
-    if r is True:
-        ok += 1; print("  ✅ 负控：含关键词 ⇒ 判「已含」（hits=%s）" % h)
+    if r is False:
+        ok += 1; print("  ✅ 负控：只提一个工具名 ⇒ 【不认】（hits=%s）" % h)
     else:
-        print("  ❌ 负控：含关键词却未认出")
-    # ★ 正控：--prompt 输出含表头
+        print("  ❌ 负控：只提一个工具名竟被认为已含")
+    # ★ 正控：提两个 ⇒ 必须【认】
+    tot += 1
+    r, h = check_prompt("既有 lint 清单：csx-canfail-check 与 evidence-channel-guard")
+    if r is True:
+        ok += 1; print("  ✅ 正控：提两个清单项 ⇒ 判「已含」（hits=%s）" % h)
+    else:
+        print("  ❌ 正控：提两个却未认出")
     tot += 1
     if "既有 lint/gate 清单" in render_prompt(items):
         ok += 1; print("  ✅ 正控：--prompt 输出可直接粘用")

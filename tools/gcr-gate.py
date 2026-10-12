@@ -91,10 +91,16 @@ def gcr1():
     return "N-A", "plugin-preflight 返回 rc=%s（用法或环境问题）" % rc
 
 
-def gcr3():
-    """命名门 N1–N3：目录名 / package.json name / patch id 一致"""
+def gcr3(root=None):
+    """命名门 N1–N3：目录名 / package.json name / patch id 一致
+
+    ★★ 2026-10-13 修（ext F-5）：★ 原签名 `gcr3()` **硬编码** `HOME/"dsh-plugin-central-inbox"`
+      ⇒ ★★ **自证无法喂夹具** ⇒ 那两条「负例」只能拿夹具的值**自己比**（`pkg_name != d.name`）
+      ⇒ **恒真**（★ 夹具写死 `"totally-different"` ⇒ 必不等）。
+    ★ 现加【可选 root】⇒ ★ 自证可**真调**本函数。
+    """
     bad = []
-    root = HOME / "dsh-plugin-central-inbox"
+    root = Path(root) if root is not None else HOME / "dsh-plugin-central-inbox"
     if not root.exists():
         return "N-A", "被测插件目录不存在"
     dirname = root.name
@@ -403,18 +409,25 @@ def selftest():
                   _synth_gcr8(10.0), True))
     cases.append(("G-CR6 反控：喂 audio-input ⇒ 必须过",
                   _synth_gcr6_ent("audio-input"), True))
-    # ── ★ G-CR3：真造 name ≠ 目录名的目录并读回 ──
+    # ── ★★ G-CR3：真造两个夹具目录，★ 并【真调 gcr3()】（ext F-5 修）──
+#   ★ 立据：原两条「负例」实为
+#     `pkg_name != d.name`（★ 夹具写死 "totally-different" ⇒ 恒真）
+#     `d.name != d.name`（★ 自己与自己比 ⇒ 恒假）
+#   ★★ 两条都【没调用被测判据】⇒ 而本工具纪律①正是「不得用恒真字面量」。
+#   ★ 现改为：真造目录 → 真调 gcr3(<夹具>) → 看它返回 PASS/FAIL。
     tmp = Path(tempfile.mkdtemp(prefix="gcr-neg-"))
-    d = tmp / "dsh-plugin-wrongname"
-    d.mkdir(parents=True)
-    (d / "package.json").write_text(json.dumps({"name": "totally-different"}), encoding="utf-8")
-    pkg_name = json.loads((d / "package.json").read_text())["name"]
-    cases.append(("G-CR3 负例：目录名与 package.name 不等 ⇒ 应判不过",
-                    pkg_name != d.name, True))
-    # ★★ 2026-10-13 修（ext F-5）：上一行原为恒真（★ 夹具写死 "totally-different" ⇒ 必不等）—★
-    #   ★ 现补【反向案例】：相等时必须为 False。
-    cases.append(("G-CR3 反向案例：目录名与 package.name 相等 ⇒ 应判过",
-                    d.name != d.name, False))
+    d_neq = tmp / "dsh-plugin-wrongname"                 # ★ name ≠ 目录名 ⇒ 应 FAIL
+    d_neq.mkdir(parents=True)
+    (d_neq / "package.json").write_text(json.dumps({"name": "totally-different"}), encoding="utf-8")
+    d_eq = tmp / "dsh-plugin-rightname"                  # ★ name == 目录名 ⇒ 应 PASS
+    d_eq.mkdir(parents=True)
+    (d_eq / "package.json").write_text(json.dumps({"name": "dsh-plugin-rightname"}), encoding="utf-8")
+    _v_neq, _d_neq = gcr3(d_neq)
+    _v_eq, _d_eq = gcr3(d_eq)
+    cases.append(("G-CR3 负例：★ 真调 `gcr3(<name≠目录名>)` ⇒ 必须 FAIL",
+                  _v_neq == "FAIL", True))
+    cases.append(("G-CR3 反控：★ 真调 `gcr3(<name=目录名>)` ⇒ 必须 PASS",
+                  _v_eq == "PASS", True))
     # ── ★ G-CR9：读当前 preset（★ 真读盘）──
     presets = HOME / ".dsh" / ".agent-presets"
     n_ok = sum(1 for dd in presets.iterdir()

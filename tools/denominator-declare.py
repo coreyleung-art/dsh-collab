@@ -70,7 +70,8 @@ def para_of(text, pos, back=260, fwd=160):
 
 
 # ★★ 句子/段落边界（★ 中英文）
-_SENT_SPLIT = re.compile(r'[\n\u3002\uff01\uff1f!?;；]+')
+_SENT_STRONG = re.compile(r'[\n]+')                    # ★ 强界：\n（★ 真断）
+_SENT_WEAK = re.compile(r'[。！？!?;；]+')            # ★ 弱界：可跨一个
 
 
 def same_unit_declared(text, pos):
@@ -80,12 +81,24 @@ def same_unit_declared(text, pos):
       ★★ 一句无关的「本段讲窗口：窗口为 24h」就能把裸数 87% 洗白。
     ★ 三态：★ 同句含口径词 ⇒ True；★ 否则 False（★ 不作「不可判」，★ 因为句界是可判的）。
     """
-    # ★ 定位 pos 所在的句：向前找最近句界，向后找最近句界
-    starts = [0] + [m.end() for m in _SENT_SPLIT.finditer(text)]
-    ends = [m.start() for m in _SENT_SPLIT.finditer(text)] + [len(text)]
-    lo = max((s for s in starts if s <= pos), default=0)
-    hi = min((e for e in ends if e >= pos), default=len(text))
-    sentence = text[lo:hi]
+    # ★★ 2026-10-13 再修（ext 第三轮）：
+    #   ★ 强界（`\n`）=【真断】；弱界（`。！？；;`）=【可跨一个】。
+    #   ★ 即：允许 「87%。本段口径：…」 算同一申报单元（★ 它们同处一行）。
+    # ★ 先按强界切段
+    segs = [m.end() for m in _SENT_STRONG.finditer(text)]
+    seg_starts = [0] + segs
+    seg_ends = [m.start() for m in _SENT_STRONG.finditer(text)] + [len(text)]
+    lo = max((x for x in seg_starts if x <= pos), default=0)
+    hi = min((x for x in seg_ends if x >= pos), default=len(text))
+    seg = text[lo:hi]
+    # ★ 在段内：取数字所在弱界单元 ± 一个（★ 允许跨一个弱界）
+    wstarts = [0] + [m.end() for m in _SENT_WEAK.finditer(seg)]
+    wends = [m.start() for m in _SENT_WEAK.finditer(seg)] + [len(seg)]
+    rel = pos - lo
+    idx = max((i for i, x in enumerate(wstarts) if x <= rel), default=0)
+    wlo = wstarts[max(0, idx - 1)]          # ★ 向前多取一个弱界单元
+    whi = wends[min(len(wends) - 1, idx + 1)]  # ★ 向后多取一个
+    sentence = seg[wlo:whi]
     return any(w in sentence for w in CALIBER_WORDS), sentence
 
 
