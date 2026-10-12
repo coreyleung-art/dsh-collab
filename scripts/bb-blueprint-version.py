@@ -289,6 +289,133 @@ def selfcheck():
     print("TCC:", "PASS" if ok else "FAIL")
     return ok
 
+# ══════════ ★ D1（2026-10-12 明鉴）：versionlog 流程层修复 ══════════
+# ★★ 缺陷（实测）：本台账最后写入 **2026-09-07T16:47:14**，停写 35 天。
+#   ★ 根因**不是工具坏**（`--selfcheck` 全过：语法/黑板/TCC）—— 而是【流程层】：
+#     写路径只挂在 `bb-blueprint-ingest.py` 的**新蓝图注册**上，其余全靠人工 `--bump`/`--log`。
+#     ⇒ **台账由【人工动作】驱动，而不是由【变更事实】驱动**；
+#       改蓝图的人不需要、也没被要求去登记 ⇒ 必然停写。
+# ★★ 实测漂移：台账盖 **10** 个蓝图，而快照产物覆盖 **19** 个（**9 个从未登记**）；
+#   至少 **6 个**蓝图的快照版本**已超过**台账记录（如 agent-network v1.2→v1.3，台账仍记 v1.2）。
+# ★★ 修法：**让台账可从产物推导**（`--sync-from-artifacts`）—— 从快照目录解析每个蓝图的
+#   最新版本，与台账比对，**只 append 差额条目**。
+#   ★ 严守该件自己声明的「**只增不改**」不变量：**绝不修改/删除既有条目**。
+#   ★★ 默认 **dry-run**（只报不写）；要落账须显式 `--apply`。
+SNAPSHOT_DIR = os.path.expanduser("~/dsh-collab/data/blueprint/gallery/snapshots")
+SNAP_RE = re.compile(r"^(.+?)-(arch|fish|tl|flow|timeline|dyn)-v(\d*)_?(\d*)(?:[_-].*?)?-(\d{8})-(\d{6})\.svg$")
+
+
+def _ver_key(v):
+    """★ 抽 (major, minor) 用于比较。**台账里的版本可能带长描述**
+    （如 `v1.2（memory 拆 L1 工具链/L2 体系化持久化）`）⇒ 不能直接字符串比。"""
+    m = re.search(r"v(\d+)\.(\d+)", str(v or ""))
+    return (int(m.group(1)), int(m.group(2))) if m else None
+
+
+def cmd_sync_from_artifacts(apply=False):
+    """★ D1：从产物推导台账 → 报告差额 → 可选补账（只增不改）。"""
+    if not os.path.isdir(SNAPSHOT_DIR):
+        print("★ 快照目录不存在：%s" % SNAPSHOT_DIR)
+        return 1
+    latest, unmatched = {}, []
+    for f in sorted(os.listdir(SNAPSHOT_DIR)):
+        if not f.endswith(".svg"):
+            continue
+        m = SNAP_RE.match(f)
+        if not m:
+            unmatched.append(f)
+            continue
+        bp, maj, mnr = m.group(1), m.group(3), m.group(4)
+        if not maj:                      # ★ 空版本（如 v_-）⇒ 计入命名异常，不当作有效版本
+            unmatched.append(f)
+            continue
+        ver = "v%s.%s" % (maj, mnr or "0")
+        k = (int(maj), int(mnr or 0))
+        if bp not in latest or k > latest[bp]["key"]:
+            latest[bp] = {"ver": ver, "key": k, "file": f}
+
+    doc = fetch("data/blueprint/versionlog")
+    vl = doc.get("value") or {}
+    bps = vl.get("blueprints") or {}
+    entries = vl.get("entries") or []
+
+    # ★★ 幂等性（2026-10-12 本线实测发现的设计缺陷，已修）：
+    #   第一版只 append entries、**不动 blueprints**（为守「不替人改版本号」）
+    #   ⇒ 差额永远存在 ⇒ **再跑一次仍报同样差额，`--apply` 两次会堆重复条目**。
+    #   ⇒ 正确做法：让【差额计算】感知「已经登记过的差额」—— 查 entries 里
+    #     是否已有一条针对 (bp, 目标版本) 的 SYNCED/FOUND-UNREGISTERED。
+    #   ★ 这样既守「只增不改」（不修改历史、不改版本号），又幂等（重复运行不重复报）。
+    done = set()
+    for x in entries:
+        if x.get("action") in ("SYNCED", "FOUND-UNREGISTERED"):
+            det = str(x.get("detail") or "")
+            for cand in re.findall(r"v\d+\.\d+", det):
+                done.add((x.get("bp"), cand))
+
+    behind, missing, ahead = [], [], []
+    for bp, inf in sorted(latest.items()):
+        if bp not in bps:
+            if (bp, inf["ver"]) not in done:
+                missing.append((bp, inf))
+            continue
+        cur = _ver_key(bps[bp].get("version"))
+        if cur is None or inf["key"] > cur:
+            if (bp, inf["ver"]) not in done:
+                behind.append((bp, bps[bp].get("version"), inf))
+        elif inf["key"] < cur:
+            ahead.append((bp, bps[bp].get("version"), inf))
+
+    print("══ versionlog 流程层核对（产物推导）══")
+    print("  台账蓝图 %d 个 · 产物可解析 %d 个 · entries %d 条" % (len(bps), len(latest), len(entries)))
+    print()
+    print("  ★ 版本落后（产物 > 台账）：%d 个" % len(behind))
+    for bp, old, inf in behind:
+        print("     %-22s 台账 %-26s → 产物 %s" % (bp, str(old)[:26], inf["ver"]))
+    print("  ★ 从未登记（产物有而台账无）：%d 个" % len(missing))
+    for bp, inf in missing:
+        print("     %-22s 产物 %s" % (bp, inf["ver"]))
+    if ahead:
+        print("  （产物低于台账 %d 个 —— 不算缺陷，仅列）" % len(ahead))
+    if unmatched:
+        print()
+        print("  ★ 命名不符模式 %d 个（产物自身的质量缺陷，**不改产物、只报**）" % len(unmatched))
+        for f in unmatched[:6]:
+            print("     %s" % f)
+        if len(unmatched) > 6:
+            print("     … 另 %d 个" % (len(unmatched) - 6))
+
+    if not apply:
+        print()
+        print("  ★ dry-run（默认）—— 未写入任何东西。要补账请加 --apply。")
+        return 0
+
+    n = 0
+    for bp, old, inf in behind:
+        entries.append({"action": "SYNCED", "bp": bp,
+                        "by": "bb-blueprint-version --sync-from-artifacts",
+                        "detail": "★ 从产物补账：台账 %s → 产物 %s（依据 %s）"
+                                  % (str(old)[:40], inf["ver"], inf["file"]),
+                        "ts": datetime.datetime.now().isoformat()})
+        n += 1
+    for bp, inf in missing:
+        entries.append({"action": "FOUND-UNREGISTERED", "bp": bp,
+                        "by": "bb-blueprint-version --sync-from-artifacts",
+                        "detail": "★ 产物存在但台账从未登记：%s（依据 %s）—— "
+                                  "★ 仅补【登记】不动该蓝图版本号" % (inf["ver"], inf["file"]),
+                        "ts": datetime.datetime.now().isoformat()})
+        n += 1
+    if not n:
+        print("\n  无差额 ⇒ 无需补账。")
+        return 0
+    vl["entries"] = entries               # ★ 只 append；blueprints 字典**不动**（不替人改版本号）
+    put("data/blueprint/versionlog", vl)
+    back = fetch("data/blueprint/versionlog").get("value") or {}
+    print("\n  ★ 已补账 %d 条；回读 entries = %d（补账前 %d）"
+          % (n, len(back.get("entries") or []), len(entries) - n))
+    print("  ★ 回读 blueprints = %d 个（本命令未修改它）" % len(back.get("blueprints") or {}))
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="蓝图版本管理+日志管理")
     ap.add_argument("--version-list", action="store_true")
@@ -307,11 +434,18 @@ def main():
     ap.add_argument("--audit", action="store_true")
     ap.add_argument("--migrate", action="store_true")
     ap.add_argument("--selfcheck", action="store_true")
+    # ★ D1（2026-10-12）：从产物推导补账（默认 dry-run；--apply 才写）
+    ap.add_argument("--sync-from-artifacts", action="store_true",
+                    help="从快照产物推导台账差额（默认 dry-run）")
+    ap.add_argument("--apply", action="store_true", help="配合 --sync-from-artifacts：真的补账")
     ap.add_argument("--tool-version", action="version", version=f"bb-blueprint-version {VERSION}")
     args = ap.parse_args()
 
     if args.selfcheck:
         sys.exit(0 if selfcheck() else 1)
+    elif args.sync_from_artifacts:
+        # ★ D1（2026-10-12）：从产物推导补账。★ 默认 dry-run，--apply 才写。
+        sys.exit(cmd_sync_from_artifacts(apply=args.apply))
     elif args.version_list:
         cmd_version_list()
     elif args.bump:
