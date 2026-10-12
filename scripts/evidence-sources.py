@@ -102,6 +102,52 @@ def cmd_sources(sources, as_json=False, method=None):
     return 0 if r["verdict"] in ("EVIDENCE", "NOT_EVIDENCE", "UNDECIDABLE") else 1
 
 
+def check_errors(claims):
+    """★★ 判据乙（管「自罚/多报」，★ 由 session-c05b831c 提出，2026-10-12）
+    ★ 要求：★★ **每条所报的错各配一个【能证伪它的读数】**；
+      ★ **且【错数】= 【互不相同的证伪读数】个数**（★ 同一读数不能同时顶两条错）。
+    ★ 为什么需要它：★ 判据甲（引文可核到原文）**只量引文存在性**，
+      ★★ **对「两错叠」这种多报【不能红】** —★ 故需乙。
+    claims: list of {"claim": ★ 错的描述, "falsifier": ★ 能证伪它的读数 (or None)}
+    """
+    if not claims:
+        return {"verdict": "UNSTATED", "n_claims": 0, "n_falsifiers": 0,
+                "reason": "★ 未给出任何声称 ⇒ 未声明"}
+    with_f = [c for c in claims if (c.get("falsifier") or "").strip()]
+    fs = {(c.get("falsifier") or "").strip() for c in with_f}
+    n_c, n_f = len(claims), len(fs)
+    if len(with_f) < n_c:
+        return {"verdict": "OVERREPORTED", "n_claims": n_c, "n_falsifiers": n_f,
+                "missing": [c.get("claim") for c in claims if not (c.get("falsifier") or "").strip()],
+                "reason": "★★ 有 %d 条声称【找不到证伪读数】⇒ "
+                          "★ **错数（%d）> 证伪读数数（%d）** ⇒ ★★ **多报**"
+                          % (n_c - len(with_f), n_c, n_f)}
+    if n_f < n_c:
+        return {"verdict": "OVERREPORTED", "n_claims": n_c, "n_falsifiers": n_f,
+                "reason": "★★ 证伪读数有重复（★ 互不相同者 %d < 错数 %d）"
+                          "⇒ ★ **同一读数不能顶两条错** ⇒ 多报" % (n_f, n_c)}
+    return {"verdict": "CONSISTENT", "n_claims": n_c, "n_falsifiers": n_f,
+            "reason": "★ 错数 = 互不相同的证伪读数个数 = %d ⇒ 不构成多报" % n_c}
+
+
+def cmd_errors(path, as_json=False):
+    import json as _j
+    try:
+        claims = _j.load(open(path, encoding="utf-8"))
+    except Exception as e:
+        print("  ★ 读不到 %s：%s ⇒ 不可判" % (path, e)); return 0
+    r = check_errors(claims)
+    if as_json:
+        print(_j.dumps(r, ensure_ascii=False, indent=1)); return 0
+    print("== 判据乙：错数 vs 证伪读数 ==")
+    for i, c in enumerate(claims, 1):
+        f = (c.get("falsifier") or "").strip()
+        print("  %d. %s…" % (i, (c.get("claim") or "")[:44]))
+        print("     证伪读数: %s" % (f if f else "★★ **找不到**"))
+    print("  ⇒ %s" % r["reason"])
+    return 0
+
+
 def cmd_scan(path):
     """★ 扫报告里的「来源/证据」声明行，粗估 n"""
     if not os.path.exists(path):
@@ -169,6 +215,18 @@ def selfcheck():
     _r = verdict(["a"], {"same_method_twice": True, "id": "grep-A"}).get("reason", "")
     t("⑥e 同法两次时仍报【方法标识】（★ 含具体 id）",
       ("方法标识" in _r) and ("grep-A" in _r))
+    # ★★★ 新增：判据乙（★ 管自罚/多报）—★ ★ 用对方那次「两错叠」作反例
+    t("⑥f 两错叠而第二条无证伪读数 ⇒ OVERREPORTED（★ 多报）",
+      check_errors([{"claim": "编号串行", "falsifier": "D-027 实为端口归因"},
+                    {"claim": "引文不在", "falsifier": None}])["verdict"] == "OVERREPORTED")
+    t("⑥g 每条错各有一个【互不相同】证伪读数 ⇒ CONSISTENT",
+      check_errors([{"claim": "编号串行", "falsifier": "R-1"},
+                    {"claim": "措辞不当", "falsifier": "R-2"}])["verdict"] == "CONSISTENT")
+    t("⑥h 同一读数顶两条错 ⇒ OVERREPORTED（★ 重复不算）",
+      check_errors([{"claim": "A", "falsifier": "R-1"},
+                    {"claim": "B", "falsifier": "R-1"}])["verdict"] == "OVERREPORTED")
+    t("⑥i 无声称 ⇒ UNSTATED（★ 不得读作合格）",
+      check_errors([])["verdict"] == "UNSTATED")
     t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
       ("--n" not in _code) and ("add_argument('n'" not in _code) and ("add_argument(\"n\"" not in _code))
     print("\n== 负控 %d/%d ==" % (ok, tot))
@@ -201,6 +259,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sources", nargs="*")
     ap.add_argument("--scan")
+    ap.add_argument("--errors", help="★ 判据乙：JSON 文件（[{\"claim\",\"falsifier\"}]）")
     ap.add_argument("--selfcheck", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--json", action="store_true")
@@ -211,6 +270,7 @@ def main():
     if a.version: print(VERSION); return 0
     if a.selfcheck: return selfcheck()
     if a.lean4_check: return lean4_check()
+    if a.errors: return cmd_errors(a.errors, a.json)
     if a.scan: return cmd_scan(a.scan)
     m = {"same_method_twice": True, "id": "★ --same-method-twice"} if getattr(a, "smt", False) else None
     return cmd_sources(a.sources or [], a.json, m)
