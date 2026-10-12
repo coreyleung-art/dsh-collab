@@ -86,10 +86,11 @@ def scan_file(path):
     return hits
 
 
-def inventory():
+def inventory(root=None):
     out = []
+    _root = root or ROOT
     for d in SCAN_DIRS:
-        base = os.path.join(ROOT, d)
+        base = os.path.join(_root, d)
         if not os.path.isdir(base):
             continue
         for fn in sorted(os.listdir(base)):
@@ -147,6 +148,8 @@ def selftest():
 
 def main():
     ap = argparse.ArgumentParser()
+    # ★★ 2026-10-13（ext E-5）：加 `--path` seam —★ 让【外部】能驱动它（★ 原只扫固定面）。
+    ap.add_argument("--path", default=None, help="★ 被扫根（默认仍走原固定面）")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
@@ -156,7 +159,7 @@ def main():
         return 0
     if a.selftest:
         return selftest()
-    items = inventory()
+    items = inventory(getattr(a, 'path', None))
     if a.json:
         print(json.dumps(items, ensure_ascii=False, indent=1))
         return 0

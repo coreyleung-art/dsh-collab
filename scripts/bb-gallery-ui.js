@@ -2235,7 +2235,13 @@ function switchTab(name){
 const EXPLORE_GRAPH={rules:'rules',mech:'mech',knowledge:'knowledge',hardware:'hardware',
   bizmap:'biz',philosophy:'philosophy',agents:'agents',original:'original'};
 function injectExploreBtn(name){
-  const gr=EXPLORE_GRAPH[name]; if(!gr||gr==='agents')return;  // agents 已有 lab
+  // ★★★ 2026-10-13 修（独立审查发现）：原 guard 只跳过 'agents'，而 EXPLORE_GRAPH 里还有
+  //   'original' —— ★ 后端 /api/explore 的 builders 【没有 original】
+  //   ⇒ 实测 `graph=original` 恒返 `{"error":"unsupported graph"}` ⇒ 点「该域机会」必得错误。
+  //   ⇒ 判据改为【正向白名单】：只放行后端真正支持的 6 档（与 bb-blueprint-gallery.py:3932 的 builders 同源）。
+  //   ★ 这才是正确方向 —— 「前端声明」不该超过「后端能力」。
+  const EXPLORE_SUPPORTED=['rules','knowledge','biz','hardware','mech','philosophy'];
+  const gr=EXPLORE_GRAPH[name]; if(!gr||EXPLORE_SUPPORTED.indexOf(gr)===-1)return;
   const vb=document.getElementById('view-'+name); if(!vb)return;
   if(vb.querySelector('.explore-btn'))return;
   // 定位到图容器内部(graph-box 中下部·不挡标题与图例), 而非视口顶部

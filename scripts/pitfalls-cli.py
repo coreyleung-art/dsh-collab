@@ -130,8 +130,11 @@ def cmd_list(args):
     if args.severity:
         items = [i for i in items if i["severity"] == args.severity.upper()]
     print(f"共 {len(items)} 条踩坑档案：")
+    # ★★ 2026-10-13 修（ext 第三轮 F-11）：原 `i['severity']` 直取 ⇒
+    #   ★★ **缺 `severity` 键的条目会抛 `KeyError` ⇒ 整条命令崩**（★ 实测本地有一条如此）。
+    #   ★ 现改为 `.get(..., '?')`（★ 一行）。
     for i in items:
-        print(f"  [{i['severity']}] {i['id']} · {i['title']}")
+        print(f"  [{i.get('severity', '?')}] {i.get('id', '?')} · {i.get('title', '?')}")
 
 def cmd_query(args):
     data = load()

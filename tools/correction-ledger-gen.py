@@ -111,7 +111,7 @@ def selftest():
     ok = tot = 0
     # ★ 正控：台账真实存在且条目数 > 100
     tot += 1
-    ents = load_entries()
+    ents = load_entries(None)
     if ents and len(ents) > 100:
         ok += 1
         print("  ✅ 正控：台账读到 %d 条（★ > 100）" % len(ents))
@@ -164,6 +164,8 @@ def selftest():
 
 def main():
     ap = argparse.ArgumentParser()
+    # ★★ 2026-10-13（ext E-5）：加 `--path` seam —★ 让【外部】能指向夹具。
+    ap.add_argument("--path", default=None, help="★ 台账路径（默认仍走原 LEDGER）")
     ap.add_argument("--tail", type=int, default=0, help="只取最后 N 条")
     ap.add_argument("--ids", default=None, help="只取这些 id（逗号分隔）")
     ap.add_argument("--summary", action="store_true")
@@ -176,7 +178,7 @@ def main():
         return 0
     if a.selftest:
         return selftest()
-    ents = load_entries()
+    ents = load_entries(getattr(a, 'path', None))
     if ents is None:
         print("★ 台账不可读 ⇒ 本门【不可判】（★ 不冒充通过）: %s" % LEDGER)
         return 2

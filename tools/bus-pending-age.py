@@ -64,13 +64,23 @@ def scan(bus_dir=None, ttl_hours=24.0):
             "ts": o.get("ts"),
             "age_hours": round(age_h, 1) if age_h is not None else None,
             # ★ 判据：pending 且 龄 > TTL
+            # ★★ 2026-10-13 修（ext 第三轮 F-10）：原 `age_h is None ⇒ False` ⇒
+            #   ★★ **【不可判】被当成【不超时】**（★ 三态塔缩）。
+            #   ★ 现拆两栏：`should_be_expired`（★ 可判时）· `undecidable`（★ 无龄）。
             "should_be_expired": (o.get("sent") is not True) and (age_h is not None and age_h > ttl_hours),
+            "undecidable": (o.get("sent") is not True) and (age_h is None),
             "marked_expired": o.get("expired") is True,
         })
     return {"dir": d, "now": now.isoformat(), "rows": rows, "ttl_hours": ttl_hours}
 
 
 def summarize(res):
+    # ★★ 2026-10-13（ext F-10）：三态报告 —★ 【不可判】单列，不归入「不超时」
+    _und = [r for r in res["rows"] if r.get("undecidable")]
+    if _und:
+        res["undecidable_count"] = len(_und)
+        res["undecidable_keys"] = sorted({k for r in _und for k in ("sent_at", "ts", "age_hours") if r.get(k) is None})
+
     rows = res["rows"]
     total = len(rows)
     pending = [r for r in rows if r.get("sent") is not True]
