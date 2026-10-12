@@ -177,6 +177,29 @@ def audit(roots=None, run=False):
     return rows
 
 
+def recheck_serial(rows, cand):
+    """★★★ 2026-10-12 新增（D-234）：对「候缺陷」做【串行复核】。
+
+    ★ 立据：本纳用 8 并发跑 `scripts/` 面 341 个自证 ⇒ `bb-model-store` 被报 `exit=1`；
+    ★★ 而【串行 3 次 + 并发 8 次单独跑它】均 `exit=0` ⇒
+    ★★☃ **故那是【并发下的伪失败】**（★ 多个脚本同时打板 ⇒ 板瞬时过载）。
+    ★ 故本函数把「其它非 0」【串行重跑一次】—★ ★ **红而不复现的，不算缺陷。**
+    """
+    import subprocess as _sp
+    out = []
+    for r in cand:
+        try:
+            cp = _sp.run([sys.executable, os.path.join(ROOT, r["file"]), "--selftest"],
+                         capture_output=True, text=True, timeout=90, stdin=_sp.DEVNULL)
+            rc = cp.returncode
+        except _sp.TimeoutExpired:
+            rc = "TIMEOUT"
+        except Exception:
+            rc = None
+        out.append({**r, "serial_exit": rc, "reproducible": (rc == r.get("run_exit"))})
+    return out
+
+
 def classify_run(rows):
     """★ 四分类（★ D-231）：把「非 0」拆成【不支持】与【候缺陷】，避免误报。"""
     st = [r for r in rows if r["has_selftest"] and "run_exit" in r]
@@ -319,8 +342,17 @@ def main():
         print("     2        \uff08\u2605\u2605 \u4e0d\u652f\u6301 --selftest\uff09: %d  \u2190 \u2605 \u4e0d\u5f52\u7f3a\u9677" % len(cl["usage"]))
         print("     TIMEOUT  \uff08\u2605 \u7f51\u7edc/\u4e45\u8dd1\uff09    : %d" % len(cl["timeout"]))
         print("     \u5176\u5b83\u975e 0 \uff08\u2605\u2605 \u5019\u7f3a\u9677\uff09    : %d" % len(cl["other"]))
-        for r in cl["other"][:20]:
-            print("        \u274c %s exit=%s" % (r["file"], r.get("run_exit")))
+        # \u2605\u2605 2026-10-12\uff08D-234\uff09\uff1a\u5bf9\u300c\u5019\u7f3a\u9677\u300d\u505a\u4e32\u884c\u590d\u6838\uff08\u2605 \u9632\u5e76\u53d1\u4f2a\u5931\u8d25\uff09
+        rechecked = recheck_serial(rows, cl["other"]) if cl["other"] else []
+        nonrepro = [r for r in rechecked if not r.get("reproducible")]
+        real = [r for r in rechecked if r.get("reproducible")]
+        for r in real:
+            print("        \u274c %s exit=%s\uff08\u2605 \u4e32\u884c\u590d\u6838\u4ecd\u7ea2\uff09" % (r["file"], r.get("serial_exit")))
+        if nonrepro:
+            print("     \u2605 \u4e32\u884c\u590d\u6838\u540e\u3010\u4e0d\u590d\u73b0\u3011\uff08\u2605\u2605 \u7591\u4f3c\u5e76\u53d1\u4f2a\u5931\u8d25\uff0c\u4e0d\u7b97\u7f3a\u9677\uff09\uff1a%d \u4e2a" % len(nonrepro))
+            for r in nonrepro[:8]:
+                print("        ~ %s \u5e76\u53d1=%s \u2192 \u4e32\u884c=%s" % (r["file"], r.get("run_exit"), r.get("serial_exit")))
+        cl["other"] = real
         if len(cl["other"]) > 20:
             print("        \u2026 \u53e6\u6709 %d \u4e2a" % (len(cl["other"]) - 20))
         if cl["usage"]:
