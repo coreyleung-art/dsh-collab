@@ -88,6 +88,16 @@ def audit():
         holder = lk.get("holder", "?")
         resource = lk.get("resource", "?")
         acquired = lk.get("acquiredAt", 0)
+        # ★★ 2026-10-13 接管后补（D-232 / D-269）：
+        #   ★ 原直接 `acquired / 1000` —★ ★★ 而实测 `acquiredAt` 是 **dict**（★ 键 = 会话 id、值 = 时间戳）：
+        #     ★ `{'session-a190c54c-…': 1791815424754}`
+        #   ★★⇒ 那种形态会 `TypeError: unsupported operand type(s) for /: 'dict' and 'int'`。
+        #   ★ 修法：容错取最新值；非数值一律归 0（★ 归 0 ⇒ 不判残留，★ 不误报）。
+        if isinstance(acquired, dict):
+            _vals = [v for v in acquired.values() if isinstance(v, (int, float))]
+            acquired = max(_vals) if _vals else 0
+        if not isinstance(acquired, (int, float)):
+            acquired = 0
         age_h = (time.time() - acquired / 1000) / 3600 if acquired else 0
         note = lk.get("note", "")
         # 持锁超 24h = 疑似残留（正常任务锁秒级~分钟级）
