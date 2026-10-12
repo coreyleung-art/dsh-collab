@@ -1,6 +1,6 @@
 # v7 家族索引（★ **19 件** + 家族索引本身）
 
-> **生成**：2026-10-13T01:03:21+08:00 · 星桥第二任
+> **生成**：2026-10-13T01:03:58+08:00 · 星桥第二任
 > **★ 用途**：★ 让下一任【十秒内找到该找的那一件】 —— ★ 不必翻会话、不必考古。
 > ★ 本索引不主张任何事项已闭合（S3）
 
@@ -67,18 +67,6 @@ research/v7-ccep/            research/v7-slo-acceptance/  research/v7-review-V4/
 
 ---
 
-## ★ 七、★★ 本轮（2026-10-13 凌晨）新增与更新
-
-| 件 | ★ 行 | ★ 是什么 |
-|---|---|---|
-| `docs/v7-family-index-20261013.md` | 96 | ★★ **家族索引**（★ 本件） |
-| `docs/v7-mechanization-coverage-20261013.md` | 53 | ★★ **机械化覆盖表**（★ 十四次同形 × 能否机检） |
-| `docs/v7-skip-batch-submission-20261013.md` | 62 | ★★ **跳过项批量呈报**（★ **9** 项 + 建议裁决顺序） |
-| `docs/false-result-tightening-proposal-20261013.md` | 73 | ★ **假结果 12 处建议单** |
-| `tools/false-result-patterns.py` | 336 | ★★ **假结果形态**（★ 自证 **9/9** · P1/P2/P4/P5/P6） |
-| `tools/selftest-audit.py` | 383 | ★★ **恒真自证扫查**（★ **8/8**） |
-| `tools/lint-inventory.py` | 183 | ★★ **既有 lint/gate 清单**（★ **20** 条） |
-| `tools/subagent-work-checklist.py` | 209 | ★★ **派工清单**（★ pre **8** 项 · 含 P8） |
 
 ---
 
