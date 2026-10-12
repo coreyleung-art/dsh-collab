@@ -27,7 +27,7 @@ import subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# ── 段一 · 派工前（★ 七项，缺一即风险）──
+# ── 段一 · 派工前（★ **八项**，缺一即风险）──
 PRE = [
     ("P1", "目标从【登记了什么没做完】正推，不从【我手上有什么】反推",
      "★ 反面实证：初版大纲只盖四维+M4，而锚点实际有 91 项未完成"),
@@ -43,6 +43,12 @@ PRE = [
      "★ 实测：写进提示词的四条【全被执行】；未写的不会被遵守"),
     ("P7", "要求文末自报【限制】+ 声明【同一主体⇒不能自证独立】",
      "★ 实测：所有代理都写了限制节；★ 而这逼它们自己划边界"),
+    # ★★★ 2026-10-13 新增（D-251）：★ 本线当晚【自己违反了 J44】而门抓到了 ⇒ 故入清单并下发给子代理。
+    ("P8", "★ 建任何新件之前先跑【J44 建前复用门】：`python3 scripts/j44-reuse-gate.py --intent \"<要建什么>\"`",
+     "★★ 立据：本线 2026-10-12 一晚建了 5 个新工具，★ **而一个都没跑过该门** ⇒ 补跑时门抓出 2 个命中并 `exit=1`（D-250）。\n"
+     "     ★★ 更重的是：★ **那个门【一直在那里】**（`scripts/j44-reuse-gate.py`）—— 不是没做，是**没跑**。\n"
+     "     ★ 三种裁决：`reuse`（不建）/ `adapt`（改造它）/ `no-overlap`（可建，须说明为何不重复）。\n"
+     "     ★★ 且门报 0 命中时**必须读它的【面外声明】**：★ 它只扫本地语料 ⇒ **本地 0 命中 ≠ 无同类**。"),
 ]
 
 # ── 段二 · 派工中 ──
@@ -95,6 +101,8 @@ def judge_pre(prompt_text):
         "P5": bool(re.search(r'自我保护', prompt_text)),
         "P6": bool(re.search(r'原子替换|临时文件', prompt_text)) and bool(re.search(r'阳性对照', prompt_text)),
         "P7": bool(re.search(r'不能自证独立|同一主体|限制', prompt_text)),
+        # ★★ 2026-10-13（D-251）：J44 建前门必须出现在提示词里
+        "P8": bool(re.search(r'j44|reuse-gate|建前复用|复用门', prompt_text, re.I)),
     }
     return checks
 
@@ -176,7 +184,7 @@ def main():
                 print("  " + err)
                 return 2
             checks = judge_pre(t)
-        print("  ── 段一 · 派工前（7 项）──")
+        print("  ── 段一 · 派工前（%d 项）──" % len(PRE))
         print(render(PRE, checks))
         if checks is not None:
             miss = [k for k, v in checks.items() if v is False]
