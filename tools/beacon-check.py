@@ -617,6 +617,31 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("写者归属门（D-287）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-291）【CAHAC 信封合格度】—★ 目标四维 **I-1**。
+    #   ★ 立据：`notes/collab` 现测 **envelope_ok = 0/643 = 0.0000%**（v6.1 时 0/564）—★
+    #     ★★ **两版之间一点没变**。
+    #   ★★ 而它是【接收侧】的量 ⇒ **覆盖全部写者**（★ 包括本机管不到的外设备卡）—★
+    #     ★ 实测：今天 328 张里 **本机会话仅 64 张（20%）**，外设备 **202 张（62%）**。
+    #   ★ 只报不修（★ 改不了别人的写者）—★ 但使它【可见】。
+    try:
+        _ca = subprocess.run([sys.executable, str(ROOT / "scripts" / "cahac-envelope-conformance.py"),
+                              "--json", "--since", "2026-10-13"],
+                             capture_output=True, text=True, timeout=90)
+        _cd = json.loads(_ca.stdout)
+        _ok = _cd.get("envelope_ok", 0); _sc = _cd.get("scanned", 0)
+        _all = _cd.get("scanned_all") or _sc
+        if _sc == 0:
+            skip("CAHAC 信封符合度（I-1 · 今日窗）", "窗内分母为 0 ⇒ 不可判")
+        elif _ok == 0:
+            check("CAHAC 信封符合度（I-1 · 今日窗）", False,
+                  "★★ 今日窗 **%d/%d = 0.0%%**（★ 全量 %d）⇒ "
+                  "★ 外设备卡本机管不到，★ 需各设备同步接入" % (_ok, _sc, _all))
+        else:
+            check("CAHAC 信封符合度（I-1 · 今日窗）", True,
+                  "★ %d/%d（★ 全量 %d）" % (_ok, _sc, _all))
+    except Exception as e:
+        skip("CAHAC 信封符合度（I-1）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。

@@ -39,13 +39,23 @@ def fetch_json(url, timeout=12):
 
 
 def list_ns(ns):
-    """列命名空间的键（★ 返回 (keys, err)）"""
+    """列命名空间的键（★ 返回 (keys, ts_map, err)）
+
+    ★★ 2026-10-13 修（★ 实测）：**换成返回外层 ts** —★
+      ★ 立据：卡自带的 `value.ts` 是 **epoch 数字**（★ 实测 `1788093978`）—★
+        ★★ 而【外层 ts】是 **ISO 格式**（★ `2026-10-13T06:24:11`）⇒ 可直接比。
+      ★ 且 list 本就带 ts ⇒ **不多一次请求**。
+    """
     try:
         d = fetch_json("%s/%s/" % (BB, ns))
         lst = d.get("list") or {}
-        return sorted(lst.keys()), None
+        ts_map = {}
+        for k, v in lst.items():
+            if isinstance(v, dict):
+                ts_map[str(k)] = str(v.get("ts") or "")
+        return sorted(lst.keys()), ts_map, None
     except Exception as e:
-        return [], "%s: %s" % (type(e).__name__, str(e)[:80])
+        return [], {}, "%s: %s" % (type(e).__name__, str(e)[:80])
 
 
 def card_value(ns, key):
@@ -57,7 +67,11 @@ def card_value(ns, key):
         return None
 
 
-def measure(namespaces):
+def measure(namespaces, since=None):
+    # ★★ 2026-10-13【时间窗】（★ I-1 分层）—★
+    #   ★ 立据：分母是【历史全量 642 张】⇒ ★★ **改工具不会让读数立刻变**。
+    #   ★ 故加 `--since <时刻缓存串>`（★ 如 `2026-10-13`）⇒ 只算时间窗内的卡。
+    since = (since or "").strip() or None
     seen = collections.Counter()          # 字段出现次数
     scanned = 0                           # ★ 真扫过的卡数（分母）
     with_payload = 0
@@ -65,7 +79,10 @@ def measure(namespaces):
     per_ns = {}
     errs = []
     for ns in namespaces:
-        keys, err = list_ns(ns)
+        keys, ts_map, err = list_ns(ns)
+        # ★ 2026-10-13（I-1 分层）：用【外层 ts】过窗（★ ISO 格式，★ 可直接比）
+        if since:
+            keys = [k for k in keys if str(ts_map.get(k) or '') >= since]
         if err:
             errs.append(err); per_ns[ns] = "ERR"; continue
         per_ns[ns] = len(keys)
@@ -88,8 +105,8 @@ def measure(namespaces):
                 envelope_ok=envelope_ok, per_ns=per_ns, errs=errs)
 
 
-def report(namespaces, as_json=False):
-    m = measure(namespaces)
+def report(namespaces, as_json=False, since=None):
+    m = measure(namespaces, since=since)
     scanned = m["scanned"]
     out = {"version": VERSION, "namespaces": namespaces,
            "scanned": scanned, "per_namespace": m["per_ns"], "errors": m["errs"],
@@ -196,6 +213,7 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ns", nargs="*", default=["notes/collab"])
+    ap.add_argument("--since", default=None, help="★ 时间窗（如 2026-10-13）：只算该时刻之后的卡")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selfcheck", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
@@ -204,7 +222,7 @@ def main():
     if a.version: print(VERSION); return 0
     if a.selfcheck: return selfcheck()
     if a.lean4_check: return lean4_check()
-    r = report(a.ns, as_json=a.json)
+    r = report(a.ns, as_json=a.json, since=a.since)
     return 0 if r["verdict"] in ("MEASURED", "UNDECIDABLE") else 1
 
 
