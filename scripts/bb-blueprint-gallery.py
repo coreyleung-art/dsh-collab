@@ -1931,6 +1931,48 @@ def sg_page_state(doc):
     return st
 
 
+def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
+    """★ P4 · R8（2026-10-12）：乐观锁 —— **并发互斥的机械保证**。
+
+    协议见 `docs/systemgraph-write-protocol-v1-20261012.md`：
+      · **不带 `expected_seq`** ⇒ 按当前 seq 直接追加（★ 向后兼容 P2/P3 的调用）
+      · **带上且相等** ⇒ 放行
+      · **带上但不等** ⇒ **409 Conflict**，★ 且响应体给出 `conflict{expected,actual}` 与 `current` 状态
+        （★ 让调用方**不必再发一次读**就能重试 —— 「拒绝也要把为什么和现在是什么给足」）
+
+    ★ 返回 True 表示放行；False 表示已回复（调用方应直接 return）。
+    """
+    if "expected_seq" not in req:
+        return True
+    exp = req.get("expected_seq")
+    if kind == "page":
+        cur = sg_page_read(name)
+        if not cur["ok"]:
+            reply(502, principal, verb, "读页面档失败：%s" % cur.get("err"), t0)
+            return False
+        actual = len((cur["doc"] or {}).get("history") or [])
+        state = sg_page_state(cur["doc"])
+    else:
+        cur = sg_graph_read(name)
+        if not cur["ok"]:
+            reply(502, principal, verb, "读图档失败：%s" % cur.get("err"), t0)
+            return False
+        actual = len((cur["doc"] or {}).get("entries") or [])
+        state = sg_graph_edges(cur["doc"])
+    try:
+        exp_i = int(exp)
+    except Exception:
+        reply(400, principal, verb, "★ expected_seq 必须是整数，收到 %r" % (exp,), t0)
+        return False
+    if exp_i != actual:
+        reply(409, principal, verb,
+              "★ 冲突：expected_seq=%s 但当前为 %s ⇒ 请取新 seq 后重试" % (exp_i, actual), t0,
+              {"conflict": {"expected": exp_i, "actual": actual},
+               "targetKind": kind, "targetName": name, "current": state})
+        return False
+    return True
+
+
 def sg_register_watch(key):
     """★ P3 · R5（2026-10-12）：把可写键**登记进模型监听面**。
 
@@ -2684,6 +2726,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % verr, t0)
                 return
             payload = req.get("payload") or {}
+            # ★ P4（R8）：乐观锁闸 —— 页面写
+            if not sg_optimistic_gate(req, "page", view, t0, principal, verb, self._sg_reply):
+                return
             if verb == "page.set_field":
                 key = str(payload.get("key") or "").strip()
                 if not key:
