@@ -1,7 +1,7 @@
 {
  "spec": "/Users/coreyleung/dsh-collab/docs/R006-插件化工具化标准-v3.0.md",
- "spec_sha256_16": "9dbe7085eba53fc2",
- "spec_lines": 305,
+ "spec_sha256_16": "19094d779e90bb9f",
+ "spec_lines": 357,
  "kb": "r006-tooling-standard-kb",
  "sections": [
   {
@@ -189,27 +189,32 @@
    "line": 94,
    "keywords": [
     "RULES.md",
+    "R006",
+    "scripts/r006-retrofit.js",
+    "r006-retrofit-scripts.js",
+    "resource-registry.md",
+    "sedimentation-chain-scan.py",
+    "~/.dsh/skills",
+    "/SKILL.md",
+    "docs/R006-index.json",
+    "pull-only",
+    "docs/complete-assessment-r006-discovery-sedimentation-20261009.md",
     "data/registry/",
     "GET /data/registry/<key>",
-    "knowledge_search",
-    "定义",
-    "检索到",
-    "验收标准",
-    "自检",
-    "反例",
-    "自动落链"
+    "knowledge_search"
    ],
    "summary": "定义：产出必须被登记，别人能检索到它。"
   },
   {
    "title": "⑨ CLI 治理",
    "anchor": "⑨-cli-治理",
-   "line": 100,
+   "line": 136,
    "keywords": [
     "dry-run",
     "json-out",
     "README",
     "CHANGELOG",
+    "sysgraph-version.sh",
     "成功 ·",
     "失败/门失效 ·",
     "用法或 IO 错误 ③ 存在",
@@ -217,16 +222,15 @@
     "--json-out",
     "--help",
     "--dry-run",
-    "定义",
-    "验收标准",
-    "退出码语义固定"
+    "**漏了 ⑨ 的",
+    "定义"
    ],
    "summary": "定义：CLI 行为规范、可预测、可脚本化。"
   },
   {
    "title": "⑩ 约束前置 · 不可绕过（Lean4 逻辑门）",
    "anchor": "⑩-约束前置-·-不可绕过lean4-逻辑门",
-   "line": 107,
+   "line": 147,
    "keywords": [
     "lean4-check",
     "--lean4-check",
@@ -248,7 +252,7 @@
   {
    "title": "3 · 交付物模板",
    "anchor": "3-·-交付物模板",
-   "line": 119,
+   "line": 159,
    "keywords": [
     "tool-or-plugin",
     "package.json",
@@ -270,7 +274,7 @@
   {
    "title": "3.1 `package.json` 最小字段",
    "anchor": "31-packagejson-最小字段",
-   "line": 136,
+   "line": 176,
    "keywords": [
     "dsh-plugin",
     "lib/index.js",
@@ -291,7 +295,7 @@
   {
    "title": "3.2 `selfcheck.js`（② 的落地）",
    "anchor": "32-selfcheckjs②-的落地",
-   "line": 149,
+   "line": 189,
    "keywords": [
     "~/.dsh/profiles",
     "~/.dsh/plugin-selfcheck",
@@ -308,7 +312,7 @@
   {
    "title": "4 · ⑩ 约束门的四种门型与 `--lean4-check` 六项模板",
    "anchor": "4-·-⑩-约束门的四种门型与---lean4-check-六项模板",
-   "line": 163,
+   "line": 203,
    "keywords": [
     "约束门的四种门型与",
     "`--lean4-check`",
@@ -319,7 +323,7 @@
   {
    "title": "4.1 四种门型（按场景选，可叠加）",
    "anchor": "41-四种门型按场景选可叠加",
-   "line": 165,
+   "line": 205,
    "keywords": [
     "JSON",
     "enum",
@@ -338,7 +342,7 @@
   {
    "title": "4.2 `--lean4-check` 六项模板（全绿才交付）",
    "anchor": "42---lean4-check-六项模板全绿才交付",
-   "line": 174,
+   "line": 214,
    "keywords": [
     "dry-run",
     "GateError",
@@ -359,7 +363,7 @@
   {
    "title": "5 · 验收流程（三步，可复制）",
    "anchor": "5-·-验收流程三步可复制",
-   "line": 189,
+   "line": 229,
    "keywords": [
     "lean4-check",
     "tool-version",
@@ -378,29 +382,29 @@
   {
    "title": "6 · 常见坑（全部有实据）",
    "anchor": "6-·-常见坑全部有实据",
-   "line": 207,
+   "line": 247,
    "keywords": [
     "cld-voice",
     "PATH",
     "~/CLAUDE.md",
+    "sysgraph-version.sh",
+    "dry-run",
+    "CHANGELOG",
     "cld",
+    "**缺 ⑨ 的",
+    "--dry-run",
     "门太宽",
     "先精确白名单命中，再对非白名单输入判禁用词",
     "扫描器误伤自己",
     "空洞通过",
-    "回原文读实参",
-    "假失败",
-    "结果态",
-    "过程态",
-    "检查报错原因",
-    "区分环境问题与包问题"
+    "回原文读实参"
    ],
    "summary": "| # | 坑 | 表现 | 修法 |"
   },
   {
    "title": "7 · 参考实现（已达标实例）",
    "anchor": "7-·-参考实现已达标实例",
-   "line": 221,
+   "line": 262,
    "keywords": [
     "CHANGELOG",
     "phi-user-sovereignty",
@@ -422,7 +426,7 @@
   {
    "title": "8 · 存量工具补课排期（按影响面）",
    "anchor": "8-·-存量工具补课排期按影响面",
-   "line": 238,
+   "line": 279,
    "keywords": [
     "cloudbase-handshake.sh",
     "device-daemon.py",
@@ -444,7 +448,7 @@
   {
    "title": "8.1 真挂载冒烟存量补课（2026-09-11 用户裁定：**全部 32 个都补**）",
    "anchor": "81-真挂载冒烟存量补课2026-09-11-用户裁定全部-32-个都补",
-   "line": 245,
+   "line": 286,
    "keywords": [
     "~/dsh-plugin-openpencil",
     "tests/client.test.mjs",
@@ -466,7 +470,7 @@
   {
    "title": "9 · 检索与索引（怎么在 10 秒内找到本文件）",
    "anchor": "9-·-检索与索引怎么在-10-秒内找到本文件",
-   "line": 262,
+   "line": 303,
    "keywords": [
     "~/dsh-collab/docs/R006-index.json",
     "r006-tooling-standard-kb",
@@ -487,7 +491,7 @@
   {
    "title": "快速查询话术（给任何会话）",
    "anchor": "快速查询话术给任何会话",
-   "line": 269,
+   "line": 310,
    "keywords": [
     "R006",
     "-v3.0.md",
@@ -501,7 +505,7 @@
   {
    "title": "附 · CHANGELOG",
    "anchor": "附-·-changelog",
-   "line": 281,
+   "line": 322,
    "keywords": [
     "dsh-plugin-cldvoice-activate",
     "UNSUPPORTED_SCHEMA",
@@ -514,11 +518,33 @@
     "JSON",
     "bb-write-README.md",
     "dsh-tools",
-    "dsh-plugin-reflect-enroll",
-    "comm-layer",
-    "defineTool"
+    "session-b250bf9d",
+    "pull-only",
+    "complete-assessment"
    ],
    "summary": "v3.1.1-a（2026-09-13，星桥 · 非规范性更正 §7 清单）：§7 参考实现表里 dsh-plugin-cldvoice-activate 原写\"十项全达标\" —— 该表述不成立：新硬项（①第5项真挂载冒烟）一上手就抓到它 defineTool 抛 UNSUPPORTED_SCHEMA（嵌套 objec"
+  },
+  {
+   "title": "编辑留痕（非规范性增补 · 2026-10-13）",
+   "anchor": "编辑留痕非规范性增补-·-2026-10-13",
+   "line": 350,
+   "keywords": [
+    "dry-run",
+    "phi-user-sovereignty",
+    "sysgraph-version.sh",
+    "CHANGELOG",
+    "--dry-run",
+    "做「G4 接线验证」，因该工具缺",
+    "9.9.9",
+    "check",
+    "6472a2bb1b0c5c64",
+    "release",
+    "§2 ⑨ 反例行",
+    "该反例已实际发生",
+    "硬要求",
+    "§6 坑表"
+   ],
+   "summary": "§2 ⑨ 反例行：补上「该反例已实际发生」的实据（并据此把 ⑨ 的 --dry-run 明确为硬要求）。"
   }
  ],
  "legacy_docs": [
