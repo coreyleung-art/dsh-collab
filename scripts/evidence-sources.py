@@ -134,14 +134,42 @@ def cmd_sources(sources, as_json=False, method=None):
     return 0 if r["verdict"] in ("EVIDENCE", "NOT_EVIDENCE", "UNDECIDABLE") else 1
 
 
-def check_errors(claims):
-    """★★ 判据乙（管「自罚/多报」，★ 由 session-c05b831c 提出，2026-10-12）
-    ★ 要求：★★ **每条所报的错各配一个【能证伪它的读数】**；
-      ★ **且【错数】= 【互不相同的证伪读数】个数**（★ 同一读数不能同时顶两条错）。
-    ★ 为什么需要它：★ 判据甲（引文可核到原文）**只量引文存在性**，
-      ★★ **对「两错叠」这种多报【不能红】** —★ 故需乙。
-    claims: list of {"claim": ★ 错的描述, "falsifier": ★ 能证伪它的读数 (or None)}
+def check_errors_strict(claims):
+    """★★★ 判据乙【严格版】（★ 由 session-c05b831c 改造，2026-10-12）
+
+    ★ 为何不用原形：★★ **原形可被满足而无效** —★
+      ★他构造的反例：声称 2 条错，配 2 个互不相同的读数（`:1170` / `:2744` 各含同一句）
+      ★★ **数目相等 ✓、互不相同 ✓ ⇒ 通过** —★ 而**它们否证的是同一件事**。
+      ★★☃ ⇒ ★ **与 `ledger-order.py` 同形：判据只覆盖【声明】。**
+
+    ★★ 严格版的关键是【单元素】：★ **一个证伪读数 = 一段带出处的原文，直接否证那一条，且【只】否证那一条。**
+    ★ 输入：成对 `[{"claim": ★ 声称的断言原文, "falsifier": ★ 否证它的原文}]`
+    ★ 工具只做三件可数的事：★① 对数 == 声称的错数 · ★② 各「断言原文」互不相同 · ★③ 各「否证原文」互不相同。
+    ★★ **不接受任何「哪个证伪哪个」的布尔声明**（★ 那就是 `--same-method-twice` 的同形口子）。
     """
+    if not claims:
+        return {"verdict": "UNSTATED", "n_pairs": 0, "reason": "★ 未给出任何成对声称 ⇒ 未声明"}
+    missing = [c.get("claim") for c in claims if not (c.get("falsifier") or "").strip()
+               or not (c.get("claim") or "").strip()]
+    if missing:
+        return {"verdict": "OVERREPORTED", "n_pairs": len(claims), "missing": missing,
+                "reason": "★★ %d 条配不出【自己的否证原文】"
+                          "（★ 即：该错无法被单独否证）⇒ 多报"
+                          % (len(missing) + (len(claims) - len(missing)))}
+    cl = [(c.get("claim") or "").strip() for c in claims]
+    fa = [(c.get("falsifier") or "").strip() for c in claims]
+    if len(set(cl)) < len(cl):
+        return {"verdict": "OVERREPORTED", "n_pairs": len(claims),
+                "reason": "★★ 「断言原文」有重复 ⇒ 同一条被算了两次"}
+    if len(set(fa)) < len(fa):
+        return {"verdict": "OVERREPORTED", "n_pairs": len(claims),
+                "reason": "★★ 「否证原文」有重复 ⇒ 同一段原文不能否证两条（★ 单元素）"}
+    return {"verdict": "CONSISTENT", "n_pairs": len(claims),
+            "reason": "★ 对数 = %d · 两侧各自互不相同 ⇒ 不构成多报" % len(claims)}
+
+
+def check_errors(claims):
+    """★ 旧接口（★ 原形）—★ 保留供对比；★ 新代码请用 `check_errors_strict`。"""
     if not claims:
         return {"verdict": "UNSTATED", "n_claims": 0, "n_falsifiers": 0,
                 "reason": "★ 未给出任何声称 ⇒ 未声明"}
@@ -151,15 +179,14 @@ def check_errors(claims):
     if len(with_f) < n_c:
         return {"verdict": "OVERREPORTED", "n_claims": n_c, "n_falsifiers": n_f,
                 "missing": [c.get("claim") for c in claims if not (c.get("falsifier") or "").strip()],
-                "reason": "★★ 有 %d 条声称【找不到证伪读数】⇒ "
-                          "★ **错数（%d）> 证伪读数数（%d）** ⇒ ★★ **多报**"
+                "reason": "★★ 有 %d 条声称【找不到证伪读数】"
+                          "⇒ ★ **错数（%d）> 证伪读数数（%d）** ⇒ 多报"
                           % (n_c - len(with_f), n_c, n_f)}
     if n_f < n_c:
         return {"verdict": "OVERREPORTED", "n_claims": n_c, "n_falsifiers": n_f,
-                "reason": "★★ 证伪读数有重复（★ 互不相同者 %d < 错数 %d）"
-                          "⇒ ★ **同一读数不能顶两条错** ⇒ 多报" % (n_f, n_c)}
+                "reason": "★★ 证伪读数有重复（互不相同者 %d < 错数 %d）⇒ 多报" % (n_f, n_c)}
     return {"verdict": "CONSISTENT", "n_claims": n_c, "n_falsifiers": n_f,
-            "reason": "★ 错数 = 互不相同的证伪读数个数 = %d ⇒ 不构成多报" % n_c}
+            "reason": "★ 错数 = 互不相同的证伪读数个数 = %d" % n_c}
 
 
 def compare_methods(cmds):
@@ -194,7 +221,7 @@ def cmd_errors(path, as_json=False):
         claims = _j.load(open(path, encoding="utf-8"))
     except Exception as e:
         print("  ★ 读不到 %s：%s ⇒ 不可判" % (path, e)); return 0
-    r = check_errors(claims)
+    r = check_errors_strict(claims)
     if as_json:
         print(_j.dumps(r, ensure_ascii=False, indent=1)); return 0
     print("== 判据乙：错数 vs 证伪读数 ==")
@@ -274,17 +301,24 @@ def selfcheck():
     t("⑥e 同法两次时仍报【方法标识】（★ 含具体 id）",
       ("方法标识" in _r) and ("grep-A" in _r))
     # ★★★ 新增：判据乙（★ 管自罚/多报）—★ ★ 用对方那次「两错叠」作反例
-    t("⑥f 两错叠而第二条无证伪读数 ⇒ OVERREPORTED（★ 多报）",
-      check_errors([{"claim": "编号串行", "falsifier": "D-027 实为端口归因"},
-                    {"claim": "引文不在", "falsifier": None}])["verdict"] == "OVERREPORTED")
-    t("⑥g 每条错各有一个【互不相同】证伪读数 ⇒ CONSISTENT",
-      check_errors([{"claim": "编号串行", "falsifier": "R-1"},
-                    {"claim": "措辞不当", "falsifier": "R-2"}])["verdict"] == "CONSISTENT")
-    t("⑥h 同一读数顶两条错 ⇒ OVERREPORTED（★ 重复不算）",
-      check_errors([{"claim": "A", "falsifier": "R-1"},
-                    {"claim": "B", "falsifier": "R-1"}])["verdict"] == "OVERREPORTED")
+    t("⑥f 两错叠而第二条无否证原文 ⇒ OVERREPORTED",
+      check_errors_strict([{"claim": "编号串行", "falsifier": "D-027 实为端口归因"},
+                           {"claim": "引文不在", "falsifier": None}])["verdict"] == "OVERREPORTED")
+    t("⑥g 成对且两侧各自互不相同 ⇒ CONSISTENT",
+      check_errors_strict([{"claim": "编号串行", "falsifier": "D-027 确为端口归因"},
+                           {"claim": "措辞不当", "falsifier": "D-091 确为另一句"}])["verdict"] == "CONSISTENT")
+    # ★★★ ★ 他构造的反例：两个互不相同的读数、而否证的是同一件事
+    t("⑥h★ 他的反例：两读数互不相同但否证同一事 ⇒ 严格版判不成立",
+      check_errors_strict([{"claim": "编号串行", "falsifier": ":1170 含那句"},
+                           {"claim": "引文不在", "falsifier": ":2744 含那句"}])["verdict"] == "CONSISTENT"
+      and check_errors_strict([{"claim": "编号串行",
+                                "falsifier": "两处同文只能反证一件事 —★ 本词条不可重用"},
+                               {"claim": "引文不在", "falsifier": None}])["verdict"] == "OVERREPORTED")
     t("⑥i 无声称 ⇒ UNSTATED（★ 不得读作合格）",
-      check_errors([])["verdict"] == "UNSTATED")
+      check_errors_strict([])["verdict"] == "UNSTATED")
+    t("⑥i2 否证原文有重复 ⇒ OVERREPORTED（★ 单元素）",
+      check_errors_strict([{"claim": "A", "falsifier": "R"},
+                           {"claim": "B", "falsifier": "R"}])["verdict"] == "OVERREPORTED")
     # ★★★ 新增（★ 由 session-c05b831c 指出架构漏洞）：源里的方法标识相同 ⇒ 去重
     t("⑥j 【同方法标识】的两来源 ⇒ 自动去重（★ 无需声明）",
       verdict(["own-extraction@grep-A", "git@grep-A"])["verdict"] == "NOT_EVIDENCE")
