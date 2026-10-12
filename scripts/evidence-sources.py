@@ -59,8 +59,16 @@ def count_independent(sources):
 def verdict(sources):
     n, classes = count_independent(sources)
     if not sources:
-        return {"n": 0, "classes": {}, "verdict": "UNDECIDABLE",
-                "reason": "★ 未给出来源 ⇒ 不可判（★ 不得读作 n=1，也不得读作通过）"}
+        # ★★★ 修（2026-10-12，★ 由 session-c05b831c 指出）：
+        #   ★ 空来源是【未声明（UNSTATED）】，★★ **不是【不可判（UNDECIDABLE）】**。
+        #   ★ 区别：未声明 = 调用者【没给】来源（★ 他没做事）；
+        #          不可判 = 给了来源但【无法判定】（★ 判据不够）。
+        return {"n": 0, "classes": {}, "verdict": "UNSTATED",
+                "reason": "★ 未给出来源清单 ⇒ **未声明**（★ 不得读作 n=1，也不得读作通过）"}
+    # ★★ ★ 真正的【不可判】：有来源，但类型均无法归类 ⇒ 判据不够，★ 不是「他没声明」也不是「他提交不足」
+    if sources and all(c.startswith("unknown:") for c in classes):
+        return {"n": n, "classes": classes, "verdict": "UNDECIDABLE",
+                "reason": "★ 有来源但类型均无法归类 ⇒ **不可判**（★ 需先定义这些类型）"}
     if n <= 1:
         return {"n": n, "classes": classes, "verdict": "NOT_EVIDENCE",
                 "reason": "★ n=%d ⇒ **不得记作证据**（★ 所有来源共享同一假设类：%s）"
@@ -108,7 +116,9 @@ def selfcheck():
         nonlocal ok, tot
         tot += 1; ok += bool(cond)
         print("  %s %s" % ("OK " if cond else "★ 不成立", name))
-    t("① 空来源 ⇒ UNDECIDABLE（★ 不得读作 n=1 或通过）", verdict([])["verdict"] == "UNDECIDABLE")
+    t("① 空来源 ⇒ **UNSTATED（未声明）**（★ 不得读作 n=1 或通过）", verdict([])["verdict"] == "UNSTATED")
+    t("①b **UNSTATED ≠ UNDECIDABLE**（★ 两个不同的三态位）", verdict([])["verdict"] != "UNDECIDABLE")
+    t("①c 来源类型无法归类 ⇒ 真正的 UNDECIDABLE", verdict(["zzz-unknown-1","yyy-unknown-2"])["verdict"] == "UNDECIDABLE")
     t("② 单一来源 ⇒ NOT_EVIDENCE", verdict(["own-extraction"])["verdict"] == "NOT_EVIDENCE")
     t("③ 两个【同类】来源 ⇒ 仍 NOT_EVIDENCE（★ 共享假设不算独立）",
       verdict(["own-extraction", "own-production"])["verdict"] == "NOT_EVIDENCE")
