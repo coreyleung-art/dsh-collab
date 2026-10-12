@@ -54,6 +54,8 @@ CATALOG = [
      "★ 立据：V2 审查两次皆空 · R2 首次零产出 · 20 代理零引用"),
     ("★★ SLO 目标是形容词", "slo-target-form.py",
      "★ 立据：14 个指标中 3 条判不可判，根因同一个——目标是形容词/架构性质"),
+    ("★★ 队列待投遂无超时标", "bus-pending-age.py",
+     "★ 立据：111/122 pending、最老 50.8 天、而 **expired = 0**"),
 ]
 
 def find_tool(name):
