@@ -217,6 +217,52 @@ def probe_patrol_heartbeat(cmd=None, timeout: int = 30) -> tuple[str, str]:
     return "undecidable", f"exit={r.returncode} ⇒ 不可判（★ 读不到 ≠ 不存在，不冒充成立）"
 
 
+# ---------------------------- ★★ 告警卡的「读者」（M4①d / M4③②）
+# ★ 为何放在这里：§14.4 M4①d 与 M4③② 都要求「产生告警【且有读者】」，
+#   而本纳 2026-10-12 实测：`drift-delivery-failure/` 与 `bus-expired-alert/` 两个目录
+#   ★★ 全机只有写者、0 读者（D-185 / D-187）。
+# ★ 逻辑（机械，无判断）：两个目录的语义都是「异常时才写」
+#   ★★ ⇒ 为空 = 绿；非空 = 红。
+ALERT_DIRS = ["data/ops/drift-delivery-failure", "data/ops/bus-expired-alert"]
+
+
+def _board_token() -> str:
+    for f in ("~/.dsh/board-token", "~/.dsh/blackboard-token"):
+        p = os.path.expanduser(f)
+        if os.path.exists(p):
+            try:
+                return open(p, encoding="utf-8").read().strip()
+            except Exception:
+                pass
+    return os.environ.get("DSH_BB_TOKEN", "")
+
+
+def read_alert_cards(board_url=None, timeout: int = 8) -> dict:
+    """★ 读两个「异常才写」的告警目录 ⇒ {dir: (n, sample)} 或 {dir: None}"""
+    import urllib.request
+    base = (board_url or os.environ.get("DSH_BB_URL") or "http://127.0.0.1:8792").rstrip("/")
+    out = {}
+    for d in ALERT_DIRS:
+        try:
+            req = urllib.request.Request(base + "/" + d + "/")
+            tk = _board_token()
+            if tk:
+                req.add_header("Authorization", "Bearer " + tk)
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                j = json.loads(r.read())
+            lst = j.get("list") or {}
+            n = len(lst) if hasattr(lst, "__len__") else 0
+            sample = ""
+            if isinstance(lst, dict) and lst:
+                k0 = sorted(lst.keys())[-1]
+                v0 = (lst[k0] or {}).get("value") or {}
+                sample = str(v0.get("subject") or v0.get("note") or v0.get("failedLegs") or "")[:110]
+            out[d] = (n, sample)
+        except Exception:
+            out[d] = None
+    return out
+
+
 def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         accept_shrink: bool = False) -> int:
     global RESULTS, SKIPPED, PENDING
@@ -410,6 +456,29 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
                   "★ 静默容忍此红，正是 401 冻结 7.5 天无人知的原因。" + pdet[:160])
         else:
             skip("通道巡检心跳新鲜度（M4①d）", pdet)
+
+    # ★★ M4①d / M4③②：告警卡的读者 —★ 2026-10-12 实测两目录 0 读者后补。
+    #   为空 = 绿；非空 = 红（两目录语义都是「异常时才写」）。
+    if not net:
+        skip("告警卡有读者（M4①d/M4③②）",
+             "未开 --net ⇒ 未抽检（未抽检 ≠ 通过）")
+    else:
+        _cards = read_alert_cards()
+        _unread = [d for d, v in _cards.items() if v is None]
+        _hot = [(d, v[0], v[1]) for d, v in _cards.items() if v and v[0] > 0]
+        if len(_unread) == len(_cards):
+            skip("告警卡有读者（M4①d/M4③②）",
+                 "两个目录都读不到 ⇒ 不可判（不冒充绿）")
+        elif _hot:
+            check("告警卡有读者（M4①d/M4③②）", False,
+                  "★★ 有未处理告警 " + str(sum(n for _, n, _ in _hot)) + " 条："
+                  + "；".join("%s=%d条（%s）" % (d.split("/")[-1], n, sm[:60]) for d, n, sm in _hot)
+                  + " ★ 处理后自然转绿")
+        else:
+            _ok = [d for d, v in _cards.items() if v is not None]
+            check("告警卡有读者（M4①d/M4③②）", True,
+                  "已读 %d 个目录、均为空 ⇒ 无未处理告警" % len(_ok)
+                  + ("（读不到：" + ",".join(_unread) + "）" if _unread else ""))
 
     return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
 
