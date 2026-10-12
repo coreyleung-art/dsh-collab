@@ -352,6 +352,89 @@ function tipText(n){
   if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
   return '连接 · '+String(n.dim||'');
 }
+/* ══════════ ★ C4（2026-10-12）：两圈页 · 一次【知识回收】 ══════════
+   ★★ 缘起：台账 D-076 记「**两圈（原始为三分）设计被遗忘** —— 写在 research/cost-governance/」。
+   ★★ 本页最值钱的不是设计本身，是【**它为什么被遗忘**】：
+     治理检索面长期只扫 `docs/`，而实测圈二证据全在 `research/` 与 `erp-workspace/`，
+     **`docs/` 里「门店」几乎为 0** ⇒ **治理所依据的 docs/ 是信息量最小的地层之一**。
+   ★★ 引文是【实时核验的指针】而非字符串（文件是否仍在 · mtime · 行是否还在）。
+   ★ 数据源 = /api/two-circles（只读）。 */
+async function renderTwoCircles(){
+  const box=$('view-circles'); if(!box) return;
+  box.innerHTML='<div class="empty">加载中…</div>';
+  let d;
+  try{ d=await j('/api/two-circles'); }
+  catch(e){ box.innerHTML='<div class="empty">★ 读取失败：'+e.message+'</div>'; return; }
+  if(!d||d.error){ box.innerHTML='<div class="empty">★ 端点报错：'+((d&&d.error)||'返回为空')+'</div>'; return; }
+  box.innerHTML='';
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const md=s=>esc(String(s||'').replace(/\*\*/g,''));
+
+  box.appendChild(el('h3','','⭕ '+esc(d.title)));
+  // ── ① ★ 为什么被遗忘（放最前 —— 本页最值钱的部分）──
+  box.appendChild(el('div','','<div style="background:#2a1f10;border:1px solid #7a5a1e;border-radius:10px;padding:10px 12px;margin:0 0 12px">'
+    +'<div style="font-size:12.5px;color:#f5b942;font-weight:600">★ 它为什么被遗忘</div>'
+    +'<div style="font-size:11.5px;color:#e8eaf0;margin-top:4px">'+md(d.forgotten_rootcause)+'</div></div>'));
+  // ── ② 七地层对比（★ 让「docs 最小」可数）──
+  const st=d.strata||[];
+  const maxS=Math.max.apply(null, st.map(x=>x.stores||0).concat([1]));
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:6px 0 4px">'
+    +'地层对比（文件数 / 含「门店·两圈」处数）</div>'
+    + st.map(x=>'<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #1a2130;min-height:36px;'
+      +(x.layer==='docs'?'background:#1a1220':'')+'">'
+      +'<span style="flex:0 0 104px;font-size:11.5px;color:'+(x.layer==='docs'?'#e06c75':'#e8eaf0')+'">'
+      +esc(x.layer)+(x.layer==='docs'?' ★':'')+'</span>'
+      +'<span style="flex:0 0 54px;text-align:right;font-size:11px;color:#8b90a3">'+x.files+' 件</span>'
+      +'<span style="flex:1"><span style="display:inline-block;height:8px;border-radius:4px;background:'
+      +(x.stores?'#2d5a94':'#232a3a')+';width:'+Math.round(100*(x.stores||0)/maxS)+'%;min-width:4px"></span></span>'
+      +'<span style="flex:0 0 72px;text-align:right;font-size:11px;color:'+(x.stores?'#f5b942':'#5a6072')+'">'
+      +(x.stores!=null?(x.stores+' 处'):'—')+'</span></div>').join('')));
+  // ── ③ 三分设计本体 ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">'
+    +'原始三分（2026-08-22 · HR · 用户提出）</div>'
+    + (d.design||[]).map(x=>'<div style="padding:8px 10px;border-bottom:1px solid #1a2130;min-height:42px">'
+      +'<div style="font-size:12px;color:#e8eaf0">'+esc(x.k)+'</div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px">来源：'+esc(x.src)+' · 信任度：'+esc(x.trust)+'</div>'
+      +'<div style="font-size:11px;color:#5a6072">认证：'+esc(x.auth)+'</div></div>').join('')));
+  // ── ④ 角色矩阵 ──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#34c77b;font-weight:600;margin:14px 0 4px">角色矩阵（角色 → 数据边界 + 工具集 + 审批）</div>'
+    + (d.roles||[]).map(x=>'<div style="padding:8px 10px;border-bottom:1px solid #1a2130;min-height:44px">'
+      +'<div style="font-size:12px;color:#e8eaf0">'+esc(x.k)+'</div>'
+      +'<div style="font-size:11px;color:#8b90a3;margin-top:2px">边界：'+esc(x.bound)+'</div>'
+      +'<div style="font-size:11px;color:#8b90a3">工具：'+esc(x.tools)+'</div>'
+      +'<div style="font-size:11px;color:#f5b942">审批：'+esc(x.appr)+'</div></div>').join('')));
+  // ── ⑤ 决策 + 触发 + 升级路径 ──
+  box.appendChild(el('div','','<div style="margin-top:12px;background:#0d1119;border:1px solid #232a3a;border-radius:10px;padding:10px 12px">'
+    +'<div style="font-size:12px;color:#6ea8ff;font-weight:600">部署形态决策（用户 2026-08-22 确认）</div>'
+    +'<div style="font-size:11.5px;color:#e8eaf0;margin-top:4px">'+md(d.decision)+'</div>'
+    +'<div style="font-size:11.5px;color:#f5b942;margin-top:6px">'+md(d.trigger)+'</div>'
+    +'<div style="font-size:11px;color:#8b90a3;margin-top:6px">多租户升级路径（五步）：</div>'
+    + (d.upgrade_path||[]).map(p=>'<div style="font-size:11px;color:#8b90a3;padding-left:8px">'+esc(p)+'</div>').join('')
+    +'</div>'));
+  // ── ⑥ 圈二现状 ──
+  box.appendChild(el('div','','<div style="margin-top:12px;background:#2a1218;border:1px solid #7a2040;border-radius:10px;padding:10px 12px">'
+    +'<div style="font-size:12px;color:#e06c75;font-weight:600">圈二现状（今天）</div>'
+    +'<div style="font-size:11.5px;color:#e8eaf0;margin-top:4px">'+md(d.statusToday)+'</div></div>'));
+  // ── ⑦ ★ 引文核验（实时）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#f5b942;font-weight:600;margin:14px 0 4px">'
+    +'★ 引文核验（实时 · '+d.citesOk+'/'+d.citesTotal+' 条在位）</div>'
+    + (d.cites||[]).map(c=>'<div style="padding:7px 10px;border-bottom:1px solid #1a2130;min-height:38px">'
+      +'<div style="font-size:11.5px;color:'+(c.exists?'#34c77b':'#e06c75')+'">'+(c.exists?'●':'✗')+' '+esc(c.cite)+'</div>'
+      +(c.exists?('<div style="font-size:10.5px;color:#5a6072">'
+        +c.bytes+' B · '+c.lines+' 行 · mtime '+esc(c.mtime)
+        +(c.lineExists!=null?(' · 第 '+c.cite.split(':')[1]+' 行'+(c.lineExists?'仍在':'★已越界')):'')
+        +'</div>'+(c.linePreview?'<div style="font-size:10.5px;color:#8b90a3;margin-top:2px">'+esc(c.linePreview)+'</div>':''))
+        :('<div style="font-size:10.5px;color:#e06c75">★ '+esc(c.err||'不存在')+'</div>'))+'</div>').join('')));
+  // ── ⑧ 行动提案（★ 不代裁）──
+  box.appendChild(el('div','','<div style="font-size:12px;color:#6ea8ff;font-weight:600;margin:14px 0 4px">行动提案（★ 不代裁）</div>'
+    + (d.proposals||[]).map((p,i)=>'<div style="display:flex;gap:8px;padding:7px 10px;border-bottom:1px solid #1a2130;min-height:38px">'
+      +'<span style="flex:0 0 18px;color:#6ea8ff">'+(i+1)+'</span>'
+      +'<span style="flex:1;font-size:11.5px;color:#e8eaf0">'+md(p)+'</span></div>').join('')));
+  // ── ⑨ 口径 ──
+  box.appendChild(el('div','','<div style="font-size:11px;color:#5a6072;margin:14px 0 0;padding:8px 10px;'
+    +'background:#0d1119;border:1px solid #232a3a;border-radius:8px">'+md(d.note)
+    +'<br>数据截至 '+esc(d.generatedAt)+' · '+esc(d.writer)+'</div>'));
+}
 /* ══════════ ★ C2（2026-10-12）：进度页 · 阶段轴 ══════════
    ★★ 本页第一条要印的不是进度，是【警告】：旧阶段图（阶段 0–4）所在件
      `architecture-evolution-stages-v1.0.md` 的 `mtime == birth == 2026-08-22`

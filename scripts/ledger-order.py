@@ -198,6 +198,13 @@ def selfcheck():
     nonwild = [r for r in rows if not r.get("wildcard")]
     a = len(wild) > 0 and all(r.get("delta_min") is None for r in wild)
     print("  %s ③b 通配位不参与分钟级比对（通配 %d 条 · 可比 %d 条）" % ("OK " if a else "★ 不成立", len(wild), len(nonwild))); ok += a
+    # ③d ★★ 新增（★ 由 `session-c05b831c` 建议）：【上界值不得参与分钟级差】
+    #   ★ 理由：`commit_upper_bound` 的真值同样不是确切时刻 ⇒ 应与通配位【同一规则】。
+    tot += 1
+    rows = audit()
+    ubs = [r for r in rows if r.get("upper_bound")]
+    a = len(ubs) > 0 and all(r.get("delta_min") is None for r in ubs)
+    print("  %s ③d 上界值不参与分钟级差（上界 %d 条 · 均 delta=None）" % ("OK " if a else "★ 不成立", len(ubs))); ok += a
     # ③c ★★ 新增：可比对条目的 written 不得全为同一常量（★ 防「空转」）
     tot += 1
     vals = set(r["written"] for r in nonwild)
