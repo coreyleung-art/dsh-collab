@@ -520,6 +520,28 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("既有 lint 清单就位（D-209）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-12（D-235）：判据健康度（★ 恒真自证扫查）—★ 防「自证很美而从不会红」。
+    #   ★ 立据：`gcr-gate` 旧版五条负例全是恒真（`0 == 0`）⇒ 可信负控 = 0（D-204）。
+    #   ★ 只跑【读源码】那一轮（★ 不加 --run，★ 免慢）。
+    try:
+        _sa = subprocess.run([sys.executable, str(ROOT / "tools" / "selftest-audit.py"),
+                              "--root", "tools", "--json"],
+                             capture_output=True, text=True, timeout=30)
+        _rows = json.loads(_sa.stdout)
+        _taut = [r for r in _rows if r.get("tautologies")]
+        if not _rows:
+            skip("判据健康度（恒真自证扫查）", "扫描面为空 ⇒ 不可判")
+        elif _taut:
+            check("判据健康度（恒真自证扫查）", False,
+                  "★★ %d 件含恒真自证条目：%s ★ 修后自然转绿"
+                  % (len(_taut), ",".join(r["file"] for r in _taut[:3])))
+        else:
+            check("判据健康度（恒真自证扫查）", True,
+                  "★ %d 个 .py 无恒真自证条目；★★ 全量实跑请跑 "
+                  "`python3 tools/selftest-audit.py --root tools --run`" % len(_rows))
+    except Exception as e:
+        skip("判据健康度（恒真自证扫查）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
 
 
