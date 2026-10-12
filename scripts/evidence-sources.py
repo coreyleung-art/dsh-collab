@@ -56,7 +56,18 @@ def count_independent(sources):
     return len(classes), classes
 
 
-def verdict(sources):
+def verdict(sources, method=None):
+    """★★ 新增（2026-10-12，★ 由 session-c05b831c 建议）：【同法两次 ⇒ n 不增】
+    ★ 理由：★ 同法两次，**来源数仍是 1** —★ 与「判据的独立来源数 n」**同一把尺**。
+    ★ 两次结果一致时，若**方法标识相同** ⇒ 该结果不计入证据数。
+    """
+    if method and method.get("same_method_twice"):
+        n, classes = count_independent(sources)
+        return {"n": n, "classes": classes, "verdict": "NOT_EVIDENCE",
+                "same_method_twice": True,
+                "reason": "★★ **同法两次 ⇒ n 不增**（★ 方法标识相同：%s）"
+                          "⇒ 不得记作证据" % method.get("id", "?")}
+
     n, classes = count_independent(sources)
     if not sources:
         # ★★★ 修（2026-10-12，★ 由 session-c05b831c 指出）：
@@ -78,8 +89,8 @@ def verdict(sources):
                       % (n, "/".join(sorted(classes.keys())))}
 
 
-def cmd_sources(sources, as_json=False):
-    r = verdict(sources)
+def cmd_sources(sources, as_json=False, method=None):
+    r = verdict(sources, method)
     if as_json:
         print(json.dumps(r, ensure_ascii=False, indent=1)); return 0
     print("== evidence-sources %s ==" % VERSION)
@@ -149,6 +160,15 @@ def selfcheck():
     _i = _code.find("def selfcheck")
     if _i > 0:
         _code = _code[:_i]
+    # ★★★ 新增（★ 由 session-c05b831c 建议）：同法两次 ⇒ n 不增
+    t("⑥d 同法两次 ⇒ NOT_EVIDENCE（★ n 不增）",
+      verdict(["own-extraction"])["verdict"] == "NOT_EVIDENCE" and
+      verdict(["own-extraction"], {"same_method_twice": True, "id": "grep-A"})["verdict"] == "NOT_EVIDENCE")
+    # ★ 到此又踩一次：刚才判据查 reason 里有无 `same_method_twice`，
+    #   ★ 而实际 reason 写的是中文文案「方法标识相同」。★ 修法：判它含【方法标识】字样且含具体 id。
+    _r = verdict(["a"], {"same_method_twice": True, "id": "grep-A"}).get("reason", "")
+    t("⑥e 同法两次时仍报【方法标识】（★ 含具体 id）",
+      ("方法标识" in _r) and ("grep-A" in _r))
     t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
       ("--n" not in _code) and ("add_argument('n'" not in _code) and ("add_argument(\"n\"" not in _code))
     print("\n== 负控 %d/%d ==" % (ok, tot))
@@ -184,13 +204,16 @@ def main():
     ap.add_argument("--selfcheck", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--same-method-twice", dest="smt", action="store_true",
+                    help="★ 两次结果一致且【方法标识相同】 ⇒ n 不增")
     ap.add_argument("--version", action="store_true")
     a = ap.parse_args()
     if a.version: print(VERSION); return 0
     if a.selfcheck: return selfcheck()
     if a.lean4_check: return lean4_check()
     if a.scan: return cmd_scan(a.scan)
-    return cmd_sources(a.sources or [], a.json)
+    m = {"same_method_twice": True, "id": "★ --same-method-twice"} if getattr(a, "smt", False) else None
+    return cmd_sources(a.sources or [], a.json, m)
 
 
 if __name__ == "__main__":
