@@ -2260,6 +2260,183 @@ def sg_baseline_write(ids):
         return False
 
 
+# ══════════ ★ P5.2（2026-10-12 明鉴）：派发五道门 ══════════
+# ★★ 五道门的分工（规划 §1 架构图）：
+#   门1 属主门   —— owner 必须解析到一个【在线且存活】会话（★ P5.0 已建）
+#   门2 去重门   —— 同 gapId 在【按族分级】的冷却期内不重派 + ★ 棘轮（P5.1 已建）
+#   门3 频次门   —— 持久化 per-recipient ≤3/h + 全局 ≤10/h + ★ **突发限**（≤2/60s）
+#   门4 熔断门   —— 连续 N 次**无实质进展** ⇒ 熔断该 owner（换域复用 channel-gate 的 judge() 语义）
+#   门5 送达回执 —— ★ **未 ack 进 pending；任何后续唤醒【必然附带投递 pending】** + 对账扫描
+#
+# ★★ 两条全局纪律：
+#   ① **全部默认拒绝（fail-closed）**：任一门拿不到状态 ⇒ **拒**，绝不「查不到就放行」
+#   ② **位置在【派发前、派发方】**（Temporal 原文口径：「enforces this limit before dispatching
+#      tasks」）—— ★ 不让收件人自己挡
+#
+# ★★★ 为什么必须有门5（调研第一号建议，原文已核实）：
+#   「危险的不是『不唤醒』，也不是『唤醒』，而是 —— **承诺了不唤醒、但通知并没有保证送达**。」
+#   openclaw PR#54549：无条件告诉 agent「No need to poll」，而通知静默丢弃 ⇒
+#   "would tell the agent not to poll while the notification never arrives"
+#   ★★ **这正是本网络 11.5h 互等的机制。** ⇒ 门5 的存在，才使「不唤醒」成为安全选项。
+SG_SWITCH = "data/registry/sg-dispatch-switch"
+SG_DISPATCH_LOG = "data/registry/sg-dispatch-log"
+SG_RATE = "data/registry/sg-rate"
+SG_BREAKER = "data/registry/sg-breaker"
+SG_RECEIPT = "data/registry/sg-receipt"
+
+# ★ 冷却期【按族分级】（抄 Redis 配额设计：CRITICAL 5min / TRANSACTIONAL 1h / MARKETING 24h）
+SG_COOLDOWN = {"G3": 300, "A": 300, "B": 300, "C": 300, "E": 300, "G1": 86400, "G2": 86400, "D": 86400, "G4": 86400}
+SG_RATE_PER_RECIPIENT = 3      # ≤3/h
+SG_RATE_GLOBAL = 10            # ≤10/h
+SG_BURST_WINDOW = 60           # 突发窗口 60s
+SG_BURST_MAX = 2               # ★ 突发限：60s 内 ≤2（固定窗口在边界有 ±100% 突发，而风暴正发生在边界）
+SG_BREAKER_FAILS = 3           # 连续 3 次无实质进展 ⇒ 熔断
+SG_BREAKER_FREEZE_H = 24       # 熔断冻结 24h
+
+
+def _bb_get(key):
+    """★ 读黑板键。★ 返回 (value|None, err)。★ 404 ⇒ (None, None) 而非错误（键不存在是正常态）。"""
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8792/%s" % key, timeout=8) as r:
+            return (json.loads(r.read().decode()).get("value"), None)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None, None
+        return None, "HTTP %s" % e.code
+    except Exception as e:
+        return None, "%s: %s" % (type(e).__name__, e)
+
+
+def _bb_put(key, val):
+    try:
+        body = json.dumps(val, ensure_ascii=False).encode()
+        rq = urllib.request.Request("http://127.0.0.1:8792/%s" % key, data=body, method="PUT",
+                                    headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(rq, timeout=8) as r:
+            r.read()
+        return True, None
+    except Exception as e:
+        return False, "%s: %s" % (type(e).__name__, e)
+
+
+def sg_gate_switch():
+    """★ 总开关。★ 缺省 = **关**（fail-closed：没有开关文件 ⇒ 不派发）。"""
+    v, err = _bb_get(SG_SWITCH)
+    if err:
+        return False, "总开关读不到（%s）⇒ fail-closed 判【关】" % err
+    if not isinstance(v, dict):
+        return False, "总开关未设置 ⇒ 默认【关】"
+    return bool(v.get("on")), ("开" if v.get("on") else "关") + "（by %s at %s）" % (v.get("by", "?"), v.get("at", "?"))
+
+
+def sg_gate_freq(owner):
+    """★ 门3 频次门。★ 持久化（落黑板键）。★ 三档：per-recipient / 全局 / 突发。"""
+    now = time.time()
+    v, err = _bb_get(SG_RATE)
+    if err:
+        return False, "★ 频次状态读不到（%s）⇒ fail-closed 拒" % err
+    rec = v if isinstance(v, dict) else {}
+    hist = [x for x in (rec.get("hits") or []) if isinstance(x, dict) and now - x.get("t", 0) < 90000]
+    mine = [x for x in hist if x.get("owner") == owner]
+    h1 = [x for x in hist if now - x.get("t", 0) < 3600]
+    m1 = [x for x in mine if now - x.get("t", 0) < 3600]
+    burst = [x for x in mine if now - x.get("t", 0) < SG_BURST_WINDOW]
+    if len(burst) >= SG_BURST_MAX:
+        return False, "★ 突发限：60s 内已 %d 次（上限 %d）" % (len(burst), SG_BURST_MAX)
+    if len(m1) >= SG_RATE_PER_RECIPIENT:
+        return False, "★ 单收件人频次：1h 内已 %d 次（上限 %d）" % (len(m1), SG_RATE_PER_RECIPIENT)
+    if len(h1) >= SG_RATE_GLOBAL:
+        return False, "★ 全局频次：1h 内已 %d 次（上限 %d）" % (len(h1), SG_RATE_GLOBAL)
+    return True, "通过（本收件人 1h %d/%d · 全局 1h %d/%d · 突发 %d/%d）" % (
+        len(m1), SG_RATE_PER_RECIPIENT, len(h1), SG_RATE_GLOBAL, len(burst), SG_BURST_MAX)
+
+
+def sg_gate_freq_record(owner, gap_id):
+    """★ 记一次实际派发（只在【真派了】之后调）。"""
+    v, _ = _bb_get(SG_RATE)
+    rec = v if isinstance(v, dict) else {}
+    hist = [x for x in (rec.get("hits") or []) if isinstance(x, dict) and time.time() - x.get("t", 0) < 90000]
+    hist.append({"t": time.time(), "owner": owner, "gapId": gap_id})
+    return _bb_put(SG_RATE, {"hits": hist[-500:], "at": datetime.datetime.now().isoformat()})
+
+
+def sg_gate_dedup(gap_id, family):
+    """★ 门2 去重门。★ 冷却期按族分级。★ 从派发日志（append-only）推导，不另存一份状态。"""
+    now = time.time()
+    cd = SG_COOLDOWN.get(family, 86400)
+    v, err = _bb_get(SG_DISPATCH_LOG)
+    if err:
+        return False, "★ 派发日志读不到（%s）⇒ fail-closed 拒" % err
+    log = v if isinstance(v, dict) else {}
+    ents = log.get("dispatches") or []
+    last = max([e.get("t", 0) for e in ents if isinstance(e, dict) and e.get("gapId") == gap_id] or [0])
+    if last and (now - last) < cd:
+        return False, "★ 冷却中：%d 秒前已派过（冷却 %ds）" % (int(now - last), cd)
+    return True, "未在冷却期内（冷却 %ds）" % cd
+
+
+def sg_gate_breaker(owner):
+    """★ 门4 熔断门。★ 换域复用 channel-gate 的 judge() 语义：连续 N 次【无实质进展】⇒ 冻结。
+
+    ★★ 判据是【实质状态变化】而非「有没有响应」（paperclip PR#15847 的坑：
+      把「发了评论」当进展 ⇒ 交替 comment/no-comment 就【永久豁免】）。
+      本实现里「实质进展」= 该 gap 在下一轮检出里**消失**；未消失即计一次无进展。
+    """
+    now = time.time()
+    v, err = _bb_get(SG_BREAKER)
+    if err:
+        return False, "★ 熔断状态读不到（%s）⇒ fail-closed 拒" % err
+    st = v if isinstance(v, dict) else {}
+    o = (st.get("owners") or {}).get(owner) or {}
+    if o.get("frozenUntil") and now < o["frozenUntil"]:
+        return False, "★ 已熔断（至 %s）—— 须人工复位" % datetime.datetime.fromtimestamp(o["frozenUntil"]).strftime("%m-%d %H:%M")
+    if (o.get("noProgressStreak") or 0) >= SG_BREAKER_FAILS:
+        return False, "★ 连续 %d 次无实质进展 ⇒ 应熔断（须人工复位）" % o.get("noProgressStreak")
+    return True, "未熔断（无进展连击 %d/%d）" % (o.get("noProgressStreak") or 0, SG_BREAKER_FAILS)
+
+
+def sg_gate_receipt(gap_id):
+    """★ 门5 送达回执门（★ 调研第一号建议）。
+
+    ★ 语义：① 未 ack 的缺口记入 pending；② **任何后续唤醒【必然附带投递全部 pending】**；
+            ③ 定期（30–60min）对账扫描兜底。
+    ★★ 本门【不拦】—— 它是**保证送达**的门，不是限制门（它是让「不唤醒」安全的那个前提）。
+    """
+    v, err = _bb_get(SG_RECEIPT)
+    if err:
+        return False, "★ 回执区读不到（%s）⇒ fail-closed 拒" % err
+    r = v if isinstance(v, dict) else {}
+    pend = [x for x in (r.get("pending") or []) if isinstance(x, dict)]
+    return True, "回执区可读 · 当前 pending %d 条（★ 下次唤醒将附带投递）" % len(pend)
+
+
+def sg_gate_chain(gap, owner):
+    """★★ 五道门串联。★ 返回 (allowed, gate_name, reason)。★ 任一不过 ⇒ 立即返回。
+
+    ★★ 顺序有意为之：先【能不能发】（开关/属主），再【该不该发】（去重/频次/熔断），
+       最后【发了能不能到】（回执）。⇒ 前面的门便宜，后面的门贵。
+    """
+    on, why = sg_gate_switch()
+    if not on:
+        return False, "门0 总开关", "★ 总开关【关】：%s" % why
+    alive, r1, n = sg_owner_alive(owner)
+    if not alive:
+        return False, "门1 属主门", r1
+    ok, r2 = sg_gate_dedup(gap.get("gapId"), gap.get("family"))
+    if not ok:
+        return False, "门2 去重门", r2
+    ok, r3 = sg_gate_freq(owner)
+    if not ok:
+        return False, "门3 频次门", r3
+    ok, r4 = sg_gate_breaker(owner)
+    if not ok:
+        return False, "门4 熔断门", r4
+    ok, r5 = sg_gate_receipt(gap.get("gapId"))
+    if not ok:
+        return False, "门5 送达回执", r5
+    return True, "-", "五门全过（属主存活 · 未冷却 · 频次合规 · 未熔断 · 回执区可读）"
+
+
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
     """★ P4 · R8（2026-10-12）：乐观锁 —— **并发互斥的机械保证**。
 
@@ -2841,6 +3018,34 @@ class Handler(BaseHTTPRequestHandler):
                     }, ensure_ascii=False))
                 except Exception as e:
                     self._send(200, json.dumps({"error": "%s: %s" % (type(e).__name__, e)}, ensure_ascii=False))
+                return
+            if path == "/api/sg-gates":
+                # ★ P5.2（2026-10-12）：五道门串联判定（只读；★ 只有 switch= 才改总开关）
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                kv = dict(x.split("=", 1) for x in q.split("&") if "=" in x)
+                if "switch" in kv:
+                    on = kv["switch"] == "on"
+                    _bb_put(SG_SWITCH, {"on": on, "by": kv.get("by", "ui"), "at": datetime.datetime.now().isoformat()})
+                gid, fam = kv.get("gapId", ""), kv.get("family", "G1")
+                owner = kv.get("owner", "")
+                gap = {"gapId": gid, "family": fam, "subject": kv.get("subject", "")}
+                allowed, gate, reason = sg_gate_chain(gap, owner)
+                sw, swr = sg_gate_switch()
+                self._send(200, json.dumps({
+                    "switch": sw, "switchReason": swr,
+                    "allowed": allowed, "blockedBy": (None if allowed else gate), "reason": reason,
+                    "gapId": gid, "family": fam, "owner": owner,
+                    "gates": {
+                        "门0 总开关": swr,
+                        "门1 属主门": sg_owner_alive(owner)[1],
+                        "门2 去重门": sg_gate_dedup(gid, fam)[1],
+                        "门3 频次门": sg_gate_freq(owner)[1],
+                        "门4 熔断门": sg_gate_breaker(owner)[1],
+                        "门5 回执门": sg_gate_receipt(gid)[1],
+                    },
+                    "note": "★ 全部默认拒绝（fail-closed）：任一门拿不到状态 ⇒ 拒。"
+                            "★ 位置在【派发前、派发方】，不让收件人自己挡。",
+                }, ensure_ascii=False))
                 return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
