@@ -1,0 +1,273 @@
+{
+ "version": 2,
+ "_why": "★ R062 ③ 要求：本板无「段存在」原语（假段与真段同形，都返 200+空列表）⇒ ★ 必须以【板外登记表】补上存在性判据。★ 查表 = 判「段是否存在」；★ 直接探板 = 不可靠。",
+ "_usage": "★ 判「段存在」时查本表；不在表内 ⇒ 要么段名打错、要么真无该段 ⇒ 此时【不可判】，不得判「无告警」。",
+ "_generatedBy": "r062-archive-discipline-check.py",
+ "segments": {
+  "notes/": {
+   "exists": true,
+   "keyCount": 18766
+  },
+  "notes/genebank/": {
+   "exists": true,
+   "keyCount": 8595
+  },
+  "notes/8c2494e0/": {
+   "exists": true,
+   "keyCount": 2992
+  },
+  "notes/mac-mini/": {
+   "exists": true,
+   "keyCount": 2695
+  },
+  "notes/i9/": {
+   "exists": true,
+   "keyCount": 1804
+  },
+  "notes/mbp/": {
+   "exists": true,
+   "keyCount": 1215
+  },
+  "notes/collab/": {
+   "exists": true,
+   "keyCount": 639
+  },
+  "notes/node/": {
+   "exists": true,
+   "keyCount": 115
+  },
+  "notes/media/": {
+   "exists": true,
+   "keyCount": 85
+  },
+  "notes/session-f38244df/": {
+   "exists": true,
+   "keyCount": 82
+  },
+  "notes/mbp-bus/": {
+   "exists": true,
+   "keyCount": 52
+  },
+  "notes/session-fa1f9150/": {
+   "exists": true,
+   "keyCount": 41
+  },
+  "notes/ui/": {
+   "exists": true,
+   "keyCount": 39
+  },
+  "notes/xdom/": {
+   "exists": true,
+   "keyCount": 28
+  },
+  "notes/session-b241741f/": {
+   "exists": true,
+   "keyCount": 19
+  },
+  "notes/mix-18/": {
+   "exists": true,
+   "keyCount": 12
+  },
+  "data/": {
+   "exists": true,
+   "keyCount": 34580
+  },
+  "data/ops/": {
+   "exists": true,
+   "keyCount": 16317
+  },
+  "data/audit/": {
+   "exists": true,
+   "keyCount": 8374
+  },
+  "data/stab/": {
+   "exists": true,
+   "keyCount": 5000
+  },
+  "data/registry/": {
+   "exists": true,
+   "keyCount": 1289
+  },
+  "data/conn/": {
+   "exists": true,
+   "keyCount": 1250
+  },
+  "data/re/": {
+   "exists": true,
+   "keyCount": 456
+  },
+  "data/i9/": {
+   "exists": true,
+   "keyCount": 287
+  },
+  "data/iterations/": {
+   "exists": true,
+   "keyCount": 198
+  },
+  "data/mix/": {
+   "exists": true,
+   "keyCount": 179
+  },
+  "data/blueprint/": {
+   "exists": true,
+   "keyCount": 162
+  },
+  "data/investigate/": {
+   "exists": true,
+   "keyCount": 158
+  },
+  "data/device/": {
+   "exists": true,
+   "keyCount": 131
+  },
+  "data/learning/": {
+   "exists": true,
+   "keyCount": 103
+  },
+  "data/cld-health/": {
+   "exists": true,
+   "keyCount": 76
+  },
+  "data/progress/": {
+   "exists": true,
+   "keyCount": 44
+  },
+  "tasks/": {
+   "exists": true,
+   "keyCount": 13167
+  },
+  "tasks/i9/": {
+   "exists": true,
+   "keyCount": 12917
+  },
+  "tasks/load-0/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-1/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-2/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-3/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-4/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-5/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-6/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/load-7/": {
+   "exists": true,
+   "keyCount": 26
+  },
+  "tasks/mbp/": {
+   "exists": true,
+   "keyCount": 15
+  },
+  "tasks/a3bc8cba/": {
+   "exists": true,
+   "keyCount": 6
+  },
+  "tasks/central/": {
+   "exists": true,
+   "keyCount": 4
+  },
+  "tasks/smoke/": {
+   "exists": true,
+   "keyCount": 3
+  },
+  "tasks/store-01/": {
+   "exists": true,
+   "keyCount": 3
+  },
+  "tasks/live/": {
+   "exists": true,
+   "keyCount": 2
+  },
+  "health/": {
+   "exists": true,
+   "keyCount": 4
+  },
+  "nodes/": {
+   "exists": true,
+   "keyCount": 87
+  },
+  "nodes/i9/": {
+   "exists": true,
+   "keyCount": 3
+  },
+  "nodes/i9-sandbox2/": {
+   "exists": true,
+   "keyCount": 2
+  },
+  "nodes/i9-sb14/": {
+   "exists": true,
+   "keyCount": 2
+  },
+  "nodes/mac-mini/": {
+   "exists": true,
+   "keyCount": 2
+  },
+  "nodes/curl-test/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/dbg-test/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/device/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/env-test/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/identity-test/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/llm-test/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/load-0/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/load-1/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/load-2/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/load-3/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "nodes/load-4/": {
+   "exists": true,
+   "keyCount": 1
+  },
+  "alerts/": {
+   "exists": true,
+   "keyCount": 0
+  }
+ },
+ "_checkedAt": "2026-10-13T05:09:45.755810"
+}

@@ -570,6 +570,33 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("假结果形态（D-244）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-287）：【写者归属门】—— ★ 防「自动上报卡无署名 ⇒ 无人能归属」。
+    #   ★ 立据：查清 `notes/mac-mini/manager-actions/` 下 28 张卡**全部** `from=systemgraph-gui`
+    #     （★ 一个服务名），**无任何会话身份** ⇒ 收到时显示 `unattributed`。
+    #   ★ 而本仓【已有 X-Writer 约定】（`bb_dualwrite.py:66` · `bb-put-verify.py:144`）
+    #     ⇒ 缺的是【机械化检查】，★ 而那是本条要补的。
+    #   ★★ 三态：读到无归属 ⇒ 报红；读失败/空面 ⇒ SKIP（★ 不冒充通过）。
+    try:
+        _wa = subprocess.run([sys.executable, str(ROOT / "tools" / "writer-attribution-gate.py"), "--json"],
+                             capture_output=True, text=True, timeout=90)
+        _wd = json.loads(_wa.stdout)
+        _ws = _wd.get("summary") or {}
+        _wun = _wd.get("unattributed_by_from") or {}
+        _wrf = _ws.get("readfail", 0)
+        if _wrf and not _wun:
+            skip("写者归属门（D-287）", "读面失败 %d 个 ⇒ 不可判（★ 不是「无问题」）" % _wrf)
+        elif _wun:
+            _who = "; ".join("%s=%d张" % (k, v["count"]) for k, v in _wun.items())
+            check("写者归属门（D-287）", False,
+                  "★★ 无署名写者：%s（★ 总 %d 张）⇒ 应带 X-Writer 或 from_label"
+                  % (_who, _ws.get("unattributed", 0)))
+        else:
+            check("写者归属门（D-287）", True,
+                  "★ 归属 %d · 不可判 %d（★ 不可判 = 卡形不同，★ 不升格）"
+                  % (_ws.get("attributed", 0), _ws.get("undecidable", 0)))
+    except Exception as e:
+        skip("写者归属门（D-287）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。
