@@ -610,6 +610,94 @@
    "hits": 12,
    "note": "已读码逐项排除：① bb_dualwrite.py / bb-card-put.py / put-card.py / bb-write.py 均为 8792 板键 PUT 客户端（X-Blackboard-Token / 卡值语义 / 板键寻址 / 无 expected_seq）；② bb-bp-register.py:51,227 自称「SystemGraph 生效」但读码确认只 GET /api/blueprints，所谓生效是重启服务(:213-218)；③ systemgraph-publish.sh / bb-gallery-export.py 是静态导出发布，方向不同（仅抄其 dry-run 范式）。四项差异：协议(板 PUT vs 动词层 POST) / 鉴权(X-Blackboard-Token vs X-SG-Principal) / 寻址(key vs page:|graph:) / 冲突语义(无 vs expected_seq→409)。实证：全机 grep X-SG-Principal 仅 4 处且全非客户端；/api/write 调用点 0 命中。",
    "at": "2026-10-12T22:36:56"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u5047\\u7ed3\\u679c\\u5f62\\u6001\\u68c0\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:41"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u5047\\u7ed3\\u679c\\u5f62\\u6001\\u68c0\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:42"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u6052\\u771f\\u81ea\\u8bc1\\u626b\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:42"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u6052\\u771f\\u81ea\\u8bc1\\u626b\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:42"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u5206\\u6bcd\\u7533\\u62a5\\u68c0\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:44"
+  },
+  {
+   "intent": "\\u65b0\\u5efa\\u4e00\\u4e2a\\u5206\\u6bcd\\u7533\\u62a5\\u68c0\\u67e5\\u5668",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T00:39:45"
+  },
+  {
+   "intent": "新建一个 lint 清单工具",
+   "artifact": "tools/lint-inventory.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "★ 命中 absence-claim-lint.py，★ 而两者不同层：它是【单一判据】（否性结论须附观测面）；本件是【19 个已有 lint/gate 的目录】（供派子代理随提示词下发，★ 因为实测 20 个子代理零引用）。★ 目录≠判据 ⇒ 不重复。",
+   "at": "2026-10-13T00:40:06"
+  },
+  {
+   "intent": "新建一个 SLO 目标形态检查器",
+   "artifact": "tools/slo-target-form.py",
+   "verdict": "no-overlap",
+   "hits": 2,
+   "note": "★ 门命中 2 条，★ 而两条都只是【日期字符串】（2026-08-18 / 2026-08-22）；★ 本仓无 SLO 目标形态检查器。",
+   "at": "2026-10-13T00:40:06"
+  },
+  {
+   "intent": "新建一个假结果形态检查器",
+   "artifact": "tools/false-result-patterns.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "★ 门命中 0 条；★ 本仓无同类（★ 那 10 次同形是今晚新发现的形态）。",
+   "at": "2026-10-13T00:40:07"
+  },
+  {
+   "intent": "新建一个恒真自证扫描器",
+   "artifact": "tools/selftest-audit.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "★ 门命中 0 条。",
+   "at": "2026-10-13T00:40:07"
+  },
+  {
+   "intent": "新建一个分母申报检查器",
+   "artifact": "tools/denominator-declare.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "★ 门命中 0 条。",
+   "at": "2026-10-13T00:40:07"
   }
  ]
 }
