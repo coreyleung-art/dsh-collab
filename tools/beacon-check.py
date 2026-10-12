@@ -251,12 +251,20 @@ def read_alert_cards(board_url=None, timeout: int = 8) -> dict:
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 j = json.loads(r.read())
             lst = j.get("list") or {}
-            n = len(lst) if hasattr(lst, "__len__") else 0
+            # ★★ 2026-10-12（★ 用户裁定【归档】后加）：
+            #   ★ **带 `_archived_at` 的卡【不计入】** —★ 归档 = 标记不删，仍可枚举可回放。
+            #   ★ 为何不删：★ DLQ 语义（本仓既有先例）；★ 删了就无法事后追查。
+            _items = list(lst.items()) if isinstance(lst, dict) else []
+            _live = [(k, v) for k, v in _items
+                     if not ((v or {}).get("value") or {}).get("_archived_at")]
+            n = len(_live)
             sample = ""
-            if isinstance(lst, dict) and lst:
-                k0 = sorted(lst.keys())[-1]
-                v0 = (lst[k0] or {}).get("value") or {}
+            if _live:
+                k0 = sorted(k for k, _ in _live)[-1]
+                v0 = dict(_live)[k0].get("value") or {}
                 sample = str(v0.get("subject") or v0.get("note") or v0.get("failedLegs") or "")[:110]
+            if len(_items) > len(_live):
+                sample = ("★ 共 %d 条、其中 %d 条已归档；" % (len(_items), len(_items) - len(_live))) + sample
             out[d] = (n, sample)
         except Exception:
             out[d] = None
