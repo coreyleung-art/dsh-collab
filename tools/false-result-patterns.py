@@ -18,6 +18,13 @@
   P5 **硬编码时间戳**（★ 负控会过期）—— ★ D-225
 
 三态：扫描面为空 ⇒ 「不可判」；无命中 ⇒ PASS；有 ⇒ FAIL（★ 列文件与行）。
+
+★★★ **本门的已知局限（★ 如实声明，★ 不加补丁掩盖）**：
+  ★ **P1 的变量判定是【文件级】而非【逐处数据流】** ——
+    ★ 若同一变量名在文件里**既是 `subprocess` 结果、又别处是 HTTP 响应**（★ 实测 `scripts/bb-copy.py` 的 `r`），
+    ★★ 则本门会**误报**那些 HTTP 的 `.status`。
+  ★★ 要修需**逐处数据流分析**（★ 大工程）⇒ **故本门报的 P1 命中【必须人工核】**，★ 命中 ≠ 缺陷。
+  ★ **P5（硬编码时间）多数是数据/日志行而非判据** —— ★ 同样须人工筛。
 """
 import io
 import os
@@ -47,8 +54,15 @@ CHECKS = [
 ]
 
 
-def strip_docstrings(src):
-    """★ 剥三引号块与注释（★ 免自伤，★ R006 惯例）。"""
+def strip_docstrings(src, keep_newlines=True):
+    """★ 剥三引号块与注释（★ 免自伤，★ R006 惯例）。
+
+    ★★★ 2026-10-13 修（D-243，★ **第十次同形**）：
+      ★ 首版把剥离后的文本**压成一行** ⇒ 在它上数行号 ⇒
+      ★★ **行号与原文件完全对不上**（★ 本纳取上下文时发现）。
+      ★★☃ ⇒ ★ 修法：**剥离时保留换行符**（★ `keep_newlines=True`）⇒ 行号与原一致。
+      ★ ★ 而这正印证本线纪律「**行号不是证据，行号在某时刻的内容才是**」。
+    """
     out = []
     i, n = 0, len(src)
     dq = '"' * 3
@@ -57,12 +71,23 @@ def strip_docstrings(src):
         c = src[i]
         if c == "#":
             j = src.find("\n", i)
-            i = n if j < 0 else j
+            if j < 0:
+                i = n
+            else:
+                if keep_newlines:
+                    out.append("\n")     # ★ 保留换行 ⇒ 行号不漂
+                i = j + 1                  # ★★ 修：跳过那个 \n（★ 否则与上一行【重复计】）
             continue
         if src.startswith(dq, i) or src.startswith(sq, i):
             q = src[i:i + 3]
             j = src.find(q, i + 3)
-            i = n if j < 0 else j + 3
+            if j < 0:
+                i = n
+            else:
+                seg = src[i:j + 3]
+                if keep_newlines:
+                    out.append("\n" * seg.count("\n"))   # ★ 保留行数
+                i = j + 3
             continue
         out.append(c)
         i += 1
@@ -75,15 +100,25 @@ def scan_file(path, rel):
     except Exception:
         return []
     code = strip_docstrings(raw)
-    # ★★ 数据流过滤（D-242）：★ 只有【被 `= subprocess.…(` 赋值过的变量】才算候选。
+    # ★★★ 数据流过滤（D-242 + D-243）：★ 只有【被 `= subprocess.…(` 赋值过的变量】才算候选。
+    #   ★ 首版只判「文件里出现过 `= subprocess.`」⇒ **仍误报**：
+    #     ★★ 实例 `scripts/bb-copy.py`：文件里有 subprocess，★ **而 `r` 在那里是【HTTP 响应对象】**（★ 有 `.status`）。
+    #   ★★ 修法：**逐个变量名判** —★ 只要该名字在文件里【有一处非-subprocess 赋值】⇒ 不算候选。
     subproc_vars = set(re.findall(r'(\w+)\s*=\s*subprocess\.[a-z_]+\s*\(', code))
+    all_assigned = set(re.findall(r'\b(\w+)\s*=\s*[^=\n]', code))
+    http_vars = set()
+    for nm in subproc_vars:
+        # ★ 同一名字若还有其他赋值（如 `r = sess.get(…)`）⇒ 它不只是 subprocess
+        others = re.findall(r'\b%s\s*=\s*([^=\n]+)' % re.escape(nm), code)
+        if any('subprocess' not in o for o in others):
+            http_vars.add(nm)
     hits = []
     for cid, _hint, why, rx in CHECKS:
         for m in rx.finditer(code):
             if cid == "P1":
                 var = re.match(r'(?:getattr\s*\(\s*)?(\w+)\.status', m.group(0))
-                if not var or var.group(1) not in subproc_vars:
-                    continue      # ★ 不是 subprocess 结果的 .status ⇒ 不算
+                if not var or var.group(1) not in subproc_vars or var.group(1) in http_vars:
+                    continue      # ★ 不是纯粹 subprocess 结果 ⇒ 不算
             # ★ \u53d6\u884c\u53f7
             ln = code[:m.start()].count("\n") + 1
             # ★ \u6392\u9664\u5de5\u5177\u81ea\u8eab\uff08\u2605 \u5b83\u7684\u6837\u672c\u5b57\u7b26\u4e32\u4f1a\u547d\u4e2d\uff09
@@ -208,6 +243,7 @@ def main():
         print()
     if hits:
         print("  ❌ %d 处命中 ⇒ ★ **每处须人工核**（★ 命中 ≠ 缺陷，★ 见 v7 §0.2.1）" % len(hits))
+        print("     ★★ 本门已知局限：P1 变量判定是【文件级】非逐处 · P5 多数是数据行 ⇒ **必人工筛**")
         return 1
     print("  ✅ 未命中五类假结果形态")
     return 0
