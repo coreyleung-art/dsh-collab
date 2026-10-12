@@ -417,27 +417,37 @@
     {
       "ask": "去重淘汰语义（建议分层）",
       "id": "Q-A",
-      "owner": "CLD"
+      "owner": "CLD",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "端口固定值",
       "id": "Q-B",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "是否引入 NATS（先影子 PoC）",
       "id": "Q-C",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "注入器保留哪个（建议 SSE）",
       "id": "Q-D",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "HMAC 密钥分发（本机 0600）",
       "id": "Q-E",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "挂载 compaction 批准（**v3 改题：原题已废**）",
@@ -446,7 +456,9 @@
       "owner": "用户",
       "voided": true,
       "voided_at": "2026-10-09",
-      "voided_reason": "v3 改题：原题不再适用官方 compaction-basic（机制二无配置解）；用户已以「立项」改为 Q-K"
+      "voided_reason": "v3 改题：原题不再适用官方 compaction-basic（机制二无配置解）；用户已以「立项」改为 Q-K",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "自启动注入批准",
@@ -459,17 +471,23 @@
     {
       "ask": "载体换 SQLite 独立窗口安排",
       "id": "Q-H",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "item-validity-review-check 是否收编为闭环判定器",
       "id": "Q-I",
-      "owner": "裁判"
+      "owner": "裁判",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "四项历史决策（板鉴权 / A 类仓 / meituan-multi / 「-」仓）",
       "id": "Q-J",
-      "owner": "用户"
+      "owner": "用户",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "approved_at": "2026-10-09",
@@ -905,7 +923,6 @@
       },
       "note": "P26 机制二的终结修复（无配置可解的代码层唯一出路）。2026-10-10 复盘审查：F1–F7 全部处理完毕；其中 F1（阈值方向 vs 官方 0.8）已由用户裁决「抢先（A）」并落地为 K2.1（见本条目 k21 块）。",
       "owner": "外部第三方（CU 实验台线）",
-      "status": "mounted_and_wired_not_enabled",
       "tracker": "docs/context-survival-tracker.md",
       "★_两处漂移事故与判据": {
         "at": "2026-10-10",
@@ -1006,32 +1023,40 @@
           "它的判据": "★ 「断言集是工具，不是文档；**审它的正确方式是执行它，而不是阅读它**」；「**构造它就必须跑它**」",
           "它的由来": "★ HR 把断言集接进 lean4-check 后**「跑」出了他「读」不出来的矛盾** —— 每条单看都有道理，**不一致只存在于两条之间的关系里**。"
         }
-      }
+      },
+      "state": "mounted_and_wired_not_enabled",
+      "_migrated_from": "status"
     },
     {
       "ask": "R049 接入 C4（自启动注入，使运营门机器化）",
       "id": "Q-L",
       "note": "M0 依赖它成立；R049 目前靠人执行，未机器化",
       "owner": "CLD 新会话",
-      "status": "todo"
+      "state": "todo",
+      "_migrated_from": "status"
     },
     {
       "ask": "dsh-plugin-excalidraw 宿主端 inject=['slots'] 致 CLD 起不来（2026-10-09 事故）",
       "id": "Q-M",
       "note": "根因：宿主入口 lib/index.js 写了 inject=['slots']，而 slots 只由客户端 dsh-client-runtime 提供 ⇒ 该条永久 pending ⇒ assertEntriesActivated 失败 ⇒ 整棵插件树加载失败。8月22 只在 lib/ 修过、未改 src/；2026-10-09 CJS→ESM 迁移从 src/ 重编译复活。修复：src/index.ts 与 lib/index.js 两处 inject=[]（已只读验证）。重启由用户执行",
       "owner": "外部第三方（CU 实验台线）",
-      "status": "fixed_pending_user_restart"
+      "state": "fixed_pending_user_restart",
+      "_migrated_from": "status"
     },
     {
       "ask": "索引判据缺口（P27 四层）的修正归属 —— writer 是外部第三方，起草方按 S3 不代改；登记见 docs/pending-backlog.md B8/B9/B10",
       "id": "Q-N",
-      "owner": "用户 / 索引 writer"
+      "owner": "用户 / 索引 writer",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "Wave S 七件门的独立 verifier 由谁担任 —— 候选：守灯 9910d4b2 / 独立复核员 4d0e75cf / 司库 2a15e6b1（均离线）",
       "id": "Q-O",
       "owner": "用户（须授权/须批）",
-      "urgent": true
+      "urgent": true,
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     },
     {
       "ask": "C4 自启动注入是否值得做 —— 它是 M0 唯一缺口，代价是改 CLD preset（须批 + 涉重启窗口）",
@@ -1046,7 +1071,9 @@
     {
       "ask": "索引「本地副本」与「板值」是否合并为单一来源 —— 实测二者独立且可漂移（P27 第四层）",
       "id": "Q-Q",
-      "owner": "用户 / 裁决方"
+      "owner": "用户 / 裁决方",
+      "state": "open",
+      "_state_defaulted": "open（★ 原无字段；★ 本条填默认值以消除「空 ≠ 无」）"
     }
   ],
   "resume_prompt": "docs/resume-prompt-starbridge-v3.md",
@@ -1057,7 +1084,7 @@
     "file": "docs/repo-strata-map-20261012.md",
     "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
   },
-  "updated_at": "2026-10-12T22:28:46+08:00",
+  "updated_at": "2026-10-12T22:43:59+08:00",
   "version_pointer_file": "~/.dsh/continuity-last-version",
   "waves": [
     {
@@ -1177,5 +1204,6 @@
   "_v14.0_research_done_note": "★ 2026-10-12T20:27:46+08:00 ★ **v7 调研阶段完成**：8 代理 · 55 篇 · **15,462 行** · 推翻 v6.1 **16 处**。★ 待 R2（告警读者）重派产出后进第 3 段（分模块撰写 W1–W9）。",
   "_v7_anchor_switch_note": "★ 2026-10-12T21:35:38+08:00 ★★ **锚点已由 v6.1 切换为 v7** —— ★ 旧锚点 `docs/distributed-agent-network-governance-plan-v6.1-20261011.md`（sha256 `bf5a4e6b76fdedeb3c7c48cc5d3830ea29c441ca…`）★ **保留未改**，作为历史锚点。",
   "_v7.7_experience_note": "★ 2026-10-12T22:11:07+08:00 ★ **写作过程经验已落盘**（225 行）。★ 含提示词模板（★ 六个设计点均实测有效）。",
-  "_v7.8_tooling_note": "★ 2026-10-12T22:28:46+08:00 ★ **工具化落地**：4 条新工具（24 条自证）+ 清单器（14 条）+ 三处接线。★ 清单在 `tools/lint-inventory.py --prompt`。"
+  "_v7.8_tooling_note": "★ 2026-10-12T22:28:46+08:00 ★ **工具化落地**：4 条新工具（24 条自证）+ 清单器（14 条）+ 三处接线。★ 清单在 `tools/lint-inventory.py --prompt`。",
+  "_open_questions_state_note": "★ 2026-10-12T22:43:32+08:00 ★★★ **字段名已统一为 `state`**（★ 与 `items` 段一致）。★ 修前实测：**`state` 2 条 / `status` 3 条 / 两者皆无 12 条**；★★ 而「皆无」使读者**无法区分「未决」与「未登记状态」**—★ 即「空 ≠ 无」。★ 修法：3 条 `status` **迁到 `state`**（★ 原值不变，加 `_migrated_from`）；12 条补 **`state: \"open\"`**（★ 加 `_state_defaulted` 记明）。★ **本条不代裁那 12 条的实隔状态** —★ 它只消除「留空」这个歧义。"
 }
