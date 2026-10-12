@@ -339,7 +339,7 @@ camelCase（`awaiting`/`reply_to_key`/`sent_at_epoch_ms`/`thread`/`msg_type`/`no
 | `docs/tooling-consolidation-scan-20261012-ext.md` | ★ **`4036d70a0b09330b`** | 210 |
 | 　↳ ★ 早前草稿（**已被取代**） | `d779a43c496ee1fa` | 195 |
 | `docs/handoff-to-star-bridge-20261011-…-sync.md`（台账，§十三 后） | **`65e8474cfe745737`** | 1883 |
-| `docs/ext-open-work-20261012.md`（本件，§十 后） | 见下「回读」 | — |
+| `docs/ext-open-work-20261012.md`（本件，§十 后） | ★ **不自载** —— ★ 把自身 sha 写进自身，写入即改变该值 ⇒ ★ **自指判据**（§17.4）⇒ ★ 复跑：`shasum -a 256 docs/ext-open-work-20261012.md` | — |
 
 ★ 扫描件 sha16 由 `d779a…` → `4036d70…` **不是两件**，★ 是**同一件改过**：★ 我**自跑了它的复跑块**，自查出 `def check(` 由 12 应作 **9**、复跑块前缀元组少两项（会**误报丢失更新**），★ 已改并新增 **§八之二** 记之。
 
