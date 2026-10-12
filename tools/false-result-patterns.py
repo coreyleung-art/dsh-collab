@@ -51,7 +51,36 @@ CHECKS = [
     ("P5", r'20\d\d-\d\d-\d\dT',
      '\u2605 \u786c\u7f16\u7801\u65f6\u95f4\u6233\uff08\u2605 \u8d1f\u63a7\u4f1a\u968f\u65f6\u95f4\u5931\u6548\uff09\u2014\u2605 D-225',
      re.compile(r'[\"\']20\d\d-\d\d-\d\dT\d\d:\d\d[^\"\']*[\"\']')),
+    # ★★ 2026-10-13（D-252）：【标题序号 ≠ 实际行号顺序】—★ 一晚犯两次（v7 §0.1.1 · 索引 §0七）
+    ("P6", r'^## \u4e00\u3001|^## \u4e8c\u3001',
+     '\u2605★ 长文档的【标题序号】与【实际行号顺序\u3011不一致（\u2605 插新节后未重排）—\u2605 D-247/D-252',
+     None),   # ★ None = 特殊处理（★ 需跨行比对，★ 不是单行正则）
 ]
+
+# ★ 中文序号表（★ D-252）
+CN_NUM = "\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341"
+
+
+def check_section_order(src):
+    """★★ 检【标题里的中文序号】是否与【实际出现顺序】一致。
+
+    ★ 立据（D-247/D-252）：本纳一晚犯两次 —\u2605
+      ★ v7 正文：`§0.1.1` 被插在 `§0.2` 之后；
+      ★ 索引：`七` 被插在 `六` 之前。
+    ★★ ⇒ 标题序号只要不升序，就说明【插入时没重排】。
+    """
+    seq = []
+    for i, line in enumerate(src.split("\n"), 1):
+        m = re.match(r'^#{1,3} \*?\s*([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
+        if m:
+            ch = m.group(1)
+            if ch in CN_NUM:
+                seq.append((i, ch, CN_NUM.index(ch)))
+    bad = []
+    for k in range(1, len(seq)):
+        if seq[k][2] < seq[k-1][2]:
+            bad.append((seq[k-1], seq[k]))
+    return bad
 
 
 def strip_docstrings(src, keep_newlines=True):
@@ -114,6 +143,8 @@ def scan_file(path, rel):
             http_vars.add(nm)
     hits = []
     for cid, _hint, why, rx in CHECKS:
+        if rx is None:
+            continue          # ★ P6 需跨行比对（★ 在 audit() 单独处理）
         for m in rx.finditer(code):
             if cid == "P1":
                 var = re.match(r'(?:getattr\s*\(\s*)?(\w+)\.status', m.group(0))
@@ -141,6 +172,30 @@ def discover(roots):
                 if fn.endswith(".py"):
                     out.append(os.path.relpath(os.path.join(dirpath, fn), ROOT))
     return sorted(out)
+
+
+def audit_md(roots):
+    """★★ 对 .md 跑 P6（标题序号核对）—★ D-252。"""
+    hits = []
+    for d in roots:
+        base = os.path.join(ROOT, d)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, dirnames, filenames in os.walk(base):
+            dirnames[:] = [x for x in dirnames if not x.startswith(".")]
+            for fn in sorted(filenames):
+                if not fn.endswith(".md"):
+                    continue
+                rel = os.path.relpath(os.path.join(dirpath, fn), ROOT)
+                try:
+                    src = io.open(os.path.join(ROOT, rel), encoding="utf-8").read()
+                except Exception:
+                    continue
+                for prev, cur in check_section_order(src):
+                    hits.append({"check": "P6", "file": rel, "line": cur[0],
+                                 "snippet": "序号 '%s' 出在 '%s' 之后" % (cur[1], prev[1]),
+                                 "why": "★★ 长文档标题序号不升序（★ 插新节后未重排）"})
+    return hits
 
 
 def audit(roots):
@@ -187,6 +242,28 @@ def selftest():
         print("  ✅ 负控：注释里的 `.status` 不命中（★ 已前剥离）")
     else:
         print("  ❌ 负控：注释未前剥离 ⇒ 自伤")
+    # ★★ 正控（D-252）：序号乱序必命中
+    tot += 1
+    if check_section_order("## \u4e00\u3001A\n## \u4e09\u3001C\n## \u4e8c\u3001B\n"):
+        ok += 1
+        print("  \u2705 \u6b63\u63a7\uff1a\u5e8f\u53f7\u4e71\u5e8f\uff08\u4e00\u2192\u4e09\u2192\u4e8c\uff09\u547d\u4e2d\uff08\u2605 D-252\uff09")
+    else:
+        print("  \u274c \u6b63\u63a7\uff1a\u5e8f\u53f7\u4e71\u5e8f\u672a\u547d\u4e2d")
+    # ★ 负控：正序\u4e0d\u5f97\u547d\u4e2d
+    tot += 1
+    if not check_section_order("## \u4e00\u3001A\n## \u4e8c\u3001B\n## \u4e09\u3001C\n"):
+        ok += 1
+        print("  \u2705 \u8d1f\u63a7\uff1a\u6b63\u5e8f\uff08\u4e00\u2192\u4e8c\u2192\u4e09\uff09\u4e0d\u547d\u4e2d\uff08\u2605 \u9632\u8fc7\u5bbd\uff09")
+    else:
+        print("  \u274c \u8d1f\u63a7\uff1a\u6b63\u5e8f\u88ab\u8bef\u4f24")
+    # ★ 安全：无序号\u4e0d\u5f97\u62a5错
+    tot += 1
+    if not check_section_order("# A\n## B\n### C\n"):
+        ok += 1
+        print("  \u2705 \u5b89\u5168\uff1a\u65e0\u5e8f\u53f7\u6807\u9898\u4e0d\u62a5\u9519")
+    else:
+        print("  \u274c \u5b89\u5168\uff1a\u65e0\u5e8f\u53f7\u88ab\u8bef\u62a5")
+
     # ★ 三态：不存在的根 ⇒ 空
     tot += 1
     if discover(["/tmp/__no_such_root__"]) == []:
@@ -216,8 +293,8 @@ def main():
         return 0
     if a.selftest:
         return selftest()
-    roots = a.root or ["tools", "scripts"]
-    hits = audit(roots)
+    roots = a.root or ["tools", "scripts", "docs"]
+    hits = audit([r for r in roots if r != "docs"]) + audit_md([r for r in roots if r != "docs"] or ["docs"])
     files = discover(roots)
     if a.json:
         print(json.dumps({"scanned": len(files), "hits": hits}, ensure_ascii=False, indent=1))
