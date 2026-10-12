@@ -1786,28 +1786,50 @@ def sg_page_key(view):
 
 
 def sg_page_read(view):
-    """★ 读页面内容档。★ 读不到 ⇒ 返回空档（**不抛异常**），并标明是空档还是读失败。"""
+    """★ 读页面内容档。
+
+    ★★ 2026-10-12 本线实测修正（**我自己的代码违反了「空 ≠ 无」**）：
+      第一版把 **HTTP 404（键还不存在）** 也当成「读失败」⇒ 首次写入必然 502。
+      ★ 而 404 是**首次写入的正常情况** ⇒ 应视为**空档**，不是失败。
+      ⇒ 三态必须分开：**键不存在（空档，可写）** / **键存在但无 history（空档）** / **真读失败（不可写）**。
+      ★ 这正是本晚在别的件上反复纠正的同一件事，我在这里又犯了一次。
+    """
+    url = "http://127.0.0.1:8792/%s" % sg_page_key(view)
     try:
-        with urllib.request.urlopen("http://127.0.0.1:8792/%s" % sg_page_key(view), timeout=8) as r:
+        with urllib.request.urlopen(url, timeout=8) as r:
             d = json.loads(r.read().decode())
         v = d.get("value")
         if isinstance(v, dict) and isinstance(v.get("history"), list):
             return {"ok": True, "doc": v}
         return {"ok": True, "doc": {"history": []}, "note": "键存在但无 history ⇒ 视为空档"}
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # ★ 键不存在 = 空档（首次写入的正常路径），**不是失败**
+            return {"ok": True, "doc": {"history": []}, "note": "键不存在 ⇒ 空档（首次写入）"}
+        return {"ok": False, "doc": {"history": []}, "err": "HTTP %s: %s" % (e.code, e.reason)}
     except Exception as e:
-        # ★ 区分「空档」与「读失败」—— 本晚反复的教训：二者不可混
         return {"ok": False, "doc": {"history": []}, "err": "%s: %s" % (type(e).__name__, e)}
 
 
 def sg_page_state(doc):
-    """★ 由 append-only 历史**重放**出当前状态（不存 current，避免两份真相）。"""
-    st = {}
+    """★ 由 append-only 历史**重放**出当前状态（不存 current，避免两份真相）。
+
+    ★★ 2026-10-12 实测修正（**回滚报 200 但没生效**）：
+      第一版只处理 `set_field` 与 `("add_block","restore")`，而**回滚实际写的 op 是 `rollback`**
+      ⇒ 回滚记录被重放忽略 ⇒ ★ **API 报 200、历史里看得见、状态却没变**（最危险的一类 bug）。
+      ⇒ 修：把 `rollback` 并入「写状态」分支；并**加一条断言**：凡出现没被识别的 op，
+        必须**显式记录**而不是静默跳过（静默跳过正是本晚反复的病灶）。
+    """
+    st, unknown = {}, []
     for h in doc.get("history") or []:
         op = h.get("op")
-        if op == "set_field":
+        if op in ("set_field", "add_block", "restore", "rollback"):
             st[h.get("key")] = h.get("value")
-        elif op in ("add_block", "restore"):
-            st[h.get("key")] = h.get("value")
+        else:
+            unknown.append(op)
+    if unknown:
+        # ★ 不静默：把没识别的 op 挂到 state 上让人看得见
+        st["__unknown_ops__"] = sorted(set(str(u) for u in unknown))
     return st
 
 
@@ -1843,14 +1865,27 @@ def sg_page_write(view, principal, entry):
 
 # ★ 动词注册表：每个动词声明所需【资源 × 动作】。★ 加能力=加一行。
 SG_VERBS = {
-    # ── 沙盒（唯一被授权的动词；只写探针键）──
+    # ── 沙盒（P1 的动词；只写探针键）──
     "probe.write":        {"resource": "probe",    "action": "write"},
-    # ── 真实内容动词：**已注册、默认拒绝**（等 D1 裁决后再授权）──
-    "page.set_field":     {"resource": "page",     "action": "write"},
-    "page.add_block":     {"resource": "page",     "action": "write"},
+    # ── 页面内容动词（P2）★★ resource_from="view" ⇒ ACL 粒度到【单页】`page:<view>` ──
+    "page.set_field":     {"resource": "page",     "action": "write", "resource_from": "view"},
+    "page.add_block":     {"resource": "page",     "action": "write", "resource_from": "view"},
+    "page.rollback":      {"resource": "page",     "action": "write", "resource_from": "view"},
+    # ── 关系动词：**已注册、默认拒绝**（P3）──
     "relation.add_edge":  {"resource": "relation", "action": "write"},
     "relation.remove_edge": {"resource": "relation", "action": "write"},
 }
+
+
+def sg_view_of(target):
+    """★ R3 寻址：`page:<view>` ⇒ `<view>`。返回 (view, err)。"""
+    t = str(target or "").strip()
+    if not t.startswith("page:"):
+        return None, "target 须形如 `page:<view>`，收到 %r" % t[:40]
+    v = t.split(":", 1)[1].strip()
+    if not v or not re.match(r"^[a-z0-9_-]+$", v):
+        return None, "view 名不合法（只允许 [a-z0-9_-]+）：%r" % v[:40]
+    return v, None
 
 
 def sg_load_acl():
@@ -2217,6 +2252,26 @@ class Handler(BaseHTTPRequestHandler):
                         {"error": "%s: %s" % (type(e).__name__, e), "cites": []},
                         ensure_ascii=False))
                 return
+            if path == "/api/sg-page":
+                # ★ P2（2026-10-12）：读页面内容档（R3 寻址 + 版本历史）。只读。
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                view = ""
+                for kv in q.split("&"):
+                    if kv.startswith("view="):
+                        view = kv[5:]
+                if not re.match(r"^[a-z0-9_-]+$", view or ""):
+                    self._send(400, json.dumps({"error": "缺 view= 或名字不合法"}, ensure_ascii=False))
+                    return
+                r = sg_page_read(view)
+                doc = r.get("doc") or {"history": []}
+                self._send(200, json.dumps({
+                    "view": view, "key": sg_page_key(view),
+                    "readable": r["ok"], "readErr": r.get("err"),
+                    "history": doc.get("history") or [],
+                    "state": sg_page_state(doc),
+                    "note": "★ 当前状态由 append-only 历史**重放**得出（不存 current，避免两份真相）。",
+                }, ensure_ascii=False))
+                return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
                 import glob
@@ -2426,10 +2481,17 @@ class Handler(BaseHTTPRequestHandler):
             self._sg_reply(400, principal, verb,
                            "★ 未注册的动词 ⇒ 拒绝（动词层是白名单：%s）" % ",".join(sorted(SG_VERBS)), t0)
             return
-        # ② 授权 —— 默认拒绝
-        ok, why = sg_check(principal, spec["resource"], spec["action"])
+        # ② 授权 —— 默认拒绝（★ resource_from="view" 时，资源粒度到【单页】`page:<view>`）
+        resource = spec["resource"]
+        if spec.get("resource_from") == "view":
+            view, verr = sg_view_of(target)
+            if verr:
+                self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % verr, t0)
+                return
+            resource = "page:%s" % view
+        ok, why = sg_check(principal, resource, spec["action"])
         if not ok:
-            self._sg_reply(403, principal, verb, "★ 授权拒绝：%s" % why, t0)
+            self._sg_reply(403, principal, verb, "★ 授权拒绝（resource=%s）：%s" % (resource, why), t0)
             return
         # ③ 执行（本版只有 probe.write 会被授权到这）
         if verb == "probe.write":
@@ -2453,9 +2515,53 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:
                 self._sg_reply(502, principal, verb, "写沙盒键失败：%s: %s" % (type(e).__name__, e), t0)
             return
-        # ④ 已授权但**尚未实现**的动词 —— 如实报，不假装成功
+        # ④ 页面内容动词（P2 · R3 寻址 + R6 版本回滚）
+        if verb in ("page.set_field", "page.add_block", "page.rollback"):
+            view, verr = sg_view_of(target)
+            if verr:
+                self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % verr, t0)
+                return
+            payload = req.get("payload") or {}
+            if verb == "page.set_field":
+                key = str(payload.get("key") or "").strip()
+                if not key:
+                    self._sg_reply(400, principal, verb, "缺 payload.key", t0)
+                    return
+                entry = {"op": "set_field", "key": key, "value": payload.get("value")}
+            elif verb == "page.add_block":
+                blk = payload.get("block")
+                if not isinstance(blk, dict) or not blk.get("id"):
+                    self._sg_reply(400, principal, verb, "缺 payload.block（且须含 id）", t0)
+                    return
+                entry = {"op": "add_block", "key": "block:" + str(blk["id"]), "value": blk}
+            else:  # page.rollback —— ★ 追加一条 restore，**不删任何历史**
+                seq = payload.get("seq")
+                cur = sg_page_read(view)
+                if not cur["ok"]:
+                    self._sg_reply(502, principal, verb, "读页面档失败：%s" % cur.get("err"), t0)
+                    return
+                hist = cur["doc"].get("history") or []
+                tgt = next((h for h in hist if h.get("seq") == seq), None)
+                if not tgt:
+                    self._sg_reply(404, principal, verb,
+                                   "★ 找不到 seq=%s（现有 %d 条）" % (seq, len(hist)), t0)
+                    return
+                if tgt.get("op") == "rollback":
+                    self._sg_reply(400, principal, verb,
+                                   "★ 不能以一条 rollback 记录为回滚目标（会套娃）", t0)
+                    return
+                entry = {"op": "rollback", "key": tgt.get("key"), "value": tgt.get("value"),
+                         "restored_from": seq,
+                         "prev_value": sg_page_state(cur["doc"]).get(tgt.get("key"))}
+            ok2, why2, ent = sg_page_write(view, principal, entry)
+            self._sg_reply(200 if ok2 else 502, principal, verb, why2, t0,
+                           {"view": view, "key": entry.get("key"), "seq": (ent or {}).get("seq"),
+                            "state": sg_page_state(sg_page_read(view)["doc"])})
+            return
+
+        # ⑤ 已授权但**尚未实现**的动词 —— 如实报，不假装成功
         self._sg_reply(501, principal, verb,
-                       "★ 动词已注册且已授权，但执行体**尚未实现**（P2 起逐步落地）⇒ 如实报未实现", t0)
+                       "★ 动词已注册且已授权，但执行体**尚未实现**（后续期逐步落地）⇒ 如实报未实现", t0)
 
     def _send_bytes(self, data, ctype, enc=None):
         """发送字节/文本（区分二进制图）"""
