@@ -1,12 +1,12 @@
 {
-  "version": "2.23.11",
-  "lastUpdated": "2026-10-12",
+  "version": "2.23.12",
+  "lastUpdated": "2026-10-13",
   "maintainer": "mac-mini 中枢 (session-fa1f9150) → 2026-10-12 由 明鉴 v3 (session-a190c54c) 代管回填 R049–R060",
   "audit": {
-    "ruleCount": 78,
-    "enforced": 69,
+    "ruleCount": 79,
+    "enforced": 70,
     "advisory": 9,
-    "breakdown": "R61 · J13 · R-ERR4",
+    "breakdown": "R62 · J13 · R-ERR4",
     "updated": "2026-10-12 pull（MD → JSON）"
   },
   "rules": [
@@ -1104,6 +1104,21 @@
       "added": "2026-10-12",
       "approvedBy": "用户指示 2026-10-12（补 R060 的两条遗留）",
       "enforcedBy": "process"
+    },
+    {
+      "id": "R062",
+      "name": "归档三纪律：归档≠已处理 · 板级 ts 会被覆盖 · 本板无「段存在」原语（2026-10-13 · 星桥第二任 S7 建议 · 明鉴 v3 依 R061 属主裁定入册）",
+      "category": "治理",
+      "scope": "all-bus-devices",
+      "status": "enforced",
+      "version": "1.0.0",
+      "source": "rules-registry/RULES.md（pull 拉取）",
+      "summary": "与「告警归档」相关的三条纪律，★ **每条都有实测立据**（不是推演）：",
+      "detail": "",
+      "added": "2026-10-12",
+      "approvedBy": "见 RULES.md 各条授权背景",
+      "enforcedBy": "process",
+      "details": "**立据（星桥第二任 2026-10-13 实测 · ★ 其中③由明鉴 v3 独立复现）**："
     }
   ],
   "retiredEntries": [
