@@ -1,15 +1,14 @@
 {
-  "version": 2,
+  "version": 3,
   "default": "deny",
-  "_note": "★ 系统架构管理器可写枢纽的授权表。★ default 必须为 deny —— 本实现只支持 fail-closed（即使改成 allow 也会被拒绝加载）。★ 真实页（如 page:goal / page:ledger）与 relation 动词【不授权任何人】，等 D1 裁决后再逐条授权。",
+  "_note": "★ 系统架构管理器可写枢纽的授权表。★ default 必须为 deny —— 本实现只支持 fail-closed。★★ 真实【页面】(page:goal/ledger/…) 与真实【关系图】(relation:relations) 均【不授权任何人】，等 D1 裁决后再逐条授权。",
   "principals": {
     "session-a190c54c-ca73-4845-9a65-9dc002d45044": {
-      "label": "明鉴 v3（P1/P2 实施者）",
+      "label": "明鉴 v3（P1/P2/P3 实施者）",
       "grants": [
-        {"resource": "probe", "actions": ["write"],
-         "_why": "P1 自证：只写沙盒键 data/registry/sg-write-probe"},
-        {"resource": "page:__selftest__", "actions": ["write"],
-         "_why": "★ P2 自证：**粒度到单页** —— 只授权这一个沙盒页，用来证明「能写 + 写坏能退」。真实页不在 grants 里 ⇒ 默认拒绝。"}
+        {"resource": "probe", "actions": ["write"], "_why": "P1：只写沙盒键"},
+        {"resource": "page:__selftest__", "actions": ["write"], "_why": "P2：粒度到单页"},
+        {"resource": "relation:__selftest__", "actions": ["write"], "_why": "★ P3：粒度到单图 —— 只授权这一张沙盒图"}
       ]
     }
   }

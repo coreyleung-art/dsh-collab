@@ -1873,6 +1873,7 @@ def sg_graph_write(name, principal, entry):
         n = len((back.get("doc") or {}).get("entries") or [])
         if n != len(ents):
             return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(ents), n), None
+        sg_register_watch(sg_graph_key(name))         # ★ R5：登记监听 ⇒ 写后版本可 bump
         return True, "已追加 seq=%d 并回读（entries=%d 条）" % (entry["seq"], n), entry
     except Exception as e:
         return False, "写图档失败：%s: %s" % (type(e).__name__, e), None
@@ -1930,6 +1931,28 @@ def sg_page_state(doc):
     return st
 
 
+def sg_register_watch(key):
+    """★ P3 · R5（2026-10-12）：把可写键**登记进模型监听面**。
+
+    ★★ 为什么必须做（实测）：模型的 `watch_keys` 只含 `data/blueprint/*`，
+      **不含新可写键**（`data/sg-page/*` · `data/sg-graph/*`）⇒
+      **写进可写枢纽不会 bump 模型版本** ⇒ 前端「变了才重取」**感知不到变化** ⇒ R5 不成立。
+    ⇒ 修：每次成功写后调 `MODEL.add_watch(key)`（ModelStore 自带此 API，**下一次 reload 生效**）。
+    ★ 不静默失败：登记不上要记 stderr（否则「以为会推」而实际不推，正是本晚反复的病灶）。
+    """
+    try:
+        if MODEL is None:
+            sys.stderr.write("⚠️ sg_register_watch: MODEL 未初始化，%s 未登记（R5 推送不会生效）\n" % key)
+            return False
+        added = MODEL.add_watch(key)
+        if added:
+            sys.stderr.write("ℹ️ sg_register_watch: 已登记 %s（下次 reload 生效）\n" % key)
+        return bool(added)
+    except Exception as e:
+        sys.stderr.write("⚠️ sg_register_watch 失败（%s）：%s\n" % (type(e).__name__, e))
+        return False
+
+
 def sg_page_write(view, principal, entry):
     """★ 追加一条历史（**只增不改**）并回读断言。"""
     cur = sg_page_read(view)
@@ -1956,6 +1979,7 @@ def sg_page_write(view, principal, entry):
         n = len((back.get("doc") or {}).get("history") or [])
         if n != len(hist):
             return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(hist), n), None
+        sg_register_watch(sg_page_key(view))          # ★ R5：登记监听 ⇒ 写后版本可 bump
         return True, "已追加 seq=%d 并回读（history=%d 条）" % (entry["seq"], n), entry
     except Exception as e:
         return False, "写页面档失败：%s: %s" % (type(e).__name__, e), None
