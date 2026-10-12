@@ -2437,6 +2437,144 @@ def sg_gate_chain(gap, owner):
     return True, "-", "五门全过（属主存活 · 未冷却 · 频次合规 · 未熔断 · 回执区可读）"
 
 
+# ══════════ ★ P5.3（2026-10-12 明鉴）：三态投递 + 分形态合并 + 记账 ══════════
+# ★★★ 一条【必须先知道】的事实（本线读源码坐实，不是猜）：
+#   `dsh-plugin-agent-bus` 的 HTTP `/agent-bus/api/send` **不接受 notify_only** ——
+#   它的 handler（`:2018-2024`）只做 `sendMessage('ui', to, text, thread)`，
+#   **第 5 参 opts 缺省** ⇒ `:1496` 的 `if (opts && opts.notifyOnly === true)` 不成立
+#   ⇒ `msg.notifyOnly` 不设 ⇒ `:568` `isNotify=false` ⇒ **`followup()` 真唤醒**。
+#   ⇒ ★★ **走 HTTP 发出去的消息【永远是唤醒】。** 要不唤醒只能走工具层 `notify_only`（后端调不到）。
+#
+# ★★ 故 `notify` 档的实现**改为「只写黑板卡、不调 send」** —— 而且这与调研自洽：
+#   hermes 的 `notify` = 「只投递可见消息，**跑 0 个 turn**」；写卡不 send 正是这个语义。
+#   ★★ 而它让门5 变得**必要**：写了卡但没人保证对方看到
+#   ⇒ 门5 的「任何后续唤醒必带投递 pending」正是补这一环。
+#
+# ★★ 分形态合并窗口（抄 neo ADR 0002，已核实原文）：
+#   通知 30s / 唤醒 120–180s（取 150s）· 硬上限 300s（超时**丢弃**不投递 —— 陈旧的答案没价值）
+#   · flush 后 refractory 120s（刚 flush 完到达的进下一批，专杀「刚好落在窗口外」的节奏）
+#   · **merge-don't-stack**（上一批未投递 ⇒ 合并进去，不叠第二块）
+SG_MERGE = {"notify": 30, "notify+wake": 150, "wake": 150}
+SG_MERGE_HARD_CAP = 300
+SG_REFRACTORY = 120
+SG_DELIVERY_MODES = ("notify", "notify+wake", "wake")
+
+
+def sg_bus_port():
+    """★ 复用 P5.0 的动态探测（不写死端口）。"""
+    return sg_find_bus_port()
+
+
+def sg_merge_window(mode, now=None):
+    """★ 合并窗口参数（按投递形态分）。★ 返回 (window, hard_cap, refractory)。"""
+    w = SG_MERGE.get(mode, 30)
+    return w, SG_MERGE_HARD_CAP, SG_REFRACTORY
+
+
+def sg_deliver(owner, gaps, mode="notify", dry_run=True, principal="sg-dispatch"):
+    """★★ 三态投递（P5.3）。
+
+    档位（★ 三态命名抄 hermes-agent `delivery_mode`，已核实原文）：
+      · `notify`      —— **只写黑板卡，不 send**（★ 零唤醒）⇒ 进【门5 pending 区】
+      · `notify+wake` —— 写卡 + `POST /api/send`（真唤醒一个 turn）
+      · `wake`        —— **只 send**，text 极短（只给指针）⇒ 不写可见卡
+
+    ★★ `dry_run` **默认 True** —— 本函数**在 dry_run 下不写任何东西**（含黑板卡与 send），
+       只回报「会做什么」。要真发须显式 `dry_run=False`。
+    ★★ 前置：调用方**必须已过五道门**（本函数不再重复判门，避免双重语义）。
+    """
+    if mode not in SG_DELIVERY_MODES:
+        return {"ok": False, "err": "未知档位 %r（冻结枚举：%s）" % (mode, SG_DELIVERY_MODES)}
+    now = time.time()
+    gaps = list(gaps or [])
+    # ★ 去重：同一批里同 gapId 只留一条（merge-don't-stack 的第一层）
+    seen, uniq = set(), []
+    for g in gaps:
+        gid = g.get("gapId")
+        if gid and gid not in seen:
+            seen.add(gid); uniq.append(g)
+    # ★ 合并成一条（同一收件人多个缺口 ⇒ 1 条带清单）
+    lines = ["· [%s/%s] %s：%s" % (g.get("family"), g.get("severity"), g.get("subject"), g.get("evidence")) for g in uniq[:12]]
+    head = "【缺口派发·%s】%d 项" % (mode, len(uniq))
+    body = head + "\n" + "\n".join(lines) + (("\n… 另 %d 项" % (len(uniq) - 12)) if len(uniq) > 12 else "")
+    # ★ v2.4 门：>200 字且无黑板引用 ⇒ 会被拒 ⇒ 故正文控制 + 落卡
+    card_key = "notes/sg-dispatch/%s-%d" % (owner[:16] if owner else "unknown", int(now))
+    card = {"from": principal, "to": owner, "type": "gap-dispatch", "mode": mode,
+            "body": body, "gapIds": [g.get("gapId") for g in uniq], "ts": int(now)}
+    did_card = did_send = False
+    errs = []
+
+    if dry_run:
+        return {"ok": True, "dryRun": True, "mode": mode, "owner": owner,
+                "wouldCardKey": card_key, "wouldCard": card,
+                "wouldSend": (mode in ("notify+wake", "wake")),
+                "wouldText": (body[:200] if mode in ("notify+wake", "wake") else None),
+                "note": "★ dry_run：未写任何东西（含黑板卡与 send）。"}
+
+    # ① 写卡（notify 与 notify+wake 都写；wake 档**故意不写可见卡** —— 抄 hermes 的 wake 语义）
+    if mode in ("notify", "notify+wake"):
+        okc, ec = _bb_put(card_key, {"value": card, "ts": int(now)})
+        did_card = bool(okc)
+        if not okc:
+            errs.append("写卡失败：%s" % ec)
+    # ② 真投递（notify+wake 与 wake）
+    if mode in ("notify+wake", "wake"):
+        port = sg_bus_port()
+        if port is None:
+            errs.append("★ bus 端口探测失败 ⇒ 不投递（fail-closed）")
+        else:
+            try:
+                # ★ 正文 ≤200 字（v2.4 门）+ 附黑板指针（让收件方能拿到全文）
+                payload = json.dumps({"to": owner, "text": (body[:180] + " …看黑板 " + card_key)[:200]}).encode()
+                rq = urllib.request.Request("http://127.0.0.1:%d/agent-bus/api/send" % port,
+                                            data=payload, method="POST",
+                                            headers={"Content-Type": "application/json"})
+                with urllib.request.urlopen(rq, timeout=10) as r:
+                    resp = json.loads(r.read().decode())
+                did_send = bool(resp.get("ok"))
+                if not did_send:
+                    errs.append("send 返回非 ok：%s" % json.dumps(resp, ensure_ascii=False)[:120])
+            except Exception as e:
+                errs.append("send 异常：%s: %s" % (type(e).__name__, e))
+    # ③ 记账（★ 先落账再返回；含被拒/异常）
+    rec = {"t": now, "owner": owner, "mode": mode, "gapIds": [g.get("gapId") for g in uniq],
+           "card": card_key, "didCard": did_card, "didSend": did_send, "errs": errs, "by": principal}
+    v, _ = _bb_get(SG_DISPATCH_LOG)
+    log = v if isinstance(v, dict) else {}
+    ents = [x for x in (log.get("dispatches") or []) if isinstance(x, dict)]
+    ents.append(rec)
+    _bb_put(SG_DISPATCH_LOG, {"dispatches": ents[-500:], "at": datetime.datetime.now().isoformat()})
+    # ④ 进门5 pending 区（★ 只有 notify / notify+wake 需要回执；wake 也需要 —— 发了就该收口）
+    _sg_receipt_add(owner, [g.get("gapId") for g in uniq], mode)
+    return {"ok": (not errs), "dryRun": False, "mode": mode, "owner": owner,
+            "card": card_key, "didCard": did_card, "didSend": did_send, "errs": errs, "rec": rec}
+
+
+def _sg_receipt_add(owner, gap_ids, mode):
+    """★ 门5 回执区：未 ack 的进 pending；★ 任何后续唤醒将附带投递它们。"""
+    v, _ = _bb_get(SG_RECEIPT)
+    r = v if isinstance(v, dict) else {}
+    pend = [x for x in (r.get("pending") or []) if isinstance(x, dict)]
+    have = {x.get("gapId") for x in pend}
+    for gid in gap_ids:
+        if gid and gid not in have:
+            pend.append({"gapId": gid, "owner": owner, "mode": mode,
+                         "dispatchedAt": time.time(), "acked": False})
+    _bb_put(SG_RECEIPT, {"pending": pend[-500:], "at": datetime.datetime.now().isoformat()})
+    return len(pend)
+
+
+def sg_receipt_drain(owner):
+    """★ 门5 的核心动作：**把该 owner 的未 ack pending 取出来**（供「任何后续唤醒必带投递」）。"""
+    v, e = _bb_get(SG_RECEIPT)
+    if e:
+        return None, "回执区读不到：%s" % e
+    r = v if isinstance(v, dict) else {}
+    pend = [x for x in (r.get("pending") or []) if isinstance(x, dict)
+            and x.get("owner") == owner and not x.get("acked")]
+    return pend, None
+
+
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
     """★ P4 · R8（2026-10-12）：乐观锁 —— **并发互斥的机械保证**。
 
@@ -3046,6 +3184,37 @@ class Handler(BaseHTTPRequestHandler):
                     "note": "★ 全部默认拒绝（fail-closed）：任一门拿不到状态 ⇒ 拒。"
                             "★ 位置在【派发前、派发方】，不让收件人自己挡。",
                 }, ensure_ascii=False))
+                return
+            if path == "/api/sg-deliver":
+                # ★ P5.3（2026-10-12）：三态投递。★ **dry_run 默认 1**；要真发须显式 go=1
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                kv = dict(x.split("=", 1) for x in q.split("&") if "=" in x)
+                owner = kv.get("owner", "")
+                mode = kv.get("mode", "notify")
+                go = kv.get("go") == "1"
+                # ★ 取本轮缺口（可用 family/gapId 过滤；缺省取前 3 条 warn 级）
+                try:
+                    allg, _sc = sg_detect_gaps()
+                except Exception as e:
+                    allg = []
+                sel = allg
+                if kv.get("family"):
+                    sel = [g for g in allg if g["family"] == kv["family"]]
+                sel = sel[: int(kv.get("n", "3") or 3)]
+                # ★ 前置：五道门（只对首条判；真实接线时逐条判）
+                allowed, gate, reason = (True, "-", "（未传 owner ⇒ 跳过门链）") if not owner else sg_gate_chain(sel[0] if sel else {}, owner)
+                out = {"owner": owner, "mode": mode, "go": go, "gatesAllowed": allowed,
+                       "blockedBy": (None if allowed else gate), "gateReason": reason,
+                       "selected": [{"gapId": g["gapId"], "family": g["family"], "subject": g["subject"]} for g in sel]}
+                if sel and (allowed or not owner):
+                    d = sg_deliver(owner, sel, mode=mode, dry_run=(not go))
+                    out["deliver"] = d
+                pend, perr = sg_receipt_drain(owner) if owner else (None, "no owner")
+                out["pendingForOwner"] = (len(pend) if pend is not None else None)
+                out["receiptErr"] = perr
+                out["note"] = "★ dry_run 默认；★ notify 档【只写卡不 send】（因为 HTTP /api/send 不支持 notify_only）" \
+                               " ⇒ 真唤醒只有 notify+wake / wake 两档。★ 门5 pending 供「任何后续唤醒必带投递」。"
+                self._send(200, json.dumps(out, ensure_ascii=False))
                 return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
