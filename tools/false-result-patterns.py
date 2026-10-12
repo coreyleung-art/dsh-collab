@@ -80,6 +80,16 @@ def check_section_order(src):
     for k in range(1, len(seq)):
         if seq[k][2] < seq[k-1][2]:
             bad.append((seq[k-1], seq[k]))
+    # \u2605\u2605\u2605 2026-10-13 \u8865\uff08D-262\uff09\uff1a\u3010\u91cd\u590d\u5e8f\u53f7\u3011\u4e5f\u5fc5\u987b\u547d\u4e2d\u3002
+    #   \u2605 \u7acb\u636e\uff1a\u672c\u7eb3\u66f4\u65b0\u7d22\u5f15\u65f6\u5199\u51fa**\u4e24\u4e2a\u300c\u4e03\u300d**\uff0c
+    #     \u2605\u2605 \u800c P6 \u53ea\u6bd4\u5347\u5e8f \u21d2 **\u4e0d\u5347\u4e5f\u4e0d\u964d\u7684\u91cd\u590d\u3010\u4e0d\u547d\u4e2d\u3011**\u3002
+    #   \u2605\u2605 \u4fee\u6cd5\uff1a\u540c\u4e00\u5e8f\u53f7\u51fa\u73b0\u4e24\u6b21 \u21d2 \u4e5f\u7b97\u4e0d\u5347\u5e8f\u3002
+    _seen = {}
+    for item in seq:
+        if item[2] in _seen:
+            bad.append((_seen[item[2]], item))
+        else:
+            _seen[item[2]] = item
     return bad
 
 
@@ -258,6 +268,12 @@ def selftest():
         print("  \u274c \u8d1f\u63a7\uff1a\u6b63\u5e8f\u88ab\u8bef\u4f24")
     # ★ 安全：无序号\u4e0d\u5f97\u62a5错
     tot += 1
+    tot += 1
+    if check_section_order("## \u4e00\u3001A\n## \u4e8c\u3001B\n## \u4e8c\u3001C\n"):
+        ok += 1
+        print("  \u2705 \u6b63\u63a7\uff1a\u91cd\u590d\u5e8f\u53f7\uff08\u4e24\u4e2a\u300c\u4e8c\u300d\uff09\u547d\u4e2d\uff08\u2605 D-262\uff09")
+    else:
+        print("  \u274c \u6b63\u63a7\uff1a\u91cd\u590d\u5e8f\u53f7\u672a\u547d\u4e2d")
     if not check_section_order("# A\n## B\n### C\n"):
         ok += 1
         print("  \u2705 \u5b89\u5168\uff1a\u65e0\u5e8f\u53f7\u6807\u9898\u4e0d\u62a5\u9519")
