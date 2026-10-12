@@ -43,6 +43,22 @@
 
 ---
 
+## 二·补 ★ 第 32–35 轮的追加（★ 判据健康度普查）
+
+| ★ 件 | ★ 内容 | ★ 号 |
+|---|---|---|
+| ★★ **三面全量自证实跑** | ★ **513 个 .py · 377 含 selftest** ⇒ **179 真通过 · 172 不支持 · 10 TIMEOUT · 16 其它非 0** | D-233 |
+| ★★ **真缺陷只 2 个** | ★ `lock-audit`（★ 真 TypeError · 已记 S8）· `csx-mount-record-check`（★ 已核为**真状态**） | D-230/D-231 |
+| ★★ **v7 新增 §0.2 判据纪律** | ★ **今晚五条 + 派生三条**（★ 每条有实证） | D-236 |
+| ★★ **判据健康度接进必跑** | ★ `beacon-check` 新增检查项 ⇒ **PASS 21→22** | D-235 |
+| ★ **`selftest-audit --run` 四分类** | ★ `0`/`2`/`TIMEOUT`/其它 · **加串行复核**（★ 防并发伪失败） | D-231/D-234 |
+| ★ **中枢板双面实测** | ★ 读 **10/10** · 写 118 KB 三次两超时 · ★ **时延 328×** | D-236 |
+| ★ **跳过项批量呈报** | ★ `docs/v7-skip-batch-submission-20261013.md`（60 行 · ★ 含建议裁决顺序） | — |
+
+★ **本线工具自证总账（9 个 · 56 条）**：★ `selftest-audit` 8/8 · `slo-target-form` 9/9 · `denominator-declare` 8/8 ·
+`correction-ledger-gen` 6/6 · `bus-pending-age` 5/5 · `lint-inventory` 5/5 · `subagent-work-checklist` 5/5 ·
+`atomic-write-guard` 5/5 · `live-read-guard` 5/5。
+
 ## 三、★ 跳过册（8 项 · 待用户批量裁）
 
 ★ 详见 `docs/v7-skip-register-20261012.md`：
