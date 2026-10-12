@@ -1741,3 +1741,143 @@ line-rule-evidence · comm-forms-three-way-evaluation · ext-open-work-20261012
 ---
 
 *（§十二 为 2026-10-12 第五次追加；★ 本件仍**只增不改**。）*
+
+---
+
+## §十三 ★ 信标索引内容同步（N2 用户裁示）＋【丢失更新】事故 —— 2026-10-12 第六次追加
+
+### 13.0 ★ 起因（逐字）
+
+用户 2026-10-12 逐字裁示：「**那批 xdom-* 件要进该索引**」
+⇒ §12.5 的 **N2 由用户裁为「要」**（原三态 = **不可判** ⇒ ★ **裁后为「做」**，★ **不是**我改判的）。
+★ **`N1`（写入权归谁）用户【未】裁** ⇒ ★ 本段**不代人裁归属**：
+★ 我写的是**内容**，★ **不是认领该键**。★ 两者**不可混为一谈**。
+
+### 13.1 ★ 做了什么（变更面最小）
+
+| 项 | 实测 |
+|---|---|
+| 追加 | `evidence_index` **+10 条**（xdom 线件；★ 其中 `tools/xdom-mail.py` 与 `docs/handoff-to-star-bridge-20261011-…md` **本已在册** ⇒ 未重复） |
+| 新增 | `_ext_xdom_index_sync_note` ★ **【故意】不接** `_vN.M_content_sync_note` 那条序列（★ 命名分开，读者一眼可辨**哪条是谁写的**） |
+| 改 | `updated_at` |
+| ★ **一个字节未动** | `anchor` · `state_version`(=6) · `anchor_sha256` · `writer` · `items` · `waves` · `known_gaps` |
+| 在册总条 | **64 → 74** |
+
+★ 纪律依据（不是我推的，是**该键自己记过**）：`_v8.5_content_sync_note` 自述
+「本线一度改索引未写板 ⇒ beacon-check 报 FAIL」⇒ ★ **板与本地镜像必须同时动**（`G-CR18 ④`）。
+★ 本线全部复跑命令见 §13.6。
+
+### 13.2 ★★ 事故：丢失更新（lost update）—— 实测时间线（★ 每行带 sha，可核）
+
+| 时刻（本地） | 事件 | 证据 |
+|---|---|---|
+| 16:44:21 | 备份板值与本地镜像 | `guard/backups/ext-xdom-index-sync-20261012-164421/`（板值 **64** 条 · **无**我的字段） |
+| ~16:45 | 我按板 v82 组稿 ⇒ **推送前重读** ⇒ **板已 v83** | ★ **版本比对当场中止推送**（★ 第一次挡住了） |
+| **16:46:34** | 我按 v83 重组 ⇒ 推板 ⇒ **板值 sha `73f9601898092164`** ⇒ 独立回读 **10 条在册** | ★ `logs/bb-dualwrite.jsonl` **有该行**（writer `ext-claude-code`） |
+| 16:45:04 / 16:47:19 | 对方**第 27 / 第 28 轮** `_v8.8` / `_v8.9` ⇒ 板推 **v85** | 板 |
+| 复核 | ★★ **我的字段与 10 条【全部消失】**（`_ext_xdom_index_sync_note in v == False`；**10/10 → 0/10**；74 → 64） | 备份件 `ext-patch-v1-that-was-clobbered.json`（74 条 · 含我字段）对照板值 |
+| **16:49:22** | ★ **第二版：先写本地镜像、再推板** ⇒ 板值 sha **`88266270cea65dc5`** | ★ `logs/bb-dualwrite.jsonl` **有该行** |
+| 16:49:40 → **16:54:55** | ★ 对方**第 29–32 轮**（`_v9.0`…`_v9.3`）⇒ 板 **v87 → v90** ⇒ ★★ **我的条目始终 10/10 · 我的字段始终 True** | monitor `bxkohzepp` **五个事件**（v87/v88/v89/v90 及 16:52:49 一记） |
+
+★ **根因（实测推断，★ 不是猜）**：对方的管线是 **本地镜像 → 板**
+（★ 其 `_v8.5_content_sync_note` 自述可佐证）⇒
+★ **只写板、不写镜像**的写入，会在对方**下一轮**「镜像 → 板」中被**整份覆盖**。
+⇒ ★ **修法 = 改序（本地优先）**，★ **不是加锁**（★ 本机根本没有锁可取，见下）。
+
+★★ **结构缺陷（对双方都成立，★ 不是指责）**：该键 **两个写手 · 无锁 · 无 CAS** ⇒
+**后写者恒胜、先写者静默丢失**。★ 本机 **`agent_light` / `agent_lock` 不存在**
+⇒ ★ 我第一次写入时**取不到锁** ⇒ ★ **如实记，★ 不假装取了**。
+★ `bb_dualwrite` **无版本比对**（参数只有 `--key/--json-file/--writer/--window-ms/--log/--json`，★ **无 `--if-version` 之类**）；
+★ `bb-write-verify` 验的是「**我发的 == 我读回的**」，★ **不验「我这份是基于最新版」**
+⇒ ★★ **两者都拦不住丢失更新**。
+
+### 13.3 ★★ 我自己的两处错（★ 本段最该记的一条）
+
+**（一）★★ 我把 `logs/bb-dualwrite.jsonl` 的 `Z` 时间戳【当本地时间读】** ——
+★ 由此得出「近期对该键的写入**全无留痕**」，★★ **实测：错**。
+
+★ 该日志 `at` 字段是 **UTC**：`2026-10-12T08:46:34Z` = 本地 **16:46:34**、
+`2026-10-12T08:49:22Z` = 本地 **16:49:22** ⇒ ★ **正是我今天那两次推送**，
+★ 且与 `.tmp-xdom-baseline/continuity-index.new.json`（16:46:34）、
+`guard/backups/ext-xdom-index-sync-20261012-164421/local-mirror.before-2nd.json`（16:49:22）
+的 **mtime 逐秒吻合**（★ 差 **8 小时**，正是 UTC+8）。
+★ 口径校验法（可复跑）：★ 取任一**已知本地时刻**的落盘件 mtime，与日志行**对时**。
+★★ **错因同族**：★ **判据的口径取错了**（★ 与 §十二「载体归谁」、评估件「`ts` 读成 1970」**同族**）。
+
+★ **修正后的事实**：`session-e317d6ab` 在本日志**最后一次留痕 = `2026-10-11T15:15:34Z`（本地 23:15:34）**；
+★ 2026-10-12 那几轮（v85 / v88 / v89 时段）**在本日志无对应行** ——
+★★ 但这**只说明「本日志无该行」**，★ **不等于「他们没写板」**
+（★ 可能走别的路径／别的日志 ⇒ ★ **不可判**，★ **我不下全局否定**）。
+
+**（二）★ 我把「板 `GET ?history=1` / `?versions=1` 回 200」当作「板有历史」的迹象** —— ★ **实测：不成立**。
+★ 两者返回的 body 与**裸 GET 逐字节相同**（同为 sha256 `129b739e0f642b9e` · **138,051 B**）。
+★★ **`200` 对本板是【恒真】的**（★ 错的路径也回 200 —— 我用 `?history=1` 这种**它不认的查询**照样得 200）
+⇒ ★★ 这是**空转绿判据**（恒真判据）**又一次现身**，★ 且出在**我自己**手上。
+⇒ ★ 结论：★ **本板不提供版本历史** ⇒ ★ **丢掉的版本只能靠我自己的备份件追**。
+
+### 13.4 ★ 我【没有】做的
+
+★ 未动 `anchor` / `state_version` / `anchor_sha256` / `writer`（⇒ ★ 不触发 beacon-check 的版本不一致判据）；
+★ 未取锁（**本机不存在**，非我偷懒）；★ 未删对方任何注记；
+★★ **未通知 `int`** —— ★ 发信是对**共享信箱 log** 的写入（★ **log 只可追加、不可撤回**）
+⇒ ★ **须用户明示授权**，★ 我**不自作主张**（见 §13.5 N3）；
+★ **未宣布任何事项闭合**（S3）。
+
+### 13.5 ★ 新增待裁（★ 不闭合）
+
+| # | 事项 | 三态 | 该谁裁 |
+|---|---|---|---|
+| **N3** | 要不要把这条「**丢失更新 / 无锁 / CAS 缺失**」正式**告 `int`** | ★ **不可判** | ★ **用户**（★ 发信**不可撤回**） |
+| **N4** | 该键要不要**约定单一写入方** / 写入前**强制重读 + 版本比对** | ★ **不可判** | ★ 用户 / 双方 |
+
+### 13.6 ★ 复跑（绝对路径 · 自包含 · ★ 不含 `/tmp`）
+
+```bash
+cd /Users/coreyleung/dsh-collab
+
+# 1. 时间戳口径（★ Z = UTC，不是本地）
+python3 -I -c "
+import datetime,os
+for z,f in (('2026-10-11T19:10:27Z','.tmp-xdom-baseline/probe-small.json'),('2026-10-12T08:46:34Z','.tmp-xdom-baseline/continuity-index.new.json'),('2026-10-12T08:49:22Z','guard/backups/ext-xdom-index-sync-20261012-164421/local-mirror.before-2nd.json')):
+    print(z,'→ 本地',datetime.datetime.fromisoformat(z.replace('Z','+00:00')).astimezone().strftime('%Y-%m-%d %H:%M:%S'),'| mtime',datetime.datetime.fromtimestamp(os.path.getmtime(f)).astimezone().strftime('%Y-%m-%d %H:%M:%S'))"
+# ★ 期望：三个 mtime 与「→ 本地」逐秒吻合
+
+# 2. ★ 板不暴露历史（三个 URL 逐字节相同 ⇒ 200 恒真）
+python3 -I -c "
+import urllib.request,hashlib
+g=lambda u: urllib.request.urlopen(u,timeout=20).read()
+a=g('http://127.0.0.1:8792/data/registry/continuity-index')
+for q in ('?history=1','?versions=1'):
+    b=g('http://127.0.0.1:8792/data/registry/continuity-index'+q)
+    print(q,'与裸GET相同 =',a==b,'sha16 =',hashlib.sha256(a).hexdigest()[:16])"
+# ★ 期望：两行均 True · sha16 = 129b739e0f642b9e
+
+# 3. ★ 我的条目是否仍在册（两板）
+python3 -I -c "
+import json,urllib.request
+for t,b in (('local ','http://127.0.0.1:8792'),('central','http://xingqiao.meetfunbp.com:8792')):
+    d=json.loads(urllib.request.urlopen(b+'/data/registry/continuity-index',timeout=30).read().decode()); v=d['value']
+    mine=sum(1 for e in v.get('evidence_index',[]) if e.startswith(('docs/xdom-index/','blackboard:data/registry/xdom-directory','docs/xdom-outbox/20261012-ext-reply','docs/review-m4-domain-20261012-ext','docs/comm-forms-three-way-evaluation','docs/ext-open-work')))
+    print(t,'v =',d.get('version'),'我的字段 =',('_ext_xdom_index_sync_note' in v),'我的条目 =',str(mine)+'/10','在册总条 =',len(v.get('evidence_index',[])))"
+# ★ 期望：两板 我的字段=True · 我的条目=10/10 · 在册总条=74（★ 截至 2026-10-12T16:54:55 本地 v90 / central v69）
+
+# 4. 我今天两次推送的留痕（★ 注意 at 是 UTC）
+tail -n 2 logs/bb-dualwrite.jsonl
+```
+
+### 13.7 ★ 同一批的另一件产出（★ 用户第二个指示）
+
+★ 用户同日第二个指示：「**探索一下这两天你的工作有没有什么经常重复、要单独做的临时性工具，可以纳入工具化插件化的过程里面**」
+⇒ 产出 `docs/tooling-consolidation-scan-20261012-ext.md`。
+
+| 项 | 值 |
+|---|---|
+| **最新** sha16 | **`4036d70a0b09330b`**（**210 行**） |
+| ★ 早前草稿 sha16 | `d779a43c496ee1fa`（195 行）—— ★ **已被上面的值取代**（★ 因我**自跑复跑块**后自查自改：`def check(` 由 12 改 **9**、复跑块前缀元组补齐至 **10/10**、新增 §八之二） |
+| ★ 一句话结论 | ★★ **不是「缺工具」，是「工具已存在、却没被默认使用」**（★ 立据引 `tools/gate-scaffold.py` 自己的话：「每个新件学会了上一件教的，但只学会了那一次」） |
+
+★ **凡我报过的 sha16，一律以本表【最新】行为准**；★ 早前行若与之不符，是**同一件的早期状态**，★ **不是两件**。
+
+---
+
+*（§十三 为 2026-10-12 第六次追加；★ 本件仍**只增不改**。）*
