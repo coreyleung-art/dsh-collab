@@ -94,7 +94,7 @@ function __modelVer(){
   }
   return window.__mverP;
 }
-async function j(u){
+async function j(u ,opts){
   // 1) 静态模式(CloudBase): 直接读本地 json 文件
   if(__STATIC){
     const r=await fetch(__apiFile(u),{cache:'no-store'});return r.json();
@@ -130,7 +130,13 @@ async function j(u){
   // 3) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
   try{
     if(__forceOffline) throw new Error('diag=offline 强制离线');   // ★ 在 try 内 ⇒ 走下方 catch 的缓存兜底
-    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
+    // ★★★ 2026-10-13 修（本线实测根因）：/api/hwprobe 走 `probe_comm_channels(force=True)`
+    //   ⇒ ★ **绕过 25s 缓存、每次重新逐条探测通道** ⇒ 8s 超时会被 abort
+    //   ⇒ 前端报 `Fetch is aborted` 并经 /api/manager-event 上报成错误卡。
+    //   ★ 那不是「端点不存在」（实测 200 @0.07–0.21s 本机），而是【探测耗时 vs 超时】不匹配。
+    //   ⇒ 判据：慢端点用长超时（可传 opts.timeoutMs），默认仍 8s。
+    const __TO=(typeof opts!=="undefined"&&opts&&opts.timeoutMs)||8000;
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),__TO);
     const r=await fetch(__BASE+u,{signal:ctrl.signal});clearTimeout(t);
     if(r.ok){
       const d=await r.json();
@@ -2093,7 +2099,7 @@ function renderHwComm(box){
 }
 function refreshCommProbe(btn){
   if(btn){btn.innerHTML='探测中…';btn.disabled=true;}
-  j('/api/hwprobe').then(function(){
+  j('/api/hwprobe',{timeoutMs:45000}).then(function(){  // ★ 慢端点 45s（见 j() 注释）
     if(btn){btn.innerHTML='↻ 重新探测';btn.disabled=false;}
     renderHwComm($('view-hardware'));
   }).catch(function(){if(btn){btn.innerHTML='↻ 重试';btn.disabled=false;}});

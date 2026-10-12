@@ -3060,6 +3060,47 @@ class Handler(BaseHTTPRequestHandler):
                     self._send(200, json.dumps({"ok":False,"error":"事件不在白名单(拒收): "+_ev})); return
                 if _lv not in _LV_VALID:
                     self._send(200, json.dumps({"ok":False,"error":"级别非法: "+_lv})); return
+                # ★★★ 2026-10-13 修（本线实测根因）：**同类错误卡去重**。
+                #   实测：某类卡连发 4 次【逐字相同】（/api/hwprobe Fetch is aborted ×4，间隔 37/45/13/48 分）
+                #   ⇒ 那不只是噪音，还会掩盖「真正的变化」。⇒ 同一 (event,detail) 在冷却窗内只落一张。
+                if _ev == "error":
+                    try:
+                        _cooldown = 1800  # 30 分钟
+                        # ★★ 2026-10-13 修（实测触发的第二处）：**枚举要【带尾斜杠】** ——
+                        #   实测 `notes/mac-mini/manager-actions`（无斜杠）→ `{"error":"not found"}`；
+                        #   带斜杠 `…/manager-actions/` → `{"list":…}`（26 条）。
+                        #   ★ 且 `_bb_get` 是为【具体键】设计的（取 `value`）⇒ **对枚举不适用**（枚举没有 value 键）
+                        #     ⇒ 第一版两错叠加 ⇒ `_recent={}` ⇒ 循环 0 次 ⇒ **去重永不触发**（静默失效）。
+                        #   ⇒ 改用 urlopen 直读枚举，并**如实区分三态**（读到列表 / 空列表 / 读失败）。
+                        _recent = None
+                        try:
+                            with urllib.request.urlopen(
+                                    "http://127.0.0.1:8792/notes/mac-mini/manager-actions/", timeout=8) as _rr:
+                                _recent = json.loads(_rr.read().decode())
+                        except Exception:
+                            _recent = None
+                        _lst = {}
+                        if isinstance(_recent, dict):
+                            if isinstance(_recent.get("list"), dict):
+                                _lst = _recent["list"]
+                            elif isinstance(_recent.get("value"), dict):
+                                _lst = _recent["value"].get("list") or {}
+                        for _kk, _vv in list(_lst.items())[-30:]:
+                            _iv = (_vv.get("value") or {})
+                            _iv = _iv.get("value") if isinstance(_iv.get("value"), dict) else _iv
+                            if _iv.get("event") == "error" and _iv.get("detail") == _act[:200]:
+                                _ts = _iv.get("ts") or ""
+                                try:
+                                    _age = (datetime.datetime.now() - datetime.datetime.fromisoformat(_ts)).total_seconds()
+                                except Exception:
+                                    _age = 0
+                                if 0 <= _age < _cooldown:
+                                    self._send(200, json.dumps({"ok": True, "duplicate": True,
+                                        "reason": "同类错误卡在 %ds 冷却窗内 ⇒ 不重发（★ 去重）" % _cooldown,
+                                        "ageSec": int(_age), "firstKey": _kk}))
+                                    return
+                    except Exception:
+                        pass  # ★ 去重失败不阻断主流程
                 try:
                     _k="notes/mac-mini/manager-actions/%s" % datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
                     _p={"ts":datetime.datetime.now().isoformat(),"from":"systemgraph-gui","level":_lv,
