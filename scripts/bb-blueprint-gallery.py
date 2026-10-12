@@ -30,7 +30,7 @@ GALLERY_DIR = os.path.join(BASE, "data/blueprint/gallery")
 SNAP_DIR = os.path.join(GALLERY_DIR, "snapshots")
 VERSION_MAP = os.path.join(GALLERY_DIR, "version-map.json")
 AGENTS_FILE = os.path.expanduser("~/.dsh/agent-bus.json")
-VERSION = "v1.4.0"  # 与 SystemGraph 壳/三端同版(见 ~/system-graph-app/VERSION-MANIFEST.md)
+VERSION = "v1.5.0"  # 与 SystemGraph 壳/三端同版(见 ~/system-graph-app/VERSION-MANIFEST.md)
 
 # ─────────── ★ A 组「数据实时化」：单一权威内存模型（2026-10-12 明鉴） ───────────
 # 依据：docs/systemgraph-internal-completion-plan-20261008.md §十一（裁判 2026-10-08 有条件通过）
