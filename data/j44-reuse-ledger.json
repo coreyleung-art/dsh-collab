@@ -698,6 +698,14 @@
    "hits": 0,
    "note": "★ 门命中 0 条。",
    "at": "2026-10-13T00:40:07"
+  },
+  {
+   "intent": "写一份 v7 待裁事项裁决案卷文档 docs/v7-adjudication-dossier-20261013.md（把 S1-S9 九项逐项写成七栏可裁问题）",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-13T01:20:55"
   }
  ]
 }
