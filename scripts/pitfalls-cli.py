@@ -105,7 +105,7 @@ def put_bb(path, value):
 def cmd_add(args):
     data = load()
     # 查重
-    if any(i["id"] == args.id for i in data["items"]):
+    if any(i.get('id','?') == args.id for i in data["items"]):
         print(f"⚠️ 已存在 {args.id}（用 query 查看）")
         return
     item = {
@@ -128,9 +128,9 @@ def cmd_list(args):
     data = load()
     items = data["items"]
     if args.severity:
-        items = [i for i in items if i["severity"] == args.severity.upper()]
+        items = [i for i in items if i.get('severity','?') == args.severity.upper()]
     print(f"共 {len(items)} 条踩坑档案：")
-    # ★★ 2026-10-13 修（ext 第三轮 F-11）：原 `i['severity']` 直取 ⇒
+    # ★★ 2026-10-13 修（ext 第三轮 F-11）：原 `i.get('severity','?')` 直取 ⇒
     #   ★★ **缺 `severity` 键的条目会抛 `KeyError` ⇒ 整条命令崩**（★ 实测本地有一条如此）。
     #   ★ 现改为 `.get(..., '?')`（★ 一行）。
     for i in items:
@@ -142,14 +142,14 @@ def cmd_query(args):
     hits = [i for i in data["items"] if kw in json.dumps(i, ensure_ascii=False).lower()]
     print(f"命中 {len(hits)} 条（关键词: {args.keyword}）：")
     for i in hits:
-        print(f"  [{i['severity']}] {i['id']} · {i['title']}")
+        print(f"  [{i.get('severity','?')}] {i.get('id','?')} · {i.get('title','?')}")
         print(f"    教训: {i.get('lesson','')[:80]}")
 
 def cmd_stats(args):
     data = load()
     items = data["items"]
     from collections import Counter
-    by_sev = Counter(i["severity"] for i in items)
+    by_sev = Counter(i.get('severity','?') for i in items)
     by_date = Counter(i["date"] for i in items)
     print(f"总条数: {len(items)}")
     print(f"按级别: {dict(by_sev)}")
@@ -159,10 +159,10 @@ def cmd_export(args):
     data = load()
     os.makedirs(MD_DIR, exist_ok=True)
     for i in data["items"]:
-        slug = i["id"]
-        md = f"""# {i['id']} {i['title']}
+        slug = i.get('id','?')
+        md = f"""# {i.get('id','?')} {i.get('title','?')}
 
-> 级别: {i['severity']} · 日期: {i['date']}
+> 级别: {i.get('severity','?')} · 日期: {i['date']}
 
 ## 现象
 {i.get('phenomenon','')}
@@ -193,7 +193,7 @@ def cmd_import(args):
     src = json.load(open(args.file))
     items = src if isinstance(src, list) else src.get("items", src.get("pitfalls", []))
     data = load()
-    existing = {i["id"] for i in data["items"]}
+    existing = {i.get('id','?') for i in data["items"]}
     added = 0
     for it in items:
         if isinstance(it, dict) and it.get("id") and it["id"] not in existing:

@@ -1546,7 +1546,18 @@ function showKnowCard(n){
     j('/api/paper-summary/'+(n.short||'')).then(d=>{
       const el2=document.getElementById('sum-'+(n.short||''));
       if(el2&&d&&d.summary)el2.innerHTML='📖 <b style="color:#e8eaf0">中文概况</b><div style="margin-top:4px">'+d.summary+'</div>';
-      else if(el2)el2.innerHTML='📖 概况待生成（本地模型不可用或暂无摘要源）';
+      // ★★★ 2026-10-13 修（独立审查发现·误导性归因）：
+      //   原实现**丢弃 d.source**，把所有「无摘要」一律显示成
+      //   「本地模型不可用或暂无摘要源」⇒ ★ 把【确实无 Abstract（诚实降级）】
+      //   说成【模型不可用（疑似故障）】⇒ **归因错误 = 让人去查不存在的问题**。
+      //   ⇒ 按 source 分档如实说：placeholder=确实无摘要源 · 其它=待生成/失败。
+      else if(el2){
+        const _s=(d&&d.source)||'';
+        const _msg = _s==='placeholder'
+          ? '📖 该论文【本身无 Abstract 可摘】⇒ 无中文概况（★ 诚实降级，非故障）'
+          : (_s ? ('📖 概况待生成（摘要源: '+_s+'）') : '📖 概况待生成（★ 未标注来源）');
+        el2.innerHTML=_msg;
+      }
     }).catch(()=>{});
   }
 }

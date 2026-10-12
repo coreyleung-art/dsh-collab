@@ -50,6 +50,14 @@ def is_ratio_noise(a, b, text=None, pos=None):
     return False
 
 # ★ 【口径词】：窗口 / 分母 / 样本 / 面
+# ★★ 2026-10-13 修（ext 第四轮 E-1）：【无关信号】—★
+#   ★ 实例：「87%。本段讲窗口：窗口为 24h，与本数字无关。」
+#   ★★ 而它含口径词「窗口」 ⇒ 被当成同单元 ⇒ **假绿**（★ 过宽）。
+#   ★ 修法：凡邻单元**显式否定关联**，不纳入。
+UNRELATED_MARKERS = ["与本数字无关", "与上数字无关", "与前数字无关",
+                     "与此无关", "与上一段无关", "与上一数字无关",
+                     "本段与上数字无关", "另一件事", "不相干"]
+
 CALIBER_WORDS = [
     "窗口", "分母", "分子", "样本", "扫描面", "面=", "口径", "时刻",
     "n=", "n≥", "n<", "基准", "全量", "区间", "范围", "截至", "观测",
@@ -99,6 +107,10 @@ def same_unit_declared(text, pos):
     wlo = wstarts[max(0, idx - 1)]          # ★ 向前多取一个弱界单元
     whi = wends[min(len(wends) - 1, idx + 1)]  # ★ 向后多取一个
     sentence = seg[wlo:whi]
+    # ★★ 2026-10-13 再修（ext 第四轮 E-1）：【无关信号】排除—★
+    #   ★ 若候选单元【显式否定关联】（★ 如「与本数字无关」）⇒ 不纳入。
+    if any(m in sentence for m in UNRELATED_MARKERS):
+        return False, sentence
     return any(w in sentence for w in CALIBER_WORDS), sentence
 
 

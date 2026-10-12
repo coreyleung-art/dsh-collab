@@ -87,7 +87,7 @@ def summarize(res):
     should = [r for r in pending if r.get("should_be_expired")]
     marked = [r for r in pending if r.get("marked_expired")]
     ages = [r["age_hours"] for r in pending if r.get("age_hours") is not None]
-    return {
+    _out = {
         "total": total,
         "pending": len(pending),
         "should_be_expired": len(should),
@@ -97,6 +97,15 @@ def summarize(res):
         "ttl_hours": res["ttl_hours"],
         "now": res["now"],
     }
+    # ★★ 2026-10-13 再修（ext 第四轮 F-10）：上一版**算了却丢**（★ 死码）—★
+    #   ★ 原实现在 :71/:79-82 算了 `undecidable`，★★ 而本函数返回「字面量」只列七项 ⇒ **丢掉**。
+    #   ★ 现：把它真接进返回值（★ 文本与 JSON 都会出现）。
+    _und = [r for r in rows if r.get("undecidable")]
+    _out["undecidable_count"] = len(_und)
+    _out["undecidable_keys"] = sorted({k for r in _und for k in ("sent_at", "ts", "age_hours") if r.get(k) is None})
+    _out["undecidable_ids"] = [r.get("file") or r.get("id") for r in _und][:20]
+    return _out
+
 
 
 def selftest():

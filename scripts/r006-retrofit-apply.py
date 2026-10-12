@@ -139,14 +139,33 @@ def insert_na(src):
 
 
 def needs_r7(src):
+    """★ R006 ⑦ 达标判据 —— ★★★ 2026-10-13 修正：**从【形状】改为【行为】**。
+
+    ★★ 为什么改（实测触发，独立审查发现）：原判据**只看【有没有日志路径字符串】** ——
+      于是「注入了 LOG 常量与 def log() 定义」就被判为**达标**，
+      ★ 而**函数定义了却从不调用** ⇒ **声明的日志文件永不产生**。
+      ★ 实测规模：含 def log( 的脚本 284 个，其中 **零调用 232 个（82%）**。
+      ⇒ 要求＝每次动作留痕（**需要有调用**）· 原判据＝有路径字符串（**只看形状**）
+      ⇒ ★★ **判据比要求弱 ⇒ 假绿**（与本线反复遇见的「恒真判据」同族）。
+
+    ★ 新判据（**行为**）：
+      ① 没有日志路径 ⇒ 需要补
+      ② ★ 有路径但**没有任何 log(...) 调用** ⇒ **仍需补**（补【调用点】，而非再补一个定义）
+    ★ 返回 (bool, 原因) 元组。
+    """
     pats = (r"dsh-collab/logs", r"scripts/logs", r"~/dsh-collab/logs",
             r"join\([^)]*[\"']logs[\"']")
-    return not any(re.search(p, src) for p in pats)
+    if not any(re.search(p, src) for p in pats):
+        return True, "无日志路径"
+    body = re.sub(r"(?m)^\s*def log\([^)]*\):\s*$", "", src)
+    if "log(" not in body:
+        return True, "★ 有日志路径但 log() 零调用（形状达标、行为未达标）"
+    return False, "已有日志路径且有调用"
 
 
 def insert_r7(src, toolname):
     """插入【自足】的 LOG 常量 + log() 函数（不引用目标文件的任何常量）。"""
-    if not needs_r7(src):
+    if not needs_r7(src)[0]:
         return None, "已有 R7 日志（跳过）"
     lines = src.split("\n")
     # ★ 自足：用 os.path.expanduser，不依赖 COLLAB/HOME 等（我上一轮的错误）
