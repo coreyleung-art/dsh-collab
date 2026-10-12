@@ -17754,7 +17754,7 @@
   {
    "file": "deviation-ledger-20261011.md",
    "path": "/Users/coreyleung/dsh-collab/docs/deviation-ledger-20261011.md",
-   "line": 6055,
+   "line": 6106,
    "text": "*本台账只增不改。★ **任何 `closed` 状态必须附独立 verifier**（S3 不可自审）。*",
    "category": "paper"
   },
