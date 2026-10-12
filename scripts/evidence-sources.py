@@ -162,6 +162,32 @@ def check_errors(claims):
             "reason": "★ 错数 = 互不相同的证伪读数个数 = %d ⇒ 不构成多报" % n_c}
 
 
+def compare_methods(cmds):
+    """★★★ 接受【实际命令串】，工具自己比对是否相同。
+    ★ 由 session-c05b831c 建议（2026-10-12）：★★ **收命令串而非布尔** —★ **那才机械可判**。
+    ★ 为何优于 `type@method`：★ **后者仍需调用方自己写方法标识**；
+      ★★ **本函数连标识都不需要人写** —★ 直接拿命令比。
+    """
+    norm = [re.sub(r"\s+", " ", (c or "").strip()) for c in cmds]
+    same = len(set(norm)) < len(norm)
+    return {"n_cmds": len(norm), "distinct": len(set(norm)), "same_method_twice": same,
+            "commands": norm,
+            "verdict": "NOT_EVIDENCE" if same else ("UNSTATED" if not norm else "EVIDENCE"),
+            "reason": ("★★ **两次命令字面相同 ⇒ 同法两次 ⇒ n 不增**"
+                       if same else "★ 命令字面不同 ⇒ 可计入多源")}
+
+
+def cmd_methods(cmds, as_json=False):
+    r = compare_methods(cmds)
+    if as_json:
+        import json as _j; print(_j.dumps(r, ensure_ascii=False, indent=1)); return 0
+    print("== 命令串比对（★ 机械可判）==")
+    for i, c in enumerate(r["commands"], 1):
+        print("  %d. %s" % (i, c[:100]))
+    print("  ⇒ distinct=%d / n=%d ⇒ %s" % (r["distinct"], r["n_cmds"], r["reason"]))
+    return 0 if r["verdict"] != "UNSTATED" else 1
+
+
 def cmd_errors(path, as_json=False):
     import json as _j
     try:
@@ -264,6 +290,13 @@ def selfcheck():
       verdict(["own-extraction@grep-A", "git@grep-A"])["verdict"] == "NOT_EVIDENCE")
     t("⑥k 不同方法标识 ⇒ 不去重（★ 仍可作证据）",
       verdict(["own-extraction@grep-A", "git@grep-B"])["verdict"] == "EVIDENCE")
+    # ★★★ 新增：收【实际命令串】自己比对（★ 比 `type@method` 更彻底）
+    t("⑥l 两串字面相同 ⇒ 同法两次（★ 无需人写标识）",
+      compare_methods(["grep -c PEND x", "grep  -c   PEND x"])["same_method_twice"] is True)
+    t("⑥m 两串不同 ⇒ 不算同法",
+      compare_methods(["grep -c PEND x", "awk /^PEND/ x"])["same_method_twice"] is False)
+    t("⑥n 空命令列 ⇒ UNSTATED（★ 不得读作合格）",
+      compare_methods([])["verdict"] == "UNSTATED")
     t("⑥c 本工具的【参数面】不接收 n（★ 防「读自报」）",
       ("--n" not in _code) and ("add_argument('n'" not in _code) and ("add_argument(\"n\"" not in _code))
     print("\n== 负控 %d/%d ==" % (ok, tot))
@@ -297,6 +330,8 @@ def main():
     ap.add_argument("--sources", nargs="*")
     ap.add_argument("--scan")
     ap.add_argument("--errors", help="★ 判据乙：JSON 文件（[{\"claim\",\"falsifier\"}]）")
+    ap.add_argument("--methods", nargs="*",
+                    help="★★ 实际命令串（★ 工具自己比对是否同法）—★ 不收布尔")
     ap.add_argument("--selfcheck", action="store_true")
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--json", action="store_true")
@@ -307,6 +342,7 @@ def main():
     if a.version: print(VERSION); return 0
     if a.selfcheck: return selfcheck()
     if a.lean4_check: return lean4_check()
+    if a.methods is not None: return cmd_methods(a.methods, a.json)
     if a.errors: return cmd_errors(a.errors, a.json)
     if a.scan: return cmd_scan(a.scan)
     m = {"same_method_twice": True, "id": "★ --same-method-twice"} if getattr(a, "smt", False) else None
