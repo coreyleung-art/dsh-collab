@@ -2505,11 +2505,19 @@ def sg_deliver(owner, gaps, mode="notify", dry_run=True, principal="sg-dispatch"
     errs = []
 
     if dry_run:
+        # ★★ 修（2026-10-12 本线实测）：第一版无条件回 wouldCardKey ⇒ 报出「wake 也会写卡」的假象。
+        #   ⇒ dry-run 必须**如实镜像实写逻辑**：wouldCard 按档位判，与下面真实分支同一条件。
+        will_card = mode in ("notify", "notify+wake")
+        will_send = mode in ("notify+wake", "wake")
         return {"ok": True, "dryRun": True, "mode": mode, "owner": owner,
-                "wouldCardKey": card_key, "wouldCard": card,
-                "wouldSend": (mode in ("notify+wake", "wake")),
-                "wouldText": (body[:200] if mode in ("notify+wake", "wake") else None),
-                "note": "★ dry_run：未写任何东西（含黑板卡与 send）。"}
+                "wouldCard": will_card,
+                "wouldCardKey": (card_key if will_card else None),
+                "wouldCardBody": (card if will_card else None),
+                "wouldSend": will_send,
+                "wouldText": ((body[:180] + " …看黑板 " + card_key)[:200] if will_send else None),
+                "note": "★ dry_run：未写任何东西（含黑板卡与 send）。"
+                        "★ wouldCard / wouldSend 与实写分支同一条件（三态语义：notify 只写卡 · "
+                        "notify+wake 都做 · wake 只 send 不写可见卡）。"}
 
     # ① 写卡（notify 与 notify+wake 都写；wake 档**故意不写可见卡** —— 抄 hermes 的 wake 语义）
     if mode in ("notify", "notify+wake"):
@@ -2573,6 +2581,92 @@ def sg_receipt_drain(owner):
     pend = [x for x in (r.get("pending") or []) if isinstance(x, dict)
             and x.get("owner") == owner and not x.get("acked")]
     return pend, None
+
+
+# ══════════ ★ P5.4（2026-10-12 明鉴）：门5 对账扫描 + 验收层 ══════════
+# ★★ 门5 对账（抄 Nylas「push 实时 + pull 对账 + 按 ID upsert 幂等」，已核实原文）：
+#   原文口径 "You get push speed with **pull safety**"。
+#   ★ 它治的是 11.5h 互等的**另一半**：光有「发出侧的门」不够，必须有**收口侧的兜底扫描**。
+#   ★ 且它是 neo 的 resync 同族：客户端驱动的 catch-up。
+#
+# ★★ 回归预言机（抄 Kitchen Loop，已核实原文）：「**至少不比上一轮差**」
+#   治的是「补一个缺口开两个」—— 补丁式补齐会制造新缺口，而**没人会报警**。
+#
+# ★★ 零上下文验收（同源）：**不让补缺口者自己报完成**
+#   Kitchen Loop 原文：「38 passing unit tests coexisted with complete feature failure」
+#   ⇒ 验收必须**换 agent、换上下文**。本实现把它做成**可机械判的检查**（verifier ≠ implementer）。
+SG_GAP_HISTORY = "data/registry/sg-gap-history"
+SG_RECONCILE_AGE_MIN = 45
+
+
+def sg_receipt_reconcile(max_age_min=None):
+    """★ 门5 的对账扫描。返回 (stale, summary)。
+
+    ★ 找出 pending 中【超过阈值仍未 ack】的条目 ⇒ 报告。
+    ★★ 它不"重发"，而是**把清单交给下一次任何原因的唤醒**（★ 不叠加唤醒 ——
+       「merge-don't-stack」的同一原则：不为了对账再叫一次）。
+    """
+    mx = (SG_RECONCILE_AGE_MIN if max_age_min is None else max_age_min) * 60
+    now = time.time()
+    v, err = _bb_get(SG_RECEIPT)
+    if err:
+        return None, {"ok": False, "err": "★ 回执区读不到 ⇒ 不可判（不是「无 stale」）：%s" % err}
+    r = v if isinstance(v, dict) else {}
+    pend = [x for x in (r.get("pending") or []) if isinstance(x, dict) and not x.get("acked")]
+    stale = [x for x in pend if (now - (x.get("dispatchedAt") or now)) > mx]
+    return stale, {"ok": True, "pending": len(pend), "stale": len(stale),
+                   "ageThresholdMin": mx / 60,
+                   "owners": sorted({x.get("owner") for x in stale})}
+
+
+def sg_regression_oracle(total, by_family, record=False):
+    """★ 回归预言机：**至少不比上一轮差**。返回 (verdict, detail)。
+
+    ★ 判据有意用【分族 + 总数】两个维度：
+      · 总数变多 ⇒ 判红（补一个开两个）
+      · 总数持平但**高严重度族(error)变多** ⇒ 也判红（换了更坏的缺口）
+    ★★ `record=True` 才把本轮写进历史（★ 与棘轮的「显式开关」同一原则：
+      **不许每次跑都悄悄改基线**）。
+    """
+    v, err = _bb_get(SG_GAP_HISTORY)
+    if err:
+        return "UNDECIDABLE", {"err": "★ 历史读不到 ⇒ 不可判（不是「无回归」）：%s" % err}
+    h = v if isinstance(v, dict) else {}
+    rounds = [x for x in (h.get("rounds") or []) if isinstance(x, dict)]
+    cur = {"t": time.time(), "total": total,
+           "byFamily": dict(by_family or {}),
+           "errorCount": sum((by_family or {}).get(f, 0) for f in ("G3", "A", "B", "C", "E"))}
+    if record:
+        rounds.append(cur)
+        _bb_put(SG_GAP_HISTORY, {"rounds": rounds[-200:], "at": datetime.datetime.now().isoformat()})
+    if not rounds:
+        return "NO_BASELINE", {"cur": cur, "note": "★ 首轮 ⇒ 无对照；已%s" % ("记入历史" if record else "未记入（须显式 record）")}
+    prev = rounds[-1]
+    d_total = cur["total"] - prev.get("total", 0)
+    d_err = cur["errorCount"] - prev.get("errorCount", 0)
+    bad = d_total > 0 or d_err > 0
+    return ("REGRESSED" if bad else "OK"), {
+        "prev": {"total": prev.get("total"), "errorCount": prev.get("errorCount")},
+        "cur": {"total": cur["total"], "errorCount": cur["errorCount"]},
+        "deltaTotal": d_total, "deltaError": d_err,
+        "verdictNote": ("★ 回归：缺口总数 +%d / 高严重度 +%d ⇒ **补一个开两个**" % (d_total, d_err)) if bad
+                       else "★ 未退化（至少不比上一轮差）",
+    }
+
+
+def sg_verify_independence(verifier, implementer):
+    """★ 零上下文验收的机械判据：**verifier 必须不是 implementer**。
+
+    ★ 这是「**补缺口者不得自证**」的可测形式。★ 三态：
+      · 两者都给了且不同 ⇒ ok
+      · 相同 ⇒ **拒**（自证）
+      · 缺任一个 ⇒ **不可判**（★ 不是通过）
+    """
+    if not verifier or not implementer:
+        return None, "★ 不可判：verifier 或 implementer 缺失（★ 缺失 ≠ 通过）"
+    if str(verifier).strip() == str(implementer).strip():
+        return False, "★ 自证：verifier 与 implementer 是同一会话（%s）⇒ 拒" % str(verifier)[:28]
+    return True, "独立：verifier=%s ≠ implementer=%s" % (str(verifier)[:22], str(implementer)[:22])
 
 
 def sg_optimistic_gate(req, kind, name, t0, principal, verb, reply):
@@ -3215,6 +3309,31 @@ class Handler(BaseHTTPRequestHandler):
                 out["note"] = "★ dry_run 默认；★ notify 档【只写卡不 send】（因为 HTTP /api/send 不支持 notify_only）" \
                                " ⇒ 真唤醒只有 notify+wake / wake 两档。★ 门5 pending 供「任何后续唤醒必带投递」。"
                 self._send(200, json.dumps(out, ensure_ascii=False))
+                return
+            if path == "/api/sg-acceptance":
+                # ★ P5.4（2026-10-12）：门5 对账 + 回归预言机 + 零上下文验收。★ 只读
+                #   （★ 只有 record=1 才写历史 —— 与棘轮的显式开关同一原则）
+                q = self.path.split("?", 1)[1] if "?" in self.path else ""
+                kv = dict(x.split("=", 1) for x in q.split("&") if "=" in x)
+                try:
+                    gaps, scanned = sg_detect_gaps()
+                except Exception:
+                    gaps, scanned = [], {}
+                byf = {f: sum(1 for g in gaps if g["family"] == f) for f in GAP_FAMILIES}
+                stale, rsum = sg_receipt_reconcile(
+                    max_age_min=(float(kv["maxAgeMin"]) if kv.get("maxAgeMin") else None))
+                rv, rdet = sg_regression_oracle(len(gaps), byf, record=(kv.get("record") == "1"))
+                vi, vwhy = sg_verify_independence(kv.get("verifier", ""), kv.get("implementer", ""))
+                self._send(200, json.dumps({
+                    "reconcile": rsum, "staleCount": (len(stale) if stale is not None else None),
+                    "stale": (stale[:5] if stale else []),
+                    "regression": {"verdict": rv, "detail": rdet},
+                    "verifyIndependence": {"ok": vi, "why": vwhy},
+                    "gapTotal": len(gaps), "byFamily": {k: v for k, v in byf.items() if v},
+                    "note": "★ 对账扫描不重发，只把清单交给【下一次任何原因的唤醒】（不叠加唤醒）。"
+                            "★ 回归预言机判据 = 总数不增 ∧ 高严重度不增。"
+                            "★ 零上下文验收：verifier 必须不是 implementer（★ 缺失 ⇒ 不可判，不是通过）。",
+                }, ensure_ascii=False))
                 return
             if path == "/api/overview":
                 reg = get_registry(); rel = get_relations(); ag = get_agents(); ver = get_versions()
