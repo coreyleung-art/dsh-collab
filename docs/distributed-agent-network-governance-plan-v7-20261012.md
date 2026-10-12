@@ -1,6 +1,6 @@
 # CLD 跨会话跨设备分布式智能体节点网络 · 治理架构管理计划书 **v7**
 
-> **state_version**: 7 ｜ **updated_at**: 2026-10-13T01:36:27+08:00（★ 由 `date` 实读，非估算）
+> **state_version**: 7 ｜ **updated_at**: 2026-10-13T02:42:08+08:00（★ 由 `date` 实读，非估算）
 > **本件为锚点基线**（连续性信标四件套之①）· **取代 v6.1**（`docs/distributed-agent-network-governance-plan-v6.1-20261011.md`，sha256 `bf5a4e6b…`，★ **保留未改**）
 > **成稿时刻**：2026-10-12T21:35:13+08:00（+08:00）
 > **起草**：星桥第二任 `session-e317d6ab`（协调者）
@@ -175,7 +175,7 @@ $ /Applications/Tailscale.app/Contents/MacOS/Tailscale status
 > ★ ★ **且本节与 `v7-mechanization-coverage-20261013.md` 逐行对齐**；
 > ★★ 若两处不一致，★ **以覆盖表为准**（★ 它是专用的表）。
 
-★ 并已把可机械检的四类做成门：★ **`tools/false-result-patterns.py`**（★ 自证 6/6 · ★ 含已知局限声明）。
+★ 并已把可机械检的四类做成门：★ **`tools/false-result-patterns.py`**（★ 自证 **10/10** · ★ 读于 2026-10-13T02:42:08+08:00 · ★ 含已知局限声明）。
 
 ★★★ **⇒ 并派生三条操作规则：**
 

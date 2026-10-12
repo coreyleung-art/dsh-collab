@@ -41,16 +41,24 @@ CHECKS = [
     #   \u2605 \u4fee\u6cd5\uff1a**\u9650\u5b9a\u4e3a\u3010\u540c\u4e00\u4f5c\u7528\u57df\u5185\u6709 `subprocess.\u2026(` \u7684\u53d8\u91cf\u3011**\u2014\u2605 \u5373\u53d8\u91cf\u540d\u5fc5\u987b\u5728\u6587\u4ef6\u91cc\u51fa\u73b0\u8fc7 `= subprocess.`\u3002
     ("P1", r'\.status\b',
      '\u2605 subprocess \u7ed3\u679c\u53d6 `.status`\uff08\u2605 \u5e94\u4e3a `.returncode`\uff09\u2014\u2605 D-228/D-231 \u6839\u56e0',
-     re.compile(r'\b(getattr\s*\(\s*)?\w+\.status\b(?!\s*=)')),
-    ("P2", r'in\s*\(\s*0\s*,\s*None\s*\)|==\s*None\s*or|not\s+in\s*\(0,\s*None\)',
+     # ★★ 2026-10-13 修（ext E-3A）：原 `(getattr\()?\w+\.status` —★
+     #   ★★ 而 `getattr(p, "status")` 里【没有 `.status` 子串】（是 `, "status"`）
+     #   ⇒ 那个分支【永远匹配不到真形态】（死分支）⇒ 意图与实现分叉。
+     #   ★ 现补：真的 `getattr(x, "status")` / `getattr(x, 'status')` 形态。
+     re.compile(r'\b\w+\.status\b(?!\s*=)|\bgetattr\s*\(\s*[^,)]+\s*,\s*["\']status["\']\s*\)')),
+    # \u2605\u2605 2026-10-13 \u4fee\uff08ext E-2\uff09\uff1a\u539f\u6ce8\u6807\u542b `== None or` \u800c**\u7f16\u8bd1\u5f0f\u4e0d\u542b**
+    #   \u21d2 \u2605\u2605 **\u58f0\u660e\u4e0e\u6267\u884c\u4e0d\u4e00\u81f4**\uff08\u2605 \u6b63\u662f\u672c\u4ed3\u8981\u6293\u7684\u90a3\u4e00\u65cf\uff09\u3002
+    #   \u2605 \u73b0\u8865\u4e0a\uff1a`== None or` / `is None or` / **\u96c6\u5408\u5b57\u9762\u91cf `{0, None}`**\uff08\u2605 ext E-3 变\u4f53 B\uff09\u3002
+    ("P2", r'in\s*\(\s*0\s*,\s*None\s*\)|==\s*None\s*or|is\s+None\s+or|not\s+in\s*\(0,\s*None\)',
      '\u2605 `None` \u88ab\u5f53\u7eff\uff08\u2605 \u5f02\u5e38\u8def\u5f84\u4e0e\u6210\u529f\u540c\u5f62\uff09\u2014\u2605 D-231',
-     re.compile(r'not\s+in\s*\(\s*0\s*,\s*None\s*\)|in\s*\(\s*0\s*,\s*None\s*\)')),
+     re.compile(r'not\s+in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|in\s*[\(\{]\s*0\s*,\s*None\s*[\)\}]|==\s*None\s*or|is\s+None\s+or')),
     ("P4", r'grep.*\\u00a7|\u00a7',
      '\u2605 `grep` \u578b\u5224\u636e\u7528\u957f\u4e32\uff08\u2605 \u68c0\u6d4b\u9762\u7a84\uff09\u2014\u2605 D-237',
      re.compile(r"re\.search\(\s*[\"'][^\"']{18,}[\"']\s*,\s*\w+\.(?:stdout|body|stdout\s*or\s*[\"']{2})\s*\)")),
     ("P5", r'20\d\d-\d\d-\d\dT',
      '\u2605 \u786c\u7f16\u7801\u65f6\u95f4\u6233\uff08\u2605 \u8d1f\u63a7\u4f1a\u968f\u65f6\u95f4\u5931\u6548\uff09\u2014\u2605 D-225',
-     re.compile(r'[\"\']20\d\d-\d\d-\d\dT\d\d:\d\d[^\"\']*[\"\']')),
+     # ★★ 2026-10-13 修（ext E-3C）：原只认 `T` 分隔；★ 现也认【空格分隔】。
+     re.compile(r'["\']20\d\d-\d\d-\d\d[T ]\d\d:\d\d[^"\']*["\']')),
     # ★★ 2026-10-13（D-252）：【标题序号 ≠ 实际行号顺序】—★ 一晚犯两次（v7 §0.1.1 · 索引 §0七）
     ("P6", r'^## \u4e00\u3001|^## \u4e8c\u3001',
      '\u2605★ 长文档的【标题序号】与【实际行号顺序\u3011不一致（\u2605 插新节后未重排）—\u2605 D-247/D-252',
@@ -157,8 +165,19 @@ def scan_file(path, rel):
             continue          # ★ P6 需跨行比对（★ 在 audit() 单独处理）
         for m in rx.finditer(code):
             if cid == "P1":
-                var = re.match(r'(?:getattr\s*\(\s*)?(\w+)\.status', m.group(0))
-                if not var or var.group(1) not in subproc_vars or var.group(1) in http_vars:
+                # ★★ 2026-10-13 修（ext E-3A 的真根因）：原只从 `\w+\.status` 取变量名
+                #   ⇒ 而 **`getattr(p, "status")` 形态下 `m.group(0)` 里没有 `.status` 子串**
+                #   ⇒ `re.match` 匹配不到 ⇒ var=None ⇒ continue ⇒ ★★ **该形态永远静默**。
+                #   ★ 现两条路各取一次变量名。
+                var = re.match(r'\w+\.status', m.group(0))
+                if var:
+                    _v = var.group(0)[:-len('.status')]
+                else:
+                    var = re.match(r'getattr\s*\(\s*([^,)]+)\s*,', m.group(0))
+                    _v = var.group(1).strip() if var else None
+                if not _v:
+                    continue
+                if _v not in subproc_vars or _v in http_vars:
                     continue      # ★ 不是纯粹 subprocess 结果 ⇒ 不算
             # ★ \u53d6\u884c\u53f7
             ln = code[:m.start()].count("\n") + 1
