@@ -1,0 +1,20 @@
+# S13 · 机制激活可观测（持久化激活计数器条数）
+# 命令: python3 /Users/coreyleung/dsh-collab/research/v7-slo-acceptance/evidence/probe-activation-counters.py
+# 时刻: 2026-10-12T20:07:31+0800
+# --- 未编辑原始输出 ---
+=== 机制激活计数器：5 面扫描 ===
+  面1 黑板 data/ 键名（共 34369 键）                      命中 0 
+  面2 树外插件 lib/*.js 源码                            命中 0 
+  面3 仓库 tools/+scripts/ 源码                       命中 0 
+  面4 ~/.dsh 计数器形态文件（宽 47 · vendor 37 · 剔后 0）     命中 0 
+  面5 黑板 data/registry 键名（共 1278 键 · 描述性命中，不计入）   命中 4 ['data/registry/bare-uuid-gate-implemented-and-pending-activation-20260914', 'data/registry/cldvoice-activate-plugin-r006-and-rule-r035-20260910', 'data/registry/hr-reply-luopan-category-and-counterexample-20260911']
+
+★ 命中总数（去重后）= 0
+★ 结论：0 个持久化「机制激活计数器」 ⇒ 与 §12 现状读数「0」一致（★ 这是现测，不是照抄）
+
+★ 未搜到的面（阴性证据边界，★ 未搜到 ≠ 不存在）：
+    · 运行时内存态计数器（不落盘者，本探针结构上看不见）
+    · 中枢板 106.53.214.108:8792 的键空间
+    · 会话 JSONL 内部的自定义事件类型
+    · 日志文件中形如 'activated' 的行（本探针只查标识符，未做全文语义检索）
+# --- end ---

@@ -1,0 +1,47 @@
+# S6 · 崩溃复发（G-CR 门全绿）
+# 命令: python3 /Users/coreyleung/dsh-collab/tools/gcr-gate.py
+# 时刻: 2026-10-12T20:05:39+0800
+# --- 未编辑原始输出 ---
+★ gcr-gate v1.0.0
+★ 扫描时点：2026-10-12T20:05:39+0800
+★ 条款来源：锚点 §7.9（**实列 17 条**；§10 称「十五条」⇒ 计数不符，已登记）
+★ 覆盖：17 条全建档；本工具机械化的 11 条，其余标 N-A 并指向既有工具
+
+❌ G-CR1    插件变更→沙箱挂载+dump-config+真挂载冒烟三态
+      plugin-preflight 判红（exit=1 ⇒ 禁止重启）
+⚠️ G-CR2    schema/DSL 过官方规则
+      须官方规则集；部分由 dump-config 覆盖（见 G-CR1 的 A 检）
+✅ G-CR3    命名门 N1–N3 常驻
+      目录名=dsh-plugin-central-inbox · name=dsh-plugin-central-inbox · patch id=central-inbox
+⚠️ G-CR4    依赖操作后扫遮蔽（含 .bak/.pnpmcopy）
+      guard_deps_scan 不可用；静态数得惰性残骸 0 个（不判红）
+⚠️ G-CR5    去遮蔽顺序固定（先重指→再移走）
+      流程类，无机械判据
+✅ G-CR6    dylib/binary 改动后逐个验签
+      验签：抽检 1 个 .dylib/.so（共 1 个）全部通过 ｜ entitlement：关键键齐备
+✅ G-CR7    重签后 TCC 流程
+      TCC 相关键在 4 个 Helper 上齐备：CLD Helper (GPU).app, CLD Helper (Plugin).app, CLD Helper (Renderer).app
+❌ G-CR8    装载前事件数门（拒绝而非崩）
+      ★ 1 个会话文件 ≥200MB，最大 245.2MB（session-fa1f9150-c949-40）—— **体积是代理指标，非事件数**
+✅ G-CR9    compaction 挂载+约束钉住（v2：含 P26 负控）
+      6/6 preset 已挂 compaction，且见显式阈值配置（P26 负控的存在性证据）
+⚠️ G-CR10   子进程内存监控
+      需运行时；heartbeat.json 可作旁证
+⚠️ G-CR11   禁用/沙箱验证 31888 reload
+      「不用即安全」
+✅ G-CR12   不动运行中的 app.asar
+      app.asar 0.18MB · mtime=2026-10-08 15:03:06 · bundle验签=通过
+⚠️ G-CR13   动态插件只用沙箱原语
+      静态扫描可部分覆盖，本轮未做
+⚠️ G-CR14   端口固定
+      未在配置中显式找到 port（可能由别处指定）
+⚠️ G-CR15   重启票流程
+      既有 restart-governor.sh + RESTART_GO 标记
+✅ G-CR16   请求前 token 预算门（含 completion 预留）
+      contextWindow=1048576 · completion 预留=256000 ⇒ 消息可达上限=792576
+⚠️ G-CR17   压缩有效性门（降幅 ≤0 ⇒ 告警）
+      须读会话 JSONL 的 summar/shadowed 降幅 ⇒ 超出本工具范围；判据与实测见 blackboard:data/registry/dead-session-postmortem-activity 与 c7 系列卡
+
+══ 汇总：PASS 6 · FAIL 2 · N-A 9（共 17）══
+   ⇒ ❌ **有 FAIL ⇒ 禁止推进/重启**
+# --- end ---

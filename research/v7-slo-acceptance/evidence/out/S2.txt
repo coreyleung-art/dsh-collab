@@ -1,0 +1,15 @@
+# S2 · 自检覆盖（G-CR18 四条判据）
+# 命令: python3 /Users/coreyleung/dsh-collab/tools/beacon-cover-check.py --strict
+# 时刻: 2026-10-12T20:05:38+0800
+# --- 未编辑原始输出 ---
+G-CR18 信标自检覆盖门（P27 判据失明族）
+  ★ WARN 不等于 PASS；SKIP 不等于通过 —— 本门不把「没查」算成「绿」
+
+  WARN  C1  8 个波未声明成员（['S', 'C', '0', '1', '2', '3', '4', '5']）⇒ 不可判；已判 0 个。★ 不可判 ≠ 通过
+  PASS  C2  2026-10-12T19:25:20+08:00 规范且未超前（现在 2026-10-12T20:05:38+08:00）
+  PASS  C3  6 个 closed 项均有 verifier 字段
+  PASS  C4  逐字段一致（sha d818fc2fe724bde5）
+
+计数：PASS 3 · WARN 1 · FAIL 0 · SKIP 0
+⇒ 无 FAIL，但有 WARN ⇒ ★ 不得读成全绿（--strict 下即为不通过）
+# --- end ---

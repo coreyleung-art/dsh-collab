@@ -1,0 +1,16 @@
+=== 负控①：假板【非空】⇒ 期望 红 ===
+  read_alert_cards = {'data/ops/drift-delivery-failure': (1, '★ 假板负控卡（不落真板）'), 'data/ops/bus-expired-alert': (1, '★ 假板负控卡（不落真板）')}
+  判决 = FAIL(红) | 未处理告警 2 条
+=== 负控②：假板【空】⇒ 期望 绿 ===
+  read_alert_cards = {'data/ops/drift-delivery-failure': (0, ''), 'data/ops/bus-expired-alert': (0, '')}
+  判决 = PASS(绿) | 已读 2 目录、均空
+=== 负控③：假板【非空但全归档】⇒ 期望 绿（★ 归档即转绿）===
+  read_alert_cards = {'data/ops/drift-delivery-failure': (0, '★ 共 1 条、其中 1 条已归档；'), 'data/ops/bus-expired-alert': (0, '★ 共 1 条、其中 1 条已归档；')}
+  判决 = PASS(绿) | 已读 2 目录、均空
+=== 负控④：端口不可达 ⇒ 期望 不可判 ===
+  read_alert_cards = {'data/ops/drift-delivery-failure': None, 'data/ops/bus-expired-alert': None}
+  判决 = SKIP | 都读不到 ⇒ 不可判
+=== 真板对照（只读 GET）：带 _archived_at 过滤 vs 不带 ===
+  data/ops/drift-delivery-failure: 不带过滤 n=7 ⇒ 判决=红 ; 带过滤 n=0 ⇒ 判决=绿
+  data/ops/bus-expired-alert: 不带过滤 n=0 ⇒ 判决=绿 ; 带过滤 n=0 ⇒ 判决=绿
+EXIT=0

@@ -1,0 +1,29 @@
+now=2026-10-12T20:38:47+0800
+$ /usr/bin/python3 research/v7-alert-reader/evidence/repro-blindspot.py
+== 生产 ALERT_DIRS 原样 ==
+['data/ops/drift-delivery-failure', 'data/ops/bus-expired-alert']
+  data/ops/drift-delivery-failure        -> (0, '★ 共 7 条、其中 7 条已归档；')
+  data/ops/bus-expired-alert             -> (0, '')
+
+== 负控：把目录名改成【绝不存在】的名字，看读者报什么 ==
+  data/ops/zzz-audit-does-not-exist-xyz  -> (0, '')   => GREEN(0条)
+  data/ops/another-bogus-ns              -> (0, '')   => GREEN(0条)
+
+== 对照：用【键形】(无尾斜杠) 探测同一批不存在的名字 ==
+  data/ops/zzz-audit-does-not-exist-xyz  HTTP=404 (键形) <-- 可与「空」区分
+  data/ops/another-bogus-ns              HTTP=404 (键形) <-- 可与「空」区分
+  data/ops/bus-expired-alert             HTTP=404 (键形) <-- 可与「空」区分
+退出码=0
+
+### 附加（R2-重派 补测）：黑板【前缀列举】语义的独立核验  now=2026-10-12T20:39+08:00
+$ for u in data/ data/ops/ notes/ tasks/ data/ops/drift-alert/ data/ops/zzz-nonexistent-xyz/ data/health/; do curl -s -m 20 "http://127.0.0.1:8792/$u" | ...; done
+data/                                total= 34377  list_n= 34377
+data/ops/                            total= 16169  list_n= 16169
+notes/                               total= 18721  list_n= 18721
+tasks/                               total= 13143  list_n= 13143
+data/ops/drift-alert/                total= 352  list_n= 352
+data/ops/zzz-nonexistent-xyz/        total= 0  list_n= 0        <-- ★ 不存在的段：200 + 空 list
+data/health/                         total= 5  list_n= 5
+★ 结论：前缀列举【确实按前缀过滤】；★ 但【不存在的段】与【存在但为空的段】都返回 total=0 空 list
+  ⇒ 只靠【段形列举】无法区分二者；★ 键形（无尾斜杠）返回 404 才可区分。
+★ 附带修正：data/ops/ 的 total 现测 16169（20:39），20:20 时为 16165 ⇒ 【移动靶】，任何读数必须带时刻。

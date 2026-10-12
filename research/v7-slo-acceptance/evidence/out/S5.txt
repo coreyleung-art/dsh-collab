@@ -1,0 +1,13 @@
+# S5 · 审查覆盖（review-tracker 独立审查登记数）
+# 命令: python3 /Users/coreyleung/dsh-collab/tools/review-gate.py
+# 时刻: 2026-10-12T20:05:39+0800
+# --- 未编辑原始输出 ---
+★ review-gate v1.0.0（S3 审查追踪 + R048 时值检查）
+★ 扫描时点：2026-10-12T20:05:39+0800
+★ 依据：**R048**（rules-registry/RULES.md L411 · enforced）+ `docs/submission-timevalue-checklist-v1.md`（244 行）
+
+=== 审查登记（/Users/coreyleung/dsh-collab/data/registry/review-tracker.json）===
+  共 0 件
+
+★ 提示：本工具的时值检查为**启发式**；按清单要求，**调阈值前先跑 `--noise <真实样本…>` 算噪声率**。
+# --- end ---

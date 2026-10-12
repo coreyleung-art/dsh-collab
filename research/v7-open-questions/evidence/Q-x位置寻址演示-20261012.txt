@@ -1,0 +1,31 @@
+# Q-x 位置寻址脆弱性 · 只读演示留档 · 2026-10-12
+2026-10-12T20:12:08+0800
+
+## 命令
+python3 - <<EOF  (只读副本，未改任何文件)
+
+现态 open_questions[10].id = Q-K
+按 id 排序后 open_questions[10].id = Q-K
+★ 排序前后同一下标指向： Q-K → Q-K
+插入一条 Q-R 后 open_questions[10].id = Q-J
+★ 插入后同一下标指向： Q-K → Q-J
+[exit=0]
+
+## 寻址点（源码）
+26:QK_INDEX = 10          # open_questions[10] = Q-K
+36:    q = json.loads(raw)["value"]["open_questions"][QK_INDEX]
+[grep exit=0]
+
+## 该工具自己写的风险（源码注释）
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""qk-structure-guard.py — continuity-index 里 Q-K 进度追踪器的**结构不变量**判据（**不改被核对象**；临时写面 = `guard/mutation-work/`）。
+
+★ 立据（星桥 2026-10-10 结构性发现 + 我方实测）：
+  **Q-K 进度追踪器住在 `open_questions[10]` 里** —— 也就是"一个有 17 条问题的数组的第 11 个元素"。
+  后果：任何「按更全者合并 open_questions」的操作都可能把它**整块压掉**，而外观是"合并成功、两板相等"。
+  实测两起：① 07:16 覆盖后 Q-K 丢了 k3/k4/k5 与 5 个 ★ 块（41,328→20,796 字符）；
+            ② 星桥 07:27 那次差一点就这么干（自述）。
+  ⇒ 需要一条**只读、可复跑**的判据：管住"这个条目**必须还在**、且**内容不得缩水**"。
+
+★ 与 `tools/qk-tracker-drift-check.py` 的分工（不重复造轮子）：

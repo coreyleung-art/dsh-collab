@@ -1,0 +1,94 @@
+扫描文件数: 1293
+扫描根: ~/dsh-collab/scripts | ~/dsh-collab/tools | ~/dsh-collab/guard | ~/dsh-collab/rust-tools/src | ~/dsh-plugin-agent-bus | ~/dsh-plugin-bb-card-send | ~/dsh-plugin-bus-queue-triage | ~/dsh-plugin-central-inbox | ~/dsh-plugin-channel-gate | ~/dsh-plugin-dock-cards | ~/dsh-plugin-drift-scan | ~/dsh-plugin-excalidraw | ~/dsh-plugin-files | ~/dsh-plugin-flower-cockpit | ~/dsh-plugin-guard | ~/dsh-plugin-harness-updater | ~/dsh-plugin-hr | ~/dsh-plugin-knowledge-tools | ~/dsh-plugin-launchd-scan | ~/dsh-plugin-local-projects | ~/dsh-plugin-mcp-station | ~/dsh-plugin-md-preview | ~/dsh-plugin-my-brand | ~/dsh-plugin-openchronicle | ~/dsh-plugin-openpencil | ~/dsh-plugin-pstd | ~/dsh-plugin-repo-pipeline | ~/dsh-plugin-research | ~/dsh-plugin-sandbox-policy-ui | ~/dsh-plugin-ui-spec | ~/dsh-plugin-voice | ~/dsh-plugin-waimai | ~/dsh-plugin-wargame-sim | ~/dsh-plugin-workflow | ~/dsh-plugin-workflow-capture
+
+【阳性对照】needle='ops/' 命中文件数=56 行数=97  ⇒ ✅探针有效
+【阴性对照】needle='ops/ZZZ_NOPE_QQQ_TOKEN' 命中=0  ⇒ ✅
+【阴性对照②】needle='ZZZ_NOPE_QQQ_TOKEN'(更宽) 命中=0 ⇒ ✅
+
+===== data/ops/pollution =====
+  命中 2 处
+    ~/dsh-collab/scripts/pollution-scanner.py:299: """污染告警写黑板 data/ops/pollution/<date>"""
+    ~/dsh-collab/scripts/pollution-scanner.py:301: key = f"data/ops/pollution/{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}"
+
+===== data/ops/drift-alert =====
+  命中 4 处
+    ~/dsh-collab/scripts/drift-scan-cron.py:5: 运行 drift-scan（node 工具）→ driftCount>0 时写黑板告警卡 data/ops/drift-alert/<ts>。
+    ~/dsh-collab/scripts/drift-scan-cron.py:19: print("  · 运行 drift-scan（node 工具）→ driftCount>0 时写黑板告警卡 data/ops/drift-alert/<ts>。")
+    ~/dsh-collab/scripts/drift-scan-cron.py:182: key = f"data/ops/drift-alert/{ts}"
+    ~/dsh-collab/scripts/bb-blueprint-gallery.py:3672: with urllib.request.urlopen("http://%s/data/ops/drift-alert/" % ep,
+
+===== data/ops/plugin-selfcheck =====
+  命中 5 处
+    ~/dsh-plugin-agent-bus/lib/selfcheck.js:3: //       缺模块 → 写黑板告警（data/ops/plugin-selfcheck/<plugin>-<ts>）+ 文件日志
+    ~/dsh-plugin-agent-bus/lib/selfcheck.js:207: putBlackboard(`data/ops/plugin-selfcheck/${pluginName}-${ts}`, result);
+    ~/dsh-plugin-central-inbox/lib/index.js:110: console.log('[central-inbox] ⚠️ 自查失败（缺模块见黑板 data/ops/plugin-selfcheck/），继续尝试');
+    ~/dsh-plugin-central-inbox/lib/selfcheck.js:3: //       缺模块 → 写黑板告警（data/ops/plugin-selfcheck/<plugin>-<ts>）+ 文件日志
+    ~/dsh-plugin-central-inbox/lib/selfcheck.js:150: putBlackboard(`data/ops/plugin-selfcheck/${pluginName}-${ts}`, result);
+
+===== data/ops/channel-gate-weekly =====
+  命中 3 处
+    ~/dsh-collab/scripts/channel-gate-weekly.py:6: 熔断拒绝记录、缺字段单 → 写周报卡 data/ops/channel-gate-weekly/<ts>（双板）。
+    ~/dsh-collab/scripts/channel-gate-weekly.py:27: print("  · 熔断拒绝记录、缺字段单 → 写周报卡 data/ops/channel-gate-weekly/<ts>（双板）。")
+    ~/dsh-collab/scripts/channel-gate-weekly.py:84: key = f"data/ops/channel-gate-weekly/{ts}"
+
+===== data/ops/drift-delivery-failure =====
+  命中 2 处
+    ~/dsh-collab/scripts/drift-scan-cron.py:220: fkey = "data/ops/drift-delivery-failure/%d" % int(time.time() * 1000)
+    ~/dsh-collab/tools/beacon-check.py:226: ALERT_DIRS = ["data/ops/drift-delivery-failure", "data/ops/bus-expired-alert"]
+
+===== data/ops/drift-heartbeat =====
+  命中 1 处
+    ~/dsh-collab/scripts/drift-scan-cron.py:96: HEARTBEAT_KEY = "data/ops/drift-heartbeat/current"
+
+===== data/ops/bus-expired-alert =====
+  命中 2 处
+    ~/dsh-collab/tools/beacon-check.py:226: ALERT_DIRS = ["data/ops/drift-delivery-failure", "data/ops/bus-expired-alert"]
+    ~/dsh-plugin-agent-bus/lib/index.js:1386: const key = 'data/ops/bus-expired-alert/' + Date.now();
+
+===== data/ops/gate-weekly-audit =====
+  命中 1 处
+    ~/dsh-collab/scripts/gate-weekly-audit.sh:88: req = urllib.request.Request('http://127.0.0.1:8792/data/ops/gate-weekly-audit-$DATE', data=json.dumps(body).encode(), headers={'Content-Type':'applic
+
+===== data/ops/pitfalls =====
+  命中 3 处
+    ~/dsh-collab/scripts/pitfalls-cli.py:14: pitfalls.py sync                           # 同步黑板 data/ops/pitfalls/
+    ~/dsh-collab/scripts/pitfalls-cli.py:19: 黑板: data/ops/pitfalls/（同步）
+    ~/dsh-collab/scripts/pitfalls-cli.py:83: BB_KEY = "data/ops/pitfalls"
+
+===== data/ops/resource-gate =====
+  命中 3 处
+    ~/dsh-collab/rust-tools/src/load_gate.rs:3: // 状态：黑板 data/ops/resource-gate/status（绿灯/黄灯/红灯）
+    ~/dsh-collab/rust-tools/src/load_gate.rs:174: let _ = bb_put(&format!("data/ops/resource-gate/status-{}", now_ts()), &json!({"value": report, "ts": now_ts()}));
+    ~/dsh-collab/rust-tools/src/load_gate.rs:176: let _ = bb_put("data/ops/resource-gate/current", &json!({"value": report, "ts": now_ts()}));
+
+===== data/ops/queue-condense =====
+  命中 1 处
+    ~/dsh-collab/rust-tools/src/queue_condense.rs:233: let key = format!("data/ops/queue-condense/condense-{}", now_ts());
+
+===== ★ 全库唯一引用核验：drifts[].check 的读者 =====
+  needle='drifts' 命中 1 处
+    ~/dsh-collab/scripts/drift-scan-cron.py:186: "drifts": [{"check": row.get("check"), "actual": str(row.get("actual"))[:80]}
+
+===== ★ 谁引用 beacon-check（读者自己的调用方）=====
+    ~/dsh-collab/scripts/irreversible-gate.py:24: ★ 那属 `tools/beacon-check.py` 的面 —— ★ **本线不重复造**（J44）。
+    ~/dsh-collab/scripts/mutation-gate.py:10: v1.0.0 把变异副本从 /tmp 改到【与原文件同目录】（因 beacon-check 靠 `__file__` 定位资源），
+    ~/dsh-collab/tools/beacon-cover-check.py:4: # ⚠️ DEPRECATED（2026-10-10T07:3x）—— 请勿使用。判据已归 tools/beacon-check.py 单点持有。
+    ~/dsh-collab/tools/beacon-cover-check.py:7: #   「只写一份判据：这三条实现在 beacon-check.py … gcr-gate.py 的 G-CR18 行调用它，不重写
+    ~/dsh-collab/tools/beacon-cover-check.py:9: #   实测：beacon-check.py 现 22 条，已含 B10 三条（外部线 A2 已完成）⇒ 本文件 4 条全部重复。
+    ~/dsh-collab/tools/beacon-cover-check.py:12: #   （全文写前后 字符数/键数/★块数 骤降检测）—— beacon-check.py 没有这条。
+    ~/dsh-collab/tools/beacon-cover-check.py:13: #   ⇒ 是否收编由 beacon-check.py 属主（外部 CU 线）决定，本会话不自行推进。
+    ~/dsh-collab/tools/beacon-cover-check.py:21: 锚点 v5 §4.7 指出：`tools/beacon-check.py` 现有 17 条**不足以**发现四类失效，
+    ~/dsh-collab/tools/beacon-cover-check.py:22: 其中前三类在 2026-10-10T07:0x 的实测中**同一次检查内并发存在**，而 beacon-check 报
+    ~/dsh-collab/tools/beacon-cover-check.py:31: ★ 成因：`mk-resume-prompt.py` 读本地副本，而 `beacon-check --net` 校验板值
+    ~/dsh-collab/tools/beacon-cover-check.py:215: f" ⇒ mk-resume-prompt 读副本、beacon-check 校验板值，二者永不互校",
+    ~/dsh-collab/tools/build-state-registry.py:189: # 因为单独改 continuity-index 会使两件 state_version 不等 ⇒ beacon-check 红。
+    ~/dsh-collab/tools/incident-regression.py:177: "beacon-check.py": {"owner": "未定（待协调者分派）", "why": "**归属未证** —— 我只核了：文件存在 + 含 `sys.exit(` 代码形状；**未核**归属、未读内容、未问过任何维护者", "recheck_by": "2026-11-04"},
+    ~/dsh-collab/tools/incident-regression.py:207: "why": "★ **已废弃件**：其文件头自述 DEPRECATED 并指明判据已归 tools/beacon-check.py 单点持有 ⇒ 结构上无需入网",
+    ~/dsh-collab/tools/beacon-check.py:3: """beacon-check.py — 反遗忘校验（信标四件套之④/§4.4 的执行体）
+    ~/dsh-collab/tools/beacon-check.py:13: python3 tools/beacon-check.py              # 离线校验（默认；不联网）
+    ~/dsh-collab/tools/beacon-check.py:14: python3 tools/beacon-check.py --net        # 追加黑板键可读性抽检 + G-CR18 ④ + 体量守恒（会打网络）
+    ~/dsh-collab/tools/beacon-check.py:15: python3 tools/beacon-check.py --stamp      # 把当前锚点 sha256 盖进索引（显式动作）
+    ~/dsh-collab/tools/beacon-check.py:16: python3 tools/beacon-check.py --accept-shrink  # 显式接受体量骤降（推进守恒基线）
+    ~/dsh-collab/tools/beacon-check.py:17: python3 tools/beacon-check.py --selftest   # 自证：每条检查都能红
+  beacon-check 命中 26 处，涉及 8 个文件
+EXIT=0

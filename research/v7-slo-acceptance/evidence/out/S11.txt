@@ -1,0 +1,18 @@
+# S11 · 黑板数据体积 / snapshot / DELETE 次数
+# 命令: python3 /Users/coreyleung/dsh-collab/research/v7-slo-acceptance/evidence/probe-board-volume.py
+# 时刻: 2026-10-12T20:06:10+0800
+# --- 未编辑原始输出 ---
+黑板 pid = 1221
+data-dir = /Users/coreyleung/dsh-collab/token-monitor/blackboard
+
+整目录体积 = 161.1 MiB
+snapshot.json = 105.9 MiB
+audit 文件数 = 11 · 合计 54.5 MiB
+
+audit 总行数 = 20008
+action 字段分布 = [('PUT', 20008)]
+★ DELETE 次数（action 口径）= 0
+
+★ 口径声明：audit 只覆盖它自己轮转窗口内的行；更早的行已轮转掉 ⇒
+  「DELETE=0」只能读成【本窗口内 0】，不能读成【历史上从未 DELETE】。
+# --- end ---

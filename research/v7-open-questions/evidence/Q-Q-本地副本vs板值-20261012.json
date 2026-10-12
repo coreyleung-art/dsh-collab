@@ -1,0 +1,126 @@
+{
+ "local": {
+  "keys": 96,
+  "canonical_sha256_16": "d818fc2fe724bde5",
+  "state_version": 6,
+  "updated_at": "2026-10-12T19:25:20+08:00",
+  "open_questions_len": 17
+ },
+ "board": {
+  "keys": 96,
+  "canonical_sha256_16": "d818fc2fe724bde5",
+  "state_version": 6,
+  "updated_at": "2026-10-12T19:25:20+08:00",
+  "open_questions_len": 17
+ },
+ "per_id_identical": 17,
+ "per_id_total": 17,
+ "ids": [
+  "Q-A",
+  "Q-B",
+  "Q-C",
+  "Q-D",
+  "Q-E",
+  "Q-F",
+  "Q-G",
+  "Q-H",
+  "Q-I",
+  "Q-J",
+  "Q-K",
+  "Q-L",
+  "Q-M",
+  "Q-N",
+  "Q-O",
+  "Q-P",
+  "Q-Q"
+ ],
+ "owners": {
+  "Q-A": "CLD",
+  "Q-B": "用户",
+  "Q-C": "用户",
+  "Q-D": "用户",
+  "Q-E": "用户",
+  "Q-F": "用户",
+  "Q-G": "用户",
+  "Q-H": "用户",
+  "Q-I": "裁判",
+  "Q-J": "用户",
+  "Q-K": "外部第三方（CU 实验台线）",
+  "Q-L": "CLD 新会话",
+  "Q-M": "外部第三方（CU 实验台线）",
+  "Q-N": "用户 / 索引 writer",
+  "Q-O": "用户（须授权/须批）",
+  "Q-P": "用户（须授权/须批）",
+  "Q-Q": "用户 / 裁决方"
+ },
+ "states": {
+  "Q-A": {
+   "state": null,
+   "voided": null
+  },
+  "Q-B": {
+   "state": null,
+   "voided": null
+  },
+  "Q-C": {
+   "state": null,
+   "voided": null
+  },
+  "Q-D": {
+   "state": null,
+   "voided": null
+  },
+  "Q-E": {
+   "state": null,
+   "voided": null
+  },
+  "Q-F": {
+   "state": null,
+   "voided": true
+  },
+  "Q-G": {
+   "state": "answered",
+   "voided": null
+  },
+  "Q-H": {
+   "state": null,
+   "voided": null
+  },
+  "Q-I": {
+   "state": null,
+   "voided": null
+  },
+  "Q-J": {
+   "state": null,
+   "voided": null
+  },
+  "Q-K": {
+   "state": null,
+   "voided": null
+  },
+  "Q-L": {
+   "state": null,
+   "voided": null
+  },
+  "Q-M": {
+   "state": null,
+   "voided": null
+  },
+  "Q-N": {
+   "state": null,
+   "voided": null
+  },
+  "Q-O": {
+   "state": null,
+   "voided": null
+  },
+  "Q-P": {
+   "state": "answered",
+   "voided": true
+  },
+  "Q-Q": {
+   "state": null,
+   "voided": null
+  }
+ }
+}

@@ -1,0 +1,6 @@
+now=2026-10-12T20:38:47+0800
+正常板                    -> [(0, '★ 共 7 条、其中 7 条已归档；'),  => GREEN/实测
+板进程挂了（死端口）             -> [None, None]                 => UNDECIDABLE(不可判)
+超时（黑洞 IP）              -> [None, None]                 => UNDECIDABLE(不可判)
+非 HTTP 服务              -> [None, None]                 => UNDECIDABLE(不可判)
+退出码=0

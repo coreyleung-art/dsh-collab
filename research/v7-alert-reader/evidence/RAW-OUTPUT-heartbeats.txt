@@ -1,0 +1,10 @@
+### 心跳新鲜度（现测）
+now=2026-10-12T20:38:37+0800
+--- data/health/hb-mac-mini
+{"key":"data/health/hb-mac-mini","ts":"2026-10-12T20:37:15","value":{"app_pid":94486,"boot_epoch":1791714866,"boot_iso":"2026-10-12T12:37:15Z","dsh_port":61044,"node":"mac-mini","ts":1791808635},"version":11059}
+--- data/health/hb-mbp
+{"key":"data/health/hb-mbp","ts":"2026-10-12T20:29:30","value":{"app_pid":1061,"boot_epoch":1791808079,"boot_iso":"2026-10-12T12:27:59.229Z","dsh_port":49301,"host":"MacBook-Pro-2.local","node":"mbp","ts":1791808156.965176},"version":5196}
+--- 阳性对照（存在键）data/ops/drift-heartbeat/current
+http=200
+--- 阴性对照（不存在键）data/ops/ZZZ_NOPE_QQQ
+http=404

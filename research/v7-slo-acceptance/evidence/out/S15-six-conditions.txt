@@ -1,0 +1,55 @@
+§11 六者齐备 · 可跑判据
+判据来源：锚点 `:1939`（逐字见本文件 docstring）
+索引：/Users/coreyleung/dsh-collab/data/registry/continuity-index.json
+索引 updated_at：2026-10-12T19:25:20+08:00
+
+六者定义：
+   1 正向                     ← 正向判据
+   2 负控红                    ← 负控（必须能红）
+   3 边界不崩                   ← 边界用例
+   4 阈值达标                   ← 阈值与判定规则
+   5 沙箱复跑一致                 ← 沙箱复跑方式
+   6 官方条款无未声明差异             ← 官方条款差异
+
+=== 分母声明 ===
+  dod.full_table = null（缺席）
+  dod._status    = **缺席**
+  items 条数     = 10
+
+  ★★ 判定：**六者齐备的分母未定义** —— 「哪些项应当有六者」本机没有权威清单
+     （§11 正文代表性表 7 行 · §10 自称 39 个 W 项 + S1–S5 · `grep` 唯一 W 号 72 ⇒ 三个数对不上）
+     ⇒ ★ 本判据对**全部项**一律报 UNKNOWN（★ 不报 OK，也不报 0%）
+
+=== 逐项 ===
+  C1     state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C2     state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C3     state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C4     state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C4-b   state=open                   verifier=占位/无     ⇒ UNKNOWN
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C5     state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C6     state=in_flight              verifier=占位/无     ⇒ UNKNOWN
+        六者：全部 UNKNOWN（无 DoD 记录）
+  C7     state=in_flight              verifier=占位/无     ⇒ UNKNOWN
+        六者：全部 UNKNOWN（无 DoD 记录）
+  P26    state=in_flight              verifier=占位/无     ⇒ UNKNOWN
+        六者：全部 UNKNOWN（无 DoD 记录）
+  R049   state=closed_with_evidence   verifier=占位/无     ⇒ FAIL
+        六者：全部 UNKNOWN（无 DoD 记录）
+
+=== 汇总 ===
+  PASS 0 · FAIL 6 · UNKNOWN 4（共 10）
+  closed_with_evidence 项 6 · 其中六者+审查员齐备 0
+
+=== 附加判据（不在六者内，但 §5.1/§5.1.1 要求）===
+  §5.1「未证不得记 closed」：现测 6/6 的 closed 项 verifier 是占位串 ⇒ FAIL
+
+★ 三态纪律：UNKNOWN ≠ PASS，也 ≠ FAIL。
+★ 本判据的负控（必须红）：见 --selftest
+
+退出码 1

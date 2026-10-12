@@ -1,0 +1,56 @@
+==============================================================================
+R4 复跑 · drift 双板到达率多口径
+==============================================================================
+时刻(now_ms)     : 1791805703031  (2026-10-12T19:48:25)
+本机板 total     : 352
+中枢板 total     : 58
+命名空间         : data/ops/drift-alert/
+------------------------------------------------------------------------------
+可归窗卡（有 value.ts）: 352 / 352
+------------------------------------------------------------------------------
+窗口 1h    样本=0    到达率= UNDECIDABLE  ← 样本为0，不得报0%/100%
+窗口 3h    样本=0    到达率= UNDECIDABLE  ← 样本为0，不得报0%/100%
+窗口 6h    样本=1    到达=1    到达率= 100.00%  OK
+窗口 24h   样本=11   到达=10   到达率=  90.91%  FAIL
+窗口 FULL  样本=352  到达=58   到达率=  16.48%  FAIL
+------------------------------------------------------------------------------
+★ 全量口径下的未达卡按日期分布（解释为何全量恒红）
+   10-03 :   7 条未达
+   10-04 :  14 条未达
+   10-05 :  21 条未达
+   10-06 :  48 条未达
+   10-07 :  47 条未达
+   10-08 :  48 条未达
+   10-09 :  48 条未达
+   10-10 :  52 条未达
+   10-11 :   8 条未达
+   10-12 :   1 条未达
+   未达合计: 294 条
+------------------------------------------------------------------------------
+★ 自指卡（check 含 board-central）逐条 —— 结构上不可能双板到达
+   2026-10-03T02:27:53  data/ops/drift-alert/1790965673920  arrived=True
+   2026-10-03T03:58:27  data/ops/drift-alert/1790971107180  arrived=True
+   2026-10-03T04:28:35  data/ops/drift-alert/1790972915375  arrived=True
+   2026-10-03T04:58:43  data/ops/drift-alert/1790974723870  arrived=True
+   2026-10-03T05:28:52  data/ops/drift-alert/1790976532001  arrived=True
+   2026-10-03T05:59:00  data/ops/drift-alert/1790978340066  arrived=True
+   2026-10-03T06:29:12  data/ops/drift-alert/1790980152728  arrived=True
+   2026-10-03T06:59:20  data/ops/drift-alert/1790981960116  arrived=True
+   2026-10-03T07:29:27  data/ops/drift-alert/1790983767464  arrived=True
+   2026-10-03T07:59:34  data/ops/drift-alert/1790985574490  arrived=True
+   2026-10-03T08:29:41  data/ops/drift-alert/1790987381758  arrived=True
+   2026-10-03T08:59:49  data/ops/drift-alert/1790989189878  arrived=True
+   2026-10-03T09:29:57  data/ops/drift-alert/1790990997693  arrived=True
+   2026-10-03T10:00:05  data/ops/drift-alert/1790992805001  arrived=True
+   2026-10-03T10:30:17  data/ops/drift-alert/1790994617272  arrived=True
+   2026-10-03T11:00:26  data/ops/drift-alert/1790996426979  arrived=True
+   2026-10-03T11:30:34  data/ops/drift-alert/1790998234334  arrived=True
+   2026-10-03T12:00:42  data/ops/drift-alert/1791000042027  arrived=True
+   2026-10-03T12:30:49  data/ops/drift-alert/1791001849275  arrived=True
+   2026-10-03T21:50:06  data/ops/drift-alert/1791035406670  arrived=False
+   2026-10-12T00:24:07  data/ops/drift-alert/1791735847210  arrived=False
+   2026-10-12T02:55:07  data/ops/drift-alert/1791744907899  arrived=True
+   2026-10-12T15:33:15  data/ops/drift-alert/1791790395076  arrived=True
+   自指卡合计: 23 条（其中已到达 21 条）
+==============================================================================
+JSON_SUMMARY={"now_ms": 1791805703031, "local_total": 352, "central_total": 58, "usable": 352, "windows": [{"window": "1h", "sample": 0, "rate": null, "verdict": "UNDECIDABLE"}, {"window": "3h", "sample": 0, "rate": null, "verdict": "UNDECIDABLE"}, {"window": "6h", "sample": 1, "rate": 100.0, "verdict": "OK"}, {"window": "24h", "sample": 11, "rate": 90.91, "verdict": "FAIL"}, {"window": "FULL", "sample": 352, "rate": 16.48, "verdict": "FAIL"}], "miss_by_date": {"10-03": 7, "10-04": 14, "10-05": 21, "10-06": 48, "10-07": 47, "10-08": 48, "10-09": 48, "10-10": 52, "10-11": 8, "10-12": 1}, "selfref_total": 23, "selfref_arrived": 21}

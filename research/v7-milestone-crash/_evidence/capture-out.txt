@@ -1,0 +1,354 @@
+############ capture 时刻 ############
+----- [T0] date "+%Y-%m-%dT%H:%M:%S%z"
+2026-10-12T20:07:44+0800
+exit=0
+
+############ 一 · M0 · C4 自启动注入 ############
+----- [M0-a] grep -n 'C4 自启动注入' docs/execution-audit-anchor-v5-20261010.md
+171:| C4 自启动注入 | `open` | `blocked_reason`：需改 CLD preset（外部第三方不代做） |
+exit=0
+----- [M0-b] ls -d ~/.dsh/.agent-presets/*/ | wc -l
+       6
+exit=0
+----- [M0-c] grep -rl 'continuity-index' ~/.dsh/.agent-presets/ | wc -l
+       6
+exit=0
+----- [M0-d] wc -l docs/resume-prompt-starbridge-v3.md
+      38 docs/resume-prompt-starbridge-v3.md
+exit=0
+
+############ 二 · M1 · compaction/体积/事件数/verifier ############
+----- [M1-a] ls -l tools/sandbox-script.py tools/infopack-check.py tools/review-gate.py tools/official-ref-gate.py tools/gcr-gate.py tools/node-claim-gate.py tools/self-destruct-gate.py
+-rw-------  1 coreyleung  staff  33157 Oct 10 03:31 tools/gcr-gate.py
+-rw-------  1 coreyleung  staff  24953 Oct 10 03:49 tools/infopack-check.py
+-rw-------  1 coreyleung  staff  10659 Oct 10 01:51 tools/node-claim-gate.py
+-rw-------  1 coreyleung  staff  19376 Oct 10 03:49 tools/official-ref-gate.py
+-rw-------  1 coreyleung  staff  26473 Oct 10 03:49 tools/review-gate.py
+-rw-------  1 coreyleung  staff  23760 Oct 10 04:03 tools/sandbox-script.py
+-rw-------  1 coreyleung  staff  23495 Oct 10 03:18 tools/self-destruct-gate.py
+exit=0
+----- [M1-b] du -sm ~/.dsh/sessions/--Users-coreyleung--/* | sort -rn | head -3
+246	/Users/coreyleung/.dsh/sessions/--Users-coreyleung--/session-fa1f9150-c949-401f-ba8c-d265f6221676
+107	/Users/coreyleung/.dsh/sessions/--Users-coreyleung--/session-a190c54c-ca73-4845-9a65-9dc002d45044
+104	/Users/coreyleung/.dsh/sessions/--Users-coreyleung--/session-a17a52f8-eee6-4a4e-a3a7-dfcf4bec44e0
+exit=0
+----- [M1-c] grep -c EnableCompaction ~/.dsh/settings.yaml (未命中即为 0)
+0
+exit=1
+----- [M1-d] grep -n 'compaction' ~/.dsh/profiles/web/node_modules/dsh-plugin-context-survival/cordis.patch.yml
+3:# ★ 与官方 compaction-basic **并存** —— 本文件**不**接管 compaction realm（seam b）。
+25:        enableGuard: true
+34:        # ★ 抢先上限（F1 · 2026-10-10 用户裁决「抢先」）：官方 compaction-basic 在
+35:        #   floor(cw × 0.8) 触发（dsh-compaction-basic/lib/index.js:13 DEFAULT_THRESHOLD_RATIO）
+exit=0
+
+############ 三 · M2 · 真积压 / 端口固定 ############
+----- [M2-a] agent-bus.json 全量终态分布
+threads: 5658 messages: 33902
+status: [('delivered', 31494), ('expired', 2380), ('boarded', 20), ('queued', 8)]
+size_bytes: 24277618
+exit=0
+----- [M2-b] web 端口（现测） + CLD_PORT
+CLD       79577 coreyleung   27u  IPv4 0xbd020834f93e4e34      0t0  TCP 127.0.0.1:61044 (LISTEN)
+CLD       94486 coreyleung   37u  IPv4 0x40cad3c6921df8fd      0t0  TCP 127.0.0.1:31888 (LISTEN)
+--- CLD_PORT:
+(空=未设)
+exit=0
+----- [M2-c] grep CLD_PORT / 历史端口记录
+0
+exit=1
+
+############ 四 · M3 · 订阅唤醒 / 载体 / 黑板 GC ############
+----- [M3-a] subscriptions.json 首订阅者
+event_subscriptions 数: 4
+首订阅者: session-fa1f9150-c949-401f-ba8c-d265f6221676
+topics: ['cost.alert', 'risk.detected', 'agent.offline', 'task.completed', 'agent.online']
+updated: 2026-08-22
+exit=0
+----- [M3-b] grep -c fa1f9150 ~/.dsh/agent-role-map.json
+0
+exit=1
+----- [M3-c] python3 scripts/event-bus.py --status | head -3
+events: 122 {'task.completed': 4, 'agent.online': 59, 'agent.offline': 59}
+instructions: total=122 pending=111
+  PENDING: a9dc061ded8024e7-session- -> session-fa1f9150-c94 agent.online 节点上线: mix-3（首次心跳）
+exit=0
+----- [M3-d] 黑板 DELETE 计数（命名空间列举）
+data/ 键数: 34369
+exit=0
+
+############ 五 · 25 类坑 / G-CR 门 ############
+----- [M4-a] P1–P25 逐条 id（§7.1–7.7）
+P1 P2 P3 P4 P5 P6 P7 P8 P9 P10 P11 P12 P13 P14 P15 P16 P17 P18 P19 P20 P21 P22 P23 P24 P25 P26 P27 P29 
+exit=0
+----- [M4-b] P 类 id 计数
+      28
+exit=0
+----- [M4-c] python3 tools/gcr-gate.py（★ 完整输出见下）
+★ gcr-gate v1.0.0
+★ 扫描时点：2026-10-12T20:07:47+0800
+★ 条款来源：锚点 §7.9（**实列 17 条**；§10 称「十五条」⇒ 计数不符，已登记）
+★ 覆盖：17 条全建档；本工具机械化的 11 条，其余标 N-A 并指向既有工具
+
+✅ G-CR1    插件变更→沙箱挂载+dump-config+真挂载冒烟三态
+      central-inbox 预检 GO（A 组合完整性 + B 真挂载冒烟 + C 遮蔽）
+⚠️ G-CR2    schema/DSL 过官方规则
+      须官方规则集；部分由 dump-config 覆盖（见 G-CR1 的 A 检）
+✅ G-CR3    命名门 N1–N3 常驻
+      目录名=dsh-plugin-central-inbox · name=dsh-plugin-central-inbox · patch id=central-inbox
+⚠️ G-CR4    依赖操作后扫遮蔽（含 .bak/.pnpmcopy）
+      guard_deps_scan 不可用；静态数得惰性残骸 0 个（不判红）
+⚠️ G-CR5    去遮蔽顺序固定（先重指→再移走）
+      流程类，无机械判据
+✅ G-CR6    dylib/binary 改动后逐个验签
+      验签：抽检 1 个 .dylib/.so（共 1 个）全部通过 ｜ entitlement：关键键齐备
+✅ G-CR7    重签后 TCC 流程
+      TCC 相关键在 4 个 Helper 上齐备：CLD Helper (GPU).app, CLD Helper (Plugin).app, CLD Helper (Renderer).app
+❌ G-CR8    装载前事件数门（拒绝而非崩）
+      ★ 1 个会话文件 ≥200MB，最大 245.2MB（session-fa1f9150-c949-40）—— **体积是代理指标，非事件数**
+✅ G-CR9    compaction 挂载+约束钉住（v2：含 P26 负控）
+      6/6 preset 已挂 compaction，且见显式阈值配置（P26 负控的存在性证据）
+⚠️ G-CR10   子进程内存监控
+      需运行时；heartbeat.json 可作旁证
+⚠️ G-CR11   禁用/沙箱验证 31888 reload
+      「不用即安全」
+✅ G-CR12   不动运行中的 app.asar
+      app.asar 0.18MB · mtime=2026-10-08 15:03:06 · bundle验签=通过
+⚠️ G-CR13   动态插件只用沙箱原语
+      静态扫描可部分覆盖，本轮未做
+⚠️ G-CR14   端口固定
+      未在配置中显式找到 port（可能由别处指定）
+⚠️ G-CR15   重启票流程
+      既有 restart-governor.sh + RESTART_GO 标记
+✅ G-CR16   请求前 token 预算门（含 completion 预留）
+      contextWindow=1048576 · completion 预留=256000 ⇒ 消息可达上限=792576
+⚠️ G-CR17   压缩有效性门（降幅 ≤0 ⇒ 告警）
+      须读会话 JSONL 的 summar/shadowed 降幅 ⇒ 超出本工具范围；判据与实测见 blackboard:data/registry/dead-session-postmortem-activity 与 c7 系列卡
+
+══ 汇总：PASS 7 · FAIL 1 · N-A 9（共 17）══
+   ⇒ ❌ **有 FAIL ⇒ 禁止推进/重启**
+exit=1
+exit=0
+----- [M4-d] grep -c G-CR18 tools/gcr-gate.py
+0
+exit=1
+----- [M4-e] gcr-gate 里 N-A 条数
+9
+exit=0
+----- [M4-f] gcr-gate 汇总行
+══ 汇总：PASS 7 · FAIL 1 · N-A 9（共 17）══
+exit=0
+
+############ 六 · 已有回归语料（本仓先例）############
+----- [M5-a] python3 tools/incident-regression.py（★ 见下方汇总）
+          exit=0 · 165ms · ✅ 契约一致：模型读到的说明与实际实现相符
+          覆盖：contract-check ①②③④ 全绿（含 ④ 单一来源）
+
+=== 汇总 ===
+  ✅ INC-01 pass
+  ❌ INC-02 fail
+  ✅ INC-03 pass
+  ✅ INC-04 pass
+  ✅ INC-05 pass
+  ✅ INC-14 pass
+  ✅ INC-13 pass
+  ✅ INC-12 pass
+  ✅ INC-11 pass
+  ✅ INC-10 pass
+  ✅ INC-09 pass
+  ✅ INC-08 pass
+  ✅ INC-07 pass
+  ✅ INC-06 pass
+
+❌ 有 1 起未通过：['INC-02'] ⇒ ★ **在对任何判据做放宽/豁免/兜底之前，先看这里**
+exit=1
+----- [M5-b] INC 用例条数
+14
+exit=0
+----- [M5-c] python3 scripts/pitfalls-cli.py list（★ 取真实退出码，不经管道）
+    main()
+  File "/Users/coreyleung/dsh-collab/scripts/pitfalls-cli.py", line 214, in main
+    elif args.cmd == "list": cmd_list(args)
+  File "/Users/coreyleung/dsh-collab/scripts/pitfalls-cli.py", line 134, in cmd_list
+    print(f"  [{i['severity']}] {i['id']} · {i['title']}")
+KeyError: 'severity'
+exit=1
+exit=0
+----- [M5-d] 踩坑档案条数
+items: 11 pitfalls: 13 version: 1
+exit=0
+
+############ 七 · P26 ############
+----- [P26-a] cordis.patch.yml enableGuard
+25:        enableGuard: true
+exit=0
+----- [P26-b] package.json 与 lib/index.js 的自述（文档面）
+devices/dsh-plugin-context-survival/package.json:4:  "description": "上下文存活守卫：K6 三件接线（① 写入 / ② 落盘 / ③ 召回）已接线，开关仍关（enableGuard=false），与官方 compaction-basic 并存、不替换 ctx.compaction",
+devices/dsh-plugin-context-survival/lib/index.js:8: *   ★ 但**开关仍是 `enableGuard: false`**：接线完成 ≠ 已启用；启用要等独立验证（K6 明文纪律）。
+devices/dsh-plugin-context-survival/lib/index.js:14: *        · csx_checkpoint —— 手动立即版：走**同一条**写入路径，但 `enableGuard=false` 时**只预演不落笔**；
+devices/dsh-plugin-context-survival/lib/index.js:156:  if (commit !== true) return { ...out, action: 'dry_run', reason: '预演：判据全过，但未写入（enableGuard=false）' };
+devices/dsh-plugin-context-survival/lib/index.js:420:              : '但守卫未启用（enableGuard=false）⇒ 自动路径不写；csx_checkpoint 只做**预演**（不写）。')
+exit=0
+----- [P26-c] csx_status.guard（活体读数）—— 见调用工具 csx_status 的输出
+
+############ 八 · P27 ############
+----- [P27-a] python3 tools/beacon-check.py --net
+PASS 索引键可解析
+PASS 锚点文档在位
+PASS 锚点可读出 state_version
+PASS 索引 ↔ 锚点 state_version 相等
+PASS 锚点指纹未变（改了正文须同时升 state_version 并重盖章）
+PASS 版本指针可解析
+PASS 版本未回退（指针 ≤ 索引）
+PASS 续接提示词在位
+PASS 续接提示词 ≤40 行（§4.1③）
+PASS 续接提示词未漂移（== 现渲染结果）
+PASS 存在 closed_with_evidence 项（否则本条空转）
+PASS C1 证据指针可解
+PASS C2 证据指针可解
+PASS C3 证据指针可解
+PASS C4 证据指针可解
+PASS C5 证据指针可解
+PASS R049 证据指针可解
+PASS dod.full_table 的缺席是显式声明的
+PASS updated_at 为 RFC 3339 规范形（±HH:MM 带冒号）
+PASS updated_at 未落在未来（合理域）
+PASS waves / items 两段一致（B9）
+PASS closed 项 verifier 字段齐备（B10③）
+PEND closed 项审查员已到位（§11 六者之「审查员」）   << C1/C2/C3/C5/R049 记为 closed_with_evidence，而 verifier 仍是待复核 ⇒ **未验证 ≠ 已关闭**
+PASS 本地副本 ↔ 板值一致（G-CR18 ④）
+PASS 索引体量守恒（骤降检测）
+PASS 通道巡检心跳新鲜度（M4①d）
+PASS 告警卡有读者（M4①d/M4③②）
+
+反遗忘校验：无 FAIL，但**有 1 项记为 closed 而审查员未到位** ⇒ 不得读作『全绿』（0 条 WARN，0 条 SKIP，1 项待复核）
+         PEND closed 项审查员已到位（§11 六者之「审查员」）
+exit=0
+----- [P27-b] beacon-check --net 的退出码（单测）
+raw_exit=0
+exit=0
+
+############ 九 · P28 ############
+----- [P28-a] channel_gate 台账 vs status：两来源
+--- logs/channel-changes.jsonl 条数 / 各通道最新 ---
+jsonl 总条数: 20
+按通道: [('tailscale-direct', 8), ('board-central', 5), ('launchd-daemons', 4), ('bus-8791', 2), ('sse-8803', 1)]
+  board-central        最新 2026-10-11T17:27:32.959Z
+  bus-8791             最新 2026-10-02T10:42:50.227Z
+  launchd-daemons      最新 2026-10-04T01:25:12.162Z
+  sse-8803             最新 2026-10-04T14:40:14.607Z
+  tailscale-direct     最新 2026-10-04T01:53:48.712Z
+exit=0
+----- [P28-b] logs/channel-gate-state.json
+{"launchd-daemons":{"count24h":2,"driftCount24h":0,"windowStart":1791077107236,"frozenUntil":0},"board-central":{"count24h":2,"driftCount24h":0,"windowStart":1791662567525,"frozenUntil":0},"bus-8791":{"count24h":2,"windowStart":1790937770176,"frozenUntil":0},"tailscale-direct":{"count24h":2,"driftCount24h":4,"windowStart":1791043971791,"frozenUntil":0},"sse-8803":{"count24h":1,"driftCount24h":0,"windowStart":1791124814607,"frozenUntil":0}}
+exit=0
+----- [P28-c] channel_gate status 自报 changes24h（见调用工具输出）
+----- [P28-d] reply_required 读端命中数
+       5
+exit=0
+----- [P28-e] awaiting 消费者：plist 命中数
+       0
+exit=0
+
+############ 十 · P29 ############
+----- [P29-a] 假绿一 C7 分母（现测）
+总=     106 跳过1=101 跳过2软链=       5
+exit=0
+----- [P29-b] 假绿二 drift cron 两个 fd
+     157
+     143
+/tmp/drift-scan-cron.log mtime=2026-10-12 15:33:16
+/tmp/drift-scan-cron.err.log mtime=2026-10-12 00:24:08
+exit=0
+----- [P29-c] 假绿三 计数器（★ 用 -o 勿用 -c）
+  13 自动重启 1/3
+exit=0
+----- [P29-d] 假绿三 扫过的面（行数）
+     746 /Users/coreyleung/dsh-collab/logs/node-bridge.log
+    1209 /Users/coreyleung/dsh-collab/logs/node-bridge.log.1
+    1827 /Users/coreyleung/dsh-collab/logs/node-bridge.log.2
+    1778 /Users/coreyleung/dsh-collab/logs/node-bridge.log.3
+    5560 total
+exit=0
+----- [P29-e] 假绿四 /health 空壳 vs 真健康数据
+health   -> {"limit":null,"list":{},"offset":0,"total":0}
+stats    -> {"limit":null,"list":{},"offset":0,"total":0}
+version  -> {"limit":null,"list":{},"offset":0,"total":0}
+data/ 键数: 34369
+含 health 的键: 93
+endswith('/health'): 0
+exit=0
+----- [P29-f] 假绿五 检查项穷举
+346:  out.checks.C1_boot = judgeC1(em, _traceLines);
+351:    out.checks.C2_heartbeat = { ok: ageSec < 180, age_sec: ageSec, pid: hb.pid };
+352:  } else out.checks.C2_heartbeat = { ok: false, error: "无 heartbeat.json" };
+355:  out.checks.C3_data = { ok: sessionCount > 0, sessions_on_disk: sessionCount, workspaces };
+364:  out.checks.C7_version = {
+372:    out.checks.C7_version.note =
+exit=0
+----- [P29-g] 假绿五 C8_comm/C9 是否新增
+0
+exit=1
+
+############ 十一 · 现测漂移/健康 ############
+----- [X-a] drift_scan --json
+{"scannedAt":"2026-10-12T12:08:14.385Z","matrixSource":"lib/channel-matrix.json","total":12,"driftCount":0,"rows":[{"check":"board-local","kind":"endpoint","expected":"http://127.0.0.1:8792","actual":"HTTP 200","drift":false},{"check":"board-central","kind":"endpoint","expected":"http://xingqiao.meetfunbp.com:8792","actual":"HTTP 200","drift":false},{"check":"sse-8803","kind":"sse","expected":"http://xingqiao.meetfunbp.com:8803/events","actual":"SSE hello 已收到（curl 28=流被截断，属预期）","drift":false},{"check":"bus-8791","kind":"endpoint-token","expected":"http://xingqiao.meetfunbp.com:8791/bus/receive?target=mac-mini","actual":"HTTP 200 (body含期望串)","drift":false},{"check":"node-bridge","kind":"process-argv","expected":"--node-id mac-mini --blackboard http://127.0.0.1:8792","actual":"argv 符合矩阵","drift":false},{"check":"sync-from-central","kind":"process-alive","expected":"sync-from-central.py","actual":"进程运行中","drift":false},{"check":"hb-fwd","kind":"launchd-loaded","expected":"com.dsh.comm-hb-fwd","actual":"job 已加载","drift":false},{"check":"device-daemon","kind":"process-alive","expected":"device-daemon.py","actual":"进程运行中","drift":false},{"check":"tailscale-direct","kind":"tailscale-status","expected":"macbook-pro-2,desktop-p8e7op1","actual":"对端均 active","drift":false},{"check":"funnel-public","kind":"endpoint","expected":"https://coreymac-mini.taild3fd86.ts.net","actual":"HTTP 200","drift":false},{"check":"e2-registry-services","kind":"registry-services","expected":"data/discovery/agents/mac-mini","actual":"services 在位（9 组件）","drift":false},{"check":"bus-8791 token 权限","kind":"file-perm","expected":"600","actual":"600","drift":false}]}
+exit=0
+----- [X-b] 双板 drift-alert 到达率
+http://127.0.0.1:8792 -> total= 352
+http://106.53.214.108:8792 -> total= 58
+exit=0
+----- [X-c] bb-card-send 双板到达率
+分母: 844
+[('OK', 805), ('FAIL', 36), ('OK-WITH-TIMEOUT', 3)]
+双板到达且一致率 = 808/844 = 95.73%
+exit=0
+----- [X-d] launchctl 失败终态 com.dsh.*
+-	4	com.dsh.cron.bb-copy-staleness
+-	2	com.dsh.health
+-	1	com.dsh.cron.channel-gate-weekly
+--- exit-非0 的 com.dsh:
+1 com.dsh.cld-voice
+-15 com.dsh.voice-service
+-15 com.dsh.sb-mobile-bridge
+-15 com.dsh.remote
+4 com.dsh.cron.bb-copy-staleness
+2 com.dsh.health
+-15 com.dsh.mac-mini-inbox-watch
+255 com.dsh.sb-tunnel
+1 com.dsh.cron.channel-gate-weekly
+exit=0
+----- [X-e] 会话目录体积
+1441	/Users/coreyleung/.dsh/sessions/--Users-coreyleung--
+exit=0
+
+############ 十一 · P26 复发谓词（全量会话扫描，报扫过的面）############
+----- [P26-d] 全量会话 JSONL 扫两个签名
+扫描面: 会话文件数 = 535 （上限 60MB/文件）
+扫过的行数: 3168722
+  'CONTEXT_WINDOW_EXCEEDED': 涉及会话 33
+  'summary is not smaller than the shadowed content': 涉及会话 7
+  ★ 未扫的面（>60MB 被跳过，必须报，不得当 0）: 4
+      session-e317d6ab-5302-4b33-b095-947983ba16f4 78.2 MB
+      session-aa528267-0434-4bf5-87c5-d5a61f8215b2 73.3 MB
+      session-fa1f9150-c949-401f-ba8c-d265f6221676 245.2 MB
+      session-a190c54c-ca73-4845-9a65-9dc002d45044 106.1 MB
+  读取错误: 0
+exit=0
+
+############ 十二 · M2③ 端口固定的真规模 ############
+----- [P-a] dsh-web.log 内出现过的本机端口集合大小
+     851
+exit=0
+----- [P-b] 并集里非 31888 的个数（31888=reload 端口，固定）
+850
+exit=0
+----- [P-c] 该日志文件自身的 mtime/size（扫过的面）
+mtime=2026-10-12 07:23:53 size=1975418
+exit=0
+----- [P-d] CLD_PORT 是否设置
+(空行=未设置)
+exit=0
+
+############ capture 完成 ############
+2026-10-12T20:08:34+0800

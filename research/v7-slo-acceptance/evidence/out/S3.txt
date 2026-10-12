@@ -1,0 +1,17 @@
+# S3 · 官方校对留证（24h 时效）
+# 命令: python3 /Users/coreyleung/dsh-collab/tools/official-ref-gate.py --target session persistence
+# 时刻: 2026-10-12T20:05:38+0800
+# --- 未编辑原始输出 ---
+★ official-ref-gate v1.0.0（S4 官方规范校对门）
+★ 扫描时点：2026-10-12T20:05:39+0800
+★ 依据：锚点 §6.1 强制前置（24h 留证 · web 补证 · 产物三栏）
+★ 镜像：/Users/coreyleung/tech-research/dsh-docs  存在
+
+=== ① 留证（/Users/coreyleung/dsh-collab/guard/gate-state.json）===
+  _doc_checks 条数：12
+  ❌ 主题「session persistence」留证 2026-09-05 16:16:31（891.8h 前，阈值 24h）
+      mirror_hits=0 · mirror_stale=False · 域=dsh
+
+══ 判定：❌ **NO-GO**（禁止动 dsh 设计项） ══
+   · 留证过期（>24h）
+# --- end ---

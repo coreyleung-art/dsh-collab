@@ -1,0 +1,7 @@
+sandbox-script         rc=2   sandbox-script.py: error: the following arguments are required: script
+infopack-check         rc=0     自证：5/5
+review-gate            rc=0     自证：8/8
+official-ref-gate      rc=0     自证：4/4
+gcr-gate               rc=0     自证：5/5
+node-claim-gate        rc=0     自证：6/6
+self-destruct-gate     rc=0     自证：5/5

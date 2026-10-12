@@ -1,0 +1,26 @@
+=== beacon-check 自证：逐条构造反例，证明每条检查都能红 ===
+PASS 反例可红：版本不一致
+PASS 反例可红：锚点被改但未重盖章
+PASS 反例可红：证据指针指到不存在的路径
+PASS 反例可红：closed 项无证据指针
+PASS 反例可红：dod 缺席未声明
+PASS 反例可红：updated_at 非 RFC 3339 规范形
+PASS 反例可红：updated_at 落在未来（按感觉估时间）
+PASS 反例可红：closed 项无 verifier 字段
+PASS 反例可红：waves 记 open 而其 items 已有 closed
+PASS 反例可红：wave note 称「未做」而 items 记为 closed
+PASS 跳过 ≠ 通过（无 --net 的黑板指针必须 SKIP，不得 PASS）
+PASS 反例可红：本地副本与板值分叉（G-CR18 ④）
+PASS 正控：本地副本与板值一致 ⇒ 该条 PASS（判据非恒红）
+PASS 跳过 ≠ 通过：无 --net 时 ④ 必须 SKIP、不得 PASS
+PASS 守恒：首次运行**只建档、未抽检**（不谎报通过）
+PASS 反例可红：索引体量骤降（腰斩检测）
+PASS 守恒红线不自动消：未 --accept-shrink 时连跑两次都红
+PASS 守恒：--accept-shrink 显式接受后基线推进、转为不红
+PASS M4①d 心跳判据负控：陈旧 ⇒ 必须红（got=stale want=stale）
+PASS M4①d 心跳判据负控：新鲜 ⇒ 必须绿（got=fresh want=fresh）
+PASS M4①d 心跳判据负控：读不到 ⇒ 必须不可判（不冒充成立）（got=undecidable want=undecidable）
+PASS M4①d 心跳判据负控：命令不存在 ⇒ 必须不可判（got=undecidable want=undecidable）
+
+自证： 全绿
+EXIT=0

@@ -1,0 +1,34 @@
+抓取时刻: 2026-10-12T20:39:40+0800
+抓取时刻: 2026-10-12T20:39:40.950237
+★ data/ops/ 前缀下列举 total: 16170  list 条数: 16170
+   （★ 这是 data/ops 前缀下的键数，不是【整个板】的键数；全板另测：curl .../data/ 与 .../notes/）
+data/ops 下【第三段】去重数: 265
+
+=== 条数 >=2 的段（含键形态与 version）===
+段                              条数  maxVer  样例键
+resource-gate               11766   12269  data/ops/resource-gate/current
+queue-condense               2243       1  data/ops/queue-condense/condense-1788104230
+pollution                    1458       1  data/ops/pollution/20260909-011213
+drift-alert                   352       1  data/ops/drift-alert/1790965673920
+plugin-selfcheck               75       1  data/ops/plugin-selfcheck/agent-way-1791014625246
+channel-gate-weekly            11       1  data/ops/channel-gate-weekly/1790958448509
+drift-delivery-failure          7       2  data/ops/drift-delivery-failure/1791752163821
+
+=== 题面点名的 13 个段（★ 逐个实数）===
+  data/ops/pollution                条数=1458
+  data/ops/drift-alert              条数=352
+  data/ops/plugin-selfcheck         条数=75
+  data/ops/channel-gate-weekly      条数=11
+  data/ops/drift-delivery-failure   条数=7
+  data/ops/drift-heartbeat          条数=1
+  data/ops/auth-probe               条数=0   ★ 板上无此段
+  data/ops/bus-expired-alert        条数=0   ★ 板上无此段
+  data/ops/gate-weekly-audit-       条数=0   ★ 板上无此段
+  data/ops/pitfalls                 条数=1
+  data/ops/probe                    条数=0   ★ 板上无此段
+  data/ops/resource-gate            条数=11766
+  data/ops/queue-condense           条数=2243
+
+=== gate-weekly-audit-* 实际键 ===
+   data/ops/gate-weekly-audit-20260907 ts= 2026-09-07T16:47:58
+EXIT=0

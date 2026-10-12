@@ -1,0 +1,17 @@
+### drift-scan.log 计数
+总行: 581
+CLEAN: 175
+DRIFT: 406
+阳性对照 '"result"': 581
+阴性对照 'ZZZ_NONEXISTENT': 0 (grep rc=1)
+逐项记录 '"check"': 0 (grep rc=1)
+EXIT=0
+
+### head -2 / tail -2
+{"at":"2026-10-02T11:07:04.798Z","action":"scan","result":"DRIFT","driftCount":1,"total":9}
+{"at":"2026-10-02T11:08:32.907Z","action":"scan","result":"DRIFT","driftCount":1,"total":9}
+{"at":"2026-10-12T12:35:21.179Z","action":"scan","result":"CLEAN","driftCount":0,"total":12}
+{"at":"2026-10-12T12:37:33.084Z","action":"scan","result":"CLEAN","driftCount":0,"total":12}
+
+### ls -la logs/drift-scan.log
+-rw-r--r--@ 1 coreyleung  staff  54028 Oct 12 20:37 logs/drift-scan.log

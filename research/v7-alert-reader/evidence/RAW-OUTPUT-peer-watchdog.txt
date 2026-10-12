@@ -1,0 +1,13 @@
+### peer-watchdog.log
+-rw-r--r--  1 coreyleung  staff  368924 Oct 12 19:59 logs/peer-watchdog.log
+EXIT=0
+--- tail -8
+[16:00:50] ⚠️ 心跳双板写异常（bb_put 返回非 0）：local 200 readback OK central 200 readback-FAIL: [Errno 54] Connection reset by peer 
+[16:12:57] ⚠️ 心跳双板写异常（bb_put 返回非 0）：PUT-EXC: ConnectionResetError [Errno 54] Connection reset by peer local 200 readback OK central -1 PUT-FAIL 
+[17:02:19] ⚠️ 心跳双板写异常（bb_put 返回非 0）：local 200 readback OK central 200 readback-FAIL: [Errno 54] Connection reset by peer 
+[17:17:55] ⚠️ 心跳双板写异常（bb_put 返回非 0）：PUT-EXC: RemoteDisconnected Remote end closed connection without response local 200 readback OK central -1 PUT-FAIL 
+[19:02:24] ⚠️ 心跳双板写异常（bb_put 返回非 0）：PUT-EXC: ConnectionResetError [Errno 54] Connection reset by peer local 200 readback OK central -1 PUT-FAIL 
+[19:13:19] ⚠️ 心跳双板写异常（bb_put 返回非 0）：PUT-EXC: ConnectionResetError [Errno 54] Connection reset by peer local 200 readback OK central -1 PUT-FAIL 
+[19:56:18] ⚠️ 心跳双板写异常（bb_put 返回非 0）：local 200 readback OK central 200 readback-FAIL: [Errno 54] Connection reset by peer 
+[19:59:01] ⚠️ 心跳双板写异常（bb_put 返回非 0）：PUT-EXC: ConnectionResetError [Errno 54] Connection reset by peer local 200 readback OK central -1 PUT-FAIL 
+EXIT=0

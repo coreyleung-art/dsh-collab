@@ -1,0 +1,11 @@
+### launchd 计数
+plist 文件数:       81
+launchctl 已加载 com.dsh.*: 79
+阳性对照 launchctl list 总行:      632
+阴性对照 com.zzz.nope: 0 (rc=1)
+
+### 读者有无调度
+--- grep -rl beacon-check ~/Library/LaunchAgents/
+rc=1 (1=无命中)
+--- 阳性对照 grep -rl dsh ~/Library/LaunchAgents/ | wc -l
+     103

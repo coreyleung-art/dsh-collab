@@ -1,0 +1,20 @@
+### tail -20 /tmp/gate-weekly-audit.err
+  File "<string>", line 3
+    body = {'from':'service:gate-weekly-audit', 'writerLabel':'服务身份（非会话）', 'date':'20261012', 'summary':'(完整报告已存 /Users/coreyleung/dsh-collab/rules-registry/gate-audit-full-report.json)', 'new_candidates':'2418
+                                                                                                                                                                                                                                                ^
+SyntaxError: EOL while scanning string literal
+EXIT=0
+
+### tail -6 /tmp/gate-weekly-audit.log
+NEW: pstd-f1-check.sh L18 echo "  · ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
+NEW: archive-logs.sh L4 # ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。
+NEW: archive-logs.sh L18 echo "  · ★ 约束门（⑩）：N/A —— 本工具【不执行外部命令、不删除数据、不修改权限】。"
+NEW: bb-gallery-gate.sh L4 # ★ 约束门（⑩）：N/A —— **本工具的危险能力受限且非外部输入**。
+[gate-weekly] 完成
+[gate-weekly] 完成
+EXIT=0
+
+### ls -la /tmp/gate-weekly-audit.*
+-rw-r--r--  1 coreyleung  wheel   556 Oct 12 09:30 /tmp/gate-weekly-audit.err
+-rw-r--r--  1 coreyleung  wheel  1760 Oct 12 09:30 /tmp/gate-weekly-audit.log
+EXIT=0

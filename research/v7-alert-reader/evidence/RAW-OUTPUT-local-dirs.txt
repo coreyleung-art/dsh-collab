@@ -1,0 +1,35 @@
+### ls -la data/ops (本地目录)
+total 208
+drwxr-xr-x  29 coreyleung  staff   928 Oct 11 04:40 .
+drwxr-xr-x  35 coreyleung  staff  1120 Oct 12 03:05 ..
+-rw-------   1 coreyleung  staff   337 Sep  4 03:19 2026-09-01-restart-online.md
+-rw-------@  1 coreyleung  staff   577 Sep  2 00:39 2026-09-01-restart-status-2.md
+-rw-------   1 coreyleung  staff   433 Sep  1 14:49 2026-09-01-restart-status-75815fa9.md
+-rw-------   1 coreyleung  staff   593 Sep  1 14:48 2026-09-01-restart-status.md
+-rw-------   1 coreyleung  staff   363 Sep  2 12:50 2026-09-01-wake-status.md
+drwxr-xr-x   4 coreyleung  staff   128 Oct  6 23:54 backups
+-rw-r--r--   1 coreyleung  staff  1850 Sep 11 16:23 beacon-dify-five-questions-20260911.md
+-rw-r--r--   1 coreyleung  staff  1177 Sep 11 15:51 beacon-dify-restore-position-20260911.md
+-rw-r--r--   1 coreyleung  staff   566 Sep  4 13:28 beacon-online-2026-09-04-13h.md
+-rw-r--r--   1 coreyleung  staff   489 Sep  9 18:50 beacon-port-contention-root-20260909.md
+-rw-r--r--   1 coreyleung  staff   358 Sep  9 00:06 beacon-r033-r034-ack-20260907.md
+-rw-r--r--   1 coreyleung  staff   346 Sep  9 00:07 beacon-r033-r034-effective-ack-20260909.md
+-rw-r--r--@  1 coreyleung  staff  1352 Sep  7 21:00 beacon-reasoning-tier-eval-20260907.md
+-rw-r--r--   1 coreyleung  staff   381 Sep  4 03:19 beacon-restart-online-2026-09-04.md
+-rw-r--r--   1 coreyleung  staff  3197 Sep  6 19:13 beacon-review-mtm-memory-lean4-20260906.md
+-rw-r--r--   1 coreyleung  staff   784 Sep  9 18:46 beacon-runtime-form-pitfall-20260909.md
+-rw-r--r--   1 coreyleung  staff   100 Oct 11 04:40 bus-delivery-alert-state.json
+-rw-r--r--@  1 coreyleung  staff  1434 Sep  7 16:28 echo-beacon-gate-round2-result-20260907.md
+-rw-r--r--   1 coreyleung  staff   472 Sep  6 22:20 error-net-beacon-ack-20260906.md
+-rw-r--r--   1 coreyleung  staff  1446 Sep  2 22:35 jd-account-verified-2026-09-02.md
+-rw-------@  1 coreyleung  staff   673 Sep  2 00:41 mtm-collect-restart-2026-09-02.md
+-rw-r--r--   1 coreyleung  staff   483 Sep  2 01:50 mtm-restart-ack-2026-09-02.md
+-rw-r--r--   1 coreyleung  staff   347 Sep  6 22:43 r-err4-beacon-ack-20260906.md
+-rw-r--r--   1 coreyleung  staff   456 Sep  6 21:40 r003-json-body-beacon-check-20260906.md
+-rw-r--r--   1 coreyleung  staff  1230 Sep  6 21:06 r006-lean4-beacon-report-20260906.md
+-rw-r--r--   1 coreyleung  staff  1944 Sep  6 20:32 r006-v2-lean4-gate-beacon-check.md
+-rw-------   1 coreyleung  staff  1962 Sep  2 13:11 research-memory-optimization-20260902.md
+EXIT=0
+
+### find ~/dsh-collab -maxdepth 4 -type d -name drift-alert
+EXIT=0

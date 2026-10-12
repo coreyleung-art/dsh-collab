@@ -1,0 +1,208 @@
+# R-M7M8 原始输出留档 · 2026-10-12
+
+## 生成时刻
+2026-10-12T20:11:37+0800
+
+## E1 信封尺 默认面（notes/collab）
+== cahac-envelope-conformance 1.0.0 ==
+
+【扫过的面（★ 每个数字必须跟它一起报）】
+  notes/collab             618
+  ⇒ 实际取到信封对象（★ 分母）: 618
+
+【逐字段出现率】
+  cahac             0 / 618    0.0%
+  id                0 / 618    0.0%
+  type            396 / 618    64.1%
+  channel           0 / 618    0.0%
+  sender            0 / 618    0.0%
+  recipient         0 / 618    0.0%
+  thread            0 / 618    0.0%
+  priority          2 / 618    0.3%
+  cost_cap          0 / 618    0.0%
+  dedup_key         0 / 618    0.0%
+  ts              456 / 618    73.8%
+  expires           0 / 618    0.0%（★ 可选）
+  payload          11 / 618    1.8%
+  signature         0 / 618    0.0%（★ 可选）
+
+【判定（★ 三态）】
+  MEASURED —— envelope_ok = 0 / 618 = 0.0000%
+  （★ envelope_ok = 全部【必填】字段齐；signature/expires 为可选，不计）
+[exit=0]
+
+## E2 信封尺 --json
+{
+ "version": "1.0.0",
+ "namespaces": [
+  "notes/collab"
+ ],
+ "scanned": 618,
+ "per_namespace": {
+  "notes/collab": 618
+ },
+ "errors": [],
+ "fields": {
+  "cahac": 0,
+  "id": 0,
+  "type": 396,
+  "channel": 0,
+  "sender": 0,
+  "recipient": 0,
+  "thread": 0,
+  "priority": 2,
+  "cost_cap": 0,
+  "dedup_key": 0,
+  "ts": 456,
+  "expires": 0,
+  "payload": 11,
+  "signature": 0
+ },
+ "verdict": "MEASURED",
+ "envelope_ok": 0,
+ "envelope_ok_rate": 0.0,
+ "reason": null
+}
+[exit=0]
+
+## E3 信封尺 --selfcheck
+== 负控矩阵（★ 判据必须能红）==
+{
+ "version": "1.0.0",
+ "namespaces": [
+  "data/__nonexistent_ns__"
+ ],
+ "scanned": 0,
+ "per_namespace": {
+  "data/__nonexistent_ns__": 0
+ },
+ "errors": [],
+ "fields": {
+  "cahac": 0,
+  "id": 0,
+  "type": 0,
+  "channel": 0,
+  "sender": 0,
+  "recipient": 0,
+  "thread": 0,
+  "priority": 0,
+  "cost_cap": 0,
+  "dedup_key": 0,
+  "ts": 0,
+  "expires": 0,
+  "payload": 0,
+  "signature": 0
+ },
+ "verdict": "UNDECIDABLE",
+ "reason": "★ 分母为 0：扫过 1 个命名空间但【没有取到任何信封对象】 ⇒ 本项【不可判】，★ 不得读作 0% 或通过",
+ "envelope_ok_rate": null
+}
+  OK  ① 空分母 ⇒ UNDECIDABLE 且 rate=None  UNDECIDABLE
+  OK  ② CAHAC §3 字段数恰为 14（实测 14）
+  OK  ③ signature/expires 为可选，payload 为必填
+  OK  ④ 报 0 时输出含【扫过的面】
+  OK  ⑤ 必填字段恰 12（14 − 2 可选）
+
+== 负控 5/5 ==
+[exit=0]
+
+## E4 信封尺 --lean4-check
+== --lean4-check（A–F）==
+  OK  A 无删除原语               （只读测量器）
+  OK  B 无写盘                 （不落盘）
+  OK  C 无危险原语               （无动态执行）
+  OK  D 空分母有护栏              （三态）
+  OK  E 字段表单一来源             （无重复定义）
+  OK  F 版本单一来源              （无重复定义）
+
+== lean4 6/6 ==
+[exit=0]
+
+## E5 W8.1 原文复跑命令 --status
+usage: cahac-envelope-conformance.py [-h] [--ns [NS ...]] [--json]
+                                     [--selfcheck] [--lean4-check] [--version]
+cahac-envelope-conformance.py: error: unrecognized arguments: --status
+[exit=2]
+
+## E6 W8.2 原文复跑命令 jq .envelope_ok/.objects
+[exit=0]
+
+## E7 §12 临时尺（~/.dsh/inbox）
+objects=3111 envelope_ok=0 rate=0.0000
+{'cahac': '0.00%', 'id': '0.84%', 'type': '49.12%', 'channel': '0.03%', 'sender': '0.00%', 'recipient': '0.00%', 'priority': '1.06%', 'dedup_key': '0.00%', 'ts': '64.13%', 'payload': '0.55%'}
+[exit=0]
+
+## E8 rules-integrity（编号账本一致性）
+规则账本完整性检查 · /Users/coreyleung/dsh-collab/rules-registry/RULES.md
+  声明: v2.23.8 | 75 条
+  实际: 76 个标题 / 76 个唯一编号
+  前缀分布: (无法解析)=3 · J=13 · R=59 · R-ERR=4
+
+❌ 硬问题 1 项（账本不可信，须修）:
+   · 计数不符: 声明 75 / 实际 76
+
+⚠️ 提示 5 项:
+   · 行295 非规则小节（分区标题，跳过）: 治理哲学（Φ 系列 · 明鉴维护 governance-philosophy.json v2.3）
+   · 行448 非规则小节（分区标题，跳过）: 外部来源规则集（映射 · 不占编号 · trae:E*）
+   · 行597 非规则小节（分区标题，跳过）: retiredEntries（R041 退役索引 · 数据搬出账本留痕，溯源不悬空）
+   · 编号乱序: R047(行418) 出现在 R048(行411) 之后
+   · 编号乱序: J38(行158) 出现在 J44(行152) 之后
+
+结论: ❌ 账本存在硬问题 —— 依账本做的判断不可核，应先修复
+[exit=1]
+
+## E9 qk-tracker-drift-check
+qk-tracker-drift-check · 台账 §1 ⨯ 索引 Q-K 条目
+  台账阶段: ['K0', 'K1', 'K2', 'K2.1', 'K3', 'K4', 'K5', 'K6', 'K7']
+  索引 state: ['k1', 'k2', 'k21', 'k3', 'k4', 'k5', 'k6']
+
+✅ 无漂移 —— ★ 本次**实际核对 9 个阶段**（索引有 state 的 7 个）；空输入已在入口拦截，故此处 len 必 > 0
+[exit=0]
+
+## E10 beacon-check --net
+PASS 索引键可解析
+PASS 锚点文档在位
+PASS 锚点可读出 state_version
+PASS 索引 ↔ 锚点 state_version 相等
+PASS 锚点指纹未变（改了正文须同时升 state_version 并重盖章）
+PASS 版本指针可解析
+PASS 版本未回退（指针 ≤ 索引）
+PASS 续接提示词在位
+PASS 续接提示词 ≤40 行（§4.1③）
+PASS 续接提示词未漂移（== 现渲染结果）
+PASS 存在 closed_with_evidence 项（否则本条空转）
+PASS C1 证据指针可解
+PASS C2 证据指针可解
+PASS C3 证据指针可解
+PASS C4 证据指针可解
+PASS C5 证据指针可解
+PASS R049 证据指针可解
+PASS dod.full_table 的缺席是显式声明的
+PASS updated_at 为 RFC 3339 规范形（±HH:MM 带冒号）
+PASS updated_at 未落在未来（合理域）
+PASS waves / items 两段一致（B9）
+PASS closed 项 verifier 字段齐备（B10③）
+PEND closed 项审查员已到位（§11 六者之「审查员」）   << C1/C2/C3/C5/R049 记为 closed_with_evidence，而 verifier 仍是待复核 ⇒ **未验证 ≠ 已关闭**
+PASS 本地副本 ↔ 板值一致（G-CR18 ④）
+PASS 索引体量守恒（骤降检测）
+PASS 通道巡检心跳新鲜度（M4①d）
+PASS 告警卡有读者（M4①d/M4③②）
+
+反遗忘校验：无 FAIL，但**有 1 项记为 closed 而审查员未到位** ⇒ 不得读作『全绿』（0 条 WARN，0 条 SKIP，1 项待复核）
+         PEND closed 项审查员已到位（§11 六者之「审查员」）
+[exit=0]
+
+## E11 agent-mailbox selftest
+    PASS  优先级：inbox() 返回按 priority 升序（第二调用点）
+    PASS  replay：不存在的 msg_id 被拒（第二调用点）
+    FAIL  反控：check() 对假条件确实记 FAIL  反控探针
+    PASS  反控：上一条确实产生了 1 个 FAIL
+
+  selftest: 41 PASS / 0 FAIL
+[exit=0]
+
+## E12 文件指纹
+mtime=2026-10-12 04:17:21 birth=2026-10-12 04:17:11 size=9304
+mtime=2026-10-01 21:27:19 birth=2026-10-01 21:26:43 size=39487
+0377167ea9f101ba9deacb93da19c0f37d1d3d5ecd55a72a101898779b37c11f  scripts/cahac-envelope-conformance.py
+7a55e54b3d4bcf1cf0a00c10c0925efd8b80de74e41b12c18c1a25498ef10056  comm-server/agent-mailbox.py

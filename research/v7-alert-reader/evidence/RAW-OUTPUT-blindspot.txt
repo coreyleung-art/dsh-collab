@@ -1,0 +1,24 @@
+### repro-blindspot.py 原始输出（未编辑）
+$ /usr/bin/python3 research/v7-alert-reader/evidence/repro-blindspot.py
+== 生产 ALERT_DIRS 原样 ==
+['data/ops/drift-delivery-failure', 'data/ops/bus-expired-alert']
+  data/ops/drift-delivery-failure        -> (0, '★ 共 7 条、其中 7 条已归档；')
+  data/ops/bus-expired-alert             -> (0, '')
+
+== 负控：把目录名改成【绝不存在】的名字，看读者报什么 ==
+  data/ops/zzz-audit-does-not-exist-xyz  -> (0, '')   => GREEN(0条)
+  data/ops/another-bogus-ns              -> (0, '')   => GREEN(0条)
+
+== 对照：用【键形】(无尾斜杠) 探测同一批不存在的名字 ==
+  data/ops/zzz-audit-does-not-exist-xyz  HTTP=404 (键形) <-- 可与「空」区分
+  data/ops/another-bogus-ns              HTTP=404 (键形) <-- 可与「空」区分
+  data/ops/bus-expired-alert             HTTP=404 (键形) <-- 可与「空」区分
+退出码=0
+
+### repro-undecidable-branch.py 原始输出（未编辑）
+$ /usr/bin/python3 research/v7-alert-reader/evidence/repro-undecidable-branch.py
+正常板                    -> [(0, '★ 共 7 条、其中 7 条已归档；'),  => GREEN/实测
+板进程挂了（死端口）             -> [None, None]                 => UNDECIDABLE(不可判)
+超时（黑洞 IP）              -> [None, None]                 => UNDECIDABLE(不可判)
+非 HTTP 服务              -> [None, None]                 => UNDECIDABLE(不可判)
+退出码=0

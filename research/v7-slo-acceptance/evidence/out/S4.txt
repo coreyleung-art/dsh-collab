@@ -1,0 +1,29 @@
+# S4 · 闭环率（closed_with_evidence 占比 + verifier 在位）
+# 命令: python3 /Users/coreyleung/dsh-collab/research/v7-slo-acceptance/evidence/probe-closure-rate.py
+# 时刻: 2026-10-12T20:05:39+0800
+# --- 未编辑原始输出 ---
+索引: /Users/coreyleung/dsh-collab/data/registry/continuity-index.json
+索引 updated_at: 2026-10-12T19:25:20+08:00 · state_version: 6
+
+分母（items 总数）= 10
+分子（state == closed_with_evidence）= 6
+闭环率 = 6/10 = 60.0%   （目标 ≥80%）
+
+逐项:
+  C1     closed_with_evidence   verifier=占位/待复核
+  C2     closed_with_evidence   verifier=占位/待复核
+  C3     closed_with_evidence   verifier=占位/待复核
+  C4     closed_with_evidence   verifier=占位/待复核
+  C4-b   open                   verifier=缺失
+  C5     closed_with_evidence   verifier=占位/待复核
+  C6     in_flight              verifier=缺失
+  C7     in_flight              verifier=缺失
+  P26    in_flight              verifier=缺失
+  R049   closed_with_evidence   verifier=占位/待复核
+
+★ 真正到位的 verifier（非占位）：0/6
+★ ⇒ 全部 closed 项的 verifier 均是「待第三方复核」占位 ⇒ 按 §5.1「未证不得记 closed」，
+  这些 closed 在【审查意义上】全部不可判 ⇒ 闭环率的分子在审查口径下 = 不可判。
+
+★ 时刻声明：本读数是上面 updated_at 时刻的索引状态，不是「现在的事实」。
+# --- end ---

@@ -1,0 +1,24 @@
+# S1 · 信标新鲜度（索引 updated_at 是否落后 / 是否落在未来）
+# 命令: python3 /Users/coreyleung/dsh-collab/research/v7-slo-acceptance/evidence/probe-beacon-freshness.py
+# 时刻: 2026-10-12T20:08:38+0800
+# --- 未编辑原始输出 ---
+索引: /Users/coreyleung/dsh-collab/data/registry/continuity-index.json
+索引 updated_at = 2026-10-12T19:25:20+08:00
+索引 anchor     = docs/distributed-agent-network-governance-plan-v6.1-20261011.md
+
+=== ① 时间戳可读性 ===
+  ✅ 规范形
+  ✅ 未落在未来（落后现在 0.7 小时）
+
+=== ② 落后 ≤1 次状态变化（★ 代理指标）===
+  锚点文档 distributed-agent-network-governance-plan-v6.1-20261011.md mtime = 2026-10-10T19:48:35.623752+00:00
+  锚点 mtime 不晚于 索引 updated_at
+  docs 下最新 .md = deviation-ledger-20261011.md mtime = 2026-10-12T12:02:39.239187+00:00
+  最新交付物 mtime 晚于 索引 updated_at
+
+  ★ 判定：落后（索引比 1 个参照物旧，最大差 0.6 小时）
+  ★ 声明：本判据只能证明「不落后于这两个文件」，不能证明「索引完整」。
+
+=== ③ 支撑门（索引内部自洽，非本指标本身）===
+  跑: python3 ~/dsh-collab/tools/beacon-check.py --net
+# --- end ---

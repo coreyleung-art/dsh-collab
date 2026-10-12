@@ -1,0 +1,17 @@
+# S12 · 真积压（event-bus pending）
+# 命令: python3 /Users/coreyleung/dsh-collab/scripts/event-bus.py --status
+# 时刻: 2026-10-12T20:05:45+0800
+# --- 未编辑原始输出 ---
+events: 122 {'task.completed': 4, 'agent.online': 59, 'agent.offline': 59}
+instructions: total=122 pending=111
+  PENDING: a9dc061ded8024e7-session- -> session-fa1f9150-c94 agent.online 节点上线: mix-3（首次心跳）
+  PENDING: 1eb63619fb610c9e-session- -> session-fa1f9150-c94 agent.online 节点上线: selftest（新注册 nodes/selftest）
+  PENDING: e25697d6967dd210-session- -> session-fa1f9150-c94 agent.online 节点上线: llm-test（新注册 nodes/llm-test）
+  PENDING: 97d7b483ba577fe6-session- -> session-fa1f9150-c94 agent.online 节点上线: mbp-test（新注册 nodes/mbp-test）
+  PENDING: 8fdd6b5697a68cfc-session- -> session-fa1f9150-c94 agent.offline 节点离线: store-01（300 秒无心跳）
+  PENDING: 994d8b1e5a6acab7-session- -> session-fa1f9150-c94 agent.online 节点上线: mix-0（首次心跳）
+  PENDING: 6e3cf9f5dd4b764d-session- -> session-fa1f9150-c94 agent.offline 节点离线: mix-17（300 秒无心跳）
+  PENDING: a2e91f37fd27ef34-session- -> session-fa1f9150-c94 agent.online 节点上线: load-7（新注册 nodes/load-7）
+  PENDING: a0bed5e6d3e7f627-session- -> session-fa1f9150-c94 agent.online 节点上线: loop2（新注册 nodes/loop2）
+  PENDING: ee570033a4ccc7c9-session- -> session-fa1f9150-c94 agent.offline 节点离线: selftest（300 秒无心跳）
+# --- end ---

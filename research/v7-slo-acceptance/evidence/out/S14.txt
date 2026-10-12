@@ -1,0 +1,43 @@
+# S14 · 端口稳定性（在役监听端口清单）
+# 命令: bash -c lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null | awk "NR>1{print \$1, \$9}" | sort -u
+# 时刻: 2026-10-12T20:05:52+0800
+# --- 未编辑原始输出 ---
+ARDAgent *:3283
+AweSun 127.0.0.1:8908
+CLD 127.0.0.1:31888
+CLD 127.0.0.1:61044
+ControlCe *:5000
+ControlCe *:7000
+Dropbox 127.0.0.1:17600
+Dropbox 127.0.0.1:17603
+DropboxFi *:17500
+Feishu 127.0.0.1:49926
+GitHub 127.0.0.1:49209
+LM\x20Stu 127.0.0.1:1234
+LM\x20Stu 127.0.0.1:41343
+Notion 127.0.0.1:56116
+Ollama 127.0.0.1:52949
+Python *:8905
+Python 100.120.203.20:8090
+Python 100.120.203.20:8091
+Python 127.0.0.1:8798
+Python 127.0.0.1:8799
+Python 127.0.0.1:8902
+Python 127.0.0.1:8903
+Python 127.0.0.1:8904
+Python 127.0.0.1:8906
+blackboar *:8810
+lmlink-co *:49069
+node *:4873
+node *:8791
+node *:8820
+node *:8910
+node 100.120.203.20:3081
+node 127.0.0.1:8899
+ollama 127.0.0.1:11434
+python3.1 *:8811
+rapportd *:49152
+rust-blac *:8792
+rust-blac *:8803
+rust-gene *:8801
+# --- end ---
