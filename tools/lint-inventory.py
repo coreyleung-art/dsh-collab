@@ -50,6 +50,8 @@ CATALOG = [
      "★ 从台账自动生成（★ v7 §0.0 原为手工）"),
     ("★★ 照拄旧读数", "live-read-guard.py",
      "★ 立据：§3.1 那句在 v4/v5/v6/v6.1 **四代逐字继承、无一版重测**"),
+    ("★★★ 派子代理无清单", "subagent-work-checklist.py",
+     "★ 立据：V2 审查两次皆空 · R2 首次零产出 · 20 代理零引用"),
 ]
 
 def find_tool(name):

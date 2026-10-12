@@ -1,14 +1,20 @@
 {
-  "version": 3,
+  "version": 4,
   "default": "deny",
-  "_note": "★ 系统架构管理器可写枢纽的授权表。★ default 必须为 deny —— 本实现只支持 fail-closed。★★ 真实【页面】(page:goal/ledger/…) 与真实【关系图】(relation:relations) 均【不授权任何人】，等 D1 裁决后再逐条授权。",
+  "_note": "★ 系统架构管理器可写枢纽的授权表。★ default 必须为 deny —— 本实现只支持 fail-closed。",
+  "_why_this_change": "★ 2026-10-12 小规模放行（用户批准）：首次授权【真实内容】。范围刻意最小：只开一个真实页 page:goal，且只给本线。★ 依据：影响面实测确认写入落在【全新命名空间】data/sg-page/，【不触碰】任何 data/blueprint/* 真实数据；且前端会读它 ⇒ 闭环完整。真实关系图 relation:relations 仍不授权。",
   "principals": {
     "session-a190c54c-ca73-4845-9a65-9dc002d45044": {
-      "label": "明鉴 v3（P1/P2/P3 实施者）",
+      "label": "明鉴 v3（P1–P5 实施者 · 小规模放行试点）",
       "grants": [
-        {"resource": "probe", "actions": ["write"], "_why": "P1：只写沙盒键"},
-        {"resource": "page:__selftest__", "actions": ["write"], "_why": "P2：粒度到单页"},
-        {"resource": "relation:__selftest__", "actions": ["write"], "_why": "★ P3：粒度到单图 —— 只授权这一张沙盒图"}
+        {"resource": "probe", "actions": ["write"],
+         "_why": "P1 自证：只写沙盒键"},
+        {"resource": "page:__selftest__", "actions": ["write"],
+         "_why": "P2 自证沙盒页"},
+        {"resource": "relation:__selftest__", "actions": ["write"],
+         "_why": "P3 自证沙盒图"},
+        {"resource": "page:goal", "actions": ["write"],
+         "_why": "★★ 小规模放行试点（用户批准 2026-10-12）：首个【真实页】。★ 落地键 data/sg-page/goal —— 这是一个【全新命名空间】（放行前实测 404），不触碰 data/blueprint/* 的任何真实数据。★ 撤销方式：删掉本条即回到 403。"}
       ]
     }
   }
