@@ -132,7 +132,9 @@ if len(sys.argv) < 3:
 #   实测：我加了 --allow-missing-checker 却忘了登记 ⇒ 路 2 直接报「不认识的参数」⇒
 #   与今天那条「加标签前先查重」同型：**加旗标前先注册**。
 _FLAGS = {"--dry-run", "--allow-missing-checker"}
-_unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in _FLAGS]
+# ★★ 2026-10-13（★ CAHAC I-1）：`--to=<对端>` 为【CAHAC recipient】—★ 带等号 ⇒ 单 token
+_unknown = [a for a in sys.argv[1:]
+            if a.startswith("-") and a not in _FLAGS and not a.startswith("--to=")]
 if _unknown:
     print(f"❌ 不认识的参数: {' '.join(_unknown)}")
     print(f"   本工具接受的旗标: {' '.join(sorted(_FLAGS))}")
@@ -140,10 +142,12 @@ if _unknown:
     sys.exit(2)
 _pos = [a for a in sys.argv[1:] if not a.startswith("-")]
 if len(_pos) < 2:
-    sys.exit("用法: put-card.py <纯内容JSON路径> <黑板键> [--dry-run]")
+    sys.exit("用法: put-card.py <纯内容JSON路径> <黑板键> [--dry-run] [--to=<对端>]")
 
 DRY = "--dry-run" in sys.argv
 path, key = _pos[0], _pos[1]
+# ★★ 取 CAHAC recipient（★ 不给则 None ⇒ 模块会如实报缺）
+CARD_TO = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--to=")), None)
 now = datetime.datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S%z")
 
 
@@ -274,6 +278,25 @@ else:
     sys.exit(2)
 
 card["ts"] = now
+
+# ★★★ 2026-10-13【CAHAC 信封补全】（★ 目标四维 I-1）—★
+#   ★ 立据：`notes/collab` 现测 **envelope_ok = 0/642 = 0.0000%**（v6.1 时 0/564）—★
+#     ★★ **两版之间一点没变**；★ 而根因是【没有写卡侧 schema 约定】。
+#   ★ 本处是【卡已读入、尚未序列化】的唯一注入点 ⇒ 一次改覆盖全部经本器写的卡。
+try:
+    # ★★ 2026-10-13 修（★ 实测）：文件名带连字符（`cahac-envelope.py`）—★
+    #   ★★ **`import cahac_envelope` 不可能成功**（★ 模块名不能含 `-`）。
+    #   ★ 故改用【按路径加载】（importlib）—★ 不依赖 sys.path。
+    import importlib.util as _ilu, os as _o
+    _p = _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), "cahac-envelope.py")
+    _spec = _ilu.spec_from_file_location("cahac_envelope", _p)
+    _mod = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+    card, _rep = _mod.complete_envelope(card, key=key, to=CARD_TO)
+    log_attempt("CAHAC_ENVELOPE",
+                "filled=%s kept=%s missing=%s" % (_rep["filled"], _rep["kept"], _rep["missing"]))
+except Exception as _e:
+    # ★ 补全失败不阻断主流程（★ 但留痕；★ 不假装成功）
+    log_attempt("CAHAC_ENVELOPE_FAIL", type(_e).__name__ + ": " + str(_e)[:120])
 
 # 判定层：序列化器自己（依赖 0 条关于输入的断言）—— 这一层可达，不是死代码。
 try:
