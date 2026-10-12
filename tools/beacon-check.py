@@ -542,6 +542,30 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("判据健康度（恒真自证扫查）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-244）：假结果形态（★ 八次同形里可机械检的四类）—★ 防「结果看上去对而实为假」。
+    #   ★ 立据：v7 §0.2.1（★ 十次实证）。★ ★ 只读源码，★ 不跑工具。
+    try:
+        _fr = subprocess.run([sys.executable, str(ROOT / "tools" / "false-result-patterns.py"), "--json"],
+                             capture_output=True, text=True, timeout=25)
+        _fd = json.loads(_fr.stdout)
+        _fh = _fd.get("hits") or []
+        _p1 = [h for h in _fh if h.get("check") == "P1"]
+        _p2 = [h for h in _fh if h.get("check") == "P2"]
+        # ★ 只对 P1/P2（★ 确定性高）报红；P5 多数是数据行 ⇒ 进文案
+        _hard = _p1 + _p2
+        if not _fd.get("scanned"):
+            skip("假结果形态（D-244）", "扫描面为空 ⇒ 不可判")
+        elif _hard:
+            check("假结果形态（D-244）", False,
+                  "★★ P1(.status) %d 处 · P2(None当绿) %d 处 ★ 修后自然转绿"
+                  % (len(_p1), len(_p2)))
+        else:
+            check("假结果形态（D-244）", True,
+                  "★ P1/P2 无命中；★★ 而 P5（硬编码时间）%d 处多为数据行 ⇒ 须人工筛"
+                  % len([h for h in _fh if h.get("check") == "P5"]))
+    except Exception as e:
+        skip("假结果形态（D-244）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     return 0 if not [r for r in RESULTS if not r[2] and r[0] == "FAIL"] else 1
 
 
