@@ -552,17 +552,20 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         _fh = _fd.get("hits") or []
         _p1 = [h for h in _fh if h.get("check") == "P1"]
         _p2 = [h for h in _fh if h.get("check") == "P2"]
-        # ★ 只对 P1/P2（★ 确定性高）报红；P5 多数是数据行 ⇒ 进文案
-        _hard = _p1 + _p2
+        _p6 = [h for h in _fh if h.get("check") == "P6"]
+        # ★ 只对 P1/P2/P6（★ 确定性高）报红；P5 多数是数据行 ⇒ 进文案
+        # ★★ 2026-10-13（D-260）：P6 并入报红 —— ★ 它测【标题序号 vs 实际行号序】，
+        #   ★ 立据：本线一晚犯两次（v7 §0.1.1 · 索引「七」在「六」前），★ 而它【真命中了外部件】。
+        _hard = _p1 + _p2 + _p6
         if not _fd.get("scanned"):
             skip("假结果形态（D-244）", "扫描面为空 ⇒ 不可判")
         elif _hard:
             check("假结果形态（D-244）", False,
-                  "★★ P1(.status) %d 处 · P2(None当绿) %d 处 ★ 修后自然转绿"
-                  % (len(_p1), len(_p2)))
+                  "★★ P1(.status) %d · P2(None当绿) %d · P6(序号不升序) %d ★ 修后自然转绿"
+                  % (len(_p1), len(_p2), len(_p6)))
         else:
             check("假结果形态（D-244）", True,
-                  "★ P1/P2 无命中；★★ 而 P5（硬编码时间）%d 处多为数据行 ⇒ 须人工筛"
+                  "★ P1/P2/P6 无命中；★★ 而 P5（硬编码时间）%d 处多为数据行 ⇒ 须人工筛"
                   % len([h for h in _fh if h.get("check") == "P5"]))
     except Exception as e:
         skip("假结果形态（D-244）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
