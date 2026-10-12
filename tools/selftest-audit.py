@@ -133,15 +133,47 @@ def audit(roots=None, run=False):
             continue
         rows.append({"file": rel, **r})
     if run:
+        # ★★★ 2026-10-12 修（D-231）—— 两处：
+        #   ★ ① **本行原写 `p.status`，而正确属性是 `p.returncode`！**
+        #       ★★ 立据：本线用同一写法跑 `scripts/` 面 ⇒ **341 个全被记成 `ERR:AttributeError`**
+        #          ⇒ **报告说「341 个全坏」，而手动跑一个 ⇒ `exit=0`**（★ D-228）。
+        #       ★★★ **而那个 bug 就【在本函数里】—— 本线先前只修了外部脚本，漏了本工具自身。**
+        #   ★ ② 新增【四分类】：`0` / `2`（不支持该旗标）/ `TIMEOUT` / **其它非 0（候缺陷）**。
+        #       ★ 立据：`scripts/` 面 341 个里 **165 个是 `rc=2`**（★ 不支持）⇒ 不单列就会报成缺陷。
+        #   ★ ③ 新增 `stdin=subprocess.DEVNULL` —— ★ 防脚本等输入而**永久挂住**（★ 实测主进程曾跑 12:18）。
+        from concurrent.futures import ThreadPoolExecutor
+
+        def _one(rel):
+            try:
+                p = subprocess.run([sys.executable, os.path.join(ROOT, rel), "--selftest"],
+                                   capture_output=True, text=True, timeout=90,
+                                   stdin=subprocess.DEVNULL)
+                return rel, p.returncode           # ★ returncode，不是 status
+            except subprocess.TimeoutExpired:
+                return rel, "TIMEOUT"
+            except Exception:
+                return rel, None
+
+        targets = [r["file"] for r in rows if r["has_selftest"]]
+        try:
+            with ThreadPoolExecutor(max_workers=8) as ex:
+                got = dict(ex.map(_one, targets))
+        except Exception:
+            got = {}
         for r in rows:
-            if r["has_selftest"]:
-                try:
-                    p = subprocess.run([sys.executable, os.path.join(ROOT, r["file"]), "--selftest"],
-                                       capture_output=True, text=True, timeout=90)
-                    r["run_exit"] = p.status
-                except Exception:
-                    r["run_exit"] = None
+            if r["file"] in got:
+                r["run_exit"] = got[r["file"]]
     return rows
+
+
+def classify_run(rows):
+    """★ 四分类（★ D-231）：把「非 0」拆成【不支持】与【候缺陷】，避免误报。"""
+    st = [r for r in rows if r["has_selftest"] and "run_exit" in r]
+    ok = [r for r in st if r["run_exit"] == 0]
+    usage = [r for r in st if r["run_exit"] == 2]
+    tod = [r for r in st if r["run_exit"] == "TIMEOUT"]
+    other = [r for r in st if r["run_exit"] not in (0, 2, "TIMEOUT", None)]
+    return {"total": len(st), "ok": ok, "usage": usage, "timeout": tod, "other": other}
 
 
 def selftest():
@@ -269,12 +301,20 @@ def main():
             print("       %s" % r["file"])
         print()
     if a.run:
-        bad = [r for r in n_st if r.get("run_exit") not in (0, None)]
-        print("  ★ 实跑：%d 个 selftest · 非 0 退出 %d 个" % (len(n_st), len(bad)))
-        for r in bad[:20]:
-            print("     ❌ %s exit=%s" % (r["file"], r.get("run_exit")))
-        if len(bad) > 20:
-            print("     … 另有 %d 个" % (len(bad) - 20))
+        # \u2605\u2605\u2605 2026-10-12 \u6539\u4e3a\u3010\u56db\u5206\u7c7b\u3011\uff08D-231\uff09\uff1a\u907f\u514d\u628a\u300c\u4e0d\u652f\u6301\u8be5\u65d7\u6807\u300d\u62a5\u6210\u7f3a\u9677
+        cl = classify_run(rows)
+        print("  \u2605 \u5b9e\u8dd1\uff1a%d \u4e2a selftest" % cl["total"])
+        print("     0        \uff08\u2605 \u771f\u901a\u8fc7\uff09      : %d" % len(cl["ok"]))
+        print("     2        \uff08\u2605\u2605 \u4e0d\u652f\u6301 --selftest\uff09: %d  \u2190 \u2605 \u4e0d\u5f52\u7f3a\u9677" % len(cl["usage"]))
+        print("     TIMEOUT  \uff08\u2605 \u7f51\u7edc/\u4e45\u8dd1\uff09    : %d" % len(cl["timeout"]))
+        print("     \u5176\u5b83\u975e 0 \uff08\u2605\u2605 \u5019\u7f3a\u9677\uff09    : %d" % len(cl["other"]))
+        for r in cl["other"][:20]:
+            print("        \u274c %s exit=%s" % (r["file"], r.get("run_exit")))
+        if len(cl["other"]) > 20:
+            print("        \u2026 \u53e6\u6709 %d \u4e2a" % (len(cl["other"]) - 20))
+        if cl["usage"]:
+            print("     \u2605 \u4e0d\u652f\u6301\u7684\u524d 5 \u4e2a\uff1a%s" % ", ".join(r["file"] for r in cl["usage"][:5]))
+        bad = cl["other"]
         # ★★★ 2026-10-12 新增（D-228）：【探针自检】—— 防「探针坏而报告说全坏」
         #   ★ 立据：本线第一次跑 `scripts/` 面时，用 `p2.status`（★ 正确是 `returncode`）
         #   ★★ ⇒ **341 个全部被记成 `ERR:AttributeError`** ⇒ 报告说「341 个全非 0」，
