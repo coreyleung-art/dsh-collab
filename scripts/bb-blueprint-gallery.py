@@ -2757,6 +2757,13 @@ def sg_page_write(view, principal, entry, expected_seq=None):
         hist.append(entry)
         doc["history"] = hist
         doc["view"] = view
+        # ★★★ 2026-10-12 修（实测触发）：**把「写失败」与「写成功但确认不了」分开**。
+        #   起因：实测 PUT 的**响应 >60s 不回**，但**回读证明写入已落盘** ⇒
+        #   原实现把这种情形一律报 `写页面档失败：timeout` ⇒ ★ **把「成功」报成了「失败」**。
+        #   ★★ 这与本线反复立的纪律同源：**「拿不到」≠「没有」**（同理「确认不了」≠「失败」）。
+        #   ⇒ 现在：**PUT 阶段失败** ⇒ `writeFailed`；**PUT 已过、回读失败** ⇒ `committedUnverified`
+        #     （★ 如实说「已提交、状态未确认」，并提示调用方**自行复查**）。
+        put_done = False
         try:
             body = json.dumps(doc, ensure_ascii=False).encode()
             rq = urllib.request.Request("http://127.0.0.1:8792/%s" % sg_page_key(view),
@@ -2764,14 +2771,36 @@ def sg_page_write(view, principal, entry, expected_seq=None):
                                         headers={"Content-Type": "application/json"})
             with urllib.request.urlopen(rq, timeout=8) as r:
                 r.read()
+            put_done = True
             back = sg_page_read(view)
             n = len((back.get("doc") or {}).get("history") or [])
             if n != len(hist):
-                return False, "回读不符：写入 %d 条 / 回读 %d 条" % (len(hist), n), None, None
+                return False, ("★ 回读不符（写入 %d 条 / 回读 %d 条）—— ★ 写入可能已提交但未确认，"
+                               "请自行复查 data/sg-page/%s" % (len(hist), n, view)), None, None
             sg_register_watch(sg_page_key(view))
             return True, "已追加 seq=%d 并回读（history=%d 条）" % (entry["seq"], n), entry, None
         except Exception as e:
-            return False, "写页面档失败：%s: %s" % (type(e).__name__, e), None, None
+            # ★★★ 2026-10-12 第二次修（实测触发）：**PUT 超时也要看【结果态】再判**。
+            #   实测：黑板对 PUT 的**响应 >8s**（`timeout=8` 到点即抛），**但写入其实已完成**
+            #   ⇒ 上一版仍把这种情形报成 `writeFailed` ⇒ **仍把成功报成失败**。
+            #   ★★ 正解正是 R006 §6 坑 #4 的原文：「**判据要选【结果态】而非【过程态】**」
+            #      ⇒ PUT 异常后**回读一次**：
+            #        · 回读显示内容已在（历史变长）⇒ **如实报「已提交（响应超时）」**
+            #        · 回读显示不在或读不到 ⇒ 才判失败（并区分「读不到」= 不可判）
+            err = "%s: %s" % (type(e).__name__, e)
+            try:
+                back2 = sg_page_read(view)
+                n2 = len((back2.get("doc") or {}).get("history") or [])
+                if n2 >= len(hist):
+                    sg_register_watch(sg_page_key(view))
+                    return True, ("★ 已提交（提交成功 · 响应超时）：PUT 响应 %s，但回读确认已落盘"
+                                  "（history=%d 条，含本次 seq=%d）" % (err, n2, entry["seq"])), entry, None
+                return False, ("★ 写失败（writeFailed）：PUT %s，且**回读确认未落盘**"
+                               "（history=%d 条 < 期望 %d）" % (err, n2, len(hist))), None, None
+            except Exception as e2:
+                return False, ("★ 不可判（undecidable）：PUT %s；随后**回读也失败**（%s: %s）"
+                               "⇒ 状态未知，**既不能说成功也不能说失败** —— 请自行复查 data/sg-page/%s"
+                               % (err, type(e2).__name__, e2, view)), None, None
 
 SG_VERBS = {
     # ── 沙盒（P1 的动词；只写探针键）──
