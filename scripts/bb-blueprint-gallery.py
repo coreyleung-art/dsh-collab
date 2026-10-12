@@ -2773,6 +2773,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._sg_reply(400, principal, verb, "★ 寻址错误：%s" % gerr, t0)
                 return
             payload = req.get("payload") or {}
+            # ★ P4（R8）：乐观锁闸 —— 图写
+            if not sg_optimistic_gate(req, "graph", gname, t0, principal, verb, self._sg_reply):
+                return
             edge = payload.get("edge")
             if not isinstance(edge, dict) or not edge.get("from") or not edge.get("to"):
                 self._sg_reply(400, principal, verb, "缺 payload.edge（且须含 from/to）", t0)
