@@ -669,6 +669,25 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("H3 投递率 / H4 偏斜", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-294）【I-2 四项业界等价物 + I-3 协议一致性套件】—★ 目标四维两项。
+    #   ★ 立据：W4 自陈两项【本件未测 · 复跑命令未建 · 无负控 · 窗口/分子/分母 三件全缺】。
+    #   ★★ 实测（★ 严化后）：I-2a ★FAIL · I-2b ★PASS · I-2c ★★FAIL（未强制鉴权）· I-2d ★FAIL（无实现）· I-3 ★PASS（9/1）。
+    try:
+        _ip = subprocess.run([sys.executable, str(ROOT / "tools" / "industry-parity.py"), "--json"],
+                             capture_output=True, text=True, timeout=200)
+        _id = json.loads(_ip.stdout)
+        _s2 = _id.get("summary") or {}
+        check("I-2 四项业界等价物（★ 新建）",
+              _s2.get("FAIL", 1) == 0,
+              "★ PASS %d · FAIL %d · 不可判 %d"
+              % (_s2.get("PASS", 0), _s2.get("FAIL", 0), _s2.get("UNDECIDABLE", 0)))
+        # ★ 单独报【认证授权】—★ 它是硬缺口
+        _au = _id["checks"].get("I-2c 认证授权") or {}
+        check("I-2c 认证授权（★ 硬缺口）", _au.get("verdict") == "PASS",
+              "★ %s — %s" % (_au.get("verdict"), _au.get("why")))
+    except Exception as e:
+        skip("I-2 四项业界等价物", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。
