@@ -768,7 +768,9 @@ def build_mechanism_graph():
     for p0 in mech.get("protocols", []):
         nodes.append({"id": p0["id"], "label": p0["name"], "short": p0["id"], "color": p0["color"],
                       "dim": "协议", "kind": "mech-p", "type": "protocol", "r": 13,
-                      "summary": p0.get("summary", ""), "doc": p0.get("doc", "")})
+                      "summary": p0.get("summary", ""),
+                      # ★ 同 gates/locks 的修（统一三者的 doc 回退策略 —— 前两者已修，此处补齐）
+                      "doc": p0.get("doc") or p0.get("summary", "") or ""})
     for g in mech.get("gates", []):
         nodes.append({"id": g["id"], "label": g["name"], "short": g["id"], "color": g["color"],
                       "dim": "门", "kind": "mech-g", "type": "gate", "r": 12,

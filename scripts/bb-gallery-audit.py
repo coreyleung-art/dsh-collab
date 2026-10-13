@@ -171,6 +171,11 @@ def audit(path):
     return findings
 
 def main():
+    # ★★ r7-callsite-inserted 2026-10-13：R006 ⑦【统一日志】的【调用点】。
+    #   背景：本文件此前【只有 LOG 常量与 log() 定义、零调用】⇒ 声明的日志文件永不产生；
+    #   根因是补课器只注入【形状】不注入【调用点】，其判据只查【路径形状】⇒ 门与对象同形=自证通过。
+    #   ★ 本行【不改任何业务逻辑】，只记「被调用 + 参数」。
+    log("invoked argv=%s" % " ".join(sys.argv[1:]))
     ap = argparse.ArgumentParser(description="系统架构管理器结构审查(R006)")
     ap.add_argument("--scan", nargs="?", const=DEFAULT, help="审查文件(默认自身目录源)")
     ap.add_argument("--selfcheck", action="store_true", help="TCC 自检: 有 error 则 exit 1")

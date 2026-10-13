@@ -198,6 +198,11 @@ def full(change_summary, stages, out_path=None, subject=None):
     print(f"\n✅ 全流程完成：changelog={k1} · broadcast={k2}")
 
 def main():
+    # ★★ r7-callsite-inserted 2026-10-13：R006 ⑦【统一日志】的【调用点】。
+    #   背景：本文件此前【只有 LOG 常量与 log() 定义、零调用】⇒ 声明的日志文件永不产生；
+    #   根因是补课器只注入【形状】不注入【调用点】，其判据只查【路径形状】⇒ 门与对象同形=自证通过。
+    #   ★ 本行【不改任何业务逻辑】，只记「被调用 + 参数」。
+    log("invoked argv=%s" % " ".join(sys.argv[1:]))
     ap = argparse.ArgumentParser(description="蓝图升级工具 v2（明鉴流程工具化）")
     ap.add_argument("--refine", dest="summary", default="", help="变更摘要 → 写 changelog")
     ap.add_argument("--stages", default="", help="影响阶段列表（逗号分隔）")
