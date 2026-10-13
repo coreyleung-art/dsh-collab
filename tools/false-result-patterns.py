@@ -182,6 +182,20 @@ def scan_file(path, rel):
         if rx is None:
             continue          # ★ P6 需跨行比对（★ 在 audit() 单独处理）
         for m in rx.finditer(code):
+            if cid == "P5":
+                # ★★★ 2026-10-13 修（D-330）：**看【是否与「当前时间」比较】，★ 而非看有没有日期**—★
+                #   ★ 立据（★ 三类样本逐类核）：
+                #     ★ ① 样本值（`sample = "2026-10-08T07:38:09"`）·
+                #     ★ ② 政策起点常量（`TS_POLICY_SINCE = '2026-09-11T08:25:00+08:00'`）·
+                #     ★ ③ **负控的输入样本**（`_ts_check('2099-01-01T00:00:00+08:00', None)  # 指向未来 ⇒ 必须不平`）
+                #   ★★ 三类【全不是缺陷】—★ 而第③类**恰恰是负控本身**。
+                #   ★ 真缺陷形态：**那个时间戳在判据里与「当前时间」比较**（★ 随时间漂移）。
+                _ls5 = code.split(chr(10))
+                _c5 = code[:m.start()].count(chr(10))
+                _w5 = chr(10).join(_ls5[max(0, _c5 - 2):_c5 + 3])
+                # ★ “与当前时间比较”的词
+                if not re.search(r"(now\(\)|utcnow|datetime\.now|time\.time\(\)|monotonic|当前时间|现在)", _w5):
+                    continue
             if cid == "P2":
                 # ★★★ 2026-10-13 修（D-322）：**看【那个分支里做什么】，★ 而非看有没有 None**—★
                 #   ★ 立据：实测那两处都是【正确的】—★
