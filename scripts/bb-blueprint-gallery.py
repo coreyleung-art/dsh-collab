@@ -122,14 +122,36 @@ def h(s):
 #     （★ 与今晚那条「不报错的装置会被信任」互为镜像：**假报警是让报警失效的机制**）
 #   ⇒ 修法：**显式声明类型**，只在【生成型】上挂停更警告；策展型改显示「最后策展于」。
 SRC_KINDS = {
-    # ── 生成型（脚本定期产出）──
+    # ── ★ 生成型（有登记的生成器 / 实测在自动链上）──
     "knowledge-graph.json": "generated",
-    "plan-archive.json":    "generated",
-    "hardware-nodes.json":  "generated",
     "mechanism.json":       "generated",
-    "original-assets.json": "curated",     # ★ 手工整理的原初资产表
-    "business-asset-map.json": "curated",  # ★ 业务资产映射（人工维护）
-    "governance-philosophy.json": "curated",  # ★ 治理哲学（策展集合，见其 _completeness_note）
+    "plan-archive.json":    "generated",     # ★ refresh 声明的 produces
+    "paper-summaries.json": "generated",     # ★ refresh 声明的 produces
+    "version-map.json":     "generated",
+    "business-asset-map.json": "generated",
+    # ── ★ 策展型（人工维护的集合，静止是正常）──
+    "governance-philosophy.json": "curated",   # ★ 其 _completeness_note 自述「策展集合」
+    "original-assets.json":       "curated",
+    # ── ★★ orphaned（无自动更新路径）───────────────────────────────
+    #   ★ 实测判据（2026-10-14）：mtime 呈【完美双峰】—— 6 个 ≤1 天 · 8 个 ≥30 天 ·
+    #     **中间态 0 个** ⇒ 这 8 个不是「生成器坏了」，而是【从来没有接进任何自动更新路径】。
+    #   ★★ 而权威来源印证：`bb-gallery-refresh.py` 声明的 produces **只有 3 项**
+    #     （plan-archive / paper-summaries / static-export）⇒ 其余文件【无登记生成器】。
+    #   ★★★ 为什么单列而不并入「策展型」：**两者的含义不同** ——
+    #     · 策展型 = 有人维护，静止是正常的
+    #     · orphaned = **没有任何东西会更新它**（★ 无人维护）
+    #     ⇒ 把后者标成「策展」会掩盖一个真实的维护缺口。
+    #   ★★ 2026-10-14 二次修正（★ 我上一轮的 orphaned 判定对其中 4 个是【错的】）：
+    #     实测发现这 4 个文件【自带 `updated` 字段，且与 mtime 完全一致】⇒ **它们是诚实的策展型**
+    #     （★ 手工维护 + 元信息如实）。⇒ 改回 curated。
+    "agent-mapping.json":             "curated",
+    "business-entity-registry.json":  "curated",
+    "device-links.json":              "curated",
+    "entity-alias-map.json":          "curated",
+    #   ★ 剩下这 2 个【无任何人工元信息】（只有 nodes/relations/groups 或 version/workflows）
+    #     ⇒ 无法判定是「扫描产物停了」还是「手工维护但没写元信息」⇒ **保持 orphaned（诚实的不明）**
+    "hardware-nodes.json":            "orphaned",
+    "workflow-standards.json":        "orphaned",
 }
 _DEFAULT_KIND = "generated"   # ★ 未声明者按生成型（★ 保守：宁可报假也不漏报真）
 
@@ -155,9 +177,46 @@ def _with_mtime(obj, *rel_paths):
             files[rp] = None
     vals = [v for v in files.values() if v]
     out["_srcFiles"] = files
+    # ★★★ 2026-10-14：**优先用文件【自带的 updated】而不是 mtime**
+    #   ★ 理由（本线实测）：`agent-mapping` / `business-entity-registry` / `device-links` /
+    #     `entity-alias-map` **四个文件自带 `updated` 且与 mtime 完全一致** ⇒ 它们自带了
+    #     【权威的取数口径】。★ 而 mtime 的语义是【文件被触碰】—— 复制/git checkout 都会改它，
+    #     并不意味着【内容被更新】。
+    #   ⇒ ★ 修法：**有自带字段就用它，并【同时报 mtime 与两者之差】**（★ 与「板级 ts 会被归档
+    #     覆盖 ⇒ 必须同时读内层 value.ts 并报差」是同一条纪律）。
+    decl = {}
+    import json as _json
+    for rp in rel_paths:
+        fp = os.path.join(GALLERY_DIR, rp) if not os.path.isabs(rp) else rp
+        try:
+            with open(fp, encoding="utf-8") as _f:
+                _d = _json.load(_f)
+            if isinstance(_d, dict):
+                for _k in ("updated", "generatedAt", "generated_at", "updatedAt", "date"):
+                    if _d.get(_k):
+                        decl[rp] = str(_d[_k])[:19]; break
+        except Exception:
+            pass
+    out["_srcDeclared"] = decl or None
+    if decl:
+        try:
+            _dd = max(_dt.datetime.strptime(v[:10], "%Y-%m-%d") for v in decl.values())
+            out["_srcDeclaredAgeDays"] = (_dt.datetime.now() - _dd).days
+        except Exception:
+            out["_srcDeclaredAgeDays"] = None
+    else:
+        out["_srcDeclaredAgeDays"] = None
     # ★ 2026-10-14：逐文件标注类型 + 汇总（★ 全部策展 ⇒ 不挂停更警告）
     out["_srcKinds"] = {rp: SRC_KINDS.get(rp, _DEFAULT_KIND) for rp in rel_paths}
     out["_srcAllCurated"] = all(v == "curated" for v in out["_srcKinds"].values()) if rel_paths else False
+    # ★ 2026-10-14：第三态汇总 —— 【全部 orphaned】⇒ 前端只陈述「无自动更新路径」
+    out["_srcAllOrphaned"] = all(v == "orphaned" for v in out["_srcKinds"].values()) if rel_paths else False
+    # ★★ 2026-10-14 补（★ 实测发现 hardware 是【混合型】：device-links=curated + hardware-nodes=orphaned）
+    #   ⇒ 原逻辑下两个 all() 都为 False ⇒ 落到「generated」分支 ⇒ **误挂停更警告**
+    #   ★ 修法：**报警的充要条件是「至少一个来源是 generated」** —— 因为只有生成型陈旧
+    #     才意味着「本该更新而没更新」。全部为 curated/orphaned 时，报警都是错的。
+    out["_srcHasGenerated"] = any(v == "generated" for v in out["_srcKinds"].values()) if rel_paths else False
+    out["_srcAnyOrphaned"]  = any(v == "orphaned"  for v in out["_srcKinds"].values()) if rel_paths else False
     out["_srcMtime"] = max(vals) if vals else None
     if vals:
         try:

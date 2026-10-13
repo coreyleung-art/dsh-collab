@@ -1478,10 +1478,30 @@ function srcStamp(d){
      ★★ 假报警的危害：**它会训练读者忽略报警** ⇒ 真陈旧出现时也没人看。
         （★ 与今晚那条「不报错的装置会被信任」互为镜像：**假报警是让报警失效的机制**）
      ⇒ 修法：后端注入 _srcKinds / _srcAllCurated ⇒ **策展型不挂停更警告**，改显示「最后策展于」。 */
+  /* ★★★ 2026-10-14 三态（generated / curated / orphaned）：
+     ★ 后端注入 _srcKinds；_srcAllCurated 与 _srcAllOrphaned 是它的两个汇总。
+     ★★ orphaned = 【无自动更新路径】—— 它既不是「停了」也不是「有人维护」，
+        ★ 所以既不能报「可能已停更」（暗示曾经在更新），也不能标「最后策展于」（暗示有人维护）。
+        ⇒ ★★ 只陈述事实：「无自动更新路径」。 */
   const _curated = (d._srcAllCurated===true);
-  const c = (age==null) ? '#8b90a3' : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : (_curated ? '#34c77b' : '#e06c75')));
-  const warn = (age!=null && age>30 && !_curated) ? ' ⚠️ **可能已停更**（>30 天）' : '';
-  const _label = _curated ? '🕒 最后策展于 ' : '🕒 数据截至 ';
+  const _orphan  = (d._srcAllOrphaned===true);
+  /* ★★ 2026-10-14：**报警的充要条件是【至少一个来源是 generated】**
+     ★ 实测起因：hardware 端点是【混合型】（device-links=curated + hardware-nodes=orphaned）
+       ⇒ 原逻辑两个 all() 都 False ⇒ 误落到 generated 分支 ⇒ 挂上假的停更警告。
+     ★★ 而语义上：只有【生成型陈旧】才意味着「本该更新而没更新」。 */
+  const _hasGen  = (d._srcHasGenerated===true);
+  const _anyOrph = (d._srcAnyOrphaned===true);
+  const c = (age==null) ? '#8b90a3'
+          : (_curated ? (age<=30 ? '#34c77b' : '#f5b942')
+          : (_orphan  ? '#f5b942'
+          : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : '#e06c75'))));
+  const warn = (age!=null && age>30 && _hasGen) ? ' ⚠️ **可能已停更**（>30 天）'
+             : ((_orphan || _anyOrph) ? ' · ★ **无自动更新路径**' : '');
+  const _label = _curated ? '🕒 最后策展于 '
+               : ((_orphan || !_hasGen) ? '🕒 最后更新于 ' : '🕒 数据截至 ');
+  // ★ 自带 updated 与 mtime 不一致时，报出两者之差（★ 与「板级 ts 报差」同一纪律）
+  const _decl = d._srcDeclaredAgeDays;
+  const _diff = (_decl!=null && age!=null && Math.abs(_decl-age)>=1) ? (' · 内容声明 '+_decl+' 天前，差 '+Math.abs(_decl-age)+' 天') : '';
   return '<div style="font-size:11.5px;color:'+c+';margin-top:8px">'
     +_label+esc(m)+(age!=null?('（**'+age+' 天前**）'):'')+warn
     +(d._srcFiles?('<br><span style="color:#5a6072;font-size:10.5px">来源文件: '
