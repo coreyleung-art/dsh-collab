@@ -642,6 +642,33 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("CAHAC 信封符合度（I-1）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-293）【H3 投递率 + H4 跨设备偏斜】—★ 目标四维两项。
+    #   ★ 立据：W4 自陈 H3 判别力存疑（★ 唯一未达靠一张自指卡）· H4 **本件未测·无判据·无负控**。
+    #   ★★ 而实测发现：**偏斜集中在历史**—★
+    #     近期（--since 2026-10-13）H3 **96.3%** · H4 **PASS Δ=+1**；
+    #     全量 H3 **23.4%** · H4 **FAIL Δ=+295** ⇒ ★ H4 正好把「链路坏」与「历史欠账」分开。
+    try:
+        _dp = subprocess.run([sys.executable, str(ROOT / "tools" / "delivery-probe.py"),
+                              "--since", "2026-10-13", "--json"],
+                             capture_output=True, text=True, timeout=90)
+        _dd = json.loads(_dp.stdout)
+        if _dd.get("verdict") != "MEASURED":
+            skip("H3 投递率 / H4 跨设备偏斜", "一侧不可读 ⇒ 不可判")
+        else:
+            _h3 = _dd["H3_delivery"]; _h4 = _dd["H4_skew"]
+            _r = _h3["rate"]
+            check("H4 跨设备偏斜（★ 新建判据）", _h4["verdict"] == "PASS",
+                  "★ %s — 本机 %d / 中枢 %d · Δ=%+d · %.1f%%（阈：WARN %.0f%% / FAIL %.0f%%）"
+                  % (_h4["verdict"], _h4["local"], _h4["central"], _h4["delta"],
+                     _h4["ratio"] * 100, _h4["thresholds"]["warn"] * 100,
+                     _h4["thresholds"]["fail"] * 100))
+            check("H3 投递率（今日窗）", (_r is not None and _r >= 1.0),
+                  "★ %s — %d/%d = %s"
+                  % (_h3["verdict"], _h3["numerator"], _h3["denominator"],
+                     ("%.1f%%" % (_r * 100)) if _r is not None else "不可判"))
+    except Exception as e:
+        skip("H3 投递率 / H4 偏斜", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。
