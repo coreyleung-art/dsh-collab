@@ -25,6 +25,9 @@ FIELDS = ["cahac","id","type","channel","sender","recipient","thread",
 # ★ 必填（★ 依 §3 字段规则：signature v1.0【可选】· expires【可选】）
 OPTIONAL = {"signature","expires"}
 
+# ★★ 2026-10-13（D-331）：规格的【规范值】（★ `cahac-protocol-v1.2.md:130` 逐字 `"cahac": "1.2"`）
+CANON_VERSION = "1.2"
+
 
 def fetch_json(url, timeout=12):
     req = urllib.request.Request(url)
@@ -62,7 +65,13 @@ def card_value(ns, key):
     try:
         d = fetch_json("%s/%s" % (BB, key))
         v = d.get("value")
-        return v if isinstance(v, dict) else (d if isinstance(d, dict) else None)
+        # ★ 修正措辞：下面打印的是【真卡】不是「实际取到信封对象」
+        # ★★★ 2026-10-13 修（D-331）：**不得回退返回外层响应**—★
+        #   ★ 立据：实测有 **69 条** value 非 dict，★ 而原写法
+        #     ★ `return v if isinstance(v, dict) else (d if isinstance(d, dict) else None)`—★
+        #     ★★ 会把外层响应 `d`（★ 仍是 dict）当卡计入分母。
+        #   ★ 修法：**value 非 dict ⇒ 返回 None**（★ 不计入）。
+        return v if isinstance(v, dict) else None
     except Exception:
         return None
 
@@ -99,7 +108,13 @@ def measure(namespaces, since=None):
                 with_payload += 1
             # ★ envelope_ok = 全部【必填】字段齐（★ 可选字段不计）
             req = [f for f in FIELDS if f not in OPTIONAL]
-            if all(f in v for f in req):
+            # ★★★ 2026-10-13 修（D-331）：**不只查存在性，★ 还查 `cahac` 的值**—★
+            #   ★ 立据：规格 `:130` 规范值是 **`"1.2"`**，
+            #     ★★ 而实测在库分布 `{"v1.2": 38, "1.0": 11}` ⇒ **`"1.2"` 出现 0 次**。
+            #   ★ 故旧判据【只查存在性】⇒ 同类偏差永远测不出来。
+            _cahac_val = v.get("cahac")
+            _val_ok = (_cahac_val in (None, CANON_VERSION))
+            if all(f in v for f in req) and _val_ok:
                 envelope_ok += 1
     return dict(seen=seen, scanned=scanned, with_payload=with_payload,
                 envelope_ok=envelope_ok, per_ns=per_ns, errs=errs)
