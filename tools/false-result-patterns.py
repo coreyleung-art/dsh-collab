@@ -195,6 +195,29 @@ def scan_file(path, rel):
                     _v = var.group(1).strip() if var else None
                 if not _v:
                     continue
+                # ★★★ 2026-10-13 修（D-320）：**改【邻近行判定】，★ 而非文件级**—★
+                #   ★实测：`bb-copy.py` 里 **别处**有 `r = subprocess.…`，
+                #     ★ 而 `r.status` 在 `with urlopen(…) as r:` 处—★
+                #     ★★ **同名变量被复用** ⇒ 文件级必然误报（★ P1 十处全假）。
+                #   ★ 新判据：**往上 40 行内找 `as <var>` 或 `<var> = subprocess`**，
+                #     ★ 若那里是 `urlopen`/`http`/`url` 则**不算**。
+                _lo = max(0, code[:m.start()].count(chr(10)) - 40)
+                _win = chr(10).join(code.split(chr(10))[_lo:code[:m.start()].count(chr(10)) + 1])
+                # ★★★ 2026-10-13 再修（D-320）：**取【最近的一次声明】，★ 而非窗口内任一**—★
+                #   ★ 实测：`bb-upgrade.py` 窗口内**同时**有
+                #     ★ `r = subprocess.run(...)`（★ 第 86 行）与 `with urlopen(...) as r:`（★ 第 94 行），
+                #     ★★ 而 `r.status` 在【 95 行】⇒ **取最近的那个才对**。
+                _ls = code.split(chr(10))
+                _cur = code[:m.start()].count(chr(10))
+                _decl = None
+                for _k in range(_cur, max(-1, _cur - 40), -1):
+                    _ln = _ls[_k] if 0 <= _k < len(_ls) else ""
+                    if re.search(r"\bas\s+%s\b" % re.escape(_v), _ln) and re.search(r"(urlopen|urllib|requests\.|http)", _ln):
+                        _decl = "http"; break
+                    if re.search(r"\b%s\s*=\s*subprocess" % re.escape(_v), _ln):
+                        _decl = "subprocess"; break
+                if _decl == "http":
+                    continue          # ★ 最近声明是 urlopen ⇒ `.status` 是对的
                 if _v not in subproc_vars or _v in http_vars:
                     continue      # ★ 不是纯粹 subprocess 结果 ⇒ 不算
             # ★ \u53d6\u884c\u53f7
