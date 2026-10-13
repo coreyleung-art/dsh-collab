@@ -649,15 +649,20 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         _cd = json.loads(_ca.stdout)
         _ok = _cd.get("envelope_ok", 0); _sc = _cd.get("scanned", 0)
         _all = _cd.get("scanned_all") or _sc
+        # ★★★ 2026-10-13 修（D-328）：**加【阈值】—★ 原判据「只要 >0 就绿」⇒ 假绿**
+        #   ★ 立据：实测 I-1 = **0.27%**（★ 24/8868），★ 而旧判据判 **PASS**—★
+        #     ★★ **「有一张达标」≠「符合度达标」** 。
+        _rate = (_ok / _sc) if _sc else None
         if _sc == 0:
             skip("CAHAC 信封符合度（I-1 · 今日窗）", "窗内分母为 0 ⇒ 不可判")
-        elif _ok == 0:
-            check("CAHAC 信封符合度（I-1 · 今日窗）", False,
-                  "★★ 今日窗 **%d/%d = 0.0%%**（★ 全量 %d）⇒ "
-                  "★ 外设备卡本机管不到，★ 需各设备同步接入" % (_ok, _sc, _all))
-        else:
+        elif _rate is not None and _rate >= 0.5:
             check("CAHAC 信封符合度（I-1 · 今日窗）", True,
-                  "★ %d/%d（★ 全量 %d）" % (_ok, _sc, _all))
+                  "★ %d/%d = %.2f%%（★ ≥ 50%%）" % (_ok, _sc, _rate * 100))
+        else:
+            check("CAHAC 信封符合度（I-1 · 今日窗）", False,
+                  "★★ **%d/%d = %.4f%%**（★ 阈 50%%）⇒ "
+                  "★ 虽有达标卡（★ 说明通道已接），★★ **但符合度未达标**"
+                  % (_ok, _sc, _rate * 100 if _rate else 0.0))
     except Exception as e:
         skip("CAHAC 信封符合度（I-1）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
