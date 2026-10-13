@@ -207,7 +207,11 @@ def main():
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
-LOG = os.path.join(COLLAB, "logs", "inbox-state-tagger.log")
+# ★★ 2026-10-13 修：原为 `os.path.join(COLLAB, ...)` 而 **`COLLAB` 在本文件从未定义**
+#   （git 历史 `224db7f` 逐字记过「引用不存在的 COLLAB」的同类事故）⇒ 该项是【死代码】：
+#   原版 `if __name__` 在它之前就 exit ⇒ 那行根本没机会执行 ⇒ R006 ⑦ 纯装饰。
+#   ⇒ 改为与其它脚本一致的 `os.path.expanduser`（★ 路径与 :55 的提示文案一致）。
+LOG = os.path.expanduser("~/dsh-collab/logs/inbox-state-tagger.log")
 
 
 def log(msg):
@@ -223,6 +227,3 @@ def log(msg):
 if __name__ == "__main__":
     sys.exit(main())
 
-# ★★ 2026-10-13 修（插桩第 6 条前置）：模块级 main() 调用【必须在 def log() 之后】
-#   否则模块加载时就执行 main()，而那时 log 尚未定义 ⇒ NameError。
-    sys.exit(main())
