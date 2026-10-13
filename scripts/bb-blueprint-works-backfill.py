@@ -41,6 +41,22 @@ LOG = os.path.expanduser("~/dsh-collab/logs/bb-blueprint-works-backfill.log")
 BB = os.environ.get("BB_URL", "http://127.0.0.1:8792")
 BP_DIR = os.path.expanduser("~/dsh-collab/data/blueprint")
 
+# ★★★ 特例（2026-10-13 实测补上）：`flowernet` 的数据**不在** `data/blueprint/flowernet`，
+#   而在【全局键】`data/blueprint/stages`（★ 代码里三处特判都读它：
+#   content-check.py:64 · integrity.py:59 · gallery.py:160）。
+#   ⇒ 本工具必须支持它，否则每次都要写临时脚本。
+#   ★ 且它的 md 有多版：**v2.2-master.md 有完整 works 表（27 行）**，
+#     而 **v2.3-master.md 只留摘要**（「27 项 works，分布 {...}」不含条目）
+#     ⇒ 取**有完整表的那版**，并**用新版声明的分布做外部判据自检**。
+SPECIAL = {
+    "flowernet": {
+        "boardKey": "data/blueprint/stages",
+        "mdWorksSource": "blueprint-flowernet-v2.2-master.md",
+        "mdWorksSection": r"^##\s*二、工作项",
+        "declaredBy": "blueprint-flowernet-v2.3-master.md",
+    },
+}
+
 
 def log(msg):
     """★ R006 ⑦：固定路径日志；失败也留痕。"""
@@ -110,10 +126,32 @@ def _norm_works(rows):
     return out
 
 
+def _declared_dist(md_path):
+    """★ 从「只含摘要」的那版 md 里读出声明的 works 分布（★ 用作提取正确性的【外部判据】）。"""
+    try:
+        t = open(os.path.join(BP_DIR, "flowernet", md_path), encoding="utf-8").read()
+    except Exception:
+        return None
+    m = re.search(r"(\d+)\s*项\s*works[^\{]*\{([^}]*)\}", t)
+    if m:
+        try:
+            return {"n": int(m.group(1)), "dist": json.loads("{" + m.group(2).replace("'", '"') + "}")}
+        except Exception:
+            return {"n": int(m.group(1)), "dist": None}
+    return None
+
+
 def extract(bid):
+    spec = SPECIAL.get(bid)
     files = glob.glob(os.path.join(BP_DIR, bid, "*.md"))
     if not files:
         return {"ok": False, "reason": "no-md", "id": bid}
+    # ★ 特例：works 只从指定的那一版、那一段取
+    works_override = None
+    declared = None
+    if spec:
+        # ★ 先按常规三形态取，再用特例覆盖 works
+        declared = _declared_dist(spec["declaredBy"]) if spec.get("declaredBy") else None
     md = "\n".join(open(f, encoding="utf-8").read() for f in files)
     findings = {}
 
@@ -171,13 +209,39 @@ def extract(bid):
         if k and k not in seen:
             seen.add(k); merged.append(w)
 
+    # ★★ 特例覆盖：从指定 md 的指定段取 works（★ 并做外部判据自检）
+    check = None
+    if spec:
+        fp = os.path.join(BP_DIR, bid, spec["mdWorksSource"])
+        if os.path.isfile(fp):
+            t2 = open(fp, encoding="utf-8").read()
+            segs = re.split(r"(?m)^##\s", t2)
+            for sg in segs:
+                if re.match(spec["mdWorksSection"].replace("^##\\s*", ""), sg.strip()):
+                    merged = _norm_works(_parse_table(sg))
+                    break
+            findings["SPECIAL_" + spec["mdWorksSource"]] = merged
+            if declared:
+                from collections import Counter as _C
+                got = dict(_C(x.get("status") or "todo" for x in merged))
+                check = {"declaredN": declared["n"], "gotN": len(merged),
+                         "declaredDist": declared["dist"], "gotDist": got,
+                         "nMatch": declared["n"] == len(merged),
+                         "distMatch": (declared["dist"] == got) if declared["dist"] else None}
+
     g = re.search(r"(?m)^\|\s*gate\s*\|(.+?)\|\s*$", md)
     return {"ok": True, "id": bid, "mdBytes": len(md), "stages": stages,
             "gate": (g.group(1).strip() if g else ""), "works": merged,
-            "counts": {k: len(v) for k, v in findings.items()}, "sources": findings}
+            "counts": {k: len(v) for k, v in findings.items()}, "sources": findings,
+            "specialCheck": check}
 
 
 # ══════════════ 补写（只补缺失 · 回读断言） ══════════════
+def board_key(bid):
+    """★ 特例的板键（flowernet ⇒ 全局键）。"""
+    return (SPECIAL.get(bid) or {}).get("boardKey") or ("data/blueprint/" + bid)
+
+
 def plan_for(bid, cur):
     """★ 生成补写计划（★ 只补【缺失/为空】的键，绝不覆盖既有值）。"""
     r = extract(bid)
@@ -243,7 +307,11 @@ def main():
 
     plans = []
     for bid in sorted(ids):
-        ok, cur, err = _get("data/blueprint/" + bid)
+        # ★★ 修（2026-10-13 实测触发）：**必须走 `board_key(bid)`** ——
+        #   第一版这里硬编码了 `data/blueprint/<bid>` ⇒ 对 flowernet（数据在【全局键】）
+        #   读到的是**不存在的键** ⇒ 误判「gate/stages/ts 都要补」
+        #   ⇒ ★ 典型「判据的域不对」：**读错地址 ⇒ 得出错结论**（本线反复的坑）。
+        ok, cur, err = _get(board_key(bid))
         if not ok and err:
             plans.append({"id": bid, "ok": False, "reason": "read-fail: %s" % err}); continue
         plans.append(plan_for(bid, cur))
@@ -276,11 +344,11 @@ def main():
             for k, val in p["add"].items():
                 v[k] = val
             try:
-                st = _put("data/blueprint/" + bid, v)
+                st = _put(board_key(bid), v)
             except Exception as e:
                 # ★ 超时也回读（★ 本线实测：PUT 响应慢但写入成功）
                 print("  %-22s PUT 异常(%s) ⇒ 回读判定" % (bid, type(e).__name__)); st = "?"
-            ok2, back, err2 = _get("data/blueprint/" + bid)
+            ok2, back, err2 = _get(board_key(bid))
             back = back or {}
             good = (len(back.get("stages") or []) >= 1 and len(back.get("works") or []) >= 1)
             kept = all(back.get(k) == p["before"].get(k) for k in p["before"] if k not in p["add"])
