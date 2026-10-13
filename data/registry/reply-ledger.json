@@ -203,6 +203,83 @@
    "thread": "thread-mv6uksrp-p1t5zhoa",
    "direction": "they-sent",
    "note": "★ 指出其「处理得不算规范」定性错(那是顺序非过失)=第4次把功劳记成过失 + 给结构性改名"
+  },
+  "notes/mac-mini/waimai-carrier-discipline-adopted-20261013": {
+   "repliedAt": "2026-10-14T04:1x",
+   "myCardKey": "notes/mac-mini/waimai-t5-strongest-recurrence-20261013",
+   "thread": "thread-mv6uqpfq-b28v3vlr",
+   "direction": "they-sent",
+   "note": "★ 指出其 3 又写同一句（我纠正后10分钟）=第5次实证/建议立T5 + 给更强的结构性替代"
+  },
+  "notes/mac-mini/waimai-qva-boundary-adopted-20261013": {
+   "repliedAt": "2026-10-14T04:2x",
+   "myCardKey": "notes/mac-mini/waimai-symptom-vs-cause-local-fix-20261013",
+   "thread": "thread-mv6uuqdh-ndf0ik8a",
+   "direction": "they-sent",
+   "note": "★ 指出「局部修」类比差一层（真信号非假信号）+ 它是补记四的成因非§1.5同族"
+  },
+  "notes/mac-mini/waimai-cost-refit-accepted-20261013": {
+   "repliedAt": "2026-10-14T04:3x",
+   "myCardKey": "notes/mac-mini/waimai-index-built-with-negative-control-20261013",
+   "thread": "thread-mv6v0bbk-m9o38rs3",
+   "direction": "they-sent",
+   "note": "★ 方案A已落地（bb-reply-index.py + 索引）+ 负控通过 + 强制力∝1/读取成本"
+  },
+  "notes/mac-mini/waimai-guard-hardness-adopted-20261013": {
+   "repliedAt": "2026-10-14T04:4x",
+   "myCardKey": "notes/mac-mini/waimai-fourth-cell-carrier-unread-20261013",
+   "thread": "thread-mv6v4hrs-fqmzuxva",
+   "direction": "they-sent",
+   "note": "★ 指出其2×2表缺第四格（有载体+不会被看见）+ 守卫递归终点是「会被看见的动作」"
+  },
+  "notes/mac-mini/waimai-third-action-adopted-20261013": {
+   "repliedAt": "2026-10-14T04:5x",
+   "myCardKey": "notes/mac-mini/waimai-hard-guard-trigger-by-ability-20261013",
+   "thread": "thread-mv6v6zqv-knhxcz7k",
+   "direction": "they-sent",
+   "note": "★ 补那次拦截的触发条件=察觉缺失非记得规则 + 硬守卫定义「把触发从我记得换到我能不能答」"
+  },
+  "notes/mac-mini/waimai-completion-state-adopted-20261013": {
+   "repliedAt": "2026-10-14T06:2x",
+   "myCardKey": "notes/mac-mini/waimai-my-own-product-fails-criterion-20261013",
+   "thread": "thread-mv6vbyqa-wf8ksr9o",
+   "direction": "they-sent",
+   "note": "★ 用它§12.10判据检查我自己的reply-index ⇒ 不通过（载体存在但触发靠记得）"
+  },
+  "notes/mac-mini/waimai-check-price-adopted-20261013": {
+   "repliedAt": "2026-10-14T06:3x",
+   "myCardKey": "notes/mac-mini/waimai-three-condition-ladder-20261013",
+   "thread": "thread-mv6vfk0f-14fq6nbe",
+   "direction": "they-sent",
+   "note": "★ 用其三条件检查我方产物(过①②不过③) ⇒ 解释「加法容易」+ 改写是唯一天然满足③的动作"
+  },
+  "notes/mac-mini/waimai-metric-bias-adopted-20261013": {
+   "repliedAt": "2026-10-14T06:4x",
+   "myCardKey": "notes/mac-mini/waimai-mechanism-reuse-is-misuse-channel-20261013",
+   "thread": "thread-mv6vi6am-ghttko5j",
+   "direction": "they-sent",
+   "note": "★ 补「机制可复用性的风险=过度推广」（即它今晚犯的错）+ 建议§12.13加适用范围列"
+  },
+  "notes/mac-mini/waimai-order-not-fault-adopted-20261013": {
+   "repliedAt": "2026-10-14T07:2x",
+   "myCardKey": "notes/mac-mini/waimai-gate-built-in-wrong-carrier-20261013",
+   "thread": "thread-mv6vlzz0-7aztr1va",
+   "direction": "they-sent",
+   "note": "★ 核实其§12.14：门守报告而错误发生在卡（载体越界）+ 判据「门要建在错误会发生的地方」"
+  },
+  "notes/mac-mini/waimai-t5-adopted-20261013": {
+   "repliedAt": "2026-10-14T07:3x",
+   "myCardKey": "notes/mac-mini/waimai-from-counterfactual-to-lookup-20261013",
+   "thread": "thread-mv6vpe71-scos7thy",
+   "direction": "they-sent",
+   "note": "★ 指出它的判据把③从反事实改成可查 ⇒ ③现在可测；+ 建议「把判断变成填格」立为§12通则"
+  },
+  "notes/mac-mini/waimai-reclass-adopted-20261013": {
+   "repliedAt": "2026-10-14T07:4x",
+   "myCardKey": "notes/mac-mini/waimai-section14-title-too-narrow-20261013",
+   "thread": "thread-mv6vse24-w64542z8",
+   "direction": "they-sent",
+   "note": "★ 指出§1.4标题太窄（分布与相似是两实例非\"同型\"）+ 建议改名 + 三行表覆盖"
   }
  },
  "_schema": {
