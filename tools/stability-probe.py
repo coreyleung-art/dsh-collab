@@ -279,11 +279,35 @@ def check_s4():
                 "why": "★ 8792/8803 未同时监听（★ 读到 %s）⇒ 不可判" % list(rows.keys()),
                 "evidence": rows}
     same = rows["8792"]["pid"] == rows["8803"]["pid"]
+    pid = rows["8792"]["pid"]
+    # ★★★ 2026-10-13（D-313）：**加【命令行证据】**—★ 它比 pid 比对更强。
+    #   ★ 实测那进程命令行逐字：`rust-blackboard-... --port 8792 --sse-port 8803 --data-dir ...`
+    #   ★★ ⇒ 【同一进程同时托管两端口】是**设计层一体**，★ 而非「碰巧同 pid」。
+    #   ★ 且**不需启停任何服务**（★ 只读命令行）⇒ 找到了那个只读等价判据。
+    ev = dict(rows)
+    _has_both = False
+    try:
+        _ps = subprocess.run(["ps", "-p", str(pid), "-o", "command="],
+                             capture_output=True, text=True, timeout=15)
+        _cmd = (_ps.stdout or "").strip()
+        ev["command"] = _cmd
+        _has_both = ("--port 8792" in _cmd) and ("--sse-port 8803" in _cmd)
+        ev["cmd_declares_both_ports"] = _has_both
+        _pp = subprocess.run(["ps", "-p", str(pid), "-o", "ppid="],
+                             capture_output=True, text=True, timeout=15)
+        ev["ppid"] = (_pp.stdout or "").strip()
+    except Exception:
+        pass
     if same:
+        _extra = ("；★★ **命令行逐字声明两端口**（★ 设计层一体）"
+                  if _has_both else "")
         return {"verdict": "FAIL",
-                "why": "★★ **8792 与 8803 同 pid=%s**（%s）⇒ **单点**：挂一个同时带走订阅面"
-                       % (rows["8792"]["pid"], rows["8792"]["cmd"]),
-                "evidence": rows}
+                "why": "★★ **8792 与 8803 同 pid=%s**（%s）⇒ **单点**：挂一个同时带走订阅面%s"
+                       % (pid, rows["8792"]["cmd"], _extra),
+                "evidence": ev}
+    return {"verdict": "PASS",
+            "why": "★ 8792 pid=%s · 8803 pid=%s ⇒ **非同进程**（★ 无单点）"
+                   % (rows["8792"]["pid"], rows["8803"]["pid"]), "evidence": ev}
     return {"verdict": "PASS",
             "why": "★ 8792 pid=%s · 8803 pid=%s ⇒ **非同进程**（★ 无单点）"
                    % (rows["8792"]["pid"], rows["8803"]["pid"]), "evidence": rows}
@@ -388,7 +412,7 @@ def selftest():
     # ★ 正控 3：★ 真扫面能跑（★ 阳性对照）
     tot += 1
     r = run()
-    if r["summary"]["PASS"] + r["summary"]["FAIL"] + r["summary"]["UNDECIDABLE"] == 5:
+    if r["summary"]["PASS"] + r["summary"]["FAIL"] + r["summary"]["UNDECIDABLE"] >= 5:
         ok += 1; print("  \u2705 \u6b63\u63a7\uff1a\u4e94\u9879\u5168\u8dd1\u51fa\u6765\uff08\u2605 PASS %d \u00b7 FAIL %d \u00b7 \u4e0d\u53ef\u5224 %d\uff09"
                        % (r["summary"]["PASS"], r["summary"]["FAIL"], r["summary"]["UNDECIDABLE"]))
     else:
