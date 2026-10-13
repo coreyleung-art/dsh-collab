@@ -1,0 +1,1632 @@
+{
+ "at": "2026-10-13T18:08:34.472476",
+ "total": 232,
+ "withMain": 166,
+ "withoutMain": 66,
+ "candidates": [
+  {
+   "file": "apply-findings.py",
+   "bytes": 7690,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/apply-findings.log"
+  },
+  {
+   "file": "approval-tier.py",
+   "bytes": 9949,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/approval-tier.log"
+  },
+  {
+   "file": "archived-daily-review-group.py",
+   "bytes": 6390,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/archived-daily-review-group.log"
+  },
+  {
+   "file": "assertion-set-consistency.py",
+   "bytes": 11284,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/assertion-set-consistency.log"
+  },
+  {
+   "file": "audience-check.py",
+   "bytes": 11982,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/audience-check.log"
+  },
+  {
+   "file": "audit-census.py",
+   "bytes": 7348,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/audit-census.log"
+  },
+  {
+   "file": "bb-absorb.py",
+   "bytes": 9147,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-absorb.log"
+  },
+  {
+   "file": "bb-archive-name-collision.py",
+   "bytes": 6771,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-archive-name-collision.log"
+  },
+  {
+   "file": "bb-asset-relations.py",
+   "bytes": 8271,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-asset-relations.log"
+  },
+  {
+   "file": "bb-baserate-probe.py",
+   "bytes": 6491,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-baserate-probe.log"
+  },
+  {
+   "file": "bb-blueprint-content-check.py",
+   "bytes": 7888,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-content-check.log"
+  },
+  {
+   "file": "bb-blueprint-create.py",
+   "bytes": 8359,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-create.log"
+  },
+  {
+   "file": "bb-blueprint-dialog.py",
+   "bytes": 11443,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-dialog.log"
+  },
+  {
+   "file": "bb-blueprint-generalize.py",
+   "bytes": 10631,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-generalize.log"
+  },
+  {
+   "file": "bb-blueprint-ingest.py",
+   "bytes": 14052,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-ingest.log"
+  },
+  {
+   "file": "bb-blueprint-integrity.py",
+   "bytes": 7624,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-integrity.log"
+  },
+  {
+   "file": "bb-blueprint-registry.py",
+   "bytes": 13112,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-registry.log"
+  },
+  {
+   "file": "bb-blueprint-shell.py",
+   "bytes": 9041,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-shell.log"
+  },
+  {
+   "file": "bb-blueprint-ui.py",
+   "bytes": 10229,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-ui.log"
+  },
+  {
+   "file": "bb-blueprint-ui2.py",
+   "bytes": 24642,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-blueprint-ui2.log"
+  },
+  {
+   "file": "bb-blueprint.py",
+   "bytes": 10969,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint.log"
+  },
+  {
+   "file": "bb-blueprint2.py",
+   "bytes": 11324,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-blueprint2.log"
+  },
+  {
+   "file": "bb-bp-register.py",
+   "bytes": 15962,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-bp-register.log"
+  },
+  {
+   "file": "bb-card-provenance.py",
+   "bytes": 3833,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-card-provenance.log"
+  },
+  {
+   "file": "bb-card-put.py",
+   "bytes": 12147,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-card-put.log"
+  },
+  {
+   "file": "bb-card-read.py",
+   "bytes": 4076,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-card-read.log"
+  },
+  {
+   "file": "bb-central-subset-model-check.py",
+   "bytes": 5268,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-central-subset-model-check.log"
+  },
+  {
+   "file": "bb-channel.py",
+   "bytes": 9120,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-channel.log"
+  },
+  {
+   "file": "bb-connect-execute.py",
+   "bytes": 12111,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-connect-execute.log"
+  },
+  {
+   "file": "bb-connect-lab.py",
+   "bytes": 15896,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-connect-lab.log"
+  },
+  {
+   "file": "bb-cross-board-consistency.py",
+   "bytes": 5850,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-cross-board-consistency.log"
+  },
+  {
+   "file": "bb-dashboard.py",
+   "bytes": 28835,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-dashboard.log"
+  },
+  {
+   "file": "bb-dispatch-learn.py",
+   "bytes": 6864,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-dispatch-learn.log"
+  },
+  {
+   "file": "bb-dispatch.py",
+   "bytes": 13026,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-dispatch.log"
+  },
+  {
+   "file": "bb-fork-offset-and-auth.py",
+   "bytes": 5465,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-fork-offset-and-auth.log"
+  },
+  {
+   "file": "bb-gallery-audit.py",
+   "bytes": 10644,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-gallery-audit.log"
+  },
+  {
+   "file": "bb-gallery-export-selftest.py",
+   "bytes": 10146,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-gallery-export-selftest.log"
+  },
+  {
+   "file": "bb-gallery-export.py",
+   "bytes": 12103,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-gallery-export.log"
+  },
+  {
+   "file": "bb-gate.py",
+   "bytes": 12499,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-gate.log"
+  },
+  {
+   "file": "bb-handshake.py",
+   "bytes": 9352,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-handshake.log"
+  },
+  {
+   "file": "bb-key-set-diff.py",
+   "bytes": 6385,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-key-set-diff.log"
+  },
+  {
+   "file": "bb-list.py",
+   "bytes": 13359,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-list.log"
+  },
+  {
+   "file": "bb-mgr-events.py",
+   "bytes": 5162,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-mgr-events.log"
+  },
+  {
+   "file": "bb-milestone-report.py",
+   "bytes": 13025,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-milestone-report.log"
+  },
+  {
+   "file": "bb-namespace-coverage.py",
+   "bytes": 5372,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-namespace-coverage.log"
+  },
+  {
+   "file": "bb-namespace-full-enum.py",
+   "bytes": 5092,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-namespace-full-enum.log"
+  },
+  {
+   "file": "bb-plan-scanner.py",
+   "bytes": 9879,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-plan-scanner.log"
+  },
+  {
+   "file": "bb-prep-learn.py",
+   "bytes": 6857,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-prep-learn.log"
+  },
+  {
+   "file": "bb-prep-research.py",
+   "bytes": 6455,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-prep-research.log"
+  },
+  {
+   "file": "bb-probe-cleanup.py",
+   "bytes": 4974,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-probe-cleanup.log"
+  },
+  {
+   "file": "bb-probe-residue-scan.py",
+   "bytes": 5413,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-probe-residue-scan.log"
+  },
+  {
+   "file": "bb-protocol-register.py",
+   "bytes": 7928,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-protocol-register.log"
+  },
+  {
+   "file": "bb-protocol-runner.py",
+   "bytes": 9148,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-protocol-runner.log"
+  },
+  {
+   "file": "bb-proxy.py",
+   "bytes": 3352,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-proxy.log"
+  },
+  {
+   "file": "bb-put-both.py",
+   "bytes": 9418,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-put-both.log"
+  },
+  {
+   "file": "bb-read.py",
+   "bytes": 7907,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-read.log"
+  },
+  {
+   "file": "bb-recon.py",
+   "bytes": 5701,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-recon.log"
+  },
+  {
+   "file": "bb-request-watch.py",
+   "bytes": 7303,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-request-watch.log"
+  },
+  {
+   "file": "bb-retention-horizon.py",
+   "bytes": 4679,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-retention-horizon.log"
+  },
+  {
+   "file": "bb-reuse-check.py",
+   "bytes": 8696,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-reuse-check.log"
+  },
+  {
+   "file": "bb-schema-gate.py",
+   "bytes": 8778,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-schema-gate.log"
+  },
+  {
+   "file": "bb-send-check.py",
+   "bytes": 26193,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-send-check.log"
+  },
+  {
+   "file": "bb-share.py",
+   "bytes": 9571,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-share.log"
+  },
+  {
+   "file": "bb-snapshot-timing.py",
+   "bytes": 5901,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-snapshot-timing.log"
+  },
+  {
+   "file": "bb-sub-daemon.py",
+   "bytes": 6426,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-sub-daemon.log"
+  },
+  {
+   "file": "bb-sub-gen.py",
+   "bytes": 10609,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-sub-gen.log"
+  },
+  {
+   "file": "bb-taskboard.py",
+   "bytes": 14993,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-taskboard.log"
+  },
+  {
+   "file": "bb-tmp-own-cleanup.py",
+   "bytes": 4326,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-tmp-own-cleanup.log"
+  },
+  {
+   "file": "bb-tmp-ownership-by-content.py",
+   "bytes": 4361,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-tmp-ownership-by-content.log"
+  },
+  {
+   "file": "bb-tmp-residue-check.py",
+   "bytes": 4120,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-tmp-residue-check.log"
+  },
+  {
+   "file": "bb-tmp-residue-verify.py",
+   "bytes": 5283,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-tmp-residue-verify.log"
+  },
+  {
+   "file": "bb-toolize.py",
+   "bytes": 6937,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-toolize.log"
+  },
+  {
+   "file": "bb-top-namespace-compare.py",
+   "bytes": 4804,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-top-namespace-compare.log"
+  },
+  {
+   "file": "bb-upgrade.py",
+   "bytes": 12065,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-upgrade.log"
+  },
+  {
+   "file": "bb-waimai-mcp-core.py",
+   "bytes": 7553,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-waimai-mcp-core.log"
+  },
+  {
+   "file": "bb-workbench.py",
+   "bytes": 13736,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bb-workbench.log"
+  },
+  {
+   "file": "bb-writer-census.py",
+   "bytes": 4655,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/bb-writer-census.log"
+  },
+  {
+   "file": "binding-check.py",
+   "bytes": 29977,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/binding-check.log"
+  },
+  {
+   "file": "blackboard-events.py",
+   "bytes": 6652,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/blackboard-events.log"
+  },
+  {
+   "file": "blackboard-server-v0.5.py",
+   "bytes": 22594,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/blackboard-server-v0.5.log"
+  },
+  {
+   "file": "blackboard-server-v0.6.py",
+   "bytes": 24721,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/blackboard-server-v0.6.log"
+  },
+  {
+   "file": "blackboard-subscribe.py",
+   "bytes": 6950,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/blackboard-subscribe.log"
+  },
+  {
+   "file": "board-from-shape-census.py",
+   "bytes": 4981,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/board-from-shape-census.log"
+  },
+  {
+   "file": "board-from-shape-stratified.py",
+   "bytes": 5012,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/board-from-shape-stratified.log"
+  },
+  {
+   "file": "bus-capture.py",
+   "bytes": 18128,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bus-capture.log"
+  },
+  {
+   "file": "bus-dup-classify.py",
+   "bytes": 15990,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/bus-dup-classify.log"
+  },
+  {
+   "file": "cahac-clause-ownership-check.py",
+   "bytes": 9906,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-clause-ownership-check.log"
+  },
+  {
+   "file": "cahac-compliance-check.py",
+   "bytes": 4540,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-compliance-check.log"
+  },
+  {
+   "file": "cahac-compliance-report.py",
+   "bytes": 18754,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-compliance-report.log"
+  },
+  {
+   "file": "cahac-replay-daily.py",
+   "bytes": 5849,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-replay-daily.log"
+  },
+  {
+   "file": "cahac-replay-v0.1.py",
+   "bytes": 5943,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-replay-v0.1.log"
+  },
+  {
+   "file": "cahac-replay-v0.2.py",
+   "bytes": 6073,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-replay-v0.2.log"
+  },
+  {
+   "file": "cahac-replay-week.py",
+   "bytes": 5898,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-replay-week.log"
+  },
+  {
+   "file": "cahac-replay.py",
+   "bytes": 9898,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/cahac-replay.log"
+  },
+  {
+   "file": "card-json-check-selftest.py",
+   "bytes": 8564,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/card-json-check-selftest.log"
+  },
+  {
+   "file": "card-json-check.py",
+   "bytes": 5700,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/card-json-check.log"
+  },
+  {
+   "file": "catchall-scan.py",
+   "bytes": 9176,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/catchall-scan.log"
+  },
+  {
+   "file": "central-wake.py",
+   "bytes": 6551,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/central-wake.log"
+  },
+  {
+   "file": "central-whitelist-verify.py",
+   "bytes": 5446,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/central-whitelist-verify.log"
+  },
+  {
+   "file": "channel-audit.py",
+   "bytes": 6548,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/channel-audit.log"
+  },
+  {
+   "file": "checks-transfer.py",
+   "bytes": 8802,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/checks-transfer.log"
+  },
+  {
+   "file": "clean-external.py",
+   "bytes": 8855,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/clean-external.log"
+  },
+  {
+   "file": "consistency-scan.py",
+   "bytes": 17960,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/consistency-scan.log"
+  },
+  {
+   "file": "convention-lean4-check.py",
+   "bytes": 30782,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/convention-lean4-check.log"
+  },
+  {
+   "file": "convention-pr.py",
+   "bytes": 8030,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/convention-pr.log"
+  },
+  {
+   "file": "cordis-crash-audit.py",
+   "bytes": 4667,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/cordis-crash-audit.log"
+  },
+  {
+   "file": "coverage-audit.py",
+   "bytes": 6822,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/coverage-audit.log"
+  },
+  {
+   "file": "credential-residual-probe.py",
+   "bytes": 20087,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/credential-residual-probe.log"
+  },
+  {
+   "file": "daily-brief.py",
+   "bytes": 8529,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/daily-brief.log"
+  },
+  {
+   "file": "datadir-audit.py",
+   "bytes": 18741,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/datadir-audit.log"
+  },
+  {
+   "file": "deliver.py",
+   "bytes": 34746,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/deliver.log"
+  },
+  {
+   "file": "dependency-audit.py",
+   "bytes": 7331,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/dependency-audit.log"
+  },
+  {
+   "file": "deposit-judge.py",
+   "bytes": 5709,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/deposit-judge.log"
+  },
+  {
+   "file": "deposit-reflow.py",
+   "bytes": 8636,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/deposit-reflow.log"
+  },
+  {
+   "file": "device-audit.py",
+   "bytes": 31483,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/device-audit.log"
+  },
+  {
+   "file": "doc-cn-check.py",
+   "bytes": 6006,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/doc-cn-check.log"
+  },
+  {
+   "file": "dual-board-writers-inventory.py",
+   "bytes": 5156,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/dual-board-writers-inventory.log"
+  },
+  {
+   "file": "dup-skeleton-selftest.py",
+   "bytes": 6572,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/dup-skeleton-selftest.log"
+  },
+  {
+   "file": "dup-skeleton.py",
+   "bytes": 6025,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/dup-skeleton.log"
+  },
+  {
+   "file": "entry-coverage.py",
+   "bytes": 26883,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/entry-coverage.log"
+  },
+  {
+   "file": "event-bus.py",
+   "bytes": 8065,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/event-bus.log"
+  },
+  {
+   "file": "export-marker.py",
+   "bytes": 6383,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/export-marker.log"
+  },
+  {
+   "file": "failure-pattern-lookup.py",
+   "bytes": 5705,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/failure-pattern-lookup.log"
+  },
+  {
+   "file": "find-node-and-rerun.py",
+   "bytes": 6374,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/find-node-and-rerun.log"
+  },
+  {
+   "file": "four-definitions-reproduce.py",
+   "bytes": 5249,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/four-definitions-reproduce.log"
+  },
+  {
+   "file": "g10-g11-verify.py",
+   "bytes": 7510,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/g10-g11-verify.log"
+  },
+  {
+   "file": "gate-conformance.py",
+   "bytes": 12921,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/gate-conformance.log"
+  },
+  {
+   "file": "gate-deploy-check.py",
+   "bytes": 7831,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/gate-deploy-check.log"
+  },
+  {
+   "file": "gate-j23-lean4.py",
+   "bytes": 5698,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/gate-j23-lean4.log"
+  },
+  {
+   "file": "gate-repairer.py",
+   "bytes": 24535,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/gate-repairer.log"
+  },
+  {
+   "file": "gateway-security-check.py",
+   "bytes": 5678,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/gateway-security-check.log"
+  },
+  {
+   "file": "gen-paper-summaries.py",
+   "bytes": 7484,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/gen-paper-summaries.log"
+  },
+  {
+   "file": "gen-zhaoshang-ppt.py",
+   "bytes": 14773,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/gen-zhaoshang-ppt.log"
+  },
+  {
+   "file": "genebank-writer-probe.py",
+   "bytes": 7289,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/genebank-writer-probe.log"
+  },
+  {
+   "file": "gh-dash-repo-state-all.py",
+   "bytes": 7047,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/gh-dash-repo-state-all.log"
+  },
+  {
+   "file": "holdout-split-verify.py",
+   "bytes": 6851,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/holdout-split-verify.log"
+  },
+  {
+   "file": "holdout-split.py",
+   "bytes": 8339,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/holdout-split.log"
+  },
+  {
+   "file": "horizon-formula-verify.py",
+   "bytes": 4240,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/horizon-formula-verify.log"
+  },
+  {
+   "file": "i9-poll-seconds.py",
+   "bytes": 4661,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/i9-poll-seconds.log"
+  },
+  {
+   "file": "identity-graph-gui.py",
+   "bytes": 15472,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/identity-graph-gui.log"
+  },
+  {
+   "file": "identity-graph.py",
+   "bytes": 17781,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/identity-graph.log"
+  },
+  {
+   "file": "inbox-state-tagger.py",
+   "bytes": 9281,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "?"
+  },
+  {
+   "file": "inbox-validity-check.py",
+   "bytes": 18710,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/inbox-validity-check.log"
+  },
+  {
+   "file": "inplace-pointer-audit.py",
+   "bytes": 10630,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/inplace-pointer-audit.log"
+  },
+  {
+   "file": "instance-ref-lint.py",
+   "bytes": 10649,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/instance-ref-lint.log"
+  },
+  {
+   "file": "kb-genebank-sync.py",
+   "bytes": 9553,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/kb-genebank-sync.log"
+  },
+  {
+   "file": "kb-health.py",
+   "bytes": 4626,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/kb-health.log"
+  },
+  {
+   "file": "kb-incremental.py",
+   "bytes": 4560,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/kb-incremental.log"
+  },
+  {
+   "file": "kb-index-gen.py",
+   "bytes": 4731,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/kb-index-gen.log"
+  },
+  {
+   "file": "l3-semantic-check.py",
+   "bytes": 7754,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/l3-semantic-check.log"
+  },
+  {
+   "file": "local-router.py",
+   "bytes": 7945,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/local-router.log"
+  },
+  {
+   "file": "lock-audit.py",
+   "bytes": 6713,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/lock-audit.log"
+  },
+  {
+   "file": "mac-mini-inbox-watch.py",
+   "bytes": 20434,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/mac-mini-inbox-watch.log"
+  },
+  {
+   "file": "mbp-memory-vectorize.py",
+   "bytes": 6760,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/mbp-memory-vectorize.log"
+  },
+  {
+   "file": "mbp-session-inventory.py",
+   "bytes": 7601,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/mbp-session-inventory.log"
+  },
+  {
+   "file": "merge-wg100.py",
+   "bytes": 8127,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/merge-wg100.log"
+  },
+  {
+   "file": "mlx-data-prep.py",
+   "bytes": 6870,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/mlx-data-prep.log"
+  },
+  {
+   "file": "mlx-evaluate.py",
+   "bytes": 5205,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/mlx-evaluate.log"
+  },
+  {
+   "file": "msg-count-lint.py",
+   "bytes": 5130,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/msg-count-lint.log"
+  },
+  {
+   "file": "node-agent.py",
+   "bytes": 5217,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/node-agent.log"
+  },
+  {
+   "file": "node-join-notify.py",
+   "bytes": 6484,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/node-join-notify.log"
+  },
+  {
+   "file": "node-onboard-gui.py",
+   "bytes": 19399,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/node-onboard-gui.log"
+  },
+  {
+   "file": "node-reply-monitor.py",
+   "bytes": 5278,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/node-reply-monitor.log"
+  },
+  {
+   "file": "only-local-latest-ts-check.py",
+   "bytes": 4430,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/only-local-latest-ts-check.log"
+  },
+  {
+   "file": "panel-event-adapter.py",
+   "bytes": 5171,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/panel-event-adapter.log"
+  },
+  {
+   "file": "paper-fetch.py",
+   "bytes": 4193,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/paper-fetch.log"
+  },
+  {
+   "file": "pitfalls-cli.py",
+   "bytes": 9108,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/pitfalls-cli.log"
+  },
+  {
+   "file": "pollution-scanner.py",
+   "bytes": 17065,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/pollution-scanner.log"
+  },
+  {
+   "file": "post-restart-acceptance.py",
+   "bytes": 19981,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/post-restart-acceptance.log"
+  },
+  {
+   "file": "pre-delete-archaeology.py",
+   "bytes": 10678,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/pre-delete-archaeology.log"
+  },
+  {
+   "file": "preset-fit.py",
+   "bytes": 8435,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/preset-fit.log"
+  },
+  {
+   "file": "profile-sync-check.py",
+   "bytes": 6098,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/profile-sync-check.log"
+  },
+  {
+   "file": "progress-idle-watch.py",
+   "bytes": 6872,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/progress-idle-watch.log"
+  },
+  {
+   "file": "pstd-105-gate-probe.py",
+   "bytes": 7357,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/pstd-105-gate-probe.log"
+  },
+  {
+   "file": "pstd-105-staging-verify.py",
+   "bytes": 7953,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/pstd-105-staging-verify.log"
+  },
+  {
+   "file": "pstd-restart-observation.py",
+   "bytes": 7164,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/pstd-restart-observation.log"
+  },
+  {
+   "file": "pstd-rollback-scope.py",
+   "bytes": 5150,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/pstd-rollback-scope.log"
+  },
+  {
+   "file": "r006-index.py",
+   "bytes": 13467,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/r006-index.log"
+  },
+  {
+   "file": "r041-two-step-migrate.py",
+   "bytes": 5733,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/r041-two-step-migrate.log"
+  },
+  {
+   "file": "r048-remediation-verify.py",
+   "bytes": 5947,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/r048-remediation-verify.log"
+  },
+  {
+   "file": "red-team.py",
+   "bytes": 56840,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/red-team.log"
+  },
+  {
+   "file": "repo-dash-remnant-probes.py",
+   "bytes": 6785,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/repo-dash-remnant-probes.log"
+  },
+  {
+   "file": "repo-platform-assets-verify.py",
+   "bytes": 6918,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/repo-platform-assets-verify.log"
+  },
+  {
+   "file": "require-graph.py",
+   "bytes": 41754,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/require-graph.log"
+  },
+  {
+   "file": "rescue-watch.py",
+   "bytes": 9124,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/rescue-watch.log"
+  },
+  {
+   "file": "research-sink.py",
+   "bytes": 4536,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/research-sink.log"
+  },
+  {
+   "file": "resource-audit.py",
+   "bytes": 6918,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/resource-audit.log"
+  },
+  {
+   "file": "restart-intent.py",
+   "bytes": 9036,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/restart-intent.log"
+  },
+  {
+   "file": "risk-enumeration.py",
+   "bytes": 5762,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/risk-enumeration.log"
+  },
+  {
+   "file": "role-name-check.py",
+   "bytes": 7110,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/role-name-check.log"
+  },
+  {
+   "file": "role-scan.py",
+   "bytes": 7005,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/role-scan.log"
+  },
+  {
+   "file": "route-feedback-replay.py",
+   "bytes": 9230,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/route-feedback-replay.log"
+  },
+  {
+   "file": "route-feedback.py",
+   "bytes": 8914,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/route-feedback.log"
+  },
+  {
+   "file": "route-learner.py",
+   "bytes": 12058,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/route-learner.log"
+  },
+  {
+   "file": "rule-audit.py",
+   "bytes": 6739,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/rule-audit.log"
+  },
+  {
+   "file": "rules-integrity.py",
+   "bytes": 10587,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/rules-integrity.log"
+  },
+  {
+   "file": "rules-sync.py",
+   "bytes": 6408,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/rules-sync.log"
+  },
+  {
+   "file": "runfour.py",
+   "bytes": 52929,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/runfour.log"
+  },
+  {
+   "file": "scan-to-genebank.py",
+   "bytes": 7449,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/scan-to-genebank.log"
+  },
+  {
+   "file": "self-report-gate.py",
+   "bytes": 54145,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/self-report-gate.log"
+  },
+  {
+   "file": "semantic-class-sweep.py",
+   "bytes": 4668,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/semantic-class-sweep.log"
+  },
+  {
+   "file": "send-repair-report.py",
+   "bytes": 7801,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/send-repair-report.log"
+  },
+  {
+   "file": "speech-fix.py",
+   "bytes": 9304,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/speech-fix.log"
+  },
+  {
+   "file": "stance-auditor.py",
+   "bytes": 40824,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/stance-auditor.log"
+  },
+  {
+   "file": "stance-derive.py",
+   "bytes": 8081,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/stance-derive.log"
+  },
+  {
+   "file": "stance-line-review.py",
+   "bytes": 12724,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/stance-line-review.log"
+  },
+  {
+   "file": "stance-redact.py",
+   "bytes": 8142,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/stance-redact.log"
+  },
+  {
+   "file": "sync-window-verify.py",
+   "bytes": 4716,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/sync-window-verify.log"
+  },
+  {
+   "file": "table-integrity-check.py",
+   "bytes": 6896,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/table-integrity-check.log"
+  },
+  {
+   "file": "task-card-expander.py",
+   "bytes": 10798,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/task-card-expander.log"
+  },
+  {
+   "file": "task-card-validator.py",
+   "bytes": 11220,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/task-card-validator.log"
+  },
+  {
+   "file": "task-handoff.py",
+   "bytes": 8846,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/task-handoff.log"
+  },
+  {
+   "file": "tech-choice-evaluator.py",
+   "bytes": 11118,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/tech-choice-evaluator.log"
+  },
+  {
+   "file": "thread-fork-audit.py",
+   "bytes": 66065,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/thread-fork-audit.log"
+  },
+  {
+   "file": "tier-gate-test.py",
+   "bytes": 5388,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/tier-gate-test.log"
+  },
+  {
+   "file": "tmp-counts-and-firstline-check.py",
+   "bytes": 5589,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/tmp-counts-and-firstline-check.log"
+  },
+  {
+   "file": "token-monitor.py",
+   "bytes": 4952,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/token-monitor.log"
+  },
+  {
+   "file": "token-roi-review.py",
+   "bytes": 6149,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/token-roi-review.log"
+  },
+  {
+   "file": "ts-not-future-check.py",
+   "bytes": 20061,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/ts-not-future-check.log"
+  },
+  {
+   "file": "unit-review.py",
+   "bytes": 33790,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/unit-review.log"
+  },
+  {
+   "file": "upgrade-replay.py",
+   "bytes": 7982,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/upgrade-replay.log"
+  },
+  {
+   "file": "verify-deploy.py",
+   "bytes": 12889,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/verify-deploy.log"
+  },
+  {
+   "file": "verify-two-gaps-closed.py",
+   "bytes": 6260,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/verify-two-gaps-closed.log"
+  },
+  {
+   "file": "verify-ui.py",
+   "bytes": 30950,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/verify-ui.log"
+  },
+  {
+   "file": "verify-watch.py",
+   "bytes": 8588,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/verify-watch.log"
+  },
+  {
+   "file": "waimai-audit.py",
+   "bytes": 8307,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/waimai-audit.log"
+  },
+  {
+   "file": "waimai-erp-import.py",
+   "bytes": 7815,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/waimai-erp-import.log"
+  },
+  {
+   "file": "waimai-replay.py",
+   "bytes": 5833,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/waimai-replay.log"
+  },
+  {
+   "file": "weekly-summary.py",
+   "bytes": 4309,
+   "hasMain": true,
+   "insertAt": "main() 首行",
+   "logPath": "~/dsh-collab/logs/weekly-summary.log"
+  },
+  {
+   "file": "writer-census-negative-control.py",
+   "bytes": 4540,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/writer-census-negative-control.log"
+  },
+  {
+   "file": "writer-census-positive-control.py",
+   "bytes": 5840,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/writer-census-positive-control.log"
+  },
+  {
+   "file": "xingduo-wake.py",
+   "bytes": 9097,
+   "hasMain": false,
+   "insertAt": "★ 无 main（需人工定插入点）",
+   "logPath": "~/dsh-collab/logs/xingduo-wake.log"
+  }
+ ]
+}
