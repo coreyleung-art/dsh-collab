@@ -506,9 +506,17 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         _cards = read_alert_cards()
         _unread = [d for d, v in _cards.items() if v is None]
         _hot = [(d, v[0], v[1]) for d, v in _cards.items() if v and v[0] > 0]
-        if len(_unread) == len(_cards):
+        # ★★★ 2026-10-13 修（W4 H1 第②处假绿）—★
+        #   ★★ 原形态（W4 逐字）：「判「告警卡有读者」**PASS 而其输入可以是【不存在的段】**」；
+        #     ★ 实测：若一个目录读不到、另一个读到且空 ⇒ 仍报绿。
+        #   ★ 为何是假绿：★ ★ 读不到的那个目录【无法确认是否真空】
+        #     （★ 段名拼错 与 真无告警 同形 —★ 同本仓 D-188 记的「空 ≠ 无」）。
+        #   ★ 修法：**任一目录读不到 ⇒ 不可判**（★ 而不是只加一句提示）。
+        if _unread:
             skip("告警卡有读者（M4①d/M4③②）",
-                 "两个目录都读不到 ⇒ 不可判（不冒充绿）")
+                 "★ %d/%d 个目录读不到（%s）⇒ **不可判**"
+                 "（★ 读不到的那个无法确认是否真空；"
+                 "★ W4 H1 第②处假绿）" % (len(_unread), len(_cards), ",".join(_unread)))
         elif _hot:
             check("告警卡有读者（M4①d/M4③②）", False,
                   "★★ 有未处理告警 " + str(sum(n for _, n, _ in _hot)) + " 条："
@@ -517,8 +525,7 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         else:
             _ok = [d for d, v in _cards.items() if v is not None]
             check("告警卡有读者（M4①d/M4③②）", True,
-                  "已读 %d 个目录、均为空 ⇒ 无未处理告警" % len(_ok)
-                  + ("（读不到：" + ",".join(_unread) + "）" if _unread else ""))
+                  "已读 %d 个目录、**全部读到且均为空** ⇒ 无未处理告警" % len(_ok))
 
     # ★★ 2026-10-12（D-209）：既有 lint 清单就位检查 —★ 防「重造轮子」。
     #   ★ 立据：本仓 tools/ 下已有 10 个 lint/gate 正好管着当晚所有坑，
