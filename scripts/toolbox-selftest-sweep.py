@@ -59,24 +59,20 @@ MARK = ("selftest", "自测", "PASS", "✅", "期望", "断言", "通过", "self
 
 
 def write_log(line):
-        # ★★★ 2026-10-13 加（同类事故）：**大小上限 + 保留尾部**。
-    #   事故：姊妹件 `r006-two-tool-audit.py` 的同名函数【纯 append 无上限】，
-    #   被一个会话循环调用后涨到 **76.8 MB / 1,536,615 行**（唯一内容只 9 种）。
-    #   ⇒ 本函数同样无上限 ⇒ 加 8 MB cap（★ 保留尾部，排障看最后的现场）。
+    # ★★★ 2026-10-13 加（同类事故）：**大小上限 + 保留尾部**。
+    #   姊妹件 r006-two-tool-audit.py 的同名函数【纯 append 无上限】，被会话循环调用后
+    #   涨到 76.8 MB / 1,536,615 行（唯一内容只 9 种）⇒ 本函数同样无上限 ⇒ 加 8 MB cap。
     try:
-        _p = globals().get("LOG") or globals().get("LOG_PATH")
-        if _p and os.path.exists(_p) and os.path.getsize(_p) > 8 * 1024 * 1024:
-            with open(_p, "rb") as _f:
-                _f.seek(-4 * 1024 * 1024, os.SEEK_END)
-                _t = _f.read()
+        _cap_p = os.path.join(LOG_DIR, "toolbox-selftest-sweep.log")
+        if os.path.exists(_cap_p) and os.path.getsize(_cap_p) > 8 * 1024 * 1024:
+            with open(_cap_p, "rb") as _cf:
+                _cf.seek(-4 * 1024 * 1024, os.SEEK_END); _t = _cf.read()
             _n = _t.find(b"\n")
             if _n >= 0: _t = _t[_n + 1:]
-            with open(_p, "wb") as _f:
-                _f.write(b"# \xe2\x98\x85 \xe8\xa3\x81\xe6\x96\xad\xef\xbc\x888 MB \xe4\xb8\x8a\xe9\x99\x90\xef\xbc\x89 2026-10-13\n")
-                _f.write(_t)
+            with open(_cap_p, "wb") as _cf: _cf.write(_t)
     except Exception:
         pass
-try:
+    try:
         os.makedirs(LOG_DIR, exist_ok=True)
         with open(os.path.join(LOG_DIR, "toolbox-selftest-sweep.log"), "a", encoding="utf-8") as f:
             f.write(line + "\n")

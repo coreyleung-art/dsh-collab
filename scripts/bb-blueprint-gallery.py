@@ -3736,17 +3736,36 @@ class Handler(BaseHTTPRequestHandler):
                                                           "paper-summaries", "relations")
                                          else "manual"),
                     })
-                _stale = [x["id"] for x in _items if x["state"] == "stale"]
+                # ★★★ 2026-10-13 修（★ 独立评估实测揪出的【我自己引入的】缺陷）：
+                #   ★★ 原实现 `_staleCount` / `_stale` **只统计 maintainedBy=="auto" 的**，
+                #     而 **5 个 stale 项【全是 manual】** ⇒ 字段报 **0**，而 items 里明明有 5 个 stale ⇒
+                #     ★ **字段名（陈旧数）与语义（自动维护且陈旧数）不符**，且 `_note` 未说明。
+                #     ⇒ 任何渲染它的前端会在「5 行橙色 stale」正上方显示「陈旧 0」。
+                #   ★ 另：原 `_stale = [...]`（:3739）算完**从未被引用**（被下面内联重算覆盖）⇒ 死代码。
+                #   ⇒ 修：**分开命名，各自如实** + 删死代码 + `_note` 说明两轴。
+                _stale_all = [x["id"] for x in _items if x["state"] == "stale"]
+                _stale_auto = [x["id"] for x in _items
+                               if x["state"] == "stale" and x.get("maintainedBy") == "auto"]
+                _stale_manual = [x["id"] for x in _items
+                                 if x["state"] == "stale" and x.get("maintainedBy") == "manual"]
                 self._send(200, json.dumps({
                     "generatedAt": _now.strftime("%Y-%m-%d %H:%M:%S"),
                     "writer": "明鉴 v3（★ 本端点只做 os.path.getmtime 探测，不写任何东西）",
                     "items": _items,
-                    "_staleCount": len([x for x in _items if x["state"] == "stale" and x.get("maintainedBy") == "auto"]),
-                    "_stale": [x["id"] for x in _items if x["state"] == "stale" and x.get("maintainedBy") == "auto"],
+                    # ★ 如实分开：全量 / 自动 / 人工（★ 不再用一个含糊的名字混两轴）
+                    "_staleAllCount": len(_stale_all),
+                    "_staleAll": _stale_all,
+                    "_staleAutoCount": len(_stale_auto),
+                    "_staleAuto": _stale_auto,
+                    "_staleManualCount": len(_stale_manual),
+                    "_staleManual": _stale_manual,
                     "_manualCount": len([x for x in _items if x.get("maintainedBy") == "manual"]),
                     "_note": ("★ 统一的新鲜度视图 —— 因 `/api/assets` 返回 list（加字段会破坏契约），"
-                              "故单开本端点。★ 分档：≤7天 fresh · ≤30天 aging · >30天 stale。"
-                              "★ 读不到 mtime 的记 `unknown`（★ 不假装新鲜）。"),
+                              "故单开本端点。★ 分档：≤7天 fresh · ≤30天 aging · >30天 stale · "
+                              "读不到 mtime 记 unknown（★ 不假装新鲜）。"
+                              "★★ **陈旧数分两轴**：`_staleAuto*` = 有生成脚本却没刷新（★ 那才是【故障】）；"
+                              "`_staleManual*` = 人工编目的数据旧（★ 那是【编目节奏】，不是故障）。"
+                              "★ 全量为 `_staleAll*`。"),
                 }, ensure_ascii=False))
                 return
             if path == "/api/assets":

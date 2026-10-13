@@ -273,7 +273,7 @@ camelCase（`awaiting`/`reply_to_key`/`sent_at_epoch_ms`/`thread`/`msg_type`/`no
 
 ---
 
-## 四、★ 待办纪律
+## 十、★ 待办纪律
 
 - ★ **本件只列未完成**；已完成项仅在 §1.1 出现一次，用于**区分「放心」与「别丢」**。
 - ★ **不宣布任何事项已闭合**。
@@ -284,7 +284,7 @@ camelCase（`awaiting`/`reply_to_key`/`sent_at_epoch_ms`/`thread`/`msg_type`/`no
 
 ---
 
-## 十、★ 2026-10-12 第五轮：**N2 已裁并执行（信标索引内容同步）** ＋ 一场**丢失更新**
+## 十一、★ 2026-10-12 第五轮：**N2 已裁并执行（信标索引内容同步）** ＋ 一场**丢失更新**
 
 > ★ 用户逐字裁示：「**那批 xdom-* 件要进该索引**」⇒ §九 的 **N2 由「不可判」裁为「做」**。
 > ★ 本段对应台账 `docs/handoff-to-star-bridge-20261011-ext-process-report-and-sync.md` **§十三**。
@@ -350,7 +350,7 @@ camelCase（`awaiting`/`reply_to_key`/`sent_at_epoch_ms`/`thread`/`msg_type`/`no
 
 ---
 
-## 十一、★ 2026-10-12 第六轮：**N3 / N4 已裁并执行** ＋ 三处实测新发现
+## 十二、★ 2026-10-12 第六轮：**N3 / N4 已裁并执行** ＋ 三处实测新发现
 
 > ★ 用户裁示：「**暂不通知，只留档（推荐）**」（N3）·「**我出一份选型对比（只给判据）**」（N4）。
 > ★ 对应台账 `docs/handoff-to-star-bridge-20261011-ext-process-report-and-sync.md` **§十四**。

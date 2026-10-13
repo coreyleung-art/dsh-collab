@@ -84,7 +84,9 @@ def check_section_order(src):
     """
     seq = []
     for i, line in enumerate(src.split("\n"), 1):
-        m = re.match(r'^#{1,3} \*?\s*([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
+        # ★★★ 2026-10-13 修（D-319）：★ `\*?` 只允许【一个星】—★
+        #   ★ 实测：`## ★★ 二、…`（★ 两个星）匹配失败 ⇒ **误判跳号**（★ D-319 自查）。
+        m = re.match(r'^#{1,3} \**\s*([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
         if m:
             ch = m.group(1)
             if ch in CN_NUM:
@@ -103,6 +105,17 @@ def check_section_order(src):
             bad.append((_seen[item[2]], item))
         else:
             _seen[item[2]] = item
+    # ★★★ 2026-10-13 补（D-319）：【跳号】也必须命中。
+    #   ★ 立据：本纳修 `ext-open-work` 的重复序号后，序列变成
+    #     ★ 「〇一二三【五】六七八九十十一十二」 ⇒ 缺了「四」，
+    #     ★★ 而 P6【不报】⇒ 它只查「升序 + 重复」，★ **不查完整性**。
+    _nums = sorted({s[2] for s in seq})
+    _jumped = [( _nums[_k-1], _nums[_k]) for _k in range(1, len(_nums))
+               if _nums[_k] > _nums[_k-1] + 1]
+    if _jumped:
+        # ★ 用特殊标记回报（★ 该函数的返回形式是 bad 列表）
+        bad.append((("SEQ_JUMP", "", -1),
+                    ("缺序号：" + " · ".join("%d→%d" % j for j in _jumped), "", -1)))
     return bad
 
 
