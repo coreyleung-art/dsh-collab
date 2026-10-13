@@ -2447,7 +2447,14 @@ function renderBP(){
     {k:'bpcap',t:'💰 启动资金与各轮计划（带图）',u:BP+'/capital.html',d:'1000 万元九类明细（含单位成本与依据）/ 季度分布 / 验收 8 项 / Pre-A·A·B·Pre-IPO 各轮 / 估值跃升依据 / 条款演变；含 7 张图表'},
     {k:'bpmap',t:'🗺 平台格局与战位图',u:BP+'/map.html',d:'13 面板：组合拳 / 靠 AI 赢 / 全国城市双层 / 预算九类 / 八条线总纲 / 引擎推演图谱'}
   ];
+  // ★★★ 2026-10-13 修（tab 层独立考古）：**加存在性门**。
+  //   起因：本地分支硬编码 `http://127.0.0.1:8812/bp`，而实测 **8812 无监听、5 个 URL 全 000、
+  //   文件全盘 0 命中** ⇒ 页面渲染 **5 个按钮 + 恒空 iframe**，★ **读者无法区分
+  //   「服务挂了」与「内容为空」**（这正是本线反复的「空 ≠ 无」）。
+  //   ⇒ 先探测，探不到就**渲染明确错误文案**（含探测证据与处置），不再给空 iframe。
   box.innerHTML='<div style="max-width:1500px;margin:0 auto">'
+    +'<div id="bp-gate" style="display:none;padding:16px;border-radius:12px;background:#1a1410;border:1px solid #5a3d1a;color:#f0b429;font-size:13px;line-height:1.7"></div>'
+    +'<div id="bp-body">'
     +'<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap">'
     +'<h2 style="font-size:19px;margin:0">📙 商业计划书</h2>'
     +'<span style="font-size:12px;color:#8b90a3">明鉴 2026-09-10 · 六部分统稿（开篇/对外红杉十模块/对内BP9+架构/轮次预算+行动计划/股权治理+引擎结论/推理依据与路径得失）</span></div>'
@@ -2456,7 +2463,26 @@ function renderBP(){
     +'</div>'
     +'<div id="bpdesc" style="font-size:11.5px;color:#6f7686;margin-bottom:8px">'+views[0].d+'</div>'
     +'<iframe id="bpframe" src="'+views[0].u+'" style="width:100%;height:calc(100vh - 210px);min-height:620px;border:0;border-radius:12px;background:#0e1117"></iframe>'
-    +'</div>';
+    +'</div>'
+    +'</div>';   // ★ 闭合 bp-body
+  // ★★ 存在性门：探测基址（★ 3s 超时；no-cors 探测只需「有没有响应」）
+  (function(){
+    const ctrl=new AbortController(); const t=setTimeout(()=>ctrl.abort(),3000);
+    fetch(views[0].u,{signal:ctrl.signal,mode:'no-cors'})
+      .then(()=>{clearTimeout(t);})   // ★ 可达 ⇒ 保持现状
+      .catch(function(e){
+        clearTimeout(t);
+        const g=document.getElementById('bp-gate'); if(!g) return;
+        const bd=document.getElementById('bp-body');
+        g.style.display='block';
+        g.innerHTML='⚠️ <b>商业计划书基址不可达</b> —— 探测 <code>'+esc(views[0].u)+'</code> 失败：'
+          +esc((e&&e.message)||'')+'<br>'
+          +'★ <b>这是「服务不可达」，不是「内容为空」</b>（两者外观相同，故此处显式区分）。<br>'
+          +'★ 本地模式需要 8812 上的 BP 服务在跑；线上模式走同级 <code>bp/</code> 目录。<br>'
+          +'★ 处置：确认 8812 服务是否在跑（或改用线上基址）后重开本页。';
+        if(bd) bd.style.display='none';
+      });
+  })();
   box.querySelectorAll('button.bpv').forEach(b=>{
     b.onclick=()=>{
       box.querySelectorAll('button.bpv').forEach(x=>{x.classList.remove('on');x.style.background='#161b26';x.style.borderColor='#2a3245';});

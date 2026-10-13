@@ -716,6 +716,25 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("L-1 / L-2 保持领先", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-299）【H2 静默失败扫描】—★ 目标四维 H2。
+    #   ★ 立据：W4 自陈 H2 ★**不成立**；★ 且其「必须采纳」逐字记：
+    #     ★★ **带 `_archived_at` 过滤 → n = 0；不带 → n = 7** ⇒ **同一板态，红 → 绿**。
+    #   ★★ 本纳实测今日：`drift-delivery-failure` **12 → 5**（★ 部分掩盖）。
+    try:
+        _sf = subprocess.run([sys.executable, str(ROOT / "tools" / "silent-failure-scan.py"), "--json"],
+                             capture_output=True, text=True, timeout=200)
+        _sd = json.loads(_sf.stdout)
+        _s2 = _sd.get("summary") or {}
+        _c = _sd["checks"]
+        _mask = _c.get("H2c 归档掩盖") or {}
+        _ld = _c.get("H2a launchd 失败终态") or {}
+        check("H2c 归档掩盖（★ W4 核心形态）", _mask.get("verdict") == "PASS",
+              "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))
+        check("H2a launchd 失败终态", _ld.get("verdict") == "PASS",
+              "★ %s — %s" % (_ld.get("verdict"), str(_ld.get("why"))[:130]))
+    except Exception as e:
+        skip("H2 静默失败扫描", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。

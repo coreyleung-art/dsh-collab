@@ -113,15 +113,80 @@ def fetch(path, timeout=6):
 def h(s):
     return html.escape(str(s))
 
+def _with_mtime(obj, *rel_paths):
+    """★ 2026-10-13 新增（tab 层独立考古 · 类型 6「缺时间戳」）：给数据加【来源文件 mtime】。
+
+    ★★ 起因：8 个 gallery 快照（knowledge-graph / original / workflow / plan-archive /
+      mechanism / hardware / biz-assets / philosophy）**32–41 天陈旧，而页面【无任何时间戳】** ——
+      ★ 读者无法判断新鲜度（★ 对照：C1–C7 新页都有 `generatedAt`/`mtime` 范式）。
+    ⇒ 统一注入 `_srcMtime`（**最大 mtime**，因为一个端点可能聚合多个文件）
+      + `_srcFiles`（逐文件 mtime ⇒ ★ 可追溯到具体哪个源旧了）。
+    ★ 三态：全部读不到 ⇒ `_srcMtime` 为 None（★ **不假装新鲜**）。
+    """
+    import os as _os, datetime as _dt
+    out = obj if isinstance(obj, dict) else {"data": obj}
+    files = {}
+    for rp in rel_paths:
+        fp = os.path.join(GALLERY_DIR, rp) if not os.path.isabs(rp) else rp
+        try:
+            files[rp] = _dt.datetime.fromtimestamp(_os.path.getmtime(fp)).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            files[rp] = None
+    vals = [v for v in files.values() if v]
+    out["_srcFiles"] = files
+    out["_srcMtime"] = max(vals) if vals else None
+    if vals:
+        try:
+            _newest = max(_dt.datetime.strptime(v, "%Y-%m-%d %H:%M:%S") for v in vals)
+            out["_srcAgeDays"] = (_dt.datetime.now() - _newest).days
+        except Exception:
+            out["_srcAgeDays"] = None
+    else:
+        out["_srcAgeDays"] = None
+    return out
+
+
 def bp_dims():
-    return {"flowernet": "业务", "aistartup": "业务", "banking": "业务",
+    """★ 蓝图维度表（硬编码）+ ★ 2026-10-13 治本：**从黑板合并缺项**。
+
+    ★★ 起因（tab 层独立考古）：本表原为**纯硬编码且无回退** ⇒ 表里没有的蓝图在渲染时
+      被 `bp_dims().get(bid,"?")` 报成 **`"?"`**（实测 `flowernet-jv` / `mingjian-toolchain`）。
+      ★ 而这两个的**黑板 `dim` 其实是有值的**（公司级 / 工具）—— ★ **真根因不是「数据缺」
+      而是「判据不回退」**：一个为真的黑板读数，因硬编码表未覆盖而被显示成 `"?"`。
+    ⇒ 治本：表值优先（它带人工归类），**表里没有的 ⇒ 回退读黑板 `dim`**（★ 不编、如实取）。
+      这样**以后新增蓝图不会再变 `"?"`**。
+    """
+    _m = {"flowernet": "业务", "aistartup": "业务", "banking": "业务",
             "flowernet-platform": "技术", "agent-network": "底座", "blueprint-platform": "元层",
             "rule-judge": "验证", "flowernet-erp": "子蓝图", "flowernet-miniapp": "子蓝图",
             "flowernet-website": "子蓝图", "memory-governance": "子蓝图",
             "mtm": "工具", "laodeng-app": "产品",
             "gene-bank": "底座", "distributed-network": "底座",
             "merchant-ops-ai": "产品", "flowernet-ops": "业务",
-            "flowernet-supply": "业务", "flowernet-citywar": "业务"}
+            "flowernet-supply": "业务", "flowernet-citywar": "业务",
+            # ★ 2026-10-13 补（tab 层考古发现 bp_dims 只 19 个 ⇒ 这 2 个被报成 "?"）
+            #   ★ 值取自【黑板实际值】（flowernet-jv=公司级 · mingjian-toolchain=工具），非编造
+            "flowernet-jv": "公司级", "mingjian-toolchain": "工具"}
+    # ★★ 治本：表里没有的 ⇒ 回退读黑板（★ 三态：读到真值 / 读到空 / 读不到 ⇒ 才用 "?"）
+    try:
+        # ★★ 注意（本线实测教训）：**枚举必须带尾斜杠** —— 无斜杠返 `{"error":"not found"}`。
+        #   且**不能用 `_bb_get`**（那是【单键读】、取 `value`）—— 对枚举不适用。
+        import urllib.request as _ur
+        with _ur.urlopen("http://127.0.0.1:8792/data/blueprint/", timeout=8) as _r:
+            _bd = json.loads(_r.read().decode())
+        _lst = (_bd.get("list") or {}) if isinstance(_bd, dict) else {}
+        for _k, _vv in _lst.items():
+            _bid = _k.rstrip("/").split("/")[-1]
+            if _bid in _m:
+                continue
+            _iv = (_vv.get("value") or {})
+            _iv = _iv.get("value") if isinstance(_iv.get("value"), dict) else _iv
+            _d = _iv.get("dim") or _iv.get("dimension")
+            if _d and str(_d) != "?":
+                _m[_bid] = _d
+    except Exception:
+        pass  # ★ 回退失败不阻断（表值仍可用）
+    return _m
 
 def bp_colors():
     return {"flowernet": "#6ea8ff", "aistartup": "#34c77b", "banking": "#f5b942",
@@ -131,7 +196,9 @@ def bp_colors():
             "mtm": "#4a9eff", "laodeng-app": "#e84393",
             "gene-bank": "#c678dd", "distributed-network": "#61afef",
             "merchant-ops-ai": "#e84393", "flowernet-ops": "#e06c75",
-            "flowernet-supply": "#f08a5d", "flowernet-citywar": "#f76c6c"}
+            "flowernet-supply": "#f08a5d", "flowernet-citywar": "#f76c6c",
+            # ★ 同 bp_dims 的补（2026-10-13）
+            "flowernet-jv": "#8e7cc3", "mingjian-toolchain": "#7f8c8d"}
 
 def get_registry():
     """返回蓝图列表 [{id,version,status,mainlines,dim}]"""
@@ -3474,16 +3541,16 @@ class Handler(BaseHTTPRequestHandler):
                     self._send(200, json.dumps({"pid": pid, "summary": "", "source": "err"}, ensure_ascii=False))
                 return
             if path == "/api/knowledge-graph":
-                self._send(200, json.dumps(build_knowledge_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_knowledge_graph(), "knowledge-graph.json"), ensure_ascii=False))
                 return
             if path == "/api/original":
-                self._send(200, json.dumps(build_original_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_original_graph(), "original-assets.json"), ensure_ascii=False))
                 return
             if path == "/api/biz-assets":
-                self._send(200, json.dumps(build_biz_asset_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_biz_asset_graph(), "business-asset-map.json", "business-entity-registry.json"), ensure_ascii=False))
                 return
             if path == "/api/hardware":
-                self._send(200, json.dumps(build_hardware_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_hardware_graph(), "hardware-nodes.json", "device-links.json"), ensure_ascii=False))
                 return
             if path == "/api/hwcomm":
                 self._send(200, json.dumps(build_hw_comm_graph(), ensure_ascii=False))
@@ -3492,13 +3559,13 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, json.dumps(probe_comm_channels(force=True), ensure_ascii=False))
                 return
             if path == "/api/workflow":
-                self._send(200, json.dumps(build_workflow_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_workflow_graph(), "workflow-standards.json"), ensure_ascii=False))
                 return
             if path == "/api/plan-archive":
-                self._send(200, json.dumps(build_plan_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_plan_graph(), "plan-archive.json"), ensure_ascii=False))
                 return
             if path == "/api/philosophy":
-                self._send(200, json.dumps(build_philosophy_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_philosophy_graph(), "governance-philosophy.json"), ensure_ascii=False))
                 return
             if path == "/api/system-assets":
                 self._send(200, json.dumps(build_system_assets(), ensure_ascii=False))
@@ -3507,10 +3574,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, json.dumps(detect_islands(), ensure_ascii=False))
                 return
             if path == "/api/mechanism":
-                self._send(200, json.dumps(load_mechanism(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(load_mechanism(), "mechanism.json"), ensure_ascii=False))
                 return
             if path == "/api/mech-graph":
-                self._send(200, json.dumps(build_mechanism_graph(), ensure_ascii=False))
+                self._send(200, json.dumps(_with_mtime(build_mechanism_graph(), "mechanism.json"), ensure_ascii=False))
                 return
             if path == "/api/rule-graph":
                 self._send(200, json.dumps(build_rule_graph(), ensure_ascii=False))
@@ -4525,7 +4592,15 @@ def build_channel_baseline():
         "m4": [
             {"id": "M4①", "judge": "drift 告警双板到达率 == 100% ∧ 中枢落后 ≤60min",
              "verdict": "❌", "src": "v6.1 §14.4 + 本线现测分解",
-             "note": "★ 现测把两个条件分开：①a 到达率 14.78% ❌ · ①b 落后 27.3 分钟 ✓。"},
+             # ★★★ 2026-10-13 修（tab 层独立考古）：**原为硬编码字面量**「到达率 14.78% · 落后 27.3 分钟」，
+             #   而它与【同一次响应】里 `sources[2]`（本线现测）的现算值**直接矛盾**
+             #   （实测 live.rate=23.38、live.lagMin=0.4）⇒ ★ **一个自称「现测」的说明却说谎**。
+             #   ⇒ 改为**与 sources[2] 共用同一组现算变量**（★ 同源 ⇒ 不会再互相矛盾）。
+             "note": ("★ 现测把两个条件分开：①a 到达率 %s %s · ①b 落后 %s %s。"
+                      % (("%.2f%%" % rate) if rate is not None else "不可判",
+                         "✓" if cond_a else "❌",   # ★ cond_a 本身即「到达率达标」（n1==n2）
+                         ("%.1f 分钟" % lag_min) if lag_min is not None else "不可判",
+                         "✓" if cond_b else "❌"))},
             {"id": "M4②", "judge": "无未登记通道（三条合取：具名 ∧ 登记 ∧ 有负控）",
              "verdict": "❌", "src": "v6.1 §14.4 + 差距件",
              "note": "论域已裁 ⇒ L3=44 为正式读数；逐条具名/登记/负控未做。"},
