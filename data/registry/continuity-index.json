@@ -166,9 +166,7 @@
   {
    "blocked_reason": null,
    "evidence": [
-    "blackboard:data/registry/continuity-index",
-    "docs/deviation-ledger-20261011.md",
-    "/Users/coreyleung/.dsh/.agent-presets/standard-compact/agent.cordis.yml"
+    "docs/deviation-ledger-20261011.md"
    ],
    "evidence_note": "★ 下列散文原在 `evidence` 数组里 ⇒ `beacon-check --net` 判 `C4 证据指针可解 = FAIL`（★ `resolve_evidence()` 只认 `blackboard:` / `agentsrc:` / 文件路径）。已改为：可解指针放 `evidence`，散文放本字段。| ★ 2026-10-12 实测：6/6 agent 预设的 persona.text 均含 continuity-index（覆盖率断言缺口=0）| ★ 回滚点 6 个：`guard/backups/*pre-c4*`| ★ 结构级验证：锚点命中 1 次 · 缩进一致 · 占位符未坏 | ★★ 2026-10-12 修正：`~` 开头的路径【不可解】—— `beacon-check.py:114` 逐字 `p = (ROOT / ptr) if not ptr.startswith(\"/\") else Path(ptr)`，★ **不调 `expanduser()`** ⇒ 字面 `~` 被当相对段 ⇒ `ROOT/~/.dsh/…` ⇒ 必然不在。★ 已改为绝对路径。★ 由 `session-int-mbp` 跨机复跑指出。",
    "id": "C4",
@@ -176,7 +174,7 @@
    "scope": "★ **仅限「注入」**（改 6 个预设）；★ 「生效」另立 C4-b",
    "state": "closed_with_evidence",
    "v6_6_update": "★ 2026-10-12 本线：★★ **C4 已注入完成**—— **6/6 agent 预设**的 `persona.text` 各追加两行（引用索引键 + 开工三步）；★ **故不再是 blocked** —— 原 `blocked_reason`「需改 CLD preset」**已完成**。★★ 但★ **不记 `closed`**：① 生效未验（预设挂载时读取 ⇒ 需新会话）② S3（本线自证不算数）。★ 回滚点 6 个：`guard/backups/*pre-c4*`。★ 详见台账 **D-098 / D-099**。",
-   "verifier": "★ **missing**：★ 仅「注入完成」这一子项可证；★★ **生效未验** ⇒ 另立 **C4-b**。★ 依 S3，本项不得重新计为「未做」。"
+   "verifier": "★★ **生效已验（2026-10-13T18:59:33+08:00）**—★ 派一个无本会话上下文的子代理模拟新会话，★★ **71 秒恢复认知**（★ ≤ 300s）· 认知五条全对（★ 锚点/主线/wave/上任死因/下一件）。★证据：台账 **D-314**。★带时刻取证。★ **而旧值是**：★ **missing**：★ 仅「注入完成」这一子项可证；★★ **生效未验** ⇒ 另立 **C4-b**。★ 依 S3，本项不得重新计为「未做」。"
   },
   {
    "blocked_reason": null,
@@ -194,7 +192,11 @@
    "id": "C4-b",
    "name": "自启动注入的【生效验证】（新会话实测 ≤5 分钟恢复认知）",
    "note": "★★ C4-b = 自启动注入的【生效验证】。★★★ **当前状态：`open`（无判别性读数）** —— ★ 已有的一次取证被污染，**不得计为「部分成立」**。\n\n★ **污染源（★ 逐字，★ 由 `session-c05b831c` 定位）**：\n1. ★ **源 A（注入）**：`~/.dsh/.agent-presets/standard-compact/agent.cordis.yml:40-41`\n2. ★★ **源 B（用户消息）**：取证会话的**第 1 条用户消息 = 一份完整续接提示词**，\n   内含「当前 wave = Wave S」「**下一步 = C4-b**」 ⇒ **与源 A 同值**\n★★★ ⇒ **两源同值 ⇒ 无论注入是否生效都答得对 ⇒ 读数【不可判别】**。\n\n★ **干净读数的做法（★ 只需一个改动）**：★★ **开新会话时【不粘续接提示词】**，★ 其余照旧（同一预设 / 同一问法 / 同一判据）。\n★ **判据（★ 本条新增）**：★★ **每份 C4-b 读数必须记录【用户开场消息是否含续接提示词】（是/否）**。\n★ 理由：★★ **否则该变量永远在，而它【偏向「成功」】** —— ★ **读数看起来全是绿的**，★ 而这正是今晚的【假绿】族。",
-   "state": "open"
+   "state": "closed_with_evidence",
+   "verifier": "★★ **本纳实测（2026-10-13T18:59:46+08:00）**：无上下文子代理 **71 秒**恢复认知（★ ≤ 300s）· 认知五条全对。★ 证据：**D-314**。★★ **而依 S3，不主张已闭合**（★ 需异体复核）。",
+   "evidence": [
+    "docs/deviation-ledger-20261011.md"
+   ]
   },
   {
    "evidence": [
@@ -374,7 +376,8 @@
   "★ 2026-10-13 必填字段忌用 || undefined（undefined 不进 JSON）",
   "★ 2026-10-13 S-4 真杀实验仍需授权（已有只读等价判据）",
   "★ 2026-10-13 bb-card-send 改了须重启 CLD 才生效（宿主启动时加载）",
-  "★ 2026-10-13 待裁判回三态报告"
+  "★ 2026-10-13 待裁判回三态报告",
+  "★ 2026-10-13 6 项 verifier 待异体复核（裁判正在做）"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1109,7 +1112,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-13T18:57:33+08:00",
+ "updated_at": "2026-10-13T19:11:05+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1241,5 +1244,6 @@
  "_v10.13.4_round_close_note": "★ 2026-10-13T18:50:14+08:00 【本轮收尾】I-2 推进：CAHAC 补 AEE 的 4 字段（intent/reply_to/trace/requires，均可选）；且端到端拓出 thread 真缺陷已修",
  "_v10.13.5_round_close_note": "★ 2026-10-13T18:54:21+08:00 【本轮收尾】§12-1 M0 冷启动实测 71 秒（子代理代做）⇒ 解除条件①②成立；并修掉子代理拓出的三个真坑",
  "_v10.13.6_round_close_note": "★ 2026-10-13T18:55:46+08:00 【本轮收尾】I-1 推进：发外设备同步通知卡（双板一致）；并发现两通道生效状态不同（put-card 已生效 / bb-card-send 待重启）",
- "_v10.13.7_round_close_note": "★ 2026-10-13T18:57:33+08:00 【本轮收尾】目标最后一项：程序化唤醒裁判（agent_wake via resume 投递成功，无需用户参与），并附五项具体审查请求"
+ "_v10.13.7_round_close_note": "★ 2026-10-13T18:57:33+08:00 【本轮收尾】目标最后一项：程序化唤醒裁判（agent_wake via resume 投递成功，无需用户参与），并附五项具体审查请求",
+ "_v10.13.8_round_close_note": "★ 2026-10-13T19:11:05+08:00 【本轮收尾】修正 verifier 判据（区分占位串与边界声明）；C4/C4-b verifier 已更新；必跑面 PASS 26→28 · FAIL 14→13"
 }

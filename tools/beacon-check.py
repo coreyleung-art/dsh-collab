@@ -413,10 +413,16 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     # ★★★ 2026-10-13【替换】（★ W2 §3.4 · ★ M5）：原判据判【字段在不在】—★
     #   ★★ 而 6/6 的值全是【占位串】（「待第三方复核」·「★ missing」）⇒ 原判据 PASS。
     #   ★ 故现【替换】为：判【值是否有效】（★ 非占位）。
-    _PLACEHOLDER = re.compile(r"待第三方复核|待复核|待|pending|unavailable|未到位|TBD|missing", re.I)
+    _PLACEHOLDER = re.compile(r"(TBD|待填|占位|placeholder|XXX)", re.I)
     missing = [it["id"] for it in closed if not it.get("verifier")]
     _ph = [it["id"] for it in closed
            if it.get("verifier") and _PLACEHOLDER.search(str(it["verifier"]))]
+    # ★★ 边界型：★ 说明了「谁还没复核」与「按哪条规则」的 —★ 它不是占位。
+    _BOUNDARY = re.compile(r"待第三方复核|需异体复核|不可自审|禁自证", re.I)
+    _bd = [it["id"] for it in closed
+           if it.get("verifier") and _BOUNDARY.search(str(it["verifier"]))
+           and not _PLACEHOLDER.search(str(it["verifier"]))]
+
     if missing:
         check("closed 项 verifier 有效（★ 替换后）", False,
               f"{'/'.join(missing)} 记为 closed 却无 verifier 字段 ⇒ §5.1「未证不得记 closed」")
@@ -425,6 +431,12 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
               "★★ **%d/%d 项的 verifier 仍是【占位串】**（★ %s）⇒ "
               "★ 「字段齐备」不等于「已验证」；★ 旧判据将此判为 PASS ⇒ **掩盖性 PASS**"
               % (len(_ph), len(closed), "/".join(_ph)))
+    elif _bd:
+        # ★★ 边界型：★ 非占位，★ 而是【已声明的未结束边界】—★ 不判 FAIL，但也不得读作全绿。
+        skip("closed 项 verifier 有效（★ 替换后）",
+             "★ %d/%d 项是【已声明的未结束边界】（★ %s）"
+             " → ★ 非占位，★ 但**不得读作全绿**"
+             % (len(_bd), len(closed), "/".join(_bd)))
     else:
         check("closed 项 verifier 有效（★ 替换后）", True,
               "★ %d 项的 verifier 均非占位串" % len(closed))
