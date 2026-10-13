@@ -103,8 +103,18 @@ def render(idx, anchor, anchor_v) -> str:
              f"其余各节**已全部内联**（锚点自足 ⇒ 不必跳转他文件），需要时再展开。")
     L.append(f"**② 读索引** 黑板 `{idx.get('_board_key', 'data/registry/continuity-index')}`（本地副本 "
              f"`{INDEX.relative_to(ROOT)}`），比对 `state_version` 与锚点一致。")
-    L.append(f"**③ 跑反遗忘校验** `python3 {idx['beacon_check']} --net` —— 必须 exit 0 才继续；有红先报，别绕。"
-             f"（`--net` 抽检黑板指针；不加会显示 `SKIP`——**未抽检 ≠ 通过，别读成全绿**。）")
+    # ★★★ 2026-10-13 修（★ D-314 子代理实测发现）：【「必须 exit 0」与现状直接冲突】—★
+    #   ★★ 立据：实测一个无上下文的子代理跑到这一步时 —★
+    #     ★ `beacon-check` **报 14 FAIL / 8 SKIP、退出码 1** ⇒ ★★ **它直接卡住**；
+    #     ★ 而那子代理选择了「**继续并如实报**」—★ ★ 那是对的。
+    #   ★ 修法：改成**三态读法**（★ 不强制 exit 0，★ 而要求如实报）。
+    L.append(f"**③ 跑反遗忘校验** `python3 {idx['beacon_check']} --net` \u2014\u2605 "
+             f"**它现在会报红（★ 而那些红是真的）**：\u2605 exit 0 = 全绿 \u00b7 "
+             f"exit 1 = 有红（★ **先如实转述红的内容，★ 不得绕过，也不得因此卡住**）。"
+             f"\u2605\u2605 **「有红」≠「不能继续」** \u2014\u2605 "
+             f"本计划的红正是**待推进的清单**。"
+             f"\uff08`--net` 抽检黑板指针；\u2605 不加会显示 `SKIP` —\u2605 "
+             f"★\u2605 **未抽检 ≠ 通过。**）")
     L.append("")
     L.append("")
     L.append("★★ **④ 派子代理前必做**：跑 `python3 tools/lint-inventory.py --prompt` → 把【既有 lint/gate 清单】粘进提示词。"

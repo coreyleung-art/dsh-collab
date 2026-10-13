@@ -7,7 +7,7 @@
 
 **① 读锚点** `docs/distributed-agent-network-governance-plan-v7-20261012.md` —— **先读**头部 + §0/§1/§14/§15；其余各节**已全部内联**（锚点自足 ⇒ 不必跳转他文件），需要时再展开。
 **② 读索引** 黑板 `data/registry/continuity-index`（本地副本 `data/registry/continuity-index.json`），比对 `state_version` 与锚点一致。
-**③ 跑反遗忘校验** `python3 tools/beacon-check.py --net` —— 必须 exit 0 才继续；有红先报，别绕。（`--net` 抽检黑板指针；不加会显示 `SKIP`——**未抽检 ≠ 通过，别读成全绿**。）
+**③ 跑反遗忘校验** `python3 tools/beacon-check.py --net` —★ **它现在会报红（★ 而那些红是真的）**：★ exit 0 = 全绿 · exit 1 = 有红（★ **先如实转述红的内容，★ 不得绕过，也不得因此卡住**）。★★ **「有红」≠「不能继续」** —★ 本计划的红正是**待推进的清单**。（`--net` 抽检黑板指针；★ 不加会显示 `SKIP` —★ ★★ **未抽检 ≠ 通过。**）
 
 
 ★★ **④ 派子代理前必做**：跑 `python3 tools/lint-inventory.py --prompt` → 把【既有 lint/gate 清单】粘进提示词。 ★ 立据（D-209）：本仓 tools/ 下已有 **10** 个 lint/gate 正好管着当晚所有坑，★★ **而 20 个子代理一个都没引用**；门：`--check` 未含清单 ⇒ exit 1。

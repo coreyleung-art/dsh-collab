@@ -371,7 +371,8 @@
   "★ 2026-10-13 S-4 破坏性负控仍需授权启停服务",
   "★ 2026-10-13 CAHAC 缺 AEE 的 4 字段：intent/reply_to/trace/requires",
   "★ 2026-10-13 CAHAC 缺 AEE 的 4 字段：intent/reply_to/trace/requires（可补，属对齐非领先）",
-  "★ 2026-10-13 必填字段忌用 || undefined（undefined 不进 JSON）"
+  "★ 2026-10-13 必填字段忌用 || undefined（undefined 不进 JSON）",
+  "★ 2026-10-13 S-4 真杀实验仍需授权（已有只读等价判据）"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1106,7 +1107,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-13T18:50:14+08:00",
+ "updated_at": "2026-10-13T18:54:21+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1235,5 +1236,6 @@
  "_v10.13.1_round_close_note": "★ 2026-10-13T18:42:11+08:00 【本轮收尾】D-309 轮次收尾仪式已建成并验证（round-close.py 5/5 + skill 已加节）",
  "_v10.13.2_round_close_note": "★ 2026-10-13T18:47:21+08:00 【本轮收尾】§12-6 复跑外网：发现 CAHAC 的 IETF 等价物 AEE（14 字段对 14 字段），改变 §3.4.3 结论",
  "_v10.13.3_round_close_note": "★ 2026-10-13T18:48:37+08:00 【本轮收尾】§12-2/§12-6 完成：P26 时间窗已定并接进 stability-probe（扫28面命中0，PASS）；外网复跑发现 AEE（IETF，14字段对14字段）",
- "_v10.13.4_round_close_note": "★ 2026-10-13T18:50:14+08:00 【本轮收尾】I-2 推进：CAHAC 补 AEE 的 4 字段（intent/reply_to/trace/requires，均可选）；且端到端拓出 thread 真缺陷已修"
+ "_v10.13.4_round_close_note": "★ 2026-10-13T18:50:14+08:00 【本轮收尾】I-2 推进：CAHAC 补 AEE 的 4 字段（intent/reply_to/trace/requires，均可选）；且端到端拓出 thread 真缺陷已修",
+ "_v10.13.5_round_close_note": "★ 2026-10-13T18:54:21+08:00 【本轮收尾】§12-1 M0 冷启动实测 71 秒（子代理代做）⇒ 解除条件①②成立；并修掉子代理拓出的三个真坑"
 }
