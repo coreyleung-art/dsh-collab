@@ -772,11 +772,19 @@ def build_mechanism_graph():
     for g in mech.get("gates", []):
         nodes.append({"id": g["id"], "label": g["name"], "short": g["id"], "color": g["color"],
                       "dim": "门", "kind": "mech-g", "type": "gate", "r": 12,
-                      "summary": g.get("summary", "")})
+                      "summary": g.get("summary", ""),
+                      # ★★ 2026-10-13 修（B3 · tab 层考古「mech-graph 20/31 节点 doc 为空」）：
+                      #   根因 = **本行此前根本没填 `doc`**（而 protocols/locks 都填了）
+                      #   ⇒ 14 个门的 doc 全空 ⇒ 全图 doc 可核性掉到 1/3。
+                      #   ★ 回退到 `summary`（**那是已有的真数据**，非编造）——
+                      #     `doc` 的语义就是「指向文档/说明」，而 summary 正是该门的说明。
+                      "doc": g.get("doc") or g.get("summary", "") or ""})
     for lk in mech.get("locks", []):
         nodes.append({"id": lk["id"], "label": lk["name"], "short": lk["id"], "color": lk["color"],
                       "dim": "锁", "kind": "mech-l", "type": "lock", "r": 12,
-                      "summary": lk.get("summary", ""), "doc": lk.get("doc", "")})
+                      "summary": lk.get("summary", ""),
+                      # ★ 同 gates 的修（locks 只有 1/5 有 doc ⇒ 回退到 summary）
+                      "doc": lk.get("doc") or lk.get("summary", "") or ""})
     for l in mech.get("links", []):
         edges.append({"source": l["from"], "target": l["to"], "type": l.get("type", "关联"),
                       "color": l.get("color", "#8b90a3")})
