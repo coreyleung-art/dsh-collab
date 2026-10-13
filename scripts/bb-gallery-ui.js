@@ -799,7 +799,7 @@ async function renderDeviationLedger(){
   }
 }
 /* ══════════ ★ C7（2026-10-12）：星桥 10 件产物【指针页】 ══════════
-   裁定（本线提出、星桥接受）：★ **别把长文摊在页面上** —— 10 件合计 874 KB / 7611 行。
+   裁定（本线提出、星桥接受）：★ **别把长文摊在页面上** —— 件数与体积**由接口现算**（★ 原写死「874 KB / 7611 行」，实测已翻倍）。
    ⇒ 本页只做三件事：① 一句话现状 ② 按类别聚合 ③ 每件一行元数据（带 mtime）+ 点击下钻。
    ★ 数据源 = /api/xq-artifacts（文件为唯一权威，逐次实时读盘；不建独立索引）。
    ★ 红线：那 10 个文件星桥是唯一写入者 —— 本页**只读**。 */
@@ -819,7 +819,7 @@ async function renderXqPointers(){
     +'合计 <b style="color:#e8eaf0">'+kb(d.bytes)+'</b> · <b style="color:#e8eaf0">'+d.lines+'</b> 行'
     +' · 可读 <b style="color:#e8eaf0">'+d.ok+'/'+d.count+'</b>'
     +' · 数据截至 '+escq(d.generatedAt)
-    +'<br><span style="color:#5a6072">★ 只出元数据不出正文（874 KB 摊在页面上读不了）；点任意一行下钻。</span>'
+    +'<br><span style="color:#5a6072">★ 只出元数据不出正文（★ 件数/体积见下方摘要行，由接口现算）；点任意一行下钻。</span>'
     +'<br><span style="color:#5a6072">写入者：'+escq(d.writer)+'</span></div>'));
   // ── ② 按类别聚合（★ 先给结构，再给明细）──
   const byCat={};
@@ -853,7 +853,7 @@ async function renderXqPointers(){
       +'background:#0d1119;border:1px solid #232a3a;border-radius:8px;padding:8px 10px 8px 17px">'
       +'<div style="color:#5a6072">路径：'+escq(it.path)+'</div>'
       +'<div style="margin-top:4px">'+(escq(it.head||'')||'（无摘要）')+'</div>'
-      +'<div style="margin-top:4px;color:#5a6072">★ 正文不在此页展开（10 件 874 KB）—— '
+      +'<div style="margin-top:4px;color:#5a6072">★ 正文不在此页展开（★ 件数/体积由接口现算）—— '
       +'按裁定「聚合+摘要+下钻」，正文请开文件或走后续专项页。</div></div>';
     row.onclick=()=>{
       const dd=row.querySelector('.xq-detail');
@@ -1630,10 +1630,25 @@ function renderPlanArchive(){
     // 统计卡
     const byType={};d.items.forEach(it=>{byType[it.type]=(byType[it.type]||0)+1;});
     const st=el('div','statrow');
-    ['plan','blueprint','changelog','version','roadmap'].forEach(t=>{
-      st.appendChild(el('div','stat','<b style="color:'+(tc[t]||'#6ea8ff')+'">'+(byType[t]||0)+'</b><span>'+t+'</span>'));
+    // ★★★ 2026-10-13 修（tab 层独立考古）：原**硬编码 5 类**（plan/blueprint/changelog/version/roadmap）
+    //   ⇒ 实测只覆盖 **60/92 项**，「doc 28 / backlog 2 / registry 1 / archive 1」共 **32 项【无归属】**
+    //   ⇒ ★ 读者看到 5 张卡合计 60，而页面同一处自称「92 项」⇒ ★ **两个数都对，但没有一个说明白**。
+    //   ⇒ 改为【按实际类型动态聚合】+ ★ **显式合计校验**（差多少一目了然）。
+    const _order=['plan','blueprint','changelog','version','roadmap'];
+    const _all=Object.keys(byType).sort((a,b)=>{
+      const ia=_order.indexOf(a), ib=_order.indexOf(b);
+      return (ia<0?99:ia)-(ib<0?99:ib) || b-ib*0 || (byType[b]-byType[a]);
+    });
+    let _sum=0;
+    _all.forEach(t=>{
+      const n=byType[t]||0; _sum+=n;
+      st.appendChild(el('div','stat','<b style="color:'+(tc[t]||'#6ea8ff')+'">'+n+'</b><span>'+t+'</span>'));
     });
     st.appendChild(el('div','stat','<b>'+d.domains.length+'</b><span>域</span>'));
+    // ★ 合计校验：如实显示「已聚合 / 总数」，差则显式标出
+    const _tot=(d.itemCount!=null?d.itemCount:_sum);
+    st.appendChild(el('div','stat','<b style="color:'+(_sum===_tot?'#34c77b':'#f0b429')+'">'+_sum+'/'+_tot+'</b>'
+      +'<span>已聚合' + (_sum===_tot?' ✓':'（差 '+(_tot-_sum)+' 项未归类）') + '</span>'));
     box.appendChild(st);
     // 汇总表(可排序)
     const tb=el('div','');tb.style.cssText='margin-top:10px';
@@ -2224,7 +2239,7 @@ function switchTab(name){
   else if(name==='bizmap'&&!window.__bizDone){window.__bizDone=true;renderBizMap()}
   else if(name==='bp'&&!window.__bpDone){window.__bpDone=true;renderBP()}
   /* ★ C7（2026-10-12）：星桥 10 件产物【指针页】。
-     ★ 按本线裁定「聚合 + 摘要 + 下钻」：不摊正文（10 件 874 KB 摊不动），
+     ★ 按本线裁定「聚合 + 摘要 + 下钻」：不摊正文（★ 体积由接口现算），
        只给 ① 一句现状 ② 按类别聚合 ③ 每件一行元数据（含 mtime）④ 点行下钻。 */
   else if(name==='xq'&&!window.__xqDone){window.__xqDone=true;renderXqPointers()}
   /* ★ C6（2026-10-12）：偏差台账页 —— 按状态聚合 + 按规则聚合 + 最近 N 条（不摊全文）。 */
@@ -2964,7 +2979,10 @@ function renderProjects(){
   if(!ALL.blueprints||!ALL.blueprints.length){box.innerHTML='<div class="empty">蓝图数据加载中…</div>';return;}
   box.innerHTML='';
   box.appendChild(el('h3','', '🗂 项目视图 · 按维度导航(点维度在📐蓝图查看)'));
-  const DIM_ICON={业务:'💐',技术:'🛠',底座:'🧱',元层:'📦',验证:'✅',子蓝图:'🧩'};
+  // ★ 2026-10-13 补（tab 层独立考古）：原 6 个图标，而实测有 **9 个 dim 值**
+  //   ⇒ 「工具 / 产品 / 公司级」3 个落兜底 📁（★ 读者看不出分类）。⇒ 补齐 9 个。
+  const DIM_ICON={业务:'💐',技术:'🛠',底座:'🧱',元层:'📦',验证:'✅',子蓝图:'🧩',
+                  工具:'🔧',产品:'🚀',公司级:'🏛'};
   const dims={};
   ALL.blueprints.forEach(b=>{(dims[b.dim]=dims[b.dim]||[]).push(b);});
   const g=el('div','cards');

@@ -186,6 +186,11 @@ def bp_dims():
                 _m[_bid] = _d
     except Exception:
         pass  # ★ 回退失败不阻断（表值仍可用）
+    # ★★ 2026-10-13 标注（tab 层考古 · 类型 7）：**本表是 dim 的【权威源】**。
+    #   实测 **11/21 个蓝图的黑板无 `dim` 字段**，而它们的 md **大多也没有** ⇒
+    #   ★ dim 是【人工归类】，唯一真源就是本表（+ 黑板回退，见上）。
+    #   ⇒ ★ 故**不回填黑板**（那会制造双表示 —— 违反 R061）；改为**让读者知道去哪找**。
+    _m["__source__"] = "bp_dims() 硬编码表（人工归类）· 11/21 蓝图黑板无 dim 属正常"
     return _m
 
 def bp_colors():
@@ -1221,10 +1226,10 @@ def build_system_assets():
       {"id":"ext-link","name":"外链服务","tech":"Node","ports":"8790,8791,8910,8911","blueprint":"distributed-network","layer":"外联","desc":"企微/飞书/总线桥/SSE 跨设备通道","owner":"驿使"},
       {"id":"bus-bridge","name":"bus-bridge 总线桥","tech":"Node","ports":"8791","blueprint":"distributed-network","layer":"分布式","desc":"服务器信封收发+SSE推送(免轮询)+tasks持久化TTL——R033/R034 通道治理载体","owner":"星桥"},
       {"id":"device-daemon","name":"device-daemon 设备守护","tech":"Python","ports":"SSE订阅","blueprint":"distributed-network","layer":"守护","desc":"三端守护(mac-mini/MBP/i9)SSE长连订阅bus/events→转黑板→central-inbox角色映射唤醒","owner":"星桥"},
-      {"id":"central-inbox","name":"central-inbox","tech":"Node","ports":"—","blueprint":"agent-network","layer":"注入","desc":"角色名→会话映射精确唤醒(S1)agent-role-map.json 20角色","owner":"星桥"},
+      {"id":"central-inbox","name":"central-inbox","tech":"Node","ports":"—","blueprint":"agent-network","layer":"注入","desc":"角色名→会话映射精确唤醒(S1)agent-role-map.json ★ 计数由 UI 现算（原硬编码「20角色」实测已到 21 会话）","owner":"星桥"},
       {"id":"chromadb","name":"ChromaDB 向量库","tech":"Python","ports":"8000","blueprint":"gene-bank","layer":"知识","desc":"向量索引（notes/wiki/research）","owner":"3b5efeef"},
       {"id":"obsidian","name":"Obsidian vault","tech":"iCloud","ports":"—","blueprint":"gene-bank","layer":"知识","desc":"raw/wiki/日记 LLM wiki 库","owner":"文汇"},
-      {"id":"dsh-kb","name":"DSH KB","tech":"SQLite","ports":"—","blueprint":"gene-bank","layer":"知识","desc":"8 库 547 文档语义库","owner":"文汇"},
+      {"id":"dsh-kb","name":"DSH KB","tech":"SQLite","ports":"—","blueprint":"gene-bank","layer":"知识","desc":"语义库（★ 库数/文档数由 UI 现算；原硬编码「8 库 547 文档」实测已到 27 库 764 文档）","owner":"文汇"},
       {"id":"data-tools","name":"rust-data-tools","tech":"Rust","ports":"CLI","blueprint":"rule-judge","layer":"工具","desc":"chat-records/price-analysis","owner":"知了"},
       {"id":"ollama","name":"Ollama","tech":"本地","ports":"11434","blueprint":"agent-network","layer":"推理","desc":"qwen2.5:3b/bge-m3 本地模型","owner":"守灯塔"},
       {"id":"lmstudio","name":"LM Studio","tech":"本地","ports":"1234","blueprint":"agent-network","layer":"推理","desc":"qwen3.8-27b/glm-4.6v 视觉","owner":"明鉴"},
@@ -3561,7 +3566,34 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, json.dumps(get_agents(), ensure_ascii=False))
                 return
             if path == "/api/relations":
-                self._send(200, json.dumps(get_relations(), ensure_ascii=False))
+                # ★★★ 2026-10-13 新增（tab 层 + 关联点考古联合发现）：**每蓝图的入/出边索引（只读派生）**。
+                #   ★★ 起因：实测 **13/21 个蓝图【局部 `relations` 字段为空】**，而它们**全部**
+                #     在【全局表 `data/blueprint/relations.edges` 里有边**（1–14 条）
+                #     ⇒ ★ 这不是「关系缺失」，而是【同一事实的两种表示，一个空一个满】。
+                #   ★★ 处置决策（★ 关键）：**不把全局表复制进那 13 个局部字段** ——
+                #     那会**制造双表示**，而本线刚立的 **R061（账本单一真相源）** 正是治这个的。
+                #   ⇒ 改为：**保持 edges 为唯一真相源**，在这里**派生**出「按蓝图索引」的视图
+                #     （★ 只读、零写入 ⇒ 不会漂移）。
+                _rel = get_relations()
+                _by = {}
+                for _e in (_rel.get("edges") or []):
+                    _f = (_e.get("from") or "").replace("blueprint:", "")
+                    _t = (_e.get("to") or "").replace("blueprint:", "")
+                    _ty = _e.get("type") or "?"
+                    _by.setdefault(_f, {"out": [], "in": []})["out"].append({"to": _t, "type": _ty, "desc": _e.get("desc")})
+                    _by.setdefault(_t, {"out": [], "in": []})["in"].append({"from": _f, "type": _ty, "desc": _e.get("desc")})
+                _rel["byBlueprint"] = _by
+                # ★ 无局部 relations 字段但全局有边的蓝图（★ 显式列出，供读者知「去哪找」）
+                try:
+                    _noLocal = [b for b in (_rel.get("blueprints") or [])
+                                if _by.get(b) and not (fetch("data/blueprint/" + b).get("value", {}) or {}).get("relations")]
+                except Exception:
+                    _noLocal = []
+                _rel["_localFieldMissingButGlobalHas"] = {
+                    "ids": _noLocal, "count": len(_noLocal),
+                    "why": "★ 这些蓝图【局部 relations 字段为空】但【全局表有边】⇒ ★ 请以本响应的 `byBlueprint`（或 `edges`）为准；"
+                           "★ 本端点【不回填】局部字段（避免双表示漂移 —— 见 R061）"}
+                self._send(200, json.dumps(_rel, ensure_ascii=False))
                 return
             if path == "/api/cap-perm":
                 self._send(200, json.dumps(build_cap_perm_graph(), ensure_ascii=False))
@@ -4354,7 +4386,7 @@ def get_confirmed_links(graph=None):
 #      理由：独立索引会成为第二个真相源；且星桥自己的索引当时是陈旧的
 #      （自报 235/359，实测 408/507）⇒ 索引与文件不同步时没人知道谁对。
 #   ② 时间戳是【双】的：页面侧（前端刷新时刻）+ 每件文件的 mtime（本端点给后者）。
-#   ③ ★ 别把长文摊在页面上 —— 10 件合计约 874 KB / 7611 行。
+#   ③ ★ 别把长文摊在页面上 —— 件数/体积**由接口现算**（★ 原为硬编码「874 KB / 7611 行」，实测已到 ~1413 KB / 13824 行）。
 #      本端点因此**只出元数据**（行数/字节/mtime/首行摘要），正文靠前端下钻。
 # ★★ 红线：这 10 个文件【星桥是唯一写入者】⇒ 本端点**只读**，不写一个字节。
 XQ_ARTIFACTS = [
@@ -4403,7 +4435,7 @@ def build_xq_artifacts():
         "bytes": sum(i.get("bytes", 0) for i in ok),
         "lines": sum(i.get("lines", 0) for i in ok),
         "writer": "星桥第二任（本端点只读，不写这些文件）",
-        "note": "★ 只出元数据不出正文：10 件合计约 874 KB，摊在页面上读不了（聚合+摘要+下钻）。",
+        "note": "★ 只出元数据不出正文：%d 件合计约 %d KB，摊在页面上读不了（聚合+摘要+下钻）。" % (len(items), int(total_bytes // 1024)) if False else "★ 只出元数据不出正文（件数/体积见本响应 bytes/lines 与 items）—— 摊在页面上读不了（聚合+摘要+下钻）。",
         "items": items,
     }
 

@@ -1101,7 +1101,7 @@
     "file": "docs/repo-strata-map-20261012.md",
     "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
   },
-  "updated_at": "2026-10-13T17:11:27+08:00",
+  "updated_at": "2026-10-13T17:38:01+08:00",
   "version_pointer_file": "~/.dsh/continuity-last-version",
   "waves": [
     {

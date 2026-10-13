@@ -754,6 +754,26 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("H5 负控覆盖率", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-301）【S 维五项：稳定性】—★ 目标四维最后一维。
+    #   ★ 立据：W4 §3.1 S-1…S-4；★ 其中 S-1 已裁定①拆两条（★ S-1a / S-1b）。
+    #   ★ 实测：S-1b **FAIL**（drift 11 vs 活体端口 40）· S-2 **PASS**（滞后 20.1 分）·
+    #     S-3 **PASS**· S-4 **FAIL**（同 pid 1221）· S-1a 不可判（★ 无登记数声明）。
+    try:
+        _sp = subprocess.run([sys.executable, str(ROOT / "tools" / "stability-probe.py"), "--json"],
+                             capture_output=True, text=True, timeout=200)
+        _sd = json.loads(_sp.stdout)
+        for _k, _v in _sd["checks"].items():
+            _vv = _v.get("verdict")
+            # ★★ 2026-10-13 修（★ 本纳自查）：**不可判 ≠ FAIL**（★ 三态不得合并）—★
+            #   ★ 原写 `== "PASS"` ⇒ **UNDECIDABLE 被当成 FAIL】** ⇒ 误报。
+            if _vv == "UNDECIDABLE":
+                skip("S 维 %s" % _k, "★ 不可判 — %s" % str(_v.get("why"))[:110])
+            else:
+                check("S 维 %s" % _k, _vv == "PASS",
+                      "★ %s — %s" % (_vv, str(_v.get("why"))[:120]))
+    except Exception as e:
+        skip("S 维（稳定性）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。
