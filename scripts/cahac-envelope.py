@@ -37,6 +37,28 @@ FIELDS = ["cahac", "id", "type", "channel", "sender", "recipient", "thread",
 # ★ 可选（★ 依 §3 字段规则：signature v1.0 可选；expires 为 TTL 可选）
 OPTIONAL = {"signature", "expires"}
 
+# ★★★ 2026-10-13【IETF AEE 对齐字段】—★ 目标四维 **I-2**。
+#   ★ 立据（★ D-310）：复跑外网发现 **AEE（Agent Envelope Exchange）**—★
+#     ★ `draft-cowles-aee-01`（IETF 个人草案，2026-08-31）。它逐字：「14 well-defined fields」—★
+#     ★★ **而我们的 CAHAC §3 也是 14** ⇒ **可逐字段对比**。
+#   ★ 对比结果：★ 8 字段直接对应 · 2 同义异名（`corr`↔`thread`）—★
+#     ★★ **而 AEE 有 4 字段我们【没有】**。
+#   ★ 注意：★ AEE 是**个人草案**（Individual·无 RFC stream）—★
+#     ★ **不能当标准引用**（★ 它自己写「not be cited … other than as work in progress」）—★
+#     ★ 故本处只读作【业界同向者】，★ **不读作标准**。
+#   ★★ 加法：★ **全部作【可选】**（★ 不改必填数 12，★ 不破现有卡）。
+AEE_ALIGNED = {
+    "intent": "★ AEE#7 · 命名空间的意图标识（★ 声明消息语义目的）",
+    "reply_to": "★ AEE#9 · 被回复的消息 id（★ `type` 为 result/error 时非空）",
+    "trace": "★ AEE#10 · 分布式追踪（★ trace_id/span_id）",
+    "requires": "★ AEE#12 · 执行约束（★ timeout_ms/human_approval/evidence 等）",
+}
+# ★ 它们进 FIELDS（★ 以便工具能看到）但进 OPTIONAL（★ 以便不破必填）
+for _f in AEE_ALIGNED:
+    if _f not in FIELDS:
+        FIELDS.append(_f)
+    OPTIONAL.add(_f)
+
 # ★ 必填 12
 REQUIRED = [f for f in FIELDS if f not in OPTIONAL]
 
@@ -217,6 +239,13 @@ def selftest():
         ok += 1; print("  ✅ 负控：无 env ⇒ unattributed（★ 不臆造）")
     else:
         print("  ❌ 负控失败：无 env 未报 unattributed")
+    # ★★ AEE 对齐字段：★ 只能是可选（★ 不得进必填）
+    tot += 1
+    _bad = [f for f in AEE_ALIGNED if f in REQUIRED]
+    if _bad == []:
+        ok += 1; print("  ✅ 正控：AEE 对齐字段 %d 个均为可选（★ 不破必填 12）" % len(AEE_ALIGNED))
+    else:
+        print("  ❌ AEE 对齐字段侵入必填：%s" % _bad)
     # ★ 必填数口径
     tot += 1
     if len(REQUIRED) == 12:
