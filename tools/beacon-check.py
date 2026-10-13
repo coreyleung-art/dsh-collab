@@ -735,6 +735,25 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("H2 静默失败扫描", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-300）【H5 探针负控覆盖率】—★ 目标四维 H 维最后一项。
+    #   ★ 立据：W4 自陈 H5 = **元判据**：★「它量的是「负控有无」本身；
+    #     ★★ 它自己的负控 = 造一个带负控的检查项 ⇒ 分母应 +1」。
+    #   ★ 实测：drift-scan **0/11 = 0.0%**（★ W4 现测 0/12，★ 差在注释键）；
+    #     ★★ **而本工具【实现了那个 +1】**（★ H5c 自负控已 PASS）。
+    try:
+        _nc = subprocess.run([sys.executable, str(ROOT / "tools" / "negctl-coverage.py"), "--json"],
+                             capture_output=True, text=True, timeout=200)
+        _nd = json.loads(_nc.stdout)
+        _c = _nd["checks"]
+        _b = _c.get("H5b 负控覆盖率（drift-scan）") or {}
+        _cc = _c.get("H5c 本条自己的负控（★ 元判据的 +1）") or {}
+        check("H5b 负控覆盖率（drift-scan）", _b.get("verdict") == "PASS",
+              "★ %s — %s" % (_b.get("verdict"), str(_b.get("why"))[:120]))
+        check("H5c 元判据自负控（★ 新建）", _cc.get("verdict") == "PASS",
+              "★ %s" % str(_cc.get("why"))[:140])
+    except Exception as e:
+        skip("H5 负控覆盖率", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。

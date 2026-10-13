@@ -419,6 +419,13 @@ def cmd_sync_from_artifacts(apply=False):
 def main():
     ap = argparse.ArgumentParser(description="蓝图版本管理+日志管理")
     ap.add_argument("--version-list", action="store_true")
+    # ★★★ 2026-10-13 新增（tab 层独立考古 · 类型 4）：**只读催办清单**。
+    #   背景：`--sync-from-artifacts` **有意不修改 `blueprints` 字典**（源码逐字「不替人改版本号」
+    #   ★ 与 reflect-enroll 的「只拒绝不自动修复」同源 —— 版本是治理决定）。
+    #   ⇒ ★ 代价：台账会永久落后于产物，且**没有任何催办**（实测 agent-network 台账 v1.2 / 产物 v1.3）。
+    #   ⇒ 本开关**只读**：打「待人工裁决」清单，不写任何东西。
+    ap.add_argument("--stale-report", action="store_true",
+                    help="★ 只读：列出「台账落后于产物」与「台账未覆盖」的蓝图（供人工裁）")
     ap.add_argument("--bump", default="", help="版本升级（蓝图 id）")
     ap.add_argument("--level", default="minor", choices=["major", "minor", "patch"])
     ap.add_argument("--why", default="")
@@ -446,6 +453,37 @@ def main():
     elif args.sync_from_artifacts:
         # ★ D1（2026-10-12）：从产物推导补账。★ 默认 dry-run，--apply 才写。
         sys.exit(cmd_sync_from_artifacts(apply=args.apply))
+    elif getattr(args, "stale_report", False):
+        # ★★ 只读：台账 vs 产物对账（★ 不写、不改 —— 版本号是治理决定）
+        import urllib.request as _ur
+        vl = fetch("data/blueprint/versionlog").get("value") or {}
+        led = vl.get("blueprints") or {}
+        try:
+            with _ur.urlopen("http://127.0.0.1:8798/api/blueprints", timeout=60) as _r:
+                art = {b["id"]: b.get("version") for b in json.loads(_r.read().decode())}
+        except Exception as e:
+            print("★ 取产物版本失败：%s" % e); return 2
+        def _n(v):
+            return str(v or "").strip().lstrip("v").split("（")[0].strip()
+        behind=[]
+        for k, v in led.items():
+            lv = (v or {}).get("version") if isinstance(v, dict) else v
+            if k in art and _n(lv) != _n(art.get(k)):
+                behind.append({"id":k, "ledger":lv, "actual":art.get(k)})
+        missing=[{"id":k, "actual":art[k]} for k in art if k not in led]
+        print("══ 台账落后于产物（待人工裁决 · ★ 本命令不改）══")
+        if behind:
+            for x in behind: print("  ★ %-22s 台账 %-8s → 产物 %-8s" % (x["id"], x["ledger"], x["actual"]))
+        else:
+            print("  （无）")
+        print("")
+        print("══ 台账未覆盖（从未登记）══")
+        print("  %d 项：%s" % (len(missing), " ".join(x["id"] for x in missing) or "（无）"))
+        print("")
+        print("★ 处置：版本号是**治理决定**，故本工具不自动改写；")
+        print("  若人工确认后可回写 —— 但按 R062①「归档≠已处理」，**先确认产物为真**。")
+        print("★ 本命令【只读】：未写任何键。")
+        return 0
     elif args.version_list:
         cmd_version_list()
     elif args.bump:

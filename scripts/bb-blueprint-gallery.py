@@ -248,8 +248,57 @@ def get_relations():
     return {"blueprints": bps, "edges": edges, "parentMap": parent_map, "children": sorted(children)}
 
 def get_versions():
+    """★ 2026-10-13 修（tab 层独立考古 · 类型 3+4+5）：**双源对齐**。
+
+    ★★ 起因：本端点返回两套版本数据 —— `blueprints`（**版本台账 `versionlog.blueprints`**）
+      与 `entries`（版本变更日志），二者**在同一 tab 内互相打架**：
+      实测 `blueprints['agent-network']='v1.2'`，而 `entries` 最新一条（SYNCED）逐字
+      「台账 v1.2 → 产物 **v1.3**」；`/api/blueprints` 与 `bpinfo` 都是 **v1.3**。
+      ⇒ ★ **同一个 tab 里两个版本号各说各话，读者无从判断谁对**。
+    ★ 且**表只覆盖 10/21 个蓝图**（11 个从未登记）。
+    ⇒ 修法（★ 不删数据、不假装一致）：**把分歧显式标出** ——
+      给每项加 `_actual`（来自产物 /api/blueprints）与 `_mismatch`，
+      并给顶层加 `_coverage` / `_mismatchCount` / `_missingFromLedger`。
+      ★ 这样读者一眼看出「台账落后于产物」，而**不用自己比对两处**。
+    """
     d = fetch("data/blueprint/versionlog").get("value", {})
-    return {"blueprints": d.get("blueprints", {}), "entries": d.get("entries", [])}
+    bps = dict(d.get("blueprints", {}) or {})
+    ent = d.get("entries", []) or []
+
+    # ★ 产物侧真值（★ 与 /api/blueprints 同源）
+    actual = {}
+    try:
+        for b in (get_registry() or []):
+            actual[b.get("id")] = b.get("version")
+    except Exception:
+        actual = {}
+
+    def _norm(v):
+        return str(v or "").strip().lstrip("v").split("（")[0].strip()
+
+    mism, missing = [], []
+    for bid, rec in bps.items():
+        av = actual.get(bid)
+        lv = rec.get("version") if isinstance(rec, dict) else rec
+        rec["_actual"] = av if av is not None else None
+        rec["_mismatch"] = bool(av is not None and _norm(lv) != _norm(av))
+        if rec["_mismatch"]:
+            mism.append({"id": bid, "ledger": lv, "actual": av})
+    for bid, av in actual.items():
+        if bid not in bps:
+            missing.append({"id": bid, "actual": av})
+    return {
+        "blueprints": bps,
+        "entries": ent,
+        # ★ 一致性视窗（★ 把「谁落后」显式化，而不是让读者自己比对）
+        "_coverage": "%d/%d" % (len(bps), len(actual) or 21),
+        "_mismatchCount": len(mism),
+        "_mismatches": mism,
+        "_missingFromLedger": missing,
+        "_note": ("★ 台账(blueprints) vs 产物(/api/blueprints) 的对账："
+                  "不一致 %d 项 · 台账未覆盖 %d 项 ⇒ ★ **以产物为准**（台账是补账机制，"
+                  "代码自述 sync「未修改 blueprints」⇒ 结构性不回写）" % (len(mism), len(missing))),
+    }
 
 def get_agents():
     try:
