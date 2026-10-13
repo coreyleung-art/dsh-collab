@@ -4684,7 +4684,13 @@ def build_channel_baseline():
                          "✓" if cond_b else "❌"))},
             {"id": "M4②", "judge": "无未登记通道（三条合取：具名 ∧ 登记 ∧ 有负控）",
              "verdict": "❌", "src": "v6.1 §14.4 + 差距件",
-             "note": "论域已裁 ⇒ L3=44 为正式读数；逐条具名/登记/负控未做。"},
+             "note": "论域已裁 ⇒ L3=44 为正式读数；逐条具名/登记/负控未做。",
+             # ★ 2026-10-13 补溯源（tab 层考古 · 类型 6「有据但没标出处」）：
+             #   ★ L3=44 不是裸数字 —— 它是【用户已裁定的正式读数】，出处见下；
+             #   ★ 且可复跑（★ 同该页 note「引用来源件并标明，不冒充实测」的原则）。
+             "srcRef": {"doc": "docs/deviation-ledger-20261011.md", "entries": ["D-090", "D-062"],
+                        "quoting": "用户裁定 M4② 论域：采纳提案（端口+守护进程+黑板命名空间）⇒ L3=44 自此为正式读数",
+                        "reproduce": "python3 scripts/channel-denominator.py --live"}},
             {"id": "M4③", "judge": "投递可见（①queued 标未达 ②expired 必告警 ③两路闭环）",
              "verdict": "❌", "src": "v6.1 §14.4",
              "note": "①部分 ②🟡 缺负控 ③未评（锚点未给口径）。"},

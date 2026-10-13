@@ -1430,6 +1430,26 @@ function openAsset(a,src){
   else ab.innerHTML='<iframe src="'+src+'" sandbox="allow-scripts allow-same-origin"></iframe><div class="am-meta">'+a.title+' · '+a.owner+' · '+a.date+'</div>';
 }
 function closeAsset(){const m=$('asset-modal');if(m)m.classList.remove('on')}
+// ★★★ 2026-10-13 新增（tab 层独立考古 · 类型 6「缺时间戳」的【显示端】）：
+//   8 个 gallery 快照端点（knowledge-graph/original/workflow/plan-archive/mechanism/
+//   hardware/biz-assets/philosophy）**32–41 天陈旧，而页面无任何时间戳** ⇒ 读者无法判断新鲜度。
+//   ★ 后端已注入 `_srcMtime` / `_srcAgeDays` / `_srcFiles`（本线 2026-10-13 加），
+//     **但 UI 还没显示** —— 本函数就是它的显示端。
+//   ★ 范式照抄 C1–C7 新页（「文件 mtime + 数据截至 + 写入者」）。
+//   ★★ 分档：≤7 天=绿 · ≤30 天=黄 · >30 天=橙并显式提示「可能已停更」。
+function srcStamp(d){
+  if(!d) return '';
+  const m=d._srcMtime, age=d._srcAgeDays;
+  if(!m) return '<div style="font-size:11.5px;color:#8b90a3;margin-top:8px">★ 数据来源时间【不可判】（未注入 _srcMtime）</div>';
+  const c = (age==null) ? '#8b90a3' : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : '#e06c75'));
+  const warn = (age!=null && age>30) ? ' ⚠️ **可能已停更**（>30 天）' : '';
+  return '<div style="font-size:11.5px;color:'+c+';margin-top:8px">'
+    +'🕒 数据截至 '+esc(m)+(age!=null?('（**'+age+' 天前**）'):'')+warn
+    +(d._srcFiles?('<br><span style="color:#5a6072;font-size:10.5px">来源文件: '
+        + Object.keys(d._srcFiles).map(k=>k+' '+esc(d._srcFiles[k]||'?')).join(' · ')+'</span>'):'')
+    +'</div>';
+}
+
 function renderMechanism(){
   const box=$('view-mech');if(!box)return;
   box.innerHTML='';
