@@ -368,7 +368,8 @@
   "★ A2 端口固定**已备好已验证补丁但未应用**（行 id = `webserver`，出处 dsh-web-app/cordis.patch.yml:121-126）；★ 选 61044 ⇒ funnel 无需改动；★ 改 profile 属受限区，交由用户一步执行",
   "★ 信封尺口径：面 A 的 glob `*` **不下降子目录** ⇒ 原漏 18,767 个对象（bb/*.jsonl）；已新增**面 A2** 并列报出；★ **两面分母单位不同，不可相加**（台账 D-031）",
   "★ 2026-10-13 续接链的写回器已建（round-close.py）⇒ 但「触发时机」仍靠模型主动调 ⇒ 待接进 hook",
-  "★ 2026-10-13 S-4 破坏性负控仍需授权启停服务"
+  "★ 2026-10-13 S-4 破坏性负控仍需授权启停服务",
+  "★ 2026-10-13 CAHAC 缺 AEE 的 4 字段：intent/reply_to/trace/requires"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1103,7 +1104,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-13T18:42:11+08:00",
+ "updated_at": "2026-10-13T18:47:21+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1229,5 +1230,6 @@
  "_v7.9_fixes_note": "★ 2026-10-12T22:54:36+08:00 ★ **v7 推进**：M6① Â· M5① Â· M7①② Â· M4①③ Â· M9①② 均已交付。★ 新工具：`slo-target-form.py`（9/9）Â· `bus-pending-age.py`（5/5）。★ 台账 217 条。",
  "_v7.10_family_index_note": "★ 2026-10-13T00:36:44+08:00 ★ **v7 家族索引**：`docs/v7-family-index-20261013.md`。",
  "_v10.13.0_round_close_note": "★ 2026-10-13T18:41:23+08:00 【本轮收尾】★ 考古「轮次收尾→下轮注入」机制：查清续接链 6 环（索引/渲染器/产物/注入 skill 已有 4 环，写回器与触发时机缺）⇒ 新建 tools/round-close.py 补 ③⑥ 两环（自证 5/5）",
- "_v10.13.1_round_close_note": "★ 2026-10-13T18:42:11+08:00 【本轮收尾】D-309 轮次收尾仪式已建成并验证（round-close.py 5/5 + skill 已加节）"
+ "_v10.13.1_round_close_note": "★ 2026-10-13T18:42:11+08:00 【本轮收尾】D-309 轮次收尾仪式已建成并验证（round-close.py 5/5 + skill 已加节）",
+ "_v10.13.2_round_close_note": "★ 2026-10-13T18:47:21+08:00 【本轮收尾】§12-6 复跑外网：发现 CAHAC 的 IETF 等价物 AEE（14 字段对 14 字段），改变 §3.4.3 结论"
 }

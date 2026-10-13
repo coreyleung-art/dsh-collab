@@ -9056,5 +9056,59 @@ sed -n '/### 7.9/,/### 7.10/p' docs/...v6.1....md | wc -c   # ⇒ 18
 | **状态** | ★ **`open`**（★ 链已闭合到「半自动」；★ **全自动需 hook**） |
 
 ---
+## D-310 · ★★★★★ **【§12-6 复跑外网：★★ 发现【CAHAC 的 IETF 等价物 AEE】，★ 而它改变了 §3.4.3 的结论】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-13T18:47:21+08:00**（★ 跑 `date`） |
+| **规则号** | ★ **v7 §12 第 6 项** · **v6.1 §3.4.3** · ★ **S3** |
+| **★★☃ 一、而§3.4.3 的三条候选** | ★
+| 候选 | ★ v6.1 给的业界等价物 |
+|---|---|
+| 「7 类消息分级」 | ★ **FIPA-ACL**（2002，performative 库） |
+| 「黑板+邮箱双模」 | ★ **A2A Artifacts + contextId** + push notification |
+| 「成本权重入选择器」 | ★ **CWEP**（2026-03-26 Draft） |
+
+★ 净结论：★ **「本轮未发现 CAHAC 有可靠的领先项」**。 |
+| **★★☃ 二、而本纳复跑外网（★ 四条查询）** | ★ 三条旧候选【均仍成立】✓：
+★ [FIPA XC00037I](http://www.fipa.org/assets/XC00037I.pdf) ·
+★ [A2A spec（Push Notifications，`specification.md`）](https://github.com/a2aproject/A2A/blob/18ca2533bf18d0458f65e4c9eaead3e586fce25d/docs/specification.md) ·
+★ [context-window-economics（CWEP）](https://github.com/alexfleetcommander/context-window-economics)。
+★★ **而新发现两条 v6.1 未记的**：
+★☆ [AEE · Agent Envelope Exchange（IETF draft-cowles-aee-01）](https://datatracker.ietf.org/doc/draft-cowles-aee/) ·
+★☆ [GRIP · Governed Runtime Intent Protocol（zenodo）](https://zenodo.org/records/22078457)。 |
+| **★★☃ 三、而 AEE 是【CAHAC 的直接等价物】** | ★ AEE 逐字：★ **「The envelope comprises **14 well-defined fields**」** —★
+★★ **而 CAHAC §3 也是 14 字段** ⇒ ★ **两者直接可比**。
+★ 它还有：★ **Conformance Levels**（MVE-Required / MVE-5）· **Signatures**（§8）·
+★ **Entity Identifiers**（§5）· **aee.* 保留命名空间**（★ 协议协商）。
+★ 而它的设计目标逐字：★「—★ —★ No standard envelope format · Lost causality · Coupled semantics · Human exclusion」。 |
+| **★★☃ 四、而逐字段比对的结果** | ★
+| ★ AEE | ★ CAHAC | ★ 判 |
+|---|---|---|
+| `v` `id` `ts` `type` `from` `to` `payload` `sig` | `cahac` `id` `ts` `type` `sender` `recipient` `payload` `signature` | ★ **8 字段对应** ✓ |
+| `corr` | `thread` | ★ 同义异名 |
+| `priority` | `priority` | ★ 对应（★ 而 AEE 有 **4 值枚举**） |
+| **`intent`** | ★ **无** | ★★ **CAHAC 缺** |
+| **`reply_to`** | ★ **无** | ★★ **CAHAC 缺** |
+| **`trace`** | ★ **无** | ★★ **CAHAC 缺** |
+| **`requires`** | ★ **无** | ★★ **CAHAC 缺** |
+| ★ — | **`channel`** `cost_cap` `dedup_key` `expires` | ★★ **CAHAC 独有 4 项** |
+ |
+| **★★☃ 五、而那改变了什么** | ★① **§3.4.3 的第③条候选得到了强支持** —★
+★ 上主张：★「把成本权重写进通道选择器」⇒ `cost_cap`—★
+★★ **★ AEE 的 14 字段里【没有】任何成本/预算字段** ⇒ ★ **那一项确实独有**。
+★② **而 CAHAC 缺 AEE 的 4 项**（`intent`/`reply_to`/`trace`/`requires`）—★
+★ **那是【落后】而非领先**，★ 且它们都可补。
+★③ **故 §3.4.3 的「未发现可靠领先项」需修正**—★
+★★ **至少有 1 项有了【可指名的业界对照》**。 |
+| **不可判** | ★ **AEE 是【个人草案】**（Individual·无 RFC stream·I-D Exists）⇒
+★ **不能当标准引用**（★ 它自己写「not be cited … other than as work in progress」）。 |
+| **纠正** | ★ **交付**：★ **四条外网查询的结果** · **三条旧候选均仍成立** · **新发现 AEE 与 GRIP** ·
+★ **AEE ↔ CAHAC 的逐字段对比（★ 8 对应 / 4 我们缺 / 4 我们独有）**。★ **建议（★ 不代裁）**：
+> ★★☃ **【CAHAC 可补 AEE 的 4 项，★ 而保留自己的 4 项】** —★ 那是【对齐】而非领先。 |
+| **审查员** | ★ 本纳实测（★ 外网检索 + 规格原文）· ★ **无第三方 verifier** ⇒ 依 S3，**不主张已闭合** |
+| **状态** | ★ **`open`**（★ §3.4.3 待修正；★ **CAHAC 缺 4 字段待补**） |
+
+---
 
 *本台账只增不改。★ **任何 `closed` 状态必须附独立 verifier**（S3 不可自审）。*
