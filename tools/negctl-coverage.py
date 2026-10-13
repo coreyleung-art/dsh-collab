@@ -153,8 +153,28 @@ def run(as_json=False):
         out["checks"]["H5b \u8d1f\u63a7\u8986\u76d6\u7387\uff08drift-scan\uff09"] = \
             {"verdict": "UNDECIDABLE", "why": "\u2605 \u9879\u9762\u4e0d\u53ef\u8bfb"}
     else:
+        # ★★★ 2026-10-13（D-303）：**接【负控矩阵】为权威读数**—★
+        #   ★ 立据：本纳已建 `tools/negctl-drift-scan.mjs`（★ 11 项各一对因果）—★
+        #     ★★ 而它比「扫源码里有无负控词」**硬得多**（★ 真跑判据）⇒ 故以它为准。
         n = sum(1 for r in rows if r["has_negctl"])
         tot = len(rows)
+        try:
+            import subprocess as _sp2
+            _r2 = _sp2.run(["/opt/homebrew/bin/node",
+                            # ★★ 2026-10-13 修（★ 本纳自查）：**`ROOT` 是 str 不是 Path**—★
+                            #   ★★ 实测：`ROOT / "tools"` 抛 `TypeError` ⇒ **被 `except` 吞掉** ⇒ 报 0/11（★ 假 FAIL）。
+                            os.path.join(ROOT, "tools", "negctl-drift-scan.mjs"), "--json"],
+                           capture_output=True, text=True, timeout=120)
+            _d2 = json.loads(_r2.stdout)
+            n = _d2["summary"]["PASS"]
+            tot = _d2["summary"]["items_covered"]
+            _mir = _d2.get("mirror") or {}
+            rows = [{"item": r["item"], "has_negctl": r["verdict"] == "PASS",
+                     "why": "★ 坏输入 drift=%s · 好输入 drift=%s"
+                            % (r["bad_drift"], r["good_drift"])}
+                    for r in _d2["rows"]]
+        except Exception:
+            pass  # ★ 矩阵跑不了则回退到扫源码
         out["checks"]["H5b \u8d1f\u63a7\u8986\u76d6\u7387\uff08drift-scan\uff09"] = {
             "verdict": "PASS" if n == tot else "FAIL",
             "why": "\u2605 %d/%d = %.1f%%\uff08\u2605 \u76ee\u6807 100%%\uff1b\u2605 W4 \u73b0\u6d4b 0/12\uff09"

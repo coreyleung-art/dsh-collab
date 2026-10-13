@@ -3675,6 +3675,59 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 self._send(404, json.dumps({"error": "not found"}))
                 return
+            if path == "/api/freshness":
+                # ★★★ 2026-10-13 新增（tab 层考古 · 类型 6「缺时间戳」的统一解）。
+                #   ★★ 为什么单开一个端点而【不是】给每个端点加字段：
+                #     8 个端点已加 `_srcMtime`（dict 返回，安全）；但 **`/api/assets` 返回的是
+                #     【list】**（前端 `const assets=await j('/api/assets')` 直接用）⇒
+                #     给它加字段会**破坏既有契约**。
+                #   ⇒ 改为**单开一个只读端点**：★ **不改任何既有端点的返回结构** ⇒ **零破坏**，
+                #     且前端可一次拿到**全部快照的新鲜度**（省去逐端点探测）。
+                _specs = [
+                    ("knowledge-graph", ["knowledge-graph.json"]),
+                    ("original",        ["original-assets.json"]),
+                    ("workflow",        ["workflow-standards.json"]),
+                    ("plan-archive",    ["plan-archive.json"]),
+                    ("mechanism",       ["mechanism.json"]),
+                    ("hardware",        ["hardware-nodes.json", "device-links.json"]),
+                    ("biz-assets",      ["business-asset-map.json", "business-entity-registry.json"]),
+                    ("philosophy",      ["governance-philosophy.json"]),
+                    ("assets",          ["assets/manifest.json"]),
+                    ("relations",       ["version-map.json"]),
+                    ("paper-summaries", ["paper-summaries.json"]),
+                ]
+                _now = datetime.datetime.now()
+                _items = []
+                for _n, _fs in _specs:
+                    _best, _per = None, {}
+                    for _f in _fs:
+                        _fp = os.path.join(GALLERY_DIR, _f)
+                        try:
+                            _d = datetime.datetime.fromtimestamp(os.path.getmtime(_fp))
+                            _per[_f] = _d.strftime("%Y-%m-%d %H:%M:%S")
+                            if _best is None or _d > _best:
+                                _best = _d
+                        except Exception:
+                            _per[_f] = None      # ★ 三态：读不到如实记 None，不假装
+                    _items.append({
+                        "id": _n, "files": _per,
+                        "mtime": _best.strftime("%Y-%m-%d %H:%M:%S") if _best else None,
+                        "ageDays": (_now - _best).days if _best else None,
+                        "state": ("unknown" if _best is None
+                                  else ("fresh" if (_now - _best).days <= 7
+                                        else ("aging" if (_now - _best).days <= 30 else "stale"))),
+                    })
+                _stale = [x["id"] for x in _items if x["state"] == "stale"]
+                self._send(200, json.dumps({
+                    "generatedAt": _now.strftime("%Y-%m-%d %H:%M:%S"),
+                    "writer": "明鉴 v3（★ 本端点只做 os.path.getmtime 探测，不写任何东西）",
+                    "items": _items,
+                    "_staleCount": len(_stale), "_stale": _stale,
+                    "_note": ("★ 统一的新鲜度视图 —— 因 `/api/assets` 返回 list（加字段会破坏契约），"
+                              "故单开本端点。★ 分档：≤7天 fresh · ≤30天 aging · >30天 stale。"
+                              "★ 读不到 mtime 的记 `unknown`（★ 不假装新鲜）。"),
+                }, ensure_ascii=False))
+                return
             if path == "/api/assets":
                 asset_dir = os.path.join(BASE, "data/blueprint/gallery/assets")
                 manifest_f = os.path.join(asset_dir, "manifest.json")

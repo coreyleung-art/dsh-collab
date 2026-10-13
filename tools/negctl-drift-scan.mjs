@@ -141,13 +141,19 @@ function mirrorDrift() {
   let src = '';
   try { src = readFileSync(corePath, 'utf8'); } catch (e) { return { ok: false, why: '★ core.js 不可读：' + e.message }; }
   // ★ 镜像依赖的四个判据记号
-  const marks = [
-    ['expectStatus', 'spec.probe.expectStatus'],
-    ['expectBodyContains', 'spec.probe.expectBodyContains'],
-    ['requiredKeys', 'requiredKeys'],
-    ['tailscale', 'checkTailscale'],
-  ];
-  const miss = marks.filter(([, k]) => !src.includes(k)).map(([n]) => n);
+    // ★★ 2026-10-13 强化（★ 本纳自查）：**只查「字符串存在」太弱**—★
+    //   ★ 实测：`core.js:83` 同一行有**两个** `spec.probe.expectStatus`—★
+    //     ★★ 而本纳的负控只替换 1 个 ⇒ **文件里仍存 1 个** ⇒ 镜像报 OK（★ **负控失效**）。
+    //   ★ 故改为：★ **数出现次数并给下界**（★ 低于下界即 DRIFT）。
+    const marks = [
+      ['expectStatus', 'spec.probe.expectStatus', 2],
+      ['expectBodyContains', 'spec.probe.expectBodyContains', 2],
+      ['requiredKeys', 'spec.probe.requiredKeys', 1],
+      ['tailscale', 'checkTailscale', 1],
+    ];
+    // ★ 判：★ 出现次数 **低于下界** ⇒ DRIFT（★ 而非「不存在」）
+    const counts = marks.map(([n, k, lo]) => [n, (src.match(new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, lo]);
+    const miss = counts.filter(([, c, lo]) => c < lo).map(([n, c, lo]) => `${n}(${c}<${lo})`);
   return { ok: miss.length === 0, missing: miss, path: corePath,
            why: miss.length ? '★ core.js 缺镜像依赖的判据：' + miss.join(', ') : '★ 镜像依赖的 4 个判据均在 core.js 里' };
 }
@@ -199,6 +205,7 @@ function main() {
       console.log(`     \u597d\u8f93\u5165 drift=${r.good_drift} \u2014 ${r.good}`);
       if (r.bad_why) console.log(`     \u5224\u636e\uff1a${r.bad_why}`);
     }
+    console.log(`  【镜像漂移】${mirror.ok ? 'OK' : 'DRIFT'} ${mirror.why}`);
     console.log(`\n  \u6c47\u603b\uff1a\u2605 **PASS ${summary.PASS} \u00b7 FAIL ${summary.FAIL} \u00b7 \u4e0d\u53ef\u5224 ${summary.UNDECIDABLE}**`);
     console.log(`  \u8986\u76d6\uff1a\u2605 **${summary.items_covered}/${summary.items_total}** \u9879`);
   }

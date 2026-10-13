@@ -37,6 +37,7 @@ def selfcheck():
 __version__ = '1.0.0'  # ★ R006 ⑥ 唯一版本声明处（补课生成）
 
 import argparse, json, os, re, datetime
+import sys  # ★ 2026-10-13（R006 ⑦ 调用点需要）
 
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕（r006-retrofit-apply 自足插入）
