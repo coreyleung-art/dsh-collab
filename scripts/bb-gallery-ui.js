@@ -1473,6 +1473,7 @@ function renderMechanism(){
     '<tr><td style="color:#e06c75">🔒 锁</td><td id="mc-l">…</td><td style="color:#8b90a3">R027 人开关/R029 分级/红绿灯/R030 真实性/审批台账</td></tr></table>';
   box.appendChild(tb);
   j('/api/mechanism').then(m=>{
+    if(m&&m._srcMtime)box.appendChild(el('div','',srcStamp(m)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if($('mc-p'))$('mc-p').textContent=m.protocols.length;
     if($('mc-g'))$('mc-g').textContent=m.gates.length;
     if($('mc-l'))$('mc-l').textContent=m.locks.length;
@@ -1524,6 +1525,7 @@ function renderKnowledge(){
   gb.appendChild(lg);
   gb.appendChild(el('div','graph-hint','知识内核：论文/调研支撑体系设计 · 拖拽/双指缩放/轻点看详情'));
   j('/api/knowledge-graph').then(g=>{
+    if(g&&g._srcMtime)box.appendChild(el('div','',srcStamp(g)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     // 过滤
     let nodes=g.nodes, edges=g.edges;
     if(KB_FILTER==='trace'){edges=g.edges.filter(e=>e.type==='支撑');const keep=new Set(['kbp']);edges.forEach(e=>{keep.add(e.source);keep.add(e.target)});nodes=g.nodes.filter(n=>n.kind==='kbp'||n.kind==='krep'&&keep.has(n.id));}
@@ -1537,6 +1539,7 @@ function renderKnowledge(){
     '<tr><td>📐 支撑蓝图</td><td id="kc-b">…</td><td style="color:#8b90a3">8 蓝图设计溯源（依据字段）</td></tr></table>';
   box.appendChild(tb);
   j('/api/knowledge-graph').then(g=>{
+    if(g&&g._srcMtime)box.appendChild(el('div','',srcStamp(g)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if($('kc-r'))$('kc-r').textContent=g.reportCount||'…';
     if($('kc-p'))$('kc-p').textContent=g.paperCount||'…';
     if($('kc-b'))$('kc-b').textContent=(g.nodes||[]).filter(n=>n.kind==='kbp').length;
@@ -1593,6 +1596,7 @@ function renderOriginal(){
   gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
   gb.appendChild(el('div','graph-hint','6 类原创分类(环)→23 项资产 · 点击看详情 · 治理哲学详见顶部🧠 Tab'));
   j('/api/original').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if(d.nodes&&d.nodes.length)buildForceGraph('orig-force-box','orig-force-canvas',d,true);
     // 分类卡片
     const cats=d.nodes.filter(n=>n.kind==='origcat');
@@ -1636,6 +1640,7 @@ function renderPlanArchive(){
   const cv=document.createElement('canvas');cv.id='pa-force-canvas';
   gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
   j('/api/plan-archive').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if(d.error){box.appendChild(el('div','empty','数据加载失败: '+d.error+' — 请先跑 bb-plan-scanner.py --scan'));return;}
     const lg=el('div','graph-legend');
     const tc=d.typeColors||{};
@@ -1719,6 +1724,7 @@ function renderWorkflow(){
   box.innerHTML='';
   box.appendChild(el('h3','', '🔄 工作流/标准 · 体系工作方法与验收标准'));
   j('/api/workflow').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if(d.error){box.appendChild(el('div','empty',d.error));return}
     // 1) R006 九标准
     const r6=el('div','card');r6.style.cssText='margin-bottom:14px';
@@ -1785,6 +1791,7 @@ function renderPhilosophy(){
   box.innerHTML='';
   box.appendChild(el('h3','', '🧠 治理哲学 · 体系最顶层思想'));
   j('/api/philosophy').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     // 一句话原则卡（置顶）
     const top=el('div','card');top.style.cssText='border-color:#e8eaf0;margin-bottom:12px';
     top.innerHTML='<h3 style="color:#e8eaf0">一句话原则 · 能力与权限永远分离</h3>'+
@@ -2001,6 +2008,7 @@ function renderBizMap(){
   gb.appendChild(lg);
   gb.appendChild(el('div','graph-hint','🌍 设备为中心：点设备看承载数 · 点资产卡看归属蓝图 · 拖拽/缩放'));
   j('/api/biz-assets').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if(d.nodes&&d.nodes.length)buildForceGraph('biz-force-box','biz-force-canvas',d,true);
     const stat=el('div','statrow');
     stat.innerHTML='<div class="stat"><b>'+d.deviceCount+'</b><span>设备</span></div>'+
@@ -2078,6 +2086,7 @@ function renderHwTopo(box){
   gb.appendChild(lg);
   gb.appendChild(el('div','graph-hint','🌐 设备(紫)/服务器(黄)/云端(青) · mac-mini 托管本地服务器+远控店铺Xeon · 点击看详情'));
   j('/api/hardware').then(d=>{
+    if(d&&d._srcMtime)box.appendChild(el('div','',srcStamp(d)));  // ★ 2026-10-13 数据新鲜度（后端已注入 _srcMtime）
     if(d.nodes&&d.nodes.length)buildForceGraph('hw-force-box','hw-force-canvas',d,true);
     const tb=el('div','');tb.style.cssText='margin-top:10px';
     const groups=d.groups||{};
