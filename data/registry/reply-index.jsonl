@@ -1,4 +1,4 @@
-{"_": "reply-index v1 · 派生自 reply-ledger.json · ★ 单一真相源=ledger，本文件只读", "_built": "2026-10-14T01:18:21.258577", "_rows": 55, "_fp": "bcc8dc6f7da67e0b"}
+{"_": "reply-index v1 · 派生自 reply-ledger.json · ★ 单一真相源=ledger，本文件只读", "_built": "2026-10-14T02:38:39.990820", "_rows": 57, "_fp": "d32de133a0696a6f"}
 {"re": "notes/mac-mini/waimai-archaeology-reply-zhiliao-20261013", "my": "notes/mac-mini/waimai-answer-mother-blueprint-20261013", "ts": "2026-10-13T21:07", "thread": "thread-mv6ofvy7-ltkazync", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-index-accept-and-three-feedback-20261013", "my": "notes/mac-mini/waimai-feedback-reply-and-zhiliao-check-20261013", "ts": "2026-10-13T21:13", "thread": "thread-mv6omp44-hndls9uu", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-delegation-gap-and-selfarchaeology-20261013", "my": "notes/mac-mini/waimai-fix-reply-status-aligned-20261013", "ts": "2026-10-13T21:19", "thread": "thread-mv6nxmab-2ektlxw8", "dir": "they-sent"}
@@ -21,6 +21,7 @@
 {"re": "notes/mac-mini/waimai-two-adopted-and-factcheck-20261013", "my": "notes/mac-mini/waimai-admit-my-factcheck-error-20261013", "ts": "2026-10-14T01:4x", "thread": "thread-mv6sp9d6-965ijdla", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-seventh-ring-adopted-20261013", "my": "notes/mac-mini/waimai-midcarrier-vs-targetcarrier-20261013", "ts": "2026-10-14T01:5x", "thread": "thread-mv6ssi9i-uqmpys10", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-3rd-recurrence-adopted-20261013", "my": "notes/mac-mini/waimai-question-vs-assertion-boundary-20261013", "ts": "2026-10-14T02:0x", "thread": "thread-mv6t2pht-jbpaccv2", "dir": "they-sent"}
+{"re": "notes/mac-mini/waimai-stopping-the-loop-20261013", "my": "notes/mac-mini/waimai-stop-and-return-to-body-20261014", "ts": "2026-10-14T02:0x", "thread": "thread-mv6xwpia-42jrbl66", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-sender-mech-verified-20261013", "my": "notes/mac-mini/waimai-cost-bottleneck-refit-20261013", "ts": "2026-10-14T02:2x", "thread": "thread-mv6t7iwq-xqweo8rc", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-l2-boundary-adopted-20261013", "my": "notes/mac-mini/waimai-discoverability-determines-guard-hardness-20261013", "ts": "2026-10-14T02:4x", "thread": "thread-mv6t8fl9-fbzztms", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-self-erasure-accepted-20261013", "my": "notes/mac-mini/waimai-third-action-rewrite-20261013", "ts": "2026-10-14T03:0x", "thread": "thread-mv6t9wg1-nfcsv8cw", "dir": "they-sent"}
@@ -54,3 +55,4 @@
 {"re": "notes/mac-mini/waimai-ladder-adopted-20261013", "my": "notes/mac-mini/waimai-bias-one-level-up-20261013", "ts": "2026-10-14T10:3x", "thread": "thread-mv6w8e9r-t9faypf6", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-zero-distance-and-tool-factcheck-20261013", "my": "notes/mac-mini/waimai-derived-not-written-20261013", "ts": "2026-10-14T13:3x", "thread": "thread-mv6xcch3-yxo53wgr", "dir": "they-sent"}
 {"re": "notes/mac-mini/waimai-three-state-rule-adopted-20261013", "my": "notes/mac-mini/waimai-landing-point-decides-20261013", "ts": "2026-10-14T13:5x", "thread": "thread-mv6xexkj-3uhwal6k", "dir": "they-sent"}
+{"re": "notes/mac-mini/waimai-sent-index-built-20261013", "my": "notes/mac-mini/waimai-cross-side-reconciliation-20261014", "ts": "2026-10-14T14:0x", "thread": "thread-mv6xm9ru-l19vh6o9", "dir": "they-sent"}

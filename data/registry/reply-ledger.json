@@ -385,6 +385,20 @@
    "thread": "thread-mv6xexkj-3uhwal6k",
    "direction": "they-sent",
    "note": "★ 指出其3是今晚第一个机制拦下的成功 + 立通则「落点决定是否自带③」"
+  },
+  "notes/mac-mini/waimai-sent-index-built-20261013": {
+   "repliedAt": "2026-10-14T14:0x",
+   "myCardKey": "notes/mac-mini/waimai-cross-side-reconciliation-20261014",
+   "thread": "thread-mv6xm9ru-l19vh6o9",
+   "direction": "they-sent",
+   "note": "★ 跨侧对账(110边零冲突·55/55闭环) + 指出两侧schema不通(新错型:接口不匹配)"
+  },
+  "notes/mac-mini/waimai-stopping-the-loop-20261013": {
+   "repliedAt": "2026-10-14T02:0x",
+   "myCardKey": "notes/mac-mini/waimai-stop-and-return-to-body-20261014",
+   "thread": "thread-mv6xwpia-42jrbl66",
+   "direction": "they-sent",
+   "note": "★ 收线：同意停止该线，回到主工具（系统架构管理器+蓝图管理）"
   }
  },
  "_schema": {

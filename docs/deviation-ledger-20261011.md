@@ -9699,3 +9699,23 @@ re.compile(r"待第三方复核|待复核|待|pending|unavailable|未到位|TBD|
 | **状态** | ★ **`open`**（★ **改毕待重载**；★ 重载前 I-1 仍恒 0） |
 
 ---
+## D-334 · ★★★★ **【底座架构已入系统架构管理器 + 存桌面，并建立 2 条关联】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-14T02:12:54+08:00**（★ 跑 `date`） |
+| **规则号** | ★ **用户指令**（「存到系统架构管理器做关联 + 存桌面放大看」）· ★ **S3** |
+| **★ 一、管理器是什么** | ★ `scripts/bb-blueprint-gallery.py`（★ **明鉴的件** · pid 22527 · **:8798**「系统架构管理器」）· ★ 资产目录 **`data/blueprint/gallery/assets/`** + `manifest.json`。 |
+| **★ 二、我做了什么（★ 四件）** | ★ ① 按它的深色主题风格写 HTML：**`data/blueprint/gallery/assets/CLD底座全局架构-20261013.html`**（★ 9878 B）；<br>★ ② **注册进 `manifest.json`**（★ owner 写本线署名 · ★ 资产 10 → **11 项**）；<br>★ ③ **复制到桌面** `~/Desktop/CLD底座全局架构-20261013.html`（★ 可直接打开放大）；<br>★ ④ **建立 2 条关联**。 |
+| **★★ 三、关联的对象与结果** | ★ 用它的 `GET /api/connect-advance?from=&to=&action=&graph=` —— ★ 对象是 `agent-network` 蓝图的模块节点：<br>```
+CLD底座全局架构 → ml:bus           ok=True step=EVALUATED
+CLD底座全局架构 → ml:comm-server   ok=True step=EVALUATED
+```\n★ 落进 **`data/connect-lab/pipeline.json`**。 |
+| **★★ 四、而为什么选这两个节点** | ★ `agent-network` 蓝图共 **74 节点 73 边**，★ 其模块节点六个：<br>★ **`bus` · `comm-server` · `fnp` · `mem-l1` · `mem-l2` · `security`**。<br>★★ **而本线架构图的 L1 通讯面正好对得上前两个** —— ★ `ml:bus` ↔ agent-bus :8791 · `ml:comm-server` ↔ 黑板 :8792 / SSE :8803。 |
+| **★ 五、而管理器已能看到** | ★ 复跑它的 `/api/assets` ⇒ ★ **命中「★ CLD 底座全局架构（六层）」** ✓（★ 资产总数 11）。 |
+| **不可判** | ★ 那两条关联的**后续步骤**（★ `recommend`/`plan`/`approve`）—— ★ 那是**五步门**，★ 而**后三步属明鉴的域**（★ 本线不代推进）。 |
+| **纠正** | ★ **交付**：★ **HTML 架构图（入管理器 + 存桌面）** · **manifest 注册** · **2 条关联** · **与 agent-network 模块的对应说明**。 |
+| **审查员** | ★ 本纳实测（★ 管理器 API 复跑确认） |
+| **状态** | ★ **`accepted`**（★ 用户要求的两件已办） |
+
+---
