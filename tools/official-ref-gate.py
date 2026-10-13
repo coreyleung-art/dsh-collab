@@ -410,15 +410,29 @@ def main():
                 red.append("产物缺栏：%s" % "、".join(miss))
         print()
 
-    print("══ 判定：%s ══" % ("❌ **NO-GO**（禁止动 dsh 设计项）" if red else "✅ **GO**"))
+    # ★★★ 2026-10-13 修（W4 H1）：【空分母必须报「不可判」，不得报 GO】—★
+    #   ★★ 立据：W4 点名的第①处假绿：未给 `--target/--artifact` ⇒ **本体【未做准入判定】**，
+    #     ★★ 而它仍打 `✅ GO` 且 `rc=0` ⇒ **空分母下报绿**。
+    #   ★ 目标（锚点 :2133）：分母为 0 或可被完全跳过的检查项 = 0
+    #     ⇒ ★ 空分母输入时，判据必须指向「**不可判**」。
+    no_target = not (a.target or a.artifact)
+    if red:
+        _verdict = "❌ **NO-GO**（禁止动 dsh 设计项）"; _rc = 1
+    elif no_target:
+        _verdict = "⚠️ **UNDECIDABLE（不可判）**"; _rc = 2
+    else:
+        _verdict = "✅ **GO**"; _rc = 0
+    print("══ 判定：%s ══" % _verdict)
     for x in red:
         print("   · %s" % x)
-    if not red and not (a.target or a.artifact):
-        print("   （未给 --target/--artifact ⇒ 仅列留证，未做准入判定）")
+    if no_target:
+        print("   （未给 --target/--artifact ⇒ **本体未做准入判定**）")
+        print("   ★★ **空分母 ⇒ 不得报「通过」**（★ W4 H1：空分母必须指向不可判）")
     if a.json:
-        print(json.dumps({"version": VERSION, "red": red,
+        print(json.dumps({"version": VERSION, "red": red, "verdict": _verdict, "rc": _rc,
+                          "no_target": no_target,
                           "doc_checks": len(rows)}, ensure_ascii=False, indent=1))
-    sys.exit(1 if red else 0)
+    sys.exit(_rc)
 
 
 if __name__ == "__main__":

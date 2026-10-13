@@ -104,8 +104,16 @@ def audit(path):
     writes = {}
     for fn in sorted(renders - SUB_VIEWS):
         # 找函数体引用的 view id
+        # ★★★ 2026-10-13 修（tab 层独立考古实测 · ★ 它用正确边界复算证明 6 条 H3 全为误报）：
+        #   原边界找 `\nfunction `，而**所有 render* 都写作 `async function`** ⇒ 边界**从不命中**
+        #   ⇒ 函数体一路吞到下一个**非 async** 的 `function`（实测 `renderTwoCircles` 的「体」被算成
+        #     **502 行**，真身 **83 行**，吞掉 6 个同级渲染器）⇒ **H3 假阳性 6 条**。
+        #   ⇒ 边界同时认 `async function` 与 `function`。
         body_start = src.find("function " + fn)
-        nxt = src.find("\nfunction ", body_start + 10)
+        _c = [x for x in (src.find("\nfunction ", body_start + 10),
+                          src.find("\nasync function ", body_start + 10)) if x > 0]
+        nxt = min(_c) if _c else -1
+        body = src[body_start:nxt if nxt > 0 else body_start + 2500]
         body = src[body_start:nxt if nxt > 0 else body_start + 3000]
         used = set(re.findall(r"\$\('view-([a-z-]+)'\)|getElementById\('view-([a-z-]+)'\)", body))
         used_ids = {a or b for a, b in used}
@@ -143,9 +151,11 @@ def audit(path):
     init_called = set(re.findall(r"render(\w+)\(", init_body))
     risky = []
     for fn in sorted(renders - SUB_VIEWS):
+        # ★ 同 :107 的修（本处是第二处同型 bug）。
         body_start = src.find("function " + fn)
-        nxt = src.find("\nfunction ", body_start + 10)
-        body = src[body_start:nxt if nxt > 0 else body_start + 2500]
+        _c = [x for x in (src.find("\nfunction ", body_start + 10),
+                          src.find("\nasync function ", body_start + 10)) if x > 0]
+        nxt = min(_c) if _c else -1
         short = fn.replace("render", "")
         if "ALL." in body and "async" not in body[:80] and short not in init_called and fn not in init_called:
             # 引用 ALL 且非 async 且非 init 首屏调用 → 依赖未初始化全局的风险

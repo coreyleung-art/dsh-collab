@@ -4344,7 +4344,11 @@ def build_deviation_ledger(recent=10):
         rs = sorted(set(re.findall(r"R\d{2,3}", mr.group(1)))) if mr else []
         for r in rs:
             rules[r] = rules.get(r, 0) + 1
-        mt = re.search(r"\|\s*\*{0,2}时刻\*{0,2}\s*\|\s*(.+?)\s*\|", body)
+        # ★★★ 2026-10-13 修（tab 层独立考古实测）：「时刻」字段有【两种写法】，原正则只认第一种。
+        #   实测台账 **167/292 条（57.9%）** 用 `| **真实时刻** |`（D-124 起改的名）
+        #   ★★ 更反直觉的是：**最近 10 条恰好全用新名** ⇒ 页面最新一批**全显示「—」（无时间）**
+        #   ⇒ 加别名 `(?:真实)?时刻`。
+        mt = re.search(r"\|\s*\*{0,2}(?:真实)?时刻\*{0,2}\s*\|\s*(.+?)\s*\|", body)
         rows.append({"id": did, "title": re.sub(r"[*`]", "", title)[:110],
                      "status": k, "rules": rs,
                      "ts": re.sub(r"[*`]", "", mt.group(1)).strip()[:40] if mt else ""})
@@ -4852,7 +4856,8 @@ def build_health_report():
         _gm=importlib.util.module_from_spec(_sp); _sp.loader.exec_module(_gm)
         _r=_gm.audit(os.path.join(here,"bb-blueprint-gallery.py"))
         add("结构审计", _r["summary"]["errors"]==0, f"{_r['summary']['tabs']}Tab {_r['summary']['errors']}错 {_r['summary']['warnings']}警",
-            "看警告项: " + "; ".join(_r["warnings"][:2]) if _r["warnings"] else "")
+            "看警告项(%d/%d): " % (len(_r["warnings"]), len(_r["warnings"]))  # ★ 2026-10-13 修：原 [:2] 只显 2 条 ⇒ 6 条里 4 条读者看不到（★ 遮蔽）。改为全量 + 计数
+                        + "; ".join(_r["warnings"]) if _r["warnings"] else "")
     except Exception as e:
         add("结构审计", False, str(e)[:100], "audit 模块异常")
     # H4 数据完整性(关键 JSON 可读)
