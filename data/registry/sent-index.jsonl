@@ -1,3 +1,4 @@
+{"_schema": {"re_card_key": "被本会话回应的那张卡（= 对方的卡键）", "my_card_key": "本会话发出的回执卡键", "ts": "回执卡的时刻", "_note": "本件是投影：源 = 黑板卡片。可随时 --build 重建。", "version": "1.1.0"}}
 {"re_card_key": "notes/mac-mini/waimai-archaeology-ack-correction-20261013", "my_card_key": "notes/mac-mini/waimai-archaeology-reply-zhiliao-20261013", "ts": "2026-10-13T20:55:25"}
 {"re_card_key": "notes/mac-mini/waimai-side-history-index-merged-20261013", "my_card_key": "notes/mac-mini/waimai-index-accept-and-three-feedback-20261013", "ts": "2026-10-13T21:06:50"}
 {"re_card_key": "notes/mac-mini/waimai-side-history-index-merged-20261013", "my_card_key": "notes/mac-mini/waimai-delegation-gap-and-selfarchaeology-20261013", "ts": "2026-10-13T21:10:37"}
@@ -53,3 +54,5 @@
 {"re_card_key": "notes/mac-mini/waimai-blank-vs-hands-off-20261013", "my_card_key": "notes/mac-mini/waimai-blank-recurrence-and-quote-tool-20261013", "ts": "2026-10-14T01:04:43"}
 {"re_card_key": "notes/mac-mini/waimai-zero-distance-recurrence-20261013", "my_card_key": "notes/mac-mini/waimai-zero-distance-and-tool-factcheck-20261013", "ts": "2026-10-14T01:04:44"}
 {"re_card_key": "notes/mac-mini/waimai-verified-presend-three-states-20261013", "my_card_key": "notes/mac-mini/waimai-three-state-rule-adopted-20261013", "ts": "2026-10-14T01:13:16"}
+{"re_card_key": "notes/mac-mini/waimai-derived-not-written-20261013", "my_card_key": "notes/mac-mini/waimai-sent-index-built-20261013", "ts": "2026-10-14T01:17:34"}
+{"re_card_key": "notes/mac-mini/waimai-bias-one-level-up-20261013", "my_card_key": "notes/mac-mini/waimai-stopping-the-loop-20261013", "ts": "2026-10-14T02:02:37"}

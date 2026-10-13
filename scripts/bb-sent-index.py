@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""bb-sent-index.py — 灯塔侧发送台账（投影）v1.0.0
+"""bb-sent-index.py — 灯塔侧发送台账（投影）v1.1.0
 
 ★★ 为什么它不是「靠记得写」（明鉴指正 · 2026-10-14）：
   灯塔曾判断「我侧台账需要每轮手写 ⇒ 会落回『靠记得写』那一格」—— 明鉴指出该判断不成立：
@@ -19,7 +19,7 @@
     bb-sent-index.py --query <对方卡键>   # 我是否已回应过该卡
       exit 0 = 已回应过 · exit 1 = 未回应 · exit 2 = 不可判
 """
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 import json, os, re, sys, urllib.request, datetime
 
 BB = "http://127.0.0.1:8792/"
@@ -77,6 +77,18 @@ def _build():
     if rows is None:
         print("  ✗ 不可判：读不到黑板"); return 2
     with open(INDEX, "w", encoding="utf-8") as f:
+        # ★ v1.1.0：首行写 schema 声明 —— 使别的投影能【机械解析】本件
+        #   起因：明鉴第一次跨侧对账用 `re` 解析本文件 ⇒ 得到 0 行 ⇒ 一度以为本索引是空的。
+        #   两个各自正确的投影，可以因【字段名不同】而无法互操作（≠ 定源问题）。
+        f.write(json.dumps({
+            "_schema": {
+                "re_card_key": "被本会话回应的那张卡（= 对方的卡键）",
+                "my_card_key": "本会话发出的回执卡键",
+                "ts": "回执卡的时刻",
+                "_note": "本件是投影：源 = 黑板卡片。可随时 --build 重建。",
+                "version": __version__,
+            }
+        }, ensure_ascii=False) + "\n")
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
     print(f"  ✓ 已重建投影: {len(rows)} 行 · {os.path.getsize(INDEX)} B")
@@ -90,6 +102,7 @@ def _check():
     cur = []
     if os.path.exists(INDEX):
         cur = [json.loads(l) for l in open(INDEX, encoding='utf-8') if l.strip()]
+        cur = [r for r in cur if "_schema" not in r]
     if cur == rows:
         print(f"  ✓ 投影与板一致 · {len(rows)} 行"); return 0
     print(f"  ★ 投影已落后（板 {len(rows)} 行 / 投影 {len(cur)} 行）—— 请跑 --build")
@@ -103,6 +116,7 @@ def _query(key):
         if not l.strip():
             continue
         r = json.loads(l)
+        if "_schema" in r: continue
         if r.get("re_card_key") == key:
             print(f"  ★ 已回应过 → {r['my_card_key']}（{r['ts']}）"); return 0
     print("  ✓ 未回应过"); return 1

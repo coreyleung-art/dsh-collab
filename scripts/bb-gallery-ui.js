@@ -1470,10 +1470,20 @@ function srcStamp(d){
   const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const m=d._srcMtime, age=d._srcAgeDays;
   if(!m) return '<div style="font-size:11.5px;color:#8b90a3;margin-top:8px">★ 数据来源时间【不可判】（未注入 _srcMtime）</div>';
-  const c = (age==null) ? '#8b90a3' : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : '#e06c75'));
-  const warn = (age!=null && age>30) ? ' ⚠️ **可能已停更**（>30 天）' : '';
+  /* ★★★ 2026-10-14 修（★ 主工具真问题 · 用户报障修复后顺带发现）：
+     ★★ 原实现给【所有】来源挂同一个「⚠️ 可能已停更（>30 天）」判据，
+        **而它把两类文件混为一谈**：
+          · 【生成型】= 脚本定期产出（停了就是真停）⇒ ★ 该报警
+          · 【策展型】= 人改才变（32 天没改是正常）⇒ ★★ 报警是【假报警】
+     ★★ 假报警的危害：**它会训练读者忽略报警** ⇒ 真陈旧出现时也没人看。
+        （★ 与今晚那条「不报错的装置会被信任」互为镜像：**假报警是让报警失效的机制**）
+     ⇒ 修法：后端注入 _srcKinds / _srcAllCurated ⇒ **策展型不挂停更警告**，改显示「最后策展于」。 */
+  const _curated = (d._srcAllCurated===true);
+  const c = (age==null) ? '#8b90a3' : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : (_curated ? '#34c77b' : '#e06c75')));
+  const warn = (age!=null && age>30 && !_curated) ? ' ⚠️ **可能已停更**（>30 天）' : '';
+  const _label = _curated ? '🕒 最后策展于 ' : '🕒 数据截至 ';
   return '<div style="font-size:11.5px;color:'+c+';margin-top:8px">'
-    +'🕒 数据截至 '+esc(m)+(age!=null?('（**'+age+' 天前**）'):'')+warn
+    +_label+esc(m)+(age!=null?('（**'+age+' 天前**）'):'')+warn
     +(d._srcFiles?('<br><span style="color:#5a6072;font-size:10.5px">来源文件: '
         + Object.keys(d._srcFiles).map(k=>k+' '+esc(d._srcFiles[k]||'?')).join(' · ')+'</span>'):'')
     +'</div>';

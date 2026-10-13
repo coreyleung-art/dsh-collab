@@ -113,6 +113,27 @@ def fetch(path, timeout=6):
 def h(s):
     return html.escape(str(s))
 
+# ═══ ★★ 2026-10-14（明鉴 · 用户报障「全端刷不出内容」修复后顺带发现的主工具问题）═══
+#   ★ 问题：`_with_mtime` 给所有 gallery 快照挂同一个「⚠️ 可能已停更（>30 天）」判据，
+#     **而它把两类文件混为一谈**：
+#       · 【生成型】= 由脚本定期产出（停了就是真停）⇒ ★ 该报警
+#       · 【策展型】= 人改才变（32 天没改是【正常】）⇒ ★★ 报警是【假报警】
+#   ★★ 假报警的危害：**它会训练读者忽略报警** ⇒ 真陈旧出现时也没人看
+#     （★ 与今晚那条「不报错的装置会被信任」互为镜像：**假报警是让报警失效的机制**）
+#   ⇒ 修法：**显式声明类型**，只在【生成型】上挂停更警告；策展型改显示「最后策展于」。
+SRC_KINDS = {
+    # ── 生成型（脚本定期产出）──
+    "knowledge-graph.json": "generated",
+    "plan-archive.json":    "generated",
+    "hardware-nodes.json":  "generated",
+    "mechanism.json":       "generated",
+    "original-assets.json": "curated",     # ★ 手工整理的原初资产表
+    "business-asset-map.json": "curated",  # ★ 业务资产映射（人工维护）
+    "governance-philosophy.json": "curated",  # ★ 治理哲学（策展集合，见其 _completeness_note）
+}
+_DEFAULT_KIND = "generated"   # ★ 未声明者按生成型（★ 保守：宁可报假也不漏报真）
+
+
 def _with_mtime(obj, *rel_paths):
     """★ 2026-10-13 新增（tab 层独立考古 · 类型 6「缺时间戳」）：给数据加【来源文件 mtime】。
 
@@ -134,6 +155,9 @@ def _with_mtime(obj, *rel_paths):
             files[rp] = None
     vals = [v for v in files.values() if v]
     out["_srcFiles"] = files
+    # ★ 2026-10-14：逐文件标注类型 + 汇总（★ 全部策展 ⇒ 不挂停更警告）
+    out["_srcKinds"] = {rp: SRC_KINDS.get(rp, _DEFAULT_KIND) for rp in rel_paths}
+    out["_srcAllCurated"] = all(v == "curated" for v in out["_srcKinds"].values()) if rel_paths else False
     out["_srcMtime"] = max(vals) if vals else None
     if vals:
         try:
