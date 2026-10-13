@@ -3603,6 +3603,23 @@ class Handler(BaseHTTPRequestHandler):
                     "ids": _noLocal, "count": len(_noLocal),
                     "why": "★ 这些蓝图【局部 relations 字段为空】但【全局表有边】⇒ ★ 请以本响应的 `byBlueprint`（或 `edges`）为准；"
                            "★ 本端点【不回填】局部字段（避免双表示漂移 —— 见 R061）"}
+                # ★★★ 2026-10-13 补（★ 独立评估建议 + 我核实后的修正）：
+                #   ★ 评估建议给本端点加 `_with_mtime(_rel, "version-map.json", ...)` ——
+                #     ★★ **但我核实后发现那【映射不成立】**：本端点走 `get_relations()`，
+                #     它读的是**黑板键 `data/blueprint/relations`**，**不读 `version-map.json`**
+                #     （version-map.json 是 :1707 版本渲染那条链在读）。
+                #     ⇒ 若按建议注入 version-map 的 mtime，**会给出一个错的印章**。
+                #   ⇒ 正确做法：注入**它真正读的那个源的时间** —— 黑板键自带 `ts`。
+                #   ★ 三态：拿到 ts ⇒ 如实注入；拿不到 ⇒ 记 None（不假装）。
+                try:
+                    _relsrckey = fetch("data/blueprint/relations") or {}
+                    _rel["_src"] = "黑板键 data/blueprint/relations"
+                    _rel["_srcTs"] = _relsrckey.get("ts")
+                    _rel["_srcVersion"] = _relsrckey.get("version")
+                    _rel["_note_src"] = ("★ 本端点的真源是**黑板键**（非 version-map.json）⇒ 印章取该键的 `ts`/`version`。"
+                                         "★ 若拿不到 ⇒ `_srcTs` 为 None（★ 不假装）。")
+                except Exception:
+                    _rel["_src"], _rel["_srcTs"] = "黑板键 data/blueprint/relations（读取失败）", None
                 self._send(200, json.dumps(_rel, ensure_ascii=False))
                 return
             if path == "/api/cap-perm":

@@ -86,7 +86,7 @@ def check_section_order(src):
     for i, line in enumerate(src.split("\n"), 1):
         # ★★★ 2026-10-13 修（D-319）：★ `\*?` 只允许【一个星】—★
         #   ★ 实测：`## ★★ 二、…`（★ 两个星）匹配失败 ⇒ **误判跳号**（★ D-319 自查）。
-        m = re.match(r'^#{1,3} \**\s*([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
+        m = re.match(r'^#{1,3} [^\u4e00-\u9fff]{0,8}?([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
         if m:
             ch = m.group(1)
             if ch in CN_NUM:

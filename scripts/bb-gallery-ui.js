@@ -264,8 +264,12 @@ async function __showDataState(){
   const el1=document.getElementById('src-badge');if(el1)el1.remove();
   // 源徽标(所有模式显示)
   __srcBadge();
-  // 数据新鲜度条: 从 overview 拿服务版本(缓存里)
-  const ov=__cacheGet('/api/overview')||__cacheGet('overview');
+  // ★★★ 2026-10-13 修（★ 独立评估实测发现）：**删除死变量 + 修正漂移的注释**。
+  //   ★ 原为 `const ov=__cacheGet('/api/overview')||...`，而注释说「从 overview 拿服务版本」
+  //     —— ★ 但 **262-319 整个函数体从未引用 `ov`**（实测该区间内 `ov` 仅出现 1 次，就是这行定义）。
+  //   ★ 实际取版本走的是下面的 `fetch('/api/model-status')`。
+  //   ⇒ 删死变量，注释改成与实际一致（★ 注释与实现漂移本身就是误导）。
+  // 数据新鲜度条: 服务版本走 /api/model-status（见下方 fetch），本函数不读 overview
   if(!__STATIC){
     const st=document.createElement('div');st.id='ds-state';
     st.style.cssText='position:fixed;right:14px;bottom:14px;font-size:10px;color:#8b90a3;background:rgba(13,17,25,.85);border:1px solid #232a3a;padding:3px 10px;border-radius:12px;z-index:300;pointer-events:none';
@@ -1465,7 +1469,9 @@ function renderMechanism(){
     '<div class="gl"><span style="color:#8b90a3">点击节点看详情</span></div>';
   gb.appendChild(lg);
   gb.appendChild(el('div','graph-hint','协议→门→锁→执行 · 轻点看摘要 · 点击看详情/文档'));
-  j('/api/mech-graph').then(g=>{buildForceGraph('mech-force-box','mech-force-canvas',g,true)});
+  j('/api/mech-graph').then(g=>{
+    if(g&&g._srcMtime)box.appendChild(el('div','',srcStamp(g)));
+    buildForceGraph('mech-force-box','mech-force-canvas',g,true)});
   const tb=el('div');tb.style.cssText='margin-top:14px';
   tb.innerHTML='<table class="tbl"><tr><th>类型</th><th>数量</th><th>说明</th></tr>'+
     '<tr><td style="color:#6ea8ff">🔗 协议</td><td id="mc-p">…</td><td style="color:#8b90a3">CCEP/黑板/agent-bus/重启救援/升级备用/门禁</td></tr>'+
