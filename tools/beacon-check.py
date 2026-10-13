@@ -688,6 +688,27 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     except Exception as e:
         skip("I-2 四项业界等价物", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+    # ★★ 2026-10-13（D-295）【L-1 / L-2 保持领先】—★ 目标四维最后一维。
+    #   ★ 立据：W4 自陈 **L-1 是元判据、不是可红判据**；★ L-2 **本件未测·复跑未建·无负控**。
+    #   ★★ 本纳把它变成可红的：★ 扫全仓的【本机 vs 业界领先主张】逐条查三条。
+    #   ★ 实测：扫 665 文件 ⇒ **真主张仅 1 条**（★ 从 62 收窄来，★ 原筛字假红）· 三条全缺 ⇒ 不得记领先。
+    try:
+        _lc = subprocess.run([sys.executable, str(ROOT / "tools" / "leadership-claims.py"), "--json"],
+                             capture_output=True, text=True, timeout=200)
+        _ld = json.loads(_lc.stdout)
+        _l1 = _ld.get("L1") or {}; _l2 = _ld.get("L2") or {}
+        check("L-1 领先三条合取（★ 元判据已可红）",
+              _l1.get("verdict") == "PASS",
+              "★ %s — 主张 %d 条 · PASS %d · FAIL %d"
+              % (_l1.get("verdict"), _ld.get("claims_found", 0),
+                 _l1.get("PASS", 0), _l1.get("FAIL", 0)))
+        check("L-2 领先主张须挂对照实验",
+              _l2.get("verdict") == "PASS",
+              "★ %s — 无对照实验的主张 %d/%d"
+              % (_l2.get("verdict"), _l2.get("claims_without_experiment", 0), _l2.get("total", 0)))
+    except Exception as e:
+        skip("L-1 / L-2 保持领先", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
     # ★★ 2026-10-13（D-258）：【审查面非空】—— ★ 防「空目录被默认读成已审」。
     #   ★ 立据：`research/v7-review-V2/` **存在但空**（0 条目 · 0B）——
     #     ★★ 而它应审 W1/W2；★ **两次审查代理均零产出**（D-257）。

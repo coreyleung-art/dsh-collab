@@ -229,8 +229,30 @@ def extract(bid):
                          "nMatch": declared["n"] == len(merged),
                          "distMatch": (declared["dist"] == got) if declared["dist"] else None}
 
+    # ★★★ 2026-10-13 新增（★ 独立考古暴露的判据缺口）：**「声明 vs 实际」核对**
+    #   起因：本工具原判据只查「works 空不空」⇒ 对 agent-network 报「已齐」，
+    #   而 ★ 它黑板里【缺一整族阶段】—— md `:16` 明确声明 `P0-P5 + cs0-cs4 + mg1-mg7`，
+    #   黑板却只有 `an0-an5 + mg1-mg7`（**无 cs0-cs4**）。
+    #   ★★ 这是「恒真判据」的又一变体：**只判「有没有」⇒ 判不出「缺一族」**。
+    #   ⇒ 判据升级为：**把 md 里【声明的阶段 id 前缀】当外部判据，与黑板实际 id 比对**。
+    declared = None
+    dm = re.search(r"(?m)^\|\s*stages\s*\|(.+?)\|\s*$", md)
+    if dm:
+        txt = dm.group(1)
+        # ★ 抽出形如 cs0-cs4 / mg1-mg7 / P0-P5 的【范围声明】
+        rng = re.findall(r"([a-zA-Z]+)(\d+)\s*[-—~]\s*([a-zA-Z]*)(\d+)", txt)
+        prefixes = set()
+        for a, n1, b, n2 in rng:
+            pre = a.lower()
+            prefixes.add(pre)
+        # 也抽单体 id（如 an0-1 的 an）
+        for m2 in re.finditer(r"\b([a-z]{2,})0?(?:-\d+)?\b", txt):
+            prefixes.add(m2.group(1))
+        declared = {"text": txt[:160], "prefixes": sorted(prefixes)}
+
     g = re.search(r"(?m)^\|\s*gate\s*\|(.+?)\|\s*$", md)
     return {"ok": True, "id": bid, "mdBytes": len(md), "stages": stages,
+            "declaredStages": declared,
             "gate": (g.group(1).strip() if g else ""), "works": merged,
             "counts": {k: len(v) for k, v in findings.items()}, "sources": findings,
             "specialCheck": check}
