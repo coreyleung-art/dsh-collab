@@ -3716,13 +3716,24 @@ class Handler(BaseHTTPRequestHandler):
                         "state": ("unknown" if _best is None
                                   else ("fresh" if (_now - _best).days <= 7
                                         else ("aging" if (_now - _best).days <= 30 else "stale"))),
+                        # ★★ 2026-10-13 补（B2 实测发现）：**区分「自动派生」与「人工维护」**。
+                        #   实测：original / workflow / philosophy / hardware / assets-manifest
+                        #   **都没有生成脚本**（全盘 grep 只找到「读」它们的代码，无「写」它们的）
+                        #   ⇒ ★ 它们是**人工编目的数据**，**「34 天没更新」是正常的**，
+                        #     不是「停更故障」⇒ ★ 若不标注，读者会把正常的编目周期当成故障去查。
+                        "maintainedBy": ("auto" if _n in ("knowledge-graph", "plan-archive",
+                                                          "mechanism", "biz-assets",
+                                                          "paper-summaries", "relations")
+                                         else "manual"),
                     })
                 _stale = [x["id"] for x in _items if x["state"] == "stale"]
                 self._send(200, json.dumps({
                     "generatedAt": _now.strftime("%Y-%m-%d %H:%M:%S"),
                     "writer": "明鉴 v3（★ 本端点只做 os.path.getmtime 探测，不写任何东西）",
                     "items": _items,
-                    "_staleCount": len(_stale), "_stale": _stale,
+                    "_staleCount": len([x for x in _items if x["state"] == "stale" and x.get("maintainedBy") == "auto"]),
+                    "_stale": [x["id"] for x in _items if x["state"] == "stale" and x.get("maintainedBy") == "auto"],
+                    "_manualCount": len([x for x in _items if x.get("maintainedBy") == "manual"]),
                     "_note": ("★ 统一的新鲜度视图 —— 因 `/api/assets` 返回 list（加字段会破坏契约），"
                               "故单开本端点。★ 分档：≤7天 fresh · ≤30天 aging · >30天 stale。"
                               "★ 读不到 mtime 的记 `unknown`（★ 不假装新鲜）。"),
