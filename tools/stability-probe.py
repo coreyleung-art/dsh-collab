@@ -289,6 +289,56 @@ def check_s4():
                    % (rows["8792"]["pid"], rows["8803"]["pid"]), "evidence": rows}
 
 
+P26_WINDOW_KEY = "last_session"   # ★ 窗的基座就在索引里
+
+
+def check_p26():
+    """★★ P26 复发（★ v7 §12 第 2 项：「签名存在，缺时间窗」）
+
+    ★ 窗 = 上次复发时刻（`last_session.ended_at`）之后；
+    ★ 分子 = 窗内 `CONTEXT_WINDOW_EXCEEDED` 的命中数。
+    ★★ ★ **窗内无复发 ≠ 已修复** —★ 只读作「未复发」。
+    """
+    import json as _json
+    p = os.path.join(ROOT, "data", "registry", "continuity-index.json")
+    try:
+        idx = _json.load(io.open(p, encoding="utf-8"))
+    except Exception as e:
+        return {"verdict": "UNDECIDABLE", "why": "索引不可读 %s" % type(e).__name__}
+    ls = idx.get(P26_WINDOW_KEY) or {}
+    win = ls.get("ended_at")
+    sev = ls.get("severity")
+    if not win:
+        return {"verdict": "UNDECIDABLE", "why": "★ 索引里无 `last_session.ended_at` ⇒ **窗不可定**"}
+    # ★ 分子：扫本会话 jsonl + 日志
+    hits = 0
+    scanned = []
+    jf = os.environ.get("DSH_SESSION_JSONL")
+    import glob as _glob
+    cands = []
+    if jf:
+        cands.append(jf)
+    for d in (os.path.expanduser("~/.dsh/sessions"), os.path.join(ROOT, "logs")):
+        cands += _glob.glob(os.path.join(d, "**", "*.jsonl"), recursive=True)[:20]
+        cands += _glob.glob(os.path.join(d, "*.log"), recursive=True)[:20]
+    for f in cands:
+        try:
+            if "CONTEXT_WINDOW_EXCEEDED" in io.open(f, encoding="utf-8", errors="ignore").read():
+                hits += 1
+                scanned.append(os.path.basename(f))
+        except Exception:
+            pass
+    # ★ 阳性对照：★ 扫过的面必须非零
+    if not cands:
+        return {"verdict": "UNDECIDABLE", "why": "★ 无可扫面 ⇒ 不可判"}
+    v = "PASS" if hits == 0 else "FAIL"
+    return {"verdict": v,
+            "why": "★ 窗 = **%s 之后**（★ 上次 severity=%s）· 扫 %d 面 · 窗内命中 **%d**"
+                   % (win, sev, len(cands), hits)
+                   + ("（★ %s）" % ",".join(scanned[:3]) if scanned else ""),
+            "evidence": {"window": win, "severity": sev, "scanned": len(cands), "hits": hits}}
+
+
 def run(as_json=False):
     out = {"version": VERSION, "checks": {}}
     out["checks"]["S-1a drift ≥ 登记通道（裁定①）"] = check_s1a()
@@ -296,6 +346,7 @@ def run(as_json=False):
     out["checks"]["S-2 中断可发现 ≤60min"] = check_s2()
     out["checks"]["S-3 投递三态可区分"] = check_s3()
     out["checks"]["S-4 无单点"] = check_s4()
+    out["checks"]["P26 复发（★ 时间窗）"] = check_p26()
     vs = [c["verdict"] for c in out["checks"].values()]
     out["summary"] = {"PASS": vs.count("PASS"), "FAIL": vs.count("FAIL"),
                       "UNDECIDABLE": vs.count("UNDECIDABLE")}
