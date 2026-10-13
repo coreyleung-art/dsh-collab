@@ -207,7 +207,6 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
 
 # ★ R006 ⑦ 统一日志：固定路径，失败也留痕
 LOG = os.path.join(COLLAB, "logs", "inbox-state-tagger.log")
@@ -221,3 +220,8 @@ def log(msg):
             f.write("%s %s\n" % (_t.strftime("%Y-%m-%dT%H:%M:%S"), msg))
     except Exception:
         pass
+
+
+# ★★ 2026-10-13 修（插桩第 6 条前置）：模块级 main() 调用【必须在 def log() 之后】
+#   否则模块加载时就执行 main()，而那时 log 尚未定义 ⇒ NameError。
+    sys.exit(main())
