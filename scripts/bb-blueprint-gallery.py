@@ -1777,7 +1777,13 @@ def build_index(port):
 <div class="top"><h1>🗺 系统架构管理器</h1><span class="sub">System Graph Manager · 蓝图+智能体+规则+机制+图库 · {now}</span></div>
 <div class="domains" id="domains"></div>
 <div class="tabs" id="tabs">
-<div class="tab on" data-tab="philosophy" data-dom="SYS">🧠 治理哲学</div>
+<!-- ★ 2026-10-13 补修（★ 与 view 容器的同类修正成对）。
+     原为 class="tab on" —— ★ 全部 25 个 tab 里**唯一带 on** 的一个（其余 24 个都是 class="tab"）。
+     ⇒ ★★ 它让页面【静态高亮哲学 tab】；而 JS 的 __activateView→switchTab('dash')
+     随后把 on 移到 dash ⇒ ★★ 【tab 高亮与视图内容错位】——
+     用户看到「哲学已选中」而内容是总览，会读成「哲学页坏了」。
+     ⇒ 改为与其余 24 个一致。 -->
+<div class="tab" data-tab="philosophy" data-dom="SYS">🧠 治理哲学</div>
 <div class="tab" data-tab="original" data-dom="SYS">💎 原创资产</div>
 <div class="tab" data-tab="workflow" data-dom="SYS">🔄 工作流/标准</div>
 <div class="tab" data-tab="planarchive" data-dom="SYS">📋 计划档案</div>

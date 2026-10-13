@@ -1457,6 +1457,17 @@ function closeAsset(){const m=$('asset-modal');if(m)m.classList.remove('on')}
 //   ★★ 分档：≤7 天=绿 · ≤30 天=黄 · >30 天=橙并显式提示「可能已停更」。
 function srcStamp(d){
   if(!d) return '';
+  // ★★★ 2026-10-13 修（★ 用户报「哲学页面加载不出来」的【真凶】· CDP 逐步重放定位）：
+  //   ★★ 原实现里用了 `esc(m)` 与 `esc(d._srcFiles[k])`，而 **`esc` 在本文件里【7 处都是
+  //     「函数内局部变量」】（行 380/464/519/588/666/736 …），【没有全局定义】** ⇒
+  //   ★★★ `srcStamp` 是【全局函数】⇒ 它访问不到别人函数体里的局部 `esc`
+  //     ⇒ **`ReferenceError: esc is not defined`**。
+  //   ★★★★ 后果：本函数在【每一个调用点】都抛 —— 而调用方写的是
+  //     `j('/api/xxx').then(d=>{ …box.appendChild(…srcStamp(d))… }).catch(e=>…「加载失败」)`
+  //     ⇒ ★★ **`.catch` 把 srcStamp 的异常也吞了** ⇒ 页面显示【「加载失败」】，
+  //       而**网络其实是好的**（实测 `fetch('/api/philosophy')` = 200 · 23,490 B）。
+  //   ⇒ 修：**本函数自包含一个局部 esc**（★ 不改全局，避免影响那 7 处局部定义）。
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const m=d._srcMtime, age=d._srcAgeDays;
   if(!m) return '<div style="font-size:11.5px;color:#8b90a3;margin-top:8px">★ 数据来源时间【不可判】（未注入 _srcMtime）</div>';
   const c = (age==null) ? '#8b90a3' : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : '#e06c75'));
@@ -2500,6 +2511,13 @@ function renderRelations(){
   });
 }
 function renderBP(){
+  // ★★★ 2026-10-13 修（★ 同类隐患排查发现 · 与 srcStamp 同型）：
+  //   ★ 本函数在【catch 块】里用了 `esc(...)`（错误提示路径），
+  //     而 `esc` 在本文件里【8 处都是函数内局部】⇒ 本函数访问不到 ⇒ ReferenceError。
+  //   ★★ 后果的隐蔽性：它【只在探测失败时触发】—— ★ 而失败时恰恰最需要显示错误信息，
+  //     即：**「唯一需要这条路径的时刻，正是它坏的时刻」**。
+  //   ⇒ 修：本函数自包含一个局部 esc（★ 与 srcStamp 同修法）。
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const box=$('view-bp'); if(!box)return;
   // ★ 动态基址：线上（CloudBase/Funnel）走同级 bp/ 目录，本地走 8812 的 /bp/ 路由
   const _isPublic = /(\.ts\.net|\.trycloudflare\.com)$/.test(location.hostname) || location.protocol==='https:';

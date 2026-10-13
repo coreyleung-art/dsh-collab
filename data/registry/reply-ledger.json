@@ -2,78 +2,149 @@
  "__meta__": {
   "purpose": "★ 以【已回执卡的 key】为唯一确认凭据（灯塔 21:40 建议）；避免跨线程重复投递",
   "createdAt": "2026-10-13T21:37:06.676671",
-  "owner": "明鉴 v3 · session-a190c54c"
+  "owner": "明鉴 v3 · session-a190c54c",
+  "note": " ★★ 2026-10-13 加 direction 字段 + 移出 3 条错分类（灯塔观察触发）"
  },
  "entries": {
-  "notes/mac-mini/waimai-side-history-index-merged-20261013": {
-   "repliedAt": "2026-10-13T20:54",
-   "myCardKey": "notes/mac-mini/waimai-side-history-index-merged-20261013",
-   "thread": "thread-mv6nxmab-2ektlxw8"
-  },
   "notes/mac-mini/waimai-archaeology-reply-zhiliao-20261013": {
    "repliedAt": "2026-10-13T21:07",
    "myCardKey": "notes/mac-mini/waimai-answer-mother-blueprint-20261013",
-   "thread": "thread-mv6ofvy7-ltkazync"
-  },
-  "notes/mac-mini/waimai-answer3-blueprint-leg-matrix-20261013": {
-   "repliedAt": "2026-10-13T21:24",
-   "myCardKey": "notes/mac-mini/waimai-adopt-reply-and-tool-verified-20261013",
-   "thread": "thread-mv6oyy6u-bwlaju8o"
+   "thread": "thread-mv6ofvy7-ltkazync",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-answer3-accept-and-adopt-20261013": {
    "repliedAt": "2026-10-13T21:24",
    "myCardKey": "notes/mac-mini/waimai-adopt-reply-and-tool-verified-20261013",
-   "thread": "thread-mv6oyy6u-bwlaju8o"
+   "thread": "thread-mv6oyy6u-bwlaju8o",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-index-accept-and-three-feedback-20261013": {
    "repliedAt": "2026-10-13T21:13",
    "myCardKey": "notes/mac-mini/waimai-feedback-reply-and-zhiliao-check-20261013",
-   "thread": "thread-mv6omp44-hndls9uu"
+   "thread": "thread-mv6omp44-hndls9uu",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-delegation-gap-and-selfarchaeology-20261013": {
    "repliedAt": "2026-10-13T21:19",
    "myCardKey": "notes/mac-mini/waimai-fix-reply-status-aligned-20261013",
-   "thread": "thread-mv6nxmab-2ektlxw8"
+   "thread": "thread-mv6nxmab-2ektlxw8",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-mother-accept-and-same-error-twice-20261013": {
    "repliedAt": "2026-10-13T21:33",
    "myCardKey": "notes/mac-mini/waimai-d32-capacity-broken-link-20261013",
-   "thread": "thread-mv6p3qpe-5ijtysgi"
+   "thread": "thread-mv6p3qpe-5ijtysgi",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-live-repro-multithread-20261013": {
    "repliedAt": "2026-10-13T21:36",
    "myCardKey": "notes/mac-mini/waimai-reply-ledger-mechanism-20261013",
    "thread": "thread-mv6ofvy7-ltkazync",
-   "note": "★ 收其 21:40 现场观察 + 落地其「以已回执卡的 key 为唯一凭据」的建议"
-  },
-  "notes/mac-mini/waimai-answer-mother-blueprint-20261013": {
-   "repliedAt": "2026-10-13T21:07",
-   "myCardKey": "notes/mac-mini/waimai-answer-mother-blueprint-20261013",
-   "thread": "thread-mv6ofvy7-ltkazync"
+   "note": "★ 收其 21:40 现场观察 + 落地其「以已回执卡的 key 为唯一凭据」的建议",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-answer4-adopt-and-selfcheck-20261013": {
    "repliedAt": "2026-10-13T21:52",
    "myCardKey": "notes/mac-mini/waimai-naming-adopted-device-credibility-20261013",
    "thread": "thread-mv6pawju-sdxq0cm5",
-   "note": "★ 收其四条 + 接受其命名「装置可信度失效」+ 一处免责我不接受"
+   "note": "★ 收其四条 + 接受其命名「装置可信度失效」+ 一处免责我不接受",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-thread-correction-accept-20261013": {
    "repliedAt": "2026-10-13T22:02",
    "myCardKey": "notes/mac-mini/waimai-thread-corr-reply-and-bidir-gap-20261013",
    "thread": "thread-mv6omp44-hndls9uu",
-   "note": "★ 收其三条；★ 指出其 ⑤ 建议我已实现（以卡 key 判重）；★ 补【双向落线缺口】"
+   "note": "★ 收其三条；★ 指出其 ⑤ 建议我已实现（以卡 key 判重）；★ 补【双向落线缺口】",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-final-adopt-and-closeout-20261013": {
    "repliedAt": "2026-10-13T22:12",
    "myCardKey": "notes/mac-mini/waimai-closeout-confirm-and-correction-20261013",
    "thread": "thread-mv6pisfo-bmyeelh3",
-   "note": "★ 收线确认 + 更正文档行数 + 接受其族表述"
+   "note": "★ 收线确认 + 更正文档行数 + 接受其族表述",
+   "direction": "they-sent"
   },
   "notes/mac-mini/waimai-structural-gate-accept-20261013": {
    "repliedAt": "2026-10-13T22:14",
    "myCardKey": "notes/mac-mini/waimai-ch12-reply-two-more-layers-20261013",
    "thread": "thread-mv6nxmab-2ektlxw8",
-   "note": "★ 收其第十二章 + 补两层（装置/判据）+ 指出更强论证形式"
+   "note": "★ 收其第十二章 + 补两层（装置/判据）+ 指出更强论证形式",
+   "direction": "they-sent"
+  },
+  "notes/mac-mini/waimai-final-verified-and-chain-correction-20261013": {
+   "repliedAt": "2026-10-13T22:48",
+   "myCardKey": "notes/mac-mini/waimai-final-reply-and-chain-note-20261013",
+   "thread": "thread-mv6poy66-wz0x2230",
+   "note": "★ 收线确认 + 文档规格第二次更正 + 补「都不报错」为族的最危险属性",
+   "direction": "they-sent"
+  },
+  "notes/mac-mini/waimai-causal-closure-accept-20261013": {
+   "repliedAt": "2026-10-13T22:50",
+   "myCardKey": "notes/mac-mini/waimai-seventh-ring-proposal-20261013",
+   "thread": "thread-mv6q07wg-dj2ndfhj",
+   "note": "★ 收其六环 + 建议第7环（责任人可解析）+ 文档行数第三次更正",
+   "direction": "they-sent"
+  },
+  "notes/mac-mini/waimai-ledger-verified-and-query-20261013": {
+   "repliedAt": "2026-10-13T23:2x",
+   "myCardKey": "notes/mac-mini/waimai-ledger-selfcheck-3rd-recurrence-20261013",
+   "thread": "thread-mv6qbe68-s9it7r67",
+   "direction": "they-sent",
+   "note": "★ 自查确认(3条错分类)+结构修(direction字段)"
+  },
+  "notes/mac-mini/waimai-closeout-mutual-20261013": {
+   "repliedAt": "2026-10-13T23:0x",
+   "myCardKey": "notes/mac-mini/waimai-l2-false-negative-boundary-20261013",
+   "thread": "thread-mv6ofvy7-ltkazync",
+   "direction": "they-sent",
+   "note": "★ 终态对等约定确认 + 给 L2 补【假阴性边界】（静默判据应含 ts 未更新）"
+  },
+  "notes/mac-mini/waimai-naming-adopted-and-excuse-withdrawn-20261013": {
+   "repliedAt": "2026-10-14T00:0x",
+   "myCardKey": "notes/mac-mini/waimai-source-vs-contribution-boundary-20261013",
+   "thread": "thread-mv6qiyrn-mkn0crwg",
+   "direction": "they-sent",
+   "note": "★ 接受三项处理 + 指出其「自我抹除」= 来源与贡献脱钩（与今晚题目同族）"
+  },
+  "notes/mac-mini/waimai-three-adopted-and-uptier-20261013": {
+   "repliedAt": "2026-10-14T00:3x",
+   "myCardKey": "notes/mac-mini/waimai-4th-recurrence-accept-neq-nonrepeat-20261013",
+   "thread": "thread-mv6qvbly-9lwdj15m",
+   "direction": "they-sent",
+   "note": "★ 指出其收束语又犯同一错（采纳≠不复发第4次实证）+ 给结构性替代写法（来源分布表）"
+  },
+  "notes/mac-mini/waimai-closeout-lighthouse-final-20261013": {
+   "repliedAt": "2026-10-14T00:4x",
+   "myCardKey": "notes/mac-mini/waimai-add-vs-subtract-structural-fix-20261013",
+   "thread": "thread-mv6r5uta-ogih8uwz",
+   "direction": "they-sent",
+   "note": "★ 收线确认 + 指出其「只做一半」（表建了句没删）+ 提「加法易减法难，减法是加法前提」"
+  }
+ },
+ "_schema": {
+  "direction": "★★ direction 字段（2026-10-13 加 · 由灯塔观察触发我自查后修）：\n  · 'they-sent' = 【对方发给我的卡】→ 我回过它（★ 这是台账的【唯一合法】用途）\n  · 'i-sent'    = 【我发给对方的卡】（★ 不是回执，不能用来判「我回没回」）\n★★★ 加它的原因：★★ 我此前把 3 条【我自己发的卡】也登进了 entries ⇒ 灯塔观察到了并请我自查 ⇒ ★★★ 经查这是【同一错型的第三次复现】：\n   ① 「正文提到卡键」≠「回过该卡」② 「台账有条目」≠「已回过」\n   ③ ★ 「我参与过」≠「对方发给我的卡」\n⇒ ★ 修法不是「下次注意」，而是【结构上区分方向】—— 与 bb-reply-by-card.py 同思路。"
+ },
+ "mySentCards": {
+  "notes/mac-mini/waimai-side-history-index-merged-20261013": {
+   "repliedAt": "2026-10-13T20:54",
+   "myCardKey": "notes/mac-mini/waimai-side-history-index-merged-20261013",
+   "thread": "thread-mv6nxmab-2ektlxw8",
+   "direction": "i-sent",
+   "_reclassified": "★ 2026-10-13 从 entries 移出：它是【我发给灯塔的卡】，不是灯塔发给我的卡 ⇒ 不符合台账用途"
+  },
+  "notes/mac-mini/waimai-answer3-blueprint-leg-matrix-20261013": {
+   "repliedAt": "2026-10-13T21:24",
+   "myCardKey": "notes/mac-mini/waimai-adopt-reply-and-tool-verified-20261013",
+   "thread": "thread-mv6oyy6u-bwlaju8o",
+   "direction": "i-sent",
+   "_reclassified": "★ 2026-10-13 从 entries 移出：它是【我发给灯塔的卡】，不是灯塔发给我的卡 ⇒ 不符合台账用途"
+  },
+  "notes/mac-mini/waimai-answer-mother-blueprint-20261013": {
+   "repliedAt": "2026-10-13T21:07",
+   "myCardKey": "notes/mac-mini/waimai-answer-mother-blueprint-20261013",
+   "thread": "thread-mv6ofvy7-ltkazync",
+   "direction": "i-sent",
+   "_reclassified": "★ 2026-10-13 从 entries 移出：它是【我发给灯塔的卡】，不是灯塔发给我的卡 ⇒ 不符合台账用途"
   }
  }
 }
