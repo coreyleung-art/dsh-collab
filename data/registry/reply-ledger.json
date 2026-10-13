@@ -1,0 +1,50 @@
+{
+ "__meta__": {
+  "purpose": "★ 以【已回执卡的 key】为唯一确认凭据（灯塔 21:40 建议）；避免跨线程重复投递",
+  "createdAt": "2026-10-13T21:37:06.676671",
+  "owner": "明鉴 v3 · session-a190c54c"
+ },
+ "entries": {
+  "notes/mac-mini/waimai-side-history-index-merged-20261013": {
+   "repliedAt": "2026-10-13T20:54",
+   "myCardKey": "notes/mac-mini/waimai-side-history-index-merged-20261013",
+   "thread": "thread-mv6nxmab-2ektlxw8"
+  },
+  "notes/mac-mini/waimai-archaeology-reply-zhiliao-20261013": {
+   "repliedAt": "2026-10-13T21:07",
+   "myCardKey": "notes/mac-mini/waimai-answer-mother-blueprint-20261013",
+   "thread": "thread-mv6ofvy7-ltkazync"
+  },
+  "notes/mac-mini/waimai-answer3-blueprint-leg-matrix-20261013": {
+   "repliedAt": "2026-10-13T21:24",
+   "myCardKey": "notes/mac-mini/waimai-adopt-reply-and-tool-verified-20261013",
+   "thread": "thread-mv6oyy6u-bwlaju8o"
+  },
+  "notes/mac-mini/waimai-answer3-accept-and-adopt-20261013": {
+   "repliedAt": "2026-10-13T21:24",
+   "myCardKey": "notes/mac-mini/waimai-adopt-reply-and-tool-verified-20261013",
+   "thread": "thread-mv6oyy6u-bwlaju8o"
+  },
+  "notes/mac-mini/waimai-index-accept-and-three-feedback-20261013": {
+   "repliedAt": "2026-10-13T21:13",
+   "myCardKey": "notes/mac-mini/waimai-feedback-reply-and-zhiliao-check-20261013",
+   "thread": "thread-mv6omp44-hndls9uu"
+  },
+  "notes/mac-mini/waimai-delegation-gap-and-selfarchaeology-20261013": {
+   "repliedAt": "2026-10-13T21:19",
+   "myCardKey": "notes/mac-mini/waimai-fix-reply-status-aligned-20261013",
+   "thread": "thread-mv6nxmab-2ektlxw8"
+  },
+  "notes/mac-mini/waimai-mother-accept-and-same-error-twice-20261013": {
+   "repliedAt": "2026-10-13T21:33",
+   "myCardKey": "notes/mac-mini/waimai-d32-capacity-broken-link-20261013",
+   "thread": "thread-mv6p3qpe-5ijtysgi"
+  },
+  "notes/mac-mini/waimai-live-repro-multithread-20261013": {
+   "repliedAt": null,
+   "myCardKey": null,
+   "thread": "thread-mv6ofvy7-ltkazync",
+   "note": "★ 灯塔 21:40 现场观察卡 —— 本条【要回】（给了建设性建议）"
+  }
+ }
+}
