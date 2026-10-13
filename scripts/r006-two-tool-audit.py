@@ -66,10 +66,41 @@ LOG_DIR = os.path.join(os.path.expanduser("~"), "dsh-collab", "logs")   # ⑦ �
 
 
 def write_log(line):
-    """⑦ 统一日志：追加一行（失败不抛出，只提示）。"""
+    """⑦ 统一日志：追加一行（失败不抛出，只提示）。
+
+    ★★★ 2026-10-13 修（**实测触发的失控事故**）：**加大小上限 + 截断保留尾部**。
+
+    ★★ 事故：`logs/r006-two-tool-audit.log` 涨到 **76.8 MB / 1,536,615 行**，
+      而**唯一内容只有 9 种** —— 其中一句
+      「`[R006] r006-two-tool-audit · selfcheck · PASS 9/9`」**重复了 1,229,294 次**。
+      ★ 时间分布：**平均 439,033 行/天（每秒 5 行）**，一直写到 **2026-10-13 04:00:06
+      （CLD 重启时刻）** 才停 ⇒ ★ 那是**某个会话在跑「负控/自证」循环**反复调用本器，
+      **不是定时任务**（launchd 0 引用 · crontab 0 命中）。
+      ★ 而本函数【原为纯 append，无轮转、无上限】⇒ **无界增长**。
+    ⇒ 修：**超过 LOG_MAX_BYTES 就截断保留尾部**（★ 保留**最近**的，因为排障看的是最后的现场）。
+      ★ **不改任何业务逻辑**，只约束日志本体的体积。
+    """
     try:
         os.makedirs(LOG_DIR, exist_ok=True)
-        with open(os.path.join(LOG_DIR, "r006-two-tool-audit.log"), "a", encoding="utf-8") as f:
+        _p = os.path.join(LOG_DIR, "r006-two-tool-audit.log")
+        # ★ 轮转：超限 ⇒ 保留尾部（★ 且只在【写之前】判一次，不引入额外 IO 开销）
+        _MAX = 8 * 1024 * 1024          # 8 MB
+        try:
+            if os.path.exists(_p) and os.path.getsize(_p) > _MAX:
+                with open(_p, "rb") as _f:
+                    _f.seek(-_MAX // 2, os.SEEK_END)   # 留尾部一半
+                    _tail = _f.read()
+                # 丢掉可能被截断的首行（★ 避免留下半行）
+                _nl = _tail.find(b"\n")
+                if _nl >= 0:
+                    _tail = _tail[_nl + 1:]
+                with open(_p, "wb") as _f:
+                    _f.write(b"# \xe2\x98\x85 \xe8\xa3\x81\xe6\x96\xad\xe6\x97\xa5\xe5\xbf\x97\xef\xbc\x889 MB \xe4\xb8\x8a\xe9\x99\x90\xef\xbc\x89\xe2\x80\x94\xe2\x80\x94 "
+                             b"2026-10-13 added size cap (was unbounded; hit 76.8 MB / 1.54M lines)\n")
+                    _f.write(_tail)
+        except Exception:
+            pass      # ★ 轮转失败不阻断主流程（日志是辅助，不是业务）
+        with open(_p, "a", encoding="utf-8") as f:
             f.write(line + "\n")
     except Exception as e:
         print("   ⚠️ 日志写入失败: %s" % e)
