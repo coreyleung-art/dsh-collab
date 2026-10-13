@@ -154,14 +154,14 @@ def main():
     rows = source_panel(args.date) + source_bus(args.date)
     rows.sort(key=lambda r: str(r.get("ts", "")))
     os.makedirs(OUT, exist_ok=True)
-    log = os.path.join(OUT, "audit-" + args.date + ".jsonl")
+    log_entry = os.path.join(OUT, "audit-" + args.date + ".jsonl")
     # 幂等：跳过已存在 ts+action+store 的行
-    existing = {(r.get("ts"), r.get("action"), r.get("store")) for r in load_jsonl(log)}
+    existing = {(r.get("ts"), r.get("action"), r.get("store")) for r in load_jsonl(log_entry)}
     added = 0
     for r in rows:
         k = (r.get("ts"), r.get("action"), r.get("store"))
         if k in existing: continue
-        with open(log, "a", encoding="utf-8") as f:
+        with open(log_entry, "a", encoding="utf-8") as f:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
         existing.add(k); added += 1
     issues, stats = detect_anomalies(rows)
