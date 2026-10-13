@@ -212,7 +212,12 @@ def lean4_check():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ns", nargs="*", default=["notes/collab"])
+    # ★★★ 2026-10-13 修（D-324）：**默认改为扫【全部 `notes/`】**—★
+    #   ★ 立据：原默认只扫 `notes/collab`（★ 653 锠），
+    #     ★★ 而 `notes/` 共 **18825** 锠 ⇒ **`collab` 只占 3.5%**—★
+    #     ★ 故只扫它必然失真（★ 实测：collab 0/338，★ 而全域 **23/18825**）。
+    #   ★ 保留 `--ns` 供显式指定；★只改默认。
+    ap.add_argument("--ns", nargs="*", default=["notes/"])
     ap.add_argument("--since", default=None, help="★ 时间窗（如 2026-10-13）：只算该时刻之后的卡")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selfcheck", action="store_true")
