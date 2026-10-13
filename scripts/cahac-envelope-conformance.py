@@ -126,6 +126,12 @@ def report(namespaces, as_json=False, since=None):
         print(json.dumps(out, ensure_ascii=False, indent=1)); return out
     print("== cahac-envelope-conformance %s ==" % VERSION)
     print()
+    # ★★★ 2026-10-13 补（D-327）：**时间窗必须与【面】同级打印**—★
+    #   ★ 立据：本纳 D-324 的表里并列了两个**不同的时间窗**（★ 带窗 0/338 与不带窗 24/18826）
+    #     ★★ 而未申报 ⇒ 同表两行口径不同（★ 差 2.1 倍）。
+    print("【时间窗（★ 与【面】同级；★ 换窗即换口径）】")
+    print("    since = %s" % (since if since else "（无 ⇒ 全时段）"))
+    print()
     print("【扫过的面（★ 每个数字必须跟它一起报）】")
     for ns, n in m["per_ns"].items():
         print("  %-24s %s" % (ns, n if n != "ERR" else "★ 读取失败"))
