@@ -182,6 +182,25 @@ def scan_file(path, rel):
         if rx is None:
             continue          # ★ P6 需跨行比对（★ 在 audit() 单独处理）
         for m in rx.finditer(code):
+            if cid == "P2":
+                # ★★★ 2026-10-13 修（D-322）：**看【那个分支里做什么】，★ 而非看有没有 None**—★
+                #   ★ 立据：实测那两处都是【正确的】—★
+                #     ★ `if den in (0, None): return "分母为 0 ⇒ **不输出比率**"`；
+                #     ★ `if rc_c not in (0, None) and not out: return "执行失败 ⇒ 载体状态未知"`。
+                #   ★★ 故判据改为：★ 看该行【往后 4 行】内是不是★★ **返回「不可判 / 不输出 / 未知」**—★
+                #     ★ 若是 ⇒ **正确的三态处理**，★ **不算命中**；
+                #     ★ 若是返回「通过/OK/True」或直接继续算⇒ **算命中**。
+                _ls2 = code.split(chr(10))
+                _c2 = code[:m.start()].count(chr(10))
+                _blk2 = chr(10).join(_ls2[_c2:_c2 + 5])
+                # ★ 正确的三态处理词
+                if re.search(r"(不可判|不输出|未知|未建立|拒绝|空≠无|unknown|undecidable|refuse|skip)", _blk2, re.I):
+                    continue
+                if re.search(r"(返回\s*True|return\s+True|通过|✅|OK)", _blk2):
+                    pass          # ★ 算命中
+                elif re.search(r"(不可判|不输出|未知|拒绝)", _blk2):
+                    continue
+                # ★ 否则也算命中（★ 保守：不明确就报）
             if cid == "P1":
                 # ★★ 2026-10-13 修（ext E-3A 的真根因）：原只从 `\w+\.status` 取变量名
                 #   ⇒ 而 **`getattr(p, "status")` 形态下 `m.group(0)` 里没有 `.status` 子串**

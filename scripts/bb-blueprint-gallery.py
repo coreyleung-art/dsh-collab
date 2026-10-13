@@ -1803,7 +1803,10 @@ def build_index(port):
 <div class="tab" data-tab="progress" data-dom="SYS">📈 进度轴</div>
 <div class="tab" data-tab="circles" data-dom="SYS">⭕ 两圈(回收)</div>
 </div>
-<div class="main on" id="view-philosophy"></div>
+<!-- ★ 2026-10-13 修：原为 class="main on"（★ 全部 25 个 view 里**唯一带 on** 的一个）
+     ⇒ ★ 它会让页面【静态默认显示哲学页】，而 JS 的 __activateView→switchTab('dash')
+     随后把 on 移走 ⇒ ★★ **渲染时机与显示时机错位**。⇒ 改为与其余 24 个一致的 class="main"。 -->
+<div class="main" id="view-philosophy"></div>
 <div class="main" id="view-original"></div>
 <div class="main" id="view-workflow"></div>
 <div class="main" id="view-planarchive"></div>

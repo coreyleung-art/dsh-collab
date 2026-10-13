@@ -1397,7 +1397,21 @@ async function init(){
     safe('/api/blueprints',[]),safe('/api/agents',[]),
     safe('/api/versions',{blueprints:{},entries:[]}),safe('/api/relations',{blueprints:[],edges:[]}),
     safe('/api/overview',{})]);
-  window.__dashDone=true;window.__phiDone=true;renderPhilosophy();renderDash();renderBlueprints();renderVersions();renderProjects();renderAssets();
+  // ★★★ 2026-10-13 修（★ 用户报「哲学页面加载不出来」· 根因实测）：
+  //   ★ 原来这里是 `window.__dashDone=true;window.__phiDone=true;renderPhilosophy();…`
+  //   ⇒ ★★ **哲学页是唯一被 init【提前渲染】的图类视图**，而其余 6 个（mech/knowledge/
+  //     relations/rules/systems/bizmap）全部是【进入时才渲染】。
+  //   ★★★ 而本函数上方注释自己写着：「图类视图：首次进入才渲染（**可见状态下建图，
+  //     避免 0 尺寸 canvas**）」⇒ ★ **哲学页违反了这条注释**：
+  //     init 里渲染时 `view-philosophy` 虽静态带 `on`（HTML 里唯一一个），
+  //     但紧接着 `__activateView()` → `switchTab('dash')` 会把 `on` **移走** ⇒
+  //     ★★ 建图时 canvas 已不在可见态 ⇒ 图坏/空。
+  //   ★★★★ 更关键：`__phiDone` 被提前设 true ⇒ 用户点「哲学」tab 时
+  //     `else if(name==='philosophy'&&!window.__phiDone)` **不成立** ⇒ **永不重渲染**
+  //     ⇒ ★ 用户看到的就是「加载不出来」（★ 且刷新也没用，因为每次都是同一条路径）。
+  //   ⇒ 修：**从 init 移除 renderPhilosophy() 与 __phiDone**，改为与其余 6 个图类视图
+  //     一致的【lazy 首次进入渲染】。
+  window.__dashDone=true;renderDash();renderBlueprints();renderVersions();renderProjects();renderAssets();
   setTimeout(__showDataState,600);  // 数据源状态条(在线/离线缓存)
   __activateView();  // 数据就绪后激活 hash/默认视图(首屏=总览)
 }
