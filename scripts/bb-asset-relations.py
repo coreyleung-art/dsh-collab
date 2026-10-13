@@ -39,7 +39,31 @@ def log(msg):
         pass
 
 MAP = os.path.expanduser("~/dsh-collab/data/blueprint/gallery/business-asset-map.json")
-VALID_TYPES = ["depends_on", "collaborates", "uses", "duplicates", "part_of"]
+# ★★★ 2026-10-13 修（★ 实测触发的【双源】缺陷）：
+#   ★ 原为【硬编码 5 类】：["depends_on","collaborates","uses","duplicates","part_of"]
+#   ★★ 而数据 `business-asset-map.json` 的 `relationTypes` 是【自带的类型声明】——
+#     ★ 实测：数据实际用到 `provides`（4 条），而硬编码列表里没有 ⇒
+#       `--selfcheck` 报「#15 非法类型: provides」⇒ ★ **自检是【对的】**（数据违反了自己的声明）。
+#   ★★★ 但【修在哪里】是另一件事：我一度只在【数据】里补声明，而脚本【不读数据】⇒ 仍报错。
+#     ⇒ ★ **根因是【校验器与数据双源】** —— ★ 两个地方各存一份「合法类型」。
+#   ⇒ ★ 修：**改为从数据的 `relationTypes` 读**（★ 单一真相源 / 与 R061 同族）；
+#     ★ 读不到时【回退到原硬编码列表】并**如实提示**（★ 不静默变成「全部合法」）。
+_DEFAULT_TYPES = ["depends_on", "collaborates", "uses", "duplicates", "part_of"]
+
+def _load_valid_types():
+    """★ 从数据的 `relationTypes` 读合法类型（★ 单一真相源）；读不到则回退并提示。"""
+    try:
+        _d = json.load(open(MAP, encoding="utf-8"))
+        _rt = _d.get("relationTypes") or {}
+        if isinstance(_rt, dict) and _rt:
+            return sorted(_rt.keys()), None
+    except Exception as _e:
+        return _DEFAULT_TYPES, "★ 读数据失败(%s)，已回退默认列表" % type(_e).__name__
+    return _DEFAULT_TYPES, "★ 数据无 relationTypes，已回退默认列表"
+
+VALID_TYPES, _VT_WARN = _load_valid_types()
+if _VT_WARN:
+    print("   ⚠️ %s" % _VT_WARN)
 
 def load():
     return json.load(open(MAP, encoding="utf-8"))

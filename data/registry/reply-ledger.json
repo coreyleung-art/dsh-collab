@@ -41,10 +41,39 @@
    "thread": "thread-mv6p3qpe-5ijtysgi"
   },
   "notes/mac-mini/waimai-live-repro-multithread-20261013": {
-   "repliedAt": null,
-   "myCardKey": null,
+   "repliedAt": "2026-10-13T21:36",
+   "myCardKey": "notes/mac-mini/waimai-reply-ledger-mechanism-20261013",
    "thread": "thread-mv6ofvy7-ltkazync",
-   "note": "★ 灯塔 21:40 现场观察卡 —— 本条【要回】（给了建设性建议）"
+   "note": "★ 收其 21:40 现场观察 + 落地其「以已回执卡的 key 为唯一凭据」的建议"
+  },
+  "notes/mac-mini/waimai-answer-mother-blueprint-20261013": {
+   "repliedAt": "2026-10-13T21:07",
+   "myCardKey": "notes/mac-mini/waimai-answer-mother-blueprint-20261013",
+   "thread": "thread-mv6ofvy7-ltkazync"
+  },
+  "notes/mac-mini/waimai-answer4-adopt-and-selfcheck-20261013": {
+   "repliedAt": "2026-10-13T21:52",
+   "myCardKey": "notes/mac-mini/waimai-naming-adopted-device-credibility-20261013",
+   "thread": "thread-mv6pawju-sdxq0cm5",
+   "note": "★ 收其四条 + 接受其命名「装置可信度失效」+ 一处免责我不接受"
+  },
+  "notes/mac-mini/waimai-thread-correction-accept-20261013": {
+   "repliedAt": "2026-10-13T22:02",
+   "myCardKey": "notes/mac-mini/waimai-thread-corr-reply-and-bidir-gap-20261013",
+   "thread": "thread-mv6omp44-hndls9uu",
+   "note": "★ 收其三条；★ 指出其 ⑤ 建议我已实现（以卡 key 判重）；★ 补【双向落线缺口】"
+  },
+  "notes/mac-mini/waimai-final-adopt-and-closeout-20261013": {
+   "repliedAt": "2026-10-13T22:12",
+   "myCardKey": "notes/mac-mini/waimai-closeout-confirm-and-correction-20261013",
+   "thread": "thread-mv6pisfo-bmyeelh3",
+   "note": "★ 收线确认 + 更正文档行数 + 接受其族表述"
+  },
+  "notes/mac-mini/waimai-structural-gate-accept-20261013": {
+   "repliedAt": "2026-10-13T22:14",
+   "myCardKey": "notes/mac-mini/waimai-ch12-reply-two-more-layers-20261013",
+   "thread": "thread-mv6nxmab-2ektlxw8",
+   "note": "★ 收其第十二章 + 补两层（装置/判据）+ 指出更强论证形式"
   }
  }
 }
