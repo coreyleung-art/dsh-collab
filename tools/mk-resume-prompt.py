@@ -62,6 +62,16 @@ def pick_wave(idx):
     （本条是"当前 wave 与下一步必须自洽"的判据，不是排序偏好。）
     """
     by_id = {w["id"]: w for w in idx["waves"]}
+    # ★★★ 2026-10-15（D-385）【先取【WAVE_ORDER 之外的 open wave】】—★
+    #   ★ 立据：★ `WAVE_ORDER` 是**硬编码**的（★ S/0/C…—★ 停在 v5/v6），
+    #     ★★ 而本线加的 `V7`（★ v7 四维 14 判据）**不在里面** ⇒ ★★★ **永远选不到**，
+    #     ★ 于是产出的提示词**指向旧工作**（★ `Wave S` / `C6`）。
+    #   ★ 修法：★ **先找【不在 WAVE_ORDER 里】且 `state != closed` 的 wave**（★ 取**最后加入**的）
+    #     —★ 因为【后加的 = 更新的工作】。
+    _extra = [w for w in idx["waves"]
+              if w.get("id") not in WAVE_ORDER and w.get("state") != CLOSED and w.get("id")]
+    if _extra:
+        return _extra[-1]
     for wid in WAVE_ORDER:
         w = by_id.get(wid)
         if w and w.get("state") == "in_flight":
@@ -74,7 +84,26 @@ def pick_wave(idx):
 
 
 def next_item(idx):
-    """下一步 = items 里第一条尚未 closed_with_evidence 的。"""
+    """下一步 = items 里第一条尚未 closed_with_evidence 的。
+
+    ★★★ 2026-10-15（D-385）【同族修：优先取【当前 wave 的 item】】—★
+      ★ 立据：★ 与 `pick_wave` **同一个原因** —★
+
+        ★ 旧 `items`（★ `C1`…`C10`）停在 v5/v6，★ 而本线加的 v7 判据**在它们之后**，
+
+        ★★ 故取【第一条未 closed】会永远报旧的（★ 实测：报だった `C6`）。
+
+      ★ 修法：★ **先找【当前 wave 相关】的 item**（★ 按 id 前缀匹配），★ 找不到才退到原逻辑。
+    """
+    w = pick_wave(idx)
+    _wid = (w or {}).get("id") or ""
+    # ★ 当前 wave 是 V7 时，它的 item 是那些【不在旧集合里】的
+    _LEGACY = {"C1", "C2", "C3", "C4", "C4-b", "C5", "C6", "C7", "C8", "C9", "C10"}
+    if _wid and _wid not in ("S", "C", "0", "1", "2", "3", "4", "5"):
+        _new = [it for it in idx["items"]
+                if it.get("state") != CLOSED and it.get("id") not in _LEGACY]
+        if _new:
+            return _new[0]
     for it in idx["items"]:
         if it.get("state") != CLOSED:
             return it

@@ -13,9 +13,9 @@
 ★★ **④ 派子代理前必做**：跑 `python3 tools/lint-inventory.py --prompt` → 把【既有 lint/gate 清单】粘进提示词。 ★ 立据（D-209）：本仓 tools/ 下已有 **10** 个 lint/gate 正好管着当晚所有坑，★★ **而 20 个子代理一个都没引用**；门：`--check` 未含清单 ⇒ exit 1。
 ## 复述题（第 3 步之后立刻回答，答完再动手）
 
-- **当前 wave = `Wave S`**：门（沙箱模拟框架 / 信息包模板 / 独立审查流程 / 官方校对门 / G-CR 校验脚本）
-  - 现状：★ P27 同步（2026-10-10，v4→v5）：S1–S5 五项 + 增① 身份声称门 + 增② 自指破坏门（+R059）**工具面已交付**（10-10 03:31，见 docs/wave-s-toolchain-delivery-v1.md；七件实体在 tools/ 已逐一核对字节数），全部走完 R006 §5 三步。★ **但七件均为作者自测，缺独立 verifier** ⇒ 整体 in_flight，**不得记 closed**。　★ 与 `state-registry.json` 记 `blocked` 不一致（P27 族；见分工书 §B6）。
-- **下一步 = `C6`**：状态机登记（对齐 item-validity-review-check 五态）
+- **当前 wave = `Wave V7`**：★ v7 四维 14 判据（S 稳定 · H 健康 · I 对齐业界 · L 保持领先）
+  - 现状：★★★ 2026-10-15（D-385）【登记】—★ 本线当前工作。★ 必跑面 = `python3 tools/beacon-check.py`（★ 总 54 条：PASS 35 · FAIL 7 · SKIP 12）。★ 警惕：本纳旧 wave/item（S/0/C）停在 v5/v6 四维计划，★★ 与 v7 四维 14 判据【不是同一套】。
+- **下一步 = `P26`**：会话硬死锁：compaction 下界 > 被遮内容（两机制）
 
 ## 上一会话是怎么死的（**别重蹈**）
 
