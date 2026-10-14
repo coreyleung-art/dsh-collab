@@ -162,6 +162,20 @@ def report(namespaces, as_json=False, since=None):
         print("  %-12s %6d / %-6d %s%s" % (f, c, scanned, pct, opt))
     print()
     print("【判定（★ 三态）】")
+    # ★★★ 2026-10-15（D-348）【分层：本机侧 vs 跨设备中继侧】—★
+    #   ★ 立据（D-347）：合成 0.9% 会掩盖「本机侧已 100% 达标」这个事实—★
+    #     ★ 而让人误以为【本机有缺陷】。
+    try:
+        print()
+        print("【分层（★ 本机可修 vs 外设备需接入）】")
+        _sep = split_tiers(since)
+        for _name, _a, _b in _sep:
+            _r = (100.0 * _a / _b) if _b else None
+            print("    %-38s %5d/%-5d  %s" % (_name, _a, _b,
+                  ("%6.2f%%" % _r) if _r is not None else "不可判"))
+    except Exception as _e:
+        print("    ★ 分层计算失败：%s ⇒ 不可判" % (repr(_e)[:120]))
+
     if scanned == 0:
         print("  ★★ UNDECIDABLE —— %s" % out["reason"])
     else:
@@ -252,5 +266,55 @@ def main():
     return 0 if r["verdict"] in ("MEASURED", "UNDECIDABLE") else 1
 
 
+def split_tiers(since=None):
+    """★★★ 2026-10-15（D-348）【分层】—★ 本机可修侧 vs 跨设备中继侧。
+
+    ★ 立据（D-347）：
+      ★ 本机 `notes/mac-mini` 面 = **3/3 = 100%**（★ 本线通道已达标）；
+      ★ 而那 **317 张全部带 `_via=comm-central`**（★ 中继写入的传输标记）—★
+        ★★ 而本机【无写点】（★ 全盘搜索只命中文档说明）⇒ 写在外设备侧。
+    ★ 故拆两层，★ **不得合成一个数**（★ 否则会掩盖「本机已达标」）。
+    """
+    keys = []
+    _tsmap = {}
+    for ns in ("notes/", "data/", "tasks/"):
+        ks, tm, err = list_ns(ns)
+        if not err:
+            keys += ks
+            if isinstance(tm, dict):
+                _tsmap.update(tm)
+    # ★★ 2026-10-15（D-348）：**必须带窗**（★ 否则分层与上方总数口径不同）—★
+    if since:
+        keys = [k for k in keys if str(_tsmap.get(str(k)) or "")[:10] >= str(since)[:10]]
+    a_loc = b_loc = a_rel = b_rel = 0
+    for k in keys:
+        ns = "/".join(str(k).split("/")[:2]) + "/"
+        try:
+            v = card_value(ns, k)
+        except Exception:
+            v = None
+        if not isinstance(v, dict):
+            continue
+        # ★★ 2026-10-15（D-348）修：**必须用【必填】而非全字段**—★
+        #   ★ 立据：`FIELDS` 含 `expires`/`signature`，★ 而它们是 `OPTIONAL`—★
+        #     ★★ 故用 `FIELDS` 判会让每张卡都“缺 2 项” ⇒ **永远 0%**（★ 实测误报 0/3）。
+        _need = [f for f in FIELDS if f not in OPTIONAL]
+        ok = all((f in v) and (f == "thread" or v.get(f) not in (None, "")) for f in _need)
+        p = str(k).split("/")
+        seg1 = p[1] if len(p) >= 2 else ""
+        if seg1 == "mac-mini":
+            b_loc += 1
+            if ok:
+                a_loc += 1
+        elif v.get("_via") == "comm-central" or seg1 == "i9":
+            b_rel += 1
+            if ok:
+                a_rel += 1
+    return [("① 本机侧（notes/mac-mini）★ 本线可修", a_loc, b_loc),
+            ("② 跨设备中继侧（_via=comm-central / i9）", a_rel, b_rel)]
+
+
+
 if __name__ == "__main__":
     sys.exit(main())
+
