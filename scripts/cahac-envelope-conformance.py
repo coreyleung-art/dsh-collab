@@ -247,6 +247,7 @@ def lean4_check():
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument("--tiers", action="store_true")   # ★★ 2026-10-15（D-349）只输出分层
     # ★★★ 2026-10-13 修（D-324）：**默认改为扫【全部 `notes/`】**—★
     #   ★ 立据：原默认只扫 `notes/collab`（★ 653 锠），
     #     ★★ 而 `notes/` 共 **18825** 锠 ⇒ **`collab` 只占 3.5%**—★
@@ -259,6 +260,11 @@ def main():
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--version", action="store_true")
     a = ap.parse_args()
+    if getattr(a, "tiers", False):
+        import json as _j
+        _out = split_tiers(a.since)
+        print(_j.dumps([{"name": x, "ok": y, "total": z} for x, y, z in _out], ensure_ascii=False))
+        return 0
     if a.version: print(VERSION); return 0
     if a.selfcheck: return selfcheck()
     if a.lean4_check: return lean4_check()

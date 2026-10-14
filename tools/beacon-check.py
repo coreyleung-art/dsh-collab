@@ -652,17 +652,36 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         # ★★★ 2026-10-13 修（D-328）：**加【阈值】—★ 原判据「只要 >0 就绿」⇒ 假绿**
         #   ★ 立据：实测 I-1 = **0.27%**（★ 24/8868），★ 而旧判据判 **PASS**—★
         #     ★★ **「有一张达标」≠「符合度达标」** 。
+        # ★★★ 2026-10-15（D-349）【改读【分层】，★ 而非合成数】—★
+        #   ★ 立据（D-347/D-348）：合成 0.89% 会掩盖「本机侧已 100%」—★
+        #     ★★ 并让人误以为【本机有缺陷」。
+        _loc_txt, _loc_ok = "", None
+        try:
+            _tt = subprocess.run([sys.executable, str(ROOT / "scripts" / "cahac-envelope-conformance.py"),
+                                  "--tiers", "--since", "2026-10-15"],
+                                 capture_output=True, text=True, timeout=300)
+            _tj = json.loads(_tt.stdout)
+            _loc = next((t for t in _tj if "本机" in str(t.get("name", ""))), None)
+            _rel = next((t for t in _tj if "中继" in str(t.get("name", ""))), None)
+            if _loc and _loc.get("total"):
+                _loc_ok = (_loc["ok"] == _loc["total"])
+                _loc_txt = "（★ 本机侧 **%d/%d = %s**；★ 中继侧 %s —★ 需各设备接入）" % (
+                    _loc["ok"], _loc["total"],
+                    "100%" if _loc_ok else "%.1f%%" % (100.0 * _loc["ok"] / _loc["total"]),
+                    ("%d/%d" % (_rel["ok"], _rel["total"])) if _rel else "（未取到）")
+        except Exception as _e:
+            _loc_txt = "（★ 分层未取到：%s）" % type(_e).__name__
         _rate = (_ok / _sc) if _sc else None
         if _sc == 0:
             skip("CAHAC 信封符合度（I-1 · 今日窗）", "窗内分母为 0 ⇒ 不可判")
         elif _rate is not None and _rate >= 0.5:
             check("CAHAC 信封符合度（I-1 · 今日窗）", True,
-                  "★ %d/%d = %.2f%%（★ ≥ 50%%）" % (_ok, _sc, _rate * 100))
+                  "★ %d/%d = %.2f%%（★ ≥ 50%%）%s" % (_ok, _sc, _rate * 100, _loc_txt))
         else:
             check("CAHAC 信封符合度（I-1 · 今日窗）", False,
-                  "★★ **%d/%d = %.4f%%**（★ 阈 50%%）⇒ "
+                  "★★ **%d/%d = %.4f%%**（★ 阈 50%%）%s⇒ "
                   "★ 虽有达标卡（★ 说明通道已接），★★ **但符合度未达标**"
-                  % (_ok, _sc, _rate * 100 if _rate else 0.0))
+                  % (_ok, _sc, _rate * 100 if _rate else 0.0, _loc_txt))
     except Exception as e:
         skip("CAHAC 信封符合度（I-1）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 

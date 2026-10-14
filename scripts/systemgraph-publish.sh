@@ -151,15 +151,16 @@ verify_online() {
     # ★ 超时按大小自适应（实测吞吐约 70–110 KB/s ⇒ 给 20s/MB + 30s 底，不依赖固定值）
     to=$(( 30 + (lsz / 1048576) * 20 ))
     [ "$to" -lt 20 ] && to=20
-    meta=$(curl -s -m "$to" -o /tmp/sg-verify-$$.bin -w '%{http_code} %{size_download}' \
-             "$PUBLIC/$(url_of "$f")" 2>/dev/null)
+    # ★★★ 完整性判据 = 【服务器自报的 Content-Length】
+    #   ★ 起因（本线负控暴露）：注入真差异后本地大小变了，若用「大小 != 本地大小」判截断
+    #     ⇒ **真不一致会被误判成「不可判」**（假阴性）。
+    #   ★★ 而「收到字节 == 服务器声明的 Content-Length」是【服务器自己的口径】⇒ 与内容差异无关。
+    #   ★★★ 坑（本线踩到）：**该服务器不支持 HEAD**（实测 `HEAD → 405 Method Not Allowed`）
+    #     ⇒ 不能用 `curl -sI` 取长度。改为 **从同一次 GET 的响应头里取**（-D）。
+    meta=$(curl -s -m "$to" -D /tmp/sg-verify-$$.hdr -o /tmp/sg-verify-$$.bin \
+             -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$f")" 2>/dev/null)
     code=${meta%% *}; got=${meta##* }
-    # ★★★ 完整性判据 = 【服务器自报的 Content-Length】，★ 不是本地文件大小！
-    #   ★ 起因（本线负控暴露）：注入真差异后，本地 2646 B / 线上 2441 B ⇒ 大小不符，
-    #     若用「大小 != 本地大小」判截断 ⇒ **真不一致会被误判成「不可判」**（假阴性）。
-    #   ★★ 而「收到字节 == Content-Length」是【服务器自己的口径】⇒ 完整/截断可判，且与内容差异无关。
-    cl=$(curl -sI -m 20 "$PUBLIC/$(url_of "$f")" 2>/dev/null \
-           | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' | tail -1)
+    cl=$(awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' /tmp/sg-verify-$$.hdr 2>/dev/null | tail -1)
     if [ "$code" != "200" ] || [ -z "$cl" ] || [ "$got" != "$cl" ]; then
       say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 服务器声明=${cl:-未知} ⇒ 下载未完成，★ 非「不一致」）"
       unk=$((unk+1))
@@ -167,7 +168,7 @@ verify_online() {
       rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
       if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 线上=$rh"; bad=$((bad+1)); fi
     fi
-    rm -f /tmp/sg-verify-$$.bin
+    rm -f /tmp/sg-verify-$$.bin /tmp/sg-verify-$$.hdr
   done
   say "  比对 $n 个文件，不一致 $bad 个，不可判 $unk 个"
   [ "$unk" -gt 0 ] && say "  ★★ 不可判 ≠ 不一致：那是【下载没取全】，★ 请重跑或加大超时，勿据此判定线上有问题"
@@ -250,17 +251,16 @@ if [ "$ASSET_N" -gt 0 ]; then
     # ★ 同款三态（★ 大图会被短超时截断而误报，见 verify_online 顶部注释）
     psz=$(wc -c < "$LOCAL_DIR/$probe" | tr -d ' ')
     pto=$(( 30 + (psz / 1048576) * 20 )); [ "$pto" -lt 20 ] && pto=20
-    pmeta=$(curl -s -m "$pto" -o /tmp/sg-probe-$$.bin -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$probe")" 2>/dev/null)
+    pmeta=$(curl -s -m "$pto" -D /tmp/sg-probe-$$.hdr -o /tmp/sg-probe-$$.bin -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$probe")" 2>/dev/null)
     pcode=${pmeta%% *}; pgot=${pmeta##* }
-    pcl=$(curl -sI -m 20 "$PUBLIC/$(url_of "$probe")" 2>/dev/null \
-           | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' | tail -1)
+    pcl=$(awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' /tmp/sg-probe-$$.hdr 2>/dev/null | tail -1)
     if [ "$pcode" != "200" ] || [ -z "$pcl" ] || [ "$pgot" != "$pcl" ]; then
       say "  ⚠️  取图 $probe 不可判（HTTP=$pcode 取到=$pgot 服务器声明=${pcl:-未知} ⇒ 下载未完成，★ 不判失败）"
     else
       rh=$(shasum -a 256 /tmp/sg-probe-$$.bin | cut -c1-16)
       if [ "$lh" = "$rh" ]; then say "  ✅ 取图 $probe → 字节一致"; else say "  ❌ 取图 $probe 本地=$lh HTTP取到=$rh"; OK=0; fi
     fi
-    rm -f /tmp/sg-probe-$$.bin
+    rm -f /tmp/sg-probe-$$.bin /tmp/sg-probe-$$.hdr
   fi
 fi
 rm -f /tmp/sg-publish-$TS.tgz
