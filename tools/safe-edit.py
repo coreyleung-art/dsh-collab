@@ -106,6 +106,34 @@ def _count(p, rx):
         return None
 
 
+def _anchor_of(q):
+    """★ 内容锚：★ 由【文件自身】派生（bytes · lines · 首非空行前 60 字 · 末非空行前 60 字）。
+    ★★ 用途：★ 使回滚点**不依赖任何历史记录即可判状态**（★ 见 R063 装置维 · D-424）。"""
+    try:
+        raw = io.open(q, "rb").read()
+        txt = raw.decode("utf-8", "ignore")
+        lines = [x for x in txt.split("\n") if x.strip()]
+        return {"bytes": len(raw), "lines": txt.count("\n") + 1,
+                "head": (lines[0][:60] if lines else ""),
+                "tail": (lines[-1][:60] if lines else "")}
+    except Exception as e:
+        return {"err": type(e).__name__}
+
+
+def _anchor_diff(a, b):
+    """★ 两锚之差 = 【四分量】—— ★ 每个分量单独可读（★ 明鉴 v3 给的形态）：
+    ★ `bytes` ⇒ 改动量 · ★ `lines` ⇒ 行增减 · ★ `head`/`tail` ⇒ 是否动了开头/结尾。
+    ★★ 判据（★ 必附）：★ head/tail 的「变/未变」= **首/末非空行前 60 字是否逐字相同**
+      ⇒ ★ **60 字内的同长改动可能看不出** ⇒ ★ 故「未变」**不等于**「头尾未被改」，★ 只等于「前 60 字未变」。
+    ★★★ 与 diff 的区别：★ diff 是**逐行对照**；★ 锚差是**内容派生读数** ⇒ **不依赖任何人的叙述**。"""
+    if not isinstance(a, dict) or not isinstance(b, dict) or a.get("err") or b.get("err"):
+        return None
+    return {"d_bytes": b.get("bytes", 0) - a.get("bytes", 0),
+            "d_lines": b.get("lines", 0) - a.get("lines", 0),
+            "head_same": a.get("head") == b.get("head"),
+            "tail_same": a.get("tail") == b.get("tail")}
+
+
 def begin(path, count_regex=None):
     p = _key(path)
     if not os.path.exists(p):
@@ -118,8 +146,15 @@ def begin(path, count_regex=None):
     shutil.copy2(p, bak)
     shutil.copy2(p, _draft(p))
     c0 = _count(p, count_regex)
+    # ★★★ 2026-10-15（★ 由明鉴 v3 建议、星桥第三任实现）：★ 备份步除 sha 外**同时记【内容锚】**。
+    #   ★ 立据（当晚实测）：它的回滚点能用【内容】判（"含第四类证据 1 处 · 证据表 12 行"），
+    #     而它那句"sha 与我卡里记录一致"**不可判 —— 因为记录是【回溯的】**（卡 ts 07:12:26 晚于改动 06:57）。
+    #   ★★ 其一般形式：**记录锚定【时间】，内容锚定【状态】—— 而回滚点需要的是后者。**
+    #   ⇒ 故本步**同时落一份内容锚**：★ bytes · lines · head · tail
+    #     ⇒ **即使 sha 记录丢了或被改写，回滚点仍可判**（★ 不依赖任何历史记录）。
     meta = {"path": p, "backup": bak, "ts": ts, "sha_before": sha(p),
-            "count_regex": count_regex, "count_before": c0, "at": now().isoformat(timespec="seconds")}
+            "count_regex": count_regex, "count_before": c0, "at": now().isoformat(timespec="seconds"),
+            "content_anchor": _anchor_of(p)}
     with io.open(_meta(p), "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=1)
     st = load_state()
@@ -131,6 +166,9 @@ def begin(path, count_regex=None):
     if c0 is not None:
         print("     ★ 关键计数基线：%d（★ 正则 %s）" % (c0, count_regex))
     print("  源文件 sha16：%s（★ 此刻未被碰过）" % meta["sha_before"])
+    _a = meta["content_anchor"]
+    print("  ★ 内容锚（★ 不依赖任何历史记录即可判回滚点）：%s B · %s 行 · 首「%s」· 尾「%s」"
+          % (_a.get("bytes", "?"), _a.get("lines", "?"), _a.get("head", "")[:28], _a.get("tail", "")[:28]))
     print()
     print("  ★ 下一步：改副本 ⇒ `safe-edit.py check %s`" % os.path.basename(p))
     return 0
@@ -193,6 +231,35 @@ def check(path):
         print("  ② 差异：+%d / -%d 行（★ 行数 %d → %d）" % (add, rem, len(a), len(b)))
         if rem > 0 and rem > add * 3 and rem > 20:
             print("     ★★ 删除远多于新增 ⇒ 【疑似大段误删】（★ 今晚三次事故的特征）")
+        # ★★ 锚差（★ 四分量 · ★ 由内容派生 ⇒ 不依赖作者叙述；★ 形态由明鉴 v3 给）
+        _da = _anchor_diff(m.get("content_anchor"), _anchor_of(dp))
+        if _da:
+            print("  ②' 锚差（★ 内容派生 · ★ 不依赖叙述）：bytes %+d · lines %+d · head %s · tail %s"
+                  % (_da["d_bytes"], _da["d_lines"],
+                     "未变" if _da["head_same"] else "★ 变",
+                     "未变" if _da["tail_same"] else "★ 变"))
+            print("     ★ 判据：head/tail 的「变/未变」= 【首/末非空行前 60 字是否逐字相同】"
+                  "⇒ ★ 「未变」只等于【前 60 字未变】，★ 不等于【头尾未被改】")
+            # ★★★★★ 2026-10-15（★ 由明鉴 v3 实测出的【假绿】，★ 本线复现后修）：
+            #   ★ 它造 `HEAD / middle-content-1111 / TAIL`（30 B）⇒ **等长中间替换** `1111→2222`（★ 仍 30 B）⇒
+            #     ★★ **②' 四分量【全部报「未变」】**，★ 而那是【真改动】⇒ **单看锚差会把改动读成无改动**。
+            #   ★★★ 而 `meta` 里【本来就有 `sha_before`】**⇒ 闸手里有唯一能判等长替换的量，却没拿它判。**
+            #   ★★ 其一般形式：★ **「形状未变」与「未改动」是两个量** —— ★ 锚差判【形状】（不需历史）·
+            #     ★ sha 判【是否变了】（需历史）⇒ ★★ **两者回答的是【两个问题】，不可互相代替。**
+            _sh_now = sha(dp)
+            _sh_same = bool(m.get("sha_before")) and _sh_now == m.get("sha_before")
+            _all_same = (not _da["d_bytes"] and not _da["d_lines"]
+                         and _da["head_same"] and _da["tail_same"])
+            print("     ★ sha16 %s（%s · ★ 改前 %s）"
+                  % ("未变" if _sh_same else "★ 变", _sh_now, m.get("sha_before")))
+            if _all_same and not _sh_same:
+                ok = False
+                print()
+                print("  ★★★ 【可疑态：形状未变而内容已变（等长替换）】")
+                print("     ★ 锚差四分量全同，★ 而 sha16 已变 ⇒ ★★ **不得读作「无改动」**，★ 需人看。")
+                print("     ★ 判据：★ 锚差判【形状】（不需历史）· ★ sha 判【是否变了】（需历史）"
+                      "—— ★ **两者回答两个问题，不可互代**。")
+                print("     ★★ 若确为有意改动 ⇒ ★ commit 需加 --force（★ 会留痕，★ 备份仍在 %s）" % m["backup"])
     except Exception as e:
         print("  ② 差异：★ 取不到（%s）" % type(e).__name__)
     # ★ C. 关键计数
