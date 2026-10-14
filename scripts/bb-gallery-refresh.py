@@ -73,6 +73,19 @@ STEPS = [
     #   ★★★ 而 `systemctl is-active` 全程返回 **active** —— **每 27 秒重启一次的服务，它判健康。**
     #   ⇒ 本步把判据换成【**重启计数增量**】：★ 健康不是「活不活」，是「有没有在重启」。
     #   ★ 三态：0 健康 · 1 退化（发现增量）· 2 不可判（★ 不把「读不到」读成「健康」）
+    # ★★★ 2026-10-15（D1 · 面2 蓝图管理 · 用户「回到我们目标来」后做的第一个工作面项）：
+    #   `data/blueprint/versionlog` 的**流程层**此前【停写】（★ stage-review §6 记「自 2026-09-07 停写」）。
+    #   ★ 实测真因不是「工具坏了」，而是：**没有任何东西【自动调它】** ——
+    #     `bb-blueprint-version.py` 功能齐全（bump/history/diff/snapshot/log/sync-from-artifacts/stale-report）
+    #     但全是【人工触发】⇒ ★ **漂移发现了也没人看**。
+    #   ★★ 本步把【检测】接上（★ 决定仍留给人 —— 版本号是治理决定）：
+    #     · rc=0 ⇒ 无【未处理】漂移（★ 已登记待人工确认的**不算** —— 那待的是裁决，不是发现）
+    #     · rc=1 ⇒ **发现未处理漂移**（★ 履行职责，非工具失败）
+    #   ★★★ 两条诊断（stale-report vs sync-from-artifacts）此前【对同一对象结论相反】——
+    #     已修：给 stale-report 加幂等过滤（★ 见该文件注释）。
+    {"id": "blueprint-version", "script": "bb-blueprint-version.py", "args": ["--stale-report"],
+     "produces": [], "selfcheck": True,
+     "desc": "蓝图版本台账对账（★ 只读 · rc=1 = 发现未处理漂移）"},
     {"id": "central-health",  "script": "bb-central-health.py",     "args": ["--json"],
      "produces": [], "selfcheck": True,
      "desc": "中枢黑板健康（★ NRestarts 增量判据；rc=1 退化 · rc=2 不可判）"},

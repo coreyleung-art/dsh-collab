@@ -374,6 +374,40 @@ def cmd_sync_from_artifacts(apply=False):
     print("  ★ 从未登记（产物有而台账无）：%d 个" % len(missing))
     for bp, inf in missing:
         print("     %-22s 产物 %s" % (bp, inf["ver"]))
+
+    # ★★★ 2026-10-15（D1 · 本线实测发现的【静默假阴性】）：
+    #   ★ 本函数只遍历 `latest`（从产物推导）⇒ **没有产物的蓝图【根本不进循环】**。
+    #   ★★ 实测：`agent-network`（台账 v1.2 · 注册表 v1.3）与 `distributed-network`
+    #      （台账 v1.0 · 注册表 v1.1）**都没有产物文件** ⇒ 本函数报「落后 0 个」，
+    #      而 `--stale-report`（对注册表比）报「落后 2 个」—— **两条诊断对同一对象结论相反**。
+    #   ⇒ ★★★ 根因：**把「我看不到」读成了「没有问题」**（★ 与今晚同族：把【装置失败】读成【对象属性】）。
+    #   ⇒ 修：**如实报出第三态** —— 「不可判（该蓝图无产物可比）」★ 并把它与注册表并排显示。
+    noprod = []
+    reg_fail = None
+    try:
+        import urllib.request as _ur2
+        with _ur2.urlopen("http://127.0.0.1:8798/api/blueprints", timeout=60) as _r2:
+            _reg = {b["id"]: b.get("version") for b in json.loads(_r2.read().decode())}
+    except Exception as _e:
+        _reg, reg_fail = {}, type(_e).__name__
+    for bp in sorted(set(list(bps.keys()) + list(_reg.keys()))):
+        if bp in latest:
+            continue                          # ★ 有产物 ⇒ 上面已判过
+        _led = bps.get(bp)
+        _ledv = _led.get("version") if isinstance(_led, dict) else _led
+        noprod.append((bp, _ledv, _reg.get(bp)))
+    if reg_fail:
+        print("  ⚠️ 不可判：取注册表失败（%s）⇒ **%d 个无产物蓝图是否落后【无法判断】**"
+              "（★ 不读成「没有问题」）" % (reg_fail, len(noprod)))
+    elif noprod:
+        print()
+        print("  ⚠️ 不可判（该蓝图无产物可比 ⇒ 只能对【注册表】判）：%d 个" % len(noprod))
+        for bp, led_v, reg_v in noprod:
+            lk, rk = _ver_key(led_v), _ver_key(reg_v)
+            mark = "★ **注册表更新 ⇒ 疑似落后**" if (lk and rk and rk > lk) else ""
+            print("     %-22s 台账 %-14s 注册表 %-14s %s"
+                  % (bp, str(led_v)[:14], str(reg_v)[:14], mark))
+        print("     ★ 处置：这些【不能用产物补账】—— 产物不存在 ⇒ ★ 需人工确认后回写")
     if ahead:
         print("  （产物低于台账 %d 个 —— 不算缺陷，仅列）" % len(ahead))
     if unmatched:
@@ -470,24 +504,64 @@ def main():
             print("★ 取产物版本失败：%s" % e); return 2
         def _n(v):
             return str(v or "").strip().lstrip("v").split("（")[0].strip()
-        behind=[]
+        # ★★★ 2026-10-15（D1 · 本线实测更正了自己的错误诊断，如实记）：
+        #   ★ 我先前判「agent-network / distributed-network 无产物 ⇒ sync-from-artifacts 看不到」
+        #     —— ★★ **那是错的**（我没核产物就在别处）。实测两者**都有产物**：
+        #       agent-network-arch-v1_3-20260904-021743.svg · distributed-network-arch-v1_1-20260909-001634.svg
+        #   ★★ 而真因是：**`--sync-from-artifacts` 有【幂等过滤】（`done` 集合把已登记的差额滤掉），
+        #     而本命令（--stale-report）【没有】** ⇒ ★★★ 于是：
+        #       · entries 里 2026-10-12T18:05 已有两条 SYNCED（正是这两项）
+        #       · sync-from-artifacts ⇒ 报 0（★ **正确**）
+        #       · 本命令 ⇒ 仍报「落后 2 个」（★ **那就是「每次必红」**）
+        #   ⇒ ★★★ 修：本命令也读 `entries`，把【已登记过的差额】标出而非重复计入。
+        #     ★ 与今晚那条同族：**「每次必红」与「这次变红」是两件事。**
+        _entries = vl.get("entries") or []
+        _done = set()
+        for _x in _entries:
+            if _x.get("action") in ("SYNCED", "FOUND-UNREGISTERED"):
+                _det = str(_x.get("detail") or "")
+                for _c in re.findall(r"v\d+\.\d+", _det):
+                    # ★★ 坑（本线实测）：entries 侧是 `v1.3`，而下面比对用的是 `_n(...)` = `1.3`
+                    #   ⇒ 若不加归一化，**过滤永远不命中**（★ 我第一次就踩了这个）
+                    _done.add((_x.get("bp"), _c.lstrip("v")))
+        behind=[]; behind_logged=[]
         for k, v in led.items():
             lv = (v or {}).get("version") if isinstance(v, dict) else v
             if k in art and _n(lv) != _n(art.get(k)):
-                behind.append({"id":k, "ledger":lv, "actual":art.get(k)})
-        missing=[{"id":k, "actual":art[k]} for k in art if k not in led]
+                _item = {"id":k, "ledger":lv, "actual":art.get(k)}
+                (behind_logged if (k, _n(art.get(k))) in _done else behind).append(_item)
+        missing=[]; missing_logged=[]
+        for k in art:
+            if k not in led:
+                (missing_logged if (k, _n(art.get(k))) in _done else missing).append({"id":k, "actual":art.get(k)})
         print("══ 台账落后于产物（待人工裁决 · ★ 本命令不改）══")
         if behind:
             for x in behind: print("  ★ %-22s 台账 %-8s → 产物 %-8s" % (x["id"], x["ledger"], x["actual"]))
         else:
             print("  （无）")
+        if behind_logged:
+            print("  ★★ 已在 entries 登记过（★【不算未处理】，故不计入上表）：%d 个" % len(behind_logged))
+            for x in behind_logged:
+                print("     · %-22s 台账 %-8s → 产物 %-8s（★ 已登记 ⇒ 待的是【人工确认版本号】而非【发现】）"
+                      % (x["id"], x["ledger"], x["actual"]))
         print("")
         print("══ 台账未覆盖（从未登记）══")
         print("  %d 项：%s" % (len(missing), " ".join(x["id"] for x in missing) or "（无）"))
+        if missing_logged:
+            print("  ★★ 已在 entries 登记过（★ 不算未登记）：%d 项：%s"
+                  % (len(missing_logged), " ".join(x["id"] for x in missing_logged)))
         print("")
         print("★ 处置：版本号是**治理决定**，故本工具不自动改写；")
         print("  若人工确认后可回写 —— 但按 R062①「归档≠已处理」，**先确认产物为真**。")
         print("★ 本命令【只读】：未写任何键。")
+        # ★★★ 2026-10-15（D1 流程层）：给本命令一个【能失败的判据】，以便接进流水线。
+        #   · rc=0 ⇒ 无【未处理】漂移（★ 已登记待人工确认的不算 —— 那待的是裁决，不是发现）
+        #   · rc=1 ⇒ **发现未处理漂移**（★ 那是履行职责）
+        #   ★ 与 tonight 那条同族：★ **「每次必红」与「这次变红」要分得开。**
+        if behind or missing:
+            print("★ 判据：**发现未处理漂移** ⇒ rc=1（★ 这是履行职责，非工具失败）")
+            return 1
+        print("★ 判据：无未处理漂移 ⇒ rc=0")
         return 0
     elif args.version_list:
         cmd_version_list()
@@ -513,4 +587,9 @@ def main():
         print(ap.format_help())
 
 if __name__ == "__main__":
-    main()
+    # ★★★ 2026-10-15（D1）：原为 `main()` ⇒ **返回值被丢弃，进程永远 exit 0**
+    #   ⇒ ★★ 即：**判据算出来了，却没有人消费它**（★ 与今晚那条同族：
+    #      「算出了结论却不外传」与「写进非交接载体」是同一个形状）。
+    #   ★ 实测：`--stale-report` 报出「发现未处理漂移」并打印 rc=1，★ **而 exit 仍是 0**。
+    #   ⇒ 改为 `sys.exit(main())` —— ★ 这样既有的 `return 1/2` 路径才【真的生效】。
+    sys.exit(main())
