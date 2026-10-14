@@ -1,0 +1,85 @@
+{
+  "name": "手段清单（黑板对象）",
+  "object": "rust-blackboard HTTP API（8792 / 106.53.214.108:8792）",
+  "★_为什么需要它": "0b（集合完整性）的递归：**「知道手段集」本身就是自述。** 唯一能验证手段集的方法，是**拿真实对象去试** —— 不是记得有哪些，是**试过哪些**。关键字段是「**最后被实际使用过的时刻**」，因为**一个从未被使用过的手段，等于不存在，而你不会感觉到它不存在。**",
+  "measured_at": "2026-09-11T01:15:24+08:00",
+  "methods": [
+    {
+      "method": "PUT（写入）",
+      "works": true,
+      "detail": "HTTP 200, 68B",
+      "cost": "≈ 请求体大小 + 回执 ~68B"
+    },
+    {
+      "method": "GET（精确读）",
+      "works": true,
+      "detail": "HTTP 200, 88B",
+      "cost": "★ **= 该键的值大小**（不可压缩、不可 HEAD）；小卡 ~2644B · 大卡 ~2289B（实测样本）"
+    },
+    {
+      "method": "DELETE（删除）",
+      "works": true,
+      "detail": "HTTP 200, 16B",
+      "cost": "~16B 回执；★ **对不存在的键也返回 200（幂等）**"
+    },
+    {
+      "method": "GET ?limit=N",
+      "works": true,
+      "detail": "HTTP 200, 1529B",
+      "cost": "≈ N × 单键大小（limit=3 → 1529B）"
+    },
+    {
+      "method": "GET ?limit=N&offset=M",
+      "works": true,
+      "detail": "HTTP 200, 2296B",
+      "cost": "≈ N × 单键大小（offset=3,limit=3 → 2296B）"
+    },
+    {
+      "method": "GET ?limit=1（读 total）",
+      "works": true,
+      "detail": "HTTP 200, 567B",
+      "cost": "★ **567B —— 命名空间级规模的便宜路径**（但**不是键级**）"
+    },
+    {
+      "method": "GET /（列举）",
+      "works": true,
+      "detail": "HTTP 200, 36624127B",
+      "cost": "★ **36.6MB（全量·最贵）** —— 应改用 limit/offset 分页"
+    },
+    {
+      "method": "HEAD（只看头）",
+      "works": false,
+      "detail": "HTTP 405",
+      "cost": "**不可用（405）** → ★ **后果：键级存在性判定没有便宜路径**"
+    },
+    {
+      "method": "GET 尾斜杠（命名空间端点）",
+      "works": true,
+      "detail": "HTTP 200, 36624127B",
+      "cost": "**36.6MB（等价于 GET /）**"
+    },
+    {
+      "method": "POST（应不支持？）",
+      "works": false,
+      "detail": "HTTP 400",
+      "cost": "不可用（400）"
+    },
+    {
+      "method": "PATCH（应不支持？）",
+      "works": false,
+      "detail": "HTTP 405",
+      "cost": "不可用（405）"
+    }
+  ],
+  "★_诚实边界": "本清单是**已试过的子集**，不是「全部手段」。**「全部」这个断言本身无法验证**（0b 的递归）—— 只能靠不断试新的来扩展，且每次扩展都可能发现此前不知道的可用手段（如今晚发现的 offset/total）。",
+  "★_cost_field_rationale": {
+    "来源": "HR 指出：清单告诉你「有哪些手段」，**而选择手段需要一个代价维度** —— 否则你仍然会习惯性地用最熟的那个（**这正是 0b 的另一面**）",
+    "由此得到的操作建议（HR 实测）": "**键级存在性 = 精确 key GET，代价 = 该键的值大小**（不可压缩、不可 HEAD）；**命名空间级规模 = ?limit=1 读 total（567B 级）**。**两者不能互相替代。**",
+    "HEAD 405 的实际后果": "**键级存在性判定在黑板这个对象上没有便宜路径** —— 这是一个只有实测才知道的约束。"
+  },
+  "completeness": "partial (measured subset, 11 tried)",
+  "tried_count": 11,
+  "available_count": 8,
+  "★_completeness_字段说明": "★ HR 提议：「**把它做成字段而不是散文** —— 散文会被跳过，字段可以被机械核验（例如断言『标注 partial 的清单必须带 tried 计数』）」。这正是「声明位要被机械核验」用在诚实边界上。",
+  "last_exercised_at": "2026-09-11T01:16:58+08:00"
+}

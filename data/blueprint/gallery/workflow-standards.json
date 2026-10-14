@@ -1,0 +1,221 @@
+{
+ "version": "1.0.0",
+ "updated": "2026-10-15",
+ "generatedAt": "2026-10-15 03:49:02",
+ "generatedBy": "bb-workflow-standards-gen.py v1.0.0",
+ "sourceOfTruth": "workflow-standards.core.json（人工核心）",
+ "toolCheck": {
+  "ok": 2,
+  "external": 4,
+  "missing": 0,
+  "unknown": 0
+ },
+ "r006": {
+  "name": "R006 插件化工具化标准（10 项）",
+  "rule": "rule:R006",
+  "blueprints": [
+   "blueprint-platform",
+   "agent-network"
+  ],
+  "items": [
+   {
+    "n": 1,
+    "name": "dsh 插件形态",
+    "mark": "插件/模块化封装",
+    "tools": [
+     "dsh-tools rust",
+     "genebank",
+     "blackboard-mcp"
+    ],
+    "note": "凡能力先想插件形态"
+   },
+   {
+    "n": 2,
+    "name": "TCC 检测",
+    "mark": "--selfcheck",
+    "tools": 14,
+    "example": "bb-blueprint-ingest/registry/version",
+    "note": "工具自检（Test-Compile-Check）"
+   },
+   {
+    "n": 3,
+    "name": "CLD 自适应",
+    "mark": "CLD 环境感知",
+    "tools": 3,
+    "example": "bb-blueprint-gallery",
+    "note": "不假设宿主环境"
+   },
+   {
+    "n": 4,
+    "name": "dsh 版本自适应",
+    "mark": "--tool-version",
+    "tools": 19,
+    "example": "bb-* 族",
+    "note": "版本与 dsh 同步"
+   },
+   {
+    "n": 5,
+    "name": "文档化",
+    "mark": "README+设计文档",
+    "tools": 1,
+    "example": "README-*.md",
+    "note": "三件套纪律第一件"
+   },
+   {
+    "n": 6,
+    "name": "版本管理",
+    "mark": "--version",
+    "tools": 12,
+    "example": "ingest/version/registry",
+    "note": "版本可溯"
+   },
+   {
+    "n": 7,
+    "name": "统一日志",
+    "mark": "--log/jsonl",
+    "tools": 5,
+    "example": "absorb-watch/sub-gen",
+    "note": "日志格式统一"
+   },
+   {
+    "n": 8,
+    "name": "自动落链",
+    "mark": "黑板+KB",
+    "tools": 33,
+    "example": "bb-* 多数",
+    "note": "产物自动登记黑板"
+   },
+   {
+    "n": 9,
+    "name": "CLI 治理",
+    "mark": "argparse 统一",
+    "tools": 31,
+    "example": "bb-* 族",
+    "note": "命令面统一治理"
+   },
+   {
+    "n": 10,
+    "name": "约束前置·Lean4逻辑门",
+    "mark": "--lean4-check / 结构不可绕过",
+    "note": "不该发生的路径被结构拒(类型锁/schema门/状态机); 违规写实测拒绝",
+    "example": "schema-gate/五步门/merged契约",
+    "tools": []
+   }
+  ]
+ },
+ "workflows": [
+  {
+   "id": "blueprint-ingest",
+   "name": "蓝图注册流水线",
+   "desc": "新蓝图一键入管理器：--suggest 匹配位置 → --register 全点同步 → 快照自动渲染",
+   "tool": "bb-blueprint-ingest.py",
+   "steps": [
+    "suggest 匹配",
+    "register 注册",
+    "render 快照"
+   ],
+   "since": "2026-09-02",
+   "toolState": "ok"
+  },
+  {
+   "id": "island-evolve",
+   "name": "孤岛自进化",
+   "desc": "探测孤岛→AI 建议连接→L2 确认→人类确认→连接→图谱生长",
+   "tool": "bb-island(rust)+gallery",
+   "steps": [
+    "detect",
+    "suggest",
+    "confirm",
+    "connect"
+   ],
+   "since": "2026-09-02",
+   "toolState": "external"
+  },
+  {
+   "id": "knowledge-build",
+   "name": "知识内核构建",
+   "desc": "扫描 research/ 报告+论文→溯源边→knowledge-graph→中文概况",
+   "tool": "gen-paper-summaries.py",
+   "steps": [
+    "scan",
+    "extract",
+    "summary",
+    "graph"
+   ],
+   "since": "2026-09-02",
+   "toolState": "ok"
+  },
+  {
+   "id": "philosophy-archeo",
+   "name": "治理哲学考古",
+   "desc": "规则冗余→上提哲学·事故教训→哲学·用户价值观→哲学",
+   "tool": "governance-philosophy.json",
+   "steps": [
+    "archeology",
+    "candidate",
+    "approve",
+    "version"
+   ],
+   "since": "2026-09-02",
+   "toolState": "external"
+  },
+  {
+   "id": "mech-inventory",
+   "name": "机制盘点",
+   "desc": "协议/门/锁 独立盘点→关系链(协议→门→锁→执行)",
+   "tool": "mechanism-inventory",
+   "steps": [
+    "survey",
+    "classify",
+    "link"
+   ],
+   "since": "2026-09-02",
+   "toolState": "external"
+  },
+  {
+   "id": "paper-chain",
+   "name": "论文落链管道",
+   "desc": "发现→alphaXiv/OpenAlex→paper-cache→KB→中文概况",
+   "tool": "paper_* rust+gen-summaries",
+   "steps": [
+    "discover",
+    "fetch",
+    "chain",
+    "summarize"
+   ],
+   "since": "2026-08",
+   "toolState": "external"
+  }
+ ],
+ "meta_usage": {
+  "自动化": [
+   "规则/门控类重复判断→rule-judge L1/L2 硬门",
+   "批量操作→L3 人控",
+   "报告→cron 错峰"
+  ],
+  "工具化": [
+   "重复步骤→CLI(--selfcheck/--tool-version/落链)",
+   "如 bb-ingest 注册流水线"
+  ],
+  "插件化": [
+   "能力要跨会话/跨设备复用→dsh 插件/Rust 子命令",
+   "R006 九标准验收"
+  ],
+  "泛化": [
+   "方案从单场景→多场景验证(flownet→banking/aistartup)",
+   "blueprint-generalize 工具"
+  ],
+  "流水线/工作流": [
+   "多步固定过程→固化 workflow(如 paper-chain/ingest)"
+  ]
+ },
+ "term_distribution": {
+  "自动化": 363,
+  "工具化": 511,
+  "插件化": 357,
+  "标准化": 72,
+  "工作流": 102,
+  "流水线": 98,
+  "泛化": 125
+ }
+}

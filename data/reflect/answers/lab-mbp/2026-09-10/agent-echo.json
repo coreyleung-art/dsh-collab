@@ -1,0 +1,32 @@
+{
+  "device": "lab-mbp",
+  "date": "2026-09-10",
+  "submitted_at": "2026-09-11T09:05:00+08:00",
+  "plugin_version": "1.0.0",
+  "answers": [
+    {
+      "agent": "agent-echo",
+      "items": [
+        {
+          "id": "B1",
+          "event_ref": "E201",
+          "pit": "补记：昨晚处置前我确实先抓了快照，但写复盘时只写了『当时是好的』，没写在什么时刻采的；早上再看已经分不清了。",
+          "lesson": "破坏性动作前先取证，并把采集时点写进记录，否则事后分不清处置前还是处置后",
+          "related_rule": "phi-facts",
+          "suggestion": {
+            "type": "新增",
+            "detail": "复盘记录模板增加『采集时点（处置前/后）』必填行",
+            "reason": "隔夜再看就分不清了"
+          },
+          "evidence": {
+            "ts": "2026-09-11T09:15:00+08:00",
+            "collected_at": "2026-09-11T09:16:00+08:00",
+            "cmd": "log show --last 12h --predicate 'process == \"cld\"' | tail -5",
+            "output": "重启窗口 22:41-22:43；快照文件 mtime 22:40 —— 处置前，但记录里没写"
+          }
+        }
+      ],
+      "declined": false
+    }
+  ]
+}

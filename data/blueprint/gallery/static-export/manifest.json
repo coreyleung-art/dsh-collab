@@ -1,0 +1,98 @@
+{
+ "version": "1.0",
+ "exported": "2026-10-15T03:49:03",
+ "apis": {
+  "overview": {
+   "file": "api/overview.json",
+   "bytes": 91986
+  },
+  "blueprints": {
+   "file": "api/blueprints.json",
+   "bytes": 4376
+  },
+  "agents": {
+   "file": "api/agents.json",
+   "bytes": 97591
+  },
+  "versions": {
+   "file": "api/versions.json",
+   "bytes": 11957
+  },
+  "relations": {
+   "file": "api/relations.json",
+   "bytes": 21292
+  },
+  "assets": {
+   "file": "api/assets.json",
+   "bytes": 2839
+  },
+  "agent-graph": {
+   "file": "api/agent-graph.json",
+   "bytes": 57962
+  },
+  "mech-graph": {
+   "file": "api/mech-graph.json",
+   "bytes": 10481
+  },
+  "mechanism": {
+   "file": "api/mechanism.json",
+   "bytes": 10846
+  },
+  "knowledge-graph": {
+   "file": "api/knowledge-graph.json",
+   "bytes": 78568
+  },
+  "original": {
+   "file": "api/original.json",
+   "bytes": 10412
+  },
+  "workflow": {
+   "file": "api/workflow.json",
+   "bytes": 9997
+  },
+  "philosophy": {
+   "file": "api/philosophy.json",
+   "bytes": 41111
+  },
+  "biz-assets": {
+   "file": "api/biz-assets.json",
+   "bytes": 172363
+  },
+  "hardware": {
+   "file": "api/hardware.json",
+   "bytes": 12217
+  },
+  "hwcomm": {
+   "file": "api/hwcomm.json",
+   "bytes": 11451
+  },
+  "hwprobe": {
+   "file": "api/hwprobe.json",
+   "bytes": 70
+  },
+  "system-assets": {
+   "file": "api/system-assets.json",
+   "bytes": 13286
+  },
+  "rules": {
+   "file": "api/rules.json",
+   "bytes": 77755
+  },
+  "rule-graph": {
+   "file": "api/rule-graph.json",
+   "bytes": 26974
+  },
+  "islands": {
+   "file": "api/islands.json",
+   "bytes": 14887
+  },
+  "plan-archive": {
+   "file": "api/plan-archive.json",
+   "bytes": 166231
+  }
+ },
+ "html": {
+  "file": "index.html",
+  "bytes": 244837
+ }
+}

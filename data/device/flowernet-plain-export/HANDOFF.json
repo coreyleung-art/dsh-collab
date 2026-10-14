@@ -1,0 +1,109 @@
+{
+ "status": "DONE（附前提）— 已推送 · 已下架 · attest 闭合 · ★ 但根因未除（2026-09-28）",
+ "★ 本文件已取代早先的 6 项版本": "早先版本列 6 个文件 + 占位符路径，已作废。凡按旧卡核对者会误判为「已变」——故保留本文件于原位置并显式标注取代关系。",
+ "ts": "2026-09-28T07:55:24.161223+08:00",
+ "created_by": "明鉴 session-a190c54c-ca73-4845-9a65-9dc002d45044",
+ "executed_by": "老登 session-aa528267-0434-4bf5-87c5-d5a61f8215b2",
+ "authorization": {
+  "by": "用户本人（黄紫莹）",
+  "when": "2026-09-28",
+  "channel": "★ 用户【直接】对老登确认（不经明鉴转述），符合 data/registry/hold-lifted-transitive-auth-and-reshare-risk-20260910 的 lift 条件",
+  "decision": "C 方案：去口令 + 只改路径名；合作方版不再设门、靠随机路径"
+ },
+ "★ 交付内容": {
+  "files": 9,
+  "hashes": {
+   "index.html": {
+    "size": 796863,
+    "sha256_16": "1da3aedfff49287c"
+   },
+   "启动资金与各轮计划.html": {
+    "size": 106441,
+    "sha256_16": "104911fe80d2628e"
+   },
+   "商业计划书.html": {
+    "size": 311216,
+    "sha256_16": "6dccde11dbb05693"
+   },
+   "相关方文件.html": {
+    "size": 93645,
+    "sha256_16": "a3005d7ea4a96147"
+   },
+   "robots.txt": {
+    "size": 26,
+    "sha256_16": "331ea9090db0c9f6"
+   },
+   "平台格局图.html": {
+    "size": 33197,
+    "sha256_16": "983da6e11e0ce421"
+   },
+   "welcome/index.html": {
+    "size": 8903,
+    "sha256_16": "37d74254d62d7224"
+   },
+   "partner/index.html": {
+    "size": 90505,
+    "sha256_16": "127f81060bdc7c9d"
+   },
+   "taobao-brief/index.html": {
+    "size": 52033,
+    "sha256_16": "69a3c480efe60b66"
+   }
+  },
+  "note": "逐个哈希经老登线上复算一致 ⇒ attest 闭合；明鉴独立实测了旧路径与 robots 两面（新随机路径刻意不告知明鉴，故其可达性由老登单方验证）"
+ },
+ "★ 已下架（全部实测 404 · 由明鉴独立复核）": [
+  "/flowernet/  （唯一真带可执行门的：PBKDF2+AES-GCM，60 万次迭代，20 口令槽）",
+  "/partner/   （★ 实为明文，无门；此前误记为「有门」——错因：对该对象只查了「口令」字面，未用与 /flowernet/ 同一把原语词集）",
+  "/welcome/   （明文，无门）",
+  "/taobao-brief/ （明文，无门）",
+  "/flowernet/robots.txt （历史惰性文件，一并 404）"
+ ],
+ "★ 未受影响（反向验证全部 200 · 明鉴实测）": [
+  "/",
+  "/robots.txt",
+  "/app/",
+  "/download/*",
+  "/laodeng/",
+  "/laodeng-h5/",
+  "/laodeng-m/",
+  "/plan/"
+ ],
+ "★ host 根 robots.txt": {
+  "url": "https://tm.meetfunbp.com/robots.txt",
+  "实测": "HTTP 200 / 123 B（改前为 404 —— 早先放在子目录的 robots 对爬虫从未生效）",
+  "content": "User-agent: *\nAllow: /$\nAllow: /app/\nAllow: /download/\nAllow: /laodeng/\nAllow: /laodeng-h5/\nAllow: /laodeng-m/\nDisallow: /",
+  "判据": "默认拒绝 + 白名单放行；它自动覆盖 /partner//welcome//taobao-brief/ 与随机路径，无需知道后者是什么"
+ },
+ "★ 残留与待办": [
+  "① taobao-brief 引用 /vendor/d3.min.js（404）；d3 实际在 /systemgraph/vendor/d3.min.js（200）。当前不影响可见图表（5 图全走内联 SVG）⇒ 一行可修，未擅自改。",
+  "② ~/.config/.cloudbase/auth.json 权限 0644（含 2026-10-02 到期的 refreshToken）—— 属凭据面写操作，已报用户待裁决。",
+  "③ cloudbase CLI 需 NODE_TLS_REJECT_UNAUTHORIZED=0 才能工作（一条携带凭据的调用链上 TLS 校验关闭）—— 建议另立议题。"
+ ],
+ "★ 本次暴露的两条通用判据（供后续复用）": [
+  "A. 下架类动作的验收不能只在被下架对象上做（404），必须在「暴露面」上做 —— 否则会核了指令、漏了目标。",
+  "B. 对 A 与 B 做同类判断时，须自问「我对这两个用的是同一把尺子吗？这把尺子是为这个对象选的，还是沿用上一个对象的？」"
+ ],
+ "★ 关于「收口」一词的更正（重要）": "本文件早先写「下架三个根路径即收口」—— 该断言**不完整**，已更正。原因：老登查明 /plan/ 的来源是流水线【设计】——handshake 第 105/106 行【同一份内容推两个路径】⇒「下架 /flowernet/ 即收口」这个假设从一开始就不成立。⇒ 本次做的是【清理】，不是【修复】：只删副本不改流水线 ⇒ 下次推送会再产生一个。⇒ 故「收口」此后须带作用域：**「本次已知路径已全关」≠「不会再产生新的」**。",
+ "★ 已下架（最终 · 明鉴实测）": [
+  "/flowernet/  （唯一真带可执行门的：PBKDF2+AES-GCM，60 万次迭代，20 口令槽）",
+  "/partner/   （明文，无门；此前误记为「有门」——错因：对该对象只查「口令」字面，未与 /flowernet/ 用同一把原语词集）",
+  "/welcome/   （明文，无门）",
+  "/taobao-brief/ （明文，无门）",
+  "/flowernet/robots.txt （历史惰性文件）",
+  "/plan/      （★ 与 /flowernet/ 逐字节相同：均 1073814 B · 均 ca24d469a7f1788f · 同 title。由流水线双推产生，用户直接授权后下架。明鉴实测 404）"
+ ],
+ "★ 验收范式（本议题产出，供后续复用）": "【按身份核、不按属性核】—— 逐路径与目标哈希比对，而不是看「有没有门 / 多大 / 什么算法」。属性相同不蕴含身份相同。老登本次即用此法：遍历全部 14 个顶层路径逐个与目标哈希比对 ⇒ 只有 /plan/ 命中。",
+ "★ 未结（转出）": [
+  "① 【流水线未修 —— 三处，不是两处】",
+  "   ①-a handshake 第 106 行：同一份 $CLEAN 被 deploy 到两个路径（flowernet + plan）⇒ 删掉或加开关",
+  "   ①-b handshake 第 112 行 for 列表：只删【前两项】(flowernet/version.json · plan/version.json)，       ★ 必须保留第三项 systemgraph/bp/version.json —— 它服务于【应留面 /systemgraph/】       （实测：/systemgraph/version.json = 200 · /systemgraph/bp/version.json = 200；而 /flowernet/version.json 与 /plan/version.json 均 404）       ⇒ 删整行会破坏一个应留面 ⇒ 这是「修复本身会引入新破坏」的实例",
+  "   ①-c 可选：把「武装权」从纪律变为结构 —— 见下方主权层说明",
+  "   ★ 判据：删一行之前先问「这一行是几个对象的共同入口吗？」",
+  "② ~/.config/.cloudbase/auth.json 权限 0644（含 2026-10-02 到期的 refreshToken）—— 待用户裁决",
+  "③ taobao-brief 引用 /vendor/d3.min.js（404）；d3 实际在 /systemgraph/vendor/d3.min.js —— 一行可修，待授权",
+  "④ cloudbase CLI 需 NODE_TLS_REJECT_UNAUTHORIZED=0（携带凭据的调用链上 TLS 校验关闭）—— 建议另立议题"
+ ],
+ "updated_at": "2026-09-28T08:22:53.886179+08:00",
+ "★ 主权层说明（替代早先的「流水线已停」）": "早先本文件与相关卡片写过「流水线已停」——该措辞**不准确**，已更正。准确陈述是：**【流水线未武装，而武装权在导出方（明鉴）手上】**。证据：① handshake 第 10 行 MARK=\"$SRC/.export-done\" ② 第 32 行要求该标记在位才继续 ③ 第 3 行注释「约定：明鉴导出完成后在产物目录放 .export-done」④ export-marker.py 文档字符串原文「导出方（明鉴）在全部写入完成后，最后写两个标记」。⇒ 区分的意义：「已停」是【运行状态层】（状态会变）·「未武装且武装权在导出方」是【主权层】（主权不会变）。⇒ 判据：问「这个『已停』是【结构上没有入口】，还是【有人克制着不用】？」后者不是已停，是暂停。"
+}

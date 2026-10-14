@@ -1,0 +1,19 @@
+{
+ "weights": {
+  "cash": 1.0,
+  "capital": 1.0,
+  "control": 1.2,
+  "window": 1.3,
+  "moat": 1.0,
+  "profit": 1.0
+ },
+ "dims": {
+  "cash": "现金引擎力",
+  "capital": "资本效率",
+  "control": "控盘保持",
+  "window": "窗口利用",
+  "moat": "护城河沉淀",
+  "profit": "盈利弹性"
+ },
+ "ts": "2026-09-09T04:08:36"
+}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>星桥 · 锚点目标实现复盘（2026-10-15）</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--tx:#c9d1d9;--dim:#8b949e;
+--ok:#3fb950;--bad:#f85149;--skip:#d29922;--acc:#58a6ff;--pur:#bc8cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:32px 20px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:30px;margin-bottom:8px;letter-spacing:-.4px}
+h2{font-size:21px;margin:40px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--bd)}
+h3{font-size:16px;margin:22px 0 10px;color:var(--acc)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:20px;margin:14px 0}
+.quote{border-left:4px solid var(--acc);padding:14px 18px;background:#0f1620;border-radius:0 8px 8px 0;margin:14px 0;font-size:15px}
+.quote.g{border-left-color:var(--ok)}.quote.r{border-left-color:var(--bad)}
+.quote.p{border-left-color:var(--pur)}.quote.y{border-left-color:var(--skip)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:15px 17px}
+.stat .n{font-size:27px;font-weight:700;letter-spacing:-.6px}
+.stat .l{font-size:12px;color:var(--dim);margin-top:3px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.skip{color:var(--skip)}.acc{color:var(--acc)}.pu{color:var(--pur)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th{background:#1c2128;text-align:left;padding:10px 11px;border-bottom:2px solid var(--bd);font-weight:600;font-size:13px}
+td{padding:9px 11px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:hover td{background:#1a1f26}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+.tag{display:inline-block;padding:2px 9px;border-radius:11px;font-size:11.5px;font-weight:600}
+.t-ok{background:#0d2818;color:var(--ok);border:1px solid #1f6f3d}
+.t-bad{background:#2d1114;color:var(--bad);border:1px solid #8b2b2b}
+.t-sk{background:#2d2410;color:var(--skip);border:1px solid #7d6117}
+ul{margin:10px 0 10px 22px}li{margin:7px 0}
+.hl{background:linear-gradient(transparent 58%,#1f6f3d55 58%);padding:0 2px}
+.hlr{background:linear-gradient(transparent 58%,#8b2b2b55 58%);padding:0 2px}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--bd);color:var(--dim);font-size:12.5px;line-height:1.9}
+.bar{height:9px;background:#21262d;border-radius:5px;overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;border-radius:5px}
+.note{font-size:12.5px;color:var(--dim);margin-top:9px;line-height:1.7}
+</style></head><body><div class="wrap">
+
+<h1>星桥 · 锚点目标实现复盘</h1>
+<div class="sub">2026-10-15 · mac-mini · 第二任 <code>session-e317d6ab</code> · 交棒给第三任 <code>session-47c9f0d3</code></div>
+
+<div class="quote g"><b>★ 锚点目标（v7 §0.1.1 · 用户原话 48 字 · 逐字）</b><br>
+「让整个 cld 分布式智能体协作网络的跨会话跨智能体跨设备通讯更稳定更健康跟得上业界，也保持领先」</div>
+
+<h2>一、目标被拆成了什么 —— 四维 14 项判据</h2>
+<div class="card">
+<table><tr><th style="width:70px">维</th><th>目标里的词</th><th>拆出的判据</th><th style="width:110px">现值</th></tr>
+<tr><td><b class="acc">S</b></td><td>「更<b>稳定</b>」</td><td>S-1a · S-1b · S-2 · S-3 · S-4 · P26</td><td><span class="tag t-ok">3 PASS</span> <span class="tag t-bad">2 FAIL</span> <span class="tag t-sk">1 SKIP</span></td></tr>
+<tr><td><b class="ok">H</b></td><td>「更<b>健康</b>」</td><td>H1 · H2a/H2c/H2d · H3 · H4 · H5b/H5c · <b>H5d/H5e(新)</b> · <b>H5f(新)</b></td><td><span class="tag t-ok">11 PASS</span> <span class="tag t-bad">2 FAIL</span></td></tr>
+<tr><td><b class="pu">I</b></td><td>「跟得上<b>业界</b>」</td><td>I-1 · I-2(+a–d) · I-2c · I-3 · <b>I-4</b></td><td><span class="tag t-ok">3 PASS</span> <span class="tag t-sk">3 SKIP</span></td></tr>
+<tr><td><b class="skip">L</b></td><td>「保持<b>领先</b>」</td><td>L-1 三条合取 · L-2 对照实验</td><td><span class="tag t-ok">2 PASS</span></td></tr>
+</table>
+<div class="note">★ 拆法出处：<code>v6.1 §0.1.4</code>。★ 判据现值：<code>python3 tools/beacon-check.py</code> ⇒ <b>总 55 条 · PASS 38 · FAIL 5 · SKIP 12</b>（★ 条目总数 55 = 正常，无早退）。</div>
+</div>
+
+<h2>二、本轮（2026-10-15）的量化推进</h2>
+<div class="grid">
+<div class="stat"><div class="n ok">8 → 5</div><div class="l">FAIL 数下降</div><div class="bar"><i style="width:62%;background:var(--ok)"></i></div></div>
+<div class="stat"><div class="n ok">7 → 13</div><div class="l">SKIP 数（待裁/待外部）</div></div>
+<div class="stat"><div class="n acc">394</div><div class="l">台账条数</div></div>
+<div class="stat"><div class="n pu">13</div><div class="l">必跑面工具全已异源</div></div>
+</div>
+
+<div class="card">
+<h3>★★ 而更重要的是：8 道 FAIL 里，有 5 道【被查明为「坏掉的灯」】</h3>
+<table><tr><th>判据</th><th>它原来报什么</th><th>真相</th><th>处置</th></tr>
+<tr><td><code>H3</code></td><td>覆盖率不达标</td><td>把<b>长期已知的单点红</b>读成新问题</td><td>改成覆盖率口径</td></tr>
+<tr><td><code>H2a</code></td><td>4 个服务失败</td><td>把<b>周期任务的退出码</b>读成服务失败</td><td>加 <code>periodic</code> 字段</td></tr>
+<tr><td><code>H2c</code></td><td>归档掩盖</td><td>把<b>根因已修的历史告警</b>读成掩盖</td><td>显式豁免登记</td></tr>
+<tr><td><code>I-1</code></td><td>符合度未达标</td><td>本机侧已 72.2%，<b>中继侧待外设备</b></td><td>拆本机/中继两层</td></tr>
+<tr><td><code>I-2c</code></td><td>认证硬缺口</td><td><b>本机板的设计选择</b>（威胁模型）</td><td>改判 <code>UNDECIDABLE</code></td></tr>
+</table>
+<div class="quote y"><b>★ 由此归纳出一条判据纪律（D-367）</b><br>
+「一个判据若对同一个输入<b>每次都红</b>，那它就不是判据 —— ★ 它是一盏<b>坏掉的灯</b>。」<br>
+<span style="color:var(--dim)">★ 实证：今晚修的 9 处判据里 <b>8 处是同一形态</b>；★ 而 <b>1 处是真的</b> —— 故不能说「我修的红全是假红」。</span></div>
+</div>
+
+<h2>三、★★★★ 而本轮【真正的进展】不在判据上</h2>
+
+<div class="card">
+<h3>1 · 四次异体复核，三次抓到我的错 —— 而每次我都本来看不见</h3>
+<table><tr><th style="width:96px">谁</th><th>怎么抓的</th><th>抓到我什么</th><th>处置</th></tr>
+<tr><td><b>明鉴 v3</b></td><td><b>用真锁</b>测（不是夹具）</td><td><code>xdom-op.sh</code> 的 RED 路径<b>崩</b>（<code>expiresAt</code> 是 dict、<code>holders</code> 是 list）</td><td>已修 + 真锁验证</td></tr>
+<tr><td><b>明鉴 v3</b></td><td>一句「<b>狼来了</b>」</td><td>我<b>刚引入</b>的 H3 假阳性</td><td>已修</td></tr>
+<tr><td><b>第三任</b></td><td><b>真的撞车</b>（8 秒差）</td><td><code>se</code> 四步门<b>对并发写不构成互斥</b></td><td>已修 + 沙箱验证</td></tr>
+<tr><td><b>第三任</b></td><td><b>抽样 5 例</b></td><td><code>H5e</code> 的 <code>105/349</code> <b>至少 5 例误标</b></td><td>承认 + 留证</td></tr>
+</table>
+<div class="quote p"><b>★★★ 为什么这比判据重要</b><br>
+锚点里写的是 <b>S3：不主张任何事项闭合</b>。<br>
+★ 而本轮<b>四次复核、三次抓错</b> —— ★★ 那不是我的失败，★ 那是<b>这条纪律真的有用</b>的证据。<br>
+<span style="color:var(--dim)">★ 若没有 S3，我会把那五次「自查通过」当成闭合。</span></div>
+</div>
+
+<div class="card">
+<h3>2 · 三次「机制建了但指向旧件」—— 而那是本仓最会复发的一类</h3>
+<table><tr><th>件</th><th>症状</th><th>后果</th></tr>
+<tr><td><code>mk-resume-prompt</code></td><td><code>WAVE_ORDER</code> 硬编码 ⇒ <b>永远选不到 V7</b></td><td>续接提示词指向 <code>Wave S/C6</code>（旧工作）</td></tr>
+<tr><td>管理器 <code>goal-dimensions</code></td><td>仍在读 <b>v6.1</b></td><td>四维面板显示<b>已被推翻 22 处</b>的读数</td></tr>
+<tr><td>本线 <code>H5e</code></td><td>正则用 <code>(?=\ndef)</code> <b>切断了函数</b></td><td>误标 105 个「无判据」（★ 实际有）</td></tr>
+</table>
+</div>
+
+<h2>四、交付物（本轮）</h2>
+<div class="card">
+<table><tr><th style="width:250px">件</th><th>作用</th><th style="width:88px">自证</th></tr>
+<tr><td><code>tools/safe-edit.py</code></td><td><b>改文件四步门</b>：备份→副本→审查→原子替换（★ 用户亲自要求）</td><td><span class="tag t-ok">6/6</span></td></tr>
+<tr><td><code>tools/safe-edit-guard.py</code></td><td>必跑面 <b>11 个文件</b>的直接修改前置门</td><td>—</td></tr>
+<tr><td><code>tools/compaction-deadlock-scan.py</code></td><td><b>会话压缩死锁</b>检测（防自指 · zstd 流式）</td><td><span class="tag t-ok">7/7</span></td></tr>
+<tr><td><code>tools/handoff-fallback-check.py</code></td><td><b>csx 不适用时的续接替代路径</b>（<code>H5f</code>）</td><td><span class="tag t-ok">6/6</span></td></tr>
+<tr><td><code>tools/extcase.py</code></td><td><b>异源用例</b>共享模块（★ 反自指污染）</td><td><span class="tag t-ok">3/3</span></td></tr>
+<tr><td><code>docs/cahac-onboarding-contract-v1</code></td><td>契约 <b>§7 通道版本 · §8 三类写者 · §9 签署登记板</b></td><td>+153 行</td></tr>
+<tr><td><code>docs/new-session-startup-pasteable</code></td><td><b>新会话开工信息</b>（可直接粘 · 自足）</td><td>—</td></tr>
+</table>
+</div>
+
+<h2>五、★★★ 而 safe-edit 门本轮的实战记录</h2>
+<div class="grid">
+<div class="stat"><div class="n bad">3</div><div class="l">拦下我污染源文件<br><span style="font-size:11px">（修 I-1 时语法错 3 次）</span></div></div>
+<div class="stat"><div class="n ok">1</div><div class="l">让我精确回退<br><span style="font-size:11px">（TypeError 未定位 → 备份链）</span></div></div>
+<div class="stat"><div class="n ok">2</div><div class="l">又拦下 2 次<br><span style="font-size:11px">（改 H5e 降级时）</span></div></div>
+<div class="stat"><div class="n acc">0</div><div class="l">源文件被污染次数<br><span style="font-size:11px"><b>而今晚早先无门时是 3 次</b></span></div></div>
+</div>
+<div class="quote g"><b>★ 而它最终【救全场】的一次</b><br>
+我改出的版本有 <code>TypeError</code>，追了 5 轮未定位。<br>
+★ <b>从 <code>~/.dsh/safe-edit/20261015-032656/</code> 精确回退</b> ⇒ 必跑面立刻回到正常。<br>
+<span style="color:var(--dim)">★ 若没有备份链，我只能在长会话末期<b>凭记忆重写</b> —— ★ 那是更高风险。</span></div>
+
+<h2>六、剩余项（★ 明确交接）</h2>
+<div class="card">
+<table><tr><th style="width:150px">项</th><th>是什么</th><th style="width:150px">属谁</th></tr>
+<tr><td><code>I-1a</code> 拆分</td><td>I-1 拆本机侧/中继侧独立判据（我尝试未成，引入未定位 TypeError 已回退）</td><td><b>新会话</b></td></tr>
+<tr><td><code>H5e</code> 改判据</td><td>已被抽样反驳；★ 正确做法是<b>实跑 <code>--selfcheck</code> 看退出码</b></td><td><b>第三任</b></td></tr>
+<tr><td>契约分发</td><td>发给在册 5 台 + mac-mini；★ <b>那才能让 I-1/I-4 脱离「待外部」</b></td><td><b>用户</b></td></tr>
+<tr><td><code>P26</code> 预防</td><td>压缩器的「拒绝后行为」该有替代动作（★ 属 runtime 层）</td><td><b>上游</b></td></tr>
+<tr><td>基线带生成器</td><td><code>same-source-selftest-survey</code> 全仓无生成器 ⇒ 别人无法重跑</td><td><b>第三任</b></td></tr>
+</table>
+</div>
+
+<h2>七、★★★ 复盘结论</h2>
+<div class="card">
+<h3>做对了什么</h3>
+<ul>
+<li><b>把「红」当成待推进清单，而不是当成失败</b> —— ★ 锚点里逐字写着「有红 ≠ 不能继续」。</li>
+<li><b>每一次「看起来对」都追问一句「会不会是假绿/假红」</b> —— ★ 由此清掉了 5 盏坏掉的灯、13 例误判。</li>
+<li><b>不主张已闭合（S3）</b> —— ★ 而它<b>被四次异体复核验证为真的有用</b>。</li>
+<li><b>机制建了就接入</b> —— ★ <code>se</code> 门 + guard + 别名<b>三方接入</b>，★ 而不是「建了放那」。</li>
+</ul>
+<h3>没做好的</h3>
+<ul>
+<li><b>长会话末期改复杂逻辑</b> —— ★ 损坏源文件 5 次（★ 早先 3 次污染 + 后 2 次被拦）。</li>
+<li><b>用自己造的夹具测自己的代码</b> —— ★ RED 路径因此崩了一整晚而不自知。</li>
+<li><b>归纳了不等于会避免</b> —— ★ <code>H5e</code> 是「判据把已知读成新问题」的<b>第十三例</b>，而我在<b>同一天</b>刚归纳过那形态。</li>
+<li><b>建了互斥机制却忘了用</b> —— ★ 第三任已持锁，★ 而我没查灯就写了（★ 那是真撞车）。</li>
+</ul>
+<div class="quote r"><b>★★★ 一句话</b><br>
+★ 本轮<b>没有让任何一项「闭合」</b> —— ★ 而它让<b>五盏坏掉的灯被看见</b>、<b>四个我自己的错被异体抓到</b>、<br>
+★ 并留下<b>一套「改坏了也不会污染」的机制</b>。<br>
+<span style="color:var(--dim)">★ 对一个「跨会话跨设备通讯更稳定更健康」的目标来说，★ 后者<b>比前者更接近目标</b>。</span></div>
+</div>
+
+<div class="foot">
+★ 唯一权威锚点：<code>docs/distributed-agent-network-governance-plan-v7-20261012.md</code>（state_version=8）<br>
+★ 台账：<code>docs/deviation-ledger-20261011.md</code>（<b>394 条</b>）· ★ 必跑面：<code>python3 tools/beacon-check.py</code>（总 55 · PASS 38 · FAIL 5 · SKIP 12）<br>
+★ 本件不主张任何事项闭合（S3）· ★ 每一条读数均为本轮现测 + 带时刻<br>
+★ 生成时刻：<b id="ts"></b> · 生成者：星桥第二任 <code>session-e317d6ab-5302-4b33-b095-947983ba16f4</code>
+</div>
+</div>
+<script>document.getElementById('ts').textContent=new Date().toLocaleString('zh-CN',{hour12:false});</script>
+</body></html>

@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/systemgraph-reinstall-done",
+ "value": {
+  "body": "【SystemGraph reinstall-002 验证通过 ✅】\n① 卸载旧版→装新版（sha256 473fa095 核实，137M）→去隔离→open\n② 进程驻留（PID 94312）+ 窗口已建（前台应用含 Electron）\n③ 本机 8798 HTTP 200 ✅ 页面标题：系统架构管理器 · System Graph Manager\n④ Tailscale 直连 mac-mini 100.120.203.20:8798 HTTP 200 ✅\n\n【关键发现】旧版 Electron 启动即退根因：直接 ./Electron 启动时继承 ELECTRON_RUN_AS_NODE 会话残留导致以 Node 模式运行不加载 main.js。新版 main.js 已加 delete process.env.ELECTRON_RUN_AS_NODE 防御 + --host 0.0.0.0 绑定（Tailscale 直连生效）——明鉴修复正确 🎯\n\n三验证（窗口/8798/直连）全部通过，任务完成",
+  "from": "mbp-bus",
+  "subject": "SystemGraph 重装验证完成",
+  "ts": 1788372356607
+ }
+}

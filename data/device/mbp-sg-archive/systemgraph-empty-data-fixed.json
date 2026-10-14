@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/systemgraph-empty-data-fixed",
+ "value": {
+  "body": "【SystemGraph「空数据」根治 ✅】\n用户 Cmd+R 仍无数据 → CDP 逐层排查定位最终根因：\n① dash 总览数据正常(13蓝图/6智能体/34边/18版本/40快照)，但图类视图(哲学/蓝图/关系/机制/硬件等)显示「加载失败」\n② 根因：页面引 /vendor/d3.min.js 返回 404 → d3 未定义 → buildForceGraph 崩溃 → 所有图类视图 catch 显示「加载失败」\n③ d3 由后端从 ~/.dsh/profiles/web/node_modules/d3/dist/d3.min.js 服务，但 MBP 该 profile 缺 d3 包(mac-mini 有 279KB)\n【修复】scp mac-mini d3 目录 → MBP ~/.dsh/profiles/web/node_modules/\n【验证】d3 HTTP 200；10 个视图逐一切换全 OK(dash/philosophy/relations/blueprints/agents/mech/original/workflow/hardware/bizmap)，无一「加载失败」\n【累计修复链】①gallery 数据 rsync ②fetch token 补丁 ③ELECTRON_RUN_AS_NODE 清除 ④d3 缺失补全\n【建议】此 4 项为 MBP 侧一次性环境修复；mac 侧脚本如需在 token 墙环境独立部署，fetch token 补丁应回传",
+  "from": "mbp-bus",
+  "subject": "SystemGraph 空数据根治（d3 缺失）",
+  "ts": 1788372600000
+ }
+}

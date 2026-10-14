@@ -1,0 +1,123 @@
+{
+ "version": "1.0",
+ "categories": {
+  "成本红线": [
+   {
+    "name": "人力成本",
+    "expr": "labor_cost / revenue <= 0.28",
+    "source": "SOP",
+    "severity": "hard"
+   },
+   {
+    "name": "花材落地成本",
+    "expr": "material_cost = origin_price * 1.41",
+    "source": "老登实盘",
+    "severity": "hard"
+   },
+   {
+    "name": "花材成本占比",
+    "expr": "material_cost / revenue <= 0.40",
+    "source": "妙记复盘",
+    "severity": "hard"
+   }
+  ],
+  "库存上限": [
+   {
+    "name": "预售锁单",
+    "expr": "preorder_qty <= capacity * 0.8",
+    "source": "大促三失衡",
+    "severity": "hard"
+   },
+   {
+    "name": "SKU 红线",
+    "expr": "stock_qty <= max_stock(sku)",
+    "source": "ERP",
+    "severity": "hard"
+   }
+  ],
+  "毛利率": [
+   {
+    "name": "毛利率下限",
+    "expr": "(price - material_cost*1.41 - labor) / price >= 0.35",
+    "source": "教师节实证",
+    "severity": "hard"
+   },
+   {
+    "name": "活动价区间",
+    "expr": "activity_price ∈ [lo, hi]",
+    "source": "老登实盘",
+    "severity": "hard"
+   }
+  ],
+  "节日定价": [
+   {
+    "name": "节日系数",
+    "expr": "1.5 <= multiplier <= 2.0",
+    "source": "节日日历化",
+    "severity": "hard"
+   },
+   {
+    "name": "客单价上限",
+    "expr": "festival_price <= base * 2.0",
+    "source": "画像",
+    "severity": "hard"
+   }
+  ],
+  "产能约束": [
+   {
+    "name": "超时单上限",
+    "expr": "overtime_orders <= 36",
+    "source": "七夕教训",
+    "severity": "hard"
+   },
+   {
+    "name": "接单≤产能",
+    "expr": "accept_qty <= capacity_per_hour * hours",
+    "source": "大促复盘",
+    "severity": "hard"
+   }
+  ],
+  "合规": [
+   {
+    "name": "报价≥成本",
+    "expr": "price >= cost",
+    "source": "基础",
+    "severity": "hard"
+   },
+   {
+    "name": "报名命名合规",
+    "expr": "name 含活动关键字 AND 不含敏感词",
+    "source": "教师节教训",
+    "severity": "hard"
+   },
+   {
+    "name": "资质",
+    "expr": "品类需对应资质",
+    "source": "教师节教训",
+    "severity": "hard"
+   }
+  ],
+  "品质": [
+   {
+    "name": "花图一致",
+    "expr": "实拍图 = 宣传图",
+    "source": "花图治理",
+    "severity": "hard"
+   }
+  ],
+  "供应链": [
+   {
+    "name": "到货时间",
+    "expr": "arrival_date < activity_date - 2d",
+    "source": "教师节教训",
+    "severity": "hard"
+   },
+   {
+    "name": "平台补贴覆盖",
+    "expr": "subsidy + margin >= cost",
+    "source": "教师节教训",
+    "severity": "hard"
+   }
+  ]
+ }
+}

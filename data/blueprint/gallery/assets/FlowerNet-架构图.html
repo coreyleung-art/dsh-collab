@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowerNet 架构图</title>
+<style>
+:root{--bg:#0b0e14;--card:#141824;--line:#232a3a;--fg:#e8eaf0;--muted:#8b90a3;--acc:#6ea8ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,'PingFang SC',sans-serif;padding:24px}
+h1{font-size:24px;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:20px}
+.card h2{font-size:16px;margin-bottom:12px;color:var(--acc)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-bottom:12px}
+</style>
+</head>
+<body>
+<h1>🌸 FlowerNet 架构图</h1>
+<div class="sub">明鉴 v2 生成 · 2026-09-01 · 数据源：黑板 data/blueprint/stages + relations</div>
+
+<div class="card">
+<h2>一、体系架构（三层）</h2>
+<pre class="mermaid">
+graph TB
+  subgraph META[元层 · blueprint-platform]
+    BPP["blueprint-platform（蓝图平台·管理全部）"]
+  end
+  subgraph TECH[技术层 · flowernet-platform]
+    FP["flowernet-platform（P0协议→P5应用·技术底座）"]
+    AN["agent-network（多智能体协作底座）"]
+    RJ["rule-judge（裁判层·验证）"]
+    FP --> AN
+    FP --> RJ
+  end
+  subgraph BIZ[业务层 · flowernet]
+    FN["flowernet（生意演进·7主阶段）"]
+    ERP["子蓝图 flowernet-erp（初蘅 ERP）"]
+    MA["子蓝图 flowernet-miniapp（小程序）"]
+    WS["子蓝图 flowernet-website（官网）"]
+    AS["aistartup（AI 创业·互引）"]
+    BK["banking（银行礼品·独立线）"]
+  end
+  BPP --> FP
+  BPP --> FN
+  FP -- "包含P5应用层" --> FN
+  FN -- depends_on --> FP
+  FN --> ERP
+  FN --> MA
+  FN --> WS
+  AN -- requires --> FP
+  RJ -- depends_on --> AN
+  RJ -- consumed_by --> FN
+  RJ -- consumed_by --> AS
+  FN -- references --> AS
+  AS -- references --> FN
+  BK -- references --> AS
+  BK -. "requires 脱敏" .-> AN
+</pre>
+</div>
+
+<div class="card">
+<h2>二、flowernet 主蓝图内部（7 主阶段 3 主线）</h2>
+<pre class="mermaid">
+graph LR
+  subgraph DIG[数字化主线（大脑）]
+    D25["2.5 ERP 信息流 🟢"]
+    D3["3.0 端侧自动化 🟡"]
+    D4["4.0 垂直引擎 ⬜"]
+    D25 --> D3 --> D4
+  end
+  subgraph PHY[物理主线（身体）]
+    P2["2.0 流程标准化 🟡"]
+    P3["3.0 IoT 传感 ⬜"]
+    P4["4.0 门店扩张 ⬜"]
+    P2 --> P3 --> P4
+  end
+  subgraph SUP[供应链主线（血液）]
+    S1["1.0 供应链+融资 ⬜"]
+  end
+  D3 -. "传感数据依赖" .-> P3
+  S1 -. "支撑扩张" .-> P4
+</pre>
+</div>
+
+<div class="card">
+<h2>三、flowernet 主阶段明细</h2>
+<table>
+<tr><th>主线</th><th>阶段</th><th>子阶段</th><th>状态</th></tr>
+<tr><td>数字化</td><td>2.5 ERP 信息流系统</td><td>d25-1、d25-2、d25-3、d25-4</td><td>🟢 active</td></tr>
+<tr><td>数字化</td><td>3.0 端侧自动化智能控制</td><td>d3-1、d3-2、d3-3、d3-4</td><td>🟡 partial</td></tr>
+<tr><td>数字化</td><td>4.0 云聚+垂直品类引擎</td><td>d4-1、d4-2、d4-3</td><td>⬜ todo</td></tr>
+<tr><td>物理</td><td>2.0 流程标准化</td><td>p2-1、p2-2、p2-3</td><td>🟡 partial</td></tr>
+<tr><td>物理</td><td>3.0 IoT 传感数据化</td><td>p3-1、p3-2</td><td>⬜ todo</td></tr>
+<tr><td>物理</td><td>4.0 门店网络扩张</td><td>p4-1、p4-2、p4-3</td><td>⬜ todo</td></tr>
+<tr><td>供应链</td><td>1.0 供应链+融资</td><td>s1-1、s1-2、s1-3</td><td>⬜ todo</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>四、子蓝图映射</h2>
+<table>
+<tr><th>子蓝图</th><th>代码位置</th><th>对应主蓝图</th><th>状态</th></tr>
+<tr><td>flowernet-erp</td><td>i9 e:\My vibe codding\RFID（v1.2.0-r1）</td><td>d25 数据底座+流程闭环</td><td>🟢 active</td></tr>
+<tr><td>flowernet-miniapp</td><td>i9 E:\chuheng_miniprogram_backup（uni-app）</td><td>私域+门店终端</td><td>⬜ todo</td></tr>
+<tr><td>flowernet-website</td><td>待确认（可能 flowerclaw 域名）</td><td>品牌+流量入口</td><td>⬜ todo</td></tr>
+</table>
+</div>
+
+<script type="module">
+import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+mermaid.initialize({startOnLoad:true, theme:'dark'});
+</script>
+</body>
+</html>

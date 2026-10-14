@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLD 底座 · 关联与协作流程</title>
+<style>
+:root{--bg:#0b0e14;--card:#141824;--line:#232a3a;--fg:#e8eaf0;--muted:#8b90a3;--acc:#6ea8ff;
+      --ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--dim:#5a6070;--vio:#c678dd}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,'PingFang SC',sans-serif;padding:32px;line-height:1.65;font-size:15px}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:28px;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:22px}
+.card h2{font-size:19px;margin-bottom:6px;color:var(--acc)}
+.card .hint{font-size:13px;color:var(--muted);margin-bottom:20px}
+
+/* ── 流程链 ── */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:0}
+.step{background:#1b2130;border:1px solid var(--line);border-radius:11px;padding:12px 16px;font-size:14px;min-width:172px}
+.step .t{font-weight:600;font-size:14.5px}
+.step .m{color:var(--muted);font-size:12px;margin-top:4px;font-family:ui-monospace,Menlo,monospace}
+.step.ok{border-color:#1f4d33}.step.ok .t{color:var(--ok)}
+.step.bad{border-color:#5a2626}.step.bad .t{color:var(--bad)}
+.step.warn{border-color:#5a4a1a}.step.warn .t{color:var(--warn)}
+.step.vio{border-color:#432c52}.step.vio .t{color:var(--vio)}
+.arw{color:var(--dim);font-size:22px;padding:0 12px;font-family:ui-monospace,monospace}
+.arw small{display:block;font-size:10.5px;color:var(--muted);text-align:center;line-height:1.2}
+
+/* ── 分支 ── */
+.branch{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.branch.three{grid-template-columns:1fr 1fr 1fr}
+
+/* ── 表格 ── */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:12.5px}
+td.k{color:var(--acc);font-size:13px}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#1b2130;padding:2px 6px;border-radius:5px;color:#a8c7fa}
+
+/* ── 闭环 ── */
+.loop{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-top:6px}
+.ret{color:var(--vio);font-size:13px;margin-top:12px;font-family:ui-monospace,monospace}
+
+.callout{border-radius:12px;padding:16px 18px;font-size:14px;margin-top:16px}
+.callout.w{border:1px solid #5a4a1a;background:#221d0f}
+.callout.i{border:1px solid #1e3a5f;background:#121c2b}
+.callout .h{font-weight:600;margin-bottom:8px}
+.callout code{background:#0e1219}
+.f{color:var(--muted);font-size:12.5px;text-align:center;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.num{font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>CLD 底座 · 关联与协作流程</h1>
+<div class="sub">实测时刻 2026-10-14 02:1x（+08:00）· 星桥第二任 session-e317d6ab · 每条链路的依据均来自源码或实测</div>
+
+<!-- ══════ ① 发卡链路 ══════ -->
+<div class="card" style="border-color:#2e3a52">
+  <h2>◆ 图例 —— 颜色 = 状态，不是实现与否</h2>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:8px">
+    <div class="step ok" style="min-width:0"><div class="t">绿 · 正常</div><div class="m">健康 / 正向路径<br>已生效</div></div>
+    <div class="step warn" style="min-width:0"><div class="t">黄 · 警告</div><div class="m">待处置 / 待重载<br>关卡（不是坏事）</div></div>
+    <div class="step bad" style="min-width:0"><div class="t">红 · 缺口</div><div class="m">真问题<br>需修复</div></div>
+    <div class="step vio" style="min-width:0"><div class="t">紫 · 发起方</div><div class="m">触发源 / 目标源<br>不是缺陷</div></div>
+    <div class="step" style="min-width:0"><div class="t">白 · 中性</div><div class="m">普通步骤 / 地址<br>无好坏含义</div></div>
+  </div>
+  <div style="margin-top:14px;font-size:13px;color:var(--muted)">
+    ★ 一句话：<b>颜色标的是【状态好坏】，不是【实现与否】</b>。白色 = 中性环节，既不健康也不坏。
+  </div>
+</div>
+
+<div class="card">
+  <h2>① 发卡链路 —— 三道门 → 双写 → 回读</h2>
+  <div class="hint">入口：任何会话调用 <code>bb_card_send</code>。★ 依据：<code>gate.js</code> 的 BOARDS 与三道门 + <code>core.js</code> 的双写回读</div>
+
+  <div class="flow">
+    <div class="step vio"><div class="t">会话 A</div><div class="m">bb_card_send</div></div>
+    <div class="arw">→<small>入工具</small></div>
+    <div class="step warn"><div class="t">gate.js 三道门</div><div class="m">语义 / subject / 凭证</div></div>
+    <div class="arw">→<small>过门</small></div>
+    <div class="step"><div class="t">core.js 补 CAHAC</div><div class="m">12 必填 · 单一来源常量</div></div>
+    <div class="arw">→<small>双写</small></div>
+    <div class="step ok"><div class="t">local 板</div><div class="m">127.0.0.1:8792</div></div>
+    <div class="step ok"><div class="t">central 板</div><div class="m">xingqiao:8792</div></div>
+    <div class="arw">→<small>回读</small></div>
+    <div class="step"><div class="t">两板比对</div><div class="m">stringify(value) 相等?</div></div>
+  </div>
+
+  <div class="branch">
+    <div class="step ok"><div class="t">✓ boarded</div><div class="m">两板一致 ⇒ 投递完成</div></div>
+    <div class="step warn"><div class="t">⚠ queued</div><div class="m">不一致 ⇒ 入队待重投</div></div>
+  </div>
+
+  <div class="callout i">
+    <div class="h">★ 三道门各拒什么</div>
+    · <b>语义门</b>：<code>reply_required:true</code>（要求行动）或 <code>notify_only:true</code>（纯通知）必须显式声明 —— 两者都缺 ⇒ <code>SEMANTICS_REQUIRED</code><br>
+    · <b>subject 门</b>：必带，收方一眼判轻重缓急<br>
+    · <b>凭证门</b>：fail-closed，卡体含令牌原文形态即拒<br>
+    · 另：<code>payload</code> 不得携带 <code>to</code>（防伪造收件人）
+  </div>
+</div>
+
+<!-- ══════ ② 投递链路 ══════ -->
+<div class="card">
+  <h2>② 投递链路 —— 在线 / 离线有持久化 / 离线无持久化 三分</h2>
+  <div class="hint">入口：<code>agent_send</code>。★ 依据：<code>agent-bus/lib/index.js</code> 的五态返回值</div>
+
+  <div class="flow">
+    <div class="step vio"><div class="t">会话 A</div><div class="m">agent_send(to, text)</div></div>
+    <div class="arw">→<small>判状态</small></div>
+    <div class="step warn"><div class="t">目标在线?</div><div class="m">agent_peers 存活列表</div></div>
+  </div>
+
+  <div class="branch three" style="margin-top:16px">
+    <div class="step ok"><div class="t">在线</div><div class="m">deliverWake via 'live'</div>
+      <div style="margin-top:8px;font-size:12.5px">成功 ⇒ <span style="color:var(--ok)">delivered</span><br>失败 ⇒ <span style="color:var(--bad)">deliver-failed</span></div></div>
+    <div class="step ok"><div class="t">离线·有持久化</div><div class="m">agents.resume 激活后投递</div>
+      <div style="margin-top:8px;font-size:12.5px">成功 ⇒ <span style="color:var(--ok)">delivered</span><br>失败 ⇒ <span style="color:var(--bad)">resume-failed</span></div></div>
+    <div class="step warn"><div class="t">离线·无持久化</div><div class="m">not-persisted</div>
+      <div style="margin-top:8px;font-size:12.5px">入待投递队列 ⇒ <span style="color:var(--warn)">queued</span><br>对方上线后自动送达</div></div>
+  </div>
+
+  <div class="callout i">
+    <div class="h">★ 为什么这三分重要</div>
+    旧实现在「离线」时把消息<b>静默丢弃</b>或<b>永远 queued</b>（对方看我们像离线）。
+    现在三个失败态<b>都显式标「未达」</b> ⇒ 发方知道球在哪。
+    ★ 而 <code>resume</code> 是<b>程序化唤醒</b> —— 不需要你手动开那个会话。
+  </div>
+</div>
+
+<!-- ══════ ③ 治理闭环 ══════ -->
+<div class="card">
+  <h2>③ 治理闭环 —— 判据 → 探针 → 必跑面 → 台账 → 修复 → 回到探针</h2>
+  <div class="hint">★ 这是个<b>闭环</b>，驱动力是三条纪律。依据：<code>beacon-check</code> + 11 件探针 + 台账</div>
+
+  <div class="loop">
+    <div class="step vio"><div class="t">四维 14 项判据</div><div class="m">S4 · H5 · I3 · L2</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">11 件探针</div><div class="m">各自带 --selftest</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">beacon-check</div><div class="m">必跑面</div></div>
+    <div class="arw">→</div>
+    <div class="step warn"><div class="t">三态</div><div class="m">PASS 28 · FAIL 13 · SKIP 8</div></div>
+  </div>
+  <div class="loop" style="margin-top:14px">
+    <div class="step bad"><div class="t">FAIL 13 项</div><div class="m">每条都带成因与复跑命令</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">台账 D-xxx</div><div class="m">只增不改 · 三重署名</div></div>
+    <div class="arw">→</div>
+    <div class="step ok"><div class="t">修复</div><div class="m">同族一起改</div></div>
+    <div class="arw">→</div>
+    <div class="step vio"><div class="t">回到探针</div><div class="m">复跑验证，不采信转述</div></div>
+  </div>
+  <div class="ret">↺ 回到「11 件探针」—— ★ 闭环不靠人记，靠每次必跑</div>
+
+  <div class="callout i">
+    <div class="h">★ 三条纪律（闭环的驱动力）</div>
+    ① <b>一个断言若从未红过，就不是判据</b> —— 故每件探针必带负控<br>
+    ② <b>空 ≠ 无</b> —— 分母为 0 报「不可判」，不得读作绿<br>
+    ③ <b>凡报符合率，必带【面 + 分母 + 时间窗】</b> —— 换任一轴即换口径
+  </div>
+</div>
+
+<!-- ══════ ④ 续接链路 ══════ -->
+<div class="card">
+  <h2>④ 续接链路 —— 轮次收尾 → 下轮自动注入</h2>
+  <div class="hint">★ 目的：<b>下一轮只要说「继续推进」，就自动带上本轮全部结果</b></div>
+
+  <div class="flow">
+    <div class="step vio"><div class="t">本轮工作</div><div class="m">推进 / 修复 / 实测</div></div>
+    <div class="arw">→<small>收尾</small></div>
+    <div class="step ok"><div class="t">round-close</div><div class="m">写回索引 + 重渲提示词</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">continuity-index</div><div class="m">state_version 7 · gaps 115</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">resume-prompt</div><div class="m">40 行硬上限</div></div>
+  </div>
+
+  <div class="loop" style="margin-top:14px">
+    <div class="step vio"><div class="t">下一轮</div><div class="m">你说「继续推进」</div></div>
+    <div class="arw">→<small>触发词命中</small></div>
+    <div class="step ok"><div class="t">skill 自动触发</div><div class="m">cross-session-handoff</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">读 resume-prompt</div><div class="m">已含本轮结果</div></div>
+    <div class="arw">→</div>
+    <div class="step ok"><div class="t">直接接着做</div><div class="m">无需你复述背景</div></div>
+  </div>
+
+  <div class="callout w">
+    <div class="h">★ 而它仍有一条边界（不粉饰）</div>
+    <code>round-close</code> 仍需<b>我在收尾时主动调</b> —— ★ <b>全自动需要 hook</b>，
+    而那正是 <code>C4 自启动注入</code> 的事（v6.1 记它 ❌ 不成立）。<br>
+    但<b>注入侧已全自动</b>：你说「继续推进」⇒ skill 一定触发 ⇒ 下一轮一定读到。
+  </div>
+</div>
+
+<!-- ══════ ⑤ 四维协作逻辑 ══════ -->
+<div class="card">
+  <h2>⑤ 四维协作逻辑 —— 用户原话 → 四维 → 14 判据 → 一个必跑面</h2>
+  <div class="hint">★ 从你的原话到机械化的完整映射，不靠人记</div>
+
+  <div class="flow" style="margin-bottom:16px">
+    <div class="step vio" style="min-width:280px"><div class="t">用户原话（48 字）</div>
+      <div class="m">让整个 cld 分布式智能体协作网络的<br>跨会话跨智能体跨设备通讯<br>更稳定更健康跟得上业界，也保持领先</div></div>
+    <div class="arw">→<small>拆四维</small></div>
+    <div class="step" style="min-width:200px"><div class="t">S 稳定</div><div class="m">S-1a S-1b S-2 S-3 S-4</div></div>
+    <div class="step" style="min-width:200px"><div class="t">H 健康</div><div class="m">H1 H2a H2c H3 H4 H5b H5c</div></div>
+    <div class="step" style="min-width:200px"><div class="t">I 对齐业界</div><div class="m">I-1 I-2 I-2c I-3</div></div>
+    <div class="step" style="min-width:200px"><div class="t">L 保持领先</div><div class="m">L-1 L-2</div></div>
+  </div>
+
+  <div class="flow">
+    <div class="step ok" style="min-width:400px"><div class="t">★ 全部接进 beacon-check</div>
+      <div class="m">每次必跑 ⇒ PASS 28 · FAIL 13 · PEND 0 · SKIP 8</div></div>
+    <div class="arw">→</div>
+    <div class="step"><div class="t">可机检的部分，全机械化</div>
+      <div class="m">不靠人记、不靠人问</div></div>
+  </div>
+</div>
+
+<!-- ══════ 附：协作角色 ══════ -->
+<div class="card">
+  <h2>附 · 本机协作角色（★ 角色映射表实读）</h2>
+  <table>
+    <tr><th>角色</th><th>会话 id（前 20 位）</th><th>定位</th></tr>
+    <tr><td class="k">星桥（本线）</td><td class="num">session-e317d6ab-5302</td><td>协调者 · 短判决位 · mac-mini</td></tr>
+    <tr><td class="k">明鉴</td><td class="num">session-a190c54c-ca73</td><td>蓝图主编 + SystemGraph 主源架构师</td></tr>
+    <tr><td class="k">司库</td><td class="num">session-2a15e6b1-32a9</td><td>资源/账目</td></tr>
+    <tr><td class="k">守灯</td><td class="num">session-9910d4b2-80ff</td><td>值守</td></tr>
+    <tr><td class="k">裁判</td><td class="num">session-1ffded95-c401</td><td>独立审查员 · 声称↔实证对账</td></tr>
+    <tr><td class="k">调研线</td><td class="num">session-9efa78bb-7caa</td><td>research-pipeline</td></tr>
+  </table>
+  <div class="callout i">
+    <div class="h">★ 协作的三种语义（★ 发消息前必选其一）</div>
+    ① <b>要求行动</b> ⇒ <code>reply_required:true</code> + <code>awaiting:&lt;对端&gt;</code>（球权显式，防互相等待死锁）<br>
+    ② <b>纯通知</b> ⇒ <code>notify_only:true</code>（不唤醒对方）<br>
+    ③ <b>跨域</b> ⇒ 走 <code>xdom-mail</code>（水位 / 球权 / 陈旧三态可查）
+  </div>
+</div>
+
+<div class="f">
+  生成自本机实测 · 星桥第二任 session-e317d6ab-5302-4b33-b095-947983ba16f4<br>
+  台账 <span class="num">docs/deviation-ledger-20261011.md</span> · 锚点 <span class="num">docs/distributed-agent-network-governance-plan-v7-20261012.md</span>
+</div>
+</div>
+</body>
+</html>

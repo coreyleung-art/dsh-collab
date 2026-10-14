@@ -1,0 +1,170 @@
+{
+ "gate": "① 业务线 bk1 客户版图+执行 SOP 稳定 ② CO+ 生态 bk2 需业务线现金流支撑（共建方≥N）③ 资源线 bk3 脱敏合规（C3 凭据纪律：登记归属不登内容）",
+ "id": "banking",
+ "mainlines": {
+  "biz": {
+   "desc": "银行礼品+活动服务：中标→策划→执行→续约（6 年广东省金融业，95% 客户为银行）",
+   "name": "业务线"
+  },
+  "eco": {
+   "desc": "CO+（Co. Plus 共建平台）：银行资源×异业共建，流量池+共建方+共建产品自增强",
+   "name": "生态线"
+  },
+  "res": {
+   "desc": "主持/供应商/品牌矩阵：Summer 主持/斐欧留学/觅趣策划/桦桓艺执行/索菲亚案例",
+   "name": "资源线"
+  }
+ },
+ "name": "银行业务线·活动礼品公司（银行礼品+活动+CO+生态）",
+ "relations": {
+  "references": [
+   "aistartup（活动侧子线）"
+  ],
+  "requires": [
+   "agent-network（规则治理/脱敏）"
+  ]
+ },
+ "source": "user-profile v1.3（活动公司版图）+ event-company-map-v1.1 + 飞书妙记（华润/分行/业务合作）+ Notion CO+ 页 + Notion About Corey『关于CO+』（2026-04-07 实证） + MBP 考古（罗盘 2026-09-01：01_银行活动公司 66M/509 文件）",
+ "stages": [
+  {
+   "id": "bk1",
+   "mainline": "biz",
+   "name": "业务体系",
+   "stage": "1.0",
+   "status": "active",
+   "substages": [
+    {
+     "id": "bk1-1",
+     "name": "银行客户版图",
+     "note": "6 年服务：国有行工会（中农工建邮交）+股份制（平安广分连续4-5年独家中标）+保险5%；MBP 考古实证：融意/趣趣(BNi/CO/平安台账)/桦桓艺(汇丰私人财富广州2025年会/华兴银行/华润银行开业/琶洲商会美食节)/平安银行贵宾专场/寰球策(景鸿for平安)；实控主体6家",
+     "status": "active"
+    },
+    {
+     "id": "bk1-2",
+     "name": "活动策划执行",
+     "note": "华润儿童青少年/亲子夏令营/马术/珠宝鉴赏；预算1.1万/场上限；SOP：RUNDWON时间线+物料11,352参考",
+     "status": "active"
+    },
+    {
+     "id": "bk1-3",
+     "name": "礼品供应",
+     "note": "银行礼品（权益/设计/公众号运营）；采购渠道：招标公司/供应商",
+     "status": "todo"
+    },
+    {
+     "id": "bk1-4",
+     "name": "融资与投资文档",
+     "note": "MBP 考古：招商计划书v2/BP导出/二次融资计划书v2/出资协议(江南西店)/投资计划(古祺供应链五山店)——对齐 s1-3 融资",
+     "status": "todo"
+    }
+   ]
+  },
+  {
+   "id": "bk2",
+   "mainline": "eco",
+   "name": "CO+ 生态",
+   "stage": "2.0",
+   "status": "todo",
+   "substages": [
+    {
+     "id": "bk2-1",
+     "name": "CO+ 平台规划",
+     "note": "Notion 实证：共建方地图/产品库/预约平台/商城（行动计划已定）；信息透明+异步沟通+共创共建+ESG",
+     "status": "active"
+    },
+    {
+     "id": "bk2-2",
+     "name": "异业共建",
+     "note": "银行资源×异业（教育/亲子/马术/研学）；前置信息对称机制",
+     "status": "todo"
+    },
+    {
+     "id": "bk2-3",
+     "name": "自增强生态",
+     "note": "流量池→共建方→共建产品→品牌曝光/引流到店/成交复购（飞轮已定义）",
+     "status": "todo"
+    }
+   ]
+  },
+  {
+   "id": "bk3",
+   "mainline": "res",
+   "name": "资源沉淀",
+   "stage": "3.0",
+   "status": "partial",
+   "substages": [
+    {
+     "id": "bk3-1",
+     "name": "主持资源",
+     "note": "Summer（余小艳）：一级乙等/9年/千场，庆典/签约/晚宴/婚礼3D全息——脱敏只记归属",
+     "status": "done"
+    },
+    {
+     "id": "bk3-2",
+     "name": "品牌矩阵",
+     "note": "觅趣（策划）/桦桓艺（索菲亚执行）/斐欧（留学承办）",
+     "status": "active"
+    },
+    {
+     "id": "bk3-3",
+     "name": "案例库",
+     "note": "索菲亚全球发展中心开业/乔迁（2025结案）/中芬揭牌（2023希尔顿逸林100人）",
+     "status": "done"
+    }
+   ]
+  }
+ ],
+ "status": "active",
+ "switches": {
+  "bk1-2": {
+   "audit": "append-only audit.jsonl",
+   "auth_required": "HumanApproval(L3)",
+   "automation": "活动自动报价/自动排期（未来）",
+   "default_state": "OFF",
+   "kill_path": "automation-switch off --bp banking --stage bk1-2",
+   "sandbox": "测试区自由验证活动方案；生产区 promote 需人类授权",
+   "stage": "bk1-2",
+   "switch_point": "automation-switch on --bp banking --stage bk1-2 --by <人类> --level L3"
+  }
+ },
+ "ts": "2026-09-01T08:47:02",
+ "version": "v1.1",
+ "works": [
+  {
+   "owner": "明鉴/活动团队",
+   "stage": "bk1-1",
+   "status": "active",
+   "work": "银行客户版图维护（中标/续约/新客）"
+  },
+  {
+   "owner": "活动团队",
+   "stage": "bk1-2",
+   "status": "active",
+   "work": "活动策划执行（华润/分行系列化『润时光』）"
+  },
+  {
+   "owner": "明鉴",
+   "stage": "bk1-3",
+   "status": "todo",
+   "work": "礼品供应渠道梳理（招标/供应商）"
+  },
+  {
+   "owner": "明鉴",
+   "stage": "bk2-1",
+   "status": "todo",
+   "work": "CO+ 平台规划（共建方地图/产品库）"
+  },
+  {
+   "owner": "明鉴",
+   "stage": "bk3-1",
+   "status": "done",
+   "work": "主持/供应商资源库（Summer 等脱敏登记）"
+  },
+  {
+   "owner": "明鉴/开发",
+   "stage": "bk2-1",
+   "status": "active",
+   "work": "CO+ 平台开发（共建方地图/产品库/预约/商城）"
+  }
+ ]
+}

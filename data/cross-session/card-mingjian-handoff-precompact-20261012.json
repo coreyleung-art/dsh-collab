@@ -1,0 +1,69 @@
+{
+ "title": "【交接锚点】明鉴 v3 · compact 前状态与恢复入口（2026-10-12）",
+ "ts": "2026-10-12T01:45:00",
+ "author": "明鉴 v3 (session-a190c54c-ca73-4845-9a65-9dc002d45044) · mac-mini",
+ "type": "handoff-anchor",
+ "全文": "~/dsh-collab/docs/mingjian-handoff-precompact-20261012.md（本卡为自足摘要 + 指针；两者内容一致）",
+ "我的角色": "蓝图主编 + SystemGraph 主源架构师（属主/实施主体）+ Φ 治理哲学库维护 + 检测工具作者",
+ "两条工作面": "★ 面1 · 系统架构管理器本身的优化（= A 实时化 + E 壳对齐）｜ ★ 面2 · 蓝图管理的优化（= B 编辑与版本治理 + C 孤岛推荐 + D 能力体检）。用户 2026-10-12 01:36 原话：「我希望我们回到系统架构管理器的维护和蓝图管理本身来。」★ 二者是【平行的两条面】，不是一条主线的两个阶段。★ 原卡此处写「唯一主线」—— 是把用户的两条面压成了一条，责任在我（读法错误，非记录缺失），已于 2026-10-12 更正。",
+ "五组归属哪条面": "面1管理器本身：A 数据实时化（优化对象=后端运行时重读/监听/轮询）· E 壳对齐（优化对象=macOS .app / iOS 壳。★活体证据：.app 内捆绑 09-09 旧后端副本 149575 B，以 --host 0.0.0.0 自起在 *:8798，与主源 127.0.0.1:8798(10-12,153472 B) 并存；两份同称 v1.4.0 内容却不同 ⇒ 壳根本没接实时后端，而是自带了一个）。面2蓝图管理：B 编辑与版本治理（治理对象=蓝图文档+versionlog，但交付物落在管理器上）· C 孤岛推荐（对象=蓝图图结构 21蓝图/53边）· D 能力体检（对象=能力资产 466项/460单例）。★ 判面方法：看【被优化的对象是谁】——管理器这个工具 vs 蓝图这份内容资产。",
+ "方案": {
+  "路径": "~/dsh-collab/docs/systemgraph-internal-completion-plan-20261008.md",
+  "大小": "11,816 B",
+  "指纹": "4f9a4da35b83a9ed",
+  "裁定": "已下（2026-10-08 裁判 · 有条件通过）· A 组 v2 已裁定落实 ⇒ 可开工"
+ },
+ "基础设施": "8798 后端 PID 5516 · 8792+8803 同一进程 rust-blackboard PID 1221 · /api/overview 200 · 我持有锁 0",
+ "A组_可开工的七条条件": [
+  "双通道保留；术语澄清：双通道/双触发（两种触发方式）≠ 双写（写两个板实例）",
+  "前置1 文件监听元组 = (mtime, size, ctime) —— cp -a/cp -p/rsync -a 这类保 mtime 的静默写必须可见",
+  "前置2 ★权威源单一 = 后端内存模型（初始化时由文件全量加载；文件变更与 SSE 事件都只作『触发重读』信号，不以事件载荷直接改模型）",
+  "前置3 四路验收：①黑板写 ②普通文件写 ③保 mtime 写(cp -a) ④原子 rename —— 每路单独断言 10s 内反映，四路全过才算通过",
+  "补1 轮询间隔 <10s 且留余量（主路径事件驱动 ≠ 兜底路径免约束）",
+  "补2 逐路记 pass/fail + 实测时延，禁止只报总失败",
+  "我的 401 修复（Authorization: Bearer <~/.dsh/blackboard-token>）采纳入实施"
+ ],
+ "B组_条件齐备": "写端点三件（Bearer board-token + 身份登记 · 软删 retired + rollback · 同内容 PUT 幂等）· diff 内容基准=一版一文件 data/blueprint/<id>/blueprint-<id>-v<X.Y>.md · 修复对象=黑板卡 data/blueprint/versionlog(v12) 的流程层（09-07 停写）· 不在范围：version-map.json（渲染缓存）与『9 条 src 断链』（我已撤回：那些是黑板键不是路径，9/9 存在）",
+ "C组_有真阻塞": "confirmed-links 数据源 = 0 条 ⇒ recall@60 不是『未测』而是『无条件可测』；门槛建议 N≥50。口径已定稿：候选=接口返回 60（不是 588）；实现为 5 特征（不是三路）",
+ "D组_条件齐备": "★【2026-10-12 实测更正】原记「能力归一化先行（466 项 / 460 单例）」—— **数字已过期，实测更差**：abilities 总 511 条 / 去重 505 / **只出现 1 次的 499 条 = 98.8%** / 出现>1 次的**仅 6 条**（最多次数 2）；resources 346/344。源 ~/.dsh/agent-bus.json · 82 profiles。★ 性质判定更正：条目**不是能力名而是散文**（如「系统健康巡检（内存/swap/磁盘/服务探针）」）⇒ **不是同义词归并问题，是有没有受控词表的问题**。⇒ 后果：C1 冗余体检做不了（只会输出「全唯一、0 冗余」这个假绿）· C2 缺口检测做不了 · C3 派单做不了 —— C2/C3 直接命中新需求 G4。★ 归属边界：abilities 属【各会话自己的档案】，改它=改他人件 ⇒ 我只出方案不改数据。★ 方案：~/dsh-collab/docs/ability-normalization-scheme-20261012.md (7176 B · 154 行 · sha16 8e319eb62b2de725)。★ N1（立词表 + 校验器）**不被任何裁决阻塞**，可立即开工。卡 notes/collab/ability-normalization-scheme-20261012 (93280524c1d50d95)。",
+ "E组_条件齐备": "壳在 ~/system-graph-app 与 ~/system-graph-ios；双 URL fallback 模式已存在（WebShellView.swift:17-18）",
+ "未结事项_只活在上下文里的": "★【2026-10-12 更正·我原写错了】原写「仓删除审批 aprv-muylf3qj-nfdq0kbt pending」——**错**。该单实为 status=approved，resolvedAt=1791432169772（2026-10-08 12:02），decidedBy=ui，reason=「GUI 审批通过」；全库 pending=0。协调者 session-e317d6ab 指出后，我已【独立复读审批单】确认其更正成立。★★ 但【新发现·比上面这条更要紧】：该审批单**没有记录用户选了哪个选项** —— 记录里只有 options(菜单) + status=approved，**无 decision/ chosen 字段**。而该单菜单是：①批准删除(不可逆) ②改为归档(可逆·提案人推荐) ③暂缓 ④拒绝删除。⇒ 「已批准」是可核事实，但「批准的是哪一个」**不可判**；①②后果相反 ⇒ **不可判 ≠ 可执行**，须请用户补一句。★★ 我另独立核了该仓确为空壳（不引他人结论）：gh api 实测 size=0 · /git/refs 返回 HTTP 409「Git Repository is empty.」· issues=0 · pulls=0 · 创建与最后 push 同为 2026-04-20 ⇒ **确无内容需留档**。",
+ "关键实测事实_复现成本高": [
+  "/api/agents 真源 = ~/.dsh/agent-bus.json（21.0 MB · profiles 76），不读黑板；黑板侧 6 个候选键全 404",
+  "/api/versions 真源 = 黑板卡 data/blueprint/versionlog（v12 · 09-07T16:47:14 停写）",
+  "/api/biz-assets 真源 = gallery/business-asset-map.json（我改到 219 资产/21 关系），后端每次请求读盘 ⇒ 改文件立即生效",
+  "31 只读端点（38 去重 − 7 有状态）；后端是 ThreadingHTTPServer（加 SSE 线程不阻塞）",
+  "★SSE 游标：Last-Event-ID=1 → 386 条/709 KB，且 346/386 无 sent_at_iso ⇒ 不能用事件时间戳做新旧判据，必须用『已消费的最大 id』作水位线",
+  "/sse-stats 不存在（404）；/events/stats 是假命中（掉进 SSE 处理器）⇒ 桥没有统计端点",
+  "写端鉴权：Authorization: Bearer <~/.dsh/blackboard-token>（出处 central-wake.py:49-52）；不带头则中央 401",
+  "各机只监听 notes/<自己>/ 与 notes/collab/ ⇒ 跨机要写 notes/collab/",
+  "/data 可枚举（32,060 键）但 /data/blueprint 及 .../changelog 都 404 ⇒ 中间层不可枚举",
+  "8792 与 8803 同一进程；/tmp 清理 = com.apple.tmp_cleaner 每日 00:00 按未访问时长（不是扩展名、不是重启）"
+ ],
+ "我的工具改动": "put-card.py 296 行 d175464676f6ab08（10-08 加写端 Bearer）· bb-gallery-export.py 补 assets/ 载荷复制 · business-asset-map.json 219 资产/21 关系（指纹 8eb3ecce7ae8db88）· four-run-position-definition-20260928/（首份四跑记录）",
+ "判据积累": [
+  "判据的域 ≠ 对象的域（字段叫 src、值像路径，不等于它是文件路径）",
+  "一个为真的读数配上错的域，会得出错的结论",
+  "更正要替换，不是追加",
+  "保 mtime 的写入对 mtime 监听不可见 ⇒ 用 (mtime,size,ctime) 或 ctime",
+  "未裁决 = 按 id 配对，不是数事件",
+  "空 ≠ 无 · 不可判 ≠ 不成立",
+  "报『0 条』必须附【扫过的面】",
+  "数字必须带截至时刻；『未发现』≠『不存在』",
+  "判据要跟着对象走（核不了记【未评估】不记【坏】）",
+  "★我的观测装置会自己坏：量到异常先怀疑装置（同一天多次：ls 旗标被吞、expanduser 漏、head 截断、macOS 无 timeout）"
+ ],
+ "恢复动作": [
+  "1 读本卡 + 本地全文 §0/§1/§5",
+  "2 跑开工三步（skill cross-session-handoff）：xdom-mail.py status --stale-hours 6 · event-bus.py --status · agent_light（写之前才取锁）",
+  "3 确认 8798 /api/overview 200 与 8792 可达",
+  "4 读方案当前版并【先核指纹 4f9a4da35b83a9ed】，别信旧行数",
+  "5 用户已说开工 ⇒ 直接进 A 组（按上面七条条件实现数据实时化）"
+ ],
+ "用户偏好": "中文回复 · 纯 Markdown 表格 · 不用 dsh-ui 围栏 · 不用 mermaid · 直接动手别反复问 · 实测 vs 测算必须区分 · 不美化风险 · 中文引号（R056）",
+ "我上一轮回复的定性_自我更正": "2026-10-12 那轮：修 /api/health 死 cwd + 单列「工作目录」项 + 发现双后端并列 *:8798。定性=面1 的【运行时卫生】，但它是【故障修复，不是优化】；且其可见面（结构审计/数据完整/business-asset-map）读起来像面2。⇒ 两条面都没有推进。",
+ "E组_壳对齐_20261012实测与收口": "★【硬约束·我一度判反当场更正】iOS 壳 system-graph-ios/SystemGraphApp/Sources/WebShellView.swift:15-19 是①Funnel主 → ②Tailscale直连 100.120.203.20:8798 → ③局域网 192.168.1.28:8798。⇒ 后端【必须】绑 0.0.0.0（或至少 Tailscale/LAN 可达），绑回环会把 iOS 兜底②③打断 —— 我 2026-10-12 收窄到回环后实测 Tailscale IP 与局域网 IP双双 000 不可达，当场复现。故 0.0.0.0 不是白白暴露，是 iOS 兜底的必需面。①【已修】main.js findGallery() 先查壳内 embedded 命中即 return ⇒ 其后的 src(主源)分支是死代码 ⇒ 壳永远跑自己那份冻结副本(149575B/09-09)，与主源(153472B/10-12)同称 v1.4.0 而内容不同。已改主源优先(源+dist同步 sha16 fb139695856199ab)。②【已修】launch() 无条件 startServer()，不检查 8798 是否已有人服务(实测其第二次 spawn 撞 OSError [Errno 48] 退出)；而 macOS SO_REUSEADDR 允许通配绑定与回环绑定并存 ⇒ 两后端可同时活，且两者 GALLERY_DIR 同为 ~/dsh-collab/data/blueprint/gallery ⇒ 双写入者=写写冲突风险。已加 isPortServed() 先探再起(正负控 8798→true / 8799→false)。★★【归因更正】先到的是壳的 75718(01:49:27)，后到的 77466(01:51:57)是【我起的】—— 我重启后端时没查端口占用，重复的那个是我，不是壳。已停 75718。★【残留】正在运行的 Electron 壳载入的是旧 main.js ⇒ 壳侧修复要下次打开 SystemGraph 才生效。★【已修·2026-10-12】iOS 源里局域网地址写死 192.168.1.28（本机现址已 192.168.1.33）⇒ iOS 兜底③曾一度失效。已改为 mDNS 名 CoreydeMac-mini.local（写死 IP 本身就会随 DHCP 再变，属「写死一个会变的值」类缺陷），并随 TestFlight 构建一并发布。★ 协调者 session-e317d6ab 独立复跑确认了本卡全部 E 组 verification（监听者=1 / 四点 200 / 三者 sha 相同）。★【收口后验收·四点全 200 且 checks=7】127.0.0.1:8798 / 100.120.203.20:8798 / 192.168.1.33:8798 / https://coreymac-mini.taild3fd86.ts.net/sg —— 监听者=1(主源 pid 81979, --host 0.0.0.0, cwd 有效)。",
+ "iOS_手机端_不再可用_根治": "根因：iOS 最后一次构建 2026-09-03，内嵌 profile 到期 2026-09-09 ⇒ 签名过期故显「不再可用」。★ 不是 7 天免费签名循环问题——付费团队 XS7SMKFS42 已于 2026-10-05 通过，SystemGraph 这条线自 9-3 起从未重建。持久化走 TestFlight（分发构建不需 UDID/DDI/数据线，90 天有效，手机端自动更新），非「直装+反复重签」（直装实测被 connected (no DDI) 卡住，且 generic 构建 profile 设备数=0）。已做：① 兜底③ 改 mDNS ② Info.plist 补 ITSAppUsesNonExemptEncryption=false（仅 HTTPS，属豁免类）③ AppIcon.png 含 alpha ⇒ 上传被拒 90717，用自身底色 #070A10 压平（原不透明区逐像素 0 变化）④ 新建 release-tf.sh（archive→export→altool）。终态（ASC 独立回读，非只信 altool 自述）：app 6819342786 · beta 组 2729ff2f（SystemGraph 内部测试 internal）· 组内 build=4 state=VALID expired=False · 测试员 coreyleung@me.com。★ 未结：手机端能否真装上尚未由用户实测确认；App Store 正式上架未做。卡 notes/collab/systemgraph-ios-testflight-20261012（内容标识 c5f2fdd0275fe9f4）。",
+ "A组_已交付_20261012": "★ A 组数据实时化已交付，四路验收全过。交付物：bb-model-store.py(19403B sha16 45cb412dd220f028 · 单一权威内存模型/三态取数 OK-EMPTY-UNREACHABLE/版本号/(mtime,size,ctime)元组/SSE主路径+兜底轮询) · bb-model-accept.py(12580B sha16 096cd636249d7185 · 四路验收harness，真板真盘非mock) · bb-blueprint-gallery.py 接入(160181B sha16 a52d2adfecbe2ac3 · fetch()与get_agents()改走模型 + /api/model-status + --no-model回滚开关)。四路实测：①黑板写 PASS 0.11s ②普通文件写 PASS 0.73s ③cp -a 保 mtime 写 PASS 0.62s（★实测 mtime 保住=True 靠 ctime 识别成功＝前置1生效）④原子 rename PASS 0.62s；最坏 0.73s/阈 10s 余量13.7倍。活体集成：version=2 三态{OK:21,EMPTY:1,UNREACHABLE:0} SSE connected events=59 兜底轮询3.0s（主路径与兜底各自独立且都<10s）。负控 5/5 通过。性能：overview 173.0→1.2ms(-99%) agents 96.0→0.7ms(-99%) cap-perm 95.1→5.2ms blueprints 7.8→0.4ms。无回归：39个 /api/ 端点冒烟非200/404=0。回滚：备份 .bak-good-2026-10-11-18-2 + 运行期 --no-model + 模型失败自动退回首读。★ 未验（如实标注）：方案§二验收里「断连重订阅不丢事件（游标/ts续传）」一项未验（未做小时级断连重连）。留痕卡 notes/collab/systemgraph-a-group-accept-20261012 (e0cc984bedcff938 两端200同4965B)。 ★★★【2026-10-12 更正·我原写错了】上面这段里的「无回归：39个/api/端点冒烟非200/404=0」与「性能 overview 173→1.2ms」**当时是无效的**：我改了 fetch() 的返回契约（信封→已解包的值）却没核 7 个调用点的解包方式 ⇒ **凡走黑板的端点全部返回 200 但载荷为空**（bpCount/edgeCount/versionCount 全 0、blueprints/relations/entries 全 []）。★ 我的冒烟只查 HTTP 状态码、没查载荷 ⇒ 没拦住；**是用户在手机端先发现的**（全部 tab 加载失败）。★ 根因同族：一个为真的读数配上错的域会得出错的结论。★ 已修：bb-model-store 新增 board_envelope()，fetch() 恢复返回信封；**并给 bb-model-accept.py 加了内容闸**（断言各端点载荷下界，纳入总判 rc）⇒ 「200+空载荷」从此会红。★ 复验（内容闸上线后）：四路 通过 · 活体集成 通过 · 内容闸 通过（蓝图21/边53/版本19/agent82，与改前基线吻合） · 负控 5/5。★ 性能数字保持 -99% 但**先决条件变了**：现在是在已验证载荷非空的前提下量的。详细更正卡：notes/collab/systemgraph-a-group-retract-and-fix-20261012 (919821d397be98ff)。",
+ "当前状态": "面1：A 组【已交付】(2026-10-12 四路验收全过) · E 组【部分收口】(findGallery死代码+isPortServed已修，待壳重启生效；iOS兜底③已改mDNS并随TestFlight发布)。面2：B 条件齐备 · C 有真阻塞(数据源0条需N≥50) · D 有前置(能力归一化)。另：iOS 手机端「不再可用」已根治并走 TestFlight 持久化（app 6819342786 · build 4 VALID · 待用户手机实测）。"
+}

@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "note": "人工核实的 todo→工具 完成映射(Lean4: 仅此表 + user-confirm 可标 done)",
+  "verified": {
+    "blueprint-platform/bp2-2": {"tool": "bb-blueprint-registry.py", "ts": "2026-09-06"},
+    "blueprint-platform/bp2-3": {"tool": "bb-blueprint-registry.py", "ts": "2026-09-06"},
+    "blueprint-platform/bp2-4": {"tool": "bb-blueprint-dialog.py", "ts": "2026-09-06"},
+    "blueprint-platform/bp0-2": {"tool": "relations(9类型38边)", "ts": "2026-09-06"},
+    "blueprint-platform/bp1-2": {"tool": "registry --refs md扫描", "ts": "2026-09-06"}
+  }
+}

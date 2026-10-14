@@ -1,0 +1,261 @@
+{
+ "version": "1.0",
+ "updated": "2026-09-06",
+ "desc": "设备通讯桥 · 设备↔设备真实通讯通道(静态链路 + 实时探测锚点)",
+ "channelTypes": {
+  "tailscale": {
+   "label": "Tailscale 隧道",
+   "color": "#4a9eff",
+   "icon": "🔵"
+  },
+  "blackboard": {
+   "label": "黑板总线",
+   "color": "#c678dd",
+   "icon": "🟣"
+  },
+  "agentbus": {
+   "label": "agent-bus 消息",
+   "color": "#c678dd",
+   "icon": "🟣"
+  },
+  "ssh": {
+   "label": "SSH/远程运维",
+   "color": "#f5b942",
+   "icon": "🟡"
+  },
+  "sunflower": {
+   "label": "向日葵远控",
+   "color": "#f5b942",
+   "icon": "🟡"
+  },
+  "funnel": {
+   "label": "Funnel 公网入口",
+   "color": "#2ac3de",
+   "icon": "🟢"
+  },
+  "cloud": {
+   "label": "云桥(Coze/企微/飞书)",
+   "color": "#8b90a3",
+   "icon": "⚪"
+  },
+  "local": {
+   "label": "本地托管",
+   "color": "#6f7686",
+   "icon": "◽"
+  }
+ },
+ "links": [
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-mbp",
+   "type": "tailscale",
+   "protocol": "100.112.111.120",
+   "port": "UDP 41641",
+   "direction": "bi",
+   "desc": "Tailscale 隧道 · 跨设备 MBP"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-mbp",
+   "type": "blackboard",
+   "protocol": "黑板 notes/mbp 注入",
+   "port": "8792",
+   "direction": "bi",
+   "desc": "资产盘点双向注入闭环"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-mbp-agent",
+   "type": "agentbus",
+   "protocol": "agent_send 跨会话",
+   "port": "-",
+   "direction": "bi",
+   "desc": "MBP 资源执行节点通信"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-pci9",
+   "type": "tailscale",
+   "protocol": "100.118.15.71",
+   "port": "UDP 41641",
+   "direction": "bi",
+   "desc": "Tailscale 隧道 · PC-i9 GPU 算力"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-pci9",
+   "type": "ssh",
+   "protocol": "向日葵 cmd2 + dsh-run.ps1",
+   "port": "-",
+   "direction": "macmini->i9",
+   "desc": "PC-i9 投递/执行"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-pci9",
+   "type": "cloud",
+   "protocol": "远程 MCP SDK",
+   "port": "-",
+   "direction": "bi",
+   "desc": "SDK 1.30.0 真机能力"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:node-iphone",
+   "type": "tailscale",
+   "protocol": "100.98.251.77",
+   "port": "UDP 41641",
+   "direction": "bi",
+   "desc": "Tailscale · iPhone 移动端"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-tianhe",
+   "type": "sunflower",
+   "protocol": "向日葵 1687489763",
+   "port": "-",
+   "direction": "macmini->srv",
+   "desc": "天河店服务器远控"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-foshan",
+   "type": "sunflower",
+   "protocol": "向日葵 1696416965",
+   "port": "-",
+   "direction": "macmini->srv",
+   "desc": "佛山店服务器远控"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-jiangnanxi",
+   "type": "sunflower",
+   "protocol": "向日葵 1676234999",
+   "port": "-",
+   "direction": "macmini->srv",
+   "desc": "江南西店服务器远控"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-cozebridge",
+   "type": "local",
+   "protocol": "本机 daemon",
+   "port": "127.0.0.1",
+   "direction": "bi",
+   "desc": "本机↔Coze 云端通道"
+  },
+  {
+   "from": "hw:srv-cozebridge",
+   "to": "hw:cloud-coze",
+   "type": "cloud",
+   "protocol": "Coze API",
+   "port": "HTTPS",
+   "direction": "bi",
+   "desc": "云端 AI 助手 + drive"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:cloud-wecom",
+   "type": "cloud",
+   "protocol": "企微 API",
+   "port": "HTTPS",
+   "direction": "bi",
+   "desc": "客服卡/发布"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:cloud-feishu",
+   "type": "cloud",
+   "protocol": "飞书 API",
+   "port": "HTTPS",
+   "direction": "bi",
+   "desc": "妙记/会议"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-verdaccio",
+   "type": "local",
+   "protocol": "npm registry",
+   "port": "4873",
+   "direction": "bi",
+   "desc": "私有包供应链"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-genebank",
+   "type": "local",
+   "protocol": "GeneBank 存储/检索",
+   "port": "-",
+   "direction": "bi",
+   "desc": "HubBridge 资产层"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:cloud-coze",
+   "type": "funnel",
+   "protocol": "coreymini.taild3fd86.ts.net",
+   "port": "443",
+   "direction": "ext->macmini",
+   "desc": "Funnel 公网展示入口(外卖8911/图8798)"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-xingqiao",
+   "type": "blackboard",
+   "protocol": "双轨同步 sync-up(5min)+sync-down(SSE 0-1s)+hb-forward(30s)",
+   "port": "8792/8803",
+   "direction": "bi",
+   "desc": "本机黑板↔中枢 双轨同步(上行推关键域/下行拉 i9+MBP 镜像)"
+  },
+  {
+   "from": "hw:srv-xingqiao",
+   "to": "hw:srv-commlayer",
+   "type": "local",
+   "protocol": "systemd 9 units (bb-sub×8+bus-bridge)",
+   "port": "8791",
+   "direction": "bi",
+   "desc": "comm-layer 订阅中枢 SSE :8803, inbox 留痕 /home/ubuntu/.dsh/inbox/bb/"
+  },
+  {
+   "from": "hw:srv-commlayer",
+   "to": "hw:node-macmini",
+   "type": "blackboard",
+   "protocol": "SSE 订阅本机 8803 事件",
+   "port": "8803",
+   "direction": "srv->macmini",
+   "desc": "服务器版 bb-sub 订阅本机中枢事件(mac-mini 挂机期间不丢)"
+  }
+ ],
+ "probes": [
+  {
+   "link": 0,
+   "kind": "tailscale",
+   "host": "100.112.111.120"
+  },
+  {
+   "link": 3,
+   "kind": "tailscale",
+   "host": "100.118.15.71"
+  },
+  {
+   "link": 6,
+   "kind": "tailscale",
+   "host": "100.98.251.77"
+  },
+  {
+   "link": 16,
+   "kind": "funnel",
+   "url": "https://coreymac-mini.taild3fd86.ts.net"
+  },
+  {
+   "link": 1,
+   "kind": "http",
+   "url": "http://127.0.0.1:8792"
+  },
+  {
+   "link": 14,
+   "kind": "http",
+   "url": "http://127.0.0.1:4873"
+  }
+ ]
+}

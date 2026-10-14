@@ -1,0 +1,38 @@
+{
+ "index.html": {
+  "size": 796863,
+  "sha256_16": "1da3aedfff49287c"
+ },
+ "partner/index.html": {
+  "size": 90505,
+  "sha256_16": "127f81060bdc7c9d"
+ },
+ "robots.txt": {
+  "size": 26,
+  "sha256_16": "331ea9090db0c9f6"
+ },
+ "taobao-brief/index.html": {
+  "size": 52033,
+  "sha256_16": "69a3c480efe60b66"
+ },
+ "welcome/index.html": {
+  "size": 8903,
+  "sha256_16": "37d74254d62d7224"
+ },
+ "启动资金与各轮计划.html": {
+  "size": 106441,
+  "sha256_16": "104911fe80d2628e"
+ },
+ "商业计划书.html": {
+  "size": 311216,
+  "sha256_16": "6dccde11dbb05693"
+ },
+ "平台格局图.html": {
+  "size": 33197,
+  "sha256_16": "983da6e11e0ce421"
+ },
+ "相关方文件.html": {
+  "size": 93645,
+  "sha256_16": "a3005d7ea4a96147"
+ }
+}

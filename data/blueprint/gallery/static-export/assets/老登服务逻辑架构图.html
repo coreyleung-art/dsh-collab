@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>老登服务逻辑架构图</title>
+<style>
+  body { background:#1e1e2e; color:#cdd6f4; font-family: -apple-system, "PingFang SC", sans-serif; margin:0; padding:24px; }
+  h1 { text-align:center; font-size:22px; margin-bottom:6px; color:#89b4fa; }
+  .sub { text-align:center; font-size:12px; color:#6c7086; margin-bottom:18px; }
+  #mermaid { background:#11111b; border-radius:12px; padding:20px; }
+  .legend { margin-top:16px; font-size:12px; color:#a6adc8; line-height:1.8; }
+  .legend b { color:#89b4fa; }
+</style>
+</head>
+<body>
+<h1>📐 老登服务逻辑架构（外卖多平台运营）</h1>
+<div class="sub">DeepSeek Harness · 2026-09-01 · 8 层架构：入口→桥接→能力→执行→视觉采购→数据→治理→外部协同</div>
+<pre class="mermaid" id="mermaid">
+graph TB
+    subgraph L0[入口层]
+        U[用户 语音/文本]
+        W[Web HUD 界面<br/>index.html + wall.html]
+        A[App 壳<br/>外卖老登.app]
+    end
+    subgraph L1[桥接层]
+        B[老登桥接 bridge-server :8911<br/>意图路由 · NLU qwen2.5:3b · 多轮上下文]
+        AUD[审计 JSONL 7字段<br/>按天分片 30天]
+        RULES[主动播报 runRules<br/>15min + prefs开关]
+    end
+    subgraph L2[能力层]
+        CAP[能力注册表 capabilities.json<br/>34项 · fs.watch热加载 · L0-L3分级]
+        ACT[动作原语库 lib/action.js<br/>60原语]
+        P029[R029 原语类型锁<br/>automation-switch primitive-check<br/>Lean4 类型即证明]
+    end
+    subgraph L3[执行层]
+        PANEL[面板 :8787<br/>/api/action · 报表导出 · 定时调度]
+        CDP[CDP 浏览器 x10<br/>9200-9209 店窗口]
+        BATCH[批量原语<br/>searchListPageNew 等]
+        EXCEL[Excel批量导入<br/>previewOrDraft→queryTaskStatus]
+    end
+    subgraph L4[视觉与采购]
+        MM[MiniMax VLM<br/>~/.dsh/minimax.env 0600]
+        Y1688[1688 以图搜款<br/>登录态 DOM抓价]
+        BOM[花礼BOM流水线<br/>flower-bom-tool.js]
+    end
+    subgraph L5[数据层]
+        DB[(app.db / comm.db<br/>order_sales 20733行)]
+        EXP[data/exports<br/>annotated_v2 20610行]
+        BB[黑板 :8792<br/>data/ops · incidents · gates]
+        KB[ChromaDB waimai集合<br/>合规文档向量化]
+        RPT[返图+BOM库<br/>1971张 · JSON]
+    end
+    subgraph L6[治理层]
+        R026[R026 确认<br/>L3 token 硬闸]
+        R027[R027 开关锁<br/>5定时任务 OFF]
+        R028[R028 六问<br/>款式/商品/库存/人力/价格/资材]
+        R030[R030 验证<br/>无验证成功=未成功]
+        COORD[决策评估坐标<br/>L1流程→L5时间]
+    end
+    subgraph L7[外部协同]
+        ZL[知了 · 学习引擎]
+        XQ[星桥 · 协调者]
+        HR[司库 · HR成本]
+        I9[PC-i9 · ERP视觉训练]
+        L4787[4787d717 · 1688采集]
+    end
+    U --> W & A
+    W --> B
+    A -->|远端fallback| B
+    B --> CAP
+    B --> AUD
+    B --> RULES
+    CAP --> ACT
+    ACT -->|R026 校验| P029
+    P029 --> CDP
+    ACT --> PANEL
+    PANEL --> CDP
+    BATCH --> CDP
+    EXCEL --> CDP
+    CDP --> DB
+    CDP --> EXP
+    MM --> BOM
+    Y1688 --> BOM
+    BOM --> RPT
+    B --> BB
+    B --> KB
+    B --> XQ
+    XQ --> HR & I9 & L4787
+    B --> ZL
+    MM --> I9
+    R026 -.-> ACT
+    R027 -.-> B
+    R028 -.-> B
+    R030 -.-> ACT
+    COORD -.-> B
+</pre>
+<div class="legend">
+<b>服务状态</b>：面板 8787 ✅ · CDP 10 窗口全活 ✅ · LM Studio 1234 ✅ · MiniMax VLM ✅ · 黑板 8792 ✅<br/>
+<b>治理闭环</b>：R026 确认（L3 token 硬闸）→ R027 授权（开关锁）→ R029 锁（原语类型锁）→ R030 验证（无验证成功=未成功）→ R028 六问（决策前置）<br/>
+<b>BOM 流水线</b>：官方图 → MiniMax VLM 提取 → 1688 图搜采购价 → 落地成本（产地×1.41）→ 毛利表<br/>
+<b>外部协同</b>：星桥（协调）· 知了（学习）· 司库（HR成本）· i9（ERP视觉训练）· 4787d717（1688采集）
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { darkMode: true }, securityLevel: 'loose' });
+</script>
+</body>
+</html>

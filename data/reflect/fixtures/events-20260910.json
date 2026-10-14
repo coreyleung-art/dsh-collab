@@ -1,0 +1,98 @@
+{
+  "_fixture": "假事件流（自测用，非真实采集）。3 个目标 / 10 条事件，用于验证 dsh-plugin-reflect-dispatch 的归属判定与定制卡生成。目标取真实能力登记表里的三条档案，以便验证 resources 匹配真的走到真实数据上。",
+  "_expect": {
+    "cards": 3,
+    "by_short_key": {
+      "ffe19f07": "E001-E003（路径精确 100，specific）",
+      "a3bc8cba": "E004/E006（相对路径尾匹配 88）+ E005（显式形态 store_id=8，86）",
+      "de7b29de": "E007（词干命中，标识符 -/_ 归一，60）+ E008（键前缀 im_window:* 90）"
+    },
+    "unassigned": ["E010（未登记服务日志，谁都不认领）"],
+    "shared_dir_suppressed": "另有多条事件被 4 个「把 ~/dsh-collab/ 或 ~/dsh-collab/scripts 登记为自己资源」的目录级候选命中，被 specific>dir 层级裁决压下（记入 suppressed，不静默）"
+  },
+  "_targets_hint": {
+    "a3bc8cba": "知了 · 学习引擎（resources 含 lib/price-analysis.js、lib/return-photos.js、store:8、notices.db）",
+    "de7b29de": "灯塔 · 外卖采集统筹（resources 含 events/im_sessions、store:N / im_window:N、meituan-multi）",
+    "ffe19f07": "审查工具链（resources 含 scripts/unit-review.py、verify-ui.py、audience-check.py、audience-matrix.json）"
+  },
+  "window": { "since": "2026-09-10T00:00:00+08:00", "until": "2026-09-10T23:00:00+08:00" },
+  "counts": { "files": 6, "board": 3, "tools": 1, "logs": 1, "git": 0 },
+  "events": [
+    {
+      "id": "E001",
+      "source": "files",
+      "ts": "2026-09-10T09:41:12+08:00",
+      "kind": "modified",
+      "path": "/Users/coreyleung/dsh-collab/scripts/verify-ui.py",
+      "desc": "verify-ui 增加 computed style 与 --expect 比对：修掉 sha256 相同却仍报「改动已生效」的分支"
+    },
+    {
+      "id": "E002",
+      "source": "files",
+      "ts": "2026-09-10T10:05:33+08:00",
+      "kind": "modified",
+      "path": "/Users/coreyleung/dsh-collab/scripts/unit-review.py",
+      "desc": "unit-review merge 增加覆盖度 90% 抽样检测，并把档位冲突单列"
+    },
+    {
+      "id": "E003",
+      "source": "files",
+      "ts": "2026-09-10T10:22:07+08:00",
+      "kind": "created",
+      "path": "/Users/coreyleung/dsh-collab/scripts/audience-check.py",
+      "desc": "audience-check 新增「否定语境跳过」与 ASCII 词边界匹配，避免把「不涉及股权」判成股权外泄"
+    },
+    {
+      "id": "E004",
+      "source": "files",
+      "ts": "2026-09-10T11:14:50+08:00",
+      "kind": "modified",
+      "path": "/Users/coreyleung/meituan-multi/lib/price-analysis.js",
+      "desc": "教师节涨价空间测算加入 SKU 级过滤，默认只看 store_id=8（守白）"
+    },
+    {
+      "id": "E005",
+      "source": "board",
+      "ts": "2026-09-10T12:02:41+08:00",
+      "key": "data/registry/price-analysis-teacher-day",
+      "desc": "把教师节价格策略结论登记到黑板：锚定价 / 大促抬价 / SKU 抬价三档，口径统一为 store_id=8"
+    },
+    {
+      "id": "E006",
+      "source": "files",
+      "ts": "2026-09-10T13:30:19+08:00",
+      "kind": "modified",
+      "path": "/Users/coreyleung/meituan-multi/lib/return-photos.js",
+      "desc": "客服返图提取：图片按订单卡片匹配的商品名命名，守白店反馈同步落库"
+    },
+    {
+      "id": "E007",
+      "source": "board",
+      "ts": "2026-09-10T14:47:03+08:00",
+      "key": "data/registry/im-sessions-timeout-contract",
+      "desc": "im_sessions 表新增超时提审字段，采集侧写入契约同步更新（字段名与类型已对表）"
+    },
+    {
+      "id": "E008",
+      "source": "tools",
+      "ts": "2026-09-10T16:08:55+08:00",
+      "key": "im_window:3",
+      "desc": "窗口锁 im_window:3 被占用 90s 未释放，第二次取锁成功（第一次超时后未清理）"
+    },
+    {
+      "id": "E009",
+      "source": "board",
+      "ts": "2026-09-10T18:20:11+08:00",
+      "key": "data/iterations/unregistered-topic-weekly",
+      "desc": "某个新主题的迭代报告落盘（演示黑板键归属：被 data/iterations 命名空间的登记方接住）"
+    },
+    {
+      "id": "E010",
+      "source": "logs",
+      "ts": "2026-09-10T21:55:02+08:00",
+      "kind": "modified",
+      "path": "/var/log/dsh/unregistered-daemon.log",
+      "desc": "未登记服务的日志出现 3 次 ECONNREFUSED（判断不了归谁，如实留在 unassigned）"
+    }
+  ]
+}

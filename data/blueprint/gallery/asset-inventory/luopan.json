@@ -1,0 +1,135 @@
+{
+  "responder": "罗盘",
+  "agentId": "5a5368af",
+  "ts": "2026-09-02",
+  "assets": [
+    {
+      "blueprint": "flowernet",
+      "desc": "4设备+关联设备硬件/状态/算力基线",
+      "evidence": "i9 dsh节点/4060Ti/MBP M3实测登记",
+      "isOriginal": true,
+      "location": "~/dsh-collab/devices/device-assets.md",
+      "name": "设备资产表 v1.3",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "三设备数据资产分类地图",
+      "evidence": "MBP训练集归集完成登记",
+      "isOriginal": true,
+      "location": "~/dsh-collab/devices/device-data-map.md",
+      "name": "设备数据地图 v1.4",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "16+任务环境映射+模型路由",
+      "evidence": "summary转正式(LLM-judge 4/5)",
+      "isOriginal": true,
+      "location": "~/dsh-collab/devices/task-env-map.md",
+      "name": "任务-环境映射表 v1.4",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "Windows dsh headless节点=分布式第3节点",
+      "evidence": "headless实测OK/42",
+      "isOriginal": false,
+      "location": "DESKTOP-P8E7OP1(C:\\Users\\admin\\dsh-run.ps1)",
+      "name": "i9 dsh 节点",
+      "type": "node"
+    },
+    {
+      "blueprint": "",
+      "desc": "远程设备控制(device_search/cmd2)",
+      "evidence": "i9/MBP远程实测",
+      "isOriginal": false,
+      "location": "awesun 8908+22工具",
+      "name": "向日葵 MCP 通道",
+      "type": "service"
+    },
+    {
+      "blueprint": "",
+      "desc": "102类YOLO 3.2G/133472文件(自MBP归集)",
+      "evidence": "manifest+55d4d1bd摄取",
+      "isOriginal": false,
+      "location": "~/dsh-collab/datasets/flower-yolo/",
+      "name": "flower-yolo 训练集",
+      "type": "data"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "ERP(RFID)/小程序/官网路径结构确认",
+      "evidence": "E盘dir实测",
+      "isOriginal": false,
+      "location": "data/blueprint/flowernet/i9-projects-scan",
+      "name": "i9 三项目扫描成果",
+      "type": "data"
+    },
+    {
+      "blueprint": "",
+      "desc": "DataFolder需GUI迁移机制(踩坑沉淀)",
+      "evidence": "已入库KB 7chunks",
+      "isOriginal": true,
+      "location": "~/dsh-collab/devices/lessons/docker-migration-lessons-20260818.md",
+      "name": "Docker 迁移教训",
+      "type": "doc"
+    },
+    {
+      "blueprint": "",
+      "desc": "节点总线客户端(成本治理期暂停)",
+      "evidence": "PID 40176曾运行",
+      "isOriginal": true,
+      "location": "MBP ~/mbp-bus-client.sh",
+      "name": "MBP bus-client",
+      "type": "script"
+    },
+    {
+      "blueprint": "",
+      "desc": "总线桥(属主92623479协作)",
+      "evidence": "PID自愈验证",
+      "isOriginal": false,
+      "location": "8791(launchd常驻)",
+      "name": "bus-bridge 端点",
+      "type": "service"
+    }
+  ],
+  "unpresentedSystems": [
+    "i9 E盘数据域(ai-datasets/Coze/dify/models等-管理器未列)",
+    "MBP 银行活动资料66M/509文件(考古发现)",
+    "i9 phoneuse手机自动化MCP(E:\\My vibe codding\\phoneuse)"
+  ],
+  "crossNodeAssets": [
+    {
+      "desc": "11434原生服务13模型(含qwen2.5vl:3b视觉)",
+      "name": "Ollama推理栈",
+      "node": "i9"
+    },
+    {
+      "desc": "8容器(daemon挂载问题待Reset)",
+      "name": "Docker fi-dify栈",
+      "node": "i9"
+    },
+    {
+      "desc": "ERP RFID/小程序/官网(My vibe codding)",
+      "name": "三项目源码",
+      "node": "i9"
+    },
+    {
+      "desc": "66M/509文件+招商/融资/BP(无源码副本)",
+      "name": "银行资料+初蘅文档",
+      "node": "MBP"
+    },
+    {
+      "desc": "已送达(ERP视觉/返图标注/花图合规)",
+      "name": "MiniMax视觉方案",
+      "node": "i9"
+    }
+  ],
+  "governanceGaps": [
+    "Docker迁移DataFolder需GUI(无文档门禁已踩坑)",
+    "i9队列tasks/i9/cmd格式无统一文档(多来源交错)",
+    "设备侧无R006插件化标准覆盖的登记资产"
+  ],
+  "note": "设备侧资产盘点基于档案+考古实测;训练集/i9节点已入库登记"
+}

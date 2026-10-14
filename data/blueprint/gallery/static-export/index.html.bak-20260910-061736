@@ -1,0 +1,1544 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>系统架构管理器 · System Graph Manager</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0b0e14;color:#e8eaf0;font-family:-apple-system,'PingFang SC',sans-serif}
+.top{background:#141824;border-bottom:1px solid #232a3a;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.top h1{font-size:18px}
+.top .sub{color:#8b90a3;font-size:12px}
+.tabs{display:flex;gap:4px;background:#141824;padding:8px 20px;border-bottom:1px solid #232a3a;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;color:#8b90a3;border:1px solid transparent}
+.tab:hover{background:#1c2230;color:#e8eaf0}
+.tab.on{background:#1e3a5f;color:#6ea8ff;border-color:#2d5a94}
+.main{padding:20px;display:none}
+.main.on{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:#141824;border:1px solid #232a3a;border-radius:12px;padding:16px;cursor:pointer;transition:.15s}
+.card:hover{border-color:#2d5a94;transform:translateY(-2px)}
+.card h3{font-size:14px;margin-bottom:6px}
+.card .v{color:#6ea8ff;font-size:12px}
+.card .d{color:#8b90a3;font-size:11px;margin-top:6px}
+.card .ml{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.pill{background:#1c2230;border-radius:10px;padding:2px 9px;font-size:10.5px;color:#9aa3b2}
+.pill.st-done{background:#123524;color:#34c77b}.pill.st-active{background:#12233b;color:#4a9eff}
+.pill.st-partial{background:#3a2f10;color:#f5b942}.pill.st-todo{background:#1c2230;color:#7d8596}
+.pill.dim{background:#241a35;color:#c678dd}
+.side{display:flex;gap:16px;align-items:flex-start}
+.list{width:260px;flex-shrink:0}
+.list .li{background:#141824;border:1px solid #232a3a;border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;font-size:12.5px}
+.list .li.on{border-color:#2d5a94;background:#161f2e}
+.list .li b{display:block;font-size:13px;margin-bottom:2px}
+.detail{flex:1;min-width:0;background:#0d1119;border:1px solid #232a3a;border-radius:12px;padding:16px}
+.detail h2{font-size:16px;margin-bottom:10px}
+.statrow{display:flex;gap:12px;margin:14px 0;flex-wrap:wrap}
+.stat{background:#141824;border:1px solid #232a3a;border-radius:10px;padding:10px 16px;text-align:center}
+.stat b{display:block;font-size:20px;color:#6ea8ff}
+.stat span{font-size:11px;color:#8b90a3}
+.ver-item{border-left:3px solid #6ea8ff;padding:8px 14px;margin:8px 0;background:#141824;border-radius:0 8px 8px 0;font-size:12.5px}
+.ver-item .t{color:#8b90a3;font-size:11px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.tbl th,.tbl td{padding:7px 9px;text-align:left;border-bottom:1px solid #232a3a}
+.tbl th{color:#8b90a3;font-weight:600;font-size:11px}
+.foot{color:#6f7686;font-size:11px;padding:14px 20px;text-align:center}
+button{border:none;border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer;background:#1e3a5f;color:#6ea8ff}
+button:hover{background:#2d5a94}
+input[type=search]{background:#0d1119;border:1px solid #232a3a;color:#e8eaf0;border-radius:8px;padding:7px 12px;width:200px;font-size:12.5px}
+.svg-wrap{overflow:auto;border-radius:10px;border:1px solid #232a3a}
+.svg-wrap svg{display:block}
+.empty{color:#6f7686;font-size:12px;padding:20px;text-align:center}
+a{color:#6ea8ff;text-decoration:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.graph-box{position:relative;background:#0a0d14;border:1px solid #232a3a;border-radius:12px;overflow:hidden}
+.graph-box canvas{display:block;width:100%;height:100%;cursor:grab}
+.graph-box canvas:active{cursor:grabbing}
+.graph-tip{position:absolute;background:#1c2230;border:1px solid #2d5a94;color:#e8eaf0;font-size:12px;padding:6px 10px;border-radius:8px;pointer-events:none;display:none;z-index:50;max-width:300px;line-height:1.5}
+.graph-legend{position:absolute;top:10px;right:12px;display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:#8b90a3;background:rgba(13,17,25,.8);padding:8px 10px;border-radius:8px;border:1px solid #232a3a}
+.graph-legend .gl{display:flex;align-items:center;gap:6px}
+.graph-legend .d1{width:9px;height:9px;border-radius:50%;display:inline-block}
+.graph-hint{position:absolute;bottom:10px;left:12px;font-size:10.5px;color:#5a6072;background:rgba(13,17,25,.75);padding:4px 10px;border-radius:6px}
+.viewsel{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.vsb{border:1px solid #232a3a;background:#141824;color:#8b90a3;border-radius:8px;padding:5px 14px;font-size:12px;cursor:pointer}
+.vsb.on{background:#1e3a5f;color:#6ea8ff;border-color:#2d5a94}
+.asset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.asset-card{background:#141824;border:1px solid #232a3a;border-radius:12px;overflow:hidden;cursor:pointer;transition:.15s}
+.asset-card:hover{border-color:#2d5a94;transform:translateY(-2px)}
+.asset-thumb{height:130px;background:#0d1119;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid #232a3a}
+.asset-thumb img,.asset-thumb svg{max-width:100%;max-height:100%}
+.asset-thumb .ph{font-size:34px;opacity:.6}
+.asset-info{padding:9px 11px}
+.asset-info b{font-size:12px;display:block;margin-bottom:2px}
+.asset-info span{font-size:10.5px;color:#8b90a3}
+.asset-modal{position:fixed;inset:0;background:rgba(5,8,12,.9);z-index:200;display:none;align-items:center;justify-content:center;padding:30px}
+.asset-modal.on{display:flex}
+.asset-modal .am-box{background:#0d1119;border:1px solid #2d5a94;border-radius:14px;max-width:94vw;max-height:92vh;overflow:auto;padding:16px}
+.asset-modal .am-img{max-width:90vw;max-height:78vh;object-fit:contain}
+.asset-modal iframe{width:88vw;height:75vh;border:none;background:#fff;border-radius:8px}
+.asset-modal .am-meta{color:#8b90a3;font-size:11px;margin-top:8px}
+.asset-close{position:fixed;top:18px;right:26px;font-size:26px;color:#8b90a3;cursor:pointer;z-index:201;background:none;border:none}
+.asset-close:hover{color:#fff}
+@media(max-width:1100px){.grid2{grid-template-columns:1fr}.side{flex-direction:column}.list{width:100%}}
+/* ── 移动端自适配 ── */
+@media(max-width:768px){
+  *{-webkit-tap-highlight-color:transparent}
+  body{-webkit-text-size-adjust:100%}
+  .top{padding:10px 12px;gap:8px}
+  .top h1{font-size:16px}
+  .top .sub{font-size:10.5px;width:100%}
+  .tabs{padding:6px 8px;gap:3px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;padding:6px 10px;font-size:12px}
+  .main{padding:12px}
+  .cards{grid-template-columns:1fr}
+  .card{padding:13px}
+  .statrow{gap:8px;margin:10px 0}
+  .stat{padding:8px 10px;flex:1;min-width:72px}
+  .stat b{font-size:17px}
+  .graph-box{height:46vh!important}
+  .graph-legend{top:8px;right:8px;font-size:9.5px;padding:6px 8px;max-width:46%}
+  .graph-hint{font-size:9.5px;padding:3px 8px;left:8px;bottom:8px;max-width:80%}
+  .detail{padding:12px}
+  .detail h2{font-size:15px}
+  .side{gap:10px}
+  .tbl{display:block;overflow-x:auto;white-space:nowrap;font-size:11.5px}
+  .tbl td,.tbl th{padding:6px 8px}
+  .svg-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+  .asset-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .asset-thumb{height:100px}
+  .asset-modal{padding:10px}
+  .asset-modal .am-box{max-width:98vw;padding:10px}
+  .viewsel{gap:4px}
+  .vsb{padding:5px 10px;font-size:11.5px}
+  button{padding:7px 10px;font-size:12px}
+  input[type=search]{width:150px}
+  /* 浮层卡片(节点详情)全宽化 */
+  [style*="position:fixed"][style*="width:360px"]{width:auto!important;left:12px!important;right:12px!important;top:64px!important;max-height:74vh!important;overflow-y:auto!important}
+}
+@media(max-width:480px){
+  .top h1{font-size:15px}
+  .tab{padding:6px 8px;font-size:11.5px}
+  .main{padding:10px}
+  .graph-box{height:42vh!important}
+  .asset-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .asset-info b{font-size:11px}
+  .asset-info span{font-size:9.5px}
+}
+</style></head><body>
+<div class="top"><h1>🗺 系统架构管理器</h1><span class="sub">System Graph Manager · 蓝图+智能体+规则+机制+图库 · 2026-09-05 03:48:43</span></div>
+<div class="tabs" id="tabs">
+<div class="tab on" data-tab="philosophy">🧠 治理哲学</div>
+<div class="tab" data-tab="original">💎 原创资产</div>
+<div class="tab" data-tab="workflow">🔄 工作流/标准</div>
+<div class="tab" data-tab="planarchive">📋 计划档案</div>
+<div class="tab" data-tab="dash">🏠 总览</div>
+<div class="tab" data-tab="blueprints">📐 蓝图库</div>
+<div class="tab" data-tab="blueprint-detail">🔍 蓝图详情</div>
+<div class="tab" data-tab="agents">🤖 智能体网络</div>
+<div class="tab" data-tab="relations">🔀 关系图谱</div>
+<div class="tab" data-tab="projects">🗂 项目视图</div>
+<div class="tab" data-tab="versions">📜 版本历史</div>
+<div class="tab" data-tab="assets">🗂 图库</div>
+<div class="tab" data-tab="rules">📏 规则图谱</div>
+<div class="tab" data-tab="mech">⚙️ 机制</div>
+<div class="tab" data-tab="knowledge">📚 知识内核</div>
+<div class="tab" data-tab="systems">🗄 系统资产</div>
+<div class="tab" data-tab="hardware">🖥 硬件载体</div>
+<div class="tab" data-tab="bizmap">🌍 跨节点资产</div>
+</div>
+<div class="main on" id="view-philosophy"></div>
+<div class="main" id="view-original"></div>
+<div class="main" id="view-workflow"></div>
+<div class="main" id="view-planarchive"></div>
+<div class="main" id="view-dash"></div>
+<div class="main" id="view-blueprints"></div>
+<div class="main" id="view-blueprint-detail"></div>
+<div class="main" id="view-agents"></div>
+<div class="main" id="view-relations"></div>
+<div class="main" id="view-projects"></div>
+<div class="main" id="view-versions"></div>
+<div class="main" id="view-assets"></div>
+<div class="main" id="view-rules"></div>
+<div class="main" id="view-mech"></div>
+<div class="main" id="view-knowledge"></div>
+<div class="main" id="view-systems"></div>
+<div class="main" id="view-hardware"></div>
+<div class="main" id="view-bizmap"></div>
+<div class="foot">blueprint-gallery v1.0.3 · 数据源: 黑板 8792 + agent-bus.json · 明鉴 v2 · 架构图快照自动渲染于 gallery/snapshots/</div>
+<script>window.__STATIC__=true;window.__STATIC_API__='api/';</script><script src="vendor/d3.min.js"></script>
+<script>
+let ALL = {overview:null, blueprints:[], agents:[], versions:null, relations:null};
+// 自动感知部署子路径(Funnel /sg/ 等): 页面地址 http://h/sg/ → base=/sg
+const __BASE=(function(){const p=location.pathname;const m=p.match(/^(\/[^/]*)\/(?:index\.html)?$/);return m?m[1]:'';})();
+// ── 数据通道层 v2: 静态模式 / 在线 / 本地缓存 / 状态条 ──
+const __STATIC=(window.__STATIC__===true);          // CloudBase 静态导出模式(读 api/*.json)
+const __CACHE_PREFIX='sgcache:';                      // localStorage 缓存键前缀
+const __dataState={mode:'',stamp:'',online:false};
+function __cacheGet(key){try{const v=localStorage.getItem(__CACHE_PREFIX+key);return v?JSON.parse(v):null}catch(e){return null}}
+function __cacheSet(key,val){try{localStorage.setItem(__CACHE_PREFIX+key,JSON.stringify(val))}catch(e){}}
+function __apiFile(u){ // /api/xxx → api/xxx.json(静态模式路径)
+  const m=u.match(/^\/api\/([a-z0-9-]+)/);return m?('api/'+m[1]+'.json'):u.replace(/^\//,'');
+}
+async function j(u){
+  // 1) 静态模式(CloudBase): 直接读本地 json 文件
+  if(__STATIC){
+    const r=await fetch(__apiFile(u),{cache:'no-store'});return r.json();
+  }
+  // 2) 在线优先: 拉 __BASE+u; 失败 → 缓存兜底
+  try{
+    const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),8000);
+    const r=await fetch(__BASE+u,{signal:ctrl.signal});clearTimeout(t);
+    if(r.ok){
+      const d=await r.json();
+      __cacheSet(u,d);                                 // 写缓存
+      __dataState.mode='online';__dataState.online=true;
+      __dataState.stamp=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+      return d;
+    }
+    throw new Error('HTTP '+r.status);
+  }catch(e){
+    // 3) 缓存兜底(离线/失败)
+    const c=__cacheGet(u);
+    if(c){__dataState.mode='cache';__dataState.online=false;return c;}
+    throw e;  // 真失败
+  }
+}
+function __showDataState(){
+  // 数据源状态条(右下角悬浮, 仅在非纯在线或静态时显示信息)
+  const el0=document.getElementById('ds-state');if(el0)el0.remove();
+  if(__STATIC){/* 静态版无需条 */return;}
+  const st=document.createElement('div');st.id='ds-state';
+  st.style.cssText='position:fixed;right:14px;bottom:14px;font-size:10px;color:#8b90a3;background:rgba(13,17,25,.85);border:1px solid #232a3a;padding:3px 10px;border-radius:12px;z-index:300;pointer-events:none';
+  const txt=__dataState.online?('● 在线 '+(__dataState.stamp||''))
+    :(__dataState.mode==='cache'?'◌ 离线·缓存 '+ (__dataState.stamp||'') : '');
+  st.textContent=txt;
+  if(txt)document.body.appendChild(st);
+}
+function $(id){return document.getElementById(id)}
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function stCls(s){return 'st-'+({done:'done',active:'active',partial:'partial',todo:'todo'}[s]||'todo')}
+// ═══ 力导向关系图谱（d3-force + Canvas，Obsidian 风格）═══
+const DIM_COLORS={flowernet:'#6ea8ff',aistartup:'#34c77b',banking:'#f5b942',flowernet_platform:'#e06c75',
+  agent_network:'#c678dd',blueprint_platform:'#61afef',rule_judge:'#e5c07b',flowernet_erp:'#56b6c2',
+  flowernet_miniapp:'#98c379',flowernet_website:'#d19a66',memory_governance:'#2ac3de',
+  mtm:'#4a9eff',laodeng_app:'#e84393'};
+const DIM_LABEL={'flowernet':'业务','aistartup':'业务','banking':'业务','flowernet-platform':'技术',
+  'agent-network':'底座','blueprint-platform':'元层','rule-judge':'验证','flowernet-erp':'子蓝图',
+  'flowernet-miniapp':'子蓝图','flowernet-website':'子蓝图','memory-governance':'子蓝图','mtm':'工具','laodeng-app':'产品'};
+const EDGE_COLORS={contains:'#8b90a3',depends_on:'#e06c75',requires:'#f5b942',consumes:'#34c77b',
+  manages:'#6ea8ff',references:'#c678dd',consumed_by:'#2ac3de',child_of:'#56b6c2',distinct_from:'#e84393'};
+const LEGEND_HTML='<div class="gl"><span class="d1" style="background:#6ea8ff"></span>业务</div>'+
+  '<div class="gl"><span class="d1" style="background:#e06c75"></span>技术</div>'+
+  '<div class="gl"><span class="d1" style="background:#c678dd"></span>底座</div>'+
+  '<div class="gl"><span class="d1" style="background:#61afef"></span>元层</div>'+
+  '<div class="gl"><span class="d1" style="background:#e5c07b"></span>验证</div>'+
+  '<div class="gl"><span class="d1" style="background:#56b6c2"></span>子蓝图</div>';
+function bpColor(id){
+  const key=String(id).replace(/-/g,'_');
+  if(DIM_COLORS[key])return DIM_COLORS[key];
+  const dim=DIM_LABEL[id]||'';
+  if(dim==='业务')return '#6ea8ff';if(dim==='技术')return '#e06c75';if(dim==='底座')return '#c678dd';
+  if(dim==='元层')return '#61afef';if(dim==='验证')return '#e5c07b';return '#56b6c2';
+}
+function edgeColor(t){return EDGE_COLORS[t]||'#8b90a3'}
+function radiusOf(id){return (DIM_LABEL[id]==='子蓝图')?10:16}
+function tipText(n){
+  if(n.kind==='bizdev')return n.dim+' · '+n.assetCount+' 项资产';
+  if(n.kind==='bizasset')return n.name+' · '+(n.blueprint||'未归')+(n.isOriginal?' · 💎':'');
+  if(n.kind==='hwnode')return n.device||n.label+' · '+String(n.role||'').slice(0,44);
+  if(n.kind==='origitem')return n.dim+' · '+String(n.detail||'').slice(0,44)+(n.tags&&n.tags.length?(' · '+n.tags.slice(0,3).join('/')):'');
+  if(n.kind==='philosophy'||n.kind==='phiroot')return n.dim+' · '+String(n.core||n.summary||'').slice(0,50);
+  if(n.kind==='krep'||n.kind==='kpaper'||n.kind==='kbp')return (n.dim||'')+' · '+String(n.title||('arXiv '+(n.short||''))).slice(0,46)+(n.kind==='kpaper'&&n.refBy?(' · '+n.refBy+'报告'):'');
+  if(n.kind&&String(n.kind).startsWith('mech'))return n.dim+' · '+String(n.summary||'').slice(0,50);
+  if(n.dim==='主线'||n.dim==='阶段'||n.dim==='子阶段')return n.dim+' · '+String(n.summary||'').slice(0,44);
+  if(n.kind==='bp'||n.dim==='业务'||n.dim==='技术'||n.dim==='底座'||n.dim==='元层'||n.dim==='验证'||n.dim==='子蓝图')return '连接 '+String(n.short||'')+' · '+(ALL.blueprints.find(b=>b.id===(n.short||n.id))||{mainlines:[]}).mainlines.length+' 主线';
+  if(n.role)return '角色 '+n.dim+' · 能力 '+n.abilities+' · 资源 '+n.resources;
+  return '连接 · '+String(n.dim||'');
+}
+function buildForceGraph(boxId,cvId,rel,big,onNodeClick){
+  const box=document.getElementById(boxId);
+  const cv=document.getElementById(cvId);
+  if(!cv||!rel)return;
+  const tip=box.querySelector('.graph-tip');
+  const isAgents = rel.mode==='agents';
+  const isRules = rel.mode==='rules';
+
+  let nodes, links;
+  const isMech = rel.mode==='mech';
+  const isBpGraph = rel.mode==='bp-graph';
+  const isKnowledge = rel.mode==='knowledge';
+  const isSysGraph = rel.mode==='system-graph';
+  const isPhi = rel.mode==='philosophy';
+  const isOrig = rel.mode==='original';
+  const isHw = rel.mode==='hardware';
+  const isHwComm = rel.mode==='hwcomm';
+  const isPlanArc = rel.mode==='planarchive';
+  const isBiz = rel.mode==='bizmap';
+  const commProbe = rel.probe||{};
+  const commCT = rel.channelTypes||{};
+  if(isAgents||isRules||isMech||isBpGraph||isKnowledge||isSysGraph||isPhi||isOrig||isHw||isHwComm||isPlanArc||isBiz){
+    let src = rel.nodes||[];
+    if(isAgents&&window.__foldAgents){
+      const cs=new Set(rel.children||[]);
+      src = src.filter(n=>!cs.has(n.id));  // 折叠子代理
+      const shown=new Set(src.map(n=>n.id));
+      links = (rel.edges||[]).filter(e=>shown.has(e.source)&&shown.has(e.target))
+        .map(e=>({source:e.source,target:e.target,type:e.type,desc:'',color:e.color||'#8b90a3'}));
+    } else {
+      links = (rel.edges||[]).map(e=>({source:e.source,target:e.target,type:e.type,desc:'',color:e.color||'#8b90a3'}));
+    }
+    nodes = src.map(n=>({id:n.id,label:n.label||n.id,short:n.short||n.id,color:n.color,r:n.r||10,dim:n.dim||'?',role:n.role||'',abilities:n.abilities||0,resources:n.resources||0,kind:n.kind||(isMech?'mech-p':(isBpGraph?'bpstage':(isKnowledge?'krep':(isSysGraph?'sysnode':'agent')))),parentId:n.parentId,hasChildren:n.hasChildren,childCount:n.childCount||0,summary:n.summary||'',doc:n.doc||'',type:n.type||'',status:n.status||'',title:n.title||'',refBy:n.refBy||0,detail:n.detail||'',principles:n.principles||[],examples:n.examples||[],relDocs:n.relDocs||[],order:n.order||0,core:n.core||''}));
+  } else {
+    const bps=rel.blueprints||[], edges=rel.edges||[];
+    let visBps=bps;
+    const childSet=new Set(rel.children||[]);
+    const parentMap=rel.parentMap||{};
+    if(big&&window.__foldChildren){  // 折叠模式：子蓝图并入父
+      visBps=bps.filter(id=>!childSet.has(id));
+      const shown=new Set(visBps);
+      links=edges.filter(e=>shown.has(e.from)&&shown.has(e.target))
+        .map(e=>({source:e.from,target:e.target,type:e.type,desc:e.desc||'',color:edgeColor(e.type)}));
+    } else {
+      visBps=bps;
+      links=edges.filter(e=>bps.indexOf(e.from)>=0&&bps.indexOf(e.to)>=0)
+        .map(e=>({source:e.from,target:e.to,type:e.type,desc:e.desc||'',color:edgeColor(e.type)}));
+    }
+    nodes=visBps.map(id=>({id:id,label:id,color:bpColor(id),r:radiusOf(id),dim:DIM_LABEL[id]||'?',short:id,kind:'bp',children:parentMap[id]||[]}));
+  }
+  const clickHandler = onNodeClick || ((n)=>{
+    if(n.kind==='rule')showRuleCard(n);
+    else if(n.kind==='agent')showAgentCard(n);
+    else if(n.kind==='bp')openBp(String(n.id).replace('bp:',''));
+    else if(n.kind&&String(n.kind).startsWith('mech'))showMechCard(n);
+    else if(n.kind==='krep'||n.kind==='kpaper'||n.kind==='kbp')showKnowCard(n);
+    else if(n.kind==='bizasset')showBizCard(n);
+    else if(n.kind==='bizdev')showBizDevCard(n);
+    else if(n.kind==='bizbp')openBp(String(n.id).replace('bizbp:',''));
+    else if(n.kind==='hwnode')showHwCard(n);
+    else if(n.kind==='planitem'&&window.__paData){const it=window.__paData.items.find(x=>x.id===n.id);if(it)showPlanCard(it,window.__paData);}
+    else if(n.kind==='planbp')openBp(String(n.id).replace('bp:',''));
+    else if(n.kind==='hwbp')openBp(String(n.id).replace('bp:',''));
+    else if(n.kind==='origitem'||n.kind==='origcat')showOrigCard(n);
+    else if(n.kind==='philosophy'||n.kind==='phiroot'||n.kind==='phirule'||n.kind==='phibp')showPhiCard(n);
+    else if(n.kind==='sysnode')showSysCard(n);
+    else if(n.kind==='sysbp')openBp(String(n.id).replace('bp:',''));
+    else if(n.kind==='bproot')openBp(String(n.id).replace('rt:',''));
+    else if(n.kind&&String(n.kind).startsWith('bp'))showBpNodeCard(n);
+    else if(isAgents)showAgentCard(n);
+    else openBp(n.id);
+  });
+  // 画布尺寸
+  function sizeCanvas(){
+    const r=box.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    cv.width=Math.max(200,r.width*dpr);cv.height=Math.max(200,r.height*dpr);
+    cv.style.width=r.width+'px';cv.style.height=r.height+'px';
+    return {w:r.width,h:r.height,dpr:dpr};
+  }
+  let S=sizeCanvas();
+  // 力导向 simulation
+
+  if(isRules){
+    // 136 节点预置均匀网格位置，避免随机漂移出界
+    const cols=Math.ceil(Math.sqrt(nodes.length));
+    nodes.forEach((n,i)=>{n.x=200+(i%cols)*50;n.y=80+Math.floor(i/cols)*50;});
+  }
+  const linkDist = isRules?95:(isAgents?150:120);
+  const linkStr  = isRules?0.3:(isAgents?0.35:0.5);
+  const charge   = isRules?-260:(isAgents?-900:-520);
+  const centerK  = isRules?0.14:(isAgents?0.03:0.03);
+  const collideR = isRules?10:(isAgents?26:30);
+  // bp-graph 分层锚：root x=左，主线/阶段/子阶段 逐层右移（树状力导向）
+  const layerX = isBpGraph ? {bproot:S.w*0.16,bpml:S.w*0.38,bpstage:S.w*0.62,bpass:S.w*0.85}
+                           : {bproot:S.w/2,bpml:S.w/2,bpstage:S.w/2,bpass:S.w/2};
+  const layerK = isBpGraph ? 0.35 : centerK;
+  const sim=d3.forceSimulation(nodes)
+    .force('link',d3.forceLink(links).id(d=>d.id).distance(linkDist).strength(linkStr))
+    .force('charge',d3.forceManyBody().strength(charge))
+    .force('center',d3.forceCenter(S.w/2,S.h/2))
+    .force('collide',d3.forceCollide().radius(d=>d.r+collideR))
+    .force('x',d3.forceX(d=>layerX[d.kind]||S.w/2).strength(layerK))
+    .force('y',d3.forceY(S.h/2).strength(isBpGraph?0.06:centerK));
+  window.addEventListener('resize',()=>{S=sizeCanvas();sim.force('center',d3.forceCenter(S.w/2,S.h/2));sim.force('x',d3.forceX(d=>layerX[d.kind]||S.w/2).strength(layerK));sim.force('y',d3.forceY(S.h/2).strength(isBpGraph?0.06:centerK));render();sim.alpha(0.5).restart()});
+  const ctx=cv.getContext('2d');
+  // 定时兜底重绘（alpha 归零后 force 布局稳定，仍持续绘制粒子氛围）
+  setInterval(render, 160);
+  let transform={k:1,x:0,y:0};
+  let hover=null, focus=null;
+  // 邻接 map
+  const adj={};
+  nodes.forEach(n=>adj[n.id]=new Set());
+  links.forEach(l=>{adj[l.source.id||l.source].add(l.target.id||l.target);adj[l.target.id||l.target].add(l.source.id||l.source)});
+  // 缩放 + 平移（画布坐标系：先 scale 再 translate）
+  const zoom=d3.zoom().scaleExtent([0.2,5]).on('zoom',e=>{
+    transform={k:e.transform.k,x:e.transform.x,y:e.transform.y};
+    cv.style.cursor='grabbing';render();setTimeout(()=>cv.style.cursor='grab',120);
+  });
+  d3.select(cv).call(zoom);
+  // 双击节点聚焦
+  d3.select(cv).on('dblclick.zoom',null);
+  // drag
+  function dragStart(e,d){if(!e.active)sim.alphaTarget(0.35).restart();d.fx=d.x;d.fy=d.y}
+  function dragging(e,d){d.fx=e.x;d.fy=e.y;render()}
+  function dragEnd(e,d){if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}
+  d3.select(cv).call(d3.drag().subject(function(){return findNode(event)})
+    .on('start',dragStart).on('drag',dragging).on('end',dragEnd));
+  function findNode(ev){
+    const rect=cv.getBoundingClientRect();
+    const px=(ev.clientX-rect.left-transform.x)/transform.k;
+    const py=(ev.clientY-rect.top-transform.y)/transform.k;
+    let best=null,bd=1e9;
+    for(const n of nodes){
+      const dx=n.x-px,dy=n.y-py,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<bd){bd=dist;best=n}
+    }
+    return best&&bd<(best.r+10)?best:null;
+  }
+  cv.addEventListener('mousemove',ev=>{
+    const n=findNode(ev);hover=n;render();
+    if(n){
+      const rect=cv.getBoundingClientRect();
+      tip.style.display='block';
+      tip.style.left=(ev.clientX-rect.left+14)+'px';
+      tip.style.top=(ev.clientY-rect.top+10)+'px';
+      const linksTo=links.filter(l=>(l.source.id||l.source)===n.id||(l.target.id||l.target)===n.id);
+      tip.innerHTML='<b style="color:'+n.color+'">'+n.label+'</b> <span style="color:#8b90a3">· '+n.dim+'</span>'+
+'<div style="font-size:10.5px;color:#8b90a3;margin-top:2px">'+(n.kind==='sysnode'?(n.dim+' · '+(n.alive===true?'●存活':n.alive===false?'○离线':'◌守护')+' · '+String(n.desc||'').slice(0,42)):(n.kind==='hwnode'?(n.dim+' · '+(n.ip||'')+' · '+String(n.role||'').slice(0,44)):(n.kind==='planitem'?(n.type+' · '+(n.version||'')+' · '+String(n.file||'').slice(-40)):tipText(n))))+'</div>';
+    }else tip.style.display='none';
+  });
+  cv.addEventListener('mouseleave',()=>{hover=null;tip.style.display='none';render()});
+  cv.addEventListener('click',ev=>{
+    const n=findNode(ev);if(n){clickHandler(n)}
+  });
+  // 背景粒子（Obsidian 氛围）
+  const stars=[];for(let i=0;i<90;i++)stars.push({x:Math.random()*S.w,y:Math.random()*S.h,a:Math.random()*0.5+0.05,r:Math.random()*1.2+0.2});
+  function drawArrow(ctx,x1,y1,x2,y2,color){
+    const ang=Math.atan2(y2-y1,x2-x1),sz=7;
+    ctx.save();
+    ctx.translate(x2,y2);ctx.rotate(ang);
+    ctx.fillStyle=color;
+    ctx.beginPath();
+    ctx.moveTo(0,0);ctx.lineTo(-sz,-sz*0.55);ctx.lineTo(-sz,sz*0.55);
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+  function render(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.scale(S.dpr,S.dpr);
+    // 背景
+    const grd=ctx.createRadialGradient(S.w/2,S.h/2,50,S.w/2,S.h/2,Math.max(S.w,S.h)*0.75);
+    grd.addColorStop(0,'#0c1220');grd.addColorStop(1,'#070a10');
+    ctx.fillStyle=grd;ctx.fillRect(0,0,S.w,S.h);
+    // 星点
+    ctx.fillStyle='rgba(148,163,184,0.35)';
+    stars.forEach(s=>{ctx.globalAlpha=s.a;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill()});
+    ctx.globalAlpha=1;
+    // 世界变换
+    ctx.save();
+    ctx.translate(transform.x,transform.y);ctx.scale(transform.k,transform.k);
+    const hotIds=hover?adj[hover.id]:null;
+    // 边
+    const commPairs={}; // hwcomm: 同对端多条通道分组平行
+    if(isHwComm)links.forEach(l=>{const k=[l.source.id||l.source,l.target.id||l.target].sort().join('|');(commPairs[k]=commPairs[k]||[]).push(l);});
+    links.forEach(l=>{
+      const s=l.source.id||l.source,t=l.target.id||l.target;
+      const ns=nodes.find(n=>n.id===s),nt=nodes.find(n=>n.id===t);
+      if(!ns||!nt)return;
+      let dim=false;
+      if(hover&&(s===hover.id||t===hover.id))dim=true;
+      if(focus&&!((s===focus.id||t===focus.id)))return;
+      // 状态色: 探针 false→红; true→绿描边; 无探针→通道色
+      let col=l.color, dash=false;
+      if(isHwComm&&l.hasProbe){
+        const st=commProbe[l.idx];
+        if(st===false){col='#e06c75';dash=true;}
+        else if(st===true){col='#34c77b';}
+      }
+      ctx.globalAlpha=1;
+      if(!dim&&hover)ctx.globalAlpha=0.12;
+      if(!dim&&!hover)ctx.globalAlpha=isHwComm?0.75:0.42;
+      ctx.strokeStyle=col;ctx.lineWidth=(dim?2.2:(isHwComm?1.6:1.2));
+      ctx.setLineDash(dash?[5,4]:[]);
+      let off=0;
+      if(isHwComm&&commPairs){
+        const k=[s,t].sort().join('|');const grp=commPairs[k]||[];
+        if(grp.length>1){const gi=grp.indexOf(l);off=(gi-(grp.length-1)/2)*7;}
+      }
+      if(isHwComm&&off!==0){
+        const mx=(ns.x+nt.x)/2,my=(ns.y+nt.y)/2;
+        const dx=nt.x-ns.x,dy=nt.y-ns.y,len=Math.sqrt(dx*dx+dy*dy)||1;
+        const nx=-dy/len,ny=dx/len;
+        ctx.beginPath();
+        ctx.moveTo(ns.x+nx*off,ns.y+ny*off);
+        ctx.quadraticCurveTo(mx+nx*off*1.5,my+ny*off*1.5,nt.x+nx*off,nt.y+ny*off);
+      }else{
+        ctx.beginPath();
+        ctx.moveTo(ns.x,ns.y);ctx.lineTo(nt.x,nt.y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // 方向箭头 (hwcomm)
+      if(isHwComm&&dim){
+        const dir=l.direction||'bi';
+        if(dir!=='bi'){
+          const mx=(ns.x+nt.x)/2,my=(ns.y+nt.y)/2;
+          const ex=(dir.indexOf('->')>0?nt.x:ns.x),ey=(dir.indexOf('->')>0?nt.y:ns.y);
+          drawArrow(ctx,mx,my,ex,ey,col);
+        }
+      }
+      // 通道标签 (hwcomm hover)
+      if(isHwComm&&dim){
+        const mx=(ns.x+nt.x)/2,my=(ns.y+nt.y)/2;
+        ctx.fillStyle='#e8eaf0';ctx.font='10px -apple-system,sans-serif';
+        ctx.textAlign='center';ctx.textBaseline='bottom';
+        ctx.fillText((commCT[l.type]&&commCT[l.type].icon||'')+' '+String(l.chan||l.type).slice(0,14),mx,my-3);
+        ctx.fillStyle='#8b90a3';ctx.font='9px -apple-system,sans-serif';
+        ctx.textBaseline='top';
+        ctx.fillText((l.protocol||'')+(l.port&&l.port!=='-'?' · '+l.port:''),mx,my+1);
+      }
+      ctx.globalAlpha=1;
+    });
+    // 节点（光晕 + 圆 + 标签）
+    nodes.forEach(n=>{
+      let on=!hover||n.id===hover.id||(adj[n.id]&&adj[n.id].has(hover.id));
+      if(hover&&!on)return;
+      ctx.globalAlpha=hover?0.4:1;
+      if(focus&&!on&&hover)return;
+      // 光晕
+      const glow=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*3.2);
+      glow.addColorStop(0,n.color+'55');glow.addColorStop(1,'transparent');
+      ctx.fillStyle=glow;ctx.beginPath();ctx.arc(n.x,n.y,n.r*3.2,0,Math.PI*2);ctx.fill();
+      // 节点本体（内亮外实，Obsidian 风格）
+      const ring=ctx.createRadialGradient(n.x-n.r*0.35,n.y-n.r*0.35,n.r*0.2,n.x,n.y,n.r);
+      ring.addColorStop(0,'#ffffff');ring.addColorStop(0.28,n.color);ring.addColorStop(1,shade(n.color,-35));
+      ctx.fillStyle=ring;ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);ctx.fill();
+      // 描边光
+      ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1;ctx.stroke();
+      // 图标/首字母
+      ctx.fillStyle='#0a0d14';ctx.font='bold 11px -apple-system,sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      const short=n.short&&!isAgents?n.short:n.short||n.id;
+      let abbr;
+      if(isBpGraph)abbr=String(n.short||n.id).replace('rt:','').replace('ml:','').replace('st:','').replace('ss:','').toUpperCase().slice(0,5);
+      else if(isAgents)abbr=(short||'?').slice(0,4).toUpperCase();
+      else abbr=short.replace('flowernet-','fn-').replace('flowernet','fn').replace('agent-network','an').replace('blueprint-platform','bpp').replace('memory-governance','mg').replace('rule-judge','rj').slice(0,4).toUpperCase();
+      ctx.fillText(abbr,n.x,n.y+0.5);
+      // 父节点子数徽标（智能体层级）
+      if(isAgents&&n.hasChildren&&window.__foldAgents){
+        ctx.globalAlpha=1;
+        ctx.fillStyle='#f0b429';ctx.beginPath();ctx.arc(n.x+n.r-2,n.y-n.r+2,7,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='#0a0d14';ctx.font='bold 8px sans-serif';
+        ctx.fillText(String(n.childCount||''),n.x+n.r-2,n.y-n.r+2.5);
+      }
+      ctx.globalAlpha=1;
+    });
+    // 标签（hover 或聚焦时显示全名）
+    nodes.forEach(n=>{
+      const on=hover&&(n.id===hover.id||(adj[n.id]&&adj[n.id].has(hover.id)));
+      if(!on)return;
+      ctx.font='11px -apple-system,sans-serif';ctx.fillStyle='#e8eaf0';ctx.textAlign='center';
+      ctx.fillText(n.label,n.x,n.y-n.r-10);
+      ctx.fillStyle='#8b90a3';ctx.font='9.5px -apple-system,sans-serif';
+      ctx.fillText(n.dim+' · '+adj[n.id].size+' 连接',n.x,n.y-n.r+24);
+    });
+    ctx.restore();
+  }
+  function shade(hex,amt){
+    const c=hex.replace('#','');
+    const num=parseInt(c,16);
+    let r=(num>>16)+amt,g=((num>>8)&0xff)+amt,b=(num&0xff)+amt;
+    r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+    return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+  }
+  sim.on('tick',render);
+  // 初始居中
+  setTimeout(()=>{
+    d3.select(cv).call(zoom.transform,d3.zoomIdentity);
+  },50);
+}
+async function init(){
+  [ALL.blueprints,ALL.agents,ALL.versions,ALL.relations,ALL.overview]=await Promise.all([
+    j('/api/blueprints'),j('/api/agents'),j('/api/versions'),j('/api/relations'),j('/api/overview')]);
+  window.__dashDone=true;window.__phiDone=true;renderPhilosophy();renderDash();renderBlueprints();renderVersions();renderProjects();renderAssets();
+  setTimeout(__showDataState,600);  // 数据源状态条(在线/离线缓存)
+}
+async function renderAssets(){
+  const box=$('view-assets');if(!box)return;
+  box.innerHTML='';
+  const assets=await j('/api/assets');
+  if(!assets.length){box.appendChild(el('div','empty','图库为空'));return}
+  box.appendChild(el('h3','', '🗂 智能体产图档案（'+assets.length+' 张 · 点击放大/打开）'));
+  const g=el('div','asset-grid');
+  assets.forEach(a=>{
+    const c=el('div','asset-card');
+    const src=__BASE+'/assets/'+encodeURIComponent(a.file);
+    let thumb;
+    if(a.kind==='png'||a.kind==='jpg'||a.kind==='jpeg')thumb='<div class="asset-thumb"><img src="'+src+'" loading="lazy"></div>';
+    else if(a.kind==='svg')thumb='<div class="asset-thumb" style="padding:8px"><img src="'+src+'" style="max-height:110px"></div>';
+    else thumb='<div class="asset-thumb"><div class="ph">📄</div></div>';
+    c.innerHTML=thumb+'<div class="asset-info"><b>'+a.title+'</b><span>'+a.kind.toUpperCase()+' · '+a.owner+' · '+a.date+'</span></div>';
+    c.onclick=()=>openAsset(a,src);
+    g.appendChild(c);
+  });
+  box.appendChild(g);
+  // 放大查看 modal
+  const modal=el('div','asset-modal');modal.id='asset-modal';
+  modal.innerHTML='<button class="asset-close" onclick="closeAsset()">✕</button><div class="am-box" id="am-box"></div>';
+  box.appendChild(modal);
+}
+function openAsset(a,src){
+  const m=$('asset-modal');if(!m)return;
+  m.classList.add('on');
+  const ab=$('am-box');
+  if(a.kind==='png'||a.kind==='jpg'||a.kind==='jpeg')ab.innerHTML='<img class="am-img" src="'+src+'"><div class="am-meta">'+a.title+' · '+a.owner+' · '+a.date+'</div>';
+  else if(a.kind==='svg')ab.innerHTML='<img class="am-img" src="'+src+'" style="max-height:78vh"><div class="am-meta">'+a.title+' · '+a.owner+' · '+a.date+'</div>';
+  else ab.innerHTML='<iframe src="'+src+'" sandbox="allow-scripts allow-same-origin"></iframe><div class="am-meta">'+a.title+' · '+a.owner+' · '+a.date+'</div>';
+}
+function closeAsset(){const m=$('asset-modal');if(m)m.classList.remove('on')}
+function renderMechanism(){
+  const box=$('view-mech');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '⚙️ 机制图谱 · 协议→门→锁 运行链'));
+  const gb=el('div','graph-box');gb.id='mech-force-box';gb.style.cssText='height:64vh;width:100%';
+  const cv=document.createElement('canvas');cv.id='mech-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));
+  box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML='<div class="gl"><span class="d1" style="background:#6ea8ff"></span>🔗协议(怎么做)</div>'+
+    '<div class="gl"><span class="d1" style="background:#f5b942"></span>🚪门(校验够吗)</div>'+
+    '<div class="gl"><span class="d1" style="background:#e06c75"></span>🔒锁(授权谁做)</div>'+
+    '<div class="gl"><span style="color:#8b90a3">点击节点看详情</span></div>';
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','协议→门→锁→执行 · hover 看摘要 · 点击看详情/文档'));
+  j('/api/mech-graph').then(g=>{buildForceGraph('mech-force-box','mech-force-canvas',g,true)});
+  const tb=el('div');tb.style.cssText='margin-top:14px';
+  tb.innerHTML='<table class="tbl"><tr><th>类型</th><th>数量</th><th>说明</th></tr>'+
+    '<tr><td style="color:#6ea8ff">🔗 协议</td><td id="mc-p">…</td><td style="color:#8b90a3">CCEP/黑板/agent-bus/重启救援/升级备用/门禁</td></tr>'+
+    '<tr><td style="color:#f5b942">🚪 门</td><td id="mc-g">…</td><td style="color:#8b90a3">restart-gate/J37/rule-judge L1-L3/J45 分级/dev-sandbox</td></tr>'+
+    '<tr><td style="color:#e06c75">🔒 锁</td><td id="mc-l">…</td><td style="color:#8b90a3">R027 人开关/R029 分级/红绿灯/R030 真实性/审批台账</td></tr></table>';
+  box.appendChild(tb);
+  j('/api/mechanism').then(m=>{
+    if($('mc-p'))$('mc-p').textContent=m.protocols.length;
+    if($('mc-g'))$('mc-g').textContent=m.gates.length;
+    if($('mc-l'))$('mc-l').textContent=m.locks.length;
+  });
+}
+function showMechCard(n){
+  const old=document.getElementById('mech-card');if(old)old.remove();
+  const card=el('div','mech-card');card.id='mech-card';
+  card.style.cssText='position:fixed;right:24px;top:120px;width:380px;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const typeIcon={protocol:'🔗 协议',gate:'🚪 门',lock:'🔒 锁'}[n.type]||n.dim;
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">'+typeIcon+' · '+n.short+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:14px;color:#e8eaf0;margin-bottom:8px">'+n.label+'</div>'+
+    '<div style="font-size:12px;color:#9aa3b2;line-height:1.6">'+(n.summary||'')+'</div>'+
+    (n.doc?'<div style="margin-top:10px;font-size:11px;color:#6ea8ff">📄 文档: '+n.doc+'</div>':'');
+  document.body.appendChild(card);
+}
+function showBpNodeCard(n){
+  const old=document.getElementById('bpnode-card');if(old)old.remove();
+  const card=el('div','bpnode-card');card.id='bpnode-card';
+  card.style.cssText='position:fixed;right:24px;top:120px;width:340px;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:14px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const icons={bproot:'🏛 蓝图',bpml:'🔀 主线',bpstage:'📦 阶段',bpass:'▸ 子阶段'};
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><b style="color:'+n.color+'">'+(icons[n.kind]||'')+' '+n.short+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:13px;color:#e8eaf0;margin-bottom:6px">'+n.label+'</div>'+
+    (n.status?'<div style="font-size:11px;color:#8b90a3;margin-bottom:4px">状态: '+n.status+'</div>':'')+
+    (n.summary?'<div style="font-size:11.5px;color:#9aa3b2;line-height:1.5">'+n.summary+'</div>':'');
+  document.body.appendChild(card);
+}
+let KB_FILTER='all'; // all | trace | paper
+function renderKnowledge(){
+  const box=$('view-knowledge');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '📚 知识内核图谱 · 论文/调研 → 体系决策溯源'));
+  const bar=el('div','');bar.style.cssText='margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+  const mkBtn=(label,val)=>{const b=el('button','',label);if(KB_FILTER===val){b.style.background='#2d5a94';b.style.color='#fff'}b.onclick=()=>{KB_FILTER=val;renderKnowledge()};return b};
+  bar.appendChild(mkBtn('🌐 全图','all'));
+  bar.appendChild(mkBtn('🔗 仅溯源(→蓝图)','trace'));
+  bar.appendChild(mkBtn('📄 仅论文引用','paper'));
+  box.appendChild(bar);
+  const gb=el('div','graph-box');gb.id='kb-force-box';gb.style.cssText='height:66vh;width:100%';
+  const cv=document.createElement('canvas');cv.id='kb-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));
+  box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML='<div class="gl"><span class="d1" style="background:#e06c75"></span>溯源:报告→蓝图</div>'+
+    '<div class="gl"><span class="d1" style="background:#98c379"></span>论文→报告</div>'+
+    '<div class="gl"><span class="d1" style="background:#e5c07b"></span>同源共享</div>'+
+    '<div class="gl"><span class="d1" style="background:#e8eaf0"></span>蓝图</div>'+
+    '<div class="gl"><span class="d1" style="background:#c678dd"></span>论文类报告</div>';
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','知识内核：论文/调研支撑体系设计 · 拖拽/缩放/hover/点击看详情'));
+  j('/api/knowledge-graph').then(g=>{
+    // 过滤
+    let nodes=g.nodes, edges=g.edges;
+    if(KB_FILTER==='trace'){edges=g.edges.filter(e=>e.type==='支撑');const keep=new Set(['kbp']);edges.forEach(e=>{keep.add(e.source);keep.add(e.target)});nodes=g.nodes.filter(n=>n.kind==='kbp'||n.kind==='krep'&&keep.has(n.id));}
+    if(KB_FILTER==='paper'){edges=g.edges.filter(e=>e.type==='引用');const keep=new Set();edges.forEach(e=>{keep.add(e.source);keep.add(e.target)});nodes=g.nodes.filter(n=>keep.has(n.id));}
+    buildForceGraph('kb-force-box','kb-force-canvas',{mode:'knowledge',nodes,edges},true);
+  });
+  const tb=el('div');tb.style.cssText='margin-top:12px';
+  tb.innerHTML='<table class="tbl"><tr><th>资产</th><th>数量</th><th>说明</th></tr>'+
+    '<tr><td>📄 调研报告</td><td id="kc-r">…</td><td style="color:#8b90a3">research/ 文档（论文清单/方案评估）</td></tr>'+
+    '<tr><td>🎓 论文</td><td id="kc-p">…</td><td style="color:#8b90a3">arXiv 引用（agent-network 22 篇/lean4/judge 等）</td></tr>'+
+    '<tr><td>📐 支撑蓝图</td><td id="kc-b">…</td><td style="color:#8b90a3">8 蓝图设计溯源（依据字段）</td></tr></table>';
+  box.appendChild(tb);
+  j('/api/knowledge-graph').then(g=>{
+    if($('kc-r'))$('kc-r').textContent=g.reportCount||'…';
+    if($('kc-p'))$('kc-p').textContent=g.paperCount||'…';
+    if($('kc-b'))$('kc-b').textContent=(g.nodes||[]).filter(n=>n.kind==='kbp').length;
+  });
+}
+function showKnowCard(n){
+  const old=document.getElementById('know-card');if(old)old.remove();
+  const card=el('div','know-card');card.id='know-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:420px;max-height:76vh;overflow:auto;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const icons={krep:'📄 调研文档',kpaper:'🎓 论文',kbp:'📐 蓝图'};
+  let papersHtml='';
+  if(n.kind==='krep'&&n.papers&&n.papers.length){
+    papersHtml='<div style="font-size:11px;color:#8b90a3;font-weight:bold;margin:8px 0 4px">引用论文</div>'+n.papers.slice(0,6).map(p=>'<div style="font-size:10.5px;color:#98c379;padding:1px 0">· arXiv '+p+'</div>').join('');
+  }
+  const fileInfo = n.kind==='krep'?'<div style="font-size:10.5px;color:#6f7686;margin-top:6px">research/'+n.id.replace('doc:','').replace('rep:','')+'.md</div>':'';
+  let summaryHtml='';
+  if(n.kind==='kpaper'){
+    summaryHtml='<div style="margin-top:10px;font-size:12px;color:#9aa3b2;line-height:1.7" id="sum-'+n.short+'">⏳ 概况生成中…</div>';
+  }
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">'+(icons[n.kind]||'')+' · '+(n.short||'')+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:13px;color:#e8eaf0;margin-bottom:4px">'+n.title+'</div>'+
+    (n.dim&&n.kind!=='kbp'?'<div style="font-size:11px;color:#8b90a3;margin-bottom:6px">分类: '+n.dim+(n.refBy?' · 被 '+n.refBy+' 份报告引用':'')+'</div>':'')+
+    summaryHtml+papersHtml+fileInfo;
+  document.body.appendChild(card);
+  // 异步拉中文概况
+  if(n.kind==='kpaper'){
+    j('/api/paper-summary/'+(n.short||'')).then(d=>{
+      const el2=document.getElementById('sum-'+(n.short||''));
+      if(el2&&d&&d.summary)el2.innerHTML='📖 <b style="color:#e8eaf0">中文概况</b><div style="margin-top:4px">'+d.summary+'</div>';
+      else if(el2)el2.innerHTML='📖 概况待生成（本地模型不可用或暂无摘要源）';
+    }).catch(()=>{});
+  }
+}
+function renderOriginal(){
+  const box=$('view-original');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '💎 原创资产 · 体系自主发明（区别于外部引用）'));
+  const hint=el('div','');hint.style.cssText='margin-bottom:10px;font-size:12px;color:#8b90a3';
+  hint.innerHTML='这些是体系自己创造的东西——用户定案/自研代码/自有协议/自有方法论，可沉淀可外化。外部引用的论文/工具不在此列。';
+  box.appendChild(hint);
+  const gb=el('div','graph-box');gb.id='orig-force-box';gb.style.cssText='height:56vh;width:100%;margin-bottom:14px';
+  const cv=document.createElement('canvas');cv.id='orig-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+  gb.appendChild(el('div','graph-hint','6 类原创分类(环)→23 项资产 · 点击看详情 · 治理哲学详见顶部🧠 Tab'));
+  j('/api/original').then(d=>{
+    if(d.nodes&&d.nodes.length)buildForceGraph('orig-force-box','orig-force-canvas',d,true);
+    // 分类卡片
+    const cats=d.nodes.filter(n=>n.kind==='origcat');
+    const g=el('div','cards');
+    cats.forEach(c=>{
+      const items=d.nodes.filter(n=>n.kind==='origitem'&&n.catId===c.id.replace('cat:',''));
+      const names=items.map(i=>'<span class="pill">'+i.short+'</span>').join('');
+      const cc=el('div','card');cc.style.cssText='border-left:3px solid '+c.color;
+      cc.innerHTML='<h3 style="color:'+c.color+'">'+c.label+'</h3>'+
+        '<span style="color:#8b90a3;font-size:10.5px">'+c.desc+'</span>'+
+        '<div class="ml" style="margin-top:8px">'+names+'</div>'+
+        '<div style="font-size:10.5px;color:#6f7686;margin-top:6px">'+items.length+' 项</div>';
+      cc.onclick=()=>showOrigCard(c);
+      g.appendChild(cc);
+    });
+    box.appendChild(g);
+  }).catch(e=>box.appendChild(el('div','empty','加载失败')));
+}
+function showOrigCard(n){
+  const old=document.getElementById('orig-card');if(old)old.remove();
+  const card=el('div','orig-card');card.id='orig-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:400px;max-height:72vh;overflow:auto;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  if(n.kind==='origcat'){
+    card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">'+n.label+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+      '<div style="font-size:12px;color:#9aa3b2">'+n.desc+'</div>';
+  } else {
+    const tags=(n.tags||[]).map(t=>'<span class="pill" style="color:'+(t==='原创'?'#34c77b':t==='用户定案'?'#f0b429':'#6ea8ff')+'">'+t+'</span>').join(' ');
+    card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">💎 '+n.short+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+      '<div style="font-size:14px;color:#e8eaf0;font-weight:bold;margin-bottom:6px">'+n.label+'</div>'+
+      '<div class="ml" style="margin:4px 0">'+tags+'</div>'+
+      '<div style="font-size:12px;color:#9aa3b2;line-height:1.7;margin-top:6px">'+(n.detail||'')+'</div>'+
+      (n.origin?'<div style="font-size:11px;color:#8b90a3;margin-top:10px">📌 来源: '+n.origin+'</div>':'');
+  }
+  document.body.appendChild(card);
+}
+function renderPlanArchive(){
+  const box=$('view-planarchive');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '📋 计划档案 · 全域计划性文件 + 版本汇总图谱'));
+  const gb=el('div','graph-box');gb.id='pa-force-box';gb.style.cssText='height:54vh;width:100%;margin-bottom:12px';
+  const cv=document.createElement('canvas');cv.id='pa-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+  j('/api/plan-archive').then(d=>{
+    if(d.error){box.appendChild(el('div','empty','数据加载失败: '+d.error+' — 请先跑 bb-plan-scanner.py --scan'));return;}
+    const lg=el('div','graph-legend');
+    const tc=d.typeColors||{};
+    let lgH='';
+    Object.keys(tc).forEach(k=>{lgH+='<div class="gl"><span class="d1" style="background:'+tc[k]+'"></span>'+k+'</div>';});
+    lgH+='<div class="gl"><span class="d1" style="background:#8b90a3"></span>灰边=属域 · 蓝边=关联蓝图</div>';
+    lg.innerHTML=lgH;gb.appendChild(lg);
+    gb.appendChild(el('div','graph-hint','📋 '+d.itemCount+' 项计划/版本档案 · 域(大圆)→条目(小圆)→蓝图 · 拖拽/缩放/hover/点击看详情'));
+    box.appendChild(gb);
+    if(d.nodes&&d.nodes.length)buildForceGraph('pa-force-box','pa-force-canvas',d,false);
+
+    // 统计卡
+    const byType={};d.items.forEach(it=>{byType[it.type]=(byType[it.type]||0)+1;});
+    const st=el('div','statrow');
+    ['plan','blueprint','changelog','version','roadmap'].forEach(t=>{
+      st.appendChild(el('div','stat','<b style="color:'+(tc[t]||'#6ea8ff')+'">'+(byType[t]||0)+'</b><span>'+t+'</span>'));
+    });
+    st.appendChild(el('div','stat','<b>'+d.domains.length+'</b><span>域</span>'));
+    box.appendChild(st);
+    // 汇总表(可排序)
+    const tb=el('div','');tb.style.cssText='margin-top:10px';
+    tb.innerHTML='<table class="tbl" id="pa-tbl"><thead><tr><th>类型</th><th>标题</th><th>域/智能体</th><th>关联蓝图</th><th>版本</th><th>状态</th><th>更新</th></tr></thead><tbody></tbody></table>';
+    box.appendChild(tb);
+    window.__paData=d;
+    renderPlanTable2();
+  }).catch(e=>box.appendChild(el('div','empty','加载失败')));
+}
+function renderPlanTable2(){
+  const d=window.__paData;if(!d)return;
+  const tb=document.querySelector('#pa-tbl tbody');
+  if(!tb)return;
+  const FIL=window.__paFilter||{};
+  let rows=d.items.filter(it=>!FIL[it.type]).map(it=>{
+    const stC=it.status?('style="color:'+({active:'#34c77b',done:'#98c379',todo:'#f0b429',planned:'#4a9eff'}[it.status]||'#8b90a3')+'"'):'';
+    return '<tr data-id="'+it.id+'"><td><span class="pill" style="color:'+(d.typeColors[it.type]||'#8b90a3')+'">'+it.type+'</span></td>'+
+      '<td style="color:#e8eaf0;max-width:260px"><b>'+String(it.title||'').slice(0,60)+'</b><div style="font-size:9.5px;color:#5a6072">'+String(it.file||'').slice(-60)+'</div></td>'+
+      '<td>'+(it.domain||'')+(it.agent&&it.agent!==it.domain?' <span style="color:#c678dd;font-size:10.5px">'+it.agent+'</span>':'')+'</td>'+
+      '<td>'+(it.blueprint?'<a href="#" data-bp="'+it.blueprint+'" onclick="event.preventDefault();openBp(this.dataset.bp)">'+it.blueprint+'</a>':'')+'</td>'+
+      '<td style="color:#6ea8ff">'+(it.version||'')+'</td>'+
+      '<td '+stC+'>'+(it.status||'')+'</td>'+
+      '<td style="color:#5a6072;font-size:10.5px">'+(it.updated||'')+'</td></tr>';
+  }).join('');
+  tb.innerHTML=rows;
+  // 点击行 → 浮层卡
+  tb.querySelectorAll('tr[data-id]').forEach(tr=>{
+    tr.style.cursor='pointer';
+    tr.onclick=()=>{const id=tr.dataset.id;const it=d.items.find(x=>x.id===id);if(it)showPlanCard(it,d);};
+  });
+}
+function showPlanCard(it,d){
+  const old=document.getElementById('plan-card');if(old)old.remove();
+  const card=el('div','plan-card');card.id='plan-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:380px;background:#141824;border:1px solid '+(d.typeColors[it.type]||'#6ea8ff')+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+(d.typeColors[it.type]||'#e8eaf0')+'">📋 '+String(it.title||'').slice(0,50)+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:11.5px;color:#8b90a3;margin-bottom:8px">'+it.type+' · '+it.domain+(it.agent?' · 智能体 '+it.agent:'')+'</div>'+
+    (it.version?'<div style="font-size:12px;color:#6ea8ff;margin-bottom:4px">版本: '+it.version+'</div>':'')+
+    '<div style="font-size:11.5px;color:#e8eaf0;margin-bottom:6px;word-break:break-all">📁 '+it.file+'</div>'+
+    (it.blueprint?'<div style="margin:8px 0"><a href="#" data-bp="'+it.blueprint+'" onclick="event.preventDefault();openBp(this.dataset.bp)" style="color:#6ea8ff;font-size:12px">关联蓝图: '+it.blueprint+' →</a></div>':'')+
+    '<div style="font-size:11px;color:#5a6072">更新: '+(it.updated||'')+(it.status?' · 状态: '+it.status:'')+'</div>'+
+    (it.desc?'<div style="font-size:11px;color:#9aa3b2;margin-top:6px;border-top:1px solid #232a3a;padding-top:6px">'+String(it.desc||'').slice(0,200)+'</div>':'');
+  document.body.appendChild(card);
+}
+
+function renderWorkflow(){
+  const box=$('view-workflow');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🔄 工作流/标准 · 体系工作方法与验收标准'));
+  j('/api/workflow').then(d=>{
+    if(d.error){box.appendChild(el('div','empty',d.error));return}
+    // 1) R006 九标准
+    const r6=el('div','card');r6.style.cssText='margin-bottom:14px';
+    r6.innerHTML='<h3 style="color:#e8eaf0">📏 R006 插件化工具化标准（9 项）</h3>'+
+      '<div style="color:#8b90a3;font-size:11px;margin:4px 0 10px">关联: blueprint-platform(元层) · agent-network · 明鉴执行</div>';
+    const g9=el('div','grid2');
+    d.r006.items.forEach(it=>{
+      const toolsDesc = typeof it.tools==='number'?('落地 '+it.tools+' 工具'):'例: '+it.tools.slice(0,3).join(' · ');
+      const c=el('div','');c.style.cssText='background:#141824;border:1px solid #232a3a;border-radius:10px;padding:12px';
+      c.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span style="background:#6ea8ff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#0a0d14;font-weight:bold;font-size:12px">'+it.n+'</span>'+
+        '<b style="font-size:13px;color:#e8eaf0">'+it.name+'</b></div>'+
+        '<div style="font-size:11px;color:#8b90a3;margin-top:6px">mark: <code style="color:#98c379">'+it.mark+'</code></div>'+
+        '<div style="font-size:11px;color:#6ea8ff;margin-top:2px">'+toolsDesc+'</div>'+
+        (it.note?'<div style="font-size:10.5px;color:#6f7686;margin-top:3px">'+it.note+'</div>':'');
+      g9.appendChild(c);
+    });
+    r6.appendChild(g9);
+    box.appendChild(r6);
+    // 2) 高频工作流模式
+    box.appendChild(el('h3','', '⚙️ 高频工作流模式（可复用方法）'));
+    const gw=el('div','cards');
+    d.workflows.forEach(wf=>{
+      const c=el('div','card');
+      c.innerHTML='<h3>'+wf.name+'</h3>'+
+        '<div class="pill">'+wf.since+'</div>'+
+        '<div style="font-size:11.5px;color:#9aa3b2;line-height:1.6;margin-top:6px">'+wf.desc+'</div>'+
+        '<div style="font-size:10.5px;color:#6ea8ff;margin-top:6px">🛠 '+wf.tool+'</div>'+
+        '<div class="ml" style="margin-top:6px">'+(wf.steps||[]).map(s=>'<span class="pill">'+s+'</span>').join('')+'</div>';
+      c.onclick=()=>showWfModal(wf);
+      gw.appendChild(c);
+    });
+    box.appendChild(gw);
+    // 3) 元话语用法指南
+    const mu=el('div','card');mu.style.cssText='margin-top:16px';
+    mu.innerHTML='<h3>🗣 自动化/工具化/插件化/泛化 · 何时用哪个</h3>';
+    const mrows=Object.keys(d.metaUsage||{}).map(k=>'<tr><td style="color:#c678dd;font-weight:bold">'+k+'</td><td style="color:#9aa3b2;font-size:12px">'+(d.metaUsage[k]||[]).join(' · ')+'</td></tr>').join('');
+    mu.innerHTML+='<table class="tbl"><tr><th style="width:90px">元话语</th><th>适用场景</th></tr>'+mrows+'</table>';
+    box.appendChild(mu);
+    // 4) 词频分布
+    const td=el('div','');td.style.cssText='margin-top:14px';
+    td.innerHTML='<div style="font-size:12px;color:#8b90a3;margin-bottom:6px">📊 体系高频词 · 文档提及频次</div>'+
+      '<div style="display:flex;gap:14px;flex-wrap:wrap">'+
+      Object.keys(d.termDist||{}).map(k=>'<span style="font-size:12px"><b style="color:#6ea8ff;font-size:16px">'+(d.termDist[k]||0)+'</b> '+k+'</span>').join('')+'</div>';
+    box.appendChild(td);
+  }).catch(e=>box.appendChild(el('div','empty','加载失败')));
+}
+function showWfModal(wf){
+  const old=document.getElementById('wf-modal');if(old)old.remove();
+  const m=el('div','');m.id='wf-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(5,8,12,.94);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px';
+  const box=el('div','');box.style.cssText='background:#0d1119;border:1px solid #2d5a94;border-radius:16px;max-width:640px;width:100%;max-height:80vh;overflow:auto;padding:24px;position:relative';
+  box.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:10px"><b style="color:#2ac3de">⚙️ 工作流</b><button style="background:none;border:none;color:#8b90a3;font-size:22px;cursor:pointer" id="wf-x">✕</button></div>'+
+    '<div style="font-size:20px;color:#e8eaf0;font-weight:bold;margin-bottom:6px">'+wf.name+'</div>'+
+    '<div style="font-size:12px;color:#9aa3b2;line-height:1.8">'+wf.desc+'</div>'+
+    '<div style="margin-top:12px;font-size:12px;color:#6ea8ff">🛠 '+wf.tool+'</div>'+
+    '<div style="margin-top:10px">'+(wf.steps||[]).map((st,i)=>'<div style="padding:6px 0;border-bottom:1px solid #1c2230;font-size:13px"><span style="color:#2ac3de;margin-right:8px">'+(i+1)+'</span>'+st+'</div>').join('')+'</div>'+
+    '<div style="font-size:11px;color:#6f7686;margin-top:10px">since: '+wf.since+'</div>';
+  m.appendChild(box);document.body.appendChild(m);
+  document.getElementById('wf-x').onclick=()=>m.remove();
+  m.addEventListener('click',e=>{if(e.target===m)m.remove()});
+}
+function renderPhilosophy(){
+  const box=$('view-philosophy');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🧠 治理哲学 · 体系最顶层思想'));
+  j('/api/philosophy').then(d=>{
+    // 一句话原则卡（置顶）
+    const top=el('div','card');top.style.cssText='border-color:#e8eaf0;margin-bottom:12px';
+    top.innerHTML='<h3 style="color:#e8eaf0">一句话原则 · 能力与权限永远分离</h3>'+
+      '<div style="font-size:13px;color:#9aa3b2;line-height:1.8;margin-top:6px">'+d.topPrinciple+'</div>';
+    box.appendChild(top);
+    // 体系塔力导向
+    const gb=el('div','graph-box');gb.id='phi-force-box';gb.style.cssText='height:44vh;width:100%;margin-bottom:12px';
+    const cv=document.createElement('canvas');cv.id='phi-force-canvas';
+    gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+    const lg=el('div','graph-legend');
+    lg.innerHTML='<div class="gl"><span class="d1" style="background:#e8eaf0"></span>一句话原则</div>'+
+      '<div class="gl"><span class="d1" style="background:#e06c75"></span>哲学①</div>'+
+      '<div class="gl"><span class="d1" style="background:#f5b942"></span>哲学②</div>'+
+      '<div class="gl"><span class="d1" style="background:#2ac3de"></span>哲学③</div>'+
+      '<div class="gl"><span class="d1" style="background:#c678dd"></span>哲学④</div>'+
+      '<div class="gl"><span style="color:#8b90a3">白线=派生 · 灰=落地</span></div>';
+    gb.appendChild(lg);
+    gb.appendChild(el('div','graph-hint','体系塔：原则→哲学→机制/规则/蓝图 · 点击哲学看核心思想'));
+    if(d.nodes&&d.nodes.length)buildForceGraph('phi-force-box','phi-force-canvas',d,true);
+    // 4 哲学卡片
+    const g=el('div','cards');
+    const COLORS=['#e06c75','#f5b942','#2ac3de','#c678dd'];
+    (d.philosophies=d.philosophies||[]).forEach((p,i)=>{});
+    // philosophies 从节点提取展示
+    const phis=d.nodes.filter(n=>n.kind==='philosophy');
+    phis.forEach(p=>{
+      const c=el('div','card');c.style.cssText='border-left:3px solid '+p.color;
+      c.innerHTML='<h3 style="color:'+p.color+'">'+p.name+'</h3>'+
+        '<div style="color:#8b90a3;font-size:10.5px;margin:3px 0">'+p.dim+' · '+p.origin+'</div>'+
+        '<div style="font-size:11.5px;color:#9aa3b2;line-height:1.6;margin-top:4px">'+String(p.core||'').slice(0,120)+'</div>';
+      c.onclick=()=>showPhiCard(p);
+      g.appendChild(c);
+    });
+    box.appendChild(g);
+  }).catch(e=>box.appendChild(el('div','empty','加载失败')));
+}
+function showPhiCard(n){
+  // 全屏完整描述页（modal）
+  const old=document.getElementById('phi-modal');if(old)old.remove();
+  const isRoot=n.kind==='phiroot';
+  const title=isRoot?'一句话原则':('Φ'+n.order+' '+n.name);
+  const color=n.color||'#e8eaf0';
+  const m=el('div','phi-modal');m.id='phi-modal';
+  m.style.cssText='position:fixed;inset:0;background:rgba(5,8,12,.94);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px';
+  const box=el('div','');box.style.cssText='background:#0d1119;border:1px solid '+color+';border-radius:16px;max-width:860px;width:100%;max-height:88vh;overflow:auto;padding:26px;position:relative';
+  // 头部
+  let head='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+    '<b style="color:'+color+';font-size:13px">'+(isRoot?'🧠 一句话原则':'治理哲学 Φ'+n.order)+'</b>'+
+    '<button class="phi-close" style="background:none;border:none;color:#8b90a3;font-size:24px;cursor:pointer">✕</button></div>' + 
+    '<div style="font-size:22px;color:#e8eaf0;font-weight:bold;margin-bottom:4px">'+title+'</div>'+
+    (n.origin?'<div style="font-size:11.5px;color:#8b90a3;margin-bottom:14px">📌 '+n.origin+'</div>':'');
+  // 核心（一句话主张）
+  let coreH='';
+  if(n.core)coreH='<div style="background:#141824;border-left:3px solid '+color+';border-radius:8px;padding:14px 16px;margin-bottom:16px">'+
+    '<div style="font-size:11px;color:'+color+';font-weight:bold;margin-bottom:4px">一句话核心</div>'+
+    '<div style="font-size:14px;color:#e8eaf0;line-height:1.7">'+n.core+'</div></div>';
+  // 详细阐述
+  let detailH='';
+  if(n.detail)detailH='<div style="margin-bottom:16px"><div style="font-size:12px;color:#8b90a3;font-weight:bold;margin-bottom:6px">📖 详细阐述</div>'+
+    '<div style="font-size:13px;color:#c9cede;line-height:1.9">'+n.detail+'</div></div>';
+  // 原则清单
+  let prinH='';
+  if(n.principles&&n.principles.length)prinH='<div style="margin-bottom:16px"><div style="font-size:12px;color:#8b90a3;font-weight:bold;margin-bottom:6px">📋 核心原则</div>'+
+    n.principles.map((pr,i)=>'<div style="display:flex;gap:8px;font-size:12.5px;color:#c9cede;padding:3px 0"><span style="color:'+color+';flex-shrink:0">'+(i+1)+'.</span><span>'+pr+'</span></div>').join('')+'</div>';
+  // 实例/教训
+  let exH='';
+  if(n.examples&&n.examples.length)exH='<div style="margin-bottom:16px"><div style="font-size:12px;color:#8b90a3;font-weight:bold;margin-bottom:6px">📚 实例与教训</div>'+
+    n.examples.map(e=>'<div style="font-size:12.5px;color:#9aa3b2;padding:4px 0 4px 12px;border-left:2px solid #232a3a;margin:2px 0;line-height:1.6">'+e+'</div>').join('')+'</div>';
+  // 关联文档
+  let docH='';
+  if(n.relDocs&&n.relDocs.length)docH='<div style="font-size:11px;color:#6f7686">📄 关联: '+n.relDocs.join(' · ')+'</div>';
+  // 儿童节点(children)
+  let chH='';
+  if(n.children&&n.children.length)chH='<div style="margin:14px 0;display:flex;flex-wrap:wrap;gap:6px">'+
+    n.children.map(c=>'<span class="pill" style="border:1px solid '+color+'40;color:'+color+'">'+c+'</span>').join('')+'</div>';
+  box.innerHTML=head+coreH+detailH+prinH+chH+exH+docH;
+  var closeBtn=box.querySelector('.phi-close');
+  m.appendChild(box);
+  document.body.appendChild(m);
+  // ESC + 点击背景关闭
+  function closePhi(){var mm=document.getElementById('phi-modal');if(mm)mm.remove();document.removeEventListener('keydown',keyH);m.removeEventListener('click',bgH)}
+  function keyH(e){if(e.key==='Escape')closePhi()}
+  function bgH(e){if(e.target===m)closePhi()}
+  if(closeBtn)closeBtn.onclick=closePhi;
+  document.addEventListener('keydown',keyH);
+  m.addEventListener('click',bgH);
+}
+
+function renderBizMap(){
+  const box=$('view-bizmap');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🌍 跨节点资产地图 · 以设备为中心展开'));
+  const gb=el('div','graph-box');gb.id='biz-force-box';gb.style.cssText='height:60vh;width:100%;margin-bottom:12px';
+  const cv=document.createElement('canvas');cv.id='biz-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML='<div class="gl"><span class="d1" style="background:#3a4156"></span>mac-mini 宿主</div>'+
+    '<div class="gl"><span class="d1" style="background:#7c5cbf"></span>PC-i9</div>'+
+    '<div class="gl"><span class="d1" style="background:#c0392b"></span>MBP</div>'+
+    '<div class="gl"><span style="color:#8b90a3">中心=设备 · 环绕=该设备承载资产 · 💎原创/蓝图标示归属</span></div>';
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','🌍 设备为中心：点设备看承载数 · 点资产卡看归属蓝图 · 拖拽/缩放'));
+  j('/api/biz-assets').then(d=>{
+    if(d.nodes&&d.nodes.length)buildForceGraph('biz-force-box','biz-force-canvas',d,true);
+    const stat=el('div','statrow');
+    stat.innerHTML='<div class="stat"><b>'+d.deviceCount+'</b><span>设备</span></div>'+
+      '<div class="stat"><b>'+d.assetCount+'</b><span>资产</span></div>';
+    box.appendChild(stat);
+    // 按设备分节表格
+    const tb=el('div','');tb.style.cssText='margin-top:10px';
+    const bpColorFn=function(bp){return (d.bpColors||{})[bp]||'#8b90a3'};
+    const devColor={'mac-mini':'#3a4156',i9:'#7c5cbf',MBP:'#c0392b'};
+    let html='';
+    (d.devices||[]).forEach(function(dev){
+      const devKey=dev.id.replace('dev:','');
+      const items=d.nodes.filter(function(n){return n.kind==='bizasset'&&n.dim===devKey});
+      html+='<h3 style="margin:14px 0 6px;font-size:14px"><span style="color:'+(devColor[devKey]||'#8b90a3')+'">●</span> '+dev.name+' <span style="color:#8b90a3">('+items.length+' 资产)</span></h3>';
+      html+='<table class="tbl"><tr><th></th><th>资产</th><th>类型</th><th>归属蓝图</th><th>位置</th></tr>';
+      items.forEach(function(n){
+        html+='<tr><td>'+(n.isOriginal?'💎':'')+'</td>'+
+          '<td style="color:#e8eaf0"><b>'+n.name+'</b></td><td>'+n.type+'</td>'+
+          '<td><span class="pill" style="border:1px solid '+(bpColorFn(n.blueprint))+'40;color:'+(bpColorFn(n.blueprint))+'">'+(n.blueprint||'未归')+'</span></td>'+
+          '<td style="color:#6f7686;font-size:10.5px">'+String(n.loc||'').slice(0,40)+'</td></tr>';
+      });
+      html+='</table>';
+    });
+    tb.innerHTML=html;
+    box.appendChild(tb);
+  }).catch(function(e){box.appendChild(el('div','empty','加载失败'))});
+}
+function showBizDevCard(n){
+  const old=document.getElementById('biz-card');if(old)old.remove();
+  const card=el('div','biz-card');card.id='biz-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:320px;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">🌐 '+n.label+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:24px;font-weight:bold;color:#e8eaf0">'+n.assetCount+'</div>'+
+    '<div style="font-size:11px;color:#8b90a3;margin-top:4px">项承载资产 · 见下方列表</div>';
+  document.body.appendChild(card);
+}
+function showBizCard(n){
+  const old=document.getElementById('biz-card');if(old)old.remove();
+  const card=el('div','biz-card');card.id='biz-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:380px;background:#141824;border:1px solid '+(n.isOriginal?'#f0b429':n.color)+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const bpInfo=n.blueprint?'<div style="margin-top:8px"><a href="#" data-bp="'+n.blueprint+'" onclick="event.preventDefault();openBp(this.dataset.bp)" style="color:'+(n.bpColor||'#6ea8ff')+';font-size:12px">🏷 归属蓝图: '+(n.blueprint||'')+' →</a></div>':'';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+(n.isOriginal?'#f0b429':'#e8eaf0')+'">'+(n.isOriginal?'💎 原创 ':'')+n.name+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:11.5px;color:#8b90a3;margin-bottom:6px">📍 设备: '+n.dim+' · 类型: '+n.type+'</div>'+
+    '<div style="font-size:12px;color:#9aa3b2;line-height:1.6">'+n.desc+'</div>'+
+    '<div style="font-size:10.5px;color:#6f7686;margin-top:8px">'+n.loc+'</div>'+
+    bpInfo+
+    (n.responder?'<div style="font-size:10.5px;color:#8b90a3;margin-top:4px">📨 自陈: '+n.responder+'</div>':'');
+  document.body.appendChild(card);
+}
+window.__hwMode='topo';
+function renderHardware(){
+  const box=$('view-hardware');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🌐 物理层全景 · 设备/服务器/云端'));
+  // 视图切换
+  const vs=el('div','viewsel');
+  const mkHwBtn=function(mode,label){const b=el('button','vsb'+(window.__hwMode===mode?' on':''));b.textContent=label;
+    b.onclick=function(){window.__hwMode=mode;renderHardware();};return b;};
+  vs.appendChild(mkHwBtn('topo','🌐 物理拓扑'));
+  vs.appendChild(mkHwBtn('comm','🛰 设备通讯桥'));
+  box.appendChild(vs);
+  if(window.__hwMode==='comm')renderHwComm(box);
+  else renderHwTopo(box);
+}
+function renderHwTopo(box){
+  box.appendChild(el('h3','', '🌐 物理拓扑 · 本地设备 + 远端服务器 + 云端服务'));
+  const gb=el('div','graph-box');gb.id='hw-force-box';gb.style.cssText='height:56vh;width:100%;margin-bottom:12px';
+  const cv=document.createElement('canvas');cv.id='hw-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML='<div class="gl"><span class="d1" style="background:#c678dd"></span>🖥 本地设备</div>'+
+    '<div class="gl"><span class="d1" style="background:#f5b942"></span>🛠 远端服务器</div>'+
+    '<div class="gl"><span class="d1" style="background:#2ac3de"></span>☁️ 云端服务</div>'+
+    '<div class="gl"><span style="color:#8b90a3">●绿运行/灰离线 · 点击详情</span></div>';
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','🌐 设备(紫)/服务器(黄)/云端(青) · mac-mini 托管本地服务器+远控店铺Xeon · 点击看详情'));
+  j('/api/hardware').then(d=>{
+    if(d.nodes&&d.nodes.length)buildForceGraph('hw-force-box','hw-force-canvas',d,true);
+    const tb=el('div','');tb.style.cssText='margin-top:10px';
+    const groups=d.groups||{};
+    const stColor={运行:'#34c77b',已接入:'#4a9eff',"已任命+闭环":'#98c379',在线:'#34c77b',离线:'#7d8596',待secret:'#f0b429',未接入:'#7d8596'};
+    let html='';
+    Object.keys(groups).forEach(function(grp){
+      const items=d.hwNodes.filter(function(n){return n.group===grp});
+      html+='<h3 style="margin:14px 0 6px;font-size:14px">'+groups[grp]+' ('+items.length+')</h3>';
+      html+='<table class="tbl"><tr><th></th><th>名称</th><th>OS/技术</th><th>地址</th><th>规格/端口</th><th>角色</th><th>状态</th></tr>';
+      items.forEach(function(n){
+        html+='<tr><td style="color:'+(stColor[n.status]||'#8b90a3')+'">●</td>'+
+          '<td style="color:#e8eaf0"><b>'+(n.name||n.device)+'</b></td><td>'+n.os+'</td>'+
+          '<td style="color:#6ea8ff;font-size:11px">'+n.ip+'</td><td style="font-size:11px">'+n.spec+'</td>'+
+          '<td style="color:#9aa3b2;font-size:11px">'+String(n.role||'').slice(0,38)+'</td><td>'+n.status+'</td></tr>';
+      });
+      html+='</table>';
+    });
+    tb.innerHTML=html;
+    box.appendChild(tb);
+  }).catch(function(e){box.appendChild(el('div','empty','加载失败'))});
+}
+function renderHwComm(box){
+  box.appendChild(el('h3','', '🛰 设备通讯桥 · 设备↔设备真实通道（边=通讯通道 · 绿通/红断 · hover 看协议）'));
+  const gb=el('div','graph-box');gb.id='hwc-force-box';gb.style.cssText='height:58vh;width:100%;margin-bottom:12px';
+  const cv=document.createElement('canvas');cv.id='hwc-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+  j('/api/hwcomm').then(d=>{
+    if(d.error){gb.appendChild(el('div','empty','数据加载失败: '+d.error));return;}
+    // 图例: 通道类型 + 探测状态
+    const lg=el('div','graph-legend');
+    let lgH='';
+    Object.keys(d.channelTypes||{}).forEach(function(k){const c=d.channelTypes[k];
+      lgH+='<div class="gl"><span class="d1" style="background:'+c.color+'"></span>'+c.label+'</div>';});
+    lgH+='<div class="gl"><span class="d1" style="background:#34c77b"></span>● 探通</div>'+
+         '<div class="gl"><span class="d1" style="background:#e06c75"></span>● 断开</div>';
+    lg.innerHTML=lgH;gb.appendChild(lg);
+    gb.appendChild(el('div','graph-hint','hover 边看通道协议 · 绿=实时探通 红虚线=断开 · 平行线=同对端多通道 · 点击节点详情'));
+    box.appendChild(gb);
+    if(d.nodes&&d.nodes.length)buildForceGraph('hwc-force-box','hwc-force-canvas',d,true);
+    // 通道明细表
+    const nameOf={};d.nodes.forEach(function(n){nameOf[n.id]=n.label;});
+    const tb=el('div','');tb.style.cssText='margin-top:10px';
+    const probe=d.probe||{};
+    const stTxt=function(i){const s=probe[i];return s===true?'<span style="color:#34c77b">● 通</span>':(s===false?'<span style="color:#e06c75">● 断</span>':'<span style="color:#5a6072">○ 未探</span>');};
+    const arrowOf={'bi':'⇄','macmini->i9':'→ i9','macmini->srv':'→ 服务器','ext->macmini':'公网→'};
+    let rows=d.edges.map(function(e){
+      const dir=arrowOf[e.direction]||e.direction||'⇄';
+      return '<tr><td><span style="color:'+e.color+'">'+(d.channelTypes[e.type]&&d.channelTypes[e.type].icon||'🔗')+'</span></td>'+
+        '<td style="color:#e8eaf0"><b>'+String(e.chan||e.type).slice(0,16)+'</b></td>'+
+        '<td style="color:#9aa3b2;font-size:11px">'+(nameOf[e.source]||e.source)+'</td>'+
+        '<td style="color:#9aa3b2;font-size:11px">'+dir+'</td>'+
+        '<td style="color:#9aa3b2;font-size:11px">'+(nameOf[e.target]||e.target)+'</td>'+
+        '<td style="color:#6ea8ff;font-size:11px">'+(e.protocol||'')+(e.port&&e.port!=='-'?' · '+e.port:'')+'</td>'+
+        '<td>'+stTxt(e.idx)+'</td>'+
+        '<td style="color:#5a6072;font-size:10.5px">'+String(e.desc||'').slice(0,30)+'</td></tr>';
+    }).join('');
+    tb.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 4px">'+
+      '<h3 style="font-size:14px;margin:0">通讯通道明细 ('+d.edges.length+')</h3>'+
+      '<button class="vsb" onclick="refreshCommProbe(this)">↻ 重新探测</button></div>'+
+      '<table class="tbl"><tr><th></th><th>通道</th><th>来源</th><th>方向</th><th>目标</th><th>协议/端口</th><th>状态</th><th>说明</th></tr>'+rows+'</table>';
+    box.appendChild(tb);
+    // 启动 60s 自动探测轮询
+    if(!window.__hwcTimer){window.__hwcTimer=setInterval(function(){if(window.__hwMode==='comm')refreshCommProbe();},60000);}
+  }).catch(function(e){box.appendChild(el('div','empty','加载失败'))});
+}
+function refreshCommProbe(btn){
+  if(btn){btn.innerHTML='探测中…';btn.disabled=true;}
+  j('/api/hwprobe').then(function(){
+    if(btn){btn.innerHTML='↻ 重新探测';btn.disabled=false;}
+    renderHwComm($('view-hardware'));
+  }).catch(function(){if(btn){btn.innerHTML='↻ 重试';btn.disabled=false;}});
+}
+function showHwCard(n){
+  const old=document.getElementById('hw-card');if(old)old.remove();
+  const card=el('div','hw-card');card.id='hw-card';
+  card.style.cssText='position:fixed;right:24px;top:90px;width:360px;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">🖥 '+n.label+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:13px;color:#9aa3b2;margin-bottom:6px">'+n.os+' · '+n.ip+'</div>'+
+    '<div style="font-size:12px;color:#e8eaf0;margin-bottom:4px">🔧 '+n.spec+'</div>'+
+    '<div style="font-size:12px;color:#9aa3b2;line-height:1.6">🎯 '+n.role+'</div>'+
+    '<div style="margin-top:10px;font-size:11px;color:#8b90a3">状态: '+n.status+' · 验证: '+n.verify+' · since '+n.since+'</div>';
+  document.body.appendChild(card);
+}
+function renderSystems(){
+  const box=$('view-systems');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🗄 系统资产 · 已落地运行系统全景（关系图谱+全表）'));
+  j('/api/system-assets').then(d=>{
+    // 力导向关系图谱
+    const gb=el('div','graph-box');gb.id='sys-force-box';gb.style.cssText='height:52vh;width:100%;margin-bottom:12px';
+    const cv=document.createElement('canvas');cv.id='sys-force-canvas';
+    gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));box.appendChild(gb);
+    const lg=el('div','graph-legend');
+    lg.innerHTML='<div class="gl"><span class="d1" style="background:#6ea8ff"></span>平台</div>'+
+      '<div class="gl"><span class="d1" style="background:#f5b942"></span>存储底座</div>'+
+      '<div class="gl"><span class="d1" style="background:#e5c07b"></span>外联</div>'+
+      '<div class="gl"><span class="d1" style="background:#98c379"></span>工具</div>'+
+      '<div class="gl"><span style="color:#8b90a3">蓝线=归属 · 灰线=依赖</span></div>';
+    gb.appendChild(lg);
+    gb.appendChild(el('div','graph-hint','🗄 系统↔蓝图归属 + 系统间依赖 · 拖拽/缩放/hover/点击详情'));
+    if(d.graph)buildForceGraph('sys-force-box','sys-force-canvas',d.graph,true);
+    // 统计卡
+    const alive=d.alive||0,total=d.total||0;
+    box.appendChild(el('div','statrow',[
+      '<div class="stat"><b>'+total+'</b><span>系统</span></div>',
+      '<div class="stat"><b style="color:#34c77b">'+alive+'</b><span>存活中</span></div>',
+      '<div class="stat"><b>'+d.systems.filter(s=>s.blueprint==='gene-bank').length+'</b><span>gene-bank 系</span></div>'].join('')));
+    // 表格
+    const tb=el('div','');tb.style.cssText='margin-top:10px';
+    let rows=d.systems.map(s=>'<tr>'+
+      '<td>'+(s.alive?'<span style="color:#34c77b">●</span>':'<span style="color:#5a6072">○</span>')+'</td>'+
+      '<td style="color:#e8eaf0"><b>'+s.name+'</b></td>'+
+      '<td>'+s.tech+'</td><td style="color:#6ea8ff">'+s.ports+'</td>'+
+      '<td><a href="#" data-bp="'+s.blueprint+'" onclick="event.preventDefault();openBp(this.dataset.bp)">'+s.blueprint+'</a></td>'+
+      '<td>'+s.layer+'</td><td style="color:#8b90a3;font-size:11px">'+s.desc+'</td>'+
+      '</tr>').join('');
+    tb.innerHTML='<table class="tbl"><tr><th></th><th>系统</th><th>技术</th><th>端口</th><th>属主蓝图</th><th>层</th><th>说明</th></tr>'+rows+'</table>';
+    box.appendChild(tb);
+    box.appendChild(el('div','','<div style="margin-top:8px;font-size:11.5px;color:#8b90a3">●=端口存活探测 · 属主蓝图可点击进入详情 · 完整盘点见 data/blueprint/system-inventory-20260902.md</div>'));
+  }).catch(e=>box.appendChild(el('div','empty','加载失败')));
+}
+function showSysCard(n){
+  const old=document.getElementById('sys-card');if(old)old.remove();
+  const card=el('div','sys-card');card.id='sys-card';
+  card.style.cssText='position:fixed;right:24px;top:120px;width:360px;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const st=n.alive===true?'<span style="color:#34c77b">● 运行中</span>':(n.alive===false?'<span style="color:#e06c75">○ 离线</span>':'<span style="color:#8b90a3">◌ 守护/CLI</span>');
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b style="color:'+n.color+'">🗄 '+n.short+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:14px;color:#e8eaf0;margin-bottom:6px">'+n.label+'</div>'+
+    '<div style="font-size:11.5px;color:#8b90a3;margin-bottom:8px">'+n.dim+' · '+n.tech+' · 端口 '+n.ports+' · '+st+'</div>'+
+    '<div style="font-size:12px;color:#9aa3b2;line-height:1.6">'+n.desc+'</div>'+
+    '<div style="margin-top:10px"><a href="#" data-bp="'+n.bp+'" onclick="event.preventDefault();openBp(this.dataset.bp)" style="color:#6ea8ff;font-size:12px">属主蓝图: '+n.bp+' →</a></div>';
+  document.body.appendChild(card);
+}
+function renderRules(){
+  const box=$('view-rules');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('h3','', '📏 规则图谱 · 规则↔蓝图↔智能体'));
+  const gb=el('div','graph-box');gb.id='rules-force-box';gb.style.cssText='height:64vh;width:100%';
+  const cv=document.createElement('canvas');cv.id='rules-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));
+  box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML='<div class="gl"><span class="d1" style="background:#e06c75"></span>规则(约束)</div>'+
+    '<div class="gl"><span class="d1" style="background:#6ea8ff"></span>蓝图</div>'+
+    '<div class="gl"><span class="d1" style="background:#2ac3de"></span>智能体</div>'+
+    '<div class="gl"><span class="d1" style="background:#8b90a3"></span>红边=约束蓝图</div>'+
+    '<div class="gl"><span class="d1" style="background:#34c77b"></span>绿边=相关智能体</div>';
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','规则节点按分类着色 · hover 看摘要 · 点击规则看详情/蓝图看架构/智能体看档案'));
+  j('/api/rule-graph').then(g=>{buildForceGraph('rules-force-box','rules-force-canvas',g,true)});
+  // 规则分类统计表
+  const tb=el('div');tb.style.cssText='margin-top:14px';
+  tb.innerHTML='<table class="tbl"><tr><th>分类</th><th>数量</th><th>说明</th></tr>'+
+    [{c:'协作',d:'红绿灯/通道/通讯纪律'},{c:'工程',d:'R006 插件化工具化标准等'},{c:'架构',d:'CCEP/重启救援'},{c:'数据',d:'删前考古'},{c:'治理',d:'R027 人类开关锁/R030 真实性'},{c:'资源冲突',d:'J1-J44 文件/后台/任务锁属主'},{c:'运营',d:'外卖运营规则'}].map(x=>'<tr><td>'+x.c+'</td><td id="rc-'+x.c+'">?</td><td style="color:#8b90a3">'+x.d+'</td></tr>').join('')+'</table>';
+  box.appendChild(tb);
+}
+function showRuleCard(n){
+  const old=document.getElementById('rule-card');if(old)old.remove();
+  const card=el('div','rule-card');card.id='rule-card';
+  card.style.cssText='position:fixed;right:24px;top:120px;width:400px;max-height:72vh;overflow:auto;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  card.innerHTML='<div style="display:flex;justify-content:space-between;margin-bottom:6px"><b style="color:'+n.color+'">'+n.short+' · '+n.label+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:11px;color:#8b90a3;margin-bottom:8px">分类 '+n.dim+' · 状态 '+n.status+' · 执行 '+n.enforcedBy+'</div>'+
+    '<div style="font-size:12px;color:#e8eaf0;line-height:1.6">'+n.summary+'</div>'+
+    (n.blueprints&&n.blueprints.length?'<div style="font-size:11px;color:#6ea8ff;margin-top:10px">约束蓝图: '+n.blueprints.map(b=>'<a href="#" data-bp="'+b+'" onclick="event.preventDefault();openBp(this.dataset.bp)" style="color:#6ea8ff">'+b+'</a>').join(', ')+'</div>':'')+
+    (n.agents&&n.agents.length?'<div style="font-size:11px;color:#34c77b;margin-top:6px">相关智能体: '+n.agents.length+'</div>':'');
+  document.body.appendChild(card);
+}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
+  document.querySelectorAll('.main').forEach(m=>m.classList.toggle('on',m.id==='view-'+name));
+  // 图类视图：首次进入才渲染（可见状态下建图，避免 0 尺寸 canvas）
+  if(name==='rules'&&!window.__rulesDone){window.__rulesDone=true;renderRules()}
+  else if(name==='relations'&&!window.__relDone){window.__relDone=true;renderRelations()}
+  else if(name==='agents'&&!window.__agentsDone){window.__agentsDone=true;renderAgents()}
+  else if(name==='mech'&&!window.__mechDone){window.__mechDone=true;renderMechanism()}
+  else if(name==='knowledge'&&!window.__kbDone){window.__kbDone=true;renderKnowledge()}
+  else if(name==='systems'&&!window.__sysDone){window.__sysDone=true;renderSystems()}
+  else if(name==='hardware'){renderHardware()}
+  else if(name==='bizmap'&&!window.__bizDone){window.__bizDone=true;renderBizMap()}
+  else if(name==='philosophy'&&!window.__phiDone){window.__phiDone=true;renderPhilosophy()}
+  else if(name==='original'&&!window.__origDone){window.__origDone=true;renderOriginal()}
+  else if(name==='workflow'&&!window.__wfDone){window.__wfDone=true;renderWorkflow()}
+  else if(name==='planarchive'&&!window.__paDone){window.__paDone=true;renderPlanArchive()}
+  else if(name==='dash'&&!window.__dashDone){window.__dashDone=true;renderDash()}
+  else if(name==='blueprint-detail'&&!curBp){showBpGuide()}
+  // 已渲染的图：触发 resize 让 canvas 重算尺寸
+  setTimeout(()=>{window.dispatchEvent(new Event('resize'))},60);
+}
+function bindTabs(){
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+  // 深链支持: #hardware-comm → 硬件载体-通讯桥视图; #<tab> → 直达
+  const _h=location.hash.replace('#','');
+  if(_h==='hardware-comm'){window.__hwMode='comm';switchTab('hardware');}
+  else if(_h)switchTab(_h);
+}
+// ── Dashboard ──
+function renderRelations(){
+  const box=$('view-relations');
+  box.innerHTML='';
+  // 控制条：父子折叠切换 + 说明
+  const bar=el('div','');bar.style.cssText='margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+  const foldBtn=el('button','',window.__foldChildren?'📂 展开子蓝图':'📁 折叠子蓝图');
+  foldBtn.onclick=()=>{window.__foldChildren=!window.__foldChildren;renderRelations()};
+  bar.appendChild(foldBtn);
+  const info=ALL.relations.children&&ALL.relations.children.length?
+    el('span','','<span style="color:#8b90a3;font-size:12px">父子：flowernet→erp/miniapp/website · agent-network→memory-governance（'+(window.__foldChildren?'折叠中':'展开中')+'）</span>'):el('span','','');
+  bar.appendChild(info);
+  box.appendChild(bar);
+  const gb=el('div','graph-box');gb.id='rel-force-box';
+  gb.style.cssText='height:70vh;width:100%';
+  const cv=document.createElement('canvas');cv.id='rel-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));
+  box.appendChild(gb);
+  // 图例
+  const legend=el('div','graph-legend');legend.innerHTML=LEGEND_HTML;gb.appendChild(legend);
+  gb.appendChild(el('div','graph-hint','🖱 拖拽 · 滚轮缩放 · hover 高亮 · 点击进详情'+(window.__foldChildren?' · 子蓝图已折叠，点击父节点看子树':'')));
+  buildForceGraph('rel-force-box','rel-force-canvas',ALL.relations,true);
+  // 子树点击提示：父节点有 children 的
+  gb.addEventListener('click',ev=>{
+    // hover 弹层已由 buildForceGraph 管理——子树信息加到 tooltip
+  });
+}
+function renderDash(){
+  // 总览 = 指挥台（非图）：一眼看体系状态。关系网络请去「🔀 关系图谱」深度探索。
+  const o=ALL.overview||{};const box=$('view-dash');
+  box.innerHTML='';
+  // 0) 导览大卡片(点即定位到 Tab)
+  const NAV=[
+    {t:'🧠 治理哲学',tab:'philosophy',d:'7 大治理哲学'},
+    {t:'💎 原创资产',tab:'original',d:'原创资产库'},
+    {t:'🔄 工作流/标准',tab:'workflow',d:'R006+工作流'},
+    {t:'📋 计划档案',tab:'planarchive',d:'全域计划/版本'},
+    {t:'📐 蓝图库',tab:'blueprints',d:'蓝图图谱'},
+    {t:'🤖 智能体网络',tab:'agents',d:'智能体图谱'},
+    {t:'🔀 关系图谱',tab:'relations',d:'蓝图关系边'},
+    {t:'📏 规则图谱',tab:'rules',d:'规则映射'},
+    {t:'⚙️ 机制',tab:'mech',d:'协议/门/锁'},
+    {t:'📚 知识内核',tab:'knowledge',d:'论文/调研溯源'},
+    {t:'🗄 系统资产',tab:'systems',d:'运行系统'},
+    {t:'🖥 硬件载体',tab:'hardware',d:'设备+通讯桥'},
+    {t:'🌍 跨节点资产',tab:'bizmap',d:'资产地图'},
+    {t:'📜 版本历史',tab:'versions',d:'版本事件'},
+    {t:'🗂 图库',tab:'assets',d:'图资产'}];
+  const navCard=el('div','card');navCard.style.cssText='margin-bottom:14px';
+  navCard.innerHTML='<h3>🧭 SystemGraph · 导览</h3><div style="color:#8b90a3;font-size:11px;margin-bottom:10px">点击卡片直达视图 · 或对话说「打开 XX」</div>'+
+    '<div class="asset-grid">'+
+    NAV.map(n=>'<div class="asset-card" data-tabx="'+n.tab+'" style="padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer"><div style="font-size:22px">'+n.t.split(' ')[0]+'</div><div><b style="font-size:12px">'+n.t+'</b><div style="font-size:10px;color:#8b90a3">'+n.d+'</div></div></div>').join('')+
+    '</div>';
+  box.appendChild(navCard);
+  box.querySelectorAll('.nav-card[data-tabx]').forEach(c=>{c.onclick=()=>switchTab(c.dataset.tabx);});
+  box.querySelectorAll('[data-tabx]').forEach(c=>{if(!c.dataset.tabx)return;c.onclick=()=>switchTab(c.dataset.tabx);});
+  box.appendChild(el('div','statrow',[
+    '<div class="stat"><b>'+o.bpCount+'</b><span>蓝图</span></div>',
+    '<div class="stat"><b>'+o.agentCount+'</b><span>智能体</span></div>',
+    '<div class="stat"><b>'+o.edgeCount+'</b><span>关系边</span></div>',
+    '<div class="stat"><b>'+o.versionCount+'</b><span>版本事件</span></div>',
+    '<div class="stat"><b>'+o.snapshotCount+'</b><span>快照</span></div>'].join('')));
+  // 1) 蓝图状态速览（进度条聚合）
+  const sts={done:0,active:0,partial:0,todo:0};
+  const byDim={};
+  ALL.blueprints.forEach(b=>{
+    const st=b.status||'todo';sts[st]=(sts[st]||0)+1;
+    (byDim[b.dim]=byDim[b.dim]||[]).push(b);
+  });
+  const stCard=el('div','card');
+  stCard.innerHTML='<h3>📐 蓝图状态速览</h3><div style="margin:8px 0">'+
+    ['done','active','partial','todo'].map(st=>{
+      const n=sts[st]||0,names={done:'✅ 完成',active:'🟢 进行中',partial:'🟡 部分',todo:'⬜ 待启动'};
+      return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0"><span style="width:70px;font-size:11px">'+names[st]+'</span>'+
+        '<div style="flex:1;height:8px;background:#1c2230;border-radius:4px;overflow:hidden"><div style="width:'+(n/ALL.blueprints.length*100)+'%;height:100%;background:'+{done:'#34c77b',active:'#4a9eff',partial:'#f5b942',todo:'#7d8596'}[st]+'"></div></div>'+
+        '<b style="font-size:12px;width:20px">'+n+'</b></div>';
+    }).join('')+'</div>';
+  box.appendChild(stCard);
+  // 2) 维度聚合卡
+  const dimCard=el('div','card');
+  let dimRows='';
+  Object.keys(byDim).forEach(d=>{
+    const bs=byDim[d];
+    dimRows+='<tr><td>'+d+'</td><td><b>'+bs.length+'</b></td><td style="color:#8b90a3">'+
+      bs.map(b=>b.id).join(', ')+'</td></tr>';
+  });
+  dimCard.innerHTML='<h3>🗂 维度聚合</h3><table class="tbl"><tr><th>维度</th><th>数量</th><th>蓝图</th></tr>'+dimRows+'</table>';
+  box.appendChild(dimCard);
+  // 3) 最近版本动态
+  const verCard=el('div','card');
+  let verRows=(ALL.versions.entries||[]).slice(-6).reverse().map(e=>{
+    return '<div class="ver-item"><b>'+e.action+' · '+(e.bp||'')+'</b> <span class="t">'+(e.ts||'')+'</span><div style="color:#8b90a3;font-size:11px">'+(e.detail||'').slice(0,80)+'</div></div>';
+  }).join('');
+  verCard.innerHTML='<h3>📜 最近版本动态</h3>'+verRows+'<div style="margin-top:8px"><a href="#" id="gv-link">全部版本历史 →</a></div>';
+  var gv=document.getElementById('gv-link');if(gv)gv.onclick=function(e){e.preventDefault();switchTab('versions')};
+  box.appendChild(verCard);
+  // 🧭 自进化信号：孤岛探测卡
+  const isoCard=el('div','card');isoCard.id='island-card';
+  isoCard.innerHTML='<h3>🧭 自进化信号 · 孤岛探测</h3><div style="color:#8b90a3;font-size:12px;margin:6px 0">检测中…</div>';
+  box.appendChild(isoCard);
+  j('/api/islands').then(r=>{
+    const iso=r.agents&&r.agents.islands?r.agents.islands:[];
+    const isoRules=r.rules&&r.rules.islands?r.rules.islands:[];
+    let rows=iso.slice(0,8).map(i=>'<tr><td style="color:#f0b429">'+i.short.slice(0,8)+'…</td><td>'+i.label+'</td><td style="color:#8b90a3">'+i.role.slice(0,30)+'</td></tr>').join('');
+    isoCard.innerHTML='<h3>🧭 自进化信号 · 孤岛探测</h3>'+
+      '<div style="font-size:12px;margin:6px 0">智能体孤岛 <b style="color:#f0b429">'+iso.length+'</b> · 规则非global孤岛 <b>'+isoRules.length+'</b>'+
+      ' <span style="color:#8b90a3">(global 横切如 CCEP 属设计非孤岛)</span></div>'+
+      '<table class="tbl"><tr><th>智能体</th><th>角色</th><th>能力摘要</th></tr>'+rows+'</table>'+
+      '<div style="margin-top:8px;font-size:11.5px;color:#6ea8ff">💡 孤岛=待连接节点 · 探测→建议→确认→连接 = 自进化回路（见 docs/self-evolution-island-connectivity.md）</div>';
+  }).catch(()=>{isoCard.innerHTML='<h3>🧭 孤岛探测</h3><div style="color:#8b90a3">暂不可用</div>'});
+  const p=el('div');p.style.cssText='margin-top:10px;font-size:12px;color:#8b90a3';
+  p.textContent='💡 想看交互式关系网络 → 切到「🔀 关系图谱」（拖拽/缩放/父子折叠）；单个蓝图细节 → 「📐 蓝图库」';box.appendChild(p);
+}
+function showBpGuide(){
+  const box=$('view-blueprint-detail');if(!box)return;
+  box.innerHTML='';
+  box.appendChild(el('div','','<div style="font-size:16px;font-weight:bold;margin-bottom:14px">🔍 蓝图详情</div>'+
+    '<div style="color:#8b90a3;font-size:13px;margin-bottom:16px">请从下方选择一个蓝图查看架构图/鱼骨图/时间线：</div>'));
+  const g=el('div','cards');
+  ALL.blueprints.forEach(b=>{
+    const c=el('div','card');
+    c.innerHTML='<h3>'+b.id+'</h3><span class="v">v'+b.version+'</span><span class="pill dim">'+b.dim+'</span>'+
+      '<div class="d">'+(b.name||'')+'</div><div class="ml">'+(b.mainlines||[]).map(m=>'<span class="pill">'+m+'</span>').join('')+'</div>';
+    c.onclick=()=>openBp(b.id);
+    g.appendChild(c);
+  });
+  box.appendChild(g);
+}
+function renderBlueprints(){
+  const box=$('view-blueprints');
+  const g=el('div','cards');
+  ALL.blueprints.forEach(b=>{
+    const ml=(b.mainlines||[]).map(m=>'<span class="pill">'+m+'</span>').join('');
+    const c=el('div','card');
+    c.innerHTML='<h3>'+b.id+'</h3><span class="v">v'+b.version+'</span><span class="pill dim">'+b.dim+'</span><div class="d">'+(b.name||'')+'</div><div class="ml">'+ml+'</div>';
+    c.onclick=()=>openBp(b.id);
+    g.appendChild(c);
+  });
+  box.appendChild(g);
+}
+let curBp=null;
+let bpViews={}; // {arch,fish,tl} 当前详情视图切换
+async function openBp(id){
+  const bp=await j('/api/blueprint/'+id);
+  curBp=bp;
+  const box=$('view-blueprint-detail');
+  const info=await j('/api/bpinfo/'+id);
+  box.innerHTML='<h2>'+bp.name+' <span style="color:#8b90a3;font-size:12px">v'+bp.version+' · '+info.dim+'</span></h2>';
+  // 视图切换器
+  const vs=el('div','viewsel');
+  vs.innerHTML='<button class="vsb on" data-v="arch">🌲 流程图</button><button class="vsb" data-v="fish">🐟 鱼骨图</button><button class="vsb" data-v="tl">📅 时间线</button><button class="vsb" data-v="dyn">🌀 动态图</button>';
+  box.appendChild(vs);
+  vs.querySelectorAll('.vsb').forEach(b=>b.addEventListener('click',()=>{
+    vs.querySelectorAll('.vsb').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    const vw=box.querySelector('.bp-view');
+    if(vw){
+      if(b.dataset.v==='dyn'){
+        vw.innerHTML='';
+        const dgb=el('div','graph-box');dgb.id='bp-dyn-box';dgb.style.cssText='height:66vh;width:100%;position:relative';
+        const dcv=document.createElement('canvas');dcv.id='bp-dyn-canvas';
+        dgb.appendChild(dcv);dgb.appendChild(el('div','graph-tip',''));vw.appendChild(dgb);
+        dgb.appendChild(el('div','graph-hint','🌀 '+id+' 动态图 · 蓝图→主线→阶段→子阶段 · 拖拽/缩放/hover 高亮/点击子阶段看说明'));
+        j('/api/bp-graph/'+id).then(g=>{buildForceGraph('bp-dyn-box','bp-dyn-canvas',g,true)});
+        // buildForceGraph 需 box 容器——临时用 dgb 挂 boxId? 改用 id
+      } else {
+        vw.innerHTML=(b.dataset.v==='arch'?(info.svg||''):b.dataset.v==='fish'?(info.fishbone||''):(info.timeline||''));
+      }
+    }
+  }));
+  if(bp.gate){box.appendChild(el('div','', '<div style="color:#f0b429;font-size:11.5px;margin-bottom:8px">门禁: '+bp.gate+'</div>'));}
+  const wrap=el('div','svg-wrap bp-view');wrap.appendChild(el('div','',info.svg||''));box.appendChild(wrap);
+  // 快照历史
+  const hist=info.history||[];
+  if(hist.length){
+    const hh=el('div');hh.innerHTML='<h3 style="margin:14px 0 8px;font-size:14px">📜 历史快照翻查</h3>';
+    hist.slice().reverse().forEach(s=>{
+      const views=s.views||{};
+      const links=(views.arch?' <a href="'+__BASE+'/snapshots/'+views.arch+'" target="_blank">🌲流程</a>':'')+(views.fish?' <a href="'+__BASE+'/snapshots/'+views.fish+'" target="_blank">🐟鱼骨</a>':'')+(views.tl?' <a href="'+__BASE+'/snapshots/'+views.tl+'" target="_blank">📅时间线</a>':'')+(s.file&&!views.arch?' <a href="'+__BASE+'/snapshots/'+s.file+'" target="_blank">打开 SVG ↗</a>':'');
+      const it=el('div','ver-item','<b>v'+s.version+'</b> <span class="t">'+s.ts+'</span>'+links);
+      hh.appendChild(it);
+    });box.appendChild(hh);
+  }
+  switchTab('blueprint-detail');
+}
+function toggleFishBone(id){
+  const el2=document.getElementById(id);
+  if(el2)el2.style.display=(el2.style.display==='none')?'block':'none';
+}
+function renderAgents(){
+  const box=$('view-agents');
+  box.innerHTML='';
+  box.appendChild(el('h3','', '🤖 智能体网络 · 力导向（含父子层级 · 拖拽/缩放/hover/点击看详情）'));
+  // 父子折叠控制
+  const bar=el('div','');bar.style.cssText='margin-bottom:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+  const fbtn=el('button','',window.__foldAgents?'📂 展开子代理':'📁 折叠子代理');
+  fbtn.onclick=()=>{window.__foldAgents=!window.__foldAgents;renderAgents()};
+  bar.appendChild(fbtn);
+  bar.appendChild(el('span','','<span style="color:#8b90a3;font-size:11.5px">父子：4787d717(数据调查)→crawler worker+调研子代理 · 司库→论文调研专员（'+(window.__foldAgents?'折叠中，父节点含子数徽标':'展开中')+'）</span>'));
+  box.appendChild(bar);
+  const gb=el('div','graph-box');gb.id='agents-force-box';gb.style.cssText='height:64vh;width:100%';
+  const cv=document.createElement('canvas');cv.id='agents-force-canvas';
+  gb.appendChild(cv);gb.appendChild(el('div','graph-tip',''));
+  box.appendChild(gb);
+  const lg=el('div','graph-legend');
+  lg.innerHTML=['ops:运维/安全','dev:开发/插件','data:数据/调研','biz:业务/运营','gov:治理/协调',
+    'plan:洞察/规划','comm:通讯/媒体','idle:后备/通用'].map(d=>{
+      const key=d.split(':')[0];
+      const color={ops:'#e06c75',dev:'#c678dd',data:'#2ac3de',biz:'#f5b942',gov:'#34c77b',plan:'#6ea8ff',comm:'#e5c07b',idle:'#4a5568'}[key];
+      return '<div class="gl"><span class="d1" style="background:'+color+'"></span>'+d+'</div>';
+    }).join('');
+  gb.appendChild(lg);
+  gb.appendChild(el('div','graph-hint','绿边=共享资源 · 紫边=同设备协作 · 点击节点看详情'+(window.__foldAgents?' · 📁已折叠 9 子代理(父节点⊕徽标)':'')));
+  j('/api/agent-graph').then(g=>{buildForceGraph('agents-force-box','agents-force-canvas',g,true)});
+  const tb=el('div');tb.style.cssText='margin-top:16px';
+  let rows=ALL.agents.map(a=>'<tr><td style="color:#c678dd">'+a.id.slice(0,14)+'…</td><td>'+a.role+'</td><td>'+a.abilities.length+'</td><td>'+a.resources.length+'</td></tr>').join('');
+  tb.innerHTML='<table class="tbl"><tr><th>智能体</th><th>角色</th><th>能力</th><th>资源</th></tr>'+rows+'</table>';
+  box.appendChild(tb);
+}
+function showAgentCard(n){
+  const old=document.getElementById('agent-card');if(old)old.remove();
+  const card=el('div','agent-card');card.id='agent-card';
+  card.style.cssText='position:fixed;right:24px;top:120px;width:360px;max-height:70vh;overflow:auto;background:#141824;border:1px solid '+n.color+';border-radius:14px;padding:16px;z-index:120;box-shadow:0 8px 30px rgba(0,0,0,.5)';
+  const meta=ALL.agents.find(a=>a.id===n.id)||{};
+  let abHtml=(meta.abilities||[]).slice(0,12).map(a=>'<div style="font-size:11px;color:#9aa3b2;padding:2px 0;border-bottom:1px solid #1c2230">• '+a+'</div>').join('');
+  let rsHtml=(meta.resources||[]).slice(0,10).map(r=>'<div style="font-size:10.5px;color:#6f7686;padding:2px 0">· '+r+'</div>').join('');
+  card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="color:'+n.color+'">'+n.label+'</b><button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#8b90a3;font-size:18px;cursor:pointer">✕</button></div>'+
+    '<div style="font-size:11px;color:#8b90a3;margin-bottom:10px">'+n.id+'</div>'+
+    '<div style="font-size:12px;color:#e8eaf0;margin-bottom:10px">'+n.role+'</div>'+
+    '<div style="font-size:11px;color:#6ea8ff;margin-bottom:6px">能力 '+n.abilities+' · 资源 '+n.resources+' · '+n.dim+'</div>'+
+    '<div style="font-size:11px;color:#8b90a3;font-weight:bold;margin:8px 0 4px">能力</div>'+abHtml+
+    '<div style="font-size:11px;color:#8b90a3;font-weight:bold;margin:8px 0 4px">资源</div>'+rsHtml;
+  document.body.appendChild(card);
+}
+function renderVersions(){
+  const box=$('view-versions');
+  const bps=ALL.versions.blueprints||{};
+  let html='<table class="tbl"><tr><th>蓝图</th><th>当前版本</th><th>最近更新</th><th>快照</th></tr>';
+  Object.keys(bps).forEach(b=>{
+    const v=bps[b];
+    html+='<tr><td>'+b+'</td><td><b>'+v.version+'</b></td><td>'+v.ts+'</td><td><a href="#" data-bp="'+b+'" onclick="event.preventDefault();openBp(this.dataset.bp)">查看架构图 ↗</a></td></tr>';
+  });
+  html+='</table><h3 style="margin:18px 0 8px;font-size:14px">📋 版本日志（'+ALL.versions.entries.length+' 条）</h3>';
+  let es=ALL.versions.entries.slice().reverse().slice(0,40).map(e=>'<div class="ver-item"><b>'+e.action+' · '+e.bp+'</b> <span class="t">'+e.ts+'</span><div>'+e.detail+'</div></div>').join('');
+  box.appendChild(el('div','',html+es));
+}
+function renderProjects(){
+  const box=$('view-projects');
+  // 按维度聚合
+  const dims={};
+  ALL.blueprints.forEach(b=>{(dims[b.dim]=dims[b.dim]||[]).push(b)});
+  Object.keys(dims).forEach(d=>{
+    box.appendChild(el('h3','',d+' · '+dims[d].length+' 蓝图'));
+    const g=el('div','cards');
+    dims[d].forEach(b=>{
+      const c=el('div','card');
+      c.innerHTML='<h3>'+b.id+'</h3><span class="v">v'+b.version+'</span><span class="pill '+stCls(b.status)+'">'+(b.status||'todo')+'</span><div class="ml">'+(b.mainlines||[]).map(m=>'<span class="pill">'+m+'</span>').join('')+'</div>';
+      c.onclick=()=>openBp(b.id);g.appendChild(c);
+    });
+    box.appendChild(g);
+  });
+}
+</script>
+<script>bindTabs();init();</script>
+</body></html>

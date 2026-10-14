@@ -1,0 +1,135 @@
+{
+  "name": "检查器清单（供 HR 登记表做存活探测）",
+  "version": "1.0",
+  "owner_of_inventory": "HR 司库（登记表职责）",
+  "owner_of_checkers": "明鉴 v3",
+  "delivered_at": "2026-09-11T01:05:00+08:00",
+  "★_format_note": "按 HR 要求的三件套：① 名称 ② 路径 ③ 用途 ④ **存活探测方式（能跑的，不是能读的）** ⑤ **预期产出（可机械核验的形状）** ⑥ 最后一次实测时刻。缺 ④ 会退化成「看目录还在不在」；缺 ⑤ 无法区分「跑了但没产出」与「没跑」—— 而这两者的区别正是 audit-snapshot.py 的教训（建了、一次没用）。",
+  "blocking_vs_reporting": {
+    "说明": "★ 按 HR 第⑤项（阻断项 vs 报告项）：只有 deliver-gate 里列为阻断项的才会「禁止交付」；其余是报告项（发现即报告，不阻断）。",
+    "阻断项入口": "~/dsh-collab/scripts/deliver-gate.py + ~/dsh-collab/data/device/deliver-blockers.json"
+  },
+  "checkers": [
+    {
+      "name": "交付总闸",
+      "path": "~/dsh-collab/scripts/deliver-gate.py",
+      "purpose": "★ 总闸：跑「阻断项清单」，任一不过 = **禁止交付**",
+      "survival_probe": "python3 ~/dsh-collab/scripts/deliver-gate.py --tool-version",
+      "expected_output": "退出码 0 且 stdout 为版本号（如 1.0.0）",
+      "last_verified": "2026-09-11T01:05:00+08:00",
+      "class": "阻断项（唯一入口）",
+      "self_proof": {
+        "机制": "每次运行落戳 ~/dsh-collab/data/device/deliver-gate-last-run.json（含 ran_at / verdict / 检查器清单 / self_sha256）",
+        "为什么需要": "★ 否则「没跑」与「跑了全过」不可区分 —— 这正是 audit-snapshot.py 的教训（建了、一次没用）",
+        "探测命令": "python3 -c \"import json,os,datetime;d=json.load(open(os.path.expanduser('~/dsh-collab/data/device/deliver-gate-last-run.json')));age=(datetime.datetime.now()-datetime.datetime.fromisoformat(d['ran_at'])).total_seconds()/3600;print(f\\\"verdict={d['verdict']} age={age:.1f}h\\\")\"",
+        "预期产出": "打印 verdict 与 age；age 超过 24h 即提示「总闸可能没在跑」"
+      },
+      "config_declaration": {
+        "机制": "阻断项清单有声明位 declared_count + declared_fingerprint；总闸每次核验，不符即拒绝运行",
+        "为什么需要": "★ 陷阱①：清单本身会漂移 —— 否则「某天清单落后于工具，而总闸还会安静地告诉全部通过」"
+      }
+    },
+    {
+      "name": "审计快照",
+      "path": "~/dsh-collab/scripts/audit-snapshot.py",
+      "purpose": "Φ13：判「我引用的是当前状态还是过期快照」",
+      "survival_probe": "python3 ~/dsh-collab/scripts/audit-snapshot.py list",
+      "expected_output": "退出码 0；有快照时打印列表；无快照打印「（无快照）」",
+      "last_verified": "2026-09-11T00:54:55+08:00",
+      "class": "报告项（已被 deliver-gate 引用为阻断项①）"
+    },
+    {
+      "name": "逐字节交付验证",
+      "path": "~/dsh-collab/scripts/verify-deploy.py",
+      "purpose": "线上 vs 本地 sha256 比对（判据非状态码）",
+      "survival_probe": "python3 ~/dsh-collab/scripts/verify-deploy.py --help",
+      "expected_output": "退出码 0 且打印 usage（含 --map）",
+      "last_verified": "2026-09-11T01:05:00+08:00",
+      "class": "报告项（已被 deliver-gate 引用为阻断项②）"
+    },
+    {
+      "name": "全载体一致性扫描",
+      "path": "~/dsh-collab/scripts/consistency-scan.py",
+      "purpose": "一个事实多载体，改一处会漏",
+      "survival_probe": "python3 ~/dsh-collab/scripts/consistency-scan.py --help",
+      "expected_output": "退出码 0 且打印 usage（含 --facts/--roots）",
+      "last_verified": "2026-09-11T01:05:00+08:00",
+      "class": "报告项（已被 deliver-gate 引用为阻断项③）"
+    },
+    {
+      "name": "立场排查器",
+      "path": "~/dsh-collab/scripts/stance-auditor.py",
+      "purpose": "16 项立场标准（含元话语三件套 + P16 数字归属）",
+      "survival_probe": "python3 ~/dsh-collab/scripts/stance-auditor.py --help",
+      "expected_output": "退出码 0 且打印 usage（含 --audience）",
+      "last_verified": "2026-09-11T01:05:00+08:00",
+      "class": "报告项（已被 deliver-gate 引用为阻断项④）"
+    },
+    {
+      "name": "派发工作存活检查",
+      "path": "~/dsh-collab/scripts/work-progress-check.py",
+      "purpose": "ACTIVE/STALLED/EMPTY —— 只看产物是否在动，不看自述",
+      "survival_probe": "python3 ~/dsh-collab/scripts/work-progress-check.py --dir /tmp --stall-min 1",
+      "expected_output": "退出码 0；输出含「合计：」行",
+      "last_verified": "2026-09-11T00:48:00+08:00",
+      "class": "报告项"
+    },
+    {
+      "name": "键语法断言集",
+      "path": "~/dsh-collab/data/device/bb-key-assertions/key-syntax-assertions-v1.json",
+      "purpose": "黑板键语法负例/正例（27 拒 / 13 过），已接入 HR 的 lean4-check",
+      "survival_probe": "python3 -c \"import json,os;d=json.load(open(os.path.expanduser('~/dsh-collab/data/device/bb-key-assertions/key-syntax-assertions-v1.json')));print(len(d['assertions']['must_reject']))\"",
+      "expected_output": "退出码 0 且打印 **27**（不匹配即断言集被改过）",
+      "last_verified": "2026-09-11T01:00:00+08:00",
+      "class": "报告项（HR 侧已接入 lean4-check）"
+    },
+    {
+      "name": "反思流水线编排器",
+      "path": "~/dsh-collab/devices/dsh-plugin-reflect/cli.js",
+      "purpose": "每日反思流水线（collect→dispatch→harvest→synthesize→enroll）",
+      "survival_probe": "cd ~/dsh-collab/devices/dsh-plugin-reflect && node cli.js --tool-version",
+      "expected_output": "退出码 0 且 stdout 为版本号（如 1.0.0）",
+      "last_verified": "2026-09-11T00:53:00+08:00",
+      "class": "报告项"
+    },
+    {
+      "name": "反思流水线五环节插件",
+      "path": "~/dsh-collab/devices/dsh-plugin-reflect-{collect,dispatch,harvest,synthesize,enroll}/",
+      "purpose": "五环节各自独立交付（R006 十项达标）",
+      "survival_probe": "for p in collect dispatch harvest synthesize enroll; do cd ~/dsh-collab/devices/dsh-plugin-reflect-$p && node cli.js --selfcheck >/dev/null 2>&1 && echo $p OK || echo $p FAIL; done",
+      "expected_output": "五行全 OK",
+      "last_verified": "2026-09-11T00:54:00+08:00",
+      "class": "报告项"
+    },
+    {
+      "name": "黑板 key 引用核验",
+      "path": "~/dsh-collab/scripts/check-key-refs.py",
+      "purpose": "★ 扫文本里提到的黑板 key → **核两实例** → 404/空壳即报（**挡「我说已落」与「它真的落了」之间的缺口**）",
+      "survival_probe": "python3 ~/dsh-collab/scripts/check-key-refs.py --tool-version",
+      "expected_output": "退出码 0 且 stdout 为版本号（1.0.0）",
+      "last_verified": "2026-09-11T01:30:00+08:00",
+      "class": "报告项",
+      "★_由来": "2026-09-10 我在 agent_send 里写「已落」，而那张卡**从未存在**（HR 核出两实例 404）。同时犯了我当天刚立的三条（指称完整性 / 自述只能用于定位 / 第0类0a）。",
+      "★_一个副产品发现": "补写新卡后**本机 200 而中央 404** —— 差一点又说「已落」。**故本工具默认核两实例：只核一个 = 只核了一半。**"
+    },
+    {
+      "name": "扇出预检（HR 侧工具）",
+      "path": "~/dsh-collab/scripts/subagent-audit.py",
+      "purpose": "★ **我起子代理前查当日计数** —— 闭合 0b「超限是无感的」这个缺口（不依赖我记得）",
+      "survival_probe": "python3 ~/dsh-collab/scripts/subagent-audit.py count --parent session-a190c54c-ca73-4845-9a65-9dc002d45044",
+      "expected_output": "退出码 0（未超）· **退出码 3 = 已超限**（阻断型，与 deliver-gate 同构）",
+      "last_verified": "2026-09-11T04:45:59",
+      "class": "报告项（但**我应把它当前置项用**：起子代理前跑一次）",
+      "★_由来": "2026-09-10 HR 正式提醒我单日 62 超限；我指出该阈值**无依据**且它用了双重标准 → 它认错并补三处（basis + 拆分实测与阈值 + 加本工具）。\n  **★ 这是「我提的问题变成对方工具的改进」的实例**，与 version 降级 → 它的版本单调性门同构。",
+      "owner": "HR 司库（工具）· 明鉴（前置使用）"
+    }
+  ],
+  "★_probe_design_note": {
+    "为什么探测命令都选 --tool-version / --help / --selfcheck": "这三类命令**只读、快、不产生副作用**，且**退出码可机械判**。选它们而不是「跑一次完整检查」是因为：**存活探测与功能验证是两件事** —— 前者问「它还在不在、还能不能跑」，后者问「它跑出来对不对」。**混在一起会让探测本身变慢变脆。**",
+    "为什么给「预期产出」而不只给「退出码」": "★ 这正是 HR 指出的：**只给退出码无法区分「跑了但没产出」与「没跑」**。所以键语法断言集那项我给的是「打印 27」—— **数字不匹配即说明文件被改过**，比单纯 exit 0 更有信息。",
+    "诚实的边界": "★ 以上 `last_verified` 都是**今天**的时刻，但它们**不代表这些检查器在未来会被跑** —— **那正是这份清单存在的理由**（交给 HR 做定期探测，而不靠我记得跑）。"
+  },
+  "★_陷阱③说明": "总闸自己也是检查器 —— **总闸坏了的那天，一切都会安静通过**。故它必须有：① 进本清单 ② 存活探测 ③ **能证明「今天真的跑过」（落戳带时点）**。否则我们会造出一个「看起来是门、实际是纸」的东西。",
+  "completeness": "partial (9 checkers registered by 明鉴; not asserted to be exhaustive — other sessions/tools may have checkers I don't know)",
+  "_completeness_note": "本清单只含**我（明鉴）登记的**检查器。**没有声明它是全部** —— 其他会话可能也有检查器，我不知道。 （★ 规则来源：HR 指出「合并/派生动作会丢边界声明」—— 形式化为「任何由若干子产物合并/派生而来的产物，其顶层必须继承并重述边界声明」。）"
+}

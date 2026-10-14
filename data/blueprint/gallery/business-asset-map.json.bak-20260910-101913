@@ -1,0 +1,1000 @@
+{
+ "version": "1.5",
+ "note": "跨节点生意资产地图：全部角色盘点+跨节点已知资产 → 关联蓝图",
+ "assets": [
+  {
+   "name": "设备资产表 v1.3",
+   "type": "file",
+   "location": "~/dsh-collab/devices/device-assets.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "4设备+关联设备硬件/状态/算力基线",
+   "responder": "罗盘",
+   "node": "mac-mini"
+  },
+  {
+   "name": "设备数据地图 v1.4",
+   "type": "file",
+   "location": "~/dsh-collab/devices/device-data-map.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "三设备数据资产分类地图",
+   "responder": "罗盘",
+   "node": "mac-mini"
+  },
+  {
+   "name": "任务-环境映射表 v1.4",
+   "type": "file",
+   "location": "~/dsh-collab/devices/task-env-map.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "16+任务环境映射+模型路由",
+   "responder": "罗盘",
+   "node": "mac-mini"
+  },
+  {
+   "name": "i9 dsh 节点",
+   "type": "node",
+   "location": "DESKTOP-P8E7OP1(C:\\Users\\admin\\dsh-run.ps1)",
+   "isOriginal": false,
+   "blueprint": "flowernet",
+   "desc": "Windows dsh headless节点=分布式第3节点",
+   "responder": "罗盘",
+   "node": "mac-mini"
+  },
+  {
+   "name": "i9 三项目扫描成果",
+   "type": "data",
+   "location": "data/blueprint/flowernet/i9-projects-scan",
+   "isOriginal": false,
+   "blueprint": "flowernet",
+   "desc": "ERP(RFID)/小程序/官网路径结构确认",
+   "responder": "罗盘",
+   "node": "mac-mini"
+  },
+  {
+   "name": "cld-health 管理目录",
+   "type": "file",
+   "location": "file:/Users/coreyleung/dsh-collab/cld-health/",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "CLD 健康审查/迭代管理的专属目录（独占写，读共享），含基线/backlog/巡检工具/复核清单",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "健康基线报告",
+   "type": "file",
+   "location": "cld-health-baseline-20260816.md",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "§1-9：含 23:49 SIGKILL 根因复盘、重启复核、外卖快照、OOM 归因（§9）——排障口径权威文档",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "迭代需求清单 backlog",
+   "type": "file",
+   "location": "cld-iteration-backlog.md",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "CLD-001~020 状态机（P0-P3/指派/验收/closed），健康审查域需求管理中枢",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "health-check.sh",
+   "type": "tool",
+   "location": "health-check.sh",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "健康巡检脚本（15+ 项：磁盘含 Data 卷/负载+连续超阈协议/GUI 自动探测/3081/日志错误/bundles 拼写/node_modules/xberg 绑定+套装/link/面板信息级/配置突变 UTC/内存+swap/3080 哨兵/会话日志完整性/供应链上游/--push dormant）",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "health-log.tsv",
+   "type": "file",
+   "location": "health-log.tsv",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "巡检时间序列（趋势/连续超阈统计/基线对比）",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "post-restart-check.md",
+   "type": "file",
+   "location": "post-restart-check.md",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "重启后 14 步复核清单（含 3080 哨兵/会话日志完整性/dshdoc 复测/compaction 挂载验证）+异常处置表+工具调用约定教训",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "CLD-002 看门狗交付",
+   "type": "file",
+   "location": "CLD-002-watchdog.md + ~/CLD/app-cld002.asar",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "exit-trace 模块（3d490920 实施，守灯验收口径）：exit-marker/heartbeat/[exit-trace]——待用户安装+重签（已升 P0）",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "CLD-002-wecom-alert-spec.md",
+   "type": "file",
+   "location": "CLD-002-wecom-alert-spec.md",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "看门狗→企微告警接入规范（外发用例 #10；P3 拦截 dormant）",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "OOM 归因与恢复档案",
+   "type": "file",
+   "location": "data/recovery/cld-oom-2026090*.md",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "CLD heap OOM（3 次复发）证据链归因 + 复发调查（CLD-020 处置驱动）",
+   "responder": "守灯",
+   "node": "mac-mini"
+  },
+  {
+   "name": "resource-registry.md",
+   "type": "file",
+   "location": "~/dsh-collab/resource-registry.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "跨智能体协作资源统筹中枢（登记表 v1.0.396+）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "concept-dict.py",
+   "type": "tool",
+   "location": "scripts/concept-dict.py",
+   "isOriginal": true,
+   "blueprint": "blueprint-platform",
+   "desc": "概念数据字典（R019/R028 术语登记，39 概念向量化双轨）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "subagent-govern.py",
+   "type": "tool",
+   "location": "scripts/subagent-govern.py",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "子代理治理四过程（R024 check-new/audit/cleanup/coordinate + 灾难防护）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "pre-delete-archaeology.py",
+   "type": "tool",
+   "location": "scripts/pre-delete-archaeology.py",
+   "isOriginal": true,
+   "blueprint": "blueprint-platform",
+   "desc": "删前考古三态判定（R007）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "tech-choice-evaluator.py",
+   "type": "tool",
+   "location": "scripts/tech-choice-evaluator.py",
+   "isOriginal": true,
+   "blueprint": "flowernet-platform",
+   "desc": "技术栈选型评估器（6 维评分+反阉割）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "pre-transfer-check.py",
+   "type": "tool",
+   "location": "scripts/pre-transfer-check.py",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "传输前磁盘余量门（防 i9 C 盘挤爆）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "approval-config.json",
+   "type": "file",
+   "location": "~/dsh-collab/approval-config.json",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "审批分级配置（J45 四档+12 硬升级+成本门禁双闸门）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "approval-ledger.md",
+   "type": "file",
+   "location": "~/dsh-collab/approval-ledger.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "审批台账（R026/R028/R030 事件记录）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "role-name-check.py",
+   "type": "tool",
+   "location": "scripts/role-name-check.py",
+   "isOriginal": true,
+   "blueprint": "blueprint-platform",
+   "desc": "角色命名校验（R009 设备-角色规范）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "bb-sub-gen.py",
+   "type": "tool",
+   "location": "scripts/bb-sub-gen.py",
+   "isOriginal": true,
+   "blueprint": "agent-network",
+   "desc": "黑板订阅守护生成器（角色就任基础设施）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "preset-fit.py",
+   "type": "tool",
+   "location": "scripts/preset-fit.py",
+   "isOriginal": true,
+   "blueprint": "blueprint-platform",
+   "desc": "角色专用模式评估器（4 维信号）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "convenience-bias-governance.md",
+   "type": "file",
+   "location": "docs/convenience-bias-governance.md",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "便利性偏差治理规范（J49+Rust 化决策标准）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "return-photos-manifest.json",
+   "type": "file",
+   "location": "docs/return-photos-manifest.json",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "返图资产唯一性登记（SHA256）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "KB ops-science-research",
+   "type": "kb",
+   "location": "knowledge 库 afa7de13",
+   "isOriginal": false,
+   "blueprint": "flowernet",
+   "desc": "运营/研究知识库（246+ docs）",
+   "responder": "司库",
+   "node": "mac-mini"
+  },
+  {
+   "name": "flower-intel-agent",
+   "type": "project",
+   "node": "i9",
+   "location": "C:\\Users\\admin\\flower-intel-agent",
+   "blueprint": "aistartup",
+   "isOriginal": true,
+   "desc": "初蘅·智能运营&竞品情报平台(FastAPI+ChromaDB+Dify 5Agent)"
+  },
+  {
+   "name": "flower-intel-index",
+   "type": "data",
+   "node": "mac-mini",
+   "location": "devices/flower-intel-*",
+   "blueprint": "aistartup",
+   "isOriginal": true,
+   "desc": "flower-intel 知识快照/TOP20/310 索引"
+  },
+  {
+   "name": "flowercheck",
+   "type": "tool",
+   "node": "i9",
+   "location": "E:\\My vibe codding\\flowercheck",
+   "blueprint": "flowernet",
+   "isOriginal": true,
+   "desc": "鲜花批发价格监控工具"
+  },
+  {
+   "name": "flower-classifier",
+   "type": "data",
+   "node": "i9",
+   "location": "E:\\My vibe codding\\flower-classifier",
+   "blueprint": "flowernet",
+   "isOriginal": true,
+   "desc": "花束图片分类(CLIP/HDBSCAN/FAISS 591图)"
+  },
+  {
+   "name": "初蘅小程序源码",
+   "type": "code",
+   "node": "i9",
+   "location": "E:\\chuheng_miniprogram_backup",
+   "blueprint": "flowernet-miniapp",
+   "isOriginal": true,
+   "desc": "uni-app+飞书sync+商品导出脚本"
+  },
+  {
+   "name": "phoneuse 手机自动化",
+   "type": "service",
+   "node": "i9",
+   "location": "E:\\My vibe codding\\phoneuse",
+   "blueprint": "flowernet-platform",
+   "isOriginal": true,
+   "desc": "MCP 手机自动化(花伍/阿里/淘宝采购)"
+  },
+  {
+   "name": "花伍采集项目",
+   "type": "tool",
+   "node": "i9",
+   "location": "E:\\My vibe codding\\花伍自动化采集项目",
+   "blueprint": "flowernet",
+   "isOriginal": true,
+   "desc": "花伍订单采集截图"
+  },
+  {
+   "name": "ERP RFID 三项目",
+   "type": "code",
+   "node": "i9",
+   "location": "E:\\My vibe codding\\RFID",
+   "blueprint": "flowernet-erp",
+   "isOriginal": true,
+   "desc": "flower-server-java+HcpdaInventory+rfid-bridge"
+  },
+  {
+   "name": "银行活动资料",
+   "type": "data",
+   "node": "MBP",
+   "location": "MBP 66M/509文件",
+   "blueprint": "banking",
+   "isOriginal": false,
+   "desc": "招商计划书/BP/出资协议(MBP考古)"
+  },
+  {
+   "name": "景鸿国际知识系统",
+   "type": "project",
+   "node": "MBP",
+   "location": "MBP 5c49a404",
+   "blueprint": "banking",
+   "isOriginal": true,
+   "desc": "移民/教育/房产/身份规划知识资产系统(新业务)"
+  },
+  {
+   "name": "同盟法辅平台",
+   "type": "project",
+   "node": "MBP",
+   "location": "MBP 0ad827f1",
+   "blueprint": "aistartup",
+   "isOriginal": true,
+   "desc": "法拍辅助数据平台全栈(新业务)"
+  },
+  {
+   "name": "MiniMax 视觉方案",
+   "type": "asset",
+   "node": "i9",
+   "location": "minimax.env",
+   "blueprint": "flowernet",
+   "isOriginal": true,
+   "desc": "ERP视觉/返图标注/花图合规(已送达)"
+  },
+  {
+   "name": "Dify 本地知识库",
+   "type": "service",
+   "node": "mac-mini",
+   "location": "127.0.0.1:8080",
+   "blueprint": "aistartup",
+   "isOriginal": false,
+   "desc": "经营分析报告工作流"
+  },
+  {
+   "name": "comm.db 学习系统",
+   "type": "db",
+   "node": "mac-mini",
+   "location": "comm.db",
+   "blueprint": "flowernet",
+   "isOriginal": false,
+   "desc": "86客户/117会话/685消息 客户沟通学习"
+  },
+  {
+   "name": "flower-yolo 训练集",
+   "type": "data",
+   "node": "mac-mini",
+   "location": "~/dsh-collab/datasets/flower-yolo",
+   "blueprint": "flowernet",
+   "isOriginal": false,
+   "desc": "102类YOLO 3.2G/133472文件 需求预测训练数据",
+   "responder": "罗盘"
+  },
+  {
+   "name": "MTM 外卖门店多平台管理",
+   "type": "app",
+   "location": "~/meituan-multi (mtm.js/scripts/lib/desktop)",
+   "isOriginal": true,
+   "blueprint": "mtm",
+   "desc": "管理效率工具·代运营作业层: Chrome多开+8787面板+采集/监控/批量/导出, 10店实时运营. 定位见 docs/product-positioning-laodeng-vs-mtm-v1.md, 勿与老登App混淆",
+   "responder": "老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "外卖老登 App (laodeng)",
+   "type": "app",
+   "location": "~/meituan-multi/laodeng-h5/{dist,asr-server,ios-shell}",
+   "isOriginal": true,
+   "blueprint": "laodeng-app",
+   "desc": "前端智能体壳·行业商家触达层: 语音/对话+功能页, 面向鲜花行业商家. 展示Demo(协议v1.1 不接真实后台). 定位见 docs/product-positioning-laodeng-vs-mtm-v1.md, 勿与MTM混淆",
+   "responder": "老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "laodeng-h5 版本管理",
+   "type": "tool",
+   "location": "~/meituan-multi/laodeng-h5/{version.json,CHANGELOG.md,VERSIONING.md}",
+   "isOriginal": false,
+   "blueprint": "laodeng-app",
+   "desc": "老登 App(laodeng-h5)版本体系: git v0.1.0 bbcc707 tag + SemVer 规范. 属老登App域≠MTM(见 product-positioning-laodeng-vs-mtm-v1)",
+   "responder": "老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "laodeng-h5 日志体系",
+   "type": "tool",
+   "location": "~/meituan-multi/laodeng-h5/logs/ + scripts/{service.sh,rotate-logs.sh}",
+   "isOriginal": false,
+   "blueprint": "laodeng-app",
+   "desc": "统一服务管理 service.sh(start/stop/status/restart/logs) + logs/ 轮转(>2MB 保留5份). 属老登App域",
+   "responder": "老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "DSH 运行资产(i9)",
+   "type": "node",
+   "location": "PC-i9 deepseek-harness 多会话",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "i9 DSH: 6 会话(协调2f883a6f/开发7d48f068/花匠7158303b/HR66cb82ca/数据65cdcc18/小程c172445d) + agent-bus v1.5.1 + BRAS 14 scanner + bug-ledger 61条 + link-gate + ReviewOrchestrator v1.0.0",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "GPU 算力(i9)",
+   "type": "service",
+   "location": "RTX4060Ti 8GB",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "4060Ti 8GB 花匠独占 + MiniMax 生图/视觉 + flower-l2 v5 权重(SHA a68ff862 mAP0.266)",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "初蘅源码 E盘(i9)",
+   "type": "code",
+   "location": "E盘 RFID/flower-server-java",
+   "isOriginal": false,
+   "blueprint": "flowernet-erp",
+   "desc": "RFID/flower-server-java(V1-V92, 129.204.12.142) + 2.0chuhengminiprogram + chuheng-website + 外卖老登 + RFID/doc 20+",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "ai-datasets 数据资产(i9)",
+   "type": "data",
+   "location": "ai-datasets",
+   "isOriginal": true,
+   "blueprint": "flowernet",
+   "desc": "flower-yolo 47770 图 + l2 + 真值池 5949pts 16类 + 斗南 9644 行 + 返图 2494 张",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "跨域规则传承(i9)",
+   "type": "file",
+   "location": "i9 踩坑卷/台账",
+   "isOriginal": false,
+   "blueprint": "rule-judge",
+   "desc": "踩坑卷 §28-42 + 台账 W90-W143 + 分工 v1.1 + R001-R019",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "GeneBank 用途登记(i9)",
+   "type": "protocol",
+   "location": "GeneBank 接入",
+   "isOriginal": false,
+   "blueprint": "gene-bank",
+   "desc": "训练/模型资产版本登记 + mac 检索备份; UI 资产已走 8915 HTTP 闭环(非 GeneBank 线)",
+   "responder": "i9",
+   "node": "i9"
+  },
+  {
+   "name": "全局注册表(发现层)",
+   "type": "service",
+   "location": "data/discovery/agents/<device> (xingqiao 中枢)",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "E2 跨设备身份/发现层: 谁在线/会话id/路由可达; 心跳驱动; G5活性(<90s); cs2-2b",
+   "responder": "星桥",
+   "node": "xingqiao"
+  },
+  {
+   "name": "waimai-mcp-core(能力中台)",
+   "type": "service",
+   "location": "计划 docs/mcp-four-stack-masterplan-v1.md",
+   "isOriginal": false,
+   "blueprint": "mtm",
+   "desc": "栈2: 外卖能力 MCP 中台 — 8787 只读7工具+动作(带R027门), 栈3/4共享内核",
+   "responder": "明鉴/老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "waimai-mcp-merchant(商家向)",
+   "type": "service",
+   "location": "docs/mcp-four-stack-masterplan-v1.md",
+   "isOriginal": false,
+   "blueprint": "merchant-ops-ai",
+   "desc": "栈3: 外卖商家自助(妙记1 AI工具产品化) — 单店AI建议+SaaS订阅 [独立产品线 2026-09-06 用户定]",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "waimai-mcp-ops(服务商向)",
+   "type": "service",
+   "location": "docs/mcp-four-stack-masterplan-v1.md",
+   "isOriginal": false,
+   "blueprint": "mtm",
+   "desc": "栈4: 代运营服务商作业平台(妙记2) — 多店矩阵+批量+抽佣统计",
+   "responder": "明鉴/老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "comm-mcp-server(通讯层MCP)",
+   "type": "service",
+   "location": "docs/mcp-external-access-design-v1.md",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "栈1: 外部 MCP 接入层 — E2注册+token, 全栈通讯底座(黑板/bus/节点)",
+   "responder": "星桥/明鉴",
+   "node": "xingqiao"
+  },
+  {
+   "name": "代运营服务业务(flowernet-ops)",
+   "type": "business",
+   "location": "data/blueprint/flowernet-ops/",
+   "isOriginal": false,
+   "blueprint": "flowernet-ops",
+   "desc": "对外代运营服务业务本体: 服务/团队/收费/招商 四线; 8%→阶梯+淘闪返佣; 轻资产借力起盘",
+   "responder": "明鉴/老登",
+   "node": "mac-mini"
+  },
+  {
+   "name": "成都商家池(城市战 750鲜花店强建联)",
+   "type": "asset",
+   "location": "data/blueprint/flowernet-citywar/",
+   "isOriginal": false,
+   "blueprint": "flowernet-citywar",
+   "desc": "成都城市合伙人强建联鲜花店(妙记内部口径750家,查无公开; 公开旁证: 成都全城花店5200+家2023): 城市战最大存量池=supply 初始客户基数",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "城市合伙人资格(成都已下/投标中)",
+   "type": "license",
+   "location": "data/blueprint/flowernet-citywar/",
+   "isOriginal": false,
+   "blueprint": "flowernet-citywar",
+   "desc": "淘闪非餐饮全品类城市代理权: 成都已拿下; 苏州未中(老商加分); 推进杭州/北京/上海; 资质: 实缴200万+400万存款+年流水800万",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "全国鲜花服务商资格(广州橙果持,一年期)",
+   "type": "license",
+   "location": "data/blueprint/flowernet-citywar/",
+   "isOriginal": false,
+   "blueprint": "flowernet-citywar",
+   "desc": "淘闪全国鲜花类目服务商(平台倾向唯一): 一年期合同=政策窗口; 考核=新签+GMV+投流; 数字均内部口径(查无公开)",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "平台返佣/点数分配权(12点)",
+   "type": "license",
+   "location": "data/blueprint/flowernet-citywar/",
+   "isOriginal": false,
+   "blueprint": "flowernet-citywar",
+   "desc": "淘闪给服务商12点返佣自主分配权(当前全返=阶段性拉新政策)+商圈流量倾斜权(单店曝光78%)+城市级运营活动发起权",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "城市战引擎(flowernet-citywar)",
+   "type": "business",
+   "location": "data/blueprint/flowernet-citywar/",
+   "isOriginal": false,
+   "blueprint": "flowernet-citywar",
+   "desc": "区域扩张引擎 v1.3(口径修正 2026-09-09): 城市合伙人投标+商家获取+城市战打法+变现; 持牌=中恒天仰(北京,ESP中标 非声通系)+广州橙果供应链科技; 平台=淘闪(淘宝闪购/拉扎斯系); 精确数字=内部口径",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "供应链公司(flowernet-supply)",
+   "type": "business",
+   "location": "data/blueprint/flowernet-supply/",
+   "isOriginal": false,
+   "blueprint": "flowernet-supply",
+   "desc": "战略供应链公司 v1.2(已登记): 贸易聚焦资材/耗材/包材(花材红海不碰)+IP配件标准化供货(初蘅自有品牌优先)+锁店(配价格波动对冲)+获客; 服务加盟/代运营商家+城市合伙人区域",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "资材/耗材/包材供货线(supply trade)",
+   "type": "business-line",
+   "location": "data/blueprint/flowernet-supply/",
+   "isOriginal": false,
+   "blueprint": "flowernet-supply",
+   "desc": "trade主线聚焦: 资材/耗材/包材整合供货(供给侧分散无全国品牌=空白); 花材直供不做(红海)",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "IP配件标准化供货线(supply ip-license)",
+   "type": "business-line",
+   "location": "data/blueprint/flowernet-supply/",
+   "isOriginal": false,
+   "blueprint": "flowernet-supply",
+   "desc": "面向花店生态的IP配件标准化供货(公开无玩家=空白); IP第一候选=初蘅自有品牌; 授权金均值~3.9%",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "server-scan.py",
+   "type": "tool",
+   "node": "MBP",
+   "location": "MBP ~/dsh-collab/guard/tools/server-scan.py v1.0.0",
+   "blueprint": "",
+   "isOriginal": true,
+   "desc": "服务器(xingqiao)完整扫描工具：R006十项达标(17项6类: AUTH/INPUT/PROTOCOL/RESOURCE/SSE/HANDSHAKE) + Lean4门自检 + 自动PR(convention-propose)。实测15/17 PASS, 发现A2-from-spoof+P1-empty-grab已PR task cb1796fe"
+  },
+  {
+   "name": "会议人物身份图谱(identity-graph)",
+   "type": "tool",
+   "location": "data/meeting-identity-graph.json",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "会议人物身份管理: 10人物7组织+别名/Speaker映射/关系; 动态识别念名字即查身份",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "身份图谱GUI(identity-graph-gui)",
+   "type": "service",
+   "location": "scripts/identity-graph-gui.py :8811",
+   "isOriginal": false,
+   "blueprint": "agent-network",
+   "desc": "独立web app: 关系图谱可视化/人物档案/扫描识别/登记人物(纯stdlib R006十项)",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "会议原文核实器 meeting-verify v1.0.0",
+   "type": "tool",
+   "location": "~/dsh-collab/scripts/meeting-verify.py",
+   "isOriginal": true,
+   "blueprint": "meeting-intel",
+   "desc": "语音会议产物扫描/原文核实/断言审计 CLI; R006十项; 触发于淘闪口径复核过程工具化; 数据=split分章72文件+speakers映射",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "商业沙盘模拟器 wargame v1.0.0",
+   "type": "tool",
+   "location": "~/dsh-collab/scripts/wargame.py",
+   "isOriginal": true,
+   "blueprint": "meeting-intel",
+   "desc": "沙盘推演工具化(R006十项): init/generate/score/adversary/converge/graph/report/run; 方法=LucidWargames+redteam; flowernet 20路线为首个应用(域配置 data/wargame/flowernet/); 可视化 8812/wargame",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "商业沙盘引擎 wargame-engine v1.0.0",
+   "type": "tool",
+   "location": "~/wargame-app/gallery/wargame-engine.py",
+   "isOriginal": true,
+   "blueprint": "meeting-intel",
+   "desc": "独立沙盘引擎(:8813): 三立场对抗推演(正方/反方/中立方)+反向污染防火墙(现实只读/模拟仅写wargame域); GUI+API; 引用8人物+19蓝图",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "Wargame.app",
+   "type": "app",
+   "location": "~/wargame-app/dist/Wargame.app",
+   "isOriginal": true,
+   "blueprint": "meeting-intel",
+   "desc": "商业沙盘模拟器桌面APP(Electron): 引擎spawn+窗口; 模拟/现实双向隔离",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "沙盘推演域 flowernet",
+   "type": "data",
+   "location": "~/dsh-collab/data/wargame/flowernet/",
+   "isOriginal": false,
+   "blueprint": "flowernet",
+   "desc": "R2三方对抗定稿(簇1路线): 反方四攻+正方闭环+中立裁决; 6行动P1-P4; simulation.json",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "D3 3D数字孪生工作台+3D智能体 R6-DT3D-20260909",
+   "type": "project",
+   "location": "~/dsh-collab/research/digital-twin-workbench-3dagent-2026/",
+   "isOriginal": true,
+   "blueprint": "meeting-intel",
+   "desc": "立项 R6-DT3D-20260909 (三方会签: 数据调查员发起/HR司库编号/星桥统筹/明鉴价值评估); 研发探索P2手动触发; 资产: 调研主报告+硬件指南+市场+论文+信源watchlist(29M); KB ba01ae47; 价值=远期可选(3D商品视觉/空间孪生/花艺资材3D打印), 不占flowernet主线",
+   "responder": "明鉴",
+   "node": "mac-mini",
+   "owner": "4787d717"
+  },
+  {
+   "name": "花联网合资公司·公司级蓝图",
+   "type": "file",
+   "location": "~/dsh-collab/data/blueprint/flowernet-jv/blueprint-flowernet-jv-v1.0.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "合资公司公司级蓝图(战略/资本/股权治理/里程碑/对外) 索引17份正式文档",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·全局投资计划书",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-GLOBAL-INVESTMENT-PLAN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "融资节奏+钱花哪(S/A/B/C/D主序)+三层投入",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·股权设计",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-EQUITY-DESIGN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "双层有限合伙+AB股+对赌+激励(全国流量权/城市网络)",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·里程碑矩阵",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-MILESTONE-MATRIX-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "平台×业务×规模矩阵+三遍引擎+25xPE估值链",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·合资公开计划书(公平版)",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-JV-PUBLIC-PLAN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "对外公开·不偏向任何一方",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·商业计划书(完整版)",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-BP-COMPLETE-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "逐章展开·合资公司独立版本",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·总文件(全信息聚合)v1",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-MASTER-CONSOLIDATED-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "八条线聚合：战略/业务线条/架构/预算/资本/股权治理/里程碑/对外",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·种子轮1000万明细预算",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-SEED-BUDGET-DETAIL-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "九类(A-I)明细+云/硬件/能力层+设计师双环境+内存容量反推",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·各轮次用途明细",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-ROUNDS-BUDGET-DETAIL-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "Pre-A/A/B/Pre-IPO用途+各轮云硬件能力层递增",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·架构线落地执行清单",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-ARCHITECTURE-EXECUTION-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "架构线(引擎8.0第一·瓶颈)5层落地:L1采集落店/L2中央云/L3算力租赁/L4三层分工/L5双环境",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·八条线落地执行清单",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-EXECUTION-CHECKLISTS-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "战略/业务/预算/资本/股权/里程碑 六线执行清单(架构线另有独立清单)",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·架构线L1/L5下钻",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-ARCH-L1-L5-DRILLDOWN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "L5环境层(买什么17万/建什么/谁做/2-3周)+L1采集层(买采集机/建封装/谁做/4-5周)下钻",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·架构线L2/L3/L4下钻",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-ARCH-L2-L3-L4-DRILLDOWN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "L2中央层/L3算力层/L4能力层下钻(买什么/建什么/谁做/几天)+五层全景",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  },
+  {
+   "name": "花联网·业务线继续拆",
+   "type": "file",
+   "location": "~/dsh-collab/data/industry/FLOWERNET-BUSINESS-LINES-DRILLDOWN-v1.md",
+   "isOriginal": true,
+   "blueprint": "flowernet-jv",
+   "desc": "代运营/IP商品/软硬件数据/底座 四线拆到具体动作/谁做/指标",
+   "responder": "明鉴",
+   "node": "mac-mini"
+  }
+ ],
+ "bpColors": {
+  "flowernet": "#6ea8ff",
+  "aistartup": "#34c77b",
+  "banking": "#f5b942",
+  "flowernet-platform": "#e06c75",
+  "flowernet-erp": "#56b6c2",
+  "flowernet-miniapp": "#98c379",
+  "flowernet-website": "#d19a66",
+  "agent-network": "#c678dd",
+  "blueprint-platform": "#61afef",
+  "rule-judge": "#e5c07b",
+  "distributed-network": "#2ac3de",
+  "gene-bank": "#f0b429",
+  "merchant-ops-ai": "#e84393",
+  "flowernet-ops": "#e06c75",
+  "flowernet-citywar": "#f76c6c",
+  "flowernet-supply": "#f08a5d",
+  "flowernet-jv": "#8b5cf6"
+ },
+ "nodeColors": {
+  "mac-mini": "#3a4156",
+  "i9": "#7c5cbf",
+  "MBP": "#c0392b",
+  "云端": "#e67e22",
+  "xingqiao": "#2ac3de"
+ },
+ "relations": [
+  {
+   "from": "ai-datasets 数据资产(i9)",
+   "to": "flower-yolo 训练集",
+   "type": "part_of",
+   "desc": "i9 ai-datasets 含 flower-yolo 47770 图(考古实证)",
+   "since": "2026-09-05",
+   "verified": true
+  },
+  {
+   "from": "flower-classifier",
+   "to": "ai-datasets 数据资产(i9)",
+   "type": "depends_on",
+   "desc": "花束图片分类器训练依赖数据集",
+   "since": "2026-09-05",
+   "verified": true
+  },
+  {
+   "from": "ai-datasets 数据资产(i9)",
+   "to": "GPU 算力(i9)",
+   "type": "uses",
+   "desc": "数据集训练消费 GPU 算力",
+   "since": "2026-09-05",
+   "verified": true
+  },
+  {
+   "from": "DSH 运行资产(i9)",
+   "to": "i9 dsh 节点",
+   "type": "part_of",
+   "desc": "i9 DSH 会话运行在 i9 节点",
+   "since": "2026-09-05",
+   "verified": true
+  },
+  {
+   "from": "城市战引擎(flowernet-citywar)",
+   "to": "代运营服务业务(flowernet-ops)",
+   "type": "provides",
+   "desc": "商家池供给: 平移/新签商家是 ops 代运营服务商家来源",
+   "since": "2026-09-07",
+   "verified": true
+  },
+  {
+   "from": "城市战引擎(flowernet-citywar)",
+   "to": "供应链公司(flowernet-supply)",
+   "type": "provides",
+   "desc": "商家池供给: 成都750店等商家池是 supply 贸易线初始客户基数(acquire 线机制依据)",
+   "since": "2026-09-07",
+   "verified": true
+  },
+  {
+   "from": "成都商家池(城市战 750鲜花店强建联)",
+   "to": "城市合伙人资格(成都已下/投标中)",
+   "type": "part_of",
+   "desc": "商家池由城市合伙人强建联掌握",
+   "since": "2026-09-07",
+   "verified": true
+  },
+  {
+   "from": "资材/耗材/包材供货线(supply trade)",
+   "to": "供应链公司(flowernet-supply)",
+   "type": "part_of",
+   "desc": "trade主线隶属 supply 公司业务",
+   "since": "2026-09-07",
+   "verified": true
+  },
+  {
+   "from": "IP配件标准化供货线(supply ip-license)",
+   "to": "供应链公司(flowernet-supply)",
+   "type": "part_of",
+   "desc": "ip-license主线隶属 supply 公司业务",
+   "since": "2026-09-07",
+   "verified": true
+  }
+ ],
+ "relationTypes": {
+  "depends_on": "依赖(被依赖方先行)",
+  "collaborates": "协作(共同完成)",
+  "uses": "使用(消费方引用)",
+  "duplicates": "冗余/副本(需注意)",
+  "part_of": "隶属(子资产)"
+ },
+ "updated": "2026-09-09T15:14:25"
+}

@@ -1,0 +1,77 @@
+{
+  "what": "被删除的全库列举落盘副本清单（删除前记录）",
+  "why": "Φ12 处置：这些文件含全库键值（含可能凭据），属未受控副本；结构复核能力已由 board-structure-summary-20260911.json 替代",
+  "replacement": "~/dsh-collab/data/device/board-structure-summary-20260911.json（969 B，不含值）",
+  "files": [
+    {
+      "name": "lq.json",
+      "size": 36769197,
+      "mtime": "2026-09-11T04:45:15"
+    },
+    {
+      "name": "pg.json",
+      "size": 36605722,
+      "mtime": "2026-09-11T01:01:19"
+    },
+    {
+      "name": "ts2.json",
+      "size": 36596419,
+      "mtime": "2026-09-11T00:57:55"
+    },
+    {
+      "name": "ts.json",
+      "size": 36589877,
+      "mtime": "2026-09-11T00:55:30"
+    },
+    {
+      "name": "rfs.json",
+      "size": 36589877,
+      "mtime": "2026-09-11T00:55:19"
+    },
+    {
+      "name": "alldata.json",
+      "size": 36589804,
+      "mtime": "2026-09-11T00:55:37"
+    },
+    {
+      "name": "ns2.json",
+      "size": 36567991,
+      "mtime": "2026-09-11T00:50:49"
+    },
+    {
+      "name": "p.json",
+      "size": 36517625,
+      "mtime": "2026-09-11T00:44:17"
+    },
+    {
+      "name": "bb-data.json",
+      "size": 36413184,
+      "mtime": "2026-09-10T23:43:43"
+    },
+    {
+      "name": "central-all.json",
+      "size": 15950976,
+      "mtime": "2026-09-11T00:55:56"
+    },
+    {
+      "name": "central-data.json",
+      "size": 14798761,
+      "mtime": "2026-09-11T00:31:01"
+    },
+    {
+      "name": "bb_data.json",
+      "size": 14798761,
+      "mtime": "2026-09-11T00:30:39"
+    },
+    {
+      "name": "bb-notes.json",
+      "size": 6840308,
+      "mtime": "2026-09-10T23:43:43"
+    }
+  ],
+  "count": 13,
+  "total_bytes": 381628502,
+  "recorded_at": "2026-09-11T07:22:40",
+  "operator": "a190c54c(明鉴) —— 属主",
+  "authorization": "HR(司库) 明确：『你的副本属主是你 ⇒ 你列清单、你删』"
+}

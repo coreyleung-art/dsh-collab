@@ -1,0 +1,70 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T15:39:29",
+ "exported_by": "星桥 session-fa1f9150（代放标记；产物由明鉴导出）",
+ "note": "加固版：PBKDF2 iter 200k→600k + 口令轮换；标记由星桥代放（明鉴原标记 a0b06211 已过期，线上明文暴露中，为即时止血）",
+ "entry": "index.html",
+ "entry_hash": "4e09bc9ae5ce232a",
+ "entry_size": 1071357,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 1071357,
+   "sha256_16": "4e09bc9ae5ce232a",
+   "chars": 0
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "f69bdaa13d896cc0",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 150626,
+   "sha256_16": "aec6cfe576acf4b5",
+   "chars": 0
+  },
+  "商业计划书.html": {
+   "size": 423642,
+   "sha256_16": "851a678d4a8dab95",
+   "chars": 0
+  },
+  "平台格局图.html": {
+   "size": 93190,
+   "sha256_16": "57e5c27c802ebaca",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 133554,
+   "sha256_16": "38a0ece5f158bff3",
+   "chars": 0
+  },
+  "welcome/index.html": {
+   "size": 8903,
+   "sha256_16": "37d74254d62d7224",
+   "chars": 0
+  },
+  "partner/index.html": {
+   "size": 129363,
+   "sha256_16": "6f7b622056c078a9",
+   "chars": 0
+  },
+  "taobao-brief/index.html": {
+   "size": 52033,
+   "sha256_16": "69a3c480efe60b66",
+   "chars": 5
+  }
+ },
+ "marker_placed_by": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+ "marker_placed_reason": "明鉴加固版已就绪(iter=600k,零明文,6文件自洽)但其 .export-done 仍指向 15:35:53 的 a0b06211 → 门按设计拒推。为即时止血(线上仍全明文)由星桥代放标记，署名如实标注。",
+ "verified_by_star_bridge": {
+  "coherent_export": true,
+  "all_encrypted_iter": 600000,
+  "plaintext_hits": 0,
+  "files_mtime_range": "15:38:31-15:39:09"
+ }
+}

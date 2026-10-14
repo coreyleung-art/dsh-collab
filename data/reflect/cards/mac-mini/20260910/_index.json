@@ -1,0 +1,66 @@
+{
+  "tool": "dsh-plugin-reflect-dispatch",
+  "version": "1.1.2",
+  "device": "mac-mini",
+  "date": "2026-09-10",
+  "generatedAt": "2026-09-10T16:48:23.206Z",
+  "eventsKey": "data/reflect/events/mac-mini/2026-09-10",
+  "cardKey": "data/reflect/cards/mac-mini/2026-09-10",
+  "answersKey": "data/reflect/answers/mac-mini/2026-09-10",
+  "eventTotal": 10,
+  "eventOrigin": "local-file",
+  "profilesSource": "agent-bus",
+  "status": "delivered",
+  "presence": {
+    "device": "mac-mini",
+    "online": true,
+    "status": "delivered",
+    "signals": {
+      "local": true,
+      "reportedToday": null,
+      "heartbeat": null,
+      "assumed": false
+    },
+    "note": "本机设备：直接在场（卡已落中央板，本机可立即读）"
+  },
+  "agents": [
+    {
+      "agentId": "session-a3bc8cba-714e-446a-900a-b924f111edc7",
+      "shortKey": "a3bc8cba",
+      "qualified": "mac-mini:a3bc8cba",
+      "card": "a3bc8cba.md",
+      "sha256": "aadc7df59e63839d56322a22b3eb622a9163b6aacea8a9ae26da690220e04883",
+      "events": [
+        "E006",
+        "E004",
+        "E005"
+      ]
+    },
+    {
+      "agentId": "session-de7b29de-3a65-4f45-911c-e5ef410a5d4b",
+      "shortKey": "de7b29de",
+      "qualified": "mac-mini:de7b29de",
+      "card": "de7b29de.md",
+      "sha256": "132ba1a3db486573f4cad4408c01110678117cd36597fd65def908ef367095f5",
+      "events": [
+        "E008",
+        "E007"
+      ]
+    },
+    {
+      "agentId": "ffe19f07-8c0c-4685-baad-3f227ff8076b",
+      "shortKey": "ffe19f07",
+      "qualified": "mac-mini:ffe19f07",
+      "card": "ffe19f07.md",
+      "sha256": "c88aa47f82fd2cf54bd25e40c264400f3add8969ea0debb674fb5a0104d316e4",
+      "events": [
+        "E003",
+        "E002",
+        "E001"
+      ]
+    }
+  ],
+  "unassigned": [
+    "E010"
+  ]
+}

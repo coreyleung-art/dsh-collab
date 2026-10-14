@@ -1,0 +1,22 @@
+{
+ "schema": "cloudbase-version-fingerprint/v2",
+ "deployed_at": "2026-09-28T10:09:21+08:00",
+ "deployed_by": "laodeng aa528267",
+ "entry_hash": "470cd995f1c9ce10",
+ "entry_hash_full": "470cd995f1c9ce106edb3747ad6e1f31a03b21691b000e8ebda6ab3de3f5fa2f",
+ "hash_spec": "sha256（_full=64位全量 / 无后缀=前16位）",
+ "charts_by_tab": null,
+ "charts_total": null,
+ "notes": "handshake push (readback from live, manual)",
+ "files": {
+  "index.html": {
+   "size": 150200,
+   "sha256_16": "470cd995f1c9ce10"
+  },
+  "manifest.json": {
+   "size": 1758,
+   "sha256_16": "6cbb86456862fe6a"
+  }
+ },
+ "how_to_verify": "GET 本文件 → 比对 entry_hash（或 entry_hash_full）即可确认线上版本，不受 CDN 缓存影响；图表数看 charts_by_tab"
+}

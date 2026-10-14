@@ -1,0 +1,36 @@
+{
+ "total_groups": 149,
+ "big_40plus": 6,
+ "mid_8to39": 102,
+ "small_under8": 41,
+ "total_msgs": 19806,
+ "context_units": 412153,
+ "amplification_x": 20.8,
+ "top_heavy": [
+  {
+   "id": "thread-msxeucuq-ci6f9bqk",
+   "n": 40,
+   "msgs": 360
+  },
+  {
+   "id": "thread-msx3pkem-9ynjt2iu",
+   "n": 34,
+   "msgs": 316
+  },
+  {
+   "id": "thread-msxcm7du-tnzfb4nf",
+   "n": 28,
+   "msgs": 378
+  },
+  {
+   "id": "thread-msxpkidw-qnzvxc78",
+   "n": 28,
+   "msgs": 360
+  },
+  {
+   "id": "thread-mswf6bxz-xlhcroye",
+   "n": 32,
+   "msgs": 308
+  }
+ ]
+}

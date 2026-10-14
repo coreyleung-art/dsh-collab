@@ -1,0 +1,303 @@
+{
+ "version": "1.0",
+ "items": [
+  {
+   "from": "session-3f34113d-ede0-4af2-a0b9-0bf035d65b44",
+   "to": "session-6f7c739c-6fb7-4b93-ab69-346ac49b2d61",
+   "graph": "agents",
+   "step": "APPROVED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.705,
+    "reasons": [
+     "跨域(idle→dev)",
+     "语义分 0.70"
+    ],
+    "from_role": "通用成员 · 协作执行（无专属资源）",
+    "to_role": "软件工程助手：代码编写/调试/文件操作/仓库与流水线维护"
+   },
+   "recommendation": "接入建议: 通用成员 · 协作执行（无专属资源） ↔ 软件工程助手：代码编写/调试/文件操作/仓库与流水线维护 — 复用已连线枢纽的技术/资源, 本地化重复利用省成本",
+   "plan": {
+    "conflict": false,
+    "impact": "建立「通用成员 · 协作执行（无专属资源） ↔ 软件工程助手：代码编写/调试/文件操作/仓库与流水线维护」连接 — 打通两方协作, 消除 1 个孤岛使其接入网络",
+    "steps": [
+     "确认双方协作价值(技术/资源可复用点)",
+     "建真实连接: 写入 confirmed 记录(带评估/审批 auth)",
+     "图谱/视图生效: 该连接显示为实线"
+    ],
+    "who": "相关方确认后由明鉴执行",
+    "rollback": "删除 confirmed 记录即可还原(不影响源数据)",
+    "sandbox_detail": "无冲突 ✓ · 消除孤岛 2 个"
+   }
+  },
+  {
+   "from": "session-a190c54c-ca73-4845-9a65-9dc002d45044",
+   "to": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.0,
+    "reasons": [
+     "跨域(plan→gov)",
+     "含关键角色(资源/协调)"
+    ],
+    "from_role": "明鉴-mac-mini-蓝图主编+SystemGraph主源架构师",
+    "to_role": "星桥（总线协调者+规则账本维护者+通讯层服务器化迁移主理）：协调跨设备协作、通道卫生、队列治理、规则"
+   }
+  },
+  {
+   "from": "session-f38244df-9225-42ba-ba33-91d1e689edcf",
+   "to": "session-a190c54c-ca73-4845-9a65-9dc002d45044",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.0,
+    "reasons": [
+     "同域(plan)"
+    ],
+    "from_role": "明鉴 v2 · SystemGraph 主源架构师与迭代主理(mac-mini 主源; MBP 副本",
+    "to_role": "明鉴-mac-mini-蓝图主编+SystemGraph主源架构师"
+   }
+  },
+  {
+   "from": "x",
+   "to": "y",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "reject",
+    "reasons": [
+     "节点不存在"
+    ]
+   }
+  },
+  {
+   "from": "session-75815fa9-76d9-4229-bb51-66395035d0e3",
+   "to": "session-3d490920-860c-4c5c-8d93-c6041834a8c6",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.0,
+    "reasons": [
+     "同域(ops)"
+    ],
+    "from_role": "DSH web 插件机制与 GUI 定制运维会话（按需启用）",
+    "to_role": "dsh/CLD 运维排障智能体：负责 DeepSeek Harness 桌面壳（CLD.app）与 "
+   },
+   "recommendation": "接入建议: DSH web 插件机制与 GUI 定制运维会话（按需启用） ↔ dsh/CLD 运维排障智能体：负责 DeepSeek Ha — 复用已连线枢纽的技术/资源, 本地化重复利用省成本",
+   "plan": {
+    "conflict": true,
+    "impact": "该连接已存在或冲突, 无法建立",
+    "steps": [],
+    "who": ""
+   }
+  },
+  {
+   "from": "session-ffb7c3ab-e722-4ac2-8ee5-0309bc9bb1ea",
+   "to": "session-b193c782-f56a-4b1e-b943-f7a05dcbc853",
+   "graph": "agents",
+   "step": "APPROVED",
+   "gate": {
+    "level": "L1",
+    "verdict": "approve",
+    "score": 0.645,
+    "reasons": [
+     "同域(biz)",
+     "语义分 0.65"
+    ],
+    "from_role": "验金石-mac-mini-QA验收员（P2）：交付质量守门人——插件冒烟、GUI 视觉回归、外卖面板",
+    "to_role": "回声-mac-mini-智能客服（自命名 v1.1）：外卖客户消息自动回复引擎——监控 im_ses"
+   },
+   "recommendation": "接入建议: 验金石-mac-mini-QA验收员（P2）：交付质量守门人 ↔ 回声-mac-mini-智能客服（自命名 v1.1）：外卖客 — 复用已连线枢纽的技术/资源, 本地化重复利用省成本",
+   "plan": {
+    "conflict": false,
+    "impact": "建立「验金石-mac-mini-QA验收员（P2）：交付质量守门人——插件 ↔ 回声-mac-mini-智能客服（自命名 v1.1）：外卖客户消息自」连接 — 打通两方协作, 消除 1 个孤岛使其接入网络",
+    "steps": [
+     "确认双方协作价值(技术/资源可复用点)",
+     "建真实连接: 写入 confirmed 记录(带评估/审批 auth)",
+     "图谱/视图生效: 该连接显示为实线"
+    ],
+    "who": "相关方确认后由明鉴执行",
+    "rollback": "删除 confirmed 记录即可还原(不影响源数据)",
+    "sandbox_detail": "无冲突 ✓ · 消除孤岛 2 个"
+   }
+  },
+  {
+   "from": "session-b193c782-f56a-4b1e-b943-f7a05dcbc853",
+   "to": "session-54e809ed-452e-47d3-ab7f-d17a6f1b4943",
+   "graph": "agents",
+   "step": "RECOMMENDED",
+   "gate": {
+    "level": "L1",
+    "verdict": "approve",
+    "score": 0.638,
+    "reasons": [
+     "同域(biz)",
+     "语义分 0.64"
+    ],
+    "from_role": "回声-mac-mini-智能客服（自命名 v1.1）：外卖客户消息自动回复引擎——监控 im_ses",
+    "to_role": "拾光-mac-mini-媒体专员（战地记者+内容主编）：智能体网络每日战报/大事件专稿/大事记时间线"
+   },
+   "recommendation": "接入建议: 回声-mac-mini-智能客服（自命名 v1.1）：外卖客 ↔ 拾光-mac-mini-媒体专员（战地记者+内容主编）：智能 — 复用已连线枢纽的技术/资源, 本地化重复利用省成本"
+  },
+  {
+   "from": "session-fa1f9150-c949-401f-ba8c-d265f6221676",
+   "to": "session-a17a52f8-eee6-4a4e-a3a7-dfcf4bec44e0",
+   "graph": "agents",
+   "step": "REGISTERED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.0,
+    "reasons": [
+     "同域(gov)",
+     "含关键角色(资源/协调)"
+    ],
+    "from_role": "星桥（总线协调者+规则账本维护者+通讯层服务器化迁移主理+gate 工具族主理）：协调跨设备协作、通",
+    "to_role": "HR 驾驶舱（资源管理者 + 成本监察专员）· CAHAC 示范 Agent Card"
+   },
+   "recommendation": "接入建议: 星桥（总线协调者+规则账本维护者+通讯层服务器化迁移主理+g ↔ HR 驾驶舱（资源管理者 + 成本监察专员）· CAHAC  — 复用已连线枢纽的技术/资源, 本地化重复利用省成本",
+   "plan": {
+    "conflict": false,
+    "impact": "建立「星桥（总线协调者+规则账本维护者+通讯层服务器化迁移主理+gate  ↔ HR 驾驶舱（资源管理者 + 成本监察专员）· CAHAC 示范 A」连接 — 打通两方协作, 消除 1 个孤岛使其接入网络",
+    "steps": [
+     "确认双方协作价值(技术/资源可复用点)",
+     "建真实连接: 写入 confirmed 记录(带评估/审批 auth)",
+     "图谱/视图生效: 该连接显示为实线"
+    ],
+    "who": "相关方确认后由明鉴执行",
+    "rollback": "删除 confirmed 记录即可还原(不影响源数据)",
+    "sandbox_detail": "无冲突 ✓ · 消除孤岛 1 个"
+   },
+   "hold_reason": "目标 a17a52f8 已退役(2026-08-22 误归档), 现任 HR=2a15e6b1; 待星桥确认连线意图",
+   "resolved": "星桥确认目标改为现任 HR 2a15e6b1, 已登记 confirmed.json (2026-09-07)"
+  },
+  {
+   "from": "session-1ffded95-c401-41f3-8bec-f74f2d9790cd",
+   "to": "session-b250bf9d-4d0f-4786-be71-01be7d0cc57d",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "block",
+    "score": 0.0,
+    "reasons": [
+     "同域(other)"
+    ],
+    "from_role": "裁判 · 审查专员（独立审查员）——跨角色对「声称↔实证」对账，出三态判定（通过/不通过/未证），不",
+    "to_role": "PSTD 作者/维护者（Cordis 命名门与 R006 审查工具的作者）：工具已移交常驻包，裁定职"
+   }
+  },
+  {
+   "from": "",
+   "to": "",
+   "graph": "agents",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L3",
+    "verdict": "reject",
+    "reasons": [
+     "节点不存在"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座全局架构-20261013.html",
+   "to": "FlowerNet-架构图.html",
+   "graph": "assets",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "assets域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座全局架构-20261013.html",
+   "to": "ml:bus",
+   "graph": "blueprint",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "blueprint域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座全局架构-20261013.html",
+   "to": "ml:comm-server",
+   "graph": "blueprint",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "blueprint域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座关联与协作流程-20261013.html",
+   "to": "CLD%E5%BA%95%E5%BA%A7%E5%85%A8%E5%B1%80%E6%9E%B6%E6%9E%84-20261013.html",
+   "graph": "blueprint",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "blueprint域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座关联与协作流程-20261013.html",
+   "to": "ml:bus",
+   "graph": "blueprint",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "blueprint域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  },
+  {
+   "from": "CLD底座关联与协作流程-20261013.html",
+   "to": "ml:comm-server",
+   "graph": "blueprint",
+   "step": "EVALUATED",
+   "gate": {
+    "level": "L2",
+    "verdict": "review",
+    "score": 0.5,
+    "reasons": [
+     "blueprint域接入(通用评估)",
+     "待沙箱确认"
+    ]
+   }
+  }
+ ]
+}

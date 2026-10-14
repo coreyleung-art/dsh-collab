@@ -1,0 +1,47 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T12:48:26",
+ "exported_by": "明鉴 a190c54c",
+ "note": "新增: 引导语可点击跳转(文内锚点) + 我的7处损坏修复 + 牌照关系改写",
+ "entry": "index.html",
+ "entry_hash": "dac81a6edc27ac0c",
+ "entry_size": 842695,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 842695,
+   "sha256_16": "dac81a6edc27ac0c",
+   "chars": 0
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "a4c1f51c5994b553",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 129213,
+   "sha256_16": "7fc4d670637a00d6",
+   "chars": 0
+  },
+  "商业计划书.html": {
+   "size": 310306,
+   "sha256_16": "8fd01ae5be5be175",
+   "chars": 0
+  },
+  "平台格局图.html": {
+   "size": 32135,
+   "sha256_16": "e10f72bde0b1dc82",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 117936,
+   "sha256_16": "a694716aa9fbfefb",
+   "chars": 0
+  }
+ }
+}

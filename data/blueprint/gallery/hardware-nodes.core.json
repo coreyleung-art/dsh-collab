@@ -1,0 +1,268 @@
+{
+ "version": "1.0.0",
+ "updated": "2026-09-07",
+ "note": "★ 人工核心：设备事实（★ 机器探测生成 hardware-nodes.json，勿手改那份）",
+ "groups": {
+  "device": "🖥 本地设备",
+  "server": "🛠 远端服务器",
+  "cloud": "☁️ 云端服务"
+ },
+ "nodes": [
+  {
+   "id": "node-macmini",
+   "device": "mac-mini",
+   "os": "macOS 26.5.2",
+   "ip": "100.120.203.20",
+   "role": "DSH 宿主/总线中枢/黑板",
+   "spec": "M4/24GB",
+   "_probe": "tailscale",
+   "_url": "http://100.120.203.20:8792"
+  },
+  {
+   "id": "node-pci9",
+   "device": "PC-i9",
+   "os": "Windows 11 Pro",
+   "ip": "100.118.15.71",
+   "role": "GPU 算力/远程MCP/生意项目载体",
+   "spec": "i9-14900KF/32GB/4060Ti",
+   "_probe": "tailscale",
+   "_url": "http://100.118.15.71:8792"
+  },
+  {
+   "id": "node-mbp",
+   "device": "MacBook Pro",
+   "os": "macOS",
+   "ip": "100.112.111.120",
+   "role": "独立 DSH 节点/备份候选",
+   "spec": "M3/16GB/926Gi",
+   "_probe": "tailscale",
+   "_url": "http://100.112.111.120:8792"
+  },
+  {
+   "id": "node-mbp-agent",
+   "device": "MBP 智能体",
+   "os": "macOS",
+   "ip": "100.112.111.120",
+   "role": "MBP 资源执行节点(persona)",
+   "spec": "复用 MBP",
+   "_probe": "tailscale",
+   "_url": "http://100.112.111.120:8792"
+  },
+  {
+   "id": "node-iphone",
+   "device": "iPhone 17",
+   "os": "iOS",
+   "ip": "100.98.251.77",
+   "role": "移动端",
+   "spec": "—",
+   "_probe": "tailscale",
+   "_url": "http://100.98.251.77:8792"
+  },
+  {
+   "id": "hw:srv-verdaccio",
+   "os": "Node",
+   "ip": "127.0.0.1",
+   "role": "npm 私有包仓库(供应链)",
+   "spec": "—",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-genebank",
+   "os": "Rust",
+   "ip": "127.0.0.1",
+   "role": "AI网盘注册/存储/检索层(HubBridge资产)",
+   "spec": "Rust v1.0",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-cozebridge",
+   "os": "Node",
+   "ip": "127.0.0.1",
+   "role": "本机↔Coze云端通道 daemon",
+   "spec": "—",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-tianhe",
+   "os": "Win10",
+   "ip": "向日葵1687489763",
+   "role": "店铺服务器",
+   "spec": "Xeon E5-2680/64GB/GTX1050Ti",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-foshan",
+   "os": "Win10",
+   "ip": "向日葵1696416965",
+   "role": "店铺服务器",
+   "spec": "Xeon E5-2666/32GB/GTX750",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-jiangnanxi",
+   "os": "Win10",
+   "ip": "向日葵1676234999",
+   "role": "店铺服务器",
+   "spec": "i5-6500/16GB",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:cloud-coze",
+   "os": "字节云",
+   "ip": "—",
+   "role": "云端AI助手+coze-drive文件",
+   "spec": "52246/58205",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:cloud-wecom",
+   "os": "企微API",
+   "ip": "—",
+   "role": "外部通讯(客服卡/发布)",
+   "spec": "aibLaCPfTg",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:cloud-feishu",
+   "os": "飞书API",
+   "ip": "—",
+   "role": "妙记收取/会议",
+   "spec": "cli_aa0842c3",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "node-ipad",
+   "os": "iPadOS",
+   "ip": "—",
+   "role": "iOS 壳(远端URL)",
+   "spec": "—",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-xingqiao",
+   "os": "Ubuntu 22.04",
+   "ip": "106.53.214.108",
+   "role": "跨设备通讯中枢(comm-server) + E2 全局注册表(data/discovery/agents)",
+   "spec": "1G/40G · rust-blackboard v0.6.0",
+   "_probe": "http",
+   "_url": null
+  },
+  {
+   "id": "hw:srv-commlayer",
+   "os": "Node v24.20.0",
+   "ip": "106.53.214.108",
+   "role": "通讯订阅层(服务器化): 9 systemd 服务 · bb-sub×8 + bus-bridge",
+   "spec": "dsh-tools-linux-x64-v1.4.2 + bus-bridge.js",
+   "_probe": "http",
+   "_url": null
+  }
+ ],
+ "relations": [
+  {
+   "from": "node-macmini",
+   "to": "node-pci9",
+   "type": "主-算力",
+   "desc": "算力委托（渲染/训练/批处理→i9）"
+  },
+  {
+   "from": "node-macmini",
+   "to": "node-mbp",
+   "type": "主-备份",
+   "desc": "MBP 为备份节点候选"
+  },
+  {
+   "from": "node-macmini",
+   "to": "node-mbp-agent",
+   "type": "主-执行",
+   "desc": "MBP 资源执行节点"
+  },
+  {
+   "from": "node-macmini",
+   "to": "node-iphone",
+   "type": "主-移动",
+   "desc": "移动端可选接入"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-verdaccio",
+   "type": "托管",
+   "desc": "本地服务器跑在 mac-mini"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-genebank",
+   "type": "托管",
+   "desc": "GeneBank 服务器"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-cozebridge",
+   "type": "托管",
+   "desc": "Coze 桥"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-tianhe",
+   "type": "远程",
+   "desc": "向日葵远控"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-foshan",
+   "type": "远程",
+   "desc": "向日葵远控"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:srv-jiangnanxi",
+   "type": "远程",
+   "desc": "向日葵远控"
+  },
+  {
+   "from": "hw:srv-cozebridge",
+   "to": "hw:cloud-coze",
+   "type": "桥接",
+   "desc": "云端通道"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:cloud-wecom",
+   "type": "连接",
+   "desc": "企微通道"
+  },
+  {
+   "from": "hw:node-macmini",
+   "to": "hw:cloud-feishu",
+   "type": "连接",
+   "desc": "飞书通道"
+  },
+  {
+   "from": "node-macmini",
+   "to": "hw:srv-xingqiao",
+   "type": "双轨镜像",
+   "desc": "本机黑板主↔中枢: sync-up上行5min + sync-down下行SSE 0-1s实时 + hb-forward 30s"
+  },
+  {
+   "from": "hw:srv-xingqiao",
+   "to": "hw:srv-commlayer",
+   "type": "承载",
+   "desc": "comm-layer 订阅层部署于 xingqiao (9 systemd)"
+  },
+  {
+   "from": "hw:srv-commlayer",
+   "to": "node-macmini",
+   "type": "订阅",
+   "desc": "bb-sub×8 SSE 订阅本机中枢事件 + 留痕服务器 inbox"
+  }
+ ]
+}

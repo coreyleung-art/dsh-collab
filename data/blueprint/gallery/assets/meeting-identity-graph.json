@@ -1,0 +1,297 @@
+{
+ "graph": "identity-graph",
+ "name": "会议人物身份图谱",
+ "version": "1.0",
+ "updated": "2026-09-09",
+ "note": "妙记/会议人物身份管理器：名字→身份/组织/关系/Speaker归属。用户会在会议上念名字, 本图谱供快速识别+关系溯源。动态识别见 identity-graph.py",
+ "persons": [
+  {
+   "id": "p-zhenyu",
+   "name": "梁振宇",
+   "title": "初蘅创始人/振宇",
+   "aliases": [
+    "振宇",
+    "梁振宇",
+    "粗行",
+    "初蘅方"
+   ],
+   "org": "初蘅(自有品牌) + 拟任合资操盘GP",
+   "role": "核心操盘手: 控盘(投票权51%诉求)+GP-LP架构+目标期权; 蓝图化治理; 前期不被干扰",
+   "speakers": {
+    "obcnuhtix-0905": "S4/S7",
+    "obcnwhp3-0908": "S5",
+    "obcnwk6q-0908": "S2(?)"
+   },
+   "relations": [
+    {
+     "to": "org-youchiqu",
+     "type": "GP/控盘"
+    },
+    {
+     "to": "p-ziyang",
+     "type": "与声通紫阳共事"
+    },
+    {
+     "to": "p-yuzong",
+     "type": "与企得力于总谈判"
+    }
+   ],
+   "source": "妙记自称'我是振宇' + 用户画像 + 09-08会议",
+   "confidence": "high"
+  },
+  {
+   "id": "p-ziyang",
+   "name": "黄紫阳",
+   "title": "声通系代表",
+   "aliases": [
+    "紫阳",
+    "黄紫阳",
+    "子阳",
+    "黄子阳"
+   ],
+   "org": "声通科技(02495.HK)关联",
+   "role": "声通方: 持淘闪城市合伙人牌照/平台关系; 可提供算力/云资源; 主张声通资源作价入股",
+   "speakers": {
+    "obcnuhtix-0905": "S8(?)",
+    "obcnwhp3-0908": "S2"
+   },
+   "relations": [
+    {
+     "to": "org-shengtong",
+     "type": "代表"
+    },
+    {
+     "to": "p-zhenyu",
+     "type": "共事/谈判"
+    }
+   ],
+   "source": "用户确认黄紫阳自称声通股东 + 09-08会议S2发言特征(平台信息/算力)",
+   "confidence": "high"
+  },
+  {
+   "id": "p-yuzong",
+   "name": "于总",
+   "title": "企得力系股东",
+   "aliases": [
+    "于总",
+    "余总"
+   ],
+   "org": "企得力系",
+   "role": "资源方股东: 抗拒纯GP/LP(要参与感); 关注'钱怎么花/何时要/什么结果'三问; 有银行/产业资源",
+   "speakers": {
+    "obcnwhp3-0908": "S1",
+    "obcnuhtix-0905": "S2(?)"
+   },
+   "relations": [
+    {
+     "to": "org-qidel",
+     "type": "代表/股东"
+    },
+    {
+     "to": "p-zhenyu",
+     "type": "谈判(要拆解量化)"
+    }
+   ],
+   "source": "09-08会议S1发言特征(追问钱/反对GP-LP/呼告振宇紫阳) + 用户确认企得力系",
+   "confidence": "high"
+  },
+  {
+   "id": "p-wuzong",
+   "name": "邬总/吴总",
+   "title": "企得力系股东",
+   "aliases": [
+    "吴总",
+    "邬总",
+    "阿乌总",
+    "阿乌"
+   ],
+   "org": "企得力系",
+   "role": "资源方股东(与于总并称'于总吴总'); 09-08未直接在场但被提及(一只牛谈架构)",
+   "speakers": {},
+   "relations": [
+    {
+     "to": "org-qidel",
+     "type": "股东"
+    }
+   ],
+   "source": "speech-fix库(user确认邬总=吴总转写) + 09-08提'于总吴总'",
+   "confidence": "high"
+  },
+  {
+   "id": "p-dingkai",
+   "name": "丁凯",
+   "title": "成果招商/法务角色",
+   "aliases": [
+    "丁凯",
+    "阿凯",
+    "丁海"
+   ],
+   "org": "成果(广州橙果)体系",
+   "role": "招商代表/法务联系(不参与核心决策); 曾称成都壳花100万口径; 09-08提及'阿凯做法务联系'",
+   "speakers": {
+    "obcnuhtix-0905": "S?(丁凯被谈)"
+   },
+   "relations": [
+    {
+     "to": "org-chengguo",
+     "type": "招商代表"
+    }
+   ],
+   "source": "speech-fix + 09-08会议提及",
+   "confidence": "high"
+  },
+  {
+   "id": "p-zhongzong",
+   "name": "钟总",
+   "title": "引荐人/资源方",
+   "aliases": [
+    "钟总",
+    "老钟"
+   ],
+   "org": "引荐方",
+   "role": "引荐振宇入局的核心信任方; 09-08未全程在场但被提及(与钟总聊战术/区仓); 可能有行业资源",
+   "speakers": {},
+   "relations": [
+    {
+     "to": "p-zhenyu",
+     "type": "引荐/信任"
+    }
+   ],
+   "source": "09-08会议提及 + 用户画像(钟总引荐)",
+   "confidence": "medium"
+  },
+  {
+   "id": "p-speaker4-resource",
+   "name": "Speaker4(资源整合方)",
+   "title": "待确认(阿里鱼IP通道/资源整合)",
+   "aliases": [],
+   "org": "待确认",
+   "role": "资源整合优势: 阿里鱼IP通道/泡泡玛特公关熟人/没见过紫阳但两三次聊天懂方向; 09-08资本场活跃发言",
+   "speakers": {
+    "obcnwhp3-0908": "S4"
+   },
+   "relations": [
+    {
+     "to": "org-alifish",
+     "type": "有阿里鱼IP通道"
+    }
+   ],
+   "source": "09-08会议S4发言特征(资源整合/IP经验/听于总) — 需用户确认是谁",
+   "confidence": "low(待确认)"
+  },
+  {
+   "id": "p-speaker3-bp",
+   "name": "Speaker3(蓝图操盘方)",
+   "title": "待确认(蓝图化/目标拆解)",
+   "aliases": [],
+   "org": "待确认",
+   "role": "蓝图化治理/目标拆解方法论; 关注'每个城市盘口/阶段任务'; 09-08说'把城市站蓝图先写好'",
+   "speakers": {
+    "obcnwhp3-0908": "S3"
+   },
+   "relations": [],
+   "source": "09-08会议S3发言特征(蓝图化) — 待确认是否=吴总或其他",
+   "confidence": "low(待确认)"
+  },
+  {
+   "id": "p-azhong",
+   "name": "阿忠",
+   "title": "媒人/资源方",
+   "aliases": [
+    "阿忠"
+   ],
+   "org": "待确认(与静怡多年关系)",
+   "role": "本是'媒人'(撮合), 后下场做IP护城河事; 与静怡知根知底; 可能与企得力/某主体公司关联(S1提'阿忠的主体公司')",
+   "speakers": {
+    "obcnuhtix-0905": "提及",
+    "obcnwhp3-0908": "S?(被谈)"
+   },
+   "relations": [],
+   "source": "09-08会议提及(阿忠是媒人/主体公司角色)",
+   "confidence": "medium(待确认关系)"
+  },
+  {
+   "id": "p-jingyi",
+   "name": "静怡",
+   "title": "待确认(与阿忠多年关系)",
+   "aliases": [
+    "静怡"
+   ],
+   "org": "待确认",
+   "role": "与阿忠知根知底多年; 09-08被提及作为组合信任基础",
+   "speakers": {},
+   "relations": [
+    {
+     "to": "p-azhong",
+     "type": "多年知根知底"
+    }
+   ],
+   "source": "09-08会议提及",
+   "confidence": "low"
+  }
+ ],
+ "orgs": [
+  {
+   "id": "org-shengtong",
+   "name": "声通科技",
+   "type": "港股02495.HK",
+   "aliases": [
+    "申通(旧转写)"
+   ],
+   "role": "城市合伙人持牌/算力中心/上市公司背书"
+  },
+  {
+   "id": "org-chengguo",
+   "name": "广州橙果(成果)",
+   "type": "鲜花服务商持牌",
+   "aliases": [
+    "成果",
+    "陈果(转写)"
+   ],
+   "role": "全国鲜花类目服务商"
+  },
+  {
+   "id": "org-qidel",
+   "name": "企得力系",
+   "type": "资源方股东",
+   "aliases": [
+    "喜得力",
+    "喜之郎(旧转写)"
+   ],
+   "role": "于总/吴总/邬总资源方"
+  },
+  {
+   "id": "org-youchiqu",
+   "name": "友趣(有限合伙)",
+   "type": "持股架构节点",
+   "aliases": [
+    "Yooq"
+   ],
+   "role": "家族持股载体(GP)→业务公司群; 用户51%控股经此"
+  },
+  {
+   "id": "org-chuheng",
+   "name": "初蘅",
+   "type": "自有品牌",
+   "aliases": [
+    "初行",
+    "初恒(转写)"
+   ],
+   "role": "用户鲜花品牌; KA连锁起点"
+  },
+  {
+   "id": "org-zhongheng",
+   "name": "中恒天雅",
+   "type": "成都壳公司",
+   "aliases": [],
+   "role": "声通关联; 持淘闪成都城市合伙人(每城一壳)"
+  },
+  {
+   "id": "org-alifish",
+   "name": "阿里鱼",
+   "type": "阿里IP公司",
+   "aliases": [],
+   "role": "IP资源池(Speaker4有通道)"
+  }
+ ]
+}

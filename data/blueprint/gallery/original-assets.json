@@ -1,0 +1,300 @@
+{
+  "version": "1.0",
+  "note": "体系原创资产（自主发明，区别于外部引用）——用户定案/自研代码/自有协议/自有方法论",
+  "categories": [
+    {
+      "id": "phi",
+      "name": "🧠 治理哲学",
+      "desc": "思想层：能力权限分离/门锁分离/真实性/最小化",
+      "color": "#e8eaf0"
+    },
+    {
+      "id": "proto",
+      "name": "📜 自有协议",
+      "desc": "通讯/传输流程（非外部协议）",
+      "color": "#6ea8ff"
+    },
+    {
+      "id": "mech",
+      "name": "🚪 门锁机制",
+      "desc": "门=校验 锁=授权（自建机制）",
+      "color": "#f5b942"
+    },
+    {
+      "id": "method",
+      "name": "🔮 方法论",
+      "desc": "蓝图治理/图谱/自进化等原创方法",
+      "color": "#c678dd"
+    },
+    {
+      "id": "code",
+      "name": "💻 自研代码",
+      "desc": "rust 项目+脚本（全自主开发）",
+      "color": "#2ac3de"
+    },
+    {
+      "id": "decide",
+      "name": "📐 用户定案",
+      "desc": "源自用户决策与事故教训",
+      "color": "#34c77b"
+    }
+  ],
+  "items": [
+    {
+      "id": "R027",
+      "name": "能力权限分离·人类开关锁",
+      "cat": "phi",
+      "detail": "能力/权限分离·生产区人类掌权·Lean4类型锁",
+      "origin": "用户定案 2026-09-01",
+      "tags": [
+        "原创",
+        "用户定案",
+        "Lean4"
+      ]
+    },
+    {
+      "id": "gate-lock",
+      "name": "门锁分离思想",
+      "cat": "phi",
+      "detail": "门=静态校验·锁=动态授权（rule-judge/restart-gate vs R027/R029）",
+      "origin": "明鉴 2026-09-02",
+      "tags": [
+        "原创",
+        "方法论"
+      ]
+    },
+    {
+      "id": "R030",
+      "name": "无验证的成功=未成功",
+      "cat": "phi",
+      "detail": "成功须业务权威字段验证·L3独立复核",
+      "origin": "教师节教训 2026-09-01",
+      "tags": [
+        "原创",
+        "教训"
+      ]
+    },
+    {
+      "id": "minimal",
+      "name": "理论先行·最小化模型",
+      "cat": "phi",
+      "detail": "五步铁律：理论→隔离→试点→评估→确认",
+      "origin": "用户定案 2026-09-02",
+      "tags": [
+        "原创",
+        "用户定案"
+      ]
+    },
+    {
+      "id": "CCEP",
+      "name": "CCEP 永续通讯协议",
+      "cat": "proto",
+      "detail": "通道迭代 5 步：准备→投递→验证→就绪→切换回滚",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "协议"
+      ]
+    },
+    {
+      "id": "bb-protocol",
+      "name": "黑板协议(R003+投递值班)",
+      "cat": "proto",
+      "detail": "黑板 KV/事件桥/值班消费——自有数据交换",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "协议"
+      ]
+    },
+    {
+      "id": "as-gate",
+      "name": "agent_send 门禁 v2.4",
+      "cat": "proto",
+      "detail": ">50字需黑板引用·唤醒≠汇报——通道卫生",
+      "origin": "星桥/协调者",
+      "tags": [
+        "原创",
+        "门禁"
+      ]
+    },
+    {
+      "id": "CHECKS",
+      "name": "CHECKS 完整体传输契约",
+      "cat": "proto",
+      "detail": "7 要素传输契约（R012）",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "契约"
+      ]
+    },
+    {
+      "id": "restart-gate",
+      "name": "restart-gate 重启门",
+      "cat": "mech",
+      "detail": "三级验证：隔离样本→静态→动态压测（R011）",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "门"
+      ]
+    },
+    {
+      "id": "R029",
+      "name": "R029 原语分级锁",
+      "cat": "mech",
+      "detail": "L3→Unlocked(Authorization)类型级锁（J45 深化）",
+      "origin": "Rust 实现",
+      "tags": [
+        "原创",
+        "锁",
+        "Rust"
+      ]
+    },
+    {
+      "id": "RJ-L1L3",
+      "name": "rule-judge L1-L3 漏斗",
+      "cat": "mech",
+      "detail": "L1机械→L2规则→L3语义 验证裁判",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "验证"
+      ]
+    },
+    {
+      "id": "BP9",
+      "name": "BP-9 蓝图标准",
+      "cat": "method",
+      "detail": "9字段契约 id/name/version/mainlines/stages/works/gate/status/ts",
+      "origin": "明鉴 2026-09",
+      "tags": [
+        "原创",
+        "标准"
+      ]
+    },
+    {
+      "id": "island",
+      "name": "孤岛自进化",
+      "cat": "method",
+      "detail": "探测→建议→确认→连接=图谱生长",
+      "origin": "明鉴 2026-09-02",
+      "tags": [
+        "原创",
+        "方法论"
+      ]
+    },
+    {
+      "id": "knowledge-core",
+      "name": "知识内核图谱",
+      "cat": "method",
+      "detail": "论文/调研→决策溯源 逻辑层",
+      "origin": "明鉴 2026-09-02",
+      "tags": [
+        "原创",
+        "方法论"
+      ]
+    },
+    {
+      "id": "redlight",
+      "name": "红绿灯互斥(R001)",
+      "cat": "method",
+      "detail": "同源操作先查灯→独占/共享→释放",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "协议"
+      ]
+    },
+    {
+      "id": "genebank",
+      "name": "GeneBank 基因库",
+      "cat": "code",
+      "detail": "AI网盘：内容寻址+6染色体+血缘版本（rust 8801）",
+      "origin": "rust-genebank",
+      "tags": [
+        "原创",
+        "Rust",
+        "存储"
+      ]
+    },
+    {
+      "id": "blackboard-rs",
+      "name": "黑板 Rust 版",
+      "cat": "code",
+      "detail": "blackboard-server v0.6 Rust（8792）",
+      "origin": "rust-blackboard",
+      "tags": [
+        "原创",
+        "Rust"
+      ]
+    },
+    {
+      "id": "dsh-tools",
+      "name": "dsh-tools 工具族",
+      "cat": "code",
+      "detail": "24+ rust 子命令（queue三件套/automation-switch/paper）",
+      "origin": "rust-tools",
+      "tags": [
+        "原创",
+        "Rust"
+      ]
+    },
+    {
+      "id": "bb-scripts",
+      "name": "bb-* 脚本族",
+      "cat": "code",
+      "detail": "119 个工具脚本（蓝图/黑板/孤岛/机制）",
+      "origin": "体系自研",
+      "tags": [
+        "原创",
+        "Python"
+      ]
+    },
+    {
+      "id": "J33",
+      "name": "登录提醒/聚焦时间",
+      "cat": "decide",
+      "detail": "用户确认 2026-08-18 全员执行",
+      "origin": "用户定案",
+      "tags": [
+        "原创",
+        "用户定案"
+      ]
+    },
+    {
+      "id": "J36",
+      "name": "总线牵线+广场沉淀",
+      "cat": "decide",
+      "detail": "用户确认 2026-08-18 架构v2核心",
+      "origin": "用户定案",
+      "tags": [
+        "原创",
+        "用户定案"
+      ]
+    },
+    {
+      "id": "J37",
+      "name": "插件安装验证",
+      "cat": "decide",
+      "detail": "2026-08-18 崩溃复盘 用户提出",
+      "origin": "用户定案",
+      "tags": [
+        "原创",
+        "教训"
+      ]
+    },
+    {
+      "id": "J45",
+      "name": "操作分级门控 L0/L2/L3",
+      "cat": "decide",
+      "detail": "教师节教训·R026/R028/R029 基础",
+      "origin": "用户定案",
+      "tags": [
+        "原创",
+        "分级"
+      ]
+    }
+  ]
+}

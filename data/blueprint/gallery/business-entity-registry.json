@@ -1,0 +1,511 @@
+{
+ "version": "1.0",
+ "kind": "business-entity-registry",
+ "updated": "2026-09-09T21:10:54",
+ "domains": [
+  "banking",
+  "flowernet",
+  "supply",
+  "event",
+  "cross"
+ ],
+ "note": "统一实体主源 v1: 迁移自 meeting-identity-graph(8人8组织) + entity-alias-map(5别名带域); 钟总信源核验状态已并入; 会议 speakers 上下文留在 identity-graph 派生视图",
+ "people": [
+  {
+   "id": "p-zhenyu",
+   "name": "梁振宇",
+   "aliases": [
+    "振宇",
+    "梁振宇",
+    "粗行",
+    "初蘅方"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "orgIds": [
+    "org-youchiqu"
+   ],
+   "title": "初蘅创始人/振宇",
+   "role": "核心操盘手: 控盘(投票权51%诉求)+GP-LP架构+目标期权; 蓝图化治理; 前期不被干扰 — 蓝图化治理方法论(把城市站蓝图写好/目标拆解)本人(用户确认)",
+   "verified": {
+    "confidence": "high",
+    "note": "妙记自称'我是振宇' + 用户画像 + 09-08会议"
+   },
+   "relations": [
+    {
+     "to": "org-youchiqu",
+     "type": "GP/控盘"
+    },
+    {
+     "to": "p-ziyang",
+     "type": "与声通紫阳共事"
+    },
+    {
+     "to": "p-yuzong",
+     "type": "与企得力于总谈判"
+    }
+   ]
+  },
+  {
+   "id": "p-ziyang",
+   "name": "黄紫阳",
+   "aliases": [
+    "紫阳",
+    "黄紫阳",
+    "子阳",
+    "黄子阳"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "orgIds": [
+    "org-shengtong"
+   ],
+   "title": "声通系代表",
+   "role": "声通方: 持淘闪城市合伙人牌照/平台关系; 可提供算力/云资源; 主张声通资源作价入股",
+   "verified": {
+    "confidence": "medium",
+    "note": "无参会09-09(用户澄清); 城市合伙人资格+平台管道需以第一期计划提案给淘宝闪购争取(非其单方授予)"
+   },
+   "relations": [
+    {
+     "to": "org-shengtong",
+     "type": "代表"
+    },
+    {
+     "to": "p-zhenyu",
+     "type": "共事/谈判"
+    }
+   ]
+  },
+  {
+   "id": "p-yuzong",
+   "name": "于霄贤(于总)",
+   "aliases": [
+    "于总",
+    "余总",
+    "于霄贤"
+   ],
+   "domains": [
+    "banking",
+    "flowernet"
+   ],
+   "orgIds": [
+    "org-qidel"
+   ],
+   "title": "企得力系股东",
+   "role": "资源方股东: 抗拒纯GP/LP(要参与感); 关注'钱怎么花/何时要/什么结果'三问; 有银行/产业资源",
+   "verified": {
+    "confidence": "high",
+    "note": "用户2026-09-09: 09-09 IP会议S3(上市公司亲历/股东表态); domain含banking+flowernet"
+   },
+   "relations": [
+    {
+     "to": "org-qidel",
+     "type": "代表/股东"
+    },
+    {
+     "to": "p-zhenyu",
+     "type": "谈判(要拆解量化)"
+    }
+   ]
+  },
+  {
+   "id": "p-wuzong",
+   "name": "邬彦(邬总/Sandy)",
+   "aliases": [
+    "吴总",
+    "邬总",
+    "阿乌总",
+    "阿乌",
+    "邬彦",
+    "sandy",
+    "Sandy"
+   ],
+   "domains": [
+    "banking",
+    "flowernet"
+   ],
+   "orgIds": [
+    "org-qidel"
+   ],
+   "title": "企得力系股东",
+   "role": "资源方股东(与于总并称'于总吴总'); 09-08未直接在场但被提及(一只牛谈架构)",
+   "verified": {
+    "confidence": "high",
+    "note": "speech-fix库(user确认邬总=吴总转写) + 09-08提'于总吴总'"
+   },
+   "relations": [
+    {
+     "to": "org-qidel",
+     "type": "股东"
+    }
+   ]
+  },
+  {
+   "id": "p-dingkai",
+   "name": "丁凯",
+   "aliases": [
+    "丁凯",
+    "阿凯",
+    "丁海"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "orgIds": [
+    "org-chengguo"
+   ],
+   "title": "成果招商/法务角色",
+   "role": "招商代表/法务联系(不参与核心决策); 曾称成都壳花100万口径; 09-08提及'阿凯做法务联系'",
+   "verified": {
+    "confidence": "high",
+    "note": "speech-fix + 09-08会议提及"
+   },
+   "relations": [
+    {
+     "to": "org-chengguo",
+     "type": "招商代表"
+    }
+   ]
+  },
+  {
+   "id": "p-zhongzong",
+   "name": "钟健毅",
+   "aliases": [
+    "钟总",
+    "老钟",
+    "钟健毅"
+   ],
+   "domains": [
+    "cross",
+    "flowernet"
+   ],
+   "orgIds": [],
+   "title": "钟健毅 · 引荐方/IP资源主沟通人",
+   "role": "引荐人+资源整合方: 阿里鱼IP通道/泡泡玛特公关熟人; 未见紫阳但两三次聊天懂方向; 有银行/产业资源; IP护城河事参与",
+   "verified": {
+    "confidence": "high",
+    "note": "用户2026-09-09确认: IP资源主沟通人(有物料厂/游戏IP); 09-09 IP会议S2"
+   },
+   "relations": [
+    {
+     "to": "p-zhenyu",
+     "type": "引荐/信任"
+    }
+   ]
+  },
+  {
+   "id": "p-azhong",
+   "name": "阿忠",
+   "aliases": [
+    "阿忠"
+   ],
+   "domains": [
+    "cross"
+   ],
+   "orgIds": [],
+   "title": "媒人/资源方",
+   "role": "本是'媒人'(撮合), 后下场做IP护城河事; 与静怡知根知底; 可能与企得力/某主体公司关联(S1提'阿忠的主体公司')",
+   "verified": {
+    "confidence": "medium(待确认关系)",
+    "note": "09-08会议提及(阿忠是媒人/主体公司角色)"
+   },
+   "relations": []
+  },
+  {
+   "id": "p-jingyi",
+   "name": "静怡",
+   "aliases": [
+    "静怡"
+   ],
+   "domains": [
+    "cross"
+   ],
+   "orgIds": [],
+   "title": "待确认(与阿忠多年关系)",
+   "role": "与阿忠知根知底多年; 09-08被提及作为组合信任基础",
+   "verified": {
+    "confidence": "low",
+    "note": "09-08会议提及"
+   },
+   "relations": [
+    {
+     "to": "p-azhong",
+     "type": "多年知根知底"
+    }
+   ]
+  },
+  {
+   "id": "p-laoa",
+   "name": "老A(钟总朋友)",
+   "title": "钟总朋友/资源咨询",
+   "aliases": [
+    "老A",
+    "A哥"
+   ],
+   "domains": [
+    "cross"
+   ],
+   "orgIds": [],
+   "role": "钟总朋友, 09-09 IP会议在场, 资源/咨询角色(细节待补充)",
+   "verified": {
+    "confidence": "medium",
+    "note": "用户2026-09-09补充"
+   }
+  }
+ ],
+ "orgs": [
+  {
+   "id": "org-shengtong",
+   "name": "声通科技",
+   "aliases": [
+    "申通(旧转写)"
+   ],
+   "domains": [
+    "supply",
+    "flowernet"
+   ],
+   "type": "港股02495.HK",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "城市合伙人持牌/算力中心/上市公司背书",
+   "verified": {
+    "confidence": "medium",
+    "ts": "",
+    "note": "声通股份913100007831452642; 成都声通智感(汤敬华法代)已注销; 36条投资无中恒天雅"
+   },
+   "risk": "",
+   "graph_note": "声通四川系子公司多为2023成立(图谱注意: 大量川系壳同年批量注册)"
+  },
+  {
+   "id": "org-chengguo",
+   "name": "广州橙果供应链科技",
+   "aliases": [
+    "广州橙果",
+    "橙果",
+    "成果(转写)",
+    "陈果(转写)",
+    "广州橙果供应链科技有限公司"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "type": "鲜花服务商持牌",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "全国鲜花类目服务商(淘宝闪购/饿了么系); 运营服务合作协议甲方",
+   "verified": {
+    "confidence": "high",
+    "ts": "2026-09-09",
+    "note": "✅ 91440101MA5D19KY33 精确锁定(2026-09-09): 法代付振华55%+刘双飞45%/广州黄埔/2019成立; 与上海拉扎斯(淘宝闪购)签运营服务合作协议(2026-07-24~2027-07-24); 经营范围含外卖递送/礼品花卉; 35项风险全0"
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-qidel",
+   "name": "企得力系",
+   "aliases": [
+    "喜得力",
+    "喜之郎(旧转写)"
+   ],
+   "domains": [
+    "banking",
+    "flowernet"
+   ],
+   "type": "资源方股东",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "于总/吴总/邬总资源方",
+   "verified": {
+    "confidence": "medium",
+    "ts": "",
+    "note": ""
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-youchiqu",
+   "name": "友趣(有限合伙)",
+   "aliases": [
+    "Yooq"
+   ],
+   "domains": [
+    "flowernet",
+    "cross"
+   ],
+   "type": "持股架构节点",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "家族持股载体(GP)→业务公司群; 用户51%控股经此",
+   "verified": {
+    "confidence": "medium",
+    "ts": "",
+    "note": ""
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-chuheng",
+   "name": "初蘅",
+   "aliases": [
+    "初行",
+    "初恒(转写)"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "type": "自有品牌",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "用户鲜花品牌; KA连锁起点",
+   "verified": {
+    "confidence": "medium",
+    "ts": "",
+    "note": ""
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-zhongheng",
+   "name": "中恒天仰(北京)",
+   "aliases": [
+    "中恒天雅(口语误读)",
+    "中恒天仰",
+    "中恒天仰信息技术(北京)"
+   ],
+   "domains": [
+    "flowernet"
+   ],
+   "type": "ESP城市合伙人中标主体",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "【ESP城市合伙人-成都】中标主体(2026-08-26); 负责成都外卖商家运营管理",
+   "verified": {
+    "confidence": "high",
+    "ts": "2026-09-09",
+    "note": "✅ 91110108327275954W 精确锁定(2026-09-09): 法代雷玛莎/实控林燕100%(监事)/海淀/2015成立; 中标公告佐证成都合伙人; 35项风险仅1条原告轻微涉诉; 与黄紫阳无工商关联"
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-alifish",
+   "name": "阿里鱼",
+   "aliases": [],
+   "domains": [
+    "flowernet",
+    "cross"
+   ],
+   "type": "阿里IP公司",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "IP资源池(Speaker4有通道)",
+   "verified": {
+    "confidence": "medium",
+    "ts": "",
+    "note": ""
+   },
+   "risk": "",
+   "graph_note": ""
+  },
+  {
+   "id": "org-cdztzg",
+   "name": "成都声通智感(对照/防误挂)",
+   "aliases": [
+    "声通智感",
+    "成都声通智感科技"
+   ],
+   "domains": [
+    "supply",
+    "flowernet"
+   ],
+   "type": "已注销AI壳(91510100MACRTP3339)",
+   "uscc": "",
+   "legalRep": "",
+   "owner": "",
+   "role": "声通100%全资认缴3000万; 法代汤敬华(声通股份董事长); 2023-07成立即核准注销",
+   "verified": {
+    "confidence": "low",
+    "ts": "2026-09-09",
+    "note": "❌ 企查查核验(2026-09-09): 登记状态=注销, 经营范围AI/增值电信, 无鲜花/城市合伙人类——非持牌壳, ≠中恒天雅"
+   },
+   "risk": "",
+   "graph_note": ""
+  }
+ ],
+ "aliases": [
+  {
+   "alias": "华云系",
+   "alias2": "华宏系",
+   "entity": "桦桓艺公司",
+   "domains": [
+    "banking"
+   ],
+   "evidence": "妙记\"业务布局与AI运营体系规划\": 华云系停提成偿债、花店业务与华宏系完全独立; 桦桓艺见 banking 考古(汇丰私人财富广州2025年会/华兴/华润/琶洲商会)",
+   "note": "会议口语缩写; 涉及: 停提成偿债、退阿梅入股金、与花店业务(flowernet)完全独立",
+   "source": "用户亲口确认 2026-09-05 + 飞书妙记分析 + banking 考古",
+   "confidence": "high(用户确认)"
+  },
+  {
+   "alias": "友趣",
+   "alias2": "Yooq",
+   "entity": "友趣(有限合伙)",
+   "domains": [
+    "cross"
+   ],
+   "evidence": "初蘅档案: 家族公司(梁振宇持股)→GP→友趣(有限合伙)→业务公司群; 妙记1 外部鲜花连锁合资(平台方65%/我方运营+一票否决/2027-02前1000店代运营)",
+   "note": "用户 2026-09-06 确认: 合资股权叙事最新=我方51%(控股)经友趣有限合伙持有, 用户股份由父亲代持; 早期\"平台65/我方35\"叙事已推翻(妙记 09-05 已演进为有限合伙架构+我方主导)",
+   "source": "coze档案 + 飞书妙记 + 用户亲口确认 2026-09-06",
+   "confidence": "high(用户亲口确认, 覆盖旧叙事)"
+  },
+  {
+   "alias": "淘闪",
+   "alias2": "",
+   "entity": "淘宝闪购(饿了么/上海拉扎斯系·阿里本地生活)",
+   "domains": [
+    "cross"
+   ],
+   "evidence": "钟总发来广州橙果-拉扎斯《运营服务合作协议》: 乙方=上海拉扎斯信息科技+拉扎斯网络科技(上海), 平台域名ele.me, 方舟系统nr.ele.me——淘闪=淘宝闪购非美团",
+   "note": "此前 GMV/返佣语境需按阿里系平台口径复核; 8,000万若指淘闪双平台=阿里系口径",
+   "source": "钟总发来信源资料+企查查核验 2026-09-09",
+   "confidence": "high(合同原件)"
+  },
+  {
+   "alias": "中恒天雅",
+   "alias2": "天雅",
+   "entity": "中恒天仰信息技术(北京)有限公司",
+   "domains": [
+    "flowernet"
+   ],
+   "evidence": "中标公告【ESP城市合伙人-成都】中标单位=中恒天仰信息技术(北京)有限公司(2026-08-26); 企查查91110108327275954W 精确锁定——'天雅'为口语误读, 真身'天仰'注册在北京(非成都)",
+   "note": "法代雷玛莎/实控林燕100%; 与黄紫阳无工商关联",
+   "source": "钟总发来中标公告截图+企查查 2026-09-09",
+   "confidence": "high(中标公告原件+工商)"
+  },
+  {
+   "alias": "橙果",
+   "alias2": "广州橙果",
+   "entity": "广州橙果供应链科技有限公司",
+   "domains": [
+    "flowernet"
+   ],
+   "evidence": "91440101MA5D19KY33 精确锁定; 与上海拉扎斯签运营服务合作协议(2026-07-24~2027-07-24); 经营范围含外卖递送/礼品花卉",
+   "note": "法代付振华55%+刘双飞45%; 全国鲜花类目服务商持牌; 35项风险全0",
+   "source": "钟总发来授权合同+企查查 2026-09-09",
+   "confidence": "high(合同原件+工商)"
+  }
+ ]
+}

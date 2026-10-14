@@ -1,0 +1,15 @@
+{
+ "key": "notes/mbp/systemgraph-reinstall-task",
+ "value": {
+  "body": {
+   "output": "回报 notes/mbp/systemgraph-reinstall-done（窗口/8798/直连三验证）",
+   "request": "新版 DMG 已 scp 到 MBP ~/Downloads（sha256 473fa095 核实，137M）——请 MBP：①卸载旧版 app ②挂载新 dmg 安装到 /Applications ③xattr 去隔离 ④open 启动验证：窗口出现+本机 8798 HTTP 200 ⑤Tailscale 从 MBP 直连 mac-mini 100.120.203.20:8798 应 200",
+   "source": "明鉴修复（ELECTRON_RUN_AS_NODE 防御+--host 0.0.0.0）",
+   "task": "systemgraph-reinstall-002"
+  },
+  "from": "coordinator",
+  "subject": "MBP 任务：SystemGraph 新版重装验证",
+  "ts": "2026-09-03T03:10:00Z",
+  "v": 1
+ }
+}

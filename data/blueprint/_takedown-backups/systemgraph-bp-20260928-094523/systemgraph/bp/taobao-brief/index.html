@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>花联网（内部暂命名）· 淘宝闪购业务说明与规划简报</title>
+<style>
+  :root{--bg:#0e1117;--panel:#161b26;--panel2:#1c2233;--line:#2a3245;--txt:#e7ecf5;--sub:#9aa7bd;--accent:#4f8cff;--green:#3fb27f;--orange:#e8a33d;--red:#e25c5c;--violet:#9a7fe8;}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.75}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 20px 70px}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:19px;margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:15.5px;margin:20px 0 8px}
+  h4{font-size:14px;margin:16px 0 6px;color:var(--sub)}
+  p{font-size:13.8px;color:#d7deea;margin:9px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:var(--panel2);color:var(--accent);font-weight:600}
+  ul,ol{font-size:13.5px;color:#d7deea;margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  blockquote{background:rgba(79,140,255,.07);border-left:3px solid var(--accent);border-radius:6px;padding:10px 14px;margin:11px 0;font-size:12.8px;color:#cfd8e6}
+  blockquote strong{color:var(--txt)}
+  code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px;color:#9fd0ff}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto}
+  pre code{border:0;background:none;padding:0;color:#d7deea;font-size:12px}
+  hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+  .c-red{color:var(--red)}.c-green{color:var(--green)}.c-orange{color:var(--orange)}
+  .foot{font-size:11.5px;color:#6f7686;text-align:center;padding:26px 0 10px}
+  /* ===== 图表样式 ===== */
+  .chartblock{margin:14px 0;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:11px}
+  .chartblock .ctitle{font-size:13px;color:var(--sub);margin-bottom:10px}
+  .bar{display:flex;align-items:center;gap:9px;margin:6px 0}
+  .bar .lab{width:150px;font-size:12px;text-align:right;flex-shrink:0;color:var(--sub)}
+  .bar .track{flex:1;background:var(--panel2);border-radius:5px;height:18px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:5px}
+  .bar .val{width:96px;font-size:12px;font-weight:600;flex-shrink:0}
+  .flow{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;flex:1;min-width:150px}
+  .node .r{font-size:12.5px;font-weight:700}.node .d{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.55}
+  .arrow{color:var(--sub);font-size:18px;font-weight:700;align-self:center}
+  .note{font-size:11.5px;color:var(--sub);margin-top:9px;line-height:1.65}
+  .cols{display:flex;gap:12px;align-items:flex-end;justify-content:center;padding:8px 0 0}
+  .colitem{text-align:center;flex:1;max-width:180px}
+  .colbar{width:100%;border-radius:6px 6px 0 0;min-height:8px}
+  .coltop{font-size:14px;font-weight:700;margin-bottom:4px}
+  .collab{font-size:12.5px;color:var(--txt);margin-top:6px;font-weight:600}
+  .coldesc{font-size:10.5px;color:var(--sub);line-height:1.5;margin-top:3px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .stackrow{display:flex;gap:12px;padding:10px 13px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid;border-radius:8px}
+  .stackn{font-size:12.5px;font-weight:700;width:110px;flex-shrink:0}
+  .stackt{font-size:12.5px;color:var(--txt)}.stackd{font-size:11px;color:var(--sub);margin-top:3px;line-height:1.55}
+  .ladder{display:flex;flex-direction:column;gap:8px}
+  .lrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .lbar{border:1px solid;border-radius:7px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex:0 0 auto;min-width:270px;max-width:100%}
+  .lt{font-size:13px;font-weight:700;white-space:nowrap}.lv{font-size:12.5px;color:var(--txt);font-weight:600;white-space:nowrap}
+  .ln{font-size:11.5px;color:var(--sub);flex:1;min-width:220px;line-height:1.6}
+  .rounds{display:flex;gap:10px;flex-wrap:wrap}
+  .round{flex:1;min-width:170px;background:var(--panel2);border:1px solid;border-radius:10px;padding:11px 13px}
+  .round .rt{font-size:13px;font-weight:700}.round .ra{font-size:15px;font-weight:700;margin:4px 0;color:var(--txt)}
+  .round .rd{font-size:11px;color:var(--sub);line-height:1.55}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .pcard{background:var(--panel2);border:1px solid var(--line);border-left:3px solid;border-radius:9px;padding:11px 13px}
+  .pcard .pt{font-size:13px;font-weight:700;margin-bottom:6px}
+  .pcard .pl{font-size:11.5px;color:var(--sub);line-height:1.65}
+  .cltable{width:100%;border-collapse:collapse;margin:8px 0;font-size:11.5px}
+  .cltable th,.cltable td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+  .cltable th{background:var(--panel2);color:var(--accent)}
+  .d3chart svg{width:100%;height:auto;display:block}
+  /* ===== 小屏适配：图表与宽表不压缩，改横向滚动 ===== */
+  .shint{display:none;font-size:11px;color:#6f7686;text-align:center;padding:2px 0 5px}
+  /* ★ 关键：滚动容器必须被父级宽度约束，否则会把整页撑宽（导致正文被裁切） */
+  html{max-width:100%;overflow-x:clip}
+  body{max-width:100%;overflow-x:clip}
+  .wrap{max-width:1180px;width:100%}
+  .chartwrap{max-width:100%;overflow:hidden}
+  .chartblock{max-width:100%;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+  .chartblock svg{min-width:660px}
+  .tblwrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tblwrap table{min-width:600px}
+  .d3chart{max-width:100%;overflow:hidden}
+  .d3chart svg{min-width:660px}
+  .flow,.stack,.ladder,.rounds,.cols,.grid2,.pcard,.node,.stackrow{max-width:100%}
+  .ladder .lbar{min-width:220px}
+  .rounds .round{min-width:200px}
+  @media(max-width:900px){
+    .shint{display:block}
+    .wrap{padding:16px 12px 60px}
+    h1{font-size:22px}.h2,.wrap h2{font-size:17px}
+    p{font-size:13.5px}
+    .chartblock{padding:12px 10px}
+    .chartblock svg{min-width:640px}
+    .bar .lab{width:96px;font-size:11px}
+    .bar .val{width:78px;font-size:11px}
+    .stackn{width:84px;font-size:11.5px}
+    .grid2{grid-template-columns:1fr}
+    .flow{flex-direction:column}.arrow{transform:rotate(90deg);align-self:center}
+    .lrow{flex-direction:column;align-items:flex-start;gap:4px}
+    .lbar{width:100%!important}
+    .cols{gap:6px}.coldesc{font-size:10px}
+  }
+
+
+  a{color:var(--accent)}
+
+  /* ==== 文内链接 ==== */
+  a.toclink{color:var(--accent);text-decoration:none;border-bottom:1px dotted rgba(79,140,255,.5)}
+  a.toclink:hover{background:rgba(79,140,255,.14);border-bottom-style:solid}
+  a.jump{color:var(--accent);text-decoration:none;border-bottom:1px dashed var(--accent);padding:0 2px;cursor:pointer}
+  a.jump:hover{background:rgba(79,140,255,.16);border-bottom-style:solid}
+  a.jump::after{content:"↗";font-size:.72em;margin-left:2px;opacity:.75}
+  h1.jumpflash,h2.jumpflash,h3.jumpflash,h4.jumpflash{animation:jf 1.4s ease-out}
+  @keyframes jf{0%{background:rgba(79,140,255,.3)}100%{background:transparent}}
+  /* ==== 二级菜单：文件内章节树 ==== */
+  .docnav{position:fixed;left:0;top:0;bottom:0;width:264px;overflow-y:auto;padding:18px 10px 40px 14px;background:#0e1117;border-right:1px solid #2a3245;z-index:50;box-sizing:border-box}
+  .docnav h4{font-size:11px;letter-spacing:.08em;color:#6f7686;margin:0 0 10px 8px;font-weight:600}
+  .docnav ul{list-style:none;margin:0;padding:0}
+  .docnav a{display:block;font-size:12.5px;line-height:1.45;color:#9aa7bd;text-decoration:none;padding:5px 8px;border-radius:6px;border-left:2px solid transparent}
+  .docnav a:hover{color:#e7ecf5;background:#151a24}
+  .docnav a.lv1{color:#e7ecf5;font-weight:600;margin-top:8px}
+  .docnav a.lv2{padding-left:16px}
+  .docnav a.lv3{padding-left:28px;font-size:12px;color:#7c8698}
+  .docnav a.cur{color:#4f8cff;background:#141b2b;border-left-color:#4f8cff;font-weight:600}
+  .navtoggle{display:none;position:fixed;left:12px;top:12px;z-index:60;cursor:pointer;padding:7px 12px;border-radius:8px;border:1px solid #2a3245;background:#161b26;color:#e7ecf5;font-size:12.5px;font-family:inherit}
+  @media(min-width:961px){ body{padding-left:264px} }
+  @media(max-width:960px){ .docnav{display:none;width:100%} .docnav.open{display:block} .navtoggle{display:block} }
+  </style>
+</head>
+<body>
+<button class="navtoggle" id="navtoggle">☰ 章节</button>
+<nav class="docnav" id="docnav"><h4>本文件章节</h4><ul id="navtree"></ul></nav>
+<div class="wrap">
+<h1 id="sec-花联网-内部暂命名-淘宝闪购业务说明与规划简报">花联网（内部暂命名）· 淘宝闪购业务说明与规划简报</h1>
+<h2 id="sec-一-我们是谁-与别的服务商有什么不同">一、我们是谁、与别的服务商有什么不同</h2>
+<p><strong>四个不同点（这是我们与其他服务商的差别）</strong>：</p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>#</th><th>差异点</th><th>具体做法</th><th>对平台的价值</th></tr><tr><td><strong>1</strong></td><td><strong>不卷价格，卷商品</strong></td><td><strong>给商家注入定价权</strong>：用 IP 联名把「一束可被比价的红玫瑰」变成「有品牌与情感价值的专属款」</td><td><strong>不靠降价抢单，靠把商品卖出价值</strong>——商家有毛利、平台有含金量、消费者有理由</td></tr><tr><td><strong>2</strong></td><td><strong>会做商品，不只是贴标</strong></td><td><strong>鲜花 × IP 商品设计能力</strong>：IP 标签化 → 载体化（定制包材/专属花束/公仔/礼盒）→ 场景化 → 系列化</td><td><strong>给类目带来有溢价的产品线</strong>，而不只是一次促销活动</td></tr><tr><td><strong>3</strong></td><td><strong>会造节，不只等节</strong></td><td><strong>首场 IP 应援月定在 11 月淡季</strong>（不是借节日的势），此后<strong>每年 ≥2 场落在非自然节日窗口</strong></td><td><strong>在需求最低的窗口造出新增消费</strong>——这才是造节两个字的意义，而且可以按窗口对比验证</td></tr><tr><td><strong>4</strong></td><td><strong>会铺渠道，不只是等人上门</strong></td><td><strong>帮花店完成线上迁移</strong>：按片区、商圈、品类结构识别目标，用具体的经营方案去谈，签约之后才是真正的交付</td><td><strong>减少类目供给缺口</strong>——平台缺的不是规则，是愿意把店真正做好的商家</td></tr></table></div>
+<h2 id="sec-二-我们希望推动的四个指标">二、我们希望推动的四个指标</h2>
+<p>我们的工作，最终都落到平台自己的四个指标上：</p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>#</th><th>指标</th><th>我方怎么推动</th><th>可核验方式</th></tr><tr><td><strong>①</strong></td><td><strong>新用户注册</strong></td><td>鲜花是低门槛、高频次的入口品类；联合 IP 应援把<strong>平台外的粉丝群体</strong>带进来首次注册下单</td><td>平台后台新注册数、首单来源</td></tr><tr><td><strong>②</strong></td><td><strong>新商家与存量商家的 GMV 增长</strong></td><td><strong>新商家</strong>：帮花店完成线上迁移并把首单做出来；<strong>存量商家</strong>：逐店调选品、定价、活动报名与节日备货</td><td>分新老商家拆分 GMV、单店产出</td></tr><tr><td><strong>③</strong></td><td><strong>总 GMV 增长</strong></td><td>① + ② 叠加，叠加节日与 IP 造节的脉冲拉动</td><td>类目总 GMV、动销店数、客单价</td></tr><tr><td><strong>④</strong></td><td><strong>从其他平台带来增量的方法论</strong></td><td>见第四节——一套可复制的「识别 → 触达 → 迁移 → 留存」打法</td><td>跨平台迁入商家数与迁入后 30 天动销</td></tr></table></div>
+<p><strong>这四个指标就是我们的工作纲。</strong></p>
+<h2 id="sec-三-我们的差异化打法">三、我们的差异化打法</h2>
+<div class="chartwrap"><div class="shint">← 可左右滑动查看完整图表 →</div><div class="chartblock"><div class="ctitle">定价权打法的三方价值</div><div data-chart="threeWayValue"></div></div></div>
+<div class="chartwrap"><div class="shint">← 可左右滑动查看完整图表 →</div><div class="chartblock"><div class="ctitle">鲜花 × IP 商品结合的四个层次</div><div data-chart="ipLayers"></div></div></div>
+<div class="chartwrap"><div class="shint">← 可左右滑动查看完整图表 →</div><div class="chartblock"><div class="ctitle">IP 应援月：从 IP 筛选到治理联动的八步</div><div data-chart="ipCampaign"></div></div></div>
+<h3 id="sec-3-1-鲜花-IP-给商家定价权-不打价格战">3.1 鲜花 × IP：给商家定价权，不打价格战</h3>
+<p><strong>先说清楚我们的打法与别人有什么不同。</strong></p>
+<p>鲜花这个类目现在有一个根本问题：<strong>商品是同质的</strong>。一束红玫瑰，A 店和 B 店没有区别，消费者只比价格。结果是商家陷入<strong>降价内卷</strong>——今天你便宜两块，明天我便宜三块，<strong>最后谁都没有毛利，谁都没有能力把品质做好</strong>。这不是商家不努力，是<strong>商品本身没有给商家留出定价的空间</strong>。</p>
+<p><strong>我们的 IP 打法，本质是给商家注入定价权。</strong></p>
+<p>当一束花不再只是「红玫瑰」，而是<strong>「某个角色的应援花」——它的定价逻辑就变了：消费者买的不是花，是对角色的情感</strong>。这时候商家卖的是<strong>有品牌、有故事、有专属设计的商品</strong>，而不是一束可以被比价的白牌花。<strong>同样的花材，因为 IP 的加持，商家有了定价空间。</strong></p>
+<p><strong>这件事对三方的价值是不同的，但方向一致：</strong></p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>对象</th><th>我们的做法</th><th>带来的结果</th></tr><tr><td><strong>① 帮助商家</strong></td><td>用 IP 联名给商品注入品牌与情感价值，让商家卖的是<strong>专属款而不是白牌款</strong></td><td><strong>商家有了定价权 → 有了毛利 → 有了生存能力</strong>。有毛利的商家才愿意投入把品质、服务、履约做好；不内卷的商家才愿意长期留在平台</td></tr><tr><td><strong>② 帮助平台</strong></td><td>把鲜花类目从<strong>「价格战红海」引导到「有溢价的健康类目」</strong></td><td><strong>GMV 的含金量提升</strong>（不是靠补贴堆出来的低价成交）；<strong>商家留存改善</strong>（活得下去的商家不会流失）；<strong>类目心智升级</strong>（消费者来买「设计过的花」，不只是「便宜的花」）</td></tr><tr><td><strong>③ 让新消费者进来</strong></td><td>用 IP 应援把<strong>平台外的粉丝群体</strong>带来——他们不是「来比价的人」，而是「来买角色周边的人」</td><td><strong>带来的是新增注册与新增消费</strong>，不是从别处搬来的存量。粉丝的购买动机是情感，<strong>对价格的敏感度低</strong>，愿意为设计付溢价</td></tr></table></div>
+<p><strong>一句话概括这条路：我们不做「帮商家降价抢单」的生意，做「帮商家把商品卖出价值」的生意。</strong> 这是我们认为鲜花类目能长期健康的关键，也是我们与其他服务商最不一样的地方。</p>
+<p><strong>怎么把这件事落到淘宝闪购的运营里（而不是停留在概念上）</strong>：</p>
+<ol><li><strong>商品端</strong>——把 IP 变成可上架、可履约、可复购的鲜花商品（见下文四个层次）；</li><li><strong>活动端</strong>——以 IP 应援月造节，在非节日时段创造消费理由，并整体组织在管商家参与；</li><li><strong>商家端</strong>——培训与陈列标准同步，让商家知道「为什么要卖这款、怎么卖、卖给谁」；</li><li><strong>治理端</strong>——正版化前置：商家与 <strong>IP 权利方或其代理方直签独立电子授权合同</strong>，一货一物防串货，<strong>保护愿意投入的商家不被低价盗版冲击</strong>（这是定价权能否守住的物理前提）。</li></ol>
+<p><strong>为什么这件事只有懂鲜花的人能做</strong>：IP 联名在各行各业都在做，但<strong>鲜花是最难联名的品类之一</strong>——花是有生命的，花期只有几天，节日需求是平日的几十倍，同城即时配送还要求 30 分钟到 1 小时送达。<strong>把 IP 做成一个能卖、能履约、能复购的鲜花商品，是一件需要品类纵深才能做成的事。</strong> 这正是我们的能力所在。</p>
+<p><strong>我们的商品 IP 结合能力，分四个层次：</strong></p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>层次</th><th>做什么</th><th>创造性的体现</th></tr><tr><td><strong>一 · IP 标签化</strong></td><td>给热销现货叠 IP 标签（小阿狸案例：平台选中红玫瑰款，参与门店全部可打「小阿狸同款」）</td><td><strong>零新增 SKU</strong>，用最快的路径验证 IP 的带货力</td></tr><tr><td><strong>二 · IP 载体化</strong></td><td>把 IP 落到实物载体上：<strong>定制包材、专属花束、公仔、卡片、礼盒</strong></td><td><strong>不是贴标，是重新设计一件商品</strong>——从花的品种、配色、包装到赠品，按 IP 的气质重新组合</td></tr><tr><td><strong>三 · IP 场景化</strong></td><td>为 IP 设计<strong>专属购买场景</strong>：应援、庆生、告白、纪念日</td><td><strong>从「卖花」变成「卖一次表达」</strong>——商品不再是花，是粉丝对角色的情感载体</td></tr><tr><td><strong>四 · IP 系列化</strong></td><td>同一 IP 做<strong>系列款</strong>，跨节点持续迭代</td><td><strong>把一个爆款变成一条产品线</strong>，形成可复购的商品结构</td></tr></table></div>
+<p><strong>创造性体现在三个地方</strong>：</p>
+<ol><li><strong>造节而不是等节</strong>。鲜花消费被二十几个自然节日框死，非节日就是淡季。我们做的是<strong>造出新的消费理由</strong>——「为我的角色买一束花」，购买动机是情感，与情人节无关。<strong>首场就定在 11 月淡季</strong>：在双旦做活动，做出来的是节日本来就有的需求；<strong>只有在淡季做出来，才能证明 IP 真能造出新的消费理由</strong>。这也是把平台外已有的粉丝消费，移植到平台内完成。</li></ol>
+<ol><li><strong>应援月，不是应援日</strong>。不做单日脉冲，做「<strong>预告 → 应援期 → 返场</strong>」的 <strong>30 天量级周期</strong>——用持续曝光培养消费习惯，把一次活动变成一个节日。<strong>单日做的是 GMV 峰值，30 天做的是习惯。</strong></li></ol>
+<ol><li><strong>一套可复用的造节方法</strong>。不是碰运气做一个爆款，而是把方法沉淀成 SOP：<strong>IP 筛选 → 载体设计 → 商家报名 → 资材铺货 → 培训陈列 → 活动执行 → 治理联动 → 复盘</strong>。这个方法可以反复用在不同的 IP、不同的节点、不同的城市。</li></ol>
+<p><strong>IP 矩阵的组合能力</strong>：头部筛选 <strong>1 个配合度高的 IP 打透做案例</strong>（「求不来只能吸引」，不浪费精力）；腰部按人群画像做矩阵覆盖更广；尾部培育自有。以<strong>双向评价</strong>为基础（商家配合度 × IP 配合度），匹配不上就不硬推——<strong>宁少勿假</strong>。</p>
+<p><strong>城市落地：成都整体上 + 快闪</strong>。成都淘闪鲜花类目现有 <strong>700-800 家存量商家</strong>（其中有效动销 <strong>750 家</strong>，均有真实订单），可整体组织进活动；线下配合大屏与中庭快闪，<strong>把线上活动做成城市事件</strong>——让一次联名不只是手机里的一个 banner，而是这座城市能看见的事。</p>
+<p><strong>正版化是前置条件，而授权必须来自权利方本身。</strong></p>
+<p><strong>授权的唯一合法来源是 IP 权利方（或其授权代理方）</strong>——商家参加活动前，必须与该权利方或其代理方<strong>直接签署独立的电子授权合同</strong>，授权才生效。服务商不代替权利方授权，也不代替权利方担责。链路是：</p>
+<pre><code>IP 权利方（或授权代理方）
+   │  独立电子授权合同（直签，一份一签）
+   ▼
+参与活动的商家  ←── 我方只做三件事：组织报名 / 送审监修 / 核对授权文件</code></pre>
+<p><strong>我方在授权链上的三个动作</strong>：① <strong>组织报名</strong>——把愿意参与的商家组织起来；② <strong>送审监修</strong>——把商品设计（包材、花束、礼盒）送 IP 方监修，通过才可生产；③ <strong>核对授权文件</strong>——<strong>报名商家须持有与权利方/代理方直签的电子合同编号，无编号不进入活动</strong>。</p>
+<p><strong>正版锁</strong>：<strong>一货一物</strong>——授权带数量限制，采购多少包材卖多少束，杜绝超卖与串货；<strong>不买指定资材包，物理上做不出正版款</strong>，这是把「正版」从口号变成门槛。非授权渠道采购即为盗版，<strong>按平台规则举报、链接下架，我方主动配合</strong>。</p>
+<p><strong>一个前提要说清</strong>：首场活动启动前，<strong>必须完成 IP 权利方（或代理方）的授权链路签约</strong>；若届时授权链未落地，我方<strong>不启动该场联名活动</strong>——不拿未授权的活动去试探平台的容忍度。</p>
+<p><strong>可交付</strong>：一次可复制的造节 SOP、活动中实际使用的<strong>商品设计（包材/花束/礼盒）方案</strong>、活动期商家参与率与资材渗透率、以及新增注册与跨平台迁入的数据复盘。</p>
+<h2 id="sec-四-如何从其他平台带来增量-一套可复制的打法">四、如何从其他平台带来增量：一套可复制的打法</h2>
+<div class="chartwrap"><div class="shint">← 可左右滑动查看完整图表 →</div><div class="chartblock"><div class="ctitle">跨平台增量四步：识别 → 触达 → 迁移 → 留存</div><div data-chart="crossPlatform"></div></div></div>
+<p><strong>这件事的本质</strong>：平台间的商家数量差距（淘宝闪购鲜花商家约 <strong>5 万家</strong> vs 同类平台公开披露 <strong>超 20 万家</strong>）不是自然形成的，是<strong>靠人力逐个谈出来的</strong>。这套打法分四步，每一步都有可核验的产出。</p>
+<p><strong>第一步：识别——找到「值得搬」的店。</strong> 不盲目扫街。按片区、商圈、品类结构筛出三类目标：① 有线下真实动销（不是空壳店）；② 在别处经营但线上运营薄弱（有需求、缺能力）；③ 店址在配送半径内（能保障履约体验）。<strong>选商三条标准写死，避免为冲量签空壳店。</strong></p>
+<p><strong>第二步：触达——用他们听得懂的方式谈。</strong> 两个通道并行：<strong>骑手建联</strong>（覆盖密度高、单人触达量大）+ <strong>专职商务上线</strong>（讲清上架、资质、活动的完整路径）。每家店的材料是一次<strong>具体的经营方案</strong>（这个商圈卖什么、价格带怎么定、活动怎么报），不是一张招商传单。</p>
+<p><strong>第三步：迁移——把「搬过来」变成「活起来」。</strong> 签约只是开始。<strong>口径写死：新签且 30 天内完成首次动销，不以签约数计功。</strong> 承接硬线是<strong>首周问题解决率 ≥90%</strong>——上架、改价、活动报名、客服工具接入，每一步都有表单、有时限，避免「签完就没人管」。</p>
+<p><strong>第四步：留存——把迁移沉淀成增量。</strong> 迁入后 30 天的动销率、复购率、单店产出按月过账。<strong>只做前三步，GMV 会随流失回落</strong>——拉新是「店的数量」，单店产出是「店的厚度」，两者必须同时报。</p>
+<p><strong>增量的两个来源</strong>：</p>
+<ul><li><strong>商家迁移</strong>——帮花店完成线上迁移，带来的是<strong>现成的经营能力与货盘</strong>；</li><li><strong>用户迁移</strong>——通过 IP 矩阵的应援与活动，把平台外的粉丝与鲜花消费者带进来<strong>首次注册下单</strong>。</li></ul>
+<p><strong>可核验产出</strong>：跨平台迁入商家数、迁入后 30 天动销率、新注册用户数与首单来源、以及分新老商家的 GMV 拆分。</p>
+<p><strong>IP 应援月节奏</strong>：<strong>第一场定在 11 月——这是鲜花真正的淡季</strong>（国庆后、双 11 后、双旦前，全年需求最低的窗口之一），不是借任何自然节日的势。</p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>类型</th><th>排期</th><th>报什么数</th></tr><tr><td><strong>造节</strong>（<strong>首场 = 11 月淡季</strong>，此后<strong>每年 ≥2 场落在非自然节日窗口</strong>）</td><td>11 月（首场）· 3 月 · 7 月 等淡季窗口</td><td>该窗口 vs <strong>前 4 周同店 GMV 增幅</strong>、新增注册数、复购率</td></tr><tr><td><strong>借节</strong>（承认是叠加，不是造节）</td><td>双旦 · 情人节 · 母亲节 · 七夕</td><td>IP 款 GMV 占比、IP 款 vs 白牌款<strong>同店增幅差</strong></td></tr></table></div>
+<p><strong>为什么首场要放在淡季</strong>：在双旦做活动，做出来的是<strong>节日本来就有的需求</strong>；只有在淡季做出来，才能证明 <strong>IP 真能造出新的消费理由</strong>。<strong>首场选 11 月，就是要把这件事一次验证清楚。</strong></p>
+<h2 id="sec-五-我们想要什么-城市-片区-全国-活动-流量入口">五、我们想要什么（城市 / 片区 / 全国 × 活动 / 流量入口）</h2>
+<div class="chartwrap"><div class="shint">← 可左右滑动查看完整图表 →</div><div class="chartblock"><div class="ctitle">支持诉求：按阶段排开</div><div data-chart="resultForSupport"></div></div></div>
+<p><strong>这是「我们想要什么」，不是「我们要求什么」。</strong> 每一项都写明：<strong>我们要什么</strong>（具体位置/权限/时效）、<strong>打算用它做什么</strong>、<strong>对平台的价值</strong>（从平台自己的指标说）。</p>
+<p><strong>我们不要资源前置条件</strong>——不写「平台先给、我方再做」。这些诉求是<strong>希望与平台共同商定的事项</strong>，供会上逐项讨论。</p>
+<p><strong>另有一项不占用任何资源位的请求</strong>：希望平台把<strong>考核口径与支持政策书面化</strong>，并建立<strong>按月经营复盘</strong>机制——这不需要资源，只需要口径清楚。</p>
+<h3 id="sec-总表-三层-两类">总表：三层 × 两类</h3>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>层级</th><th>活动层面诉求</th><th>流量入口诉求</th></tr><tr><td><strong>城市级</strong></td><td>① 单城活动类目 banner；② 节日排期与规则提前下达；③ 门店定档／升档权限</td><td>① 城市首页与鲜花频道活动期固定入口；② IP 应援词条搜索联想；③ 新客首单券可及范围</td></tr><tr><td><strong>片区级</strong></td><td>① 商圈／片区联动会场位；② 片区定向推送（按配送半径定投）；③ 片区档期自主排布</td><td>① 片区内跨店流量分发；② 区域热销榜／鲜花榜单席位</td></tr><tr><td><strong>全国级</strong></td><td>① 全国性 IP 联名活动专栏位（花严选专栏位）；② 全局商家信触达通道；③ 活动报名推送通道</td><td>① 类目频道页联名位；② 跨城活动会场；③ 站内搜索与推荐权重（新消费理由词条）</td></tr></table></div>
+<h3 id="sec-逐项拆解-要什么-用来做什么-对平台的价值">逐项拆解（要什么 / 用来做什么 / 对平台的价值）</h3>
+<p><strong>城市级</strong></p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>诉求项</th><th>我们要什么（位置／权限／时效）</th><th>打算用它做什么</th><th>对平台的价值</th></tr><tr><td>活动① 类目 banner</td><td>单城活动期鲜花类目 banner，<strong>提前 15 天锁档</strong></td><td>组织在管商家整体参与，做成一次全城活动</td><td>活动位不空转：参与率与资材渗透率按月过账</td></tr><tr><td>活动② 排期提前下达</td><td>节日大促排期与规则<strong>提前 45 天下达</strong></td><td>按排期做备货测算、排班与定价准备</td><td>商家能备货、排班、定价 →「报了的有货能接」，减少爆单差评</td></tr><tr><td>活动③ 定档／升档权限</td><td>符合条件门店可按库存申请<strong>升档</strong></td><td>把流量给到承接能力已达标、库存充足的门店</td><td>流量给到<strong>接得住的店</strong>，而非先到先得的店</td></tr><tr><td>流量① 活动期固定入口</td><td>城市首页与鲜花频道<strong>活动期固定入口</strong></td><td>承接 IP 应援与节日活动的流量落地</td><td>鲜花是低门槛高频入口品类 → <strong>带来新用户注册</strong>，可在其他品类复购</td></tr><tr><td>流量② 搜索词联想</td><td>IP 应援词条进入<strong>搜索联想</strong></td><td>让「角色名 + 花」成为可被搜到的词</td><td><strong>创造新搜索意图</strong>：增量需求词不是存量词，词条资产留在站内</td></tr><tr><td>流量③ 新客首单券</td><td>在管商家进入<strong>新客首单券可及范围</strong></td><td>降低新用户的第一次下单门槛</td><td>券<strong>买的是新注册</strong>，不是老客折扣</td></tr></table></div>
+<p><strong>片区级</strong></p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>诉求项</th><th>我们要什么</th><th>打算用它做什么</th><th>对平台的价值</th></tr><tr><td>活动① 片区联动会场</td><td>以一个商圈／片区为单位的<strong>联动会场位</strong></td><td>按片区内多店联动做活动（同商圈一起上）</td><td>履约半径是硬的——<strong>片区密度高=配送效率高=体验好=复购高</strong></td></tr><tr><td>活动② 片区定向推送</td><td>按配送半径做<strong>商圈定向推送</strong></td><td>把活动信息推给该片区能送达的用户</td><td>推送只落在<strong>能送到的范围</strong>，降低无效曝光与配送风险</td></tr><tr><td>活动③ 片区档期自主</td><td>片区活动档期的<strong>建议权</strong>（非审批权）</td><td>按片区复盘数据提交排期建议</td><td>一线最清楚哪个商圈哪个节点卖得动，<strong>提高排期命中率</strong></td></tr><tr><td>流量① 跨店流量分发</td><td>片区内<strong>跨店流量分发</strong></td><td>单店缺货时把流量转给同片区其他店</td><td>流量在门店间流转，<strong>减少单店缺货造成的用户流失</strong></td></tr><tr><td>流量② 区域榜单席位</td><td><strong>区域热销榜／鲜花榜单</strong>席位</td><td>让真实热销的商品有展示位</td><td>榜单是决策工具，<strong>上榜带类目客单价与含金量</strong>，非低价冲量</td></tr></table></div>
+<p><strong>全国级</strong></p>
+<div class="shint">← 可左右滑动查看完整表格 →</div><div class="tblwrap"><table><tr><th>诉求项</th><th>我们要什么</th><th>打算用它做什么</th><th>对平台的价值</th></tr><tr><td>活动① 联名专栏位</td><td>全国性 IP 联名活动<strong>花严选专栏位</strong></td><td>把全国联名款集中在一处呈现，做一次全国性活动</td><td>给类目带进<strong>一条有溢价的产品线</strong>，不是一次促销——含金量提升、商家留存改善</td></tr><tr><td>活动② 全局商家信</td><td><strong>全局商家信触达通道</strong>（报名与正版化通知）</td><td>让愿意参与的花店都能收到报名信息</td><td>平台多一条<strong>直达花店的官方通道</strong>；正版化前置降低串货盗版</td></tr><tr><td>活动③ 报名推送通道</td><td>活动报名<strong>推送通道</strong></td><td>缩短商家从得知到报名的时间</td><td>提高报名覆盖率，<strong>减少活动位与商家意向的错配</strong></td></tr><tr><td>流量① 频道页联名位</td><td>类目频道页<strong>联名位</strong></td><td>承接全国应援活动的入口</td><td>把<strong>平台外的粉丝消费移植进站内</strong>——新增注册与新增消费，不是存量挪腾</td></tr><tr><td>流量② 跨城活动会场</td><td><strong>跨城活动会场</strong></td><td>多城同档期一起开跑</td><td>一次运营动作、多城产出，<strong>平台运营效率提升</strong></td></tr><tr><td>流量③ 搜索与推荐权重</td><td>IP 词条与新消费理由的<strong>站内搜索与推荐权重</strong></td><td>承接应援期间集中爆发的搜索需求</td><td>平台获得<strong>新的类目需求入口</strong>；鲜花从「二十几个自然节日」变成全年有理由</td></tr></table></div>
+<div class="foot">花联网 · 花联网（内部暂命名）· 淘宝闪购业务说明与规划简报 · 本页由 Markdown 自动生成 · ⚠️ 金额为测算 · 以正式协议与律师意见为准</div>
+</div>
+<script>
+(function(){
+  var heads = Array.prototype.slice.call(document.querySelectorAll('h1[id],h2[id],h3[id],h4[id]'));
+  function findHead(pat){ for (var i=0;i<heads.length;i++){ var t=heads[i].textContent.replace(/\s+/g,''); if (pat.test(t)) return heads[i]; } return null; }
+  var RE = /(第[一二三四五六七八九十]+部分(?:第[一二三四五六七八九十]+节)?|第[一二三四五六七八九十]+节|附录\s?[A-Z])/g;
+    document.querySelectorAll('p,li,blockquote').forEach(function(el){
+    if (el.querySelector('a')) return;          // ★ 已含链接的（如目录）跳过，避免破坏 href
+    if (el.querySelectorAll('p,li').length) return;
+    // ★ 只处理文本节点，不碰任何属性
+    var walker=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var nodes=[], n;
+    while(n=walker.nextNode()){ if(RE.test(n.nodeValue)) nodes.push(n); RE.lastIndex=0; }
+    nodes.forEach(function(tn){
+      var frag=document.createDocumentFragment(), last=0, txt=tn.nodeValue;
+      RE.lastIndex=0;
+      txt.replace(RE, function(m, _g, off){
+        var h=findHead(new RegExp(m.replace(/\s+/g,'')));
+        if(!h) return m;
+        frag.appendChild(document.createTextNode(txt.slice(last, off)));
+        var a=document.createElement('a');
+        a.className='jump'; a.href='#'+h.id; a.title='跳到：'+h.textContent.trim(); a.textContent=m;
+        frag.appendChild(a); last=off+m.length; return m;
+      });
+      if(last>0){ frag.appendChild(document.createTextNode(txt.slice(last))); tn.parentNode.replaceChild(frag, tn); }
+    });
+  });
+})();
+  // ===== 二级菜单：章节树 + 滚动高亮 =====
+  (function(){
+    var tree=document.getElementById('navtree'); if(!tree) return;
+    var heads=Array.prototype.slice.call(document.querySelectorAll('h1[id],h2[id],h3[id]'));
+    heads.forEach(function(h){
+      var lv=h.tagName==='H1'?1:(h.tagName==='H2'?2:3);
+      var li=document.createElement('li'), a=document.createElement('a');
+      a.href='#'+h.id; a.className='lv'+lv; a.textContent=h.textContent.trim();
+      a.onclick=function(e){ e.preventDefault(); h.scrollIntoView({behavior:'smooth',block:'start'});
+        h.classList.remove('jumpflash'); void h.offsetWidth; h.classList.add('jumpflash'); };
+      li.appendChild(a); tree.appendChild(li);
+    });
+    var links=Array.prototype.slice.call(tree.querySelectorAll('a'));
+    function spy(){
+      var best=null, bt=-1e9;
+      links.forEach(function(a){
+        var el=document.getElementById(a.getAttribute('href').slice(1)); if(!el) return;
+        var top=el.getBoundingClientRect().top-90;
+        if(top<=0 && top>bt){ bt=top; best=a; }
+      });
+      links.forEach(function(a){ a.classList.toggle('cur', a===best); });
+    }
+    window.addEventListener('scroll',spy,{passive:true}); spy();
+    var nt=document.getElementById('navtoggle');
+    if(nt) nt.onclick=function(){ var d=document.getElementById('docnav'); if(d) d.classList.toggle('open'); };
+  })();
+</script>
+<script src="/vendor/d3.min.js"></script>
+<script>window.CHARTS = (function(){
+  function cols(items){
+    return `<div class="cols">` + items.map(it=>
+      `<div class="colitem"><div class="coltop" style="color:${it.c}">${it.top}</div><div class="colbar" style="height:${it.h}px;background:${it.c}"></div><div class="collab">${it.k}</div><div class="coldesc">${it.d||''}</div></div>`
+    ).join('') + `</div>`;
+  }
+    function crossPlatform(){
+    const S=[['识别','按片区/商圈/品类筛三类目标','有真实动销 · 线上薄弱 · 配送半径内'],['触达','骑手建联 + 专职商务','带具体经营方案，非招商传单'],['迁移','签约后 30 天内首动销','首周问题解决率 ≥90%'],['留存','动销率/复购率/单店产出','按月过账，不只报店数']];
+    let x=16, out='<svg viewBox="0 0 1080 190">';
+    S.forEach(function(it,i){
+      out+='<rect x="'+x+'" y="12" width="248" height="148" rx="11" fill="#161b26" stroke="#3fb27f" stroke-opacity=".45"/>';
+      out+='<text x="'+(x+124)+'" y="40" text-anchor="middle" fill="#3fb27f" font-size="13" font-weight="700">第 '+(i+1)+' 步 · '+it[0]+'</text>';
+      var a=it[1]; var la=[]; while(a.length>0){ la.push(a.slice(0,13)); a=a.slice(13); }
+      la.slice(0,3).forEach(function(l,k){ out+='<text x="'+(x+124)+'" y="'+(70+k*18)+'" text-anchor="middle" fill="#e7ecf5" font-size="11.5">'+l+'</text>'; });
+      var b=it[2]; var lb=[]; while(b.length>0){ lb.push(b.slice(0,15)); b=b.slice(15); }
+      lb.slice(0,2).forEach(function(l,k){ out+='<text x="'+(x+124)+'" y="'+(124+k*16)+'" text-anchor="middle" fill="#9aa7bd" font-size="10.5">'+l+'</text>'; });
+      if(i<S.length-1) out+='<text x="'+(x+256)+'" y="92" text-anchor="middle" fill="#6f7686" font-size="15">›</text>';
+      x+=264;
+    });
+    out+='<text x="540" y="182" text-anchor="middle" fill="#6f7686" font-size="10.5">口径：新签且 30 天内完成首次动销，不以签约数计功；月度或平台后台口径为准</text>';
+    return out+'</svg>';
+  }
+    function donut(id, data, centerTop, centerBot){
+    const spec = {t:'donut', id:id, data:data, a:centerTop, b:centerBot};
+    return `<div class="d3chart" data-d3="${encodeURIComponent(JSON.stringify(spec))}" id="${id}"></div>`;
+  }
+    function hbar(id, data, max){
+    const m = max || Math.max(...data.map(d=>d.v));
+    return `<div class="chart" id="${id}">` + data.map(d=>
+      `<div class="bar"><div class="lab">${d.k}</div><div class="track"><div class="fill" style="width:${(d.v/m*100).toFixed(1)}%;background:${d.c}"></div></div><div class="val" style="color:${d.c}">${d.t||d.v}</div></div>`
+    ).join('') + `</div>`;
+  }
+    function ipCampaign(){
+    const S=[['1','IP 筛选','头部 1 个打透\n腰部做矩阵'],['2','载体设计','包材/公仔\n送 IP 监修'],['3','商家报名','报名即授权\n电子协议'],['4','资材铺货','一货一物\n按量配卖'],['5','培训陈列','话术与陈列\n标准动作'],['6','活动执行','预告→应援期→返场\n30 天周期'],['7','治理联动','盗版举报\n链接下架'],['8','复盘沉淀','参与率/渗透率\n新增注册']];
+    let x=10, out='<svg viewBox="0 0 1080 176">';
+    S.forEach(function(it,i){
+      out+='<rect x="'+x+'" y="10" width="122" height="140" rx="10" fill="#161b26" stroke="#4f8cff" stroke-opacity=".38"/>';
+      out+='<circle cx="'+(x+61)+'" cy="34" r="13" fill="#1c2233" stroke="#4f8cff"/>';
+      out+='<text x="'+(x+61)+'" y="39" text-anchor="middle" fill="#4f8cff" font-size="12" font-weight="700">'+it[0]+'</text>';
+      out+='<text x="'+(x+61)+'" y="66" text-anchor="middle" fill="#e7ecf5" font-size="12.5" font-weight="600">'+it[1]+'</text>';
+      it[2].split('\n').forEach(function(l,k){ out+='<text x="'+(x+61)+'" y="'+(90+k*17)+'" text-anchor="middle" fill="#9aa7bd" font-size="10.5">'+l+'</text>'; });
+      if(i<S.length-1) out+='<text x="'+(x+128)+'" y="86" text-anchor="middle" fill="#6f7686" font-size="14">›</text>';
+      x+=134;
+    });
+    out+='<text x="540" y="170" text-anchor="middle" fill="#6f7686" font-size="10.5">正版化是前置条件：报名即授权 · 一货一物 · 主动配合平台治理</text>';
+    return out+'</svg>';
+  }
+    function ipLayers(){
+    const L=[
+      {t:'一 · IP 标签化',d:'热销现货叠 IP 标签\n零新增 SKU，最快验证带货力',c:'#3fb27f'},
+      {t:'二 · IP 载体化',d:'定制包材/专属花束/公仔/礼盒\n不是贴标，是重新设计一件商品',c:'#4f8cff'},
+      {t:'三 · IP 场景化',d:'应援/庆生/告白/纪念日\n从「卖花」变成「卖一次表达」',c:'#9a7fe8'},
+      {t:'四 · IP 系列化',d:'同一 IP 做系列款，跨节点迭代\n把一个爆款变成一条产品线',c:'#e8a33d'}
+    ];
+    let x=16, out='<svg viewBox="0 0 1080 200">';
+    L.forEach(function(it,i){
+      out+='<rect x="'+x+'" y="14" width="248" height="150" rx="11" fill="#161b26" stroke="'+it.c+'" stroke-opacity=".5"/>';
+      out+='<text x="'+(x+124)+'" y="42" text-anchor="middle" fill="'+it.c+'" font-size="13" font-weight="700">'+it.t+'</text>';
+      it.d.split('\n').forEach(function(l,k){ out+='<text x="'+(x+124)+'" y="'+(72+k*19)+'" text-anchor="middle" fill="'+(k===0?'#e7ecf5':'#9aa7bd')+'" font-size="'+(k===0?11.5:10.5)+'">'+l+'</text>'; });
+      if(i<L.length-1) out+='<text x="'+(x+256)+'" y="96" text-anchor="middle" fill="#6f7686" font-size="15">›</text>';
+      x+=264;
+    });
+    out+='<text x="540" y="186" text-anchor="middle" fill="#6f7686" font-size="10.5">鲜花是最难联名的品类之一（花期短 · 节日暴涨 · 30 分钟履约）——把 IP 做成能卖能履约能复购的鲜花商品，需要品类纵深</text>';
+    return out+'</svg>';
+  }
+    function line(id, stages, series, note){
+    const spec = {t:'line', id:id, stages:stages, series:series};
+    return `<div class="d3chart" data-d3="${encodeURIComponent(JSON.stringify(spec))}" id="${id}"></div>` +
+      (note ? `<div class="note">${note}</div>` : '');
+  }
+    function resultForSupport(){
+    const L=[
+      {n:'第 1 档',r:'成都现存 750 家\n份额约 15%',a:'维持现有权限与资格',c:'#3fb27f'},
+      {n:'第 2 档',r:'成都做透\n新签与动销上量',a:'账号权限开通的标准动作与时效书面化；节日排期与活动可及范围',c:'#4f8cff'},
+      {n:'第 3 档',r:'第二城复制\n验证单元可交付',a:'鲜花类目商家经营数据接口（若平台已具备）',c:'#9a7fe8'},
+      {n:'第 4 档',r:'多城铺开\n五城稳定运行',a:'更高层级的位置支持与活动资源',c:'#e8a33d'}
+    ];
+    let x=12, out='<svg viewBox="0 0 1080 232">';
+    L.forEach(function(it,i){
+      out+='<rect x="'+x+'" y="14" width="256" height="196" rx="11" fill="#161b26" stroke="'+it.c+'" stroke-opacity=".5"/>';
+      out+='<text x="'+(x+128)+'" y="40" text-anchor="middle" fill="'+it.c+'" font-size="12.5" font-weight="700">'+it.n+'</text>';
+      out+='<text x="'+(x+128)+'" y="60" text-anchor="middle" fill="#6f7686" font-size="10.5">对应我们的节点</text>';
+      it.r.split('\n').forEach(function(line,k){
+        out+='<text x="'+(x+128)+'" y="'+(82+k*17)+'" text-anchor="middle" fill="#e7ecf5" font-size="11.5">'+line+'</text>';
+      });
+      out+='<line x1="'+(x+22)+'" y1="126" x2="'+(x+234)+'" y2="126" stroke="#2a3245"/>';
+      out+='<text x="'+(x+128)+'" y="144" text-anchor="middle" fill="#6f7686" font-size="10.5">才申请支持</text>';
+      var lines=[]; var t=it.a;
+      while(t.length>0){ lines.push(t.slice(0,15)); t=t.slice(15); }
+      lines.slice(0,4).forEach(function(line,k){
+        out+='<text x="'+(x+128)+'" y="'+(164+k*15)+'" text-anchor="middle" fill="#9aa7bd" font-size="10.5">'+line+'</text>';
+      });
+      x+=268;
+    });
+    out+='<text x="540" y="226" text-anchor="middle" fill="#6f7686" font-size="10.5">诉求按阶段排开，便于会上讨论节奏</text>';
+    return out+'</svg>';
+  }
+    function threeWayValue(){
+    const C=[
+      {t:'帮助商家',a:'给商品注入定价权',b:['用 IP 联名把白牌款','变成有品牌与情感的','专属款'],c:['有定价权 → 有毛利','有毛利 → 有生存能力','有生存能力 → 愿意做好品质'],col:'#3fb27f'},
+      {t:'帮助平台',a:'从价格战红海到健康类目',b:['类目不再靠补贴堆低价','成交','商家活得下去就不会流失'],c:['GMV 含金量提升','商家留存改善','类目心智升级'],col:'#4f8cff'},
+      {t:'让新消费者进来',a:'带来平台外的粉丝群体',b:['不是来比价的人','而是来买角色周边','的人'],c:['新增注册与新增消费','对价格敏感度低','愿意为设计付溢价'],col:'#e8a33d'}
+    ];
+    let x=16, out='<svg viewBox="0 0 1080 268">';
+    C.forEach(function(it){
+      out+='<rect x="'+x+'" y="12" width="336" height="216" rx="12" fill="#161b26" stroke="'+it.col+'" stroke-opacity=".5"/>';
+      out+='<text x="'+(x+168)+'" y="42" text-anchor="middle" fill="'+it.col+'" font-size="15" font-weight="700">'+it.t+'</text>';
+      out+='<text x="'+(x+168)+'" y="64" text-anchor="middle" fill="#e7ecf5" font-size="11.5">'+it.a+'</text>';
+      out+='<line x1="'+(x+26)+'" y1="76" x2="'+(x+310)+'" y2="76" stroke="#2a3245"/>';
+      it.b.forEach(function(l,k){ out+='<text x="'+(x+168)+'" y="'+(98+k*17)+'" text-anchor="middle" fill="#9aa7bd" font-size="11">'+l+'</text>'; });
+      out+='<line x1="'+(x+26)+'" y1="154" x2="'+(x+310)+'" y2="154" stroke="#2a3245"/>';
+      it.c.forEach(function(l,k){ out+='<text x="'+(x+168)+'" y="'+(176+k*18)+'" text-anchor="middle" fill="#e7ecf5" font-size="11.5">'+l+'</text>'; });
+      x+=352;
+    });
+    out+='<text x="540" y="252" text-anchor="middle" fill="#6f7686" font-size="10.5">我们不做「帮商家降价抢单」的生意，做「帮商家把商品卖出价值」的生意</text>';
+    return out+'</svg>';
+  }
+  
+  function renderD3(){
+    if(!window.d3) return 0;
+    let n = 0;
+    document.querySelectorAll('[data-d3]').forEach(function(el){
+      let spec; try{ spec = JSON.parse(decodeURIComponent(el.getAttribute('data-d3'))); }catch(e){ return; }
+      if(spec.t === 'donut'){
+        const data = spec.data, W = 520, H = 220, cx = 130, cy = 108, R = 82, r = 46;
+        const tot = d3.sum(data, d => d.v);
+        let a0 = -Math.PI/2, svg = '<svg viewBox="0 0 ' + W + ' ' + H + '">';
+        data.forEach(d => {
+          const a1 = a0 + (d.v/tot)*Math.PI*2;
+          const x0=cx+R*Math.cos(a0), y0=cy+R*Math.sin(a0), x1=cx+R*Math.cos(a1), y1=cy+R*Math.sin(a1);
+          const xi0=cx+r*Math.cos(a1), yi0=cy+r*Math.sin(a1), xi1=cx+r*Math.cos(a0), yi1=cy+r*Math.sin(a0);
+          const laf=(a1-a0)>Math.PI?1:0;
+          svg += '<path d="M'+x0+','+y0+' A'+R+','+R+' 0 '+laf+' 1 '+x1+','+y1+' L'+xi0+','+yi0+' A'+r+','+r+' 0 '+laf+' 0 '+xi1+','+yi1+' Z" fill="'+d.c+'" opacity="0.88"/>';
+          a0 = a1;
+        });
+        svg += '<text x="'+cx+'" y="'+(cy-2)+'" text-anchor="middle" fill="#9aa7bd" font-size="11">'+spec.a+'</text>';
+        svg += '<text x="'+cx+'" y="'+(cy+17)+'" text-anchor="middle" fill="#e7ecf5" font-size="13.5" font-weight="700">'+spec.b+'</text>';
+        let ly = 30;
+        data.forEach(d => {
+          svg += '<rect x="252" y="'+(ly-8)+'" width="10" height="10" rx="2" fill="'+d.c+'"/>';
+          svg += '<text x="270" y="'+(ly+1)+'" fill="#d7deea" font-size="11.5">'+d.k+'</text>';
+          svg += '<text x="430" y="'+(ly+1)+'" fill="'+d.c+'" font-size="11.5" font-weight="600" text-anchor="end">'+d.v+'</text>';
+          ly += 20;
+        });
+        svg += '</svg>';
+        el.innerHTML = svg; n++;
+      } else if(spec.t === 'line'){
+        const stages = spec.stages, series = spec.series;
+        const W = 1040, H = 300, m = {t:26, r:128, b:42, l:54};
+        const allv = series.flatMap(s2 => s2.v);
+        const vmin = Math.min.apply(null, allv), vmax = Math.max.apply(null, allv);
+        const x = i => m.l + (W-m.l-m.r)*i/(stages.length-1);
+        const y = v => m.t + (H-m.t-m.b)*(1-(v-vmin)/(vmax-vmin));
+        let svg = '<svg viewBox="0 0 '+W+' '+H+'">';
+        for(let g = Math.floor(vmin*2)/2; g <= vmax + 0.01; g += 0.5){
+          svg += '<line x1="'+m.l+'" y1="'+y(g)+'" x2="'+(W-m.r)+'" y2="'+y(g)+'" stroke="#2a3245"/>';
+          svg += '<text x="'+(m.l-8)+'" y="'+(y(g)+4)+'" text-anchor="end" fill="#6f7686" font-size="10">'+g.toFixed(1)+'</text>';
+        }
+        stages.forEach((st,i) => { svg += '<text x="'+x(i)+'" y="'+(H-m.b+22)+'" text-anchor="middle" fill="#9aa7bd" font-size="11.5">'+st+'</text>'; });
+        // 先算折线与端点
+        const ends = series.map(se => ({se:se, ey: y(se.v[se.v.length-1])}));
+        series.forEach(se => {
+          svg += '<polyline points="'+se.v.map((v,i)=>x(i)+','+y(v)).join(' ')+'" fill="none" stroke="'+se.c+'" stroke-width="2.5" stroke-linejoin="round"/>';
+          se.v.forEach((v,i) => { svg += '<circle cx="'+x(i)+'" cy="'+y(v)+'" r="3.5" fill="'+se.c+'"/>'; });
+        });
+        // ★ 末端标签防重叠：按 y 排序后强制最小间距 15px
+        ends.sort((a,b) => a.ey - b.ey);
+        for(let i=1;i<ends.length;i++){
+          if(ends[i].ey - ends[i-1].ey < 15) ends[i].ey = ends[i-1].ey + 15;
+        }
+        ends.forEach(e => {
+          const ty = Math.min(e.ey, H - m.b + 6);
+          const ly = y(e.se.v[e.se.v.length-1]);
+          if(Math.abs(ty - ly) > 2){
+            svg += '<line x1="'+(W-m.r+2)+'" y1="'+ly+'" x2="'+(W-m.r+8)+'" y2="'+ty+'" stroke="'+e.se.c+'" stroke-width="1" opacity="0.6"/>';
+          }
+          svg += '<text x="'+(W-m.r+10)+'" y="'+(ty+4)+'" fill="'+e.se.c+'" font-size="11.5" font-weight="600">'+e.se.k+'</text>';
+        });
+        svg += '</svg>';
+        el.innerHTML = svg; n++;
+      }
+    });
+    return n;
+  }
+  const MAP = {
+    structure, panorama, foursteps, twoGaps, flywheel, quadrant, fourlines, org, techstack,
+    stages, ladder, betStructure, governance, budgetDonut, quarters, rounds, timeline,
+    parties, clauses, unitEcon, market, why1000, aiBoundary, twoRoles, cityGoals, resultForSupport, ipCampaign, ipLayers, threeWayValue, crossPlatform, hbar, donut, line, cols
+  };
+  return { get:function(n){return MAP[n]?MAP[n]():'';}, renderD3: window.__renderD3||function(){} };
+})();</script>
+<script>(function(){document.querySelectorAll("[data-chart]").forEach(function(el){var n=el.getAttribute("data-chart");var h=window.CHARTS.get(n); if(h) el.innerHTML=h;});if(window.CHARTS.renderD3) window.CHARTS.renderD3();})();</script>
+</body></html>

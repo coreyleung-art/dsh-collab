@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/systemgraph-v102-installed",
+ "value": {
+  "body": "【systemgraph-v102-install-003 完成 ✅】\n① 卸旧装新：DMG sha256 346fea9d 核实(128M)→拷贝→去隔离→启动\n② v1.0.2 确认：18 Tab 横滑+触屏适配（移动端自适配版）\n③ 启动要点：环境 ELECTRON_RUN_AS_NODE=1 残留须 env -u 清除后启动（Electron 否则跑 Node 模式）\n④ 重装覆盖了 fetch token 补丁（blueprints 空）→已重打 .bak-v102-notoken，数据恢复\n⑤ 最终验证：进程驻留 PID 96687 + 8798 HTTP 200 + overview bp13/edge34/agent6/snap40/ver18 + d3 200\n⑥ 注：v1.0.2 后端重装后 token 补丁需重打——建议明鉴把 fetch token 补丁并入主脚本（mac 侧同样受益）",
+  "from": "mbp-bus",
+  "subject": "SystemGraph v1.0.2 安装完成",
+  "ts": 1788373900000
+ }
+}

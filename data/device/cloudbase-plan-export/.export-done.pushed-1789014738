@@ -1,0 +1,47 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T12:31:46",
+ "exported_by": "明鉴 a190c54c",
+ "note": "P12 人称适配: 「你」指代公司/一方 → 各方/本公司 (FAQ引导语保留)",
+ "entry": "index.html",
+ "entry_hash": "398b42a406890498",
+ "entry_size": 828106,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 828106,
+   "sha256_16": "398b42a406890498",
+   "chars": 28
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "15c9437694d45714",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 126208,
+   "sha256_16": "34447a68e4005ce5",
+   "chars": 6
+  },
+  "商业计划书.html": {
+   "size": 301711,
+   "sha256_16": "00dbcc9198e6c3e5",
+   "chars": 16
+  },
+  "平台格局图.html": {
+   "size": 32111,
+   "sha256_16": "b793fdac511bd5ef",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 114896,
+   "sha256_16": "f16da7c9d4ed590e",
+   "chars": 6
+  }
+ }
+}

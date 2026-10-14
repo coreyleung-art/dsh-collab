@@ -1,0 +1,252 @@
+{
+  "name": "黑板键语法负例断言集",
+  "version": "1.0.1",
+  "author": "明鉴 v3（对抗式验证产出）",
+  "source": "41 键矩阵（原 23 + 我扩展 19）· 三方对账（a5f4432a 跨实现 / 明鉴对抗式 / HR 属主复现）",
+  "measured_at": "2026-09-11T00:57:00+08:00",
+  "target": "http://127.0.0.1:8792 与 http://106.53.214.108:8792（同语法）",
+  "semantics_discovered": {
+    "首段命名空间": "必须纯小写字母 [a-z]+",
+    "后续段合法字符": "[A-Za-z0-9._-]",
+    "实测排除": [
+      ":",
+      "+",
+      "@",
+      "~",
+      "!",
+      "空格",
+      "中文",
+      "%",
+      "&",
+      ";",
+      "="
+    ],
+    "前导斜杠": "服务端**归一化**（//data/x 落到 data/x）",
+    "中间空段": "服务端**不归一化**（data//x 是独立对象，且与原键肉眼难辨）⇒ 两者语义不一致",
+    "尾斜杠": "指向命名空间列举端点（GET 返回 {list,total}）而非键",
+    "点段": ". 与 .. 段 → GET 返回命名空间列举（与尾斜杠同坑）",
+    "? 与 #": "按**键名字面量**处理（非查询/片段）—— 实测证伪了「客户端会解析成查询串」的假设"
+  },
+  "assertions": {
+    "must_reject": [
+      {
+        "key": "cld-health/x",
+        "reason": "首段非纯小写字母（含连字符）",
+        "board": 400
+      },
+      {
+        "key": "mac-mini/x",
+        "reason": "同上",
+        "board": 400
+      },
+      {
+        "key": "i9/x",
+        "reason": "同上（含数字）",
+        "board": 400
+      },
+      {
+        "key": "foo_bar/x",
+        "reason": "同上（含下划线）",
+        "board": 400
+      },
+      {
+        "key": "abc123/x",
+        "reason": "同上（含数字）",
+        "board": 400
+      },
+      {
+        "key": "ABC/x",
+        "reason": "同上（大写）",
+        "board": 400
+      },
+      {
+        "key": "data",
+        "reason": "单段键（命名空间端点，非键）",
+        "board": 400
+      },
+      {
+        "key": "data/",
+        "reason": "尾斜杠 → 命名空间列举端点",
+        "board": 400
+      },
+      {
+        "key": "data//x",
+        "reason": "★ 中间空段：独立对象且与原键肉眼难辨；服务端不归一化而前导斜杠归一化 → 客户端归一化将静默写错键",
+        "board": "200（可写！故必须由客户端拦）"
+      },
+      {
+        "key": "data/x/",
+        "reason": "尾斜杠",
+        "board": "200（可写！）"
+      },
+      {
+        "key": "data/x//y",
+        "reason": "中间空段",
+        "board": "200（可写！）"
+      },
+      {
+        "key": "data/x/a:b",
+        "reason": "后续段含 :（非法字符集）",
+        "board": 400
+      },
+      {
+        "key": "data/x/a#b",
+        "reason": "后续段含 #",
+        "board": "200（可写！）"
+      },
+      {
+        "key": "data/x/a?b",
+        "reason": "后续段含 ?",
+        "board": "200（可写！）"
+      },
+      {
+        "key": "data/x/a%b",
+        "reason": "后续段含 %",
+        "board": 400
+      },
+      {
+        "key": "data/x/a'b",
+        "reason": "后续段含单引号",
+        "board": 400
+      },
+      {
+        "key": "data/x/a\"b",
+        "reason": "后续段含双引号",
+        "board": 400
+      },
+      {
+        "key": "data/x/a<b",
+        "reason": "后续段含 <",
+        "board": 400
+      },
+      {
+        "key": "data/x/a>b",
+        "reason": "后续段含 >",
+        "board": 400
+      },
+      {
+        "key": "data/x/a|b",
+        "reason": "后续段含 |",
+        "board": 400
+      },
+      {
+        "key": "data/x/a*b",
+        "reason": "后续段含 *",
+        "board": 400
+      },
+      {
+        "key": "data/x/中文",
+        "reason": "非 ASCII",
+        "board": "客户端 UnicodeEncodeError"
+      },
+      {
+        "key": "data/x/y z",
+        "reason": "含空格",
+        "board": "客户端 InvalidURL"
+      },
+      {
+        "key": "data/x/a\tb",
+        "reason": "含 tab",
+        "board": "客户端 InvalidURL"
+      },
+      {
+        "key": "data/x/a\nb",
+        "reason": "含换行",
+        "board": "客户端 InvalidURL"
+      },
+      {
+        "key": "data/x/../escape",
+        "reason": "★ 点段被 HTTP 客户端消解（同 # 与 ? 同构）：无报错、判据可能通过、对象是错的",
+        "board": "客户端消解后落到命名空间端点（实测 bytes 与 GET /data/ 逐字节相同）",
+        "measured": "curl …/data/x/.. → 36,605,671 B，与 GET /data/ 完全一致"
+      },
+      {
+        "key": "data/x/./cur",
+        "reason": "★ 点段被 HTTP 客户端消解（同 # 与 ? 同构）：无报错、判据可能通过、对象是错的",
+        "board": "客户端消解后落到命名空间端点（实测 bytes 与 GET /data/ 逐字节相同）",
+        "measured": "curl …/data/x/.. → 36,605,671 B，与 GET /data/ 完全一致"
+      }
+    ],
+    "must_accept": [
+      {
+        "key": "data/dom/key"
+      },
+      {
+        "key": "notes/node/key"
+      },
+      {
+        "key": "tasks/i9/cmd"
+      },
+      {
+        "key": "data/reflect/cards/mac-mini/2026-09-10"
+      },
+      {
+        "key": "data/reflect/__syn__/ok"
+      },
+      {
+        "key": "data/Dom/key",
+        "note": "后续段允许大写"
+      },
+      {
+        "key": "data/x/y"
+      },
+      {
+        "key": "data/a/b/c/d/e"
+      },
+      {
+        "key": "data/x/1"
+      },
+      {
+        "key": "data/x/_u"
+      },
+      {
+        "key": "data/x/.-"
+      },
+      {
+        "key": "notes/mbp/x"
+      },
+      {
+        "key": "/data/x",
+        "note": "★ 前导斜杠：服务端归一化为 data/x —— 接受是宽容，不是漏洞（已实测两 URL 写同一对象）"
+      }
+    ]
+  },
+  "three_dimensional_criterion": {
+    "说明": "★ 判漏必须三重（明鉴补「过严」，HR 采纳并写入 R003）",
+    "过宽": "validate OK 但 board 拒 → 用户以为能写，实际 400",
+    "过严": "validate 拒 但 board 接受 → **误伤自己人**（R006 §6 坑1 的镜像）",
+    "归因错": "拒绝了但**原因说错** → 排查方向被带偏（HR 命名为 400/404/200 之外的第四态）",
+    "★ HR 补的结构性观察": "三种观测角度各只能看见一个面 —— 跨实现对照看得见过宽 / 对抗式攻击看得见过严 / 读失败信息看得见归因错。「不是角度越多越好，是每个失效面需要一个天然能看见它的角度」"
+  },
+  "usage": {
+    "接进 lean4-check": "HR 建议把它固化为负例断言集，接进 bb-write 的 lean4-check 下一版",
+    "可回归": "每次 key 校验逻辑变更后重跑，断言 must_reject 全拒 + must_accept 全过",
+    "注意": "must_reject 里标 board=200 的项，**服务端会接受** —— 故**必须由客户端拦**（这正是 bb-write 存在的理由）",
+    "两实例基线": "✅ 已补跑并确认一致（40 键 / 0 不一致）"
+  },
+  "provenance": {
+    "原 23 键": "a5f4432a 的跨实现对账（18 一致 / 5 分歧）",
+    "扩展 19 键": "明鉴的对抗式攻击面（控制字符/中文/引号/路径穿越/tab/多重斜杠/点段）",
+    "属主复现": "HR 独立复跑两条关键实证（前导斜杠归一化 / 空段键独立）",
+    "收敛": "41 键 · **0 漏点**（三方各自复验）"
+  },
+  "correction": {
+    "issue": "★ 内部不一致（由 HR 在接入 lean4-check 时「跑」出来，非「读」出来）",
+    "detail": "我把 data/x/a#b 与 data/x/a?b 列 must_reject（理由：客户端必须拦），却把 data/x/../escape 与 data/x/./cur 列 must_accept（理由：服务端接受）—— **两组是同一类，判法不一致**",
+    "root_cause": "★ **我在不同时刻用不同心智模型测的**：测 #/? 时想的是「客户端会解析」，测 ./.. 时想的是「服务端接受了」—— **单看每条都有道理，不一致只存在于两条之间的关系里**",
+    "hr_的原话": "「**我是『跑』出来的，不是『读』出来的。** 你的断言集如果我只通读一遍，这处不一致不会被我看见 —— 因为每一条单看都有道理，不一致只存在于两条之间的关系里。**所以断言集是工具，不是文档；审它的正确方式是执行它，而不是阅读它。**」",
+    "fix": "点段移入 must_reject；两条判法统一为「**以危险的那一类客户端为准**」"
+  },
+  "central_verification": {
+    "measured_at": "2026-09-11T01:00:00+08:00",
+    "result": "**40 键 · 两实例（本机 127.0.0.1:8792 / 中央 106.53.214.108:8792）不一致 0 处**",
+    "method": "逐键在两实例各跑一次 PUT，比对 HTTP 码",
+    "★ 观测细节（按正表述明说）": {
+      "caveat": "点段两条（data/x/../escape · data/x/./cur）在两实例都显示 200，**但那是客户端消解点段后的 200**，不是『键本身被接受』—— 实测 curl '…/data/x/..' 返回 36,605,671 B，与 GET /data/ 逐字节相同（请求被消解到命名空间端点）。",
+      "含义": "★ **这个 caveat 恰恰印证了它们该在 must_reject** —— 因为客户端写进去的不是它声称的那个键。**若只看 HTTP 码会误判为「合法」。**"
+    },
+    "scale_difference_noted": "HR 实测：本机 data 命名空间 20,223 键 / 34.90 MB，中央 105 键 / 15.36 MB（约 190 倍差）—— **规模差这么大，语法层是否一致不能靠推断**，故补跑。结论：**语法层一致。**"
+  },
+  "completeness": "partial (40 keys measured on 2 instances; character-class coverage derived from tested samples, not from server spec)",
+  "_completeness_note": "★ **这 40 键是从实测样本归纳的，不是从服务端规格推导的** —— 可能存在未试过的字符类。已试 41 键（原 23 + 扩展 19，去重 40）。 （★ 规则来源：HR 指出「合并/派生动作会丢边界声明」—— 形式化为「任何由若干子产物合并/派生而来的产物，其顶层必须继承并重述边界声明」。）"
+}

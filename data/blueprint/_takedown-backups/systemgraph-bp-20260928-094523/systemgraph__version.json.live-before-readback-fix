@@ -1,0 +1,22 @@
+{
+ "schema": "cloudbase-version-fingerprint/v2",
+ "deployed_at": "2026-09-10T12:18:31+08:00",
+ "deployed_by": "laodeng aa528267",
+ "entry_hash": "9f28b6ff4829240b",
+ "entry_hash_full": "9f28b6ff4829240bdacaec3a0238ad2ee888f26b80b76b629d3ddb2f43687102",
+ "hash_spec": "sha256（_full=64位全量 / 无后缀=前16位）",
+ "charts_by_tab": null,
+ "charts_total": null,
+ "notes": "SystemGraph静态包(含bp/ 5页, 商业计划书带图正式版)",
+ "files": {
+  "index.html": {
+   "size": 150200,
+   "sha256_16": "9f28b6ff4829240b"
+  },
+  "manifest.json": {
+   "size": 1719,
+   "sha256_16": "5d53d51b4a0cb237"
+  }
+ },
+ "how_to_verify": "GET 本文件 → 比对 entry_hash（或 entry_hash_full）即可确认线上版本，不受 CDN 缓存影响；图表数看 charts_by_tab"
+}

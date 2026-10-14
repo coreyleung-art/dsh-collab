@@ -1,0 +1,699 @@
+{
+  "ok": false,
+  "plugin": "dsh-plugin-reflect-dispatch",
+  "version": "1.1.2",
+  "dryRun": false,
+  "send": true,
+  "localDevice": "mac-mini",
+  "date": "20260910",
+  "dateDashed": "2026-09-10",
+  "late": {
+    "late": true,
+    "lateDays": 1
+  },
+  "profiles": {
+    "source": "agent-bus",
+    "file": "/Users/coreyleung/.dsh/agent-bus.json",
+    "count": 65
+  },
+  "devices": [
+    {
+      "device": "mac-mini",
+      "ok": true,
+      "origin": "local-file",
+      "key": null,
+      "status": 200,
+      "eventCount": 10,
+      "fetchedAt": "2026-09-10T16:48:22.936Z",
+      "note": "本机事件流（--events 指定）",
+      "error": null
+    },
+    {
+      "device": "mbp",
+      "ok": true,
+      "origin": "central-board",
+      "key": "data/reflect/events/mbp/2026-09-10",
+      "status": 200,
+      "eventCount": 4,
+      "fetchedAt": "2026-09-10T16:48:23.001Z",
+      "note": "取自中央黑板",
+      "error": null
+    }
+  ],
+  "deviceEnum": {
+    "method": "explicit",
+    "evidence": {
+      "from": "--devices"
+    },
+    "limits": [
+      "黑板**不做前缀过滤**（GET /data/reflect/events/ 返回整个 data 命名空间）——但 `limit >= total` 时键集**完整**，按前缀过滤有效；被截断时不可当清单（本工具会检查 complete 再决定用不用）",
+      "probe 法只能发现\"冻结候选 ∪ 索引 ∪ 列举结果\"里的设备；一台从未被登记的新设备只能靠 --devices 或列举/索引显式声明"
+    ],
+    "devices": [
+      "mac-mini",
+      "mbp"
+    ]
+  },
+  "targets": [
+    {
+      "device": "mac-mini",
+      "agentId": "session-a3bc8cba-714e-446a-900a-b924f111edc7",
+      "shortKey": "a3bc8cba",
+      "qualified": "mac-mini:a3bc8cba",
+      "role": "知了-mac-mini-学习引擎（权限边界 v2：学习/测试仅限守白 store_id=8；不持有生产店操作权；不下达执行指令，执行决策权归老登/老板）",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mac-mini/20260910/a3bc8cba.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/a3bc8cba.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/a3bc8cba.md",
+      "cardBytes": 5094,
+      "cardSha256": "aadc7df59e63839d56322a22b3eb622a9163b6aacea8a9ae26da690220e04883",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "E004",
+          "score": 88,
+          "via": "相对路径尾匹配",
+          "level": "specific",
+          "resource": "lib/price-analysis.js（默认 store_id=8）",
+          "shared": false
+        },
+        {
+          "id": "E005",
+          "score": 86,
+          "via": "显式形态 store_id=8",
+          "level": "specific",
+          "resource": "store:8（守白，学习测试唯一授权）",
+          "shared": false
+        },
+        {
+          "id": "E006",
+          "score": 88,
+          "via": "相对路径尾匹配",
+          "level": "specific",
+          "resource": "lib/return-photos.js（仅守白）",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "E006",
+        "E004",
+        "E005"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mbp"
+        ],
+        "totalOther": 1
+      },
+      "distribution": {
+        "sources": "files/modified×2、board/event×1",
+        "resources": "lib/price-analysis.js（默认 store_id=8）×1、store:8（守白，学习测试唯一授权）×1、lib/return-photos.js（仅守白）×1"
+      },
+      "ruleCandidates": [
+        "R024"
+      ],
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "replyKey": "data/reflect/answers/mac-mini/2026-09-10",
+      "status": "delivered",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.015Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "presence": {
+        "online": true,
+        "signals": {
+          "local": true,
+          "reportedToday": null,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "本机设备：直接在场（卡已落中央板，本机可立即读）"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000001,
+        "readbackChars": 1316,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.024Z",
+        "readbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "deliveredAt": "2026-09-10T16:48:23.078Z"
+    },
+    {
+      "device": "mac-mini",
+      "agentId": "session-de7b29de-3a65-4f45-911c-e5ef410a5d4b",
+      "shortKey": "de7b29de",
+      "qualified": "mac-mini:de7b29de",
+      "role": "灯塔-mac-mini-外卖采集统筹",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mac-mini/20260910/de7b29de.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/de7b29de.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/de7b29de.md",
+      "cardBytes": 4813,
+      "cardSha256": "132ba1a3db486573f4cad4408c01110678117cd36597fd65def908ef367095f5",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "E007",
+          "score": 60,
+          "via": "词干命中（标识符归一）",
+          "level": "weak",
+          "resource": "events/im_sessions（采集写）",
+          "shared": false
+        },
+        {
+          "id": "E008",
+          "score": 90,
+          "via": "键前缀（im_window:*）",
+          "level": "specific",
+          "resource": "store:N / im_window:N（窗口锁）",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "E008",
+        "E007"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mbp"
+        ],
+        "totalOther": 1
+      },
+      "distribution": {
+        "sources": "board/event×1、tools/event×1",
+        "resources": "events/im_sessions（采集写）×1、store:N / im_window:N（窗口锁）×1"
+      },
+      "ruleCandidates": [
+        "R011",
+        "R001"
+      ],
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "replyKey": "data/reflect/answers/mac-mini/2026-09-10",
+      "status": "delivered",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.015Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "presence": {
+        "online": true,
+        "signals": {
+          "local": true,
+          "reportedToday": null,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "本机设备：直接在场（卡已落中央板，本机可立即读）"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000001,
+        "readbackChars": 1316,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.024Z",
+        "readbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "deliveredAt": "2026-09-10T16:48:23.078Z"
+    },
+    {
+      "device": "mac-mini",
+      "agentId": "ffe19f07-8c0c-4685-baad-3f227ff8076b",
+      "shortKey": "ffe19f07",
+      "qualified": "mac-mini:ffe19f07",
+      "role": "审查工具链补齐（受委派子代理）：逐单元语义审查流水线 / UI 改动三重验证 / 受众可见性矩阵检查",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mac-mini/20260910/ffe19f07.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/ffe19f07.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/ffe19f07.md",
+      "cardBytes": 5452,
+      "cardSha256": "c88aa47f82fd2cf54bd25e40c264400f3add8969ea0debb674fb5a0104d316e4",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "E001",
+          "score": 100,
+          "via": "路径精确",
+          "level": "specific",
+          "resource": "file:/Users/coreyleung/dsh-collab/scripts/verify-ui.py",
+          "shared": false
+        },
+        {
+          "id": "E002",
+          "score": 100,
+          "via": "路径精确",
+          "level": "specific",
+          "resource": "file:/Users/coreyleung/dsh-collab/scripts/unit-review.py",
+          "shared": false
+        },
+        {
+          "id": "E003",
+          "score": 100,
+          "via": "路径精确",
+          "level": "specific",
+          "resource": "file:/Users/coreyleung/dsh-collab/scripts/audience-check.py",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "E003",
+        "E002",
+        "E001"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mbp"
+        ],
+        "totalOther": 2
+      },
+      "distribution": {
+        "sources": "files/modified×2、files/created×1",
+        "resources": "file:/Users/coreyleung/dsh-collab/scripts/verify-ui.py×1、file:/Users/coreyleung/dsh-collab/scripts/unit-review.py×1、file:/Users/coreyleung/dsh-collab/scripts/audience-check.py×1"
+      },
+      "ruleCandidates": [
+        "R024"
+      ],
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "replyKey": "data/reflect/answers/mac-mini/2026-09-10",
+      "status": "delivered",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.015Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "presence": {
+        "online": true,
+        "signals": {
+          "local": true,
+          "reportedToday": null,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "本机设备：直接在场（卡已落中央板，本机可立即读）"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000001,
+        "readbackChars": 1316,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.024Z",
+        "readbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "deliveredAt": "2026-09-10T16:48:23.078Z"
+    },
+    {
+      "device": "mbp",
+      "agentId": "session-a3bc8cba-714e-446a-900a-b924f111edc7",
+      "shortKey": "a3bc8cba",
+      "qualified": "mbp:a3bc8cba",
+      "role": "知了-mac-mini-学习引擎（权限边界 v2：学习/测试仅限守白 store_id=8；不持有生产店操作权；不下达执行指令，执行决策权归老登/老板）",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mbp/20260910/a3bc8cba.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mbp/20260910/a3bc8cba.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mbp/a3bc8cba.md",
+      "cardBytes": 4794,
+      "cardSha256": "bfba238e82e4728862d8123568b3b8239c8207b3fccde3719507e87e5c9a0544",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "M003",
+          "score": 88,
+          "via": "相对路径尾匹配",
+          "level": "specific",
+          "resource": "lib/price-analysis.js（默认 store_id=8）",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "M003"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mac-mini"
+        ],
+        "totalOther": 2
+      },
+      "distribution": {
+        "sources": "files/modified×1",
+        "resources": "lib/price-analysis.js（默认 store_id=8）×1"
+      },
+      "ruleCandidates": [
+        "R024",
+        "R003",
+        "R010"
+      ],
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "replyKey": "data/reflect/answers/mbp/2026-09-10",
+      "status": "pending",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.021Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.141Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "presence": {
+        "online": false,
+        "signals": {
+          "local": false,
+          "reportedToday": true,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "**不在场** → 状态记 `pending`（离线待取），**不是** `failed`：卡已落中央板 `data/reflect/cards/mbp/2026-09-10`，该设备上线自取即可（设计文档 §10.4）。依据：心跳缺失；当天事件键存在（=它当天跑过 collect，但这不代表此刻在线）。若你确知它在线，可加 --assume-online 显式覆盖（人工声明会记录在台账里）。"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000002,
+        "readbackChars": 1233,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.141Z",
+        "readbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "pendingSince": "2026-09-10T16:48:23.205Z"
+    },
+    {
+      "device": "mbp",
+      "agentId": "session-de7b29de-3a65-4f45-911c-e5ef410a5d4b",
+      "shortKey": "de7b29de",
+      "qualified": "mbp:de7b29de",
+      "role": "灯塔-mac-mini-外卖采集统筹",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mbp/20260910/de7b29de.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mbp/20260910/de7b29de.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mbp/de7b29de.md",
+      "cardBytes": 4662,
+      "cardSha256": "ec5a80cee09cb4755f1d493966f2c9bcde2df4e3fd50ed4c984096c9b474e0dc",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "M004",
+          "score": 60,
+          "via": "词干命中（标识符归一）",
+          "level": "weak",
+          "resource": "events/im_sessions（采集写）",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "M004"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mac-mini"
+        ],
+        "totalOther": 1
+      },
+      "distribution": {
+        "sources": "board/card-written×1",
+        "resources": "events/im_sessions（采集写）×1"
+      },
+      "ruleCandidates": [
+        "R003",
+        "R010",
+        "R013"
+      ],
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "replyKey": "data/reflect/answers/mbp/2026-09-10",
+      "status": "pending",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.021Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.141Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "presence": {
+        "online": false,
+        "signals": {
+          "local": false,
+          "reportedToday": true,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "**不在场** → 状态记 `pending`（离线待取），**不是** `failed`：卡已落中央板 `data/reflect/cards/mbp/2026-09-10`，该设备上线自取即可（设计文档 §10.4）。依据：心跳缺失；当天事件键存在（=它当天跑过 collect，但这不代表此刻在线）。若你确知它在线，可加 --assume-online 显式覆盖（人工声明会记录在台账里）。"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000002,
+        "readbackChars": 1233,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.141Z",
+        "readbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "pendingSince": "2026-09-10T16:48:23.205Z"
+    },
+    {
+      "device": "mbp",
+      "agentId": "ffe19f07-8c0c-4685-baad-3f227ff8076b",
+      "shortKey": "ffe19f07",
+      "qualified": "mbp:ffe19f07",
+      "role": "审查工具链补齐（受委派子代理）：逐单元语义审查流水线 / UI 改动三重验证 / 受众可见性矩阵检查",
+      "cardPath": "/Users/coreyleung/dsh-collab/data/reflect/cards/mbp/20260910/ffe19f07.md",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mbp/20260910/ffe19f07.md",
+      "aliasPathTilde": "~/dsh-collab/data/reflect/cards/mbp/ffe19f07.md",
+      "cardBytes": 5348,
+      "cardSha256": "9d27054e5be684bbef68d07336aa1fe890aae383e5887b442b135322fac0d044",
+      "state": "recorded",
+      "events": [
+        {
+          "id": "M001",
+          "score": 96,
+          "via": "路径精确（相对/绝对归一）",
+          "level": "specific",
+          "resource": "file:/Users/coreyleung/dsh-collab/scripts/unit-review.py",
+          "shared": false
+        },
+        {
+          "id": "M002",
+          "score": 96,
+          "via": "路径精确（相对/绝对归一）",
+          "level": "specific",
+          "resource": "file:/Users/coreyleung/dsh-collab/scripts/audience-check.py",
+          "shared": false
+        }
+      ],
+      "picked": [
+        "M002",
+        "M001"
+      ],
+      "suppressed": [],
+      "broadResources": [],
+      "crossDevice": {
+        "devices": [
+          "mac-mini"
+        ],
+        "totalOther": 2
+      },
+      "distribution": {
+        "sources": "files/modified×2",
+        "resources": "file:/Users/coreyleung/dsh-collab/scripts/unit-review.py×1、file:/Users/coreyleung/dsh-collab/scripts/audience-check.py×1"
+      },
+      "ruleCandidates": [
+        "R013",
+        "R035",
+        "R009"
+      ],
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "replyKey": "data/reflect/answers/mbp/2026-09-10",
+      "status": "pending",
+      "timestamps": {
+        "cardGeneratedAt": "2026-09-10T16:48:23.021Z",
+        "cardWrittenAt": "2026-09-10T16:48:23.024Z",
+        "cardReadbackAt": "2026-09-10T16:48:23.024Z",
+        "boardWrittenAt": "2026-09-10T16:48:23.141Z",
+        "boardReadbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "presence": {
+        "online": false,
+        "signals": {
+          "local": false,
+          "reportedToday": true,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "**不在场** → 状态记 `pending`（离线待取），**不是** `failed`：卡已落中央板 `data/reflect/cards/mbp/2026-09-10`，该设备上线自取即可（设计文档 §10.4）。依据：心跳缺失；当天事件键存在（=它当天跑过 collect，但这不代表此刻在线）。若你确知它在线，可加 --assume-online 显式覆盖（人工声明会记录在台账里）。"
+      },
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000002,
+        "readbackChars": 1233,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.141Z",
+        "readbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "pendingSince": "2026-09-10T16:48:23.205Z"
+    }
+  ],
+  "skipped": [],
+  "unassigned": [
+    {
+      "device": "mac-mini",
+      "id": "E010",
+      "source": "logs",
+      "path": "/var/log/dsh/unregistered-daemon.log",
+      "key": null,
+      "desc": "未登记服务的日志出现 3 次 ECONNREFUSED（判断不了归谁，如实留在 unassigned）",
+      "reason": "无任何目标 resources 命中（阈值 50）"
+    }
+  ],
+  "suppressedTotal": 20,
+  "notices": [
+    {
+      "device": "mac-mini",
+      "qualified": "mac-mini:a3bc8cba",
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mac-mini/2026-09-10",
+      "chars": 42,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/a3bc8cba.md"
+    },
+    {
+      "device": "mac-mini",
+      "qualified": "mac-mini:de7b29de",
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mac-mini/2026-09-10",
+      "chars": 42,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/de7b29de.md"
+    },
+    {
+      "device": "mac-mini",
+      "qualified": "mac-mini:ffe19f07",
+      "boardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mac-mini/2026-09-10",
+      "chars": 42,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/ffe19f07.md"
+    },
+    {
+      "device": "mbp",
+      "qualified": "mbp:a3bc8cba",
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mbp/2026-09-10",
+      "chars": 37,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mbp/20260910/a3bc8cba.md"
+    },
+    {
+      "device": "mbp",
+      "qualified": "mbp:de7b29de",
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mbp/2026-09-10",
+      "chars": 37,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mbp/20260910/de7b29de.md"
+    },
+    {
+      "device": "mbp",
+      "qualified": "mbp:ffe19f07",
+      "boardKey": "data/reflect/cards/mbp/2026-09-10",
+      "notice": "看黑板 data/reflect/cards/mbp/2026-09-10",
+      "chars": 37,
+      "cardPath": "~/dsh-collab/data/reflect/cards/mbp/20260910/ffe19f07.md"
+    }
+  ],
+  "redactions": [],
+  "cardsRoot": "/Users/coreyleung/dsh-collab/data/reflect/cards",
+  "cardsRootTilde": "~/dsh-collab/data/reflect/cards",
+  "ledgerPath": "~/dsh-collab/data/reflect/dispatch/20260910/dispatch.json",
+  "ledgerPathTilde": null,
+  "logFile": "/Users/coreyleung/dsh-collab/logs/dsh-plugin-reflect-dispatch.log",
+  "logPersisted": true,
+  "eventsBytes": 4475,
+  "eventsFile": "/Users/coreyleung/dsh-collab/data/reflect/fixtures/events-20260910.json",
+  "broadResourcesTotal": 0,
+  "devicePlans": [
+    {
+      "device": "mac-mini",
+      "status": "delivered",
+      "cardKey": "data/reflect/cards/mac-mini/2026-09-10",
+      "answersKey": "data/reflect/answers/mac-mini/2026-09-10",
+      "eventsKey": "data/reflect/events/mac-mini/2026-09-10",
+      "events": 10,
+      "agents": [
+        "mac-mini:a3bc8cba",
+        "mac-mini:de7b29de",
+        "mac-mini:ffe19f07"
+      ],
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000001,
+        "readbackChars": 1316,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.024Z",
+        "readbackAt": "2026-09-10T16:48:23.078Z"
+      },
+      "presence": {
+        "device": "mac-mini",
+        "online": true,
+        "status": "delivered",
+        "signals": {
+          "local": true,
+          "reportedToday": null,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "本机设备：直接在场（卡已落中央板，本机可立即读）"
+      },
+      "cardSha256": "ccbb5bba56169e8dec176c0310b34e37a881f855e8eb4ef8e2237c63e5b419e5",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mac-mini/20260910/_device-card.md"
+    },
+    {
+      "device": "mbp",
+      "status": "pending",
+      "cardKey": "data/reflect/cards/mbp/2026-09-10",
+      "answersKey": "data/reflect/answers/mbp/2026-09-10",
+      "eventsKey": "data/reflect/events/mbp/2026-09-10",
+      "events": 4,
+      "agents": [
+        "mbp:a3bc8cba",
+        "mbp:de7b29de",
+        "mbp:ffe19f07"
+      ],
+      "board": {
+        "httpStatus": 200,
+        "seq": 1789058903000002,
+        "readbackChars": 1233,
+        "verified": true,
+        "writtenAt": "2026-09-10T16:48:23.141Z",
+        "readbackAt": "2026-09-10T16:48:23.205Z"
+      },
+      "presence": {
+        "device": "mbp",
+        "online": false,
+        "status": "pending",
+        "signals": {
+          "local": false,
+          "reportedToday": true,
+          "heartbeat": null,
+          "assumed": false
+        },
+        "note": "**不在场** → 状态记 `pending`（离线待取），**不是** `failed`：卡已落中央板 `data/reflect/cards/mbp/2026-09-10`，该设备上线自取即可（设计文档 §10.4）。依据：心跳缺失；当天事件键存在（=它当天跑过 collect，但这不代表此刻在线）。若你确知它在线，可加 --assume-online 显式覆盖（人工声明会记录在台账里）。"
+      },
+      "cardSha256": "9b461d104b195db415f8700d2fd79e87a6c5ba3cfcf08c802d26e9f9c2aa6aaa",
+      "cardPathTilde": "~/dsh-collab/data/reflect/cards/mbp/20260910/_device-card.md"
+    }
+  ],
+  "logLines": [
+    "[2026-09-10T16:48:22.861Z] 开始 dispatch date=2026-09-10 local=mac-mini send=true dryRun=false late=true {\"today\":\"20260911\"}",
+    "[2026-09-10T16:48:22.936Z] 档案载入 source=agent-bus targets=65 {\"file\":\"/Users/coreyleung/.dsh/agent-bus.json\"}",
+    "[2026-09-10T16:48:22.936Z] 设备解析 method=explicit devices=[mac-mini, mbp] {\"limitCount\":2}",
+    "[2026-09-10T16:48:22.936Z] 事件流 mac-mini: 10 条 {\"origin\":\"local-file\",\"key\":null,\"status\":200}",
+    "[2026-09-10T16:48:23.001Z] 事件流 mbp: 4 条 {\"origin\":\"central-board\",\"key\":\"data/reflect/events/mbp/2026-09-10\",\"status\":200}",
+    "[2026-09-10T16:48:23.011Z] 归属 mac-mini: events=10 unassigned=1 suppressed=12",
+    "[2026-09-10T16:48:23.019Z] 归属 mbp: events=4 unassigned=0 suppressed=8",
+    "[2026-09-10T16:48:23.024Z] 卡已落盘 mac-mini：3 张 + 设备合并卡 {\"dir\":\"~/dsh-collab/data/reflect/cards/mac-mini\"}",
+    "[2026-09-10T16:48:23.024Z] 卡已落盘 mbp：3 张 + 设备合并卡 {\"dir\":\"~/dsh-collab/data/reflect/cards/mbp\"}",
+    "[2026-09-10T16:48:23.078Z] 派发 mac-mini → data/reflect/cards/mac-mini/2026-09-10 状态=delivered {\"seq\":1789058903000001,\"noticeChars\":42,\"online\":true}",
+    "[2026-09-10T16:48:23.205Z] 派发 mbp → data/reflect/cards/mbp/2026-09-10 状态=pending {\"seq\":1789058903000002,\"noticeChars\":37,\"online\":false}"
+  ],
+  "generatedAt": "2026-09-10T16:48:23.207Z"
+}

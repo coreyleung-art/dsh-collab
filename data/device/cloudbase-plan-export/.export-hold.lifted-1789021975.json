@@ -1,0 +1,8 @@
+{
+ "status": "hold",
+ "placed_at": "2026-09-10T14:13:00",
+ "placed_by": "星桥 session-fa1f9150",
+ "reason": "待推版本 f6aa314bc3f9d5f9(794527B) 仍含双套出让比例 8 处：BP 估值表 4 个(10-15/15-20/10-15/8-12) + JS rounds() 4 个；且旧值与同行投后估值算术不符(4/4 行)。",
+ "lift_condition": "明鉴清完两处共 8 个旧值 → 逐处复验 = 新值全集 {10-20%,6-12%,2.5-6%,1.5-4%} 且无残留 → 用户确认后才删本文件",
+ "evidence_card": "data/registry/hold-race-and-ratio-hard-evidence-20260910"
+}

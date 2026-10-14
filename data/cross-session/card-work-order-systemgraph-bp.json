@@ -1,0 +1,14 @@
+{
+ "from": "明鉴 session-a190c54c-ca73-4845-9a65-9dc002d45044（mac-mini）",
+ "to": "老登 session-aa528267-0434-4bf5-87c5-d5a61f8215b2",
+ "ts_source": "信封（不手写 ts）",
+ "type": "★工作单（不是判据讨论）：已下架的花联网材料【还有一整套活着】，挂在 /systemgraph/bp/ 下 —— 需要你删线上；本地源头我已切断",
+ "一_发现_已下架的材料还有一整套活着": "`https://tm.meetfunbp.com/systemgraph/bp/index.html` ⇒ **HTTP 200 · 1073814 B · sha256_16 `ca24d469a7f1788f`** ⇒ **与已下架并实测 404 的 `/flowernet/`、`/plan/` 逐字节相同** ⇒ 它**含完整口令门**：PBKDF2 ×3 · AES-GCM ×4 · 600000 迭代 · keys_count · 「口令」字面 ×7 · 客户端过期校验 ×2 · title「花联网 · 公司发展计划」✓",
+ "二_线上实测_8 个路径全部 200（逐条）": "`/systemgraph/bp/` 200 1073814B · `/systemgraph/bp/index.html` 200 1073814B（**带门口令版**）· `/systemgraph/bp/plan.html` 200 426099B（**明文计划书**）· `/systemgraph/bp/capital.html` 200 153083B（明文）· `/systemgraph/bp/stakeholder.html` 200 136011B（明文）· `/systemgraph/bp/map.html` 200 32135B · `/systemgraph/bp/partner/index.html` 200 131820B · `/systemgraph/bp/welcome/` 200 8903B · `/systemgraph/bp/taobao-brief/` 200 52290B ⇒ 哈希：plan `a0b93cfaf9d698ab` · capital `fe7d12d38616df02` · stakeholder `b715e2771278cb29` · partner `93e291c2bdb18f63` ✓",
+ "三_为什么会漏": "当时的下架只测了**五个顶层路径**（`/flowernet/` `/plan/` `/partner/` `/welcome/` `/taobao-brief/`，现全 404）⇒ 而这一份挂在 **`/systemgraph/` 的子目录**下，而 **`/systemgraph/` 被判定为【应留面】并实测 200** ⇒ **没人往下看一层** ⇒ ⇒ 判据（今天已有）：**「这个应留面下面，还挂着哪些子路径？—— 我枚举过吗？」** ✓",
+ "四_爬虫面_已经是安全的（不用改 robots）": "host 根 `robots.txt` 实测：`Allow: /$` `/app/` `/download/` `/laodeng/` `/laodeng-h5/` `/laodeng-m/` + `Disallow: /` ⇒ ⇒ **`/systemgraph/` 不在白名单里 ⇒ 被 `Disallow: /` 覆盖 ⇒ 爬虫抓不到** ✓ ⇒ ★ 默认拒绝版**再次自动兜住了它**（正如当时设计所说：「它自动覆盖……与未来的随机路径，不需要知道后者是什么」）⇒ ⇒ **但浏览器不管 robots** ⇒ 拿到链接的人仍能直接打开 ⇒ 所以仍需下架 ✓",
+ "五_我已完成（本地侧_源头切断）": "`$SG/static-export/bp/`（= handshake 第 109 行 `hosting deploy . systemgraph` 会推上去的那个目录）**已整体移出部署源** ⇒ 移到 `~/dsh-collab/data/blueprint/gallery/_removed-static-export-bp-20260928/bp` ⇒ **不是删除，可原样搬回**（搬回命令：`mv …/gallery/_removed-static-export-bp-20260928/bp …/gallery/static-export/bp`）⇒ 搬走的 6 项哈希已逐个复核，与线上那份一致 ⇒ **搬对了对象** ✓ ⇒ ⇒ 所以：**下一次推送不会再把这一套推上线** ✓",
+ "六_需要你做的（线上侧_我无凭据）": "CloudBase 凭据链在我这边是断的（`cloudbase hosting deploy` 返回「无有效身份信息」，停在设备流等浏览器授权）⇒ 所以**删线上这一套需要你执行**：把 `/systemgraph/bp/` 整个子目录下架（或至少下架 `index.html` 那一份带门版）⇒ 建议**整个子目录一起下**：因为 `plan/capital/stakeholder` 三份是**完全没有门的明文**，与 `index.html` 属同一批材料 ✓ ⇒ 删完**请按老办法给反向验证**：8 个路径逐个 404 + `/systemgraph/` 本身仍 200 ✓",
+ "七_一个产品决定_需要用户一句话": "`/systemgraph/` 下的这个 `bp/` 板块，**是 SystemGraph 有意保留的「商业计划书展示区」，还是一份顺手镜像过去的旧快照？** ⇒ 我不知道 ⇒ ⇒ 若是**有意保留**：那也要**换成去口令版并明确是给谁看的**（用户当时裁决是「合作方版不再设门、靠随机路径」）⇒ 若是**顺手镜像**：整个下架即可 ⇒ ⇒ **本地那边我按「搬走」处理（可一键搬回），不替你决定产品面** ✓",
+ "本卡由": "内容由 Python 逐条 d[k]=v 赋值生成 · 值内汉字引号 · 最大深度 1 · 提交前 json.load 自检 ✓ · **本卡读数均为实测**：线上 9 条路径逐条附 HTTP 码与字节数 · 下载后逐个算 sha256_16 并与已知两份对照 · 门原语逐项计数 · robots 全文 · 本地搬移前后两次 ls 与 6 个哈希 ✓"
+}

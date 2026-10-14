@@ -1,0 +1,434 @@
+{
+  "2202.01344": {
+    "summary": "我们探索了在语言建模应用到形式数学中的专家迭代方法，通过将证明搜索与学习交替进行，专家迭代在相同计算预算下显著优于单纯的证明搜索。我们还观察到，当应用于包含足够多样难度问题的集合时，专家迭代能够自主解决一系列难度递增的问题，无需关联的真实证明。通过将这种方法应用于手动整理的问题集合，我们达到了miniF2F基准的最新水平，自动解决了来自高中奥林匹克竞赛的多个难题。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2306.15626": {
+    "summary": "LeanDojo提出了一个用于Lean定理证明的开源研究环境，包含了一个大规模的实现代数陈述数据集。该环境提供了工具包来从库中检索前提、与证明环境交互以及重现最先进的机器学习方法。基于检索增强的语言模型ReProver在LeanDojo Benchmark上达到了最先进的性能，展示了检索在定理证明中的关键作用。LeanDojo公开发布，附带Python工具包、可复现的数据和Web界面。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2403.14064": {
+    "summary": "我们提出了一种完全在 Lean 4 中实现并验证的类型检查器，覆盖了 Lean 4 大部分依赖的核心类型检查算法。这一自验证结果增强了 Lean 4 可信计算基础的可靠性，其正确性由 Lean 4 自己验证。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2404.01234": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2502.03544": {
+    "summary": "AlphaGeometry2 是一种改进的系统，结合了神经符号架构，能够显著提高解决国际数学奥林匹克竞赛几何问题的效率。它在过去的25年国际数学奥林匹克竞赛中解决了84%的几何问题，相比AlphaGeometry提高了30个百分点。在2024年国际数学奥林匹克竞赛中，它解决了几何问题（P4），助力DeepMind系统获得银牌。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2508.21593": {
+    "summary": "论文描述了维护大规模数学库Mathlib的方法，包括持续集成、自动化重构、依赖管理、类型类系统在推断隐式参数中的作用以及大型协作的工具。讨论了快速增长的库面临的问题（如版本变更、从Lean 3移植、性能问题）以及Mathlib成为最大和最活跃的形式化数学库的实践。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2510.17829": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2605.16407": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1802.09069": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2006.01862": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2109.04282": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2207.05830": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2301.06197": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2403.03870": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2406.19317": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2502.01459": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2507.06537": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2510.08314": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2512.20173": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2603.23565": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2003.02097": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2008.00842": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2205.00548": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2302.06648": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2405.04691": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2407.09753": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2506.18462": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2507.23400": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2509.01414": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2601.14912": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2608.00558": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1806.06839": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2001.08972": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2005.04757": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2102.09480": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2412.05837": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2508.15431": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2212.08073": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2303.11366": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2305.16291": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2608.14441": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2203.11171": {
+    "summary": "采样-多数表决（机器侧消错基线）",
+    "source": "cn-rel-table"
+  },
+  "2305.20050": {
+    "summary": "过程奖励验证器（L3 语义层代表）",
+    "source": "cn-rel-table"
+  },
+  "2310.10501": {
+    "summary": "Colang 可编程护栏（框架论文）",
+    "source": "cn-rel-table"
+  },
+  "2312.06674": {
+    "summary": "输入/输出安全分类器（L0 公共安全层）",
+    "source": "cn-rel-table"
+  },
+  "2402.01822": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2408.08152": {
+    "summary": "RLVR 闭环工程配方（提议→失败反馈→修复→RL）",
+    "source": "cn-rel-table"
+  },
+  "2408.12935": {
+    "summary": "护栏全景综述（taxonomy）",
+    "source": "cn-rel-table"
+  },
+  "2509.02547": {
+    "summary": "agentic RL 综述（outcome-only 奖励范式）",
+    "source": "cn-rel-table"
+  },
+  "1503.02531": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1706.03741": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1909.10351": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1910.01108": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2002.10957": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2004.05150": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2005.11401": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2005.14165": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2007.14062": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2009.03300": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2101.06804": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2107.03374": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2502.13923": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1808.05698": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1907.06250": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1911.11286": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2308.08155": {
+    "summary": "conversation-driven 编排 + group chat manager——对应本机协调者 + thread 协作模式",
+    "source": "cn-rel-table"
+  },
+  "2402.01680": {
+    "summary": "多 agent 协作机制全景：角色分工/通信/共识/记忆分类，可作为蓝图能力域清单的检核表",
+    "source": "cn-rel-table"
+  },
+  "2410.21793": {
+    "summary": "无服务器 Actor 运行时——actor 封装 agent + 自动扩缩的学术实现",
+    "source": "cn-rel-table"
+  },
+  "2504.19678": {
+    "summary": "单 agent → 自主 agent 的能力分层，用于定义\"agent-network 上的节点最小能力契约\"",
+    "source": "cn-rel-table"
+  },
+  "2504.21030": {
+    "summary": "MCP 用于多 agent 通信的架构分析；衔接 FNP「只借鉴工具描述思想」的边界声明",
+    "source": "cn-rel-table"
+  },
+  "2505.04364": {
+    "summary": "swarm 智能评测——为底座提供「协作增益」度量思路",
+    "source": "cn-rel-table"
+  },
+  "2505.07838": {
+    "summary": "**单体→微服务**迁移路径，论证\"agent 即服务\"与总线解耦方向",
+    "source": "cn-rel-table"
+  },
+  "2506.14496": {
+    "summary": "批判性视角：swarm 何时有意义——约束本机不要为 swarm 而 swarm",
+    "source": "cn-rel-table"
+  },
+  "2506.19676": {
+    "summary": "本文提出了一种全面的代理通信安全调查，首次定义了代理通信，并提出了一种三层通信架构框架。该框架将代理通信分为三类，并分析了每类通信的风险，明确风险来源。这有助于研究人员快速了解这一新兴领域，促进未来代理通信的发展。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2501.12326": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2509.02544": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2506.23517": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2304.09601": {
+    "summary": "本文提出了一种名为BioTrak的平台，能够记录并可视化整个食品供应链的转化和运输过程，包括冷链物流监控。该平台采用业务流程建模方法帮助食品供应链参与者优化流程，并集成区块链以保证数据的完整、透明和可追溯性。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2502.07730": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2504.15741": {
+    "summary": "核心贡献与应用价值：提出了一种考虑随机开门时间和产品初始温度异质性的冷藏车辆温度控制优化框架，通过高精度热力学建模与多阶段随机规划相结合，解决了固定路线下的冷藏车辆冷却策略优化问题。该框架在实际数据上验证了其有效性，平均性能比最优确定性策略高出35%，并能在固定温度违规时减少40%的燃料消耗。研究还表明，了解客户停靠时间和长度是第二重要的因素，而详细的停靠时间模型对于优化至关重要。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2511.05920": {
+    "summary": "本文提出了一种考虑延迟、旅行时间和温度变化的自适应优化模型，用于提高水果蔬菜的货架寿命，相比传统方法，货架寿命延长超过18%。通过物联网传感器数据进行计算实验验证了模型的有效性，该方法能动态缓解温度偏差，提高物流系统的保鲜和效率，弥补了以往研究的不足。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "1603.07396": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1705.07962": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1905.13750": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2109.02762": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2203.06486": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2203.10244": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2204.00932": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2210.03347": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2211.14607": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2303.02927": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2310.12128": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2311.01920": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1704.04110": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "1905.10437": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2211.14730": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2310.01728": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2310.03589": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2310.10688": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2402.02592": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2403.07815": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2405.02358": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2505.16319": {
+    "summary": "概括：提出FreshRetailNet-50K，首个大规模时序50,000个商店产品的详细小时销售数据基准集，包含863种易腐商品的详细库存事件标注。通过精确的小时标注数据，首次实现库存缺货期间的潜在需求重建，并用于改进后续的预测模型。实验结果显示，该方法在预测精度上提高了2.73%，同时显著减少了系统性低估需求（从7.37%降至近乎零偏倚）。",
+    "source": "qwen2.5:3b@abstract"
+  },
+  "2603.22586": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2608.14054": {
+    "summary": "少历史领域适配可用**检索增强**替代微调，省算力",
+    "source": "cn-rel-table"
+  },
+  "2001.09473": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2410.21360": {
+    "summary": "",
+    "source": "placeholder"
+  },
+  "2607.17641": {
+    "summary": "打回循环的**鲁棒停止**（噪声验证器下的重试边界）",
+    "source": "cn-rel-table"
+  }
+}

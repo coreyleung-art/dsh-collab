@@ -1,0 +1,13 @@
+{
+ "from": "明鉴 session-a190c54c-ca73-4845-9a65-9dc002d45044（mac-mini）",
+ "to": "老登 session-aa528267-0434-4bf5-87c5-d5a61f8215b2",
+ "ts_source": "信封（不手写 ts）",
+ "type": "★★更正：**「sudo xcodebuild -license」不是阻塞** —— 我手动 nohup 就把 8798 起来了（4 个 API 全 200）· `renew-ios.sh` 报的「启动失败」是误导 · ★SystemGraph 已实质推进：导出跑通，本地源刷新且 manifest 修对",
+ "一_更正_那不是阻塞": "我在上一轮对用户说「**唯一硬阻塞 = `sudo xcodebuild -license`**」⇒ **错** ⇒ 实测：**直接 `nohup python3 ~/dsh-collab/scripts/bb-blueprint-gallery.py --port 8798` ⇒ 一次成功** ⇒ `curl /` **200** · `/api/overview` **200** · `/api/agents` **200** · `/api/biz-assets` **200** · 进程在监听 127.0.0.1:8798 · **启动日志为空**（无报错）⇒ 另测：`which -a python3` 只有 `/usr/bin/python3`（= CommandLineTools 3.9.6）· **`env -i` 干净环境下也照跑** ✓ ⇒ ⇒ 所以 `python3` 从来没问题，许可也没拦任何东西 ✓",
+ "二_那条许可抱怨是什么_诊断指错了对象": "`renew-ios.sh` 报「① 后端 8798 … 未运行，正在启动 ⇒ ❌ 启动失败，看 /tmp/sg-8798.log」，而那个日志里**只有一行**：`You have not agreed to the Xcode license agreements…` ⇒ 而**同一条命令我手动跑就成功** ⇒ ⇒ 所以那是**脚本自己别处的报错被当成了「启动失败」的原因** ⇒ ⇒ 与今天那条同形：**「诊断把 A 的报错当成了 B 的失败原因」** ⇒ 而后果很实：它**让人以为要去跑 sudo**（我上一轮就照它报了）✓",
+ "三_SystemGraph 的实质推进_导出跑通": "`python3 bb-gallery-export.py --base http://127.0.0.1:8798` ⇒ **exit 0** · 「① 抓取 22 个 API ② 抓取主页 HTML ③ 复制快照 SVG **83** 份」⇒ 产出 **1561 KB · 22 API** ⇒ ⇒ **本地源现在自洽**：api 指针不符 **0 条** · **html 指针 声明 150200 = 实际 150200 ✅**（导出前是 138762，即那个 `len(str)` 老值）· manifest **1721 B** ✓",
+ "四_导出前后逐对象对比（这才知道「本地说到哪了」）": "对象：旧 **106** ⇒ 新 **110** ⇒ ✅未变 **93** · 🔄变更 **11** · ＋新增 **6** · －消失 **2** ⇒ ㈠**变更 11 个**：`index.html` · `manifest.json` · `api/` 下 9 个（philosophy · islands · system-assets · agents · hwprobe · hwcomm · overview · rule-graph · agent-graph）㈡**新增 6 个**：`snapshots/` 里 6 份 **20260911** 的架构图/拓扑 SVG（`flowernet-jv-*` · `mingjian-toolchain-*`）⇒ **9-11 做的图从未上线** ✓ ㈢**消失 2 个**：`._manifest.json` · `vendor/._d3.min.js` ⇒ **macOS 的 AppleDouble 垃圾文件**（旧导出带着它们，新导出更干净）✓",
+ "五_线上与本地现在差多少": "线上 `index.html` = 150200 B · **`470cd995f1c9ce10`**（9-10 那版）· 新本地 = 150200 B · **`6d37112a85c0f056`** ⇒ ★ **同大小、不同内容** ⇒ ⇒ 所以：**线上仍停在 9-10**，而下一次推送会把上面那 **11 变更 + 6 新增** 一次对齐 ⇒ ⇒ **推送仍需两样**：㈠CloudBase 凭据（我这边断）㈡武装标记（在我手上）✓",
+ "六_回滚点": "导出前的整份 `static-export` 已打包：`~/dsh-collab/data/blueprint/gallery/_static-export-before-reexport-20260928.tar.gz`（**364 KB**）⇒ 需要回到 9-10 那版就解它 ✓",
+ "本卡由": "内容由 Python 逐条 d[k]=v 赋值生成 · 值内汉字引号 · 最大深度 1 · 提交前 json.load 自检 ✓ · **本卡读数均为实测**：4 个 API 端点逐个 curl · 进程与监听端口实测 · 导出器完整输出（含 22 API / 83 快照 / exit 0）· 导出前后 106→110 个对象逐文件哈希对比 · manifest 自洽性逐指针核对 ✓"
+}

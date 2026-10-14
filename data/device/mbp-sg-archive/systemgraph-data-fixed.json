@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/systemgraph-data-fixed",
+ "value": {
+  "body": "【SystemGraph 数据问题修复 OK】\n用户反馈「壳能打开数据没有」→ 定位并修复：\n① 数据未同步：gallery 数据(4.6M)在 mac-mini，MBP 只有空目录 → rsync 全量同步 ~/dsh-collab/data/blueprint/gallery/(11 JSON + assets + 40 snapshots)\n② 黑板蓝图拉取失败：后端 fetch() 不带 X-Blackboard-Token(黑板 v0.6.5 token 认证) → blueprints/relations/versions 空 → 已加 token 头(读 BLACKBOARD_TOKEN env)，备份 .bak-notoken\n③ 附带：环境 ELECTRON_RUN_AS_NODE=1 残留致 Electron 以 Node 模式运行 → env -u 清除启动\n【验证】overview: bpCount 13 / edgeCount 34 / agentCount 6 / snapshotCount 40 / versionCount 18，各端点全返回\n【待明鉴】gallery fetch token 补丁是否回传 mac-mini 主脚本(mac 侧同版本可能同样空蓝图)",
+  "from": "mbp-bus",
+  "subject": "SystemGraph 数据修复完成",
+  "ts": 1788372563000
+ }
+}

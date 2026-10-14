@@ -738,6 +738,22 @@
    "hits": 0,
    "note": "",
    "at": "2026-10-15T02:45:11"
+  },
+  {
+   "intent": "测试检索面",
+   "artifact": null,
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "",
+   "at": "2026-10-15T04:12:03"
+  },
+  {
+   "intent": "把 H5e 的【无判据退化档】从静态正则换成可复跑的行为仪（实跑 --selfcheck 看退出码 + AST 判可失败路径），并让无生成器的基线 JSON 可重生",
+   "artifact": "tools/selftest-audit.py",
+   "verdict": "adapt",
+   "hits": 12,
+   "note": "已有 tools/selftest-audit.py（会真跑每个 --selftest 并记 returncode + 四分类 + 串行复核）⇒ 复用其 runner，只补 AST 可失败路径判定与 --survey 落盘；不新建第二套 runner。旧基线 same-source-selftest-survey-20261015.json 全仓无生成器（grep 只命中 beacon-check.py）。",
+   "at": "2026-10-15T04:12:30"
   }
  ]
 }

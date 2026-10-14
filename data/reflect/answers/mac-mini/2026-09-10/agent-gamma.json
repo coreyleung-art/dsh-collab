@@ -1,0 +1,74 @@
+{
+  "agent": "agent-gamma",
+  "date": "2026-09-10",
+  "items": [
+    {
+      "id": "R1",
+      "event_ref": "E041",
+      "pit": "我在覆盖配置之前先 dump 了一份现场快照，事后才能说清「重启前是什么样」；隔壁会话没 dump，只能靠回忆描述重启前的端口占用。",
+      "lesson": "破坏性动作前先取证，并标注证据是处置前采集还是处置后采集",
+      "related_rule": "phi-facts",
+      "suggestion": {
+        "type": "新增",
+        "detail": "破坏性操作入口加「快照钩子」：没拿到快照就拒绝执行",
+        "reason": "重启类操作若不先取证，「重启后正常」会成为唯一证据"
+      },
+      "evidence": {
+        "ts": "2026-09-10T22:10:00+08:00",
+        "cmd": "ls -l ~/dsh-collab/snapshots/2026-09-10/ | head",
+        "output": "dump-config-20260910T220812.json（处置前）· 对照：会话记录中无同轮快照"
+      }
+    },
+    {
+      "id": "R2",
+      "event_ref": "E044",
+      "pit": "昨天的汇总里有 2 条根本找不到证据的条目，却被算进了复现计数，把一条只有 1 个人提到的事排到了第 1 位。",
+      "lesson": "无证据的条目必须被质量门拒收，不能混进汇总",
+      "related_rule": "R006",
+      "suggestion": {
+        "type": "新增",
+        "detail": "收牌环节把「证据完整性」做成结构门：证据字段缺失的条目在类型层就进不了 valid 集合",
+        "reason": "事后看不出来哪条是编的；复现计数一旦被污染，用户会按不存在的依据入册"
+      },
+      "evidence": {
+        "ts": "2026-09-10T23:30:00+08:00",
+        "cmd": "python3 -c \"import json;d=json.load(open('harvested-2026-09-09.json'));print(d['items_valid'], len([i for i in d['valid_items'] if not i.get('evidence')]))\"",
+        "output": "12 4 —— 12 条「有效」里有 4 条 evidence 为空对象"
+      }
+    },
+    {
+      "id": "R3",
+      "event_ref": "E045",
+      "pit": "会话压缩之后我再也说不出压缩前有多少条消息，只能估个大概。",
+      "lesson": "会话压缩前要记录消息数基线",
+      "related_rule": "无",
+      "suggestion": {
+        "type": "新增",
+        "detail": "压缩前写 baseline.json",
+        "reason": "否则压缩效果无法评估"
+      },
+      "evidence": {
+        "ts": "2026-09-10T20:00:00+08:00"
+      }
+    },
+    {
+      "id": "R4",
+      "event_ref": "E046",
+      "pit": "我把新工具直接以裸脚本形式交付，没有插件包装，宿主无法调度也观测不到，事后排查多花了半小时。",
+      "lesson": "新做插件必须十项全达标才交付",
+      "related_rule": "R006",
+      "suggestion": {
+        "type": "无需动作",
+        "detail": "R006 已覆盖（十项含插件形态、自查、日志、落链）",
+        "reason": "只是我没照着做，不是规则缺失"
+      },
+      "evidence": {
+        "ts": "2026-09-10T21:15:00+08:00",
+        "cmd": "grep -n '十项全达标才交付' ~/dsh-collab/docs/R006-插件化工具化标准-v3.0.md",
+        "output": "L12: 凡新做插件或工具，**十项全达标才交付** —— 规则已存在"
+      }
+    }
+  ],
+  "declined": false,
+  "plugin_version": "1.0.0"
+}

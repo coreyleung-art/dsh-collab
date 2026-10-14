@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowernet 战略可视化 · D3 四象限 + 关系图</title>
+<script src="/vendor/d3.min.js"></script>
+<style>
+  body{background:#0d1119;color:#e8eaf0;font-family:-apple-system,"PingFang SC",sans-serif;margin:0;padding:24px}
+  h1{font-size:18px;color:#ffb454}
+  .wrap{display:flex;gap:16px;flex-wrap:wrap}
+  .panel{background:#131a2a;border:1px solid #2a3348;border-radius:12px;padding:16px}
+  .panel h2{font-size:14px;color:#6ea8ff;margin:0 0 8px}
+  svg{background:#0a0e16;border-radius:8px}
+  .legend{font-size:11px;color:#8b90a3;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>🌐 Flowernet 战略可视化</h1>
+<div class="wrap">
+  <div class="panel">
+    <h2>① IP人群切割 · 四象限坐标</h2>
+    <div id="quad"></div>
+    <div class="legend">X轴:男→女 · Y轴:冷(低狂热)→热(高狂热) · 右上=女性向×高狂热(只选)</div>
+  </div>
+  <div class="panel">
+    <h2>② 战略要素 · 力导向关系图</h2>
+    <div id="force"></div>
+    <div class="legend">拖拽移动 · 滚轮缩放</div>
+  </div>
+</div>
+<script>
+// ========= 四象限图 =========
+(function(){
+  var W=480,H=420,m=40;
+  var svg=d3.select('#quad').append('svg').attr('width',W).attr('height',H);
+  var x0=m,x1=W-m,y0=m,y1=H-m;
+  // 四象限背景
+  var cx=(x0+x1)/2, cy=(y0+y1)/2;
+  // 右上(女性向×高狂热)=只选
+  svg.append('rect').attr('x',cx).attr('y',y0).attr('width',x1-cx).attr('height',cy-y0).attr('fill','rgba(52,199,123,0.18)');
+  // 左上(男性向×高狂热)=排除
+  svg.append('rect').attr('x',x0).attr('y',y0).attr('width',cx-x0).attr('height',cy-y0).attr('fill','rgba(255,107,107,0.10)');
+  // 左下(男性向×低狂热)=排除
+  svg.append('rect').attr('x',x0).attr('y',cy).attr('width',cx-x0).attr('height',y1-cy).attr('fill','rgba(255,107,107,0.10)');
+  // 右下(女性向×低狂热)=排除
+  svg.append('rect').attr('x',cx).attr('y',cy).attr('width',x1-cx).attr('height',y1-cy).attr('fill','rgba(255,107,107,0.10)');
+  // 坐标轴
+  svg.append('line').attr('x1',x0).attr('y1',cy).attr('x2',x1).attr('y2',cy).attr('stroke','#4a5568');
+  svg.append('line').attr('x1',cx).attr('y1',y0).attr('x2',cx).attr('y2',y1).attr('stroke','#4a5568');
+  // 轴箭头+标签
+  svg.append('text').attr('x',x1-8).attr('y',cy-8).attr('fill','#6ea8ff').attr('font-size',13).text('女 →');
+  svg.append('text').attr('x',x0+8).attr('y',cy-8).attr('fill','#8b90a3').attr('font-size',13).text('← 男');
+  svg.append('text').attr('x',cx+8).attr('y',y0+16).attr('fill','#8b90a3').attr('font-size',13).text('热 ↑(高狂热)');
+  svg.append('text').attr('x',cx+8).attr('y',y1-8).attr('fill','#8b90a3').attr('font-size',13).text('↓ 冷(低狂热)');
+  // 象限标签
+  svg.append('text').attr('x',cx+12).attr('y',cy-24).attr('fill','#34c77b').attr('font-size',12.5).attr('font-weight',700).text('只选: 女性向×高狂热');
+  svg.append('text').attr('x',x0+12).attr('y',cy-24).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男性向×高狂热');
+  svg.append('text').attr('x',x0+12).attr('y',y0+24).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男×低狂热');
+  svg.append('text').attr('x',cx+12).attr('y',cy+28).attr('fill','#8b90a3').attr('font-size',12).text('排除: 女×低狂热');
+  // 顶点
+  svg.append('circle').attr('cx',cx+40).attr('cy',cy-40).attr('r',6).attr('fill','#34c77b');
+  svg.append('text').attr('x',cx+52).attr('y',cy-38).attr('fill','#34c77b').attr('font-size',11).text('我们的目标');
+})();
+
+// ========= 力导向关系图 =========
+(function(){
+  var W=480,H=420;
+  var nodes=[{id:'根:行业know-how',g:'A'},{id:'入场券:双牌',g:'B'},{id:'服务能力',g:'C'},{id:'行业洞察',g:'C'},{id:'调拨流量',g:'C'},{id:'帮平台增量战绩',g:'C'},{id:'平台左右逢源',g:'D'},{id:'垂类重要玩家',g:'E'},{id:'头部',g:'E'},{id:'现金流自转',g:'F'}];
+  var links=[{s:0,t:1},{s:1,t:2},{s:1,t:3},{s:1,t:4},{s:1,t:5},{s:5,t:6},{s:3,t:6},{s:6,t:7},{s:7,t:8},{s:0,t:9},{s:9,t:8}];
+  var colors={A:'#6ea8ff',B:'#ffb454',C:'#34c77b',D:'#c792ea',E:'#ff6b6b',F:'#8b90a3'};
+  var svg=d3.select('#force').append('svg').attr('width',W).attr('height',H);
+  var sim=d3.forceSimulation(nodes.map((d,i)=>Object.assign({},d)))
+    .force('link',d3.forceLink(links.map(l=>({s:nodes[l.s],t:nodes[l.t]}))).distance(90))
+    .force('charge',d3.forceManyBody().strength(-260))
+    .force('center',d3.forceCenter(W/2,H/2))
+    .force('collide',d3.forceCollide(28));
+  var link=svg.selectAll('line').data(links).enter().append('line').attr('stroke','#2a3348').attr('stroke-width',1.5);
+  var node=svg.selectAll('g').data(nodes).enter().append('g').call(d3.drag().on('start',function(e,d){if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y}).on('drag',function(e,d){d.fx=e.x;d.fy=e.y}).on('end',function(e,d){if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
+  node.append('circle').attr('r',d=>d.g==='A'||d.g==='B'?14:11).attr('fill',d=>colors[d.g]).attr('stroke','#0d1119').attr('stroke-width',2);
+  node.append('text').attr('x',0).attr('dy',4).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',9).text(d=>d.id.length>6?d.id.slice(0,6)+'…':d.id);
+  svg.call(d3.zoom().scaleExtent([.3,3]).on('zoom',e=>node.attr('transform',e.transform)));
+  sim.on('tick',function(){link.attr('x1',d=>d.s.x).attr('y1',d=>d.s.y).attr('x2',d=>d.t.x).attr('y2',d=>d.t.y);node.attr('transform',d=>'translate('+d.x+','+d.y+')');});
+})();
+</script>
+</body>
+</html>

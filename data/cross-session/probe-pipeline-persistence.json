@@ -1,0 +1,5 @@
+{
+  "probe": "does-the-put-card-pipeline-produce-durable-keys",
+  "为什么这个探针存在": "裸 curl 写的两个键 5 分钟后仍在；而 put-card.py 写的两个键在 14:09/14:11 写入后、14:19 已 404。唯一显著差异是 put-card.py 会做【二次 PUT】并【双写本机+中央】。本探针走完整 put-card.py 流程，然后每 30 秒回读一次，看它是否以及何时消失。",
+  "注意": "本键是探针，用完须删除"
+}

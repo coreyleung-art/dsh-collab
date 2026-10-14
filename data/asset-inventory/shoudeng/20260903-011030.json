@@ -1,0 +1,36 @@
+{
+  "responder": "守灯-mac-mini-健康审查与迭代管理",
+  "agentId": "session-9910d4b2-80ff-4437-afed-c848dbda22d1",
+  "ts": "2026-09-03T01:10:30+08:00",
+  "assets": [
+    {"name":"cld-health 管理目录","type":"file","location":"file:/Users/coreyleung/dsh-collab/cld-health/","isOriginal":false,"blueprint":"bp-cld-ops","desc":"CLD 健康审查/迭代管理的专属目录（独占写，读共享），含基线/backlog/巡检工具/复核清单"},
+    {"name":"健康基线报告","type":"file","location":"cld-health-baseline-20260816.md","isOriginal":true,"blueprint":"bp-cld-ops","desc":"§1-9：含 23:49 SIGKILL 根因复盘、重启复核、外卖快照、OOM 归因（§9）——排障口径权威文档","evidence":"报告驱动多轮三方对齐（协调者/b241741f/6ed4daf2）"},
+    {"name":"迭代需求清单 backlog","type":"file","location":"cld-iteration-backlog.md","isOriginal":true,"blueprint":"bp-cld-ops","desc":"CLD-001~020 状态机（P0-P3/指派/验收/closed），健康审查域需求管理中枢","evidence":"CLD-001~019 已闭环，CLD-020 在途"},
+    {"name":"health-check.sh","type":"tool","location":"health-check.sh","isOriginal":true,"blueprint":"bp-cld-ops","desc":"健康巡检脚本（15+ 项：磁盘含 Data 卷/负载+连续超阈协议/GUI 自动探测/3081/日志错误/bundles 拼写/node_modules/xberg 绑定+套装/link/面板信息级/配置突变 UTC/内存+swap/3080 哨兵/会话日志完整性/供应链上游/--push dormant）","evidence":"v13+，300s 挂起修复（upstream 超时子 shell kill 15s）；--json 契约与 sysops 集成"},
+    {"name":"health-log.tsv","type":"file","location":"health-log.tsv","isOriginal":true,"blueprint":"bp-cld-ops","desc":"巡检时间序列（趋势/连续超阈统计/基线对比）","evidence":"跨月趋势数据，支撑负载/swap 观察"},
+    {"name":"post-restart-check.md","type":"file","location":"post-restart-check.md","isOriginal":true,"blueprint":"bp-restart-governance","desc":"重启后 14 步复核清单（含 3080 哨兵/会话日志完整性/dshdoc 复测/compaction 挂载验证）+异常处置表+工具调用约定教训","evidence":"多次重启实战使用，与 SOP/6ed4daf2 双轨"},
+    {"name":"CLD-002 看门狗交付","type":"file","location":"CLD-002-watchdog.md + ~/CLD/app-cld002.asar","isOriginal":true,"blueprint":"bp-restart-governance","desc":"exit-trace 模块（3d490920 实施，守灯验收口径）：exit-marker/heartbeat/[exit-trace]——待用户安装+重签（已升 P0）","evidence":"v2 工件 sha256 001468530975...；OOM 复发凸显 heap 监控缺失"},
+    {"name":"CLD-002-wecom-alert-spec.md","type":"file","location":"CLD-002-wecom-alert-spec.md","isOriginal":true,"blueprint":"bp-external-link","desc":"看门狗→企微告警接入规范（外发用例 #10；P3 拦截 dormant）"},
+    {"name":"exit-marker-spec-draft.md","type":"file","location":"exit-marker-spec-draft.md","isOriginal":false,"desc":"exit-marker 规范草稿（协作者产出归档）"},
+    {"name":"健康巡检概念","type":"protocol","location":"concept-dict R019","isOriginal":true,"desc":"概念字典已登记「健康巡检」（守灯负责），术语查证规范执行"},
+    {"name":"OOM 归因与恢复档案","type":"file","location":"data/recovery/cld-oom-2026090*.md","isOriginal":true,"blueprint":"bp-cld-ops","desc":"CLD heap OOM（3 次复发）证据链归因 + 复发调查（CLD-020 处置驱动）"},
+    {"name":"资源登记","type":"registry","location":"resource-registry §3/§4 + agent_profile","isOriginal":false,"desc":"cld-health 7 项资源登记（独占写/读共享），~/.cld/logs 与 launchd:com.cld.server 只读审查"}
+  ],
+  "unpresentedSystems": [
+    "health-check.sh 巡检体系（15+ 项，sysops health 集成契约 --json 就绪）——管理器 🗄 未单列",
+    "post-restart-check 14 步 SOP（重启治理双轨之一）",
+    "load 联动协议（连续 >=2 轮 load>=12 上报协调者错峰）",
+    "cld-health 文档自动进知识库（摄取 watcher 口径）"
+  ],
+  "crossNodeAssets": [
+    {"node":"i9","name":"CLD 运行载体","desc":"i9 侧 CLD/DSH 部署（p3-2 传感试点关联，设备协调 5a5368af 管辖）"},
+    {"node":"云端","name":"FlowerNet 蓝图","desc":"mac-mini 侧归明鉴蓝图主编（涉及健康审查侧 p3-2 传感试点执行）"}
+  ],
+  "governanceGaps": [
+    "heap 监控缺失：CLD-002 看门狗未安装（P0）——OOM 只能事后归因，无运行期堆快照/心跳",
+    "CLD 主进程 2.2GB 逼近 OOM 线，无自动缓解（会话压减/Worker 限制未落地）",
+    "cld-health 工具脚本未按 R006 插件化标准补版本/日志头（文档+版本+日志对齐待办）",
+    "多次快速重启导致工具约定漂移（direct vs run_code）——resume/preset 装配依赖待固化文档"
+  ],
+  "note": "守灯资产盘点（2026-09-03）。CLD-020（OOM）/CLD-002（看门狗 P0）/CLD-017（压缩试点）为当前在途关键项；调研派单（memory-resource-optimization）已发 4787d717。"
+}

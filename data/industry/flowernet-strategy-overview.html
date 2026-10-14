@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowernet 战略全景 · 整合展示</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script src="/vendor/d3.min.js"></script>
+<style>
+  :root{--bg:#0d1119;--panel:#131a2a;--line:#2a3348;--txt:#e8eaf0;--mut:#8b90a3;--acc:#6ea8ff;--gold:#ffb454;--ok:#34c77b;--warn:#ff6b6b}
+  *{margin:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",Helvetica,sans-serif;line-height:1.7;padding-bottom:60px}
+  header{position:sticky;top:0;background:#0d1424;border-bottom:1px solid var(--line);padding:14px 28px;display:flex;align-items:center;gap:16px;z-index:50;flex-wrap:wrap}
+  header h1{font-size:18px;color:#fff;font-weight:700}
+  header h1 span{color:var(--gold)}
+  header nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+  header nav a{color:var(--acc);text-decoration:none;font-size:12.5px;padding:5px 12px;border:1px solid var(--line);border-radius:7px}
+  header nav a:hover{background:#1a2438}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px 28px}
+  section{margin:26px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 26px}
+  section h2{font-size:17px;color:var(--gold);margin-bottom:4px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  section h2 small{color:var(--mut);font-weight:400;font-size:12px;margin-left:8px}
+  section h3{font-size:14.5px;color:var(--acc);margin:14px 0 6px}
+  .mermaid{background:#0a0e16;border-radius:8px;padding:14px;overflow-x:auto;margin:12px 0}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+  .card{background:#101827;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .card h4{font-size:13.5px;color:#fff;margin-bottom:6px}
+  .card p{font-size:12.5px;color:var(--mut);line-height:1.6}
+  .card b{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;color:var(--txt)}
+  th{background:#1a2438;color:#fff}
+  tr:nth-child(2n) td{background:#101827}
+  .tag{display:inline-block;background:rgba(110,168,255,.12);color:var(--acc);border-radius:6px;padding:2px 10px;font-size:11px;margin:2px}
+  .hp{color:var(--gold);font-weight:700}
+  .fn{color:var(--mut);font-size:11.5px;margin-top:4px}
+  .callout{background:#ffb45422;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-size:13px;color:#ffd9a0}
+  .callout.ok{background:#34c77b22;border-left-color:var(--ok);color:#9fe8c0}
+  .callout.warn{background:#ff6b6b22;border-left-color:var(--warn);color:#ffb4b4}
+  .note{font-size:11.5px;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌐 Flowernet <span>战略全景</span> 整合展示</h1>
+  <nav>
+    <a href="#map">战略地图</a><a href="#direction">战略方向</a><a href="#phase1">第一阶段BP</a>
+    <a href="#endgame">终局叙事</a><a href="#execution">落地执行</a><a href="#capital">资本计划</a>
+    <a href="#eval">评估坐标</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+<!-- 一、战略地图 -->
+<section id="map">
+  <h2>一、战略地图 <small>根 → 入场券 → 真护城河 → 平台左右逢源 → 头部</small></h2>
+  <div class="mermaid">
+  flowchart TD
+    A[行业地图know-how<br>根 怎么切垂类蛋糕] --> B[双牌 入场券<br>先发优势]
+    B --> C[真护城河 4能力]
+    C --> C1[①服务能力]
+    C --> C2[②行业洞察]
+    C --> C3[③调拨流量]
+    C --> C4[④帮平台获增量战绩]
+    A --> D[平台博弈 左右逢源<br>A建B优势 B建C优势]
+    C --> D
+    D --> E[垂类重要玩家]
+    E --> F[往头部挤<br>差异化+竞争+现金流+估值]
+    A --> G[经营主轴 现金流自转<br>每级盈利建下一级]
+    G --> F
+  </div>
+  <div class="cards">
+    <div class="card"><h4>根 · 行业地图</h4><p>吃透行业六层(平台/商家/数据/供应链/IP/竞争) → 切对垂类蛋糕。<span class="fn">2490亿大盘 / 鲜花电商1279.5亿 / 单店订单级=真空缺口</span></p></div>
+    <div class="card"><h4>入场券 · 双牌</h4><p>城市合伙人+全国鲜花服务商 = 平台授予, 先发优势。<span class="fn">⚠️ 只是入场券, 非长久护城河</span></p></div>
+    <div class="card"><h4>真护城河 · 4能力</h4><p>服务能力 / 行业洞察 / 调拨流量 / <b>④帮平台获增量战绩(最深)</b>。<span class="fn">平台API实证: L0/L1开放, L2自留→护城河建垂类数据</span></p></div>
+  </div>
+  <div class="callout ok">平台左右逢源: 在A(淘闪)建地位→拿战绩谈B(美团/京东)→全平台卖水人/工具/服务商。⚠️ 对淘闪只讲"帮你做增量", 全平台定位属内部/融资口径。</div>
+</section>
+
+<!-- 二、战略方向 -->
+<section id="direction">
+  <h2>二、战略方向 <small>我们做什么·凭什么赢·怎么经营·往哪走</small></h2>
+  <div class="callout ok"><b>战略总纲：做鲜花类目的"全平台服务商"，以数据与运营能力为护城河，用现金流自转滚雪球，最终成为垂类头部的卖水人/底座。</b></div>
+  <div class="d3fig"><div class="figlabel">▼ 凭什么赢 · 四层递进护城河</div><div id="dir_moat"></div></div>
+  <div class="d3fig"><div class="figlabel">▼ 怎么经营 · 现金流自转价值链</div><div id="dir_cash"></div></div>
+  <div class="d3fig"><div class="figlabel">▼ 往哪走 · 终局路径</div><div id="dir_path"></div></div>
+</section>
+
+<!-- 三、第一阶段BP -->
+<section id="phase1">
+  <h2>三、第一阶段BP <small>从平台竞争入手 → 反向拆解我们该做什么</small></h2>
+
+  <h3>① 平台在争什么（竞争格局）</h3>
+  <div class="mermaid">
+  flowchart LR
+    P[即时零售万亿赛道<br>2024 7810亿 2025破万亿 2030 2万亿] --> P1[美团<br>份额45% 闪电仓5000+]
+    P --> P2[阿里 淘宝闪购<br>份额45.2% 日峰值1.2亿单]
+    P --> P3[京东 秒送<br>份额8.4% 小时达+到家]
+    P --> P4[抖音 小时达<br>份额1.5%]
+    P --> P5[快手 外卖<br>与美团合作 下沉市场]
+    P1 --> X
+    P2 --> X
+    P3 --> X
+    P4 --> X
+    P5 --> X
+    X["五平台争: 高频用户+品类扩张<BR>阿里vs美团双雄"]
+    X --> Y[平台考核: 新签门店 + 类目GMV<br>谁能帮平台拿类目增量谁拿资源]
+  </div>
+  <div class="cards">
+    <div class="card"><h4>美团</h4><p>份额45%, 外卖GTV>60%, 闪电仓5000+到2027计划10万。<span class="fn">有流量但缺鲜花垂直数据</span></p></div>
+    <div class="card"><h4>阿里·淘宝闪购</h4><p>份额45.2%(与美团差0.2pp), 日峰值1.2亿单, 88VIP 6000万。<span class="fn">鲜花=重点高毛利, 我方卡核心</span></p></div>
+    <div class="card"><h4>京东·秒送</h4><p>份额8.4%, 130万骑手+秒送融合。<span class="fn">即时零售整合中</span></p></div>
+    <div class="card"><h4>抖音·快手</h4><p>抖音小时达1.5%; 快手与美团合作(供应链+流量), 下沉市场。<span class="fn">短视频流量入口</span></p></div>
+  </div>
+
+  <h3>② 我们能给平台带来什么（反向·平台考核四件事）</h3>
+  <div class="callout ok">平台对服务商的核心期望: <b>提升存量商家质效 · 抢夺竞品增量 · 拉动GMV · 商家投流</b> —— 平台考核的就是这四件事, 我们帮它达成, 就换到它的资源。</div>
+  <div class="mermaid">
+  flowchart LR
+    B[平台考核四件事] --> B1[①提升存量商家质效<br>装修/报名/投流驱动]
+    B --> B2[②抢夺竞品增量<br>从美团/他平台抢商家+用户]
+    B --> B3[③拉动GMV<br>新签门店+高客单]
+    B --> B4[④驱动商家投流<br>平台要广告收入]
+    B1 --> C
+    B2 --> C
+    B3 --> C
+    B4 --> C
+    C[我们三通道落地]
+    C --> C1[通道A 存量平移<br>城市合伙人强建联750家]
+    C --> C2[通道B 新签拉新<br>服务商考核驱动]
+    C --> C3[通道C 消费者迁移<br>他平台无授权商家导流淘闪]
+    C3 --> D[让渡点数换代理费<br>财散人聚 现金流]
+  </div>
+  <div class="cards">
+    <div class="card"><h4>平台考核四件事</h4><p>①存量提质 ②抢竞品增量 ③拉GMV ④商家投流 —— <b>平台就考核这些, 我们全对上</b></p></div>
+    <div class="card"><h4>三通道落地</h4><p><b>A存量平移</b>(强建联750家进体系) <b>B新签拉新</b>(考核驱动) <b>C消费者迁移</b>(他平台导流)</p></div>
+    <div class="card"><h4>让渡点数换现金流</h4><p>让渡区域代理返佣分配权 → 换代理商提前付代理费(财散人聚)。<span class="fn">覆盖前期运营; 后期叠物料/软硬件订阅</span></p></div>
+  </div>
+
+  <h3>②b IP 选型与落地策略（完整打法）</h3>
+  <div class="callout ok"><b>IP 核心策略：以"IP 粉丝红利"为平台创造外部新增用户，而非争夺存量。</b>通过与 IP 授权方零成本合作（授权金靠物料赚回），用 IP 专属花束将女性向高狂热粉丝引至平台，实现新注册用户增长、高客单 GMV、无消费习惯用户迁移三重新增——这是平台最需要的增量价值，也是我方差异化的核心。</div>
+  <div class="callout"><b>方向不变：女性向 × 高狂热（我们直觉上认定的高价值客群）</b>——具体符合这一象限的 IP 候选（可直接点名追踪）：<b>恋与制作人、光与夜之恋、原神、第五人格</b>（游戏/乙女向，女性粉丝高狂热）、<b>泡泡玛特 LABUBU、Jellycat</b>（潮玩/谷子，女性 70% 客群、88.6% 愿付溢价）、以及乙女/二次元系 IP。以下为市场数据佐证：</div>
+  <div class="cards">
+    <div class="card"><h4>IP 授权市场</h4><p>2025 授权零售 <b>262 亿美元(+15.9%)</b>；游戏 IP 近 <b>400 场联名</b>、衍生品 <b>753 亿(+62.8%)</b>。</p></div>
+    <div class="card"><h4>高价值客群</h4><p><b>88.6% 消费者愿为限量款付溢价</b>；女性客群占线上买花 <b>74%</b>、25-35 岁 <b>68%</b>——与女性向高狂热高度重叠。</p></div>
+    <div class="card"><h4>谷子/潮玩经济</h4><p>谷子经济 2025 破 <b>2400 亿</b>；泡泡玛特 LABUBU 单品 <b>141 亿</b>——女性粉丝高客单、自发消费。</p></div>
+  </div>
+  <div class="mermaid">
+  flowchart TD
+    A[IP 选型定位<br>女性向×高狂热] --> B[为什么选这一象限]
+    B --> B1[价格敏感度极低<br>粉丝愿为IP付高溢价]
+    B --> B2[自发消费/无刷单压力<br>降低平台风险]
+    B --> B3[为平台带外部新增用户<br>非存量转化]
+    A --> C[落地保障机制]
+    C --> C1[授权≈零成本<br>授权金靠物料赚回]
+    C --> C2[预售制+强制采购链接<br>零库存风险]
+    C --> C3[每城3-5店+限量<br>饥饿营销/平台风险可控]
+  </div>
+  <h3>人群切割 · IP选型四象限坐标（X轴男→女 · Y轴冷→热）</h3>
+  <div class="d3fig"><div id="quad"></div></div>
+  <div class="callout warn"><b>不学美团的原因（风险规避）</b>: 美团同类活动选"中性低狂热"头部IP（迪士尼）规避风险，结果销售压力倒逼商家刷单，最终引发法律纠纷。我方策略是<b>避开"低狂热必须靠营销拉动"的陷阱</b>，只选"高狂热、粉丝自发消费"的 IP——这样 IP 粉丝本身有购买意愿，不需要平台/商家刷单支撑，从源头规避了平台最大的合规风险，同时让 IP 消费成为平台可持续的新增 GMV 来源。</div>
+  <div class="cards">
+    <div class="card"><h4>① 为什么做 IP（战略价值）</h4><p>IP 粉丝是<b>平台增量用户</b>（非存量转化）——通过 IP 专属消费把圈外粉丝引到平台，同时带动高客单 GMV，是帮平台实现"外部新增+高客单"双增量的差异化打法。</p></div>
+    <div class="card"><h4>② 人群切割（选型坐标）</h4><p>按"性别×狂热程度"二维切割：横轴男→女、纵轴冷→热。<b>只选右上角（女性向×高狂热）</b>——她们价格敏感度极低、自发高消费；排除左半（男性向/中性）和下半（低狂热），因为这几类无法用自发购买支撑，只能靠营销拉动。</p></div>
+    <div class="card"><h4>③ 为什么这样选（商业逻辑）</h4><p>高狂热粉丝<b>自发消费、无刷单压力</b>；高客单（1588/888/288 三档）粉丝愿意为 IP 付溢价。对平台而言，这是"真实新增用户+高客单 GMV"，而非靠补贴/刷单制造的虚增——正是平台考核最想要的增量。</p></div>
+    <div class="card"><h4>④ 差异化：为何不效仿美团</h4><p>美团同类活动选<b>中性低狂热头部 IP（迪士尼）</b>求稳，结果销售压力倒逼商家刷单，最终引发法律纠纷。我方策略是选<b>高狂热、粉丝自发消费的 IP</b>，从源头避免"必须靠营销/刷单才能成单"的陷阱——既规避合规风险，也让 IP 消费成为平台可持续的新增 GMV。</p></div>
+  </div>
+
+  <h3>③ 反向拆解我们该做什么（第一优先）</h3>
+  <div class="mermaid">
+  flowchart LR
+    D[帮淘闪做出可验证的<br>类目增量战绩] --> D1[IP首场11月<br>新注册+迁移+高客单]
+    D --> D2[代运营底盘<br>商家留存]
+    D --> D3[数据端口P1<br>类目洞察]
+    D1 --> E
+    D2 --> E
+    D3 --> E
+    E[换城市合伙人资格+流量管道]
+    E --> F[为全平台扩张攒第一桶金和战绩]
+  </div>
+
+  <div class="callout ok">核心叙事: 不是"我们求管道", 是"平台在即时零售争类目增量, 我们能帮淘宝闪购拿到鲜花类目的可验证增量(新注册+无消费习惯迁移+高客单), 所以换取对应资源"。⚠️ 对淘闪只讲增量, 全平台定位属内部/融资口径。</div>
+  <table>
+    <tr><th>给平台</th><th>我们怎么做</th><th>反向对应的我们动作</th></tr>
+    <tr><td>新注册用户</td><td>IP粉丝从外圈引流</td><td>IP首场(3-5店预售)</td></tr>
+    <tr><td>无消费习惯迁移</td><td>有鲜花钱没在淘闪买的人→迁移</td><td>IP+应援牵引</td></tr>
+    <tr><td>高客单GMV</td><td>狂热粉丝高客单</td><td>1588/888/288套餐</td></tr>
+    <tr><td>商家留存</td><td>代运营+IP造节</td><td>接代运营盘子</td></tr>
+    <tr><td>类目数据</td><td>白名单订单级回流</td><td>数据端口P1</td></tr>
+  </table>
+</section>
+
+<!-- 四、终局叙事 -->
+<section id="endgame">
+  <h2>四、终局叙事 <small>整个故事怎么讲·起承转合</small></h2>
+  <div class="mermaid">
+  flowchart LR
+    A[起 成都样板<br>帮淘闪做增量] --> B[承 换入场券+第一桶金]
+    B --> C[转 建第二盈利点+全平台]
+    C --> D[合 垂类头部/底座卖水人]
+    A --> E
+    B --> E
+    C --> E
+    E[每级: 现金流+战绩<BR>建下一级优势]
+  </div>
+  <div class="callout">一句话: 我们不是烧钱买规模, 是用现金流自转, 每一级赚到的钱和战绩都用来建更大优势——最终成为鲜花垂类的卖水人/底座。</div>
+  <table>
+    <tr><th>段</th><th>阶段</th><th>赚到什么</th><th>用于</th></tr>
+    <tr><td>起</td><td>成都样板</td><td>帮淘闪增量战绩+第一笔现金流</td><td>换入场券+管道</td></tr>
+    <tr><td>承</td><td>换入场券</td><td>全平台地位</td><td>建第二盈利点(IP/工具)</td></tr>
+    <tr><td>转</td><td>全平台</td><td>多平台战绩+多收入源</td><td>做大优势(4能力)</td></tr>
+    <tr><td>合</td><td>垂类头部</td><td>稳定现金流+估值</td><td>服务战略蓝图</td></tr>
+  </table>
+</section>
+
+<!-- 五、落地执行 -->
+<section id="execution">
+  <h2>五、落地执行 <small>现金流自转四档分级</small></h2>
+  <div class="mermaid">
+  flowchart LR
+    A[档1 单城<br>代运营造血≥36万/月] --> B[档2 5城<br>IP+商品变定价权]
+    B --> C[档3 10城<br>软硬件订阅复利]
+    C --> D[档4 头部<br>底座卖水人]
+    A --> E
+    B --> E
+    C --> E
+    E[每级现金流建下一级]
+  </div>
+  <table>
+    <tr><th>档</th><th>时点</th><th>主线</th><th>盈利源头</th><th>资本</th></tr>
+    <tr><td>1单城</td><td>0-6月</td><td>①代运营</td><td>现金流≥36万/月</td><td>种子/自有</td></tr>
+    <tr><td>2五城</td><td>6-15月</td><td>②IP+商品</td><td>IP贸易差价(定价权)</td><td>现金流+少量</td></tr>
+    <tr><td>3十城</td><td>15-24月</td><td>③软硬件</td><td>订阅复利</td><td>里程碑触融</td></tr>
+    <tr><td>4头部</td><td>24月+</td><td>④底座</td><td>卖水人</td><td>资本+对赌</td></tr>
+  </table>
+</section>
+
+<!-- 六、资本计划 -->
+<section id="capital">
+  <h2>六、四档资本计划 <small>资金×目标×评估</small></h2>
+  <div class="callout ok">原则: 能现金流自转就不融; 借了就要证明能力; 结果分级预案(做到/部分/未达)。</div>
+  <table>
+    <tr><th>档</th><th>资金来源</th><th>目标与规模</th><th>结果评估</th></tr>
+    <tr><td>1单城</td><td>自有(种子1000万, 花400-500)</td><td>动销池+打平36万/月</td><td>✅进档2 / ⚠️砍端口保代运营 / ❌缓冲250万</td></tr>
+    <tr><td>2五城</td><td>现金流+少量融</td><td>5城→Pre-A 2000-3000万</td><td>✅触发Pre-A / ⚠️暂缓扩城 / ❌不融资</td></tr>
+    <tr><td>3十城</td><td>Pre-A到账</td><td>10城→A轮3000-3700万</td><td>✅触发A轮 / ⚠️收紧 / ❌可转债</td></tr>
+    <tr><td>4头部</td><td>A轮+对赌</td><td>30城/垂类头部</td><td>✅IPO/并购 / ⚠️保头部 / ❌现金流为王</td></tr>
+  </table>
+
+  <div class="d3fig"><div class="figlabel">▼ 资本节奏 · 什么时点用/不用资本（A1-A4 递进）</div><div id="cap_rhythm"></div></div>
+  <div class="d3fig"><div class="figlabel">▼ 三条资本路线对比（A稳健 / B激进 / C保守）</div><div id="cap_route"></div></div>
+  <div class="d3fig"><div class="figlabel">▼ 合伙人进出机制（GP/LP 结构 + 退出三路径）</div><div id="cap_gplp"></div></div>
+</section>
+
+<!-- 七、评估坐标 -->
+<section id="eval">
+  <h2>七、分档评估坐标 <small>六轴×三档阈值(已行业基准校准)</small></h2>
+  <div class="callout warn">⚠️ 阈值已用2026-09-10指标基准调研校准, 非拍脑袋: 续约率40-70%(抽佣绑定65-75%)·人效15-35店/人·GMV+5-15%/月·新签4-8%·订阅按效果/抽佣。</div>
+  <table>
+    <tr><th>六轴</th><th>指标</th><th>✅达标</th><th>⚠️部分</th><th>❌未达</th></tr>
+    <tr><td>现金</td><td>代运营毛利(档1)</td><td>≥36万/月</td><td>15-36万</td><td>&lt;15万</td></tr>
+    <tr><td>规模</td><td>在管商家池</td><td>≥900</td><td>750-900</td><td>&lt;750</td></tr>
+    <tr><td>增长</td><td>GMV环比(爬坡)</td><td>+5-15%/月</td><td>0-5%</td><td>持平/降</td></tr>
+    <tr><td>质量</td><td>续约率(按效果)</td><td>65-75%</td><td>50-65%</td><td>&lt;50%</td></tr>
+    <tr><td>平台</td><td>帮淘闪增量</td><td>首场售罄+新注册</td><td>部分售罄</td><td>未售罄</td></tr>
+    <tr><td>数据</td><td>端口授权(抽佣)</td><td>&gt;80%</td><td>50-80%</td><td>&lt;50%</td></tr>
+  </table>
+</section>
+
+</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',securityLevel:'loose',flowchart:{curve:'basis'}});</script>
+<script>
+// IP人群切割 · 四象限坐标 (d3, 有真实X/Y轴)
+(function(){
+  var W=560,H=460,m=48;
+  var svg=d3.select('#quad').append('svg').attr('width',W).attr('height',H);
+  var x0=m,x1=W-m,y0=m,y1=H-m,cx=(x0+x1)/2,cy=(y0+y1)/2;
+  svg.append('rect').attr('x',cx).attr('y',y0).attr('width',x1-cx).attr('height',cy-y0).attr('fill','rgba(52,199,123,0.2)');
+  svg.append('rect').attr('x',x0).attr('y',y0).attr('width',cx-x0).attr('height',cy-y0).attr('fill','rgba(255,107,107,0.1)');
+  svg.append('rect').attr('x',x0).attr('y',cy).attr('width',cx-x0).attr('height',y1-cy).attr('fill','rgba(255,107,107,0.1)');
+  svg.append('rect').attr('x',cx).attr('y',cy).attr('width',x1-cx).attr('height',y1-cy).attr('fill','rgba(255,107,107,0.1)');
+  svg.append('line').attr('x1',x0).attr('y1',cy).attr('x2',x1).attr('y2',cy).attr('stroke','#4a5568');
+  svg.append('line').attr('x1',cx).attr('y1',y0).attr('x2',cx).attr('y2',y1).attr('stroke','#4a5568');
+  svg.append('text').attr('x',x1-10).attr('y',cy-10).attr('fill','#6ea8ff').attr('font-size',13).attr('font-weight',700).text('女 →');
+  svg.append('text').attr('x',x0+8).attr('y',cy-10).attr('fill','#8b90a3').attr('font-size',13).text('← 男');
+  svg.append('text').attr('x',cx+10).attr('y',y0+18).attr('fill','#8b90a3').attr('font-size',13).text('↑ 热(高狂热)');
+  svg.append('text').attr('x',cx+10).attr('y',y1-8).attr('fill','#8b90a3').attr('font-size',13).text('↓ 冷(低狂热)');
+  svg.append('text').attr('x',cx+14).attr('y',cy-22).attr('fill','#34c77b').attr('font-size',13).attr('font-weight',700).text('只选: 女性向×高狂热');
+  svg.append('text').attr('x',x0+14).attr('y',cy-22).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男性向×高狂热');
+  svg.append('text').attr('x',x0+14).attr('y',y0+26).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男×低狂热');
+  svg.append('text').attr('x',cx+14).attr('y',cy+30).attr('fill','#8b90a3').attr('font-size',12).text('排除: 女×低狂热');
+  svg.append('circle').attr('cx',cx+48).attr('cy',cy-42).attr('r',7).attr('fill','#34c77b');
+  svg.append('text').attr('x',cx+62).attr('y',cy-40).attr('fill','#34c77b').attr('font-size',11).attr('font-weight',700).text('我们的目标');
+})();
+
+// ===== 战略方向 三图 =====
+// ① 四层递进护城河 (纵向层级)
+(function(){
+  var W=520,H=380;var svg=d3.select('#dir_moat').append('svg').attr('width',W).attr('height',H);
+  var C=['#6ea8ff','#ffb454','#34c77b','#c792ea'];
+  var rows=[['打法 · 平台左右逢源','A建B优势,B建C优势，全平台借力'],['真护城河 · 4能力','服务/行业洞察/调拨流量/帮平台获增量战绩'],['入场券 · 双牌','城市合伙人+全国鲜花服务商(先发)'],['根 · 行业地图know-how','吃透行业六层,知道切哪块蛋糕']];
+  rows.forEach(function(r,i){
+    var y=30+i*95;
+    svg.append('rect').attr('x',50).attr('y',y).attr('width',420-C[i].length*0).attr('height',72).attr('rx',9).attr('fill',C[i]).attr('opacity',.88);
+    svg.append('text').attr('x',70).attr('y',y+28).attr('fill','#fff').attr('font-size',14).attr('font-weight',800).text(r[0]);
+    svg.append('text').attr('x',70).attr('y',y+50).attr('fill','#e8eaf0').attr('font-size',10.5).text(r[1]);
+    if(i<rows.length-1)svg.append('text').attr('x',W/2).attr('y',y+86).attr('fill','#8b90a3').attr('font-size',18).attr('text-anchor','middle').text('↓');
+  });
+})();
+// ② 现金流自转价值链 (横向循环)
+(function(){
+  var W=760,H=130;var svg=d3.select('#dir_cash').append('svg').attr('width',W).attr('height',H);
+  var st=[['①代运营','现金流'],['②IP+商品','定价权'],['③软硬件','订阅复利'],['④底座','卖水人']];
+  var C=['#6ea8ff','#34c77b','#c792ea','#ffb454'];
+  st.forEach(function(d,i){var x=20+i*185;var y=30;
+    svg.append('rect').attr('x',x).attr('y',y).attr('width',165).attr('height',70).attr('rx',8).attr('fill',C[i]).attr('opacity',.88);
+    svg.append('text').attr('x',x+82).attr('y',y+28).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',13.5).attr('font-weight',800).text(d[0]);
+    svg.append('text').attr('x',x+82).attr('y',y+50).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',10.5).text(d[1]);
+    if(i<3)svg.append('text').attr('x',x+172).attr('y',y+38).attr('fill','#8b90a3').attr('font-size',20).text('→');
+  });
+})();
+// ③ 终局路径 (横向四段)
+(function(){
+  var W=720,H=140;var svg=d3.select('#dir_path').append('svg').attr('width',W).attr('height',H);
+  var st=[['成都样板','证明帮平台增量'],['换入场券+多平台','用战绩谈更多'],['垂类重要玩家','多平台战绩'],['头部/底座','差异+竞争+估值']];
+  var C=['#6ea8ff','#34c77b','#c792ea','#ffb454'];
+  st.forEach(function(d,i){var x=10+i*180;var y=36;
+    svg.append('rect').attr('x',x).attr('y',y).attr('width',158).attr('height',66).attr('rx',8).attr('fill',C[i]).attr('opacity',.88);
+    svg.append('text').attr('x',x+79).attr('y',y+26).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',13).attr('font-weight',800).text(d[0]);
+    svg.append('text').attr('x',x+79).attr('y',y+48).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',10).text(d[1]);
+    if(i<3)svg.append('text').attr('x',x+166).attr('y',y+38).attr('fill','#8b90a3').attr('font-size',18).text('→');
+  });
+})();
+// ===== 资本计划 三图 =====
+// ① 资本节奏 A1-A4 递进
+(function(){
+  var W=860,H=200;var svg=d3.select('#cap_rhythm').append('svg').attr('width',W).attr('height',H);
+  var C=['#6ea8ff','#34c77b','#c792ea','#ffb454'];
+  var st=[['A1 种子','现在·1000万','稀释15-20%','锚M1'],['A2 Pre-A','M1·2000-3000万','再稀释10-15%','锚M2'],['A3 A轮','M2·5000万-1亿','再稀释15-20%','锚M3'],['A4 上市前','M3·按需','再稀释10%+','IPO/并购']];
+  st.forEach(function(d,i){var x=12+i*212;var y0=50;
+    var h=30+i*22;
+    svg.append('rect').attr('x',x).attr('y',y0).attr('width',196).attr('height',70).attr('rx',8).attr('fill',C[i]).attr('opacity',.88);
+    svg.append('text').attr('x',x+98).attr('y',y0+22).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',13.5).attr('font-weight',800).text(d[0]);
+    svg.append('text').attr('x',x+98).attr('y',y0+42).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',10.5).text(d[1]);
+    svg.append('text').attr('x',x+98).attr('y',y0+60).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',9.5).text(d[2]+'·'+d[3]);
+    if(i<3)svg.append('text').attr('x',x+202).attr('y',y0+36).attr('fill','#8b90a3').attr('font-size',18).text('→');
+  });
+})();
+// ② 三条资本路线对比
+(function(){
+  var W=720,H=210;var svg=d3.select('#cap_route').append('svg').attr('width',W).attr('height',H);
+  var C=['#34c77b','#ff6b6b','#6ea8ff'];
+  var st=[['A 稳健轮次','推荐主轴·每轮里程碑触发','低稀释/可控/稳','#34c77b'],['B 激进','资本优先抢窗口·阿里财年','快但稀释大/或绑架','#ff6b6b'],['C 保守','1000万内自筹跑正再滚动','零稀释/慢','#6ea8ff']];
+  st.forEach(function(d,i){var y=20+i*62;
+    svg.append('rect').attr('x',20).attr('y',y).attr('width',680).attr('height',52).attr('rx',8).attr('fill',C[i]).attr('opacity',.85);
+    svg.append('text').attr('x',40).attr('y',y+24).attr('fill','#fff').attr('font-size',13).attr('font-weight',800).text(d[0]);
+    svg.append('text').attr('x',40).attr('y',y+42).attr('fill','#e8eaf0').attr('font-size',10.5).text(d[1]);
+    svg.append('text').attr('x',660).attr('y',y+32).attr('text-anchor','end').attr('fill','#e8eaf0').attr('font-size',11).text(d[2]);
+  });
+})();
+// ③ 合伙人进出机制 GP/LP 结构
+(function(){
+  var W=860,H=280;var svg=d3.select('#cap_gplp').append('svg').attr('width',W).attr('height',H);
+  // 顶层GP
+  svg.append('rect').attr('x',280).attr('y',20).attr('width',300).attr('height',48).attr('rx',8).attr('fill','#ffb454').attr('opacity',.9);
+  svg.append('text').attr('x',430).attr('y',38).attr('text-anchor','middle').attr('fill','#0d1119').attr('font-size',13).attr('font-weight',800).text('顶层 GP · 振宇(或控股公司)');
+  svg.append('text').attr('x',430).attr('y',57).attr('text-anchor','middle').attr('fill','#3a2f14').attr('font-size',10).text('控制权0.1-1%独占执行权');
+  svg.append('text').attr('x',430).attr('y',84).attr('text-anchor','middle').attr('fill','#8b90a3').attr('font-size',14).text('↓ 有限合伙平台');
+  // LP层
+  svg.append('rect').attr('x',120).attr('y',100).attr('width',200).attr('height',90).attr('rx',8).attr('fill','#34c77b').attr('opacity',.88);
+  svg.append('text').attr('x',220).attr('y',132).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',12.5).attr('font-weight',800).text('LP 层·合伙人');
+  svg.append('text').attr('x',220).attr('y',152).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',10).text('吴总/于总/邬总/紫阳');
+  svg.append('text').attr('x',220).attr('y',172).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',9.5).text('出资享收益·不干预(分钱不分权)');
+  // 退出三路径
+  svg.append('text').attr('x',540).attr('y',112).attr('fill','#8b90a3').attr('font-size',13).attr('font-weight',800).text('退出三路径');
+  var ex=[['① 里程碑对赌','约定体量/份额达成→估值×倍数回购'],['② 股权转让/回购','特定里程碑后/僵局→按约定价回购'],['③ 资本市场退出','IPO 2030± 或并购→持股市值']];
+  ex.forEach(function(d,i){var y=118+i*44;
+    svg.append('rect').attr('x',470).attr('y',y).attr('width',370).attr('height',38).attr('rx',7).attr('fill',['#c792ea','#6ea8ff','#34c77b'][i]).attr('opacity',.85);
+    svg.append('text').attr('x',486).attr('y',y+17).attr('fill','#fff').attr('font-size',11.5).attr('font-weight',800).text(d[0]);
+    svg.append('text').attr('x',486).attr('y',y+32).attr('fill','#e8eaf0').attr('font-size',9).text(d[1]);
+  });
+  // 底部风险防护
+  svg.append('rect').attr('x',120).attr('y',210).attr('width',720).attr('height',50).attr('rx',8).attr('fill','#1a2438').attr('stroke','#2a3348');
+  svg.append('text').attr('x',140).attr('y',236).attr('fill','#ffb454').attr('font-size',12).attr('font-weight',800).text('风险防护');
+  svg.append('text').attr('x',140).attr('y',252).attr('fill','#e8eaf0').attr('font-size',10).text('对赌走公司层面(规避2025执复27号个人兜底)+GP用有限公司隔离+逐年审计+决议留痕');
+})();
+</script>
+</body>
+</html>

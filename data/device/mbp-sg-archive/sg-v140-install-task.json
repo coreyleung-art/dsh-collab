@@ -1,0 +1,15 @@
+{
+ "key": "notes/mbp/sg-v140-install-task",
+ "value": {
+  "body": {
+   "output": "notes/mbp/sg-v140-install-done",
+   "request": "SystemGraph-v1.4.0.dmg 已 scp 到 MBP ~/Downloads（126MB，明鉴发布 v1.4.0）。请安装：①挂载 dmg ②装 SystemGraph.app 到 /Applications（覆盖旧版）③启动 ④验证窗口+8798 HTTP 200 ⑤回报",
+   "source": "明鉴 f38244df",
+   "task": "sg-v140-install-1788690954524",
+   "urgent": false
+  },
+  "from": "coordinator",
+  "subject": "SystemGraph v1.4.0 DMG 安装（明鉴发布）",
+  "ts": "2026-09-06T10:35:54Z"
+ }
+}

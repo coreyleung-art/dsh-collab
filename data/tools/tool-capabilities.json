@@ -1,0 +1,568 @@
+{
+ "version": "1.0",
+ "tools": [
+  {
+   "tool": "bb-absorb-watch.py",
+   "desc": "bb-absorb-watch.py — 吸收循环常驻监控（事件驱动，零轮询零 token）",
+   "flags": [
+    "log"
+   ]
+  },
+  {
+   "tool": "bb-absorb.py",
+   "desc": "bb-absorb.py — 节点经验/能力吸收流水线（进化循环第 4 步自动化）",
+   "flags": [
+    "capability",
+    "check-only",
+    "deps",
+    "desc",
+    "env-notes",
+    "hub-dep"
+   ]
+  },
+  {
+   "tool": "bb-asset-relations.py",
+   "desc": "bb-asset-relations.py — 资产关系建模工具(持久内置 · 系统架构管理器)",
+   "flags": [
+    "add",
+    "del",
+    "desc",
+    "list",
+    "selfcheck",
+    "suggest"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-content-check.py",
+   "desc": "bb-blueprint-content-check.py — 蓝图空呈现检查修复器 v1.0(R006 九标准)",
+   "flags": [
+    "check",
+    "fix",
+    "json",
+    "scan",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-create.py",
+   "desc": "bb-blueprint-create.py — 蓝图正式化工具（三件套纪律：文档+代码+依赖）",
+   "flags": [
+    "bp",
+    "list",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-dialog.py",
+   "desc": "bb-blueprint-dialog.py — 对话式蓝图维护(bp2-4 · R006)",
+   "flags": [
+    "add-stage",
+    "add-substage",
+    "add-work",
+    "create",
+    "dim",
+    "id"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-generalize.py",
+   "desc": "bb-blueprint-generalize.py — 蓝图泛化探索评估器（体系泛化分析工具化）",
+   "flags": [
+    "benchmark",
+    "dims",
+    "out",
+    "possibilities",
+    "report",
+    "scan"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-ingest.py",
+   "desc": "bb-blueprint-ingest.py — 蓝图注册流水线（Blueprint Ingest Pipeline）",
+   "flags": [
+    "dim",
+    "list",
+    "register",
+    "render-all",
+    "selfcheck",
+    "suggest"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-integrity.py",
+   "desc": "bb-blueprint-integrity.py — 蓝图完整度检查器 v1.0(R006 九标准)",
+   "flags": [
+    "check",
+    "json",
+    "regress",
+    "report",
+    "scan",
+    "selfcheck"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-registry.py",
+   "desc": "bb-blueprint-registry.py — 标准化蓝图库（多蓝图注册/查询/relations 网络/影响分析）",
+   "flags": [
+    "bp",
+    "deps-tree",
+    "impact",
+    "list",
+    "refs",
+    "relations"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-shell.py",
+   "desc": "bb-blueprint-shell.py — 蓝图交互式 shell（关联跳转/引用解析/导航）",
+   "flags": [
+    "bp",
+    "nav",
+    "resolve",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-blueprint-ui.py",
+   "desc": "bb-blueprint-ui.py — 蓝图独立 GUI（:8797）",
+   "flags": []
+  },
+  {
+   "tool": "bb-blueprint-ui2.py",
+   "desc": "bb-blueprint-ui2.py — FlowerNet 蓝图可视化 GUI v2（可缩放/平移/三条主线）",
+   "flags": []
+  },
+  {
+   "tool": "bb-blueprint-version.py",
+   "desc": "bb-blueprint-version.py — 蓝图版本管理与日志管理（工具化插件化）",
+   "flags": [
+    "audit",
+    "bp",
+    "bump",
+    "diff",
+    "history",
+    "level"
+   ]
+  },
+  {
+   "tool": "bb-blueprint.py",
+   "desc": "bb-blueprint.py — 蓝图管理中枢工具（动态更新工具化）",
+   "flags": [
+    "add-work",
+    "list",
+    "next",
+    "owner",
+    "selfcheck",
+    "stage"
+   ]
+  },
+  {
+   "tool": "bb-blueprint2.py",
+   "desc": "bb-blueprint2.py — 蓝图升级工具 v2（明鉴 v2 蓝图主编流程工具化）",
+   "flags": [
+    "broadcast",
+    "full",
+    "gate",
+    "master",
+    "notify",
+    "out"
+   ]
+  },
+  {
+   "tool": "bb-channel.py",
+   "desc": "bb-channel.py — 通道选择器（分级制度机制化，cahac 分级可执行版）",
+   "flags": [
+    "no-audit",
+    "text",
+    "to",
+    "type"
+   ]
+  },
+  {
+   "tool": "bb-connect-execute.py",
+   "desc": "bb-connect-execute.py — 连接真实执行器(Φ8/R006 合规 · v1.0)",
+   "flags": [
+    "dry",
+    "from",
+    "graph",
+    "json",
+    "list",
+    "reason"
+   ]
+  },
+  {
+   "tool": "bb-connect-lab.py",
+   "desc": "bb-connect-lab.py — 智能体连接实验室(Φ8 工具化 · R006 合规)",
+   "flags": [
+    "confirm",
+    "islands",
+    "json",
+    "list-confirmed",
+    "out",
+    "reason"
+   ]
+  },
+  {
+   "tool": "bb-dashboard.py",
+   "desc": "bb-dashboard.py v3 — 黑板看板（双视角：人类版 + AI 版）",
+   "flags": []
+  },
+  {
+   "tool": "bb-dispatch-learn.py",
+   "desc": "bb-dispatch-learn.py — 分发决策器自进化学习器",
+   "flags": [
+    "dry-run"
+   ]
+  },
+  {
+   "tool": "bb-dispatch.py",
+   "desc": "bb-dispatch.py — 事件分发决策器（协调者判断门工具化）",
+   "flags": [
+    "as",
+    "event",
+    "list-role",
+    "no-audit",
+    "semantic"
+   ]
+  },
+  {
+   "tool": "bb-gallery-audit.py",
+   "desc": "bb-gallery-audit.py — 系统架构管理器结构审查器(R006 九标准 · TCC 自检)",
+   "flags": [
+    "json",
+    "scan",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-gallery-export.py",
+   "desc": "bb-gallery-export.py — 系统架构管理器静态导出(供 CloudBase 镜像/离线缓存)",
+   "flags": [
+    "auto",
+    "base",
+    "out"
+   ]
+  },
+  {
+   "tool": "bb-gate.py",
+   "desc": "bb-gate.py — 机制前置门禁（全局规则，所有动作推进前先过）",
+   "flags": [
+    "action",
+    "dry-run-done",
+    "from",
+    "key",
+    "list",
+    "name"
+   ]
+  },
+  {
+   "tool": "bb-handshake.py",
+   "desc": "bb-handshake.py — 黑板消息握手协议（可靠性：不漏发、漏了能补）",
+   "flags": [
+    "ack",
+    "by",
+    "check",
+    "for",
+    "msg",
+    "msg-id"
+   ]
+  },
+  {
+   "tool": "bb-mgr-events.py",
+   "desc": "bb-mgr-events.py — 管理器 GUI 操作事件读取器(明鉴回合自查)",
+   "flags": [
+    "check",
+    "clear",
+    "important",
+    "peek"
+   ]
+  },
+  {
+   "tool": "bb-plan-scanner.py",
+   "desc": "bb-plan-scanner.py — 计划档案扫描器(系统架构管理器 📋计划档案 Tab 数据源)",
+   "flags": [
+    "list",
+    "scan",
+    "selfcheck"
+   ]
+  },
+  {
+   "tool": "bb-prep-learn.py",
+   "desc": "bb-prep-learn.py — 提前学习扫描器（R025 学习调查类提前并行）",
+   "flags": [
+    "insert",
+    "scan",
+    "selfcheck",
+    "tool-version",
+    "who"
+   ]
+  },
+  {
+   "tool": "bb-prep-research.py",
+   "desc": "bb-prep-research.py — 提前调查扫描器（R025 学习调查类提前并行）",
+   "flags": [
+    "insert",
+    "scan",
+    "selfcheck",
+    "tool-version",
+    "who"
+   ]
+  },
+  {
+   "tool": "bb-proxy.py",
+   "desc": "bb-proxy.py v1.0 — 本地黑板 TCP 代理：127.0.0.1:8792 → 100.120.203.20:8792",
+   "flags": []
+  },
+  {
+   "tool": "bb-read.py",
+   "desc": "bb-read.py — 看黑板技能（最小上下文：本地模型摘要）",
+   "flags": [
+    "bb",
+    "full",
+    "last",
+    "model",
+    "prefix",
+    "scan"
+   ]
+  },
+  {
+   "tool": "bb-request-watch.py",
+   "desc": "bb-request-watch.py — 请求监控（request 水位：版本变化检测）",
+   "flags": [
+    "init",
+    "scan",
+    "status"
+   ]
+  },
+  {
+   "tool": "bb-reuse-check.py",
+   "desc": "bb-reuse-check.py — 底座能力复用性评估器（进化循环第 3 步）",
+   "flags": [
+    "capability",
+    "deps",
+    "env-notes",
+    "hub-dependent",
+    "list-known",
+    "node-side"
+   ]
+  },
+  {
+   "tool": "bb-schema-gate.py",
+   "desc": "bb-schema-gate.py — 数据写入契约门(Φ9/Lean4 结构强制 · R006)",
+   "flags": [
+    "check-bp",
+    "check-relations",
+    "check-rules",
+    "json",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-send-check.py",
+   "desc": "bb-send-check.py — agent_send 发送前审查校验器（v2.2 前置门禁）",
+   "flags": [
+    "json",
+    "text",
+    "to"
+   ]
+  },
+  {
+   "tool": "bb-share.py",
+   "desc": "bb-share.py — 跨设备文件共享工具（防『清单式假共享』）",
+   "flags": [
+    "dir",
+    "file",
+    "list",
+    "no-notify",
+    "note",
+    "to"
+   ]
+  },
+  {
+   "tool": "bb-sub-daemon.py",
+   "desc": "bb-sub-daemon.py — 黑板事件桥常驻订阅器（通用）",
+   "flags": [
+    "agent",
+    "bb",
+    "outdir",
+    "prefixes",
+    "sse"
+   ]
+  },
+  {
+   "tool": "bb-sub-gen.py",
+   "desc": "bb-sub-gen v1.0 (HR) — 黑板订阅守护生成器（角色就任基础设施）",
+   "flags": [
+    "audit",
+    "inbox",
+    "list",
+    "load",
+    "prefixes",
+    "role"
+   ]
+  },
+  {
+   "tool": "bb-taskboard.py",
+   "desc": "bb-taskboard.py — 任务卡执行状态机（领卡/汇报/插卡/看板/进度图）",
+   "flags": [
+    "block",
+    "claim",
+    "dep",
+    "force",
+    "graph",
+    "init"
+   ]
+  },
+  {
+   "tool": "bb-todo-eval.py",
+   "desc": "bb-todo-eval.py — 蓝图 todo 价值评估(R006)",
+   "flags": [
+    "eval",
+    "json",
+    "scan",
+    "selfcheck",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-toolize.py",
+   "desc": "bb-toolize.py — 工具化候选发现器(Φ8 两次法则落地 · R006 九标准)",
+   "flags": [
+    "selfcheck",
+    "suggest",
+    "tool-version"
+   ]
+  },
+  {
+   "tool": "bb-upgrade.py",
+   "desc": "bb-upgrade.py — 底座升级流水线（进化循环第 2 步，半自动）",
+   "flags": [
+    "data-dir",
+    "deps",
+    "dry-run",
+    "from",
+    "hub-dep",
+    "node-side"
+   ]
+  },
+  {
+   "tool": "bb-workbench.py",
+   "desc": "bb-workbench.py — 蓝图工作台 v3（缺口评估 + 任务卡细化 + 主蓝图落盘 工具化）",
+   "flags": [
+    "add-work",
+    "bp",
+    "calib",
+    "check-only",
+    "out",
+    "selfcheck"
+   ]
+  },
+  {
+   "tool": "bb-write.py",
+   "desc": "bb-write.py — 黑板统一写入工具（v0.5 配套）",
+   "flags": []
+  },
+  {
+   "tool": "archive-logs.sh",
+   "desc": "",
+   "flags": []
+  },
+  {
+   "tool": "bb-gallery-gate.sh",
+   "desc": "",
+   "flags": []
+  },
+  {
+   "tool": "build-bundle.sh",
+   "desc": "",
+   "flags": []
+  },
+  {
+   "tool": "ensure-hub-symlinks.sh",
+   "desc": "",
+   "flags": []
+  },
+  {
+   "tool": "mbp-log-guard.sh",
+   "desc": "",
+   "flags": []
+  },
+  {
+   "tool": "start-blueprint-gallery.sh",
+   "desc": "",
+   "flags": []
+  }
+ ],
+ "capability": {
+  "bb-blueprint-registry.py": [
+   "registry",
+   "relations",
+   "deps-tree",
+   "impact",
+   "refs",
+   "list"
+  ],
+  "bb-blueprint-shell.py": [
+   "shell",
+   "interactive",
+   "list",
+   "relations",
+   "impact"
+  ],
+  "bb-blueprint-dialog.py": [
+   "create",
+   "add-stage",
+   "add-substage",
+   "set-status",
+   "add-work"
+  ],
+  "bb-blueprint-integrity.py": [
+   "integrity",
+   "complete",
+   "score",
+   "check"
+  ],
+  "bb-blueprint-content-check.py": [
+   "empty",
+   "render",
+   "content"
+  ],
+  "bb-schema-gate.py": [
+   "schema",
+   "contract",
+   "rules",
+   "relations-check"
+  ],
+  "bb-connect-execute.py": [
+   "execute",
+   "notify"
+  ],
+  "rules-sync.py": [
+   "sync",
+   "rules-account"
+  ],
+  "genebank-server.py": [
+   "genebank",
+   "serve"
+  ],
+  "kb-genebank-sync.py": [
+   "genebank",
+   "sync",
+   "kb"
+  ],
+  "scan-to-genebank.py": [
+   "scan",
+   "genebank",
+   "asset"
+  ],
+  "bb-asset-relations.py": [
+   "asset-relations",
+   "relation"
+  ]
+ }
+}

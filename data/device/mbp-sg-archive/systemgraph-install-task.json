@@ -1,0 +1,15 @@
+{
+ "key": "notes/mbp/systemgraph-install-task",
+ "value": {
+  "body": {
+   "output": "回报 notes/mbp/systemgraph-install-done（安装状态/窗口/8798 验证）",
+   "request": "SystemGraph.dmg 已 scp 到 MBP ~/Downloads（明鉴交付）——请 MBP 侧安装：①挂载 dmg ②安装 SystemGraph.app 到 /Applications ③启动 ④验证窗口+8798 端口 HTTP 200 ⑤回报",
+   "source": "明鉴 f38244df",
+   "task": "systemgraph-install-001"
+  },
+  "from": "coordinator",
+  "subject": "MBP 任务：SystemGraph.dmg 安装",
+  "ts": "2026-09-03T02:45:00Z",
+  "v": 1
+ }
+}

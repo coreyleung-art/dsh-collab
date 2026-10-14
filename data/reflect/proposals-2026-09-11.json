@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-11",
+  "note": "候选A 提案正本 —— 内容取自征询卡 data/registry/philosophy-proposal-referential-integrity-20260910（经 7 方征询，3 票支持单立零反对）",
+  "proposals": [
+    {
+      "id": "candidate-A-referential-integrity",
+      "id_new": "phi-referential-integrity",
+      "name": "指称完整性 · 所指须可解析",
+      "core": "任何断言所指的对象，必须可被解析与复现；否则视为未完成，而非视为通过。正表述：任何断言必须由「对该断言对象本身的一次直接观测」支撑——且该观测必须覆盖对象的全部（作用域）+ 带时点 + 观测不到时显式声明观测不到。第0类（管验证动作本身）：0a 可用性（它跑得起来吗）· 0b 集合完整性（还有没有更合适的手段）· 0c 产出同一性（它产出的东西是我以为的那个吗）。四层：语法层(400伪装成不存在) → 存在层(404) → 内容层(空/错) → 粒度层(集合而非对象)。六形态：①通知前校验 ①.5远端可达性 ②写入后回读 ③非200即失败 ④结构上无法发出 ⑤回读内容一致。定理位：它补上证据链第三维——phi-facts 管断言真假、phi-truth 管有无验证动作、本条管所指对象是否存在。",
+      "doc": "~/dsh-collab/data/industry/RULING-referential-integrity-v1.md",
+      "status": "active",
+      "derives": ["phi-facts", "phi-truth"],
+      "relDocs": ["~/dsh-collab/data/industry/RULING-referential-integrity-v1.md", "data/registry/philosophy-proposal-referential-integrity-20260910"],
+      "principles": [
+        "第0类管验证动作本身，比其余各类更靠前：0a 可用性有信号（命令失败），0b 集合完整性无信号（成功且看起来完整），0c 产出同一性（真值但非目标对象属性）",
+        "0b 有递归：「知道手段集」本身就是自述 → 唯一验证法是拿真实对象去试（不是记得有哪些，是试过哪些）",
+        "五类失效：观测对象错（断言A观测到B）· 观测时点错（用T时刻支撑当前）· 属性态冒充运行态（用静态属性答动态问题）",
+        "自述只能用于定位，不能用于判定：日志/记忆/名片负责「去哪儿看」，判定必须回到对象本身",
+        "自述检验两问：①我回到对象本身看的那个动作叫什么 ②那个动作的产出覆盖了我正在断言的属性吗 —— 通用形式为「动作→产出→覆盖，三层缺一层不算判定」",
+        "引用的空壳：引用必须能展开成链，而不是塌缩成名字（判据：能否说出中间环节）",
+        "空壳声明：边界声明必须包含「缺口的定位」，而不只是「存在缺口」的断言",
+        "completeness 沿消费链传播且保证单调递减（下游的保证不能强于上游）——保证是求交不是转交",
+        "递归终止于「可执行」：声明的递归无限深；当从「我声明了X」走到「我这条命令能验X」，递归就停",
+        "形态②（写入后回读）定为最低强制线；形态③（非200即失败）标注 phi-facts 特化；形态④标注 phi-constraint-frontloaded 特化"
+      ],
+      "examples": [
+        "星桥：报告指向不存在的落盘物（枚举 46,690 键 + 两实例核实不存在）—— 4 例",
+        "罗盘：黑板 8803 返回 {ok:true} 但 key 未落库（用错 API）· i9 路径含空格需引号 · device-audit registered bug（工具报「4 设备注册 0」实测全在线）",
+        "HR：★空壳键（纯文本 PUT 返回 200 但 value 存成 {}，4 个 data/ops 键全如此）· ★把「只数 session- 前缀」当「全会话数」得 82 而实际 379，据此误判 MBP 报告「数据不实」· 用 birthtime 口径而非会话头口径下结论",
+        "enroll builder：半空壳（双重包裹 body → value.value，写入报 OK 但读侧取不到）· 粒度层（GET /data/reflect/ 返回 20,195 键全库列举，且列举里必然含刚写的键→任何「子串命中即落地」判据必然假通过）· 本地 validate 通过但远端 400（本地校验是远端合法性的代理）",
+        "dispatch builder：前缀过滤（GET /data/reflect/events/ 不做前缀过滤，返回整个 data 命名空间）· 真挂载冒烟抓到 UNSUPPORTED_SCHEMA（嵌套 object 缺 additionalProperties → apply 阶段崩）",
+        "明鉴：报「线上是明文版」但未核响应体是否真来自目标 URL · 编排器 5 个坑（猜产物路径/猜参数/every vs some/改错文件）· version 从 2.4 写成 1.4（没读原值）· 在 agent_send 里写「已落」而那张卡从未存在（两实例 404）· pipe 取错 $?（拿到 head 的退出码）",
+        "第0类的两个实例：「docker: command not found」被读成「0 容器」· 拿上一份报告的「12 容器」当实测值（工具没坏、读得到、也确实是个数，但它从来不是运行态测量）"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>MTM 外卖门店多平台管理 · 架构图</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #0d0f13; color: #e8e6e3; font-family: -apple-system, "PingFang SC", sans-serif; padding: 24px; }
+  h1 { color: #ffb300; font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 20px; }
+  .card { background: #14161c; border: 1px solid #2a2f3a; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { border: 1px solid #2a2f3a; padding: 8px 10px; text-align: left; }
+  th { background: #1a1d24; color: #ffb300; }
+  td:first-child { color: #ffb300; white-space: nowrap; }
+  .foot { color: #666; font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<h1>🗼 MTM 外卖门店多平台管理 · 架构图</h1>
+<div class="sub">灯塔-mac-mini-外卖采集统筹 · 2026-09-01 · 稳定签名版</div>
+
+<div class="card">
+<pre class="mermaid">
+graph TD
+    subgraph 桌面壳[Electron 桌面壳]
+        UI[面板 Web UI<br/>聚合浏览器/经营指导/统筹] --> API[server.js 面板服务 8787]
+        MENU[菜单/通知/角标] --> API
+    end
+    subgraph 采集层[Watcher 采集层]
+        W[Watcher 3s 轮询] --> CDP[CDP 客户端]
+        W --> WD[看门狗<br/>60s 冷却+启动对账]
+        W --> G[商家页 URL 守卫<br/>评价页/专有页回主页]
+    end
+    subgraph Chrome[10 店 Chrome 实例]
+        C1[监控实例 store 2-13<br/>独立 profile 9200-9209]
+        C2[发送窗 9212/9213<br/>独立可见窗口]
+    end
+    CDP --> C1
+    CDP --> C2
+    subgraph 数据层[数据层 app.db]
+        EV[(events<br/>store_status/订单/IM)]
+        IM[(im_sessions<br/>客户回复统筹)]
+        AL[(alerts 告警)]
+        ACT[(actions 审计)]
+    end
+    W --> EV
+    W --> IM
+    API --> EV
+    subgraph 管道[发送管道]
+        IS[im-send<br/>预填/内容硬闸/六道闸门]
+        MOS[mosaic 截图预览]
+    end
+    IS --> C2
+    MOS --> C1
+    subgraph 稳定[稳定性保障]
+        ERR[error.log 错误管理]
+        AUD[audit-stability 审计]
+        SIG[稳定签名 MTM Local Signing]
+    end
+    W --> ERR
+    API --> AUD
+    subgraph 工具[工具化]
+        REL[npm run release 一键发布]
+        TCC[tcc-check 权限检测]
+        PLG[DSH 插件<br/>mtm_release/mtm_tcc_check]
+    end
+</pre>
+</div>
+
+<div class="card">
+<table>
+<tr><th>层</th><th>组件</th><th>职责</th></tr>
+<tr><td>桌面壳</td><td>Electron + server.js 8787</td><td>面板 UI（聚合浏览器/经营指导/统筹）、菜单通知、API 服务</td></tr>
+<tr><td>采集层</td><td>Watcher + CDP + 看门狗 + 守卫</td><td>3s 轮询 10 店、崩溃自动重启、评价/专有页回主页</td></tr>
+<tr><td>Chrome</td><td>10 独立实例 + 2 发送窗</td><td>独立 profile 登录态隔离、发送窗可见可操作</td></tr>
+<tr><td>数据层</td><td>events/im_sessions/alerts/actions</td><td>状态/订单/IM/告警/审计落库（store_status 去重落库）</td></tr>
+<tr><td>管道</td><td>im-send + mosaic</td><td>预填/草稿/六道闸门发送；截图预览</td></tr>
+<tr><td>稳定性</td><td>error.log + 审计 + 稳定签名</td><td>全局异常捕获、每日审计、TCC 权限不重置</td></tr>
+<tr><td>工具</td><td>release/tcc/DSH 插件</td><td>一键发布、权限检测、智能体可调</td></tr>
+</table>
+</div>
+
+<div class="foot">核心设计：每店独立 Chrome profile（登录态隔离）+ CDP 采集 + 稳定签名防权限重置 · 如需更新架构请 @灯塔</div>
+
+<script>mermaid.initialize({ startOnLoad: true, theme: "dark" });</script>
+</body>
+</html>

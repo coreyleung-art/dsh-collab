@@ -1,0 +1,97 @@
+{
+ "assets": [
+  {
+   "file": "FlowerNet-架构图.html",
+   "title": "🌸 FlowerNet 架构图",
+   "kind": "html",
+   "owner": "明鉴",
+   "date": "2026-09-01",
+   "desc": "花店生意演进蓝图体系架构（元层/技术层/业务层）"
+  },
+  {
+   "file": "MTM架构图.html",
+   "title": "🗼 MTM 外卖门店多平台管理架构",
+   "kind": "html",
+   "owner": "老登/灯塔",
+   "date": "2026-09-01",
+   "desc": "外卖门店多平台管理系统架构"
+  },
+  {
+   "file": "老登服务逻辑架构图.html",
+   "title": "📐 老登服务逻辑架构",
+   "kind": "html",
+   "owner": "老登",
+   "date": "2026-09-01",
+   "desc": "外卖多平台运营智能体服务逻辑"
+  },
+  {
+   "file": "Memory-Governance-架构图.html",
+   "title": "🧠 Memory-Governance 内存治理架构",
+   "kind": "html",
+   "owner": "明鉴",
+   "date": "2026-09-02",
+   "desc": "内存治理蓝图 v1.0 全景 + 风险预判（离线自包含 mermaid）"
+  },
+  {
+   "file": "watcher-gate-arch-20260902.png",
+   "title": "👁 watcher-gate 架构",
+   "kind": "png",
+   "owner": "守望",
+   "date": "2026-09-02",
+   "desc": "事件门禁/监控链路架构图"
+  },
+  {
+   "file": "分布式智能体网络架构-20260830.png",
+   "title": "🌐 分布式智能体网络架构",
+   "kind": "png",
+   "owner": "星桥/明鉴",
+   "date": "2026-08-30",
+   "desc": "跨设备多智能体协作网络拓扑"
+  },
+  {
+   "file": "分布式智能体网络架构-20260830.svg",
+   "title": "🌐 分布式智能体网络架构(SVG)",
+   "kind": "svg",
+   "owner": "星桥/明鉴",
+   "date": "2026-08-30",
+   "desc": "同图 SVG 源文件"
+  },
+  {
+   "file": "架构图-d2版.svg",
+   "title": "📊 架构图 d2 版",
+   "kind": "svg",
+   "owner": "拾光/守灯",
+   "date": "2026-08-30",
+   "desc": "d2 语言绘制的体系架构图"
+  },
+  {
+   "file": "distributed-agent-network-arch-20260909.svg",
+   "title": "分布式智能体节点网络架构 v1 (四层模型·2026-09-09)",
+   "owner": "明鉴",
+   "date": "2026-09-09",
+   "desc": "L1设备/L2通讯/L3智能体/L4治理 四层; GUI图库点击放大可缩放"
+  },
+  {
+   "file": "distributed-network-erd-20260909.svg",
+   "title": "分布式节点网络 实体关系图 (ER视角)",
+   "owner": "明鉴",
+   "date": "2026-09-09"
+  },
+  {
+   "file": "CLD底座全局架构-20261013.html",
+   "title": "★ CLD 底座全局架构（六层）",
+   "kind": "html",
+   "owner": "星桥第二任 session-e317d6ab",
+   "date": "2026-10-14",
+   "desc": "L0 运行时 / L1 通讯面 / L2 黑板 / L3 判据面四维 14 项 / L4 探针 11 件 / L5 续接链；含必跑面读数、规模、三个真缺口"
+  },
+  {
+   "file": "CLD底座关联与协作流程-20261013.html",
+   "title": "★ CLD 底座关联与协作流程",
+   "kind": "html",
+   "owner": "星桥第二任 session-e317d6ab",
+   "date": "2026-10-14",
+   "desc": "五条链路：①发卡（三道门→双写→回读）②投递（在线/离线有持久化/离线无持久化三分）③治理闭环④续接链⑤四维协作逻辑；附本机协作角色表"
+  }
+ ]
+}

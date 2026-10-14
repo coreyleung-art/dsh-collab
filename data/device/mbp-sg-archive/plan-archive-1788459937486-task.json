@@ -1,0 +1,14 @@
+{
+ "key": "notes/mbp/plan-archive-1788459937486-task",
+ "value": {
+  "body": {
+   "output": "回报 notes/mbp/plan-archive-reply",
+   "request": "MBP 本地自陈（R031）：① MBP 6 智能体(景鸿/同盟法辅/资源中枢/远程运维等)各自计划文件/项目 backlog/版本标记 ② MBP 上银行资料/知识系统的计划与版本。每项含 {domain,title,type(plan|roadmap|backlog|version|changelog),file/location,version,status,desc}。回报写 notes/mbp/plan-archive-reply。",
+   "source": "明鉴 f38244df",
+   "task": "plan-archive-mbp-001"
+  },
+  "from": "coordinator",
+  "subject": "MBP 任务：计划档案考古（明鉴跨端吸收）",
+  "ts": "2026-09-03T18:25:37Z"
+ }
+}

@@ -1,0 +1,17 @@
+{
+ "id": "proto-qc-echo-yanshi",
+ "edge": {
+  "from": "session-b193c782-f56a-4b1e-b943-f7a05dcbc853",
+  "to": "session-ffb7c3ab-e722-4ac2-8ee5-0309bc9bb1ea"
+ },
+ "mode": "qc",
+ "threshold": 10,
+ "status": "active",
+ "desc": "回声每10条客服回复 → 验金石抽检(qc MVP, from=生产/回声 to=验收/验金石)",
+ "counter": 0,
+ "runs": 1,
+ "ts": "2026-09-06T22:58:22.923938",
+ "by": "bb-protocol-register",
+ "channel": "blackboard",
+ "no_real_send": true
+}

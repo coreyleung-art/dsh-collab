@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>花联网 · 平台格局与战位图</title>
+<script src="/vendor/d3.min.js"></script>
+<style>
+  :root{ --bg:#0e1117; --panel:#161b26; --panel2:#1c2233; --line:#2a3245; --txt:#e7ecf5; --sub:#9aa7bd; --accent:#4f8cff; --green:#3fb27f; --orange:#e8a33d; --red:#e25c5c; --violet:#9a7fe8; }
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:0}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  h1{font-size:24px;margin:0 0 6px;font-weight:700}
+  .sub{color:var(--sub);font-size:13px;margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+  .card h2{font-size:15px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+  .card .hint{color:var(--sub);font-size:12px;margin-bottom:12px}
+  .full{grid-column:1 / -1}
+  .tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+  .t-green{background:rgba(63,178,127,.18);color:var(--green)} .t-orange{background:rgba(232,163,61,.18);color:var(--orange)}
+  .t-violet{background:rgba(154,127,232,.18);color:var(--violet)} .t-blue{background:rgba(79,140,255,.18);color:var(--accent)}
+  .note{font-size:12px;color:var(--sub);line-height:1.7}
+  .kpi{display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+  .kpi>div{flex:1;min-width:130px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .kpi .num{font-size:22px;font-weight:700;margin-bottom:4px}
+  .kpi .lab{font-size:12px;color:var(--sub)}
+  .color-blue{color:var(--accent)} .color-green{color:var(--green)} .color-orange{color:var(--orange)} .color-red{color:var(--red)} .color-violet{color:var(--violet)}
+  .flow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:8px 0}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:120px;text-align:center}
+  .node .role{font-size:13px;font-weight:600}
+  .node .desc{font-size:11px;color:var(--sub);margin-top:4px}
+  .arrow{color:var(--sub);font-size:22px;font-weight:700}
+  .fight{background:rgba(226,92,92,.1);border-color:rgba(226,92,92,.4);border-radius:10px;padding:10px 14px;min-width:150px;text-align:center}
+  .fight .role{font-size:13px;font-weight:700;color:var(--red)}
+  .fight .desc{font-size:11px;color:var(--sub);margin-top:4px}
+  .gap2{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
+  .mini{flex:1;min-width:150px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .mini .t{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .mini ul{margin:0;padding-left:16px;font-size:12px;color:var(--sub);line-height:1.7}
+  svg{width:100%;height:auto;display:block}
+  .barrow{display:flex;align-items:center;gap:10px;margin:9px 0}
+  .barrow .lab{width:110px;font-size:13px;text-align:right;color:var(--txt);flex-shrink:0}
+  .barrow .track{flex:1;background:var(--panel2);border-radius:6px;height:22px;position:relative;overflow:hidden}
+  .barrow .fill{height:100%;border-radius:6px}
+  .barrow .val{width:64px;font-size:13px;font-weight:600;flex-shrink:0}
+  .hasht{font-size:11px;color:var(--sub);margin-top:12px}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>花联网 · 平台格局与战位图 <span style="font-size:13px;color:var(--sub);font-weight:400">花联网 · 2026-09-10</span></h1>
+  <div class="sub">数据：易观 2025Q4 / 艾媒 2025 / 中国花卉协会 / 美团·阿里投资者文件 / 商务部研究院（口径见文末注）。核心结论：<b style="color:var(--green)">我们站在阿里（淘宝闪购）这一侧，它是正在为鲜花增量不惜代价、且明确要当市场第一的进攻方。</b></div>
+
+  <!-- 组合拳路线图：主面板 -->
+  <div class="card full">
+    <h2>⑥ 组合拳路线图 · 代运营=过程工具 → 数据底座=终局 <span class="tag t-green">SABC 组合</span></h2>
+    <div class="hint">代运营(③)不是终点，是「造血引擎+数据采集器+资格跳板」；真正站成的是「数据底座(④)卖水人 → 垂类第一」。这是组合拳的主线：S 主攻 → A 资格/支线 → B 支撑 → C 后置。</div>
+    <div class="flow">
+      <div class="node" style="border-color:rgba(232,163,61,.6)"><div class="role color-orange">S · 代运营(③)</div><div class="desc">过程工具<br>造血·采数据·换资格<br>护城河最弱</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(154,127,232,.6)"><div class="role color-violet">换 · 资格+数据</div><div class="desc">双牌增量资格+平台流量<br>订单数据=底座原料</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(79,140,255,.7)"><div class="role color-blue">S · 数据底座(④)</div><div class="desc">终局·护城河<br>平台难换·卖水人<br>垂类第一落点</div></div>
+    </div>
+    <div class="gap2">
+      <div class="mini"><div class="t"><span class="sw" style="background:var(--accent)"></span>A · 资格/支线</div><ul><li>⑦ 双牌(地基·最硬须先解套)</li><li>⑥ IP/品牌(第二盈利点)</li><li>⑤ 工具/SaaS(多收入·AI)</li></ul></div>
+      <div class="mini"><div class="t"><span class="sw" style="background:var(--green)"></span>B · 支撑</div><ul><li>① 供应链(区仓)</li><li>② 零售连锁(KA自营10%)</li></ul></div>
+      <div class="mini"><div class="t"><span class="sw" style="background:var(--orange)"></span>C · 后置/排除</div><ul><li>⑩ 品牌第一(烧钱≠现金流转)</li><li>⑧ 并购(未主打·贵)</li><li>⑨ 跨行业AI(仅到工具)</li></ul></div>
+    </div>
+    <div class="hasht">⚠️ 铁律：代运营绝不能停在「只收运营费」——必须把它的数据+战绩「资产化」成数据底座，否则(兵棋 R04 单走必死)会被平台政策/竞品击穿。过程工具≠终点。</div>
+  </div>
+
+  <!-- 单平台门票 → 全平台底座：关键抓手 -->
+  <div class="card full">
+    <h2>⑦ 单平台=门票 → 全平台=行业数据底座的关键抓手 <span class="tag t-blue">平台左右逢源</span></h2>
+    <div class="hint">单平台(淘宝闪购)只是入场券/第一桶金/数据起点；全平台(淘闪+美团+京东+抖音)才是把「平台服务商」升级成「行业数据底座」的关键——只有横跨，才从「某个平台的服务商」变成「全行业的数据方」。</div>
+    <div class="flow">
+      <div class="node" style="border-color:rgba(232,163,61,.5)"><div class="role color-orange">单平台 · 淘宝闪购</div><div class="desc">门票·不是地位<br>平台授予·可随时收走<br>数据=有偏见单视角</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(226,92,92,.5)"><div class="role color-red">平台授予=可收回</div><div class="desc">命门:牌是租的<br>单平台地位不牢</div></div>
+      <div class="arrow">➜</div>
+      <div class="node" style="border-color:rgba(79,140,255,.7)"><div class="role color-blue">全平台 · 行业数据底座</div><div class="desc">终局·自己建的护城河<br>跨平台数据=行业全貌<br>平台/商家/竞品都绕不开</div></div>
+    </div>
+    <div class="hasht">口径纪律：对淘闪只讲「帮你做增量」(新注册+无消费习惯用户迁移)；对内/融资讲「全平台卖水人·左右逢源」(战略定调)，后者才是真实终局。</div>
+  </div>
+
+  <div class="grid">
+    <!-- Panel 1: 即时零售份额 -->
+    <div class="card">
+      <h2>① 即时零售份额 <span class="tag t-blue">易观 2025Q4 · 双强胶着</span></h2>
+      <div class="hint">「即时零售」整体 GMV（含外卖+闪购+淘宝闪购全品类）—— 淘宝闪购略超美团，缠斗、谁也没甩开谁</div>
+      <div id="share"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>我们这一侧(淘宝闪购)</span><span><i class="sw" style="background:var(--orange)"></i>存量冠军(美团)</span><span><i class="sw" style="background:var(--red)"></i>京东</span></div>
+      <div class="hasht">⚠️ 口径注意：外卖送餐单品类份额用美团官方 60%+／5:4:1，勿与「即时零售」混引。另有自媒体称美团60%/淘宝42%(低可信，弃用)。</div>
+    </div>
+
+    <!-- Panel 2: 战位 -->
+    <div class="card">
+      <h2>② 我们的战位 <span class="tag t-green">借平台的力</span></h2>
+      <div class="hint">花联网不是和大平台抢，是站在阿里(淘宝闪购)这一边，帮它完成它自己搞不定的「拉新+做GMV」</div>
+      <div class="flow">
+        <div class="node"><div class="role">花联网</div><div class="desc">双牌(淘闪鲜花类目服务商)<br>BD军团+SOP<br>成都有战绩</div></div>
+        <div class="arrow">→</div>
+        <div class="node" style="border-color:rgba(79,140,255,.6)"><div class="role color-blue">助攻 · 阿里(淘宝闪购)</div><div class="desc">要当市场第一<br>未来三年不考核盈利<br>持续投入 · GMV 2028 破万亿</div></div>
+        <div class="arrow">↔</div>
+        <div class="fight"><div class="role">挑战 · 美团(存量冠军)</div><div class="desc">鲜花即时零售最大平台<br>20万商家 · 唯一超百亿</div></div>
+      </div>
+      <div class="kpi">
+        <div><div class="num color-blue">+56%</div><div class="lab">阿里即时零售收入(2026财年Q3, 208.42亿)</div></div>
+        <div><div class="num color-orange">20万</div><div class="lab">美团鲜花商家 / 唯一超百亿平台</div></div>
+        <div><div class="num color-green">100亿+</div><div class="lab">美团年鲜花消费(唯一)</div></div>
+      </div>
+    </div>
+
+    <!-- Panel 3: 鲜花渠道结构 -->
+    <div class="card full">
+      <h2>③ 鲜花渠道结构 <span class="tag t-violet">艾媒 2025 · 购花偏好</span></h2>
+      <div class="hint">即时配送(37.25%)是增速最快·平台战争最激烈的战位(我们的双牌主场)；综合电商(53.32%)才是最大渠道→「底座+全渠道」终局更大</div>
+      <div id="channel"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>综合电商53.32%</span><span><i class="sw" style="background:var(--green)"></i>同城即时37.25%(我们战场)</span><span><i class="sw" style="background:var(--orange)"></i>其他</span></div>
+    </div>
+
+    <!-- Panel 4: 抖音/快手 -->
+    <div class="card">
+      <h2>④ 抖音 / 快手(内容级) <span class="tag t-orange">第二曲线·内容爆发</span></h2>
+      <div class="hint">我方主战场仍是「即时(美团闪购/淘闪)」+「抖音(内容爆发)」；快手偏产地直播补供应链视角</div>
+      <div class="gap2">
+        <div class="mini"><div class="t"><span class="sw" style="background:#e25c5c"></span>抖音</div><ul><li>2025七夕鲜花成交 +110%</li><li>中高端(128+元)是利润区</li><li>即时履约弱(缺"快"心智)</li></ul></div>
+        <div class="mini"><div class="t"><span class="sw" style="background:#3fb27f"></span>快手</div><ul><li>产地直播带货(云南/鹤庆兰花)</li><li>偏货源供应链, 不适合即时配送</li><li>可作补给视角</li></ul></div>
+      </div>
+      <div class="kpi">
+        <div><div class="num color-orange">+110%</div><div class="lab">抖音电商七夕鲜花成交</div></div>
+        <div><div class="num color-orange">128元+</div><div class="lab">抖音鲜花中高端利润区</div></div>
+      </div>
+    </div>
+
+    <!-- Panel 5: 用户画像 + 供给侧 -->
+    <div class="card">
+      <h2>⑤ 用户画像 & 供给侧 <span class="tag t-blue">与IP打法印证</span></h2>
+      <div class="hint">用户画像(美团研究院)：25-35岁68% / <b style="color:var(--green)">女性74%</b> —— 与IP数据「成都女性74%」高度吻合，佐证女性向高客单IP打法成立</div>
+      <div class="kpi">
+        <div><div class="num">68%</div><div class="lab">25-35岁占线上订单</div></div>
+        <div><div class="num color-green">74%</div><div class="lab">女性(印证IP打法)</div></div>
+        <div><div class="num color-violet">2200亿</div><div class="lab">2024花卉零售(中国花卉协会)</div></div>
+        <div><div class="num">31.6%</div><div class="lab">线上渗透(商务部/艾瑞)</div></div>
+      </div>
+      <div class="note">供给侧注解：<b>美团</b>20万鲜花商家/年购花超1.5亿人次/唯一超百亿平台(存量冠军)；<b>淘宝闪购</b>全国活动门店8625(挑战者，正靠双牌/服务商拉增量)。</div>
+    </div>
+  </div>
+
+  <div class="card full">
+    <div class="note"><b>口径与来源</b>：①即时零售份额=易观2025Q4(淘宝闪购45.2/美团45.0/京东8.4)；②外卖送餐份额另用美团官方60%+/5:4:1，勿混引；③鲜花渠道偏好=艾媒2025《中国鲜花市场消费行为调查》；④花卉零售总规模=中国花卉协会(2024近2200亿)；⑤平台收入/KA=美团·阿里投资者文件(业绩会实录)。所有份额为第三方/官方口径，平台GMV含推算水分，仅作方向判断。</div>
+  </div>
+
+  <!-- Panel 8: 代运营 人力→AI 微笑曲线 + AI基建 -->
+  <div class="card full">
+    <h2>⑧ 代运营 · 人力1:20→AI1:50+ 微笑曲线 <span class="tag t-green">边际利润 U 形</span></h2>
+    <div class="hint">单店月边际利润 vs 每人力管理店数 n：左臂(n=10游刃有余·精品高毛利) → 谷底(n=20传统·人效瓶颈+质量打折=0) → 右臂(n=50+ AI·人力摊薄+数据驱动=+840)。<b style="color:var(--green)">传统1:20是必须跳过的谷底, AI是把右臂拉高的杠杆。</b></div>
+    <svg id="smile" viewBox="0 0 760 250" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="legend"><span><i class="sw" style="background:var(--violet)"></i>左臂 精品(1:10~12)</span><span><i class="sw" style="background:var(--red)"></i>谷底 传统(1:20)</span><span><i class="sw" style="background:var(--green)"></i>右臂 AI(1:50+)</span></div>
+    <div class="kpi">
+      <div><div class="num color-violet">+700</div><div class="lab">n=10 游刃有余·单店月边际</div></div>
+      <div><div class="num color-red">0</div><div class="lab">n=20 传统谷底(必跳过)</div></div>
+      <div><div class="num color-green">+840</div><div class="lab">n=50 AI·单店月边际</div></div>
+      <div><div class="num">1:50+</div><div class="lab">人效(1:20→AI)</div></div>
+    </div>
+    <div class="hasht">AI 基建投入(测算·红线R1): 数据端口P1 60-80万 + 合规 50万 + AI自动运营工具 30-50万 ≈ 140-180万, 被50店+多城摊薄后单店边际 0→+840 现金流转正。</div>
+  </div>
+
+  <!-- Panel 9: 靠AI赢 · 进阶链 + 价值排序 -->
+  <div class="card full">
+    <h2>⑨ 靠 AI 赢 · 进阶链 + 价值排序 <span class="tag t-blue">基本盘投入之一环</span></h2>
+    <div class="hint">假设「靠 AI 赢」，按 6 维价值排序(数据底座7.35 > FDE7.15 > AI到商家6.85 > AI代运营提效6.6 > 跨行业6.5 > 供应链5.85)。最佳路径=先用 AI代运营提效(现金+采数据)→主攻 AI数据底座(卖行业数据)→升级 FDE 卖 AI基建给代运营行业(最高杠杆卖水人)。</div>
+    <div class="flow">
+      <div class="node" style="border-color:rgba(232,163,61,.6)"><div class="role color-orange">B面 · AI代运营提效</div><div class="desc">1:20→1:50+<br>现金底盘+采数据<br>立即可做</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(79,140,255,.7)"><div class="role color-blue">主攻 · AI数据底座</div><div class="desc">卖行业数据·护城河最深<br>7.35 · S档</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(154,127,232,.7)"><div class="role color-violet">升级 · FDE卖AI基建</div><div class="desc">卖给全行业代运营公司<br>最高杠杆卖水人 7.15</div></div>
+    </div>
+    <div class="kpi">
+      <div><div class="num color-orange">6.6</div><div class="lab">AI代运营提效(入口·现金)</div></div>
+      <div><div class="num color-blue">7.35</div><div class="lab">AI数据底座(S档·护城河)</div></div>
+      <div><div class="num color-violet">7.15</div><div class="lab">FDE卖AI基建(S档·卖水人)</div></div>
+      <div><div class="num color-green">1:50+</div><div class="lab">人效(靠AI)</div></div>
+    </div>
+    <div class="hasht">投入主序(测算): ① 数据底座(数据端口P1 60-80万+合规50万) → ② AI代运营提效(AI工具30-50万+SOP/冷启动) → ③ 工具/数据产品变现(卖行业数据+多城复制)。≈140-180万, 被50店+多城摊薄后现金流转正。</div>
+  </div>
+</div>
+
+  <!-- Panel 10: 全国+城市双层结构 · 牌照价值链 -->
+  <div class="card full">
+    <h2>⑩ 全国+城市双层结构 · 牌照价值链 <span class="tag t-violet">合资公司治理</span></h2>
+    <div class="hint">全国盘子(橙果流量权)+城市网络(每城城市合伙人=商家运营管理权·主导活动)。城市合伙人牌照=【运营权】非【地域牌照】——主导该城商家营销/活动/拉GMV。全国流量权（橙果）× 城市运营权（城市合伙人)的整合者/增量操盘中枢。</div>
+    <div class="flow">
+      <div class="node" style="border-color:rgba(79,140,255,.7)"><div class="role color-blue">全国层 · 合资控股</div><div class="desc">梁振宇及其实控主体公司 51%<br>橙果 49%（全国牌照/流量权作价入股）<br>声通在橙果内部（法律文书授权城市合伙人牌照）</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(232,163,61,.7)"><div class="role color-orange">城市层 · 运营权</div><div class="desc">每城不同主体(合规)<br>城市合伙人牌照<br>=商家运营管理权·主导活动</div></div>
+      <div class="arrow">→</div>
+      <div class="node" style="border-color:rgba(63,178,127,.7)"><div class="role color-green">价值链 · GMV增量</div><div class="desc">流量权→城市运营权→<br>主导商家活动→拉GMV增量<br>平台/商家受益</div></div>
+    </div>
+    <div class="kpi">
+      <div><div class="num color-blue">51%</div><div class="lab">AB 股/GP投票权(全国盘)</div></div>
+      <div><div class="num color-orange">每城</div><div class="lab">城市合伙人=差异化主体(合规)</div></div>
+      <div><div class="num color-green">运营权</div><div class="lab">城市合伙人=主导活动/商家运营管理</div></div>
+      <div><div class="num">GMV</div><div class="lab">平台增量·你操盘中枢</div></div>
+    </div>
+    <div class="hasht">价值链：全国流量权(橙果)=触达用户入口 → 城市运营权(城市合伙人·主导活动)=产生GMV/增量的运营引擎 → 平台/商家受益。⚠️ 每城合规主体+授权/持股落地以律师为准。</div>
+  </div>
+
+  <!-- Panel 11: 种子1000万预算 · 九类 + 云/硬件/能力层 -->
+  <div class="card full">
+    <h2>⑪ 种子 1000万预算 · 九类 + 云/硬件/能力层 <span class="tag t-green">可执行预算</span></h2>
+    <div class="hint">按「出钱只出在卡位」原则拆到明细级；**算力=投资方租赁**（非自建/非白用）；**采集分布式落店**（符合平台账号规则）；**能力层三层分工**（梁振宇=智能体设计师→FDE=工程落地→智能体=执行）。</div>
+    <div class="flow" style="flex-wrap:wrap;gap:10px">
+      <div class="node" style="border-color:rgba(79,140,255,.6);min-width:150px"><div class="role color-blue">A 成都样板起盘</div><div class="desc">300万 · S · 跑正单位经济</div></div>
+      <div class="node" style="border-color:rgba(79,140,255,.6);min-width:150px"><div class="role color-blue">F 能力层</div><div class="desc">200万 · S · 智能体设计师+FDE</div></div>
+      <div class="node" style="border-color:rgba(232,163,61,.6);min-width:150px"><div class="role color-orange">D IP首场</div><div class="desc">150万 · A · 第二盈利点</div></div>
+      <div class="node" style="border-color:rgba(232,163,61,.6);min-width:150px"><div class="role color-orange">B 数据底座</div><div class="desc">130万 · A · 端口+合规</div></div>
+      <div class="node" style="border-color:rgba(154,127,232,.6);min-width:140px"><div class="role color-violet">E 供应链</div><div class="desc">70万 · B · 区仓自出</div></div>
+      <div class="node" style="border-color:rgba(232,163,61,.6);min-width:140px"><div class="role color-orange">C AI工具</div><div class="desc">50万 · A · 人效引擎</div></div>
+      <div class="node" style="border-color:rgba(154,127,232,.6);min-width:140px"><div class="role color-violet">G 机动/双牌</div><div class="desc">44.5万 · A · 风险缓冲</div></div>
+      <div class="node" style="border-color:rgba(63,178,127,.6);min-width:150px"><div class="role color-green">H 硬件(非云)</div><div class="desc">32万 · 采集机+双环境工作站</div></div>
+      <div class="node" style="border-color:rgba(63,178,127,.7);min-width:150px"><div class="role color-green">I 云环境资源</div><div class="desc">23.5万/年 · 租 · 地基</div></div>
+    </div>
+    <div class="kpi">
+      <div><div class="num color-green">三层</div><div class="lab">云(租) / 硬件(非云) / 能力层</div></div>
+      <div><div class="num color-violet">17万</div><div class="lab">设计师双环境工作站(Mac+Win)</div></div>
+      <div><div class="num color-blue">2.0G/店</div><div class="lab">内存实测→容量反推(64G≈26店)</div></div>
+      <div><div class="num color-orange">租赁</div><div class="lab">算力=投资方租赁(非自建)</div></div>
+    </div>
+    <div class="hasht">九类：A300+B130+C50+D150+E70+F200+G44.5+H32+I23.5=1000万 ｜ 云=租(不重资产) ｜ 采集分布式落店(符合平台账号规则) ｜ 能力层三层分工(梁振宇设计+FDE落地+智能体执行) ｜ ⚠️金额测算(R1)。</div>
+  </div>
+
+  <!-- Panel 12: 八条线总纲图 · 聚合排序 -->
+  <div class="card full">
+    <h2>⑫ 花联网总纲 · 八条线 + 聚合排序 <span class="tag t-blue">引擎聚合重跑</span></h2>
+    <div class="hint">把之前所有信息聚合成八条线，引擎对聚合体重跑：<b style="color:var(--green)">架构线排第一(8.0)</b>——架构是「执行的地基」，把战略/业务/预算都落到「能跑」的地面。<b>「能跑出来」比「想清楚」更值钱。</b></div>
+    <div class="flow" style="flex-wrap:wrap;gap:10px">
+      <div class="node" style="border-color:rgba(63,178,127,.8);min-width:160px"><div class="role color-green">③架构线 · 8.0</div><div class="desc">★第一<br>分布式采集落店+中央云+算力租赁<br>三层分工+双环境</div></div>
+      <div class="node" style="border-color:rgba(79,140,255,.6);min-width:150px"><div class="role color-blue">①战略线 · 7.9</div><div class="desc">引擎四步/地位排序/怎么赢/终局</div></div>
+      <div class="node" style="border-color:rgba(79,140,255,.6);min-width:150px"><div class="role color-blue">②业务线条 · 7.85</div><div class="desc">代运营/IP商品/软硬件数据/底座</div></div>
+      <div class="node" style="border-color:rgba(232,163,61,.6);min-width:150px"><div class="role color-orange">④预算线 · 7.65</div><div class="desc">种子九类A-I+各轮递增</div></div>
+      <div class="node" style="border-color:rgba(232,163,61,.6);min-width:150px"><div class="role color-orange">⑤资本线 · 7.55</div><div class="desc">种子→Pre-A→A→B→Pre-IPO→IPO</div></div>
+      <div class="node" style="border-color:rgba(154,127,232,.6);min-width:150px"><div class="role color-violet">⑥股权治理线 · 7.5</div><div class="desc">双层L.P.+AB股+对赌+激励</div></div>
+      <div class="node" style="border-color:rgba(154,127,232,.6);min-width:150px"><div class="role color-violet">⑦里程碑线 · 7.45</div><div class="desc">平台×业务×规模+25xPE</div></div>
+      <div class="node" style="border-color:rgba(154,127,232,.5);min-width:150px"><div class="role color-violet">⑧对外线 · 6.5</div><div class="desc">公开计划书/BP完整版(结果·后投)</div></div>
+    </div>
+    <div class="kpi">
+      <div><div class="num color-green">8.0</div><div class="lab">架构线(第一·当下瓶颈)</div></div>
+      <div><div class="num">7条</div><div class="lab">全S档(7.45-8.0)合力</div></div>
+      <div><div class="num color-orange">8.0&gt;7.9</div><div class="lab">架构&gt;战略(能跑&gt;想清楚)</div></div>
+      <div><div class="num">6.5</div><div class="lab">对外线(结果·后投)</div></div>
+    </div>
+    <div class="hasht">八条线=①战略 ②业务线条 ③架构 ④预算 ⑤资本 ⑥股权治理 ⑦里程碑 ⑧对外 ｜ 聚合结论：架构线是「执行的地基」（把战略/业务/预算落到能跑的地面）；八条线形成合力（全链条一致）；对外叙事是结果、后投。</div>
+  </div>
+
+  <!-- Panel 13: 引擎推演图谱 · 九类 + 关键结论 -->
+  <div class="card full">
+    <h2>⑬ 引擎推演图谱 · 30+ 次推演 · 九类 + ★关键结论 <span class="tag t-blue">方法论资产</span></h2>
+    <div class="hint">用 <b>wargame-sim 沙盘推演引擎</b>（四步：第一性穷举→反向→价值再评估→资本与赢法 · 6维加权护城河30/天花板20/可进入15/资本效率15/现金流10/风险10 · S≥7/A≥6.2/B≥5.5/C<5.5）跑的<b>全部 30+ 次推演</b>。分档看排序逻辑，非绝对分（诚实红线 R1）。</div>
+    <div class="flow" style="flex-wrap:wrap;gap:9px">
+      <div class="node" style="min-width:130px"><div class="role">工具/方法</div><div class="desc">2 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-blue">战略类</div><div class="desc">5 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role">组合拳</div><div class="desc">1 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-orange">资本类</div><div class="desc">4 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-violet">股权类</div><div class="desc">7 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-green">架构类</div><div class="desc">8 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-blue">里程碑类</div><div class="desc">5 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-orange">能力/人</div><div class="desc">3 次</div></div>
+      <div class="node" style="min-width:130px"><div class="role color-green">业务线类</div><div class="desc">5 次</div></div>
+    </div>
+    <div class="kpi">
+      <div><div class="num color-violet">8.9</div><div class="lab">★梁振宇=智能体设计师(最高)</div></div>
+      <div><div class="num color-violet">8.05</div><div class="lab">★直接持股 51% + 章程锁定</div></div>
+      <div><div class="num color-green">8.05</div><div class="lab">★封装+远程运维(多处部署)</div></div>
+      <div><div class="num color-green">8.3</div><div class="lab">★压AI智能体设计 vs 压人5.3</div></div>
+      <div><div class="num color-green">8.0</div><div class="lab">★八条线·架构线第一</div></div>
+    </div>
+    <div class="hasht">★关键结论：封装+远程运维 8.05（一次建造多处部署，vs 巡场 5.2）｜直接持股 51% + 章程锁定 + 预留 AB 股｜梁振宇=智能体设计师 8.9（全场最高）｜压AI智能体设计 8.3 vs 纯压人 5.3｜八条线聚合·架构线 8.0 第一 ｜ 三跑=反向/空跑/数据跑（数据跑全员加分+纠正抽象误判）｜⚠️分数为独立判断可调·R1。</div>
+  </div>
+
+<script>
+const c = {accent:'#4f8cff', green:'#3fb27f', orange:'#e8a33d', red:'#e25c5c', violet:'#9a7fe8', sub:'#9aa7bd', txt:'#e7ecf5', track:'#1c2233'};
+function barChart(sel, data){ // data:[{lab,val,color}]
+  const max = d3.max(data, d=>d.val)*1.08;
+  const el = d3.select(sel);
+  el.selectAll('*').remove();
+  const rows = el.selectAll('.barrow').data(data).enter().append('div').attr('class','barrow');
+  rows.append('div').attr('class','lab').text(d=>d.lab);
+  rows.append('div').attr('class','track').append('div').attr('class','fill')
+     .style('width', d=> (d.val/max*100)+'%').style('background', d=>d.color);
+  rows.append('div').attr('class','val').style('color', d=>d.color).text(d=>d.val+'%');
+}
+// Panel1 即时零售份额
+barChart('#share', [
+  {lab:'淘宝闪购', val:45.2, color:c.accent},
+  {lab:'美团',      val:45.0, color:c.orange},
+  {lab:'京东',      val:8.4,  color:c.red},
+]);
+// Panel3 鲜花渠道结构
+barChart('#channel', [
+  {lab:'综合电商',   val:53.32, color:c.accent},
+  {lab:'鲜花批发市场', val:42.19, color:c.sub},
+  {lab:'同城即时配送', val:37.25, color:c.green},
+  {lab:'垂直鲜花电商', val:33.28, color:c.violet},
+  {lab:'线下花店',   val:27.20, color:c.sub},
+  {lab:'自助售卖机', val:25.50, color:c.sub},
+]);
+// Panel8 代运营微笑曲线 (单店月边际利润 vs 每人力管理店数 n)
+(function(){
+  const data=[{n:10,v:700},{n:15,v:400},{n:20,v:0},{n:30,v:400},{n:40,v:650},{n:50,v:840}];
+  const W=760,H=250,pad={l:46,r:20,t:18,b:34};
+  const x=d3.scaleLinear().domain([8,52]).range([pad.l,W-pad.r]);
+  const y=d3.scaleLinear().domain([-60,920]).range([H-pad.b,pad.t]);
+  const svg=d3.select('#smile');
+  svg.selectAll('*').remove();
+  // 零线
+  svg.append('line').attr('x1',x(8)).attr('x2',x(52)).attr('y1',y(0)).attr('y2',y(0))
+     .attr('stroke','#5a6478').attr('stroke-dasharray','4 3').attr('stroke-width',1);
+  svg.append('text').attr('x',W-pad.r).attr('y',y(0)-6).attr('text-anchor','end').attr('fill','#5a6478').attr('font-size',10).text('盈亏平衡(0)');
+  // 轴
+  svg.append('text').attr('x',W/2).attr('y',H-6).attr('text-anchor','middle').attr('fill','#9aa7bd').attr('font-size',11).text('每人力管理店数 n (1:10 → 1:50+)');
+  svg.append('text').attr('transform','rotate(-90)').attr('x',-H/2).attr('y',14).attr('text-anchor','middle').attr('fill','#9aa7bd').attr('font-size',11).text('单店月边际利润');
+  // 平滑线
+  const line=d3.line().x(d=>x(d.n)).y(d=>y(d.v)).curve(d3.curveMonotoneX);
+  const area=d3.area().x(d=>x(d.n)).y0(y(0)).y1(d=>y(d.v)).curve(d3.curveMonotoneX);
+  svg.append('path').datum(data).attr('d',area).attr('fill','rgba(79,140,255,.14)');
+  svg.append('path').datum(data).attr('d',line).attr('fill','none').attr('stroke','#4f8cff').attr('stroke-width',2.6);
+  // 点+标签
+  const col={10:c.violet,20:c.red,50:c.green};
+  svg.selectAll('circle').data(data).enter().append('circle')
+     .attr('cx',d=>x(d.n)).attr('cy',d=>y(d.v)).attr('r',d=>d.n===20?5.5:4)
+     .attr('fill',d=>col[d.n]||c.accent).attr('stroke','#0e1117').attr('stroke-width',1.5);
+  svg.selectAll('text.dot').data(data).enter().append('text')
+     .attr('x',d=>x(d.n)).attr('y',d=>y(d.v)-9).attr('text-anchor','middle')
+     .attr('fill',d=>col[d.n]||'#e7ecf5').attr('font-size',10.5).attr('font-weight',700)
+     .text(d=>d.n+'店:'+(d.v>0?'+':'')+d.v);
+  svg.selectAll('text.lbl').data(data).enter().append('text')
+     .attr('x',d=>x(d.n)).attr('y',H-6).attr('text-anchor','middle').attr('fill','#9aa7bd').attr('font-size',10)
+     .text(d=>'1:'+d.n);
+})();
+</script>
+</body>
+</html>

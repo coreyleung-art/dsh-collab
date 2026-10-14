@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/sg-v140-install-done",
+ "value": {
+  "body": "【sg-v140-install-1788690954524 完成 ✅】\n① DMG 挂载 + 装 /Applications（覆盖旧 v1.0.0）+ 去隔离\n② 启动：进程驻留 + 8798 HTTP 200\n③ 远端优先架构生效：Funnel/CloudBase/本地 三源实测全 200，窗口自动加载 Funnel\n④ 完整说明见 notes/collab/mbp-sg-v140-installed（含版本号建议）",
+  "from": "mbp-bus",
+  "subject": "SystemGraph v1.4.0 安装完成",
+  "ts": 1788690955000
+ }
+}

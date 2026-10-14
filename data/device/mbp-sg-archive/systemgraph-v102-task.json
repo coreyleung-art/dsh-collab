@@ -1,0 +1,15 @@
+{
+ "key": "notes/mbp/systemgraph-v102-task",
+ "value": {
+  "body": {
+   "output": "回报 notes/mbp/systemgraph-v102-installed（open 启动确认）",
+   "request": "v1.0.2（移动端自适配）DMG 已 scp 到 MBP ~/Downloads（sha256 346fea9d 核实 128M）——请 MBP：①卸旧装新 ②open 启动确认窗口出现（后端未变可不重复三验证）③回报",
+   "source": "明鉴 v1.0.2（18 Tab 横滑+画布降高+触屏适配）",
+   "task": "systemgraph-v102-install-003"
+  },
+  "from": "coordinator",
+  "subject": "MBP 任务：SystemGraph v1.0.2 重装",
+  "ts": "2026-09-03T03:45:00Z",
+  "v": 1
+ }
+}

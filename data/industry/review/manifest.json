@@ -1,0 +1,73 @@
+{
+ "file": "FLOWERNET-BP-MASTER-v2.md",
+ "audience": "shareholder",
+ "total_units": 1448,
+ "chunks": 13,
+ "chunk_files": [
+  {
+   "file": "/tmp/rev-bp/chunk-00.md",
+   "range": "L1-L206",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-01.md",
+   "range": "L208-L416",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-02.md",
+   "range": "L418-L623",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-03.md",
+   "range": "L625-L808",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-04.md",
+   "range": "L809-L979",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-05.md",
+   "range": "L981-L1197",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-06.md",
+   "range": "L1199-L1364",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-07.md",
+   "range": "L1366-L1543",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-08.md",
+   "range": "L1544-L1743",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-09.md",
+   "range": "L1745-L1941",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-10.md",
+   "range": "L1943-L2124",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-11.md",
+   "range": "L2125-L2298",
+   "units": 120
+  },
+  {
+   "file": "/tmp/rev-bp/chunk-12.md",
+   "range": "L2300-L2311",
+   "units": 8
+  }
+ ]
+}

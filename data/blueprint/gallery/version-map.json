@@ -1,0 +1,610 @@
+{
+  "blueprints": {
+    "flowernet": {
+      "versions": {},
+      "current": {
+        "version": "2.3",
+        "views": {
+          "arch": "flowernet-arch-v2_3-20261013-023649.svg",
+          "fish": "flowernet-fish-v2_3-20261013-023649.svg",
+          "tl": "flowernet-tl-v2_3-20261013-023649.svg"
+        },
+        "file": "flowernet-arch-v2_3-20261013-023649.svg",
+        "ts": "20261013-023649"
+      },
+      "history": [
+        {
+          "version": "?",
+          "views": {
+            "arch": "flowernet-arch-v_-20261013-023601.svg",
+            "fish": "flowernet-fish-v_-20261013-023601.svg",
+            "tl": "flowernet-tl-v_-20261013-023601.svg"
+          },
+          "file": "flowernet-arch-v_-20261013-023601.svg",
+          "ts": "20261013-023601"
+        },
+        {
+          "version": "2.3",
+          "views": {
+            "arch": "flowernet-arch-v2_3-20261013-023649.svg",
+            "fish": "flowernet-fish-v2_3-20261013-023649.svg",
+            "tl": "flowernet-tl-v2_3-20261013-023649.svg"
+          },
+          "file": "flowernet-arch-v2_3-20261013-023649.svg",
+          "ts": "20261013-023649"
+        }
+      ]
+    },
+    "flowernet-platform": {
+      "versions": {},
+      "current": {
+        "version": "1.0（源自 v4.0 正式版）",
+        "views": {
+          "arch": "flowernet-platform-arch-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+          "fish": "flowernet-platform-fish-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+          "tl": "flowernet-platform-tl-v1_0_源自_v4_0_正式版_-20260902-234449.svg"
+        },
+        "file": "flowernet-platform-arch-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0（源自 v4.0 正式版）",
+          "views": {
+            "arch": "flowernet-platform-arch-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+            "fish": "flowernet-platform-fish-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+            "tl": "flowernet-platform-tl-v1_0_源自_v4_0_正式版_-20260902-234449.svg"
+          },
+          "file": "flowernet-platform-arch-v1_0_源自_v4_0_正式版_-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "agent-network": {
+      "versions": {},
+      "current": {
+        "version": "1.3",
+        "views": {
+          "arch": "agent-network-arch-v1_3-20260904-021743.svg",
+          "fish": "agent-network-fish-v1_3-20260904-021743.svg",
+          "tl": "agent-network-tl-v1_3-20260904-021743.svg"
+        },
+        "file": "agent-network-arch-v1_3-20260904-021743.svg",
+        "ts": "20260904-021743"
+      },
+      "history": [
+        {
+          "version": "1.2",
+          "views": {
+            "arch": "agent-network-arch-v1_2-20260902-234449.svg",
+            "fish": "agent-network-fish-v1_2-20260902-234449.svg",
+            "tl": "agent-network-tl-v1_2-20260902-234449.svg"
+          },
+          "file": "agent-network-arch-v1_2-20260902-234449.svg",
+          "ts": "20260902-234449"
+        },
+        {
+          "version": "1.3",
+          "views": {
+            "arch": "agent-network-arch-v1_3-20260904-021743.svg",
+            "fish": "agent-network-fish-v1_3-20260904-021743.svg",
+            "tl": "agent-network-tl-v1_3-20260904-021743.svg"
+          },
+          "file": "agent-network-arch-v1_3-20260904-021743.svg",
+          "ts": "20260904-021743"
+        }
+      ],
+      "_historyDedup": {
+        "at": "2026-10-13T17:35:27.726203",
+        "from": 3,
+        "to": 2,
+        "why": "★ 独立考古实测：history 里有一条【逐字完全相同】的重复条目 ⇒ 去重（★ 保留首次出现）"
+      }
+    },
+    "blueprint-platform": {
+      "versions": {},
+      "current": {
+        "version": "1.0（源自 v0.3 设计）",
+        "views": {
+          "arch": "blueprint-platform-arch-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+          "fish": "blueprint-platform-fish-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+          "tl": "blueprint-platform-tl-v1_0_源自_v0_3_设计_-20260902-234449.svg"
+        },
+        "file": "blueprint-platform-arch-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0（源自 v0.3 设计）",
+          "views": {
+            "arch": "blueprint-platform-arch-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+            "fish": "blueprint-platform-fish-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+            "tl": "blueprint-platform-tl-v1_0_源自_v0_3_设计_-20260902-234449.svg"
+          },
+          "file": "blueprint-platform-arch-v1_0_源自_v0_3_设计_-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "aistartup": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "aistartup-arch-v1_0-20260902-234449.svg",
+          "fish": "aistartup-fish-v1_0-20260902-234449.svg",
+          "tl": "aistartup-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "aistartup-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "aistartup-arch-v1_0-20260902-234449.svg",
+            "fish": "aistartup-fish-v1_0-20260902-234449.svg",
+            "tl": "aistartup-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "aistartup-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "banking": {
+      "versions": {},
+      "current": {
+        "version": "1.2",
+        "views": {
+          "arch": "banking-arch-v1_2-20260902-234449.svg",
+          "fish": "banking-fish-v1_2-20260902-234449.svg",
+          "tl": "banking-tl-v1_2-20260902-234449.svg"
+        },
+        "file": "banking-arch-v1_2-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.1",
+          "file": "banking-v1_1-hist.svg",
+          "ts": "hist"
+        },
+        {
+          "version": "1.2",
+          "views": {
+            "arch": "banking-arch-v1_2-20260902-234449.svg",
+            "fish": "banking-fish-v1_2-20260902-234449.svg",
+            "tl": "banking-tl-v1_2-20260902-234449.svg"
+          },
+          "file": "banking-arch-v1_2-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "rule-judge": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "rule-judge-arch-v1_0-20260902-234449.svg",
+          "fish": "rule-judge-fish-v1_0-20260902-234449.svg",
+          "tl": "rule-judge-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "rule-judge-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "rule-judge-arch-v1_0-20260902-234449.svg",
+            "fish": "rule-judge-fish-v1_0-20260902-234449.svg",
+            "tl": "rule-judge-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "rule-judge-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "flowernet-erp": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "flowernet-erp-arch-v1_0-20260902-234449.svg",
+          "fish": "flowernet-erp-fish-v1_0-20260902-234449.svg",
+          "tl": "flowernet-erp-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "flowernet-erp-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "flowernet-erp-arch-v1_0-20260902-234449.svg",
+            "fish": "flowernet-erp-fish-v1_0-20260902-234449.svg",
+            "tl": "flowernet-erp-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "flowernet-erp-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "flowernet-miniapp": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "flowernet-miniapp-arch-v1_0-20260902-234449.svg",
+          "fish": "flowernet-miniapp-fish-v1_0-20260902-234449.svg",
+          "tl": "flowernet-miniapp-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "flowernet-miniapp-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "flowernet-miniapp-arch-v1_0-20260902-234449.svg",
+            "fish": "flowernet-miniapp-fish-v1_0-20260902-234449.svg",
+            "tl": "flowernet-miniapp-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "flowernet-miniapp-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "flowernet-website": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "flowernet-website-arch-v1_0-20260902-234449.svg",
+          "fish": "flowernet-website-fish-v1_0-20260902-234449.svg",
+          "tl": "flowernet-website-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "flowernet-website-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "flowernet-website-arch-v1_0-20260902-234449.svg",
+            "fish": "flowernet-website-fish-v1_0-20260902-234449.svg",
+            "tl": "flowernet-website-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "flowernet-website-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "memory-governance": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "memory-governance-arch-v1_0-20260902-234449.svg",
+          "fish": "memory-governance-fish-v1_0-20260902-234449.svg",
+          "tl": "memory-governance-tl-v1_0-20260902-234449.svg"
+        },
+        "file": "memory-governance-arch-v1_0-20260902-234449.svg",
+        "ts": "20260902-234449"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "memory-governance-arch-v1_0-20260902-234449.svg",
+            "fish": "memory-governance-fish-v1_0-20260902-234449.svg",
+            "tl": "memory-governance-tl-v1_0-20260902-234449.svg"
+          },
+          "file": "memory-governance-arch-v1_0-20260902-234449.svg",
+          "ts": "20260902-234449"
+        }
+      ]
+    },
+    "gene-bank": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "gene-bank-arch-v1_0-20260903-001756.svg",
+          "fish": "gene-bank-fish-v1_0-20260903-001756.svg",
+          "tl": "gene-bank-tl-v1_0-20260903-001756.svg"
+        },
+        "file": "gene-bank-arch-v1_0-20260903-001756.svg",
+        "ts": "20260903-001756"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "gene-bank-arch-v1_0-20260903-001756.svg",
+            "fish": "gene-bank-fish-v1_0-20260903-001756.svg",
+            "tl": "gene-bank-tl-v1_0-20260903-001756.svg"
+          },
+          "file": "gene-bank-arch-v1_0-20260903-001756.svg",
+          "ts": "20260903-001756"
+        }
+      ]
+    },
+    "distributed-network": {
+      "versions": {},
+      "current": {
+        "version": "1.1",
+        "views": {
+          "arch": "distributed-network-arch-v1_1-20260909-001634.svg",
+          "fish": "distributed-network-fish-v1_1-20260909-001634.svg",
+          "tl": "distributed-network-tl-v1_1-20260909-001634.svg"
+        },
+        "file": "distributed-network-arch-v1_1-20260909-001634.svg",
+        "ts": "20260909-001634"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "distributed-network-arch-v1_0-20260903-005111.svg",
+            "fish": "distributed-network-fish-v1_0-20260903-005111.svg",
+            "tl": "distributed-network-tl-v1_0-20260903-005111.svg"
+          },
+          "file": "distributed-network-arch-v1_0-20260903-005111.svg",
+          "ts": "20260903-005111"
+        },
+        {
+          "version": "1.1",
+          "views": {
+            "arch": "distributed-network-arch-v1_1-20260909-001634.svg",
+            "fish": "distributed-network-fish-v1_1-20260909-001634.svg",
+            "tl": "distributed-network-tl-v1_1-20260909-001634.svg"
+          },
+          "file": "distributed-network-arch-v1_1-20260909-001634.svg",
+          "ts": "20260909-001634"
+        }
+      ]
+    },
+    "mtm": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "mtm-arch-v1_0-20260903-100236.svg",
+          "fish": "mtm-fish-v1_0-20260903-100236.svg",
+          "tl": "mtm-tl-v1_0-20260903-100236.svg"
+        },
+        "file": "mtm-arch-v1_0-20260903-100236.svg",
+        "ts": "20260903-100236"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "mtm-arch-v1_0-20260903-100236.svg",
+            "fish": "mtm-fish-v1_0-20260903-100236.svg",
+            "tl": "mtm-tl-v1_0-20260903-100236.svg"
+          },
+          "file": "mtm-arch-v1_0-20260903-100236.svg",
+          "ts": "20260903-100236"
+        }
+      ]
+    },
+    "laodeng-app": {
+      "versions": {},
+      "current": {
+        "version": "1.1",
+        "views": {
+          "arch": "laodeng-app-arch-v1_1-20260903-133112.svg",
+          "fish": "laodeng-app-fish-v1_1-20260903-133112.svg",
+          "tl": "laodeng-app-tl-v1_1-20260903-133112.svg"
+        },
+        "file": "laodeng-app-arch-v1_1-20260903-133112.svg",
+        "ts": "20260903-133112"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "laodeng-app-arch-v1_0-20260903-100236.svg",
+            "fish": "laodeng-app-fish-v1_0-20260903-100236.svg",
+            "tl": "laodeng-app-tl-v1_0-20260903-100236.svg"
+          },
+          "file": "laodeng-app-arch-v1_0-20260903-100236.svg",
+          "ts": "20260903-100236"
+        },
+        {
+          "version": "1.1",
+          "views": {
+            "arch": "laodeng-app-arch-v1_1-20260903-133112.svg",
+            "fish": "laodeng-app-fish-v1_1-20260903-133112.svg",
+            "tl": "laodeng-app-tl-v1_1-20260903-133112.svg"
+          },
+          "file": "laodeng-app-arch-v1_1-20260903-133112.svg",
+          "ts": "20260903-133112"
+        }
+      ]
+    },
+    "merchant-ops-ai": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "merchant-ops-ai-arch-v1_0-20260908-133818.svg",
+          "fish": "merchant-ops-ai-fish-v1_0-20260908-133818.svg",
+          "tl": "merchant-ops-ai-tl-v1_0-20260908-133818.svg"
+        },
+        "file": "merchant-ops-ai-arch-v1_0-20260908-133818.svg",
+        "ts": "20260908-133818"
+      },
+      "history": [
+        {
+          "version": "?",
+          "views": {
+            "arch": "merchant-ops-ai-arch-v_-20260907-154714.svg",
+            "fish": "merchant-ops-ai-fish-v_-20260907-154714.svg",
+            "tl": "merchant-ops-ai-tl-v_-20260907-154714.svg"
+          },
+          "file": "merchant-ops-ai-arch-v_-20260907-154714.svg",
+          "ts": "20260907-154714"
+        },
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "merchant-ops-ai-arch-v1_0-20260908-133818.svg",
+            "fish": "merchant-ops-ai-fish-v1_0-20260908-133818.svg",
+            "tl": "merchant-ops-ai-tl-v1_0-20260908-133818.svg"
+          },
+          "file": "merchant-ops-ai-arch-v1_0-20260908-133818.svg",
+          "ts": "20260908-133818"
+        }
+      ]
+    },
+    "flowernet-ops": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "flowernet-ops-arch-v1_0-20260908-133818.svg",
+          "fish": "flowernet-ops-fish-v1_0-20260908-133818.svg",
+          "tl": "flowernet-ops-tl-v1_0-20260908-133818.svg"
+        },
+        "file": "flowernet-ops-arch-v1_0-20260908-133818.svg",
+        "ts": "20260908-133818"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "flowernet-ops-arch-v1_0-20260908-133818.svg",
+            "fish": "flowernet-ops-fish-v1_0-20260908-133818.svg",
+            "tl": "flowernet-ops-tl-v1_0-20260908-133818.svg"
+          },
+          "file": "flowernet-ops-arch-v1_0-20260908-133818.svg",
+          "ts": "20260908-133818"
+        }
+      ]
+    },
+    "flowernet-supply": {
+      "versions": {},
+      "current": {
+        "version": "1.3",
+        "views": {
+          "arch": "flowernet-supply-arch-v1_3-20260909-030744.svg",
+          "fish": "flowernet-supply-fish-v1_3-20260909-030744.svg",
+          "tl": "flowernet-supply-tl-v1_3-20260909-030744.svg"
+        },
+        "file": "flowernet-supply-arch-v1_3-20260909-030744.svg",
+        "ts": "20260909-030744"
+      },
+      "history": [
+        {
+          "version": "1.2",
+          "views": {
+            "arch": "flowernet-supply-arch-v1_2-20260908-133818.svg",
+            "fish": "flowernet-supply-fish-v1_2-20260908-133818.svg",
+            "tl": "flowernet-supply-tl-v1_2-20260908-133818.svg"
+          },
+          "file": "flowernet-supply-arch-v1_2-20260908-133818.svg",
+          "ts": "20260908-133818"
+        },
+        {
+          "version": "1.3",
+          "views": {
+            "arch": "flowernet-supply-arch-v1_3-20260909-030744.svg",
+            "fish": "flowernet-supply-fish-v1_3-20260909-030744.svg",
+            "tl": "flowernet-supply-tl-v1_3-20260909-030744.svg"
+          },
+          "file": "flowernet-supply-arch-v1_3-20260909-030744.svg",
+          "ts": "20260909-030744"
+        }
+      ]
+    },
+    "flowernet-citywar": {
+      "versions": {},
+      "current": {
+        "version": "1.2",
+        "views": {
+          "arch": "flowernet-citywar-arch-v1_2-20260909-030744.svg",
+          "fish": "flowernet-citywar-fish-v1_2-20260909-030744.svg",
+          "tl": "flowernet-citywar-tl-v1_2-20260909-030744.svg"
+        },
+        "file": "flowernet-citywar-arch-v1_2-20260909-030744.svg",
+        "ts": "20260909-030744"
+      },
+      "history": [
+        {
+          "version": "1.1",
+          "views": {
+            "arch": "flowernet-citywar-arch-v1_1-20260908-133818.svg",
+            "fish": "flowernet-citywar-fish-v1_1-20260908-133818.svg",
+            "tl": "flowernet-citywar-tl-v1_1-20260908-133818.svg"
+          },
+          "file": "flowernet-citywar-arch-v1_1-20260908-133818.svg",
+          "ts": "20260908-133818"
+        },
+        {
+          "version": "1.2",
+          "views": {
+            "arch": "flowernet-citywar-arch-v1_2-20260909-030744.svg",
+            "fish": "flowernet-citywar-fish-v1_2-20260909-030744.svg",
+            "tl": "flowernet-citywar-tl-v1_2-20260909-030744.svg"
+          },
+          "file": "flowernet-citywar-arch-v1_2-20260909-030744.svg",
+          "ts": "20260909-030744"
+        }
+      ]
+    },
+    "mingjian-toolchain": {
+      "versions": {},
+      "current": {
+        "version": "1.0",
+        "views": {
+          "arch": "mingjian-toolchain-arch-v1_0-20260911-044828.svg",
+          "fish": "mingjian-toolchain-fish-v1_0-20260911-044828.svg",
+          "tl": "mingjian-toolchain-tl-v1_0-20260911-044828.svg"
+        },
+        "file": "mingjian-toolchain-arch-v1_0-20260911-044828.svg",
+        "ts": "20260911-044828"
+      },
+      "history": [
+        {
+          "version": "1.0",
+          "views": {
+            "arch": "mingjian-toolchain-arch-v1_0-20260911-044828.svg",
+            "fish": "mingjian-toolchain-fish-v1_0-20260911-044828.svg",
+            "tl": "mingjian-toolchain-tl-v1_0-20260911-044828.svg"
+          },
+          "file": "mingjian-toolchain-arch-v1_0-20260911-044828.svg",
+          "ts": "20260911-044828"
+        }
+      ]
+    },
+    "flowernet-jv": {
+      "versions": {},
+      "current": {
+        "version": "1.1",
+        "views": {
+          "arch": "flowernet-jv-arch-v1_1-20260911-044828.svg",
+          "fish": "flowernet-jv-fish-v1_1-20260911-044828.svg",
+          "tl": "flowernet-jv-tl-v1_1-20260911-044828.svg"
+        },
+        "file": "flowernet-jv-arch-v1_1-20260911-044828.svg",
+        "ts": "20260911-044828"
+      },
+      "history": [
+        {
+          "version": "1.1",
+          "views": {
+            "arch": "flowernet-jv-arch-v1_1-20260911-044828.svg",
+            "fish": "flowernet-jv-fish-v1_1-20260911-044828.svg",
+            "tl": "flowernet-jv-tl-v1_1-20260911-044828.svg"
+          },
+          "file": "flowernet-jv-arch-v1_1-20260911-044828.svg",
+          "ts": "20260911-044828"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+ "from": "明鉴 session-a190c54c-ca73-4845-9a65-9dc002d45044（mac-mini）",
+ "type": "put-card.py 变更登记：闸门标签拆分（PARSE_FAIL → +INPUT_MISSING）+ 新增非有限浮点闸门（NONFINITE）",
+ "变更前": "sha256_16 **7c46f0daa39ad04e** · mtime 2026-09-22 14:22:29 · 6556 B · 133 行",
+ "变更后": "sha256_16 **aa898bbd6ffc5b38** · mtime 2026-09-28 08:42:16 · 9364 B · 181 行 · py_compile OK · 备份 /Users/coreyleung/dsh-collab/guard/backups/Users__coreyleung__dsh-collab__scripts__put-card.py.bak-good-2026-09-28-00-4",
+ "变更一_标签拆分（起因是实测出的读数错）": "原第 41 行 `except Exception` 把 **`FileNotFoundError`（输入文件不存在）** 与 **JSON 语法错** 兜在一起记成 `PARSE_FAIL` ⇒ 一个标签对应两类对象 ⇒ 不可区分 ⇒ ★ 后果（实测，08:41 逐条核账本）：我全天报「今日 8 次失败全是 JSON 语法错」，**分子对（8 条语法错确实有）· 分母错（今日失败是 10 条）** —— 两条的 note 是 `[Errno 2] No such file or directory`（生成脚本先失败、JSON 从未存在），被这个标签吞掉，我一次都没看见 ⇒ 且那一支打印的出路「重写整份 JSON」**把排查方向指向不存在的内容 = 死路** ⇒ ⇒ 改动：拆出 `INPUT_MISSING`，并换成指向生成脚本的出路提示 ⇒ ★ **加标签前先查重**：`READ_FAIL` 已在下文（二次 PUT 前回读）使用 ⇒ 不能复用，故取 `INPUT_MISSING`（否则又造一个新的同名异义）",
+ "变更二_非有限浮点闸门（接住的位置提前）": "起因：`json.dumps({\"a\": float(\"nan\")})` 产出 **`{\"a\": NaN}`** ⇒ 不是合法 JSON，而 **Python 的 `json.load` 默认放行** ⇒ 原第 40 行闸门**对它是盲的**（`card-json-check.py` 第 11 行同样只 `json.loads`，也盲）⇒ 实测探针（一次性键 probe-nan-json-gate-20260928，测完已删）：**服务端 HTTP 400** `invalid body: expected JSON` + `expected value at line 1 column 35` ⇒ **接住它的是服务端，不是我的闸门** ⇒ 改动：新增 `_nonfinite()` 递归检查，命中即 `NONFINITE` 并在**提交前**拒落 ⇒ 对应今天的结论更正：**结构层可【消除】（产出物由 json.dumps 序列化，不经过我的手）· 值层只能【设防】，而我原来的设防清单只列了引号/换行/反斜杠，漏了【非有限浮点】** ✓",
+ "变更三_自测留痕带可判前缀": "三条自测（INPUT_MISSING / PARSE_FAIL / NONFINITE，各 exit=2）用的键是 **`notes/mac-mini/zz-selftest-putcard-20260928`** ⇒ 因为同一天我判定「**自测坏例与真实失误在账上同形**」（09-22 那两条 PARSE_FAIL 其实是 `zz-test-probe-ignore` / `zz-probe` 两个刻意造的坏 JSON，却与真实失误同形，导致那个 88.2% 也不是真实成功率）⇒ **凡自测坏例必须带可判标记** ✓ ⇒ 三条日志已按此落账（08:42:21 / 08:42:21 / 08:42:22）",
+ "★不改历史": "**整改只对将来生效**：历史 12 行 `PARSE_FAIL` 仍是混合标签 ⇒ ⇒ 通则：**改标签不能修历史读数；对历史的复算必须改用【内容字段】二次分类（此处 = note 里的 `No such file`），而不是用 label 字段** ✓",
+ "仍未闭合": "`~/dsh-collab/scripts/card-json-check.py` 第 11 行同样只用 `json.loads` ⇒ 对 NaN 仍盲（现由 put-card.py 在其之前拦住 ⇒ 该入口闭合，但**独立运行该检查器时仍不闭合**）✓",
+ "本卡由": "内容由 Python 逐条 d[k]=v 赋值生成 · 值内汉字引号 · 最大深度 1 · 提交前 json.load 自检 —— ★ 本卡同时是**打补丁后 put-card.py 的端到端冒烟**（本卡走的就是补丁后的路径，一次过）✓"
+}

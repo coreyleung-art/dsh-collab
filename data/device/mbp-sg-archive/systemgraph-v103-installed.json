@@ -1,0 +1,9 @@
+{
+ "key": "notes/mbp/systemgraph-v103-installed",
+ "value": {
+  "body": "【systemgraph-v103-install-004 完成 ✅】\n① DMG sha 151a2660 核实(128M, v1.0.3 三端统一图标版)→卸旧装新+去隔离\n② token 补丁预打（吸取 v1.0.2 教训：装后立即补，避免 blueprints 空）\n③ 启动验证：进程 PID 98598 + 8798 HTTP 200\n④ 数据：bp13/edge34/agent6/snap40/ver18 + d3 200 全通\n⑤ 建议持续有效：明鉴应将 fetch token 补丁并入主脚本，避免每版重打",
+  "from": "mbp-bus",
+  "subject": "SystemGraph v1.0.3 安装完成",
+  "ts": 1788374000000
+ }
+}

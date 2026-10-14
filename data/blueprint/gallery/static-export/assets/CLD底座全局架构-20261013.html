@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLD 分布式智能体协作网络 · 底座全局架构</title>
+<style>
+:root{--bg:#0b0e14;--card:#141824;--line:#232a3a;--fg:#e8eaf0;--muted:#8b90a3;--acc:#6ea8ff;
+      --ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--dim:#5a6070}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:-apple-system,'PingFang SC',sans-serif;padding:32px;line-height:1.6}
+h1{font-size:26px;margin-bottom:6px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+.wrap{max-width:1180px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:16px;margin-bottom:14px;color:var(--acc);display:flex;align-items:center;gap:8px}
+.layer{display:flex;align-items:stretch;margin-bottom:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.ltag{flex:0 0 132px;background:#1a1f2e;display:flex;flex-direction:column;justify-content:center;padding:12px 14px}
+.ltag .n{font-size:15px;font-weight:600;color:var(--acc)}
+.ltag .d{font-size:11px;color:var(--muted);margin-top:2px}
+.lbody{flex:1;padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.node{background:#1b2130;border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:12.5px;min-width:150px}
+.node .t{font-weight:600}
+.node .m{color:var(--muted);font-size:11px;margin-top:2px}
+.node.ok{border-color:#1f4d33}.node.ok .t{color:var(--ok)}
+.node.bad{border-color:#5a2626}.node.bad .t{color:var(--bad)}
+.node.warn{border-color:#5a4a1a}.node.warn .t{color:var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:12px}
+td.k{color:var(--acc);font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.num{font-family:ui-monospace,Menlo,monospace}
+.g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.s{background:#1b2130;border:1px solid var(--line);border-radius:10px;padding:14px}
+.s .v{font-size:26px;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+.s .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+.callout{border-radius:11px;padding:14px 16px;font-size:13px;margin-top:14px}
+.callout.w{border:1px solid #5a4a1a;background:#221d0f}
+.callout.i{border:1px solid #1e3a5f;background:#121c2b}
+.callout .h{font-weight:600;margin-bottom:6px}
+.f{color:var(--muted);font-size:11.5px;text-align:center;margin-top:22px;padding-top:14px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>CLD 分布式智能体协作网络 · 底座全局架构</h1>
+<div class="sub">实测时刻 2026-10-13 23:2x（+08:00）· 星桥第二任 session-e317d6ab · 每个数字均为当刻实测</div>
+
+<div class="card" style="border-color:#2e3a52">
+  <h2>◆ 图例 —— 颜色 = 状态，不是实现与否</h2>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:8px">
+    <div class="step ok" style="min-width:0"><div class="t">绿 · 正常</div><div class="m">健康 / 正向路径<br>已生效</div></div>
+    <div class="step warn" style="min-width:0"><div class="t">黄 · 警告</div><div class="m">待处置 / 待重载<br>关卡（不是坏事）</div></div>
+    <div class="step bad" style="min-width:0"><div class="t">红 · 缺口</div><div class="m">真问题<br>需修复</div></div>
+    <div class="step vio" style="min-width:0"><div class="t">紫 · 发起方</div><div class="m">触发源 / 目标源<br>不是缺陷</div></div>
+    <div class="step" style="min-width:0"><div class="t">白 · 中性</div><div class="m">普通步骤 / 地址<br>无好坏含义</div></div>
+  </div>
+  <div style="margin-top:14px;font-size:13px;color:var(--muted)">
+    ★ 一句话：<b>颜色标的是【状态好坏】，不是【实现与否】</b>。白色 = 中性环节，既不健康也不坏。
+  </div>
+</div>
+
+<div class="card">
+  <h2>◆ 六层底座</h2>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L0 运行时</div><div class="d">宿主与常驻</div></div>
+    <div class="lbody">
+      <div class="node"><div class="t">CLD.app GUI</div><div class="m">pid 2580 / 2696 · :61044 :31888</div></div>
+      <div class="node warn"><div class="t">launchd com.dsh.*</div><div class="m">80 项已加载 · 失败终态 4</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L1 通讯面</div><div class="d">跨会话跨设备</div></div>
+    <div class="lbody">
+      <div class="node"><div class="t">黑板 rust-blackboard</div><div class="m">:8792 · pid 1211 · KV</div></div>
+      <div class="node bad"><div class="t">SSE</div><div class="m">:8803 · 与 :8792 同 pid ⇒ 单点</div></div>
+      <div class="node"><div class="t">agent-bus</div><div class="m">:8791 · 唤醒 / 广播 / 红绿灯</div></div>
+      <div class="node"><div class="t">xdom-mail</div><div class="m">跨域邮箱 · 水位 / 球权 / 陈旧</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L2 黑板</div><div class="d">四个命名空间</div></div>
+    <div class="lbody">
+      <div class="node"><div class="t">notes/</div><div class="m">18900 键</div></div>
+      <div class="node"><div class="t">data/</div><div class="m">34925 键</div></div>
+      <div class="node"><div class="t">tasks/</div><div class="m">13167 键</div></div>
+      <div class="node warn"><div class="t">health/</div><div class="m">4 键 · 覆盖通讯 2 条</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L3 判据面</div><div class="d">四维 14 项</div></div>
+    <div class="lbody">
+      <div class="node"><div class="t">S 稳定</div><div class="m">S-1a S-1b S-2 S-3 S-4</div></div>
+      <div class="node"><div class="t">H 健康</div><div class="m">H1 H2a H2c H3 H4 H5b H5c</div></div>
+      <div class="node"><div class="t">I 对齐业界</div><div class="m">I-1 I-2 I-2c I-3</div></div>
+      <div class="node"><div class="t">L 保持领先</div><div class="m">L-1 L-2</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L4 探针</div><div class="d">机械化 · 11 件</div></div>
+    <div class="lbody">
+      <div class="node ok"><div class="t">stability-probe</div><div class="m">S 维 + P26</div></div>
+      <div class="node ok"><div class="t">delivery-probe</div><div class="m">H3 + H4</div></div>
+      <div class="node ok"><div class="t">silent-failure-scan</div><div class="m">H2a + H2c</div></div>
+      <div class="node ok"><div class="t">negctl-coverage</div><div class="m">H5b + H5c</div></div>
+      <div class="node ok"><div class="t">industry-parity</div><div class="m">I-2 + I-3</div></div>
+      <div class="node ok"><div class="t">cahac-envelope</div><div class="m">I-1 写卡侧</div></div>
+      <div class="node ok"><div class="t">leadership-claims</div><div class="m">L-1 + L-2</div></div>
+      <div class="node ok"><div class="t">false-result-patterns</div><div class="m">P1 P2 P5 P6</div></div>
+    </div>
+  </div>
+
+  <div class="layer">
+    <div class="ltag"><div class="n">L5 续接链</div><div class="d">轮次自动注入</div></div>
+    <div class="lbody">
+      <div class="node"><div class="t">continuity-index</div><div class="m">state_version 7 · gaps 115</div></div>
+      <div class="node"><div class="t">resume-prompt</div><div class="m">40 行 · 由 mk-resume-prompt 渲染</div></div>
+      <div class="node"><div class="t">skill cross-session-handoff</div><div class="m">触发词「继续推进」</div></div>
+      <div class="node"><div class="t">round-close</div><div class="m">轮次收尾 · 写回索引 + 重渲</div></div>
+      <div class="node"><div class="t">ledger-append</div><div class="m">台账原子追加</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>◆ 必跑面读数</h2>
+  <div class="g">
+    <div class="s"><div class="v" style="color:var(--ok)">28</div><div class="l">PASS</div></div>
+    <div class="s"><div class="v" style="color:var(--bad)">13</div><div class="l">FAIL</div></div>
+    <div class="s"><div class="v" style="color:var(--warn)">0</div><div class="l">PEND</div></div>
+    <div class="s"><div class="v" style="color:var(--dim)">8</div><div class="l">SKIP</div></div>
+  </div>
+  <div class="callout i">
+    <div class="h">四维逐项现值</div>
+    PASS：H4 跨设备偏斜 · H5b 负控覆盖率 · H5c 元判据自负控 · S-2 S-3 P26<br>
+    FAIL：I-1 信封符合度 · I-2 四项 · I-2c 认证授权 · L-1 · L-2 · H2a · H2c · H3 · S-1b · S-4<br>
+    SKIP：S-1a（矩阵无登记数声明）· verifier 有效（6 项为已声明的未结束边界）
+  </div>
+</div>
+
+<div class="card">
+  <h2>◆ 规模</h2>
+  <table>
+    <tr><th>项</th><th>值</th><th>说明</th></tr>
+    <tr><td class="k">台账</td><td class="num">331 条</td><td>D-001 … D-333 · 只增不改</td></tr>
+    <tr><td class="k">tools/*.py</td><td class="num">64</td><td>含本线新建 11 件探针</td></tr>
+    <tr><td class="k">scripts/*.py</td><td class="num">327</td><td>含 cahac-envelope + conformance</td></tr>
+    <tr><td class="k">锚点</td><td class="num">314 行</td><td>v7 · 唯一权威 · state_version 7</td></tr>
+    <tr><td class="k">黑板总键</td><td class="num">66,996</td><td>notes + data + tasks + health</td></tr>
+    <tr><td class="k">known_gaps</td><td class="num">115</td><td>索引里的缺口清单</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2>◆ 三个真缺口</h2>
+
+  <div class="callout w">
+    <div class="h">① S-4 单点 —— 而它是【设计层】的</div>
+    :8792 与 :8803 <b>同 pid=1211</b>。而进程命令行逐字是
+    <span class="num">--port 8792 --sse-port 8803</span>
+    ⇒ <b>同一进程同时托管两端口</b> ⇒ 挂一个同时带走订阅面。
+  </div>
+
+  <div class="callout w">
+    <div class="h">② I-1 结构性恒 0（★ 改毕待重载）</div>
+    <span class="num">bb_card_send</span> 的底层（<span class="num">core.js</span>）仍产
+    <span class="num">'v1.2'</span>（规格要 <span class="num">'1.2'</span>）。
+    而修复在盘上、<b>不在运行中</b> —— 宿主进程 20:11 启动，代码 23:23 改。
+    ⇒ 重载前，无论代理多认真填信封，都<b>永远不可能达标</b> ⇒ 该判据失去判别力。
+  </div>
+
+  <div class="callout w">
+    <div class="h">③ 认证授权 —— 本机板未强制</div>
+    带 token 200 · 不带 token 200 · <b>错 token 也 200</b>。对照：中枢板是 401。
+  </div>
+</div>
+
+<div class="f">
+  生成自本机实测 · 星桥第二任 session-e317d6ab-5302-4b33-b095-947983ba16f4<br>
+  台账 docs/deviation-ledger-20261011.md · 锚点 docs/distributed-agent-network-governance-plan-v7-20261012.md
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "tag": "builder-audit",
+  "measured_at": "2026-09-11T00:45:55",
+  "targets": [
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch"
+  ],
+  "file_count": 25,
+  "files": {
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/cordis.patch.yml": "c8d923df968aa6de94ce461e0cb83b87827f1165fac3cc61a62c60450b1c236a",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/package.json": "4ff4c7a191eb78d36b39cd8aa716ecface885c8ae74ddef21349d894649ae4d0",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/cli.js": "ecc0166d8a71ca9d594e105fbf427069ab84b9977efc16c212e0d9c99fcf1b71",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/collect.js": "4dcee4d5e862fb71bf6af2cb12dcadc945e62cf4546efaf94c3c3f0886bee810",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/transport.js": "b13ff762ce170cc3d442671621b957f1e88b89e75b2569a7f6e8d2cd2b8a916c",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/log.js": "cac137b8e79b8c0316f21dabbd804f354a70a84871f57146c80848b94d2ad632",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/index.js": "e389c162860cb29075d6bb432749c56930818fb6a5fbc66e72ff1a6d4e0455d6",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/upload.js": "d46a42d4362a070ef9a7ccc9a50a49aade0e21642b806f3bd047f60fd22ff1d0",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/version.js": "79447cd618fe531e507d12a98b1ed62a35f6c0f900c9d092dad208bec05b52a7",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/selfcheck.js": "ce0ef2e4b2833b0aa1c5c8f7993173611f841f49b393ef0787642705248ef891",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/lib/gate.js": "2ca76fa7b715532290ae06f000899af66300f6d5931c00cd3bd4060c9ac72c81",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-collect/.selfcheck/reflect-collect.json": "dca26da8f0ec9e7a7b468098dbae0ce0fd7340c14d992fe10bd9a6336948bb3d",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/cordis.patch.yml": "54535591cbf467192adf25ab8e6f124ca0b50dd43a73f3b555da34c20f911224",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/CHANGELOG.md": "305c89d60c3e9d32fc4d17f4cfd70e78b3bf527f4e132e5db295b5bff8a11c17",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/package.json": "91bcbf478a8e817a1e8f006d5a7a4ff0dd6e935ffbac3f64faceb9ad3525fc02",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/cli.js": "4db9f3f2e287a3b5916e7d88721ec29c5601b88e102be273ec012421466b31ce",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/docs/README.md": "061a86fb80e2af386e7fb4d74ad681ba9cb7e8d4eba35ff981c1a858f3febd82",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/cards.js": "c2408ae912403dd5feca40f33613eec67a15fb097dcc72217fba7c908197689e",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/core.js": "4cf41b0bbc66145796ea5e200a6e903e7fccb685d495f0edd7045932b7514976",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/board.js": "43fe3871bd39e8fe41faacf89831c0b22b030c3ca37405a323ce93e0c35ff87c",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/index.js": "94a09686f81ecdd20f4d34b865015d72844f0aeba87386194d24862ba6cdcf4e",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/selfcheck.js": "fe7fa9e7111c4b8c16995cfdf1f8f95ca6a2d08ec1e8b28a88e7934c118192b6",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/profiles.js": "c568e7951bcb2dcad4415e21d170f99c1a42e6e88ef0c1ad5f8e31fe98fca4a5",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/sources.js": "68af0505a1d9581af4a92a5b5e594c0083dc9e1d922d7dd88c49a0bb6834a4af",
+    "/Users/coreyleung/dsh-collab/devices/dsh-plugin-reflect-dispatch/lib/gate.js": "1e8763233bb68eca480ad06480e674049534fff593ecee054a98113ea23eb493"
+  }
+}

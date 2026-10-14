@@ -1,0 +1,156 @@
+{
+  "responder": "司库",
+  "agentId": "session-2a15e6b1-32a9-48b3-a167-8fe0a28e8d82",
+  "ts": "2026-09-03",
+  "assets": [
+    {
+      "blueprint": "flowernet",
+      "desc": "跨智能体协作资源统筹中枢（登记表 v1.0.396+）",
+      "evidence": "registry 版本化 + 红绿灯协议维护",
+      "isOriginal": true,
+      "location": "~/dsh-collab/resource-registry.md",
+      "name": "resource-registry.md",
+      "type": "file"
+    },
+    {
+      "blueprint": "blueprint-platform",
+      "desc": "概念数据字典（R019/R028 术语登记，39 概念向量化双轨）",
+      "evidence": "R006 九标准 + bge-m3 语义层实测",
+      "isOriginal": true,
+      "location": "scripts/concept-dict.py",
+      "name": "concept-dict.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "agent-network",
+      "desc": "子代理治理四过程（R024 check-new/audit/cleanup/coordinate + 灾难防护）",
+      "evidence": "R006 九标准 + 主角色黑名单拦截实测",
+      "isOriginal": true,
+      "location": "scripts/subagent-govern.py",
+      "name": "subagent-govern.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "blueprint-platform",
+      "desc": "删前考古三态判定（R007）",
+      "evidence": "safe_delete/archive_meta/sediment_first 实测",
+      "isOriginal": true,
+      "location": "scripts/pre-delete-archaeology.py",
+      "name": "pre-delete-archaeology.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "flowernet-platform",
+      "desc": "技术栈选型评估器（6 维评分+反阉割）",
+      "evidence": "Rust 8.2 vs Python 7.2 实测",
+      "isOriginal": true,
+      "location": "scripts/tech-choice-evaluator.py",
+      "name": "tech-choice-evaluator.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "agent-network",
+      "desc": "传输前磁盘余量门（防 i9 C 盘挤爆）",
+      "evidence": "三态判定 GATE:PASS/BLOCK/UNKNOWN",
+      "isOriginal": true,
+      "location": "scripts/pre-transfer-check.py",
+      "name": "pre-transfer-check.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "审批分级配置（J45 四档+12 硬升级+成本门禁双闸门）",
+      "evidence": "L0-L3 + cost_gate 实测",
+      "isOriginal": true,
+      "location": "~/dsh-collab/approval-config.json",
+      "name": "approval-config.json",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "审批台账（R026/R028/R030 事件记录）",
+      "evidence": "教师节事件全链入账",
+      "isOriginal": true,
+      "location": "~/dsh-collab/approval-ledger.md",
+      "name": "approval-ledger.md",
+      "type": "file"
+    },
+    {
+      "blueprint": "blueprint-platform",
+      "desc": "角色命名校验（R009 设备-角色规范）",
+      "evidence": "50 档案校验 3 达标/47 待修",
+      "isOriginal": true,
+      "location": "scripts/role-name-check.py",
+      "name": "role-name-check.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "agent-network",
+      "desc": "黑板订阅守护生成器（角色就任基础设施）",
+      "evidence": "launchd plist 一键生成+审计发现 6 域缺口",
+      "isOriginal": true,
+      "location": "scripts/bb-sub-gen.py",
+      "name": "bb-sub-gen.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "blueprint-platform",
+      "desc": "角色专用模式评估器（4 维信号）",
+      "evidence": "模式评估工具化",
+      "isOriginal": true,
+      "location": "scripts/preset-fit.py",
+      "name": "preset-fit.py",
+      "type": "tool"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "便利性偏差治理规范（J49+Rust 化决策标准）",
+      "evidence": "防系统性认知偏差",
+      "isOriginal": true,
+      "location": "docs/convenience-bias-governance.md",
+      "name": "convenience-bias-governance.md",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "返图资产唯一性登记（SHA256）",
+      "evidence": "生命周期计划 step1",
+      "isOriginal": true,
+      "location": "docs/return-photos-manifest.json",
+      "name": "return-photos-manifest.json",
+      "type": "file"
+    },
+    {
+      "blueprint": "flowernet",
+      "desc": "运营/研究知识库（246+ docs）",
+      "evidence": "含 HR 沉淀文档",
+      "isOriginal": false,
+      "location": "knowledge 库 afa7de13",
+      "name": "KB ops-science-research",
+      "type": "kb"
+    }
+  ],
+  "crossDomain": [
+    {
+      "desc": "bridge-server L3 门控，防 J45 绕过",
+      "name": "R026 审批钩子（token 硬闸）",
+      "node": "i9"
+    },
+    {
+      "desc": "11 项 L3 原语 Lean4 类型锁",
+      "name": "R029 原语级锁（automation-switch）",
+      "node": "i9"
+    },
+    {
+      "desc": "传输前磁盘检查（心跳加磁盘字段后强校验）",
+      "name": "pre-transfer-check 部署",
+      "node": "i9"
+    }
+  ],
+  "governanceGaps": [
+    "registry 工具登记集中在 changelog，缺「活跃工具清单」独立索引（管理器难直接读）",
+    "approval-tier-history 未对接 verify-audit（P4 审计记录待统一入账）",
+    "workspace.json 归档修改需停 DSH（运行中改被宿主覆盖）——工具化恢复流程待补"
+  ],
+  "note": "司库域=资源治理中枢：登记表+8 原创工具+审批体系+成本监察+便利性治理。部分工具 registry 已收但管理器未呈现（自陈补全）。"
+}

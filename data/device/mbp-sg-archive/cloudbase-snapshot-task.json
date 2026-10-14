@@ -1,0 +1,18 @@
+{
+ "key": "notes/mbp/cloudbase-snapshot-task",
+ "value": {
+  "body": {
+   "authorize": "明鉴已授权双轨：Funnel 主（18 Tab 交互）+ CloudBase 静态数据快照版兜底",
+   "data_source": "mac 明鉴 SystemGraph gallery（11 JSON+assets+40 snapshots 4.6M）——MBP 配合上传或明鉴提供数据",
+   "output": "回报 notes/collab/mbp-cloudbase-deployed（URL+完整性确认）",
+   "pre_check": "部署前确认快照数据完整性（11 JSON 覆盖 18 Tab 主要数据 + 40 SVG 齐全）",
+   "scope": "静态数据快照版：11 JSON + assets + 40 SVG 快照 + 只读索引页（不做 8798 完整前端静态化，交互降级只读可接受）",
+   "task": "mbp-cloudbase-snapshot-001",
+   "url": "https://tm.meetfunbp.com/systemgraph/"
+  },
+  "from": "coordinator",
+  "subject": "MBP 执行：CloudBase 静态快照部署（明鉴授权）",
+  "ts": "2026-09-03T03:30:00Z",
+  "v": 1
+ }
+}

@@ -1,0 +1,435 @@
+{
+ "version": "1.0",
+ "generated": "2026-09-09",
+ "protocols": [
+  {
+   "id": "CCEP",
+   "name": "永续通讯协议",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "通道迭代 5 步：准备→投递→端侧验证→就绪确认→切换+回滚",
+   "doc": "docs/CCEP-continuity-protocol-v1.md"
+  },
+  {
+   "id": "BB-DISPATCH",
+   "name": "黑板投递/值班协议",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "黑板投递值班消费：写入→订阅→清理",
+   "doc": "blackboard-dispatch-protocol.md"
+  },
+  {
+   "id": "AB-MSG",
+   "name": "agent-bus 消息协议",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "sendMessage→deliver→注入；红绿灯内嵌",
+   "doc": "docs/agent-bus-principles.md"
+  },
+  {
+   "id": "R003-BB",
+   "name": "R003 黑板规范",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "黑板消息纯内容对象勿嵌 value"
+  },
+  {
+   "id": "AS-GATE-V24",
+   "name": "agent_send 门禁 v2.4",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": ">50 字需黑板引用；唤醒≠汇报"
+  },
+  {
+   "id": "R13-RESCUE",
+   "name": "重启救援协议",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "互为救援：留准备信息→观察→非破坏救援",
+   "doc": "restart-rescue-protocol-v1.md"
+  },
+  {
+   "id": "UPG-STBY",
+   "name": "升级备用通道协议",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "版本升级备用通道策略",
+   "doc": "upgrade-standby-channel-protocol-v1.md"
+  },
+  {
+   "id": "BUS-PUSH",
+   "name": "服务器推送协议(SSE免轮询)",
+   "type": "protocol",
+   "color": "#2ac3de",
+   "summary": "bus-bridge SSE推送 /bus/events?node=<id> 25s心跳 免轮询 断线重连+receive补拉兜底",
+   "doc": "comm-server/bus-push-rule-v1.md",
+   "since": "2026-09-08",
+   "verified": true,
+   "note": "R033 通道治理载体; 服务器转发即插上下文不轮询(用户规则)"
+  },
+  {
+   "id": "ENVELOPE",
+   "name": "bus 信封格式",
+   "type": "protocol",
+   "color": "#6ea8ff",
+   "summary": "{from:device:agent,target:device,action,payload:{to,text},ttl} 跨设备消息契约",
+   "doc": "rules-registry/cld-agent-node-network-convention-v1.md",
+   "since": "2026-09-09",
+   "verified": true,
+   "note": "agent-id=<device>:<role> 寻址; 黑卡片 key=notes/<node>/bus-<action>-<task8>"
+  },
+  {
+   "id": "S1-ROLEMAP",
+   "name": "角色映射唤醒(central-inbox)",
+   "type": "mechanism",
+   "color": "#c678dd",
+   "summary": "黑板卡 to=角色名 → agent-role-map.json → 精确唤醒目标会话(无回退中枢)",
+   "doc": "~/.dsh/agent-role-map.json",
+   "since": "2026-09-01",
+   "verified": true,
+   "note": "S1 实测: to=明鉴→session-a190c54c direct; 20角色"
+  },
+  {
+   "id": "SIGNAL-3LIGHT",
+   "name": "探照灯三灯送达语义",
+   "type": "mechanism",
+   "color": "#f5b942",
+   "summary": "绿=在线直接传/黄=离线转黑板/红=忙不硬发; 5条防对空气纪律+S3重试死信",
+   "doc": "comm-server/comms-governance-standard-v1.md",
+   "since": "2026-09-09",
+   "verified": true,
+   "note": "R034 送达治理; 发送前查targetLive"
+  }
+ ],
+ "gates": [
+  {
+   "id": "R011-RG",
+   "name": "restart-gate 重启沙箱门",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "三级验证：隔离样本→静态→动态压测 全 PASS 才重启",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "paper",
+   "status": "identified"
+  },
+  {
+   "id": "R014-SELF",
+   "name": "插件自查门",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "selfcheck.js：peerDeps/符号/type:module",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "structural",
+   "status": "verified",
+   "annotated": "2026-09-07 gate-repairer"
+  },
+  {
+   "id": "R015-SBOX",
+   "name": "dev-sandbox 开发沙箱门",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "开发变更先隔离小样本验证再推进",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "structural",
+   "status": "verified",
+   "annotated": "2026-09-07 gate-repairer"
+  },
+  {
+   "id": "J37-PLUG",
+   "name": "J37 插件安装验证门",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "装后 dump-config 验证/一批一批",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "paper",
+   "status": "identified"
+  },
+  {
+   "id": "RJ-L1L3",
+   "name": "rule-judge L1-L3 漏斗",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "L1 机械→L2 规则→L3 语义(软门)",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "paper",
+   "status": "identified"
+  },
+  {
+   "id": "J45-GATE",
+   "name": "J45 操作分级门控",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "L0 自动/L2 确认/L3 人工",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "paper",
+   "status": "identified"
+  },
+  {
+   "id": "PRE-CHANGE",
+   "name": "守望 pre-change 门",
+   "type": "gate",
+   "color": "#f5b942",
+   "summary": "变更前评估灾难风险(22 崩溃教训)",
+   "schema_ver": "v1",
+   "structural": false,
+   "health": "paper",
+   "status": "identified"
+  },
+  {
+   "id": "BBG-SEND",
+   "name": "bb-gate 发消息门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "通道分级裁决: STATUS/ACK→黑板, 仅TASK才 agent_send(>50字需黑板引用)",
+   "tool": "bb-gate.py send",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "BBG-WRITE",
+   "name": "bb-gate 写黑板门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "写黑板用 bb-write 短名 data/<role>/(自动命名空间+seq)",
+   "tool": "bb-gate.py write",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "BBG-UPGRADE",
+   "name": "bb-gate 升级门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "底座升级 7 步流水线(语法→测试→冒烟→切换→验证→复用→落链)",
+   "tool": "bb-gate.py upgrade",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "BBG-ABSORB",
+   "name": "bb-gate 吸收门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "吸收节点经验: 复用评估+环境自适配检查",
+   "tool": "bb-gate.py absorb",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "BBG-NEWTOOL",
+   "name": "bb-gate 新工具门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "新建工具/资产: 复用评估+属主登记",
+   "tool": "bb-gate.py new-tool",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "BBG-NODEJOIN",
+   "name": "bb-gate 节点接入门",
+   "type": "gate",
+   "color": "#e06c75",
+   "summary": "新节点接入: 身份注册+收件定向",
+   "tool": "bb-gate.py node-join",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  },
+  {
+   "id": "LEAN4-CHK",
+   "name": "lean4-check 结构门(工具族)",
+   "type": "gate",
+   "color": "#61afef",
+   "summary": "R006#10: 涉及不该发生路径的工具须 --lean4-check 自检证明门生效(25+ 工具已带)",
+   "tool": "各工具 --lean4-check",
+   "structural": true,
+   "schema_ver": "v1",
+   "health": "structural",
+   "status": "verified"
+  }
+ ],
+ "locks": [
+  {
+   "id": "R027-SW",
+   "name": "R027 人开关锁",
+   "type": "lock",
+   "color": "#e06c75",
+   "summary": "能力/权限分离；生产区默认 OFF；Lean4 类型锁",
+   "doc": "docs/automation-human-switch-philosophy.md",
+   "schema_ver": "v1",
+   "resource_prefix": "automation",
+   "runtime": "定义态(运行时态经 agent_light)"
+  },
+  {
+   "id": "R029-LOCK",
+   "name": "R029 原语分级锁",
+   "type": "lock",
+   "color": "#e06c75",
+   "summary": "L3→Unlocked(Authorization)类型锁；L2→确认",
+   "schema_ver": "v1",
+   "resource_prefix": "automation",
+   "runtime": "定义态(运行时态经 agent_light)"
+  },
+  {
+   "id": "TL-RED",
+   "name": "红绿灯互斥锁",
+   "type": "lock",
+   "color": "#e06c75",
+   "summary": "同源操作先查灯→独占/共享→释放",
+   "runtime": "agent_light/agent_lock/agent_unlock (实时态经红绿灯查询)",
+   "owner": "agent-bus 红绿灯插件",
+   "schema_ver": "v1",
+   "resource_prefix": "agent|file|task|store"
+  },
+  {
+   "id": "R030-TRUTH",
+   "name": "R030 真实性锁",
+   "type": "lock",
+   "color": "#e06c75",
+   "summary": "自动化成功须业务权威字段验证",
+   "schema_ver": "v1",
+   "resource_prefix": "verify",
+   "runtime": "定义态(运行时态经 agent_light)"
+  },
+  {
+   "id": "APPR-LEDGER",
+   "name": "审批台账锁",
+   "type": "lock",
+   "color": "#e06c75",
+   "summary": "高危操作审批分级+台账",
+   "schema_ver": "v1",
+   "resource_prefix": "approval",
+   "runtime": "定义态(运行时态经 agent_light)"
+  }
+ ],
+ "links": [
+  {
+   "from": "CCEP",
+   "to": "R011-RG",
+   "type": "进入",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "CCEP",
+   "to": "PRE-CHANGE",
+   "type": "校验",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "AB-MSG",
+   "to": "TL-RED",
+   "type": "内嵌",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "BB-DISPATCH",
+   "to": "AS-GATE-V24",
+   "type": "受控",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "R003-BB",
+   "to": "BB-DISPATCH",
+   "type": "约束",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "R13-RESCUE",
+   "to": "PRE-CHANGE",
+   "type": "校验",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "RJ-L1L3",
+   "to": "R027-SW",
+   "type": "放行至",
+   "color": "#e06c75"
+  },
+  {
+   "from": "J45-GATE",
+   "to": "R029-LOCK",
+   "type": "分级至",
+   "color": "#e06c75"
+  },
+  {
+   "from": "J45-GATE",
+   "to": "R027-SW",
+   "type": "分级至",
+   "color": "#e06c75"
+  },
+  {
+   "from": "J37-PLUG",
+   "to": "R015-SBOX",
+   "type": "前置",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "R011-RG",
+   "to": "R027-SW",
+   "type": "开关",
+   "color": "#e06c75"
+  },
+  {
+   "from": "R029-LOCK",
+   "to": "R030-TRUTH",
+   "type": "验证",
+   "color": "#8b90a3"
+  },
+  {
+   "from": "R027-SW",
+   "to": "APPR-LEDGER",
+   "type": "留痕",
+   "color": "#8b90a3"
+  }
+ ],
+ "gate_health": {
+  "ts": "2026-10-15",
+  "source": "gate-auditor · gate-audit-report-latest.json",
+  "total_rules": 75,
+  "structural_gates": 27,
+  "paper_gates": 48,
+  "note": "★ 本值由 bb-derived-graphs-gen.py 从 gate-audit 报告【重算】（★ 非人工抄写）",
+  "ledger_rules": 79,
+  "consistent": false,
+  "_valueSources": {
+   "total": "stats.total",
+   "paper": "stats.paper",
+   "structural": "stats.structural"
+  }
+ },
+ "updated_note": "2026-09-09 永续通讯里程碑同步: +BUS-PUSH/ENVELOPE/S1-ROLEMAP/SIGNAL-3LIGHT",
+ "_gateHealthSuperseded": {
+  "at": "2026-10-13T17:18:58.121460",
+  "old": {
+   "ts": "2026-09-06",
+   "source": "gate-auditor v1.1 (rules-registry/gate-audit-report-latest.json)",
+   "total_rules": 75,
+   "structural_gates": 24,
+   "paper_gates": 51,
+   "note": "纸面门=声明无工具(靠人执行可跳过); 结构门=代码+lean4-check 不可绕过; 修复走 gate-repairer(annotate/scaffold)"
+  },
+  "why": "★★ 三重问题：① gate_health 报 structural=24/paper=51，而【它自己引用的 source】rules-registry/gate-audit-report-latest.json 说 27/48 ⇒ **抄错了自己的来源**；② total_rules=75 而现账本为 79；③ ts=2026-09-06（37 天前）未更新。"
+ },
+ "updated": "2026-10-15",
+ "generatedAt": "2026-10-15 03:49:02",
+ "generatedBy": "bb-derived-graphs-gen.py v1.0.0",
+ "sourceOfTruth": "protocols/gates/locks/links=策展；gate_health=gate-audit-report-latest.json"
+}

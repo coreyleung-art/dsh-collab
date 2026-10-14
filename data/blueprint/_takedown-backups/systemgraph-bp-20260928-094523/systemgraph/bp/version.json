@@ -1,0 +1,42 @@
+{
+ "schema": "cloudbase-version-fingerprint/v2",
+ "deployed_at": "2026-09-10T15:54:09+08:00",
+ "deployed_by": "laodeng aa528267",
+ "entry_hash": "ca24d469a7f1788f",
+ "entry_hash_full": "ca24d469a7f1788fef96b5265db2286ec434d2bff3ce6c3dc69168bf78fe5caf",
+ "hash_spec": "sha256（_full=64位全量 / 无后缀=前16位）",
+ "charts_by_tab": null,
+ "charts_total": null,
+ "notes": "handshake push ca24d469a7f1788f",
+ "files": {
+  "index.html": {
+   "size": 1073814,
+   "sha256_16": "ca24d469a7f1788f"
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "14994711d284b5ca"
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6"
+  },
+  "启动资金与各轮计划.html": {
+   "size": 153083,
+   "sha256_16": "fe7d12d38616df02"
+  },
+  "商业计划书.html": {
+   "size": 426099,
+   "sha256_16": "a0b93cfaf9d698ab"
+  },
+  "平台格局图.html": {
+   "size": 55411,
+   "sha256_16": "1fdcb85391b2111e"
+  },
+  "相关方文件.html": {
+   "size": 136011,
+   "sha256_16": "b715e2771278cb29"
+  }
+ },
+ "how_to_verify": "GET 本文件 → 比对 entry_hash（或 entry_hash_full）即可确认线上版本，不受 CDN 缓存影响；图表数看 charts_by_tab"
+}

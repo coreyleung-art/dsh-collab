@@ -1,0 +1,47 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T13:33:06",
+ "exported_by": "明鉴 a190c54c",
+ "note": "实质错误修复批次: 合规/此地无银/修订痕迹/元话语/数据来源/事实错误/结构",
+ "entry": "index.html",
+ "entry_hash": "1b03c367e14e403f",
+ "entry_size": 863013,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 863013,
+   "sha256_16": "1b03c367e14e403f",
+   "chars": 26
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "8cdfcc75b2e48b24",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 134557,
+   "sha256_16": "c1f996fa5e58e745",
+   "chars": 6
+  },
+  "商业计划书.html": {
+   "size": 322543,
+   "sha256_16": "03b2fca249cf68b9",
+   "chars": 14
+  },
+  "平台格局图.html": {
+   "size": 32135,
+   "sha256_16": "e10f72bde0b1dc82",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 120673,
+   "sha256_16": "1aa8d97826ae614e",
+   "chars": 6
+  }
+ }
+}

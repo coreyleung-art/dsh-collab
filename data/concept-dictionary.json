@@ -1,0 +1,309 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-09-01",
+  "concepts": {
+    "任务卡": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "蓝图执行最小单元（45 卡，todo→claimed→done→verified+blocked 状态机）",
+      "source": "bb-taskboard.py+blueprint master v2.2",
+      "status": "active"
+    },
+    "天河3号店": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "传感试点门店（p3-2 阶段 IoT 传感数据化试点）",
+      "source": "blueprint master v2.2",
+      "status": "active"
+    },
+    "工时": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "任务预估工作量（排期/依赖评估用）",
+      "source": "blueprint master v2.2",
+      "status": "active"
+    },
+    "物品特征库": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "ERP/供应链物品属性特征",
+      "source": "chuheng_erp",
+      "status": "active"
+    },
+    "返图特征库": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "客服返图提取的客户反馈特征集合",
+      "source": "return-photos-extract",
+      "status": "active"
+    },
+    "验收": {
+      "added": "2026-08-30",
+      "aliases": [],
+      "def": "任务完成验证环节（verified 状态，验金石 QA 标准）",
+      "source": "blueprint master v2.2+bb-taskboard",
+      "status": "active"
+    },
+    "驾驶舱": {
+      "def": "花店智能体产品化项目：可编辑周报+促销工作流+8卡主页（flower-cockpit 插件）",
+      "source": "守灯塔 flower-cockpit-project-summary.md",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "bge-m3": {
+      "def": "嵌入模型（Ollama 11434，1024维标准）",
+      "source": "守灯塔 嵌入标准",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "渐进自动化": {
+      "def": "d3-3 自动化边界定案：人工基线→半自动建议→采纳率回收→达标(≥90%)自动，复用 J45 分级（L3→L2→L0）",
+      "source": "blueprint master v2.2+用户校准 2026-08-30",
+      "added": "2026-08-30",
+      "aliases": [
+        "渐进式自动化"
+      ],
+      "status": "active"
+    },
+    "J45分级": {
+      "def": "老登运营分级门控：L0自动/L2确认卡/L3人工——d3-3 渐进自动化基础",
+      "source": "老登确认 2026-08-30",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "独立库": {
+      "def": "d4-1 数据聚合入库目标：独立于 ERP PG16 的库，避免污染生产",
+      "source": "blueprint master v2.2+用户校准",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "launchd": {
+      "def": "macOS 定时任务守护（com.dsh.cron.* 自研调度体系）",
+      "source": "守灯塔 sysops-cron",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "摄取": {
+      "def": "文档摄取：批量解析 PDF/DOCX/XLSX/PPT/扫描件/HTML/MD 并转化为结构化知识资产的过程",
+      "source": "doc-ingest 闭环协议",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "OCR": {
+      "def": "光学字符识别：扫描件/图片转文字，本地通道 olmocr-2-7b 主/glm 备/tesseract 回退",
+      "source": "~/dsh-toolchain/ocr",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "供应链": {
+      "def": "DSH/CLD 依赖供应链：上游发布跟踪（registry 实测）+ 依赖审计（pnpm audit/lockfile）+ 供应链策略（overrides/postinstall）+ 资产恢复（xberg 8 文件）",
+      "source": "data/supply-chain/*",
+      "added": "2026-08-30",
+      "aliases": [
+        "supply-chain,依赖供应链"
+      ],
+      "status": "active"
+    },
+    "外链": {
+      "def": "对外消息通道体系：企微/飞书/钉钉等外部通道的分级推送（P0-P3）+ 黑板路由",
+      "source": "驿使 92623479",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "总线桥": {
+      "def": "跨设备任务队列（mac-mini 8791）：bus.send/receive/reply/outbox，MBP/i9 节点执行回传",
+      "source": "驿使 92623479",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "黑板路由": {
+      "def": "企微消息→黑板队列（exlink-blackboard JSONL）→路由预判→agent 处理→回发原会话",
+      "source": "驿使 92623479",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "提审": {
+      "def": "超时兜底提审：客户消息未回复超过阈值（1-60秒窗口）时，自动拟稿并推送企微确认卡供用户裁决（1发送/2改稿/3暂缓）",
+      "source": "回声-mac-mini-智能客服",
+      "added": "2026-08-30",
+      "aliases": [
+        "escalation,超时提审"
+      ],
+      "status": "active"
+    },
+    "确认卡": {
+      "def": "超时提审推送的企微卡片：含门店/会话/客户消息/拟稿/操作选项（1/2/3），用户确认后才发送——天然门禁防误发",
+      "source": "回声-mac-mini-智能客服",
+      "added": "2026-08-30",
+      "aliases": [
+        "confirm-card"
+      ],
+      "status": "active"
+    },
+    "活动": {
+      "def": "平台/商家发起的促销行为（满减/折扣/优惠券/节日活动），影响商品价格与销量",
+      "source": "美团商家后台·运营术语",
+      "added": "2026-08-30",
+      "aliases": [
+        "促销,营销活动"
+      ],
+      "status": "active"
+    },
+    "折扣": {
+      "def": "商品售价的按比例/定额减免，商家承担活动成本（J45 L2 确认项）",
+      "source": "美团商家后台·运营术语",
+      "added": "2026-08-30",
+      "aliases": [
+        "打折,优惠"
+      ],
+      "status": "active"
+    },
+    "商品": {
+      "def": "可售卖的实物/服务单元（SPU/SKU 两级），含价格/库存/上下架状态",
+      "source": "美团商家后台·运营术语",
+      "added": "2026-08-30",
+      "aliases": [
+        "SPU,SKU,商品目录"
+      ],
+      "status": "active"
+    },
+    "健康巡检": {
+      "def": "CLD 宿主健康审查例行检查：磁盘/负载/swap/内存/日志错误/bundles/哨兵/会话日志完整性等指标巡检，守灯负责",
+      "source": "cld-health",
+      "added": "2026-08-30",
+      "aliases": [],
+      "status": "active"
+    },
+    "消息风暴": {
+      "def": "消息/任务积压导致的唤醒风暴（队列堆积→逐条唤醒放大上下文成本）；queue_watch 巡检+浓缩防",
+      "source": "queue 工具族 R020 适配（明鉴建议）",
+      "added": "2026-08-31",
+      "aliases": [],
+      "status": "active"
+    },
+    "积压三态": {
+      "def": "队列健康度判断：绿（正常）/黄（积压预警）/红（风暴临界）——queue_watch 三态判断器",
+      "source": "queue 工具族 R020 适配（明鉴建议）",
+      "added": "2026-08-31",
+      "aliases": [],
+      "status": "active"
+    },
+    "广州橙果": {
+      "def": "合作方公司（会议纪要误写『成果方』）：上市公司股东王宇体系，平台代理+资本+招商资源方",
+      "source": "用户语音纠正 2026-08-31（会议纪要 2026-08-28）",
+      "added": "2026-08-31",
+      "aliases": [
+        "成果方"
+      ],
+      "status": "active"
+    },
+    "淘闪": {
+      "def": "淘宝闪购平台（会议纪要误写『淘鲜』），鲜花核心扶持类目（低扣点/流量倾斜）",
+      "source": "用户语音纠正 2026-08-31",
+      "added": "2026-08-31",
+      "aliases": [
+        "淘鲜,淘宝闪购"
+      ],
+      "status": "active"
+    },
+    "花邻": {
+      "def": "鲜花头部品牌（纪要误写『喜华梨』，用户纠正：两个喜子组合=囍）",
+      "source": "用户语音纠正 2026-08-31",
+      "added": "2026-08-31",
+      "aliases": [
+        "喜华梨(误),囍花邻?"
+      ],
+      "status": "active"
+    },
+    "蛙来哒": {
+      "def": "长沙蛙类连锁品牌，与美团外卖卫星店合作案例（纪要误写『蛙来了』，用户确认=蛙来哒）",
+      "source": "用户确认 2026-08-31 + web查证",
+      "added": "2026-08-31",
+      "aliases": [
+        "蛙来了(误)"
+      ],
+      "status": "active"
+    },
+    "企得力": {
+      "def": "供应链承接方（用户确认无误，非误识）",
+      "source": "用户确认 2026-08-31",
+      "added": "2026-08-31",
+      "aliases": [],
+      "status": "active"
+    },
+    "淘闪家宴": {
+      "def": "高端米其林餐到家系列（纪要误写『淘享佳宴』，用户纠正=淘闪家宴）",
+      "source": "用户语音纠正 2026-08-31",
+      "added": "2026-08-31",
+      "aliases": [
+        "淘享佳宴(误)"
+      ],
+      "status": "active"
+    },
+    "囍花邻": {
+      "def": "鲜花头部品牌（纪要误写『喜华梨』，用户确认：两个喜子组合=囍，品牌名带囍字）",
+      "source": "用户确认 2026-08-31",
+      "added": "2026-08-31",
+      "aliases": [
+        "喜华梨(误),花邻(简称)"
+      ],
+      "status": "active"
+    },
+    "中航天耀": {
+      "def": "成都淘闪类目代运营主体（与广州橙果关联不确定，用户判定不重要——仅记录不深究）",
+      "source": "会议纪要 2026-08-28 + 用户 2026-08-31 判定",
+      "added": "2026-08-31",
+      "aliases": [
+        "low-priority"
+      ],
+      "status": "active"
+    },
+    "DPC": {
+      "def": "纪要中『性价比最高大模型』（语音识别不明，用户指示忽略，不深究）",
+      "source": "会议纪要 2026-08-28 + 用户 2026-08-31 忽略",
+      "added": "2026-08-31",
+      "aliases": [
+        "ignored"
+      ],
+      "status": "active"
+    },
+    "补贴黑洞": {
+      "def": "活动流量增长但毛利为负（补贴后实付≈0 折扣，7.3x 流量×负毛利=卖越多亏越多）——流量收益必须对照毛利成本",
+      "source": "教师节报名审计（老登深挖 2026-09-01）",
+      "added": "2026-09-01",
+      "aliases": [],
+      "status": "active"
+    },
+    "盈亏平衡": {
+      "def": "活动价 vs 花材成本线的收支平衡点——第五问核查（价格维度），低于平衡点不报名",
+      "source": "R028 v1.1 五问版（老登/星桥）",
+      "added": "2026-09-01",
+      "aliases": [],
+      "status": "active"
+    },
+    "非标资材": {
+      "def": "节日专属一次性资材（书本造型盒/红笔件）——一年一次，买多砸库存/降平效/压资金，不备/预售",
+      "source": "R028 v2 六问版（老登/星桥 2026-09-01）",
+      "added": "2026-09-01",
+      "aliases": [],
+      "status": "active"
+    },
+    "备货分级": {
+      "def": "备货原则：花材可备 > 通用包装复用 > 非标资材不备/预售——第六问核查标准",
+      "source": "R028 v2 六问版（老登/星桥 2026-09-01）",
+      "added": "2026-09-01",
+      "aliases": [],
+      "status": "active"
+    }
+  }
+}

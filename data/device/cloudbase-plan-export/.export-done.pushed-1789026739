@@ -1,0 +1,62 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T15:51:55",
+ "exported_by": "明鉴 a190c54c",
+ "note": "凭据泄漏处置: 轮换4条泄漏口令 + 改写两张黑板卡(含中央实例) + 6文件重加密",
+ "entry": "index.html",
+ "entry_hash": "a6d8ee577c07421f",
+ "entry_size": 1073814,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 1073814,
+   "sha256_16": "a6d8ee577c07421f",
+   "chars": 0
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "07bfd48319c56375",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 153083,
+   "sha256_16": "1400b6c867fe5df8",
+   "chars": 0
+  },
+  "商业计划书.html": {
+   "size": 426099,
+   "sha256_16": "f67fdb478f2e3074",
+   "chars": 0
+  },
+  "平台格局图.html": {
+   "size": 55411,
+   "sha256_16": "3b1e9e34737d195f",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 136011,
+   "sha256_16": "66dc18fea95ef7de",
+   "chars": 0
+  },
+  "welcome/index.html": {
+   "size": 8903,
+   "sha256_16": "37d74254d62d7224",
+   "chars": 0
+  },
+  "partner/index.html": {
+   "size": 131820,
+   "sha256_16": "e0e0a0c65c7b8006",
+   "chars": 0
+  },
+  "taobao-brief/index.html": {
+   "size": 52033,
+   "sha256_16": "69a3c480efe60b66",
+   "chars": 5
+  }
+ }
+}

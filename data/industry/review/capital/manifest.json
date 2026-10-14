@@ -1,0 +1,28 @@
+{
+ "file": "FLOWERNET-CAPITAL-PLAN-v2.md",
+ "audience": "shareholder",
+ "total_units": 451,
+ "chunks": 4,
+ "chunk_files": [
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/capital/chunk-00.md",
+   "range": "L1-L168",
+   "units": 120
+  },
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/capital/chunk-01.md",
+   "range": "L169-L323",
+   "units": 120
+  },
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/capital/chunk-02.md",
+   "range": "L325-L479",
+   "units": 120
+  },
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/capital/chunk-03.md",
+   "range": "L481-L601",
+   "units": 91
+  }
+ ]
+}

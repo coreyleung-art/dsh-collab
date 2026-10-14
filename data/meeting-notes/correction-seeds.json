@@ -1,0 +1,167 @@
+{
+ "version": "1.0",
+ "note": "蓝图库实体种子(人工核对核心层)",
+ "generated": "2026-09-05",
+ "entities": {
+  "桦桓艺": {
+   "aliases": [
+    "华云系",
+    "华宏系",
+    "桦桓艺公司"
+   ],
+   "mentions": 8
+  },
+  "觅趣": {
+   "aliases": [
+    "觅趣策划"
+   ],
+   "mentions": 3
+  },
+  "斐欧": {
+   "aliases": [
+    "斐欧留学"
+   ],
+   "mentions": 2
+  },
+  "融意": {
+   "aliases": [],
+   "mentions": 3
+  },
+  "趣趣": {
+   "aliases": [],
+   "mentions": 3
+  },
+  "汇丰私人财富": {
+   "aliases": [
+    "汇丰",
+    "汇丰私行"
+   ],
+   "mentions": 3
+  },
+  "华兴银行": {
+   "aliases": [],
+   "mentions": 2
+  },
+  "华润银行": {
+   "aliases": [],
+   "mentions": 2
+  },
+  "平安银行": {
+   "aliases": [
+    "平安广分",
+    "平安私行",
+    "平安银行贵宾"
+   ],
+   "mentions": 3
+  },
+  "寰球策": {
+   "aliases": [
+    "景鸿"
+   ],
+   "mentions": 2
+  },
+  "翠赞": {
+   "aliases": [],
+   "mentions": 0
+  },
+  "初蘅": {
+   "aliases": [
+    "初蘅花店"
+   ],
+   "mentions": 29
+  },
+  "繁花森林": {
+   "aliases": [
+    "繁花森林花店"
+   ],
+   "mentions": 2
+  },
+  "守白": {
+   "aliases": [
+    "守白花店"
+   ],
+   "mentions": 6
+  },
+  "美团": {
+   "aliases": [
+    "美团闪购",
+    "美团自营"
+   ],
+   "mentions": 16
+  },
+  "淘宝闪购": {
+   "aliases": [
+    "闪购"
+   ],
+   "mentions": 3
+  },
+  "麦芽田": {
+   "aliases": [],
+   "mentions": 0
+  },
+  "申通": {
+   "aliases": [],
+   "mentions": 0
+  },
+  "成都服务商": {
+   "aliases": [
+    "城市级服务商"
+   ],
+   "mentions": 0
+  },
+  "供应商": {
+   "aliases": [],
+   "mentions": 4
+  },
+  "ERP": {
+   "aliases": [
+    "chuheng_erp"
+   ],
+   "mentions": 87
+  },
+  "flowernet": {
+   "aliases": [],
+   "mentions": 208
+  },
+  "laodeng": {
+   "aliases": [],
+   "mentions": 57
+  },
+  "MTM": {
+   "aliases": [],
+   "mentions": 44
+  },
+  "梁振宇": [
+   "振宇",
+   "Corey"
+  ],
+  "阿梅": [],
+  "阿丹": [],
+  "老麦": [],
+  "阿劲": [],
+  "正义": [],
+  "谭总": [],
+  "佳丽": [],
+  "合资公司": [
+   "合资",
+   "股东会"
+  ],
+  "有限合伙": [
+   "有限合伙架构"
+  ],
+  "成都785店": [
+   "成都",
+   "785"
+  ],
+  "IP城市战": [
+   "IP联名",
+   "腰部IP"
+  ],
+  "城市级服务商": [
+   "8000商家"
+  ],
+  "品牌仓": [],
+  "供应链": []
+ },
+ "source": "data/blueprint/*/*.md + docs/*.md + gallery json 语料扫描"
+}

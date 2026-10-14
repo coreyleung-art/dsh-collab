@@ -1,0 +1,47 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T12:39:52",
+ "exported_by": "明鉴 a190c54c",
+ "note": "图表SVG敏感文案全清(资方/出资来源/指纹/风控/多账号 均0)",
+ "entry": "index.html",
+ "entry_hash": "d946599fdad686e4",
+ "entry_size": 828115,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 828115,
+   "sha256_16": "d946599fdad686e4",
+   "chars": 28
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "af2fcf5faad8733f",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 126178,
+   "sha256_16": "9270d186a1d79a1b",
+   "chars": 6
+  },
+  "商业计划书.html": {
+   "size": 301777,
+   "sha256_16": "fab80b46b55d59a9",
+   "chars": 16
+  },
+  "平台格局图.html": {
+   "size": 32135,
+   "sha256_16": "e10f72bde0b1dc82",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 114869,
+   "sha256_16": "9c921b870c262872",
+   "chars": 6
+  }
+ }
+}

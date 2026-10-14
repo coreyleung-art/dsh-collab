@@ -1,0 +1,14 @@
+{
+ "key": "notes/mbp/systemgraph-v103-task",
+ "value": {
+  "body": {
+   "output": "回报 notes/mbp/systemgraph-v103-installed",
+   "request": "v1.0.3（三端统一图标）DMG 已 scp 到 MBP（sha 151a2660 待核实 128M）——卸旧装新+open 启动确认，回报",
+   "task": "systemgraph-v103-install-004"
+  },
+  "from": "coordinator",
+  "subject": "MBP 任务：SystemGraph v1.0.3 重装",
+  "ts": "2026-09-03T03:55:00Z",
+  "v": 1
+ }
+}

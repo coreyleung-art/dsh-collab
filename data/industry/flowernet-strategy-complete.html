@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flowernet 战略全景 · 完整版</title>
+<script src="/vendor/d3.min.js"></script>
+<style>
+  :root{--bg:#0d1119;--panel:#131a2a;--line:#2a3348;--txt:#e8eaf0;--mut:#8b90a3;--acc:#6ea8ff;--gold:#ffb454;--ok:#34c77b;--warn:#ff6b6b}
+  *{margin:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC",sans-serif;line-height:1.75;padding-bottom:60px}
+  header{position:sticky;top:0;background:#0d1424;border-bottom:1px solid var(--line);padding:14px 28px;z-index:50}
+  header h1{font-size:18px;color:#fff;font-weight:700}header h1 span{color:var(--gold)}
+  .wrap{max-width:1250px;margin:0 auto;padding:20px 28px}
+  h2{font-size:17px;color:var(--gold);margin:28px 0 10px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  h2 small{color:var(--mut);font-weight:400;font-size:12px;margin-left:8px}
+  h3{font-size:14px;color:var(--acc);margin:16px 0 6px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:14px 0}
+  .card{background:#101827;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .card h4{font-size:13px;color:#fff;margin-bottom:6px}.card p{font-size:12px;color:var(--mut);line-height:1.65}.card b{color:var(--ok)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:12.5px}
+  th,td{border:1px solid var(--line);padding:8px 12px;text-align:left;color:var(--txt)}th{background:#1a2438;color:#fff}
+  tr:nth-child(2n) td{background:#101827}
+  .callout{background:rgba(255,180,84,.1);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;font-size:13px;color:#ffd9a0}
+  .callout.ok{background:rgba(52,199,123,.12);border-left-color:var(--ok);color:#9fe8c0}
+  .callout.warn{background:rgba(255,107,107,.12);border-left-color:var(--warn);color:#ffb4b4}
+  .fn{color:var(--mut);font-size:11px;margin-top:4px}
+  .fig{background:#0a0e16;border-radius:10px;padding:12px;margin:12px 0;overflow-x:auto}
+  .figtitle{font-size:12.5px;color:var(--acc);margin-bottom:6px}
+</style>
+</head>
+<body>
+<header><h1>🌐 Flowernet <span>战略全景</span> · 完整版</h1></header>
+<div class="wrap">
+
+<!-- ═══ 〇 战略地图 ═══ -->
+<h2>〇、战略地图 <small>根→入场券→真护城河→平台左右逢源→头部</small></h2>
+<div class="fig"><div class="figtitle">▼ 战略要素关系图（可拖拽/缩放）</div><div id="map"></div></div>
+<div class="cards">
+  <div class="card"><h4>根 · 行业地图</h4><p>吃透行业六层→切对垂类蛋糕。<span class="fn">2490亿大盘/单店订单级=真空缺口</span></p></div>
+  <div class="card"><h4>入场券 · 双牌</h4><p>城市合伙人+全国服务商=平台授予, 先发。<span class="fn">⚠️只是入场券, 非护城河</span></p></div>
+  <div class="card"><h4>真护城河 · 4能力</h4><p>服务/洞察/调拨流量/<b>④帮平台获增量战绩(最深)</b></p></div>
+</div>
+<div class="callout warn"><b>护城河重修(今晚关键校准)</b>: API是杠杆, 不是护城河。真护城河=资格准入(双牌)+服务能力(BD/SOP)+垂类know-how。平台API实证: <b>L0/L1订单API开放可得(别人也能拿), L2决策API平台自留→护城河必须建垂类数据</b>。双牌只是入场券/先发, 非长久护城河。</div>
+<div class="callout ok"><b>平台API实证(L0/L1/L2)</b>: L0/L1订单基础API官方开放(点三/花集网先例)→用服务商资格接入(能拿但别人也能拿); L2决策级(鲜花大模型/返图)官方自留→必须自己建垂类数据/能力(别人也造不出)。</div>
+
+<!-- ═══ 一 战略方向 ═══ -->
+<h2>一、战略方向 <small>做什么·凭什么赢·怎么经营·往哪走</small></h2>
+<div class="fig"><div class="figtitle">▼ 现金流自转价值链（每级盈利建下一级）</div><div id="direction"></div></div>
+<div class="cards">
+  <div class="card"><h4>做什么</h4><p>全平台鲜花<b>卖水人/工具商/服务商</b>, 借双牌成运营角色。</p></div>
+  <div class="card"><h4>凭什么赢</h4><p>根(行业地图)→入场券(双牌)→<b>真护城河(4能力)</b>→打法(左右逢源)。</p></div>
+  <div class="card"><h4>怎么经营</h4><p><b>现金流自转</b>·每级盈利建下一级, 必要时才融资。</p></div>
+  <div class="card"><h4>往哪走</h4><p>成都样板→换入场券+多平台→垂类重要玩家→<b>头部</b>。</p></div>
+</div>
+
+<!-- ═══ 二 第一阶段BP ═══ -->
+<h2>二、第一阶段BP <small>从平台竞争入手 → 反向拆解</small></h2>
+<h3>① 平台在争什么（竞争格局）</h3>
+<div class="fig"><div class="figtitle">▼ 即时零售五平台竞争（2025Q4份额%）</div><div id="platform"></div></div>
+<div class="cards">
+  <div class="card"><h4>美团</h4><p>份额45%, 外卖GTV>60%, 闪电仓5000+→2027计划10万。</p></div>
+  <div class="card"><h4>阿里·淘宝闪购</h4><p>份额45.2%(差0.2pp), 日峰值1.2亿单, 88VIP 6000万。<span class="fn">鲜花=重点高毛利, 我方卡核心</span></p></div>
+  <div class="card"><h4>京东·秒送</h4><p>份额8.4%, 130万骑手+秒送融合。</p></div>
+  <div class="card"><h4>抖音·快手</h4><p>抖音1.5%; 快手+美团(供应链+流量), 下沉市场。</p></div>
+</div>
+<h3>② 我们能给平台带来什么（平台考核四件事）</h3>
+<div class="callout ok">平台对服务商核心期望: <b>提升存量商家质效 · 抢夺竞品增量 · 拉动GMV · 商家投流</b>——我们帮它达成, 就换到它的资源。</div>
+<table>
+  <tr><th>平台考核</th><th>我们对应</th></tr>
+  <tr><td>①提升存量商家质效</td><td>装修/报名/投流驱动, 让现有商家更好</td></tr>
+  <tr><td>②抢夺竞品增量</td><td>从美团/他平台抢商家+用户</td></tr>
+  <tr><td>③拉动GMV</td><td>新签门店+高客单</td></tr>
+  <tr><td>④驱动商家投流</td><td>平台要广告收入, 我们帮加投流</td></tr>
+</table>
+<div class="callout">三通道: <b>A存量平移</b>(强建联750家)·<b>B新签拉新</b>·<b>C消费者迁移</b>。并<u>让渡点数换代理费</u>(财散人聚)。</div>
+<h3>②b IP打法（为什么做·怎么切割·为何这样说·美团为何不成）</h3>
+<div class="fig"><div class="figtitle">▼ IP人群切割 · 四象限坐标（X男→女 · Y冷→热）</div><div id="quad"></div></div>
+<div class="cards">
+  <div class="card"><h4>① 为什么做IP</h4><p>IP粉丝=<b>外部新增用户</b>(非存量转化)+高客单GMV。</p></div>
+  <div class="card"><h4>② 人群切割</h4><p>只选右上(<b>女性向×高狂热</b>), 排除左半/下半。</p></div>
+  <div class="card"><h4>③ 为何这样说</h4><p>狂热粉丝<b>自发消费</b>、无刷单；高客单(1588/888/288)。</p></div>
+  <div class="card"><h4>④ 美团为何不成</h4><p>选中性低狂热(<b>迪士尼</b>)→刷单→法律纠纷。<b>我们选狂热IP→自发消费</b>。</p></div>
+</div>
+<div class="callout ok"><b>市场真空位(①代运营AI差异化)</b>: 鲜花代运营"规模+单店产出+缺陷率"无人兼得——铺得多则单店产出低/缺陷高, 单店高则铺不广。AI恰可兼得(AI不累/能铺多店/又准)。<b>我方AI代运营工具=市场真空位填补者</b>。</div>
+<div class="callout"><b>获客策略(A/B两类·数据调查员定向名单)</b>: <b>A类=规模化托管商</b>(无界汇流/芙洛拉/私派)有大量店但缺AI产能→卖AI工具给它们提效(它们有客户缺能力=B端迁移); <b>B类=同名门店</b>(观花则喜/花小蕾)低评分有投诉→单店AI托管试点, 帮提分拿提分案例。</div>
+<h3>③ 反向拆解我们该做什么</h3>
+<div class="callout">帮淘闪做出可验证类目增量战绩 → IP首场+代运营+数据端口P1 → 换城市合伙人资格+流量管道 → 为全平台扩张攒第一桶金。</div>
+
+<!-- ═══ 三 终局叙事 ═══ -->
+<h2>三、终局叙事 <small>起承转合</small></h2>
+<div class="callout">我们不是烧钱买规模, 是用现金流自转, 每级赚的钱和战绩建更大优势——最终成鲜花垂类卖水人/底座。</div>
+<div class="fig"><div class="figtitle">▼ 终局叙事 · 起承转合</div><div id="endgame"></div></div>
+<table>
+  <tr><th>段</th><th>阶段</th><th>赚到什么</th><th>用于</th></tr>
+  <tr><td>起</td><td>成都样板</td><td>帮淘闪增量战绩+第一笔现金流</td><td>换入场券+管道</td></tr>
+  <tr><td>承</td><td>换入场券</td><td>全平台地位</td><td>建第二盈利点(IP/工具)</td></tr>
+  <tr><td>转</td><td>全平台</td><td>多平台战绩+多收入源</td><td>做大优势(4能力)</td></tr>
+  <tr><td>合</td><td>垂类头部</td><td>稳定现金流+估值</td><td>服务战略蓝图</td></tr>
+</table>
+
+<!-- ═══ 四 落地执行 ═══ -->
+<h2>四、落地执行 <small>现金流自转四档</small></h2>
+<div class="fig"><div class="figtitle">▼ 四档现金流自转</div><div id="execution"></div></div>
+<table>
+  <tr><th>档</th><th>时点</th><th>主线</th><th>盈利源头</th><th>资本</th></tr>
+  <tr><td>1单城</td><td>0-6月</td><td>①代运营</td><td>现金流≥36万/月</td><td>种子/自有</td></tr>
+  <tr><td>2五城</td><td>6-15月</td><td>②IP+商品</td><td>IP贸易差价</td><td>现金流+少量</td></tr>
+  <tr><td>3十城</td><td>15-24月</td><td>③软硬件</td><td>订阅复利</td><td>里程碑触融</td></tr>
+  <tr><td>4头部</td><td>24月+</td><td>④底座</td><td>卖水人</td><td>资本+对赌</td></tr>
+</table>
+
+<!-- ═══ 五 资本计划 ═══ -->
+<h2>五、四档资本计划 <small>资金×目标×评估</small></h2>
+<div class="fig"><div class="figtitle">▼ 四档资本节奏</div><div id="capital"></div></div>
+<div class="callout ok">原则: 能现金流自转就不融; 借了就要证明能力; 结果分级预案。</div>
+<table>
+  <tr><th>档</th><th>资金来源</th><th>目标与规模</th><th>结果评估</th></tr>
+  <tr><td>1单城</td><td>自有(种子1000万, 花400-500)</td><td>动销池+打平36万/月</td><td>✅进档2/⚠️砍端口/❌缓冲250万</td></tr>
+  <tr><td>2五城</td><td>现金流+少量融</td><td>5城→Pre-A 2000-3000万</td><td>✅触发/⚠️暂缓/❌不融资</td></tr>
+  <tr><td>3十城</td><td>Pre-A到账</td><td>10城→A轮3000-3700万</td><td>✅触发/⚠️收紧/❌可转债</td></tr>
+  <tr><td>4头部</td><td>A轮+对赌</td><td>30城/垂类头部</td><td>✅IPO/⚠️保头部/❌现金流为王</td></tr>
+</table>
+
+<!-- ═══ 六 评估坐标 ═══ -->
+<h2>六、分档评估坐标 <small>六轴×三档(已行业基准校准)</small></h2>
+<div class="callout warn">⚠️ 阈值已用2026-09-10指标基准调研校准: 续约率40-70%(抽佣绑定65-75%)·人效15-35店/人·GMV+5-15%/月·新签4-8%·订阅按效果/抽佣。</div>
+<table>
+  <tr><th>六轴</th><th>指标</th><th>✅达标</th><th>⚠️部分</th><th>❌未达</th></tr>
+  <tr><td>现金</td><td>代运营毛利(档1)</td><td>≥36万/月</td><td>15-36万</td><td>&lt;15万</td></tr>
+  <tr><td>规模</td><td>在管商家池</td><td>≥900</td><td>750-900</td><td>&lt;750</td></tr>
+  <tr><td>增长</td><td>GMV环比(爬坡)</td><td>+5-15%/月</td><td>0-5%</td><td>持平/降</td></tr>
+  <tr><td>质量</td><td>续约率(按效果)</td><td>65-75%</td><td>50-65%</td><td>&lt;50%</td></tr>
+  <tr><td>平台</td><td>帮淘闪增量</td><td>首场售罄+新注册</td><td>部分售罄</td><td>未售罄</td></tr>
+  <tr><td>数据</td><td>端口授权(抽佣)</td><td>&gt;80%</td><td>50-80%</td><td>&lt;50%</td></tr>
+</table>
+
+</div>
+<script>
+// 战略地图力导向
+(function(){
+  var W=1150,H=320;
+  var n=[{id:'根:行业know-how',g:'A',r:16},{id:'入场券:双牌',g:'B',r:15},{id:'服务能力',g:'C',r:12},{id:'行业洞察',g:'C',r:12},{id:'调拨流量',g:'C',r:12},{id:'帮平台增量',g:'C',r:14},{id:'平台左右逢源',g:'D',r:13},{id:'垂类玩家',g:'E',r:12},{id:'头部底座',g:'E',r:15},{id:'现金流自转',g:'F',r:14}];
+  var l=[{s:0,t:1},{s:1,t:2},{s:1,t:3},{s:1,t:4},{s:1,t:5},{s:5,t:6},{s:3,t:6},{s:6,t:7},{s:7,t:8},{s:0,t:9},{s:9,t:8}];
+  var c={A:'#6ea8ff',B:'#ffb454',C:'#34c77b',D:'#c792ea',E:'#ff6b6b',F:'#8b90a3'};
+  var svg=d3.select('#map').append('svg').attr('width',W).attr('height',H);
+  var sim=d3.forceSimulation(n.map((d,i)=>Object.assign({},d))).force('link',d3.forceLink(l.map(x=>({s:n[x.s],t:n[x.t]}))).distance(120)).force('charge',d3.forceManyBody().strength(-300)).force('center',d3.forceCenter(W/2,H/2)).force('collide',d3.forceCollide(30));
+  var ln=svg.selectAll('line').data(l).enter().append('line').attr('stroke','#2a3348').attr('stroke-width',1.5);
+  var nd=svg.selectAll('g').data(n).enter().append('g').call(d3.drag().on('start',function(e,d){if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y}).on('drag',function(e,d){d.fx=e.x;d.fy=e.y}).on('end',function(e,d){if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
+  nd.append('circle').attr('r',d=>d.r).attr('fill',d=>c[d.g]).attr('stroke','#0d1119').attr('stroke-width',2);
+  nd.append('text').attr('x',0).attr('dy',4).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',10).text(d=>d.id.length>7?d.id.slice(0,7)+'…':d.id);
+  svg.call(d3.zoom().scaleExtent([.4,2.5]).on('zoom',e=>nd.attr('transform',e.transform)));
+  sim.on('tick',function(){ln.attr('x1',d=>d.s.x).attr('y1',d=>d.s.y).attr('x2',d=>d.t.x).attr('y2',d=>d.t.y);nd.attr('transform',d=>'translate('+d.x+','+d.y+')');});
+})();
+// 五平台
+(function(){
+  var data=[{n:'美团',v:45,c:'#6ea8ff'},{n:'淘宝闪购',v:45.2,c:'#ffb454'},{n:'京东秒送',v:8.4,c:'#8b90a3'},{n:'抖音小时达',v:1.5,c:'#c792ea'},{n:'快手',v:0.8,c:'#34c77b'}];
+  var W=600,H=210,m=30;var svg=d3.select('#platform').append('svg').attr('width',W).attr('height',H);
+  var x=d3.scaleLinear().domain([0,50]).range([m,W-m]);var y=d3.scaleBand().domain(data.map(d=>d.n)).range([m,H-m]).padding(.25);
+  svg.selectAll('rect').data(data).enter().append('rect').attr('x',m).attr('y',d=>y(d.n)).attr('width',d=>x(d.v)-m).attr('height',y.bandwidth()).attr('fill',d=>d.c).attr('rx',4);
+  svg.selectAll('.lab').data(data).enter().append('text').attr('x',d=>x(d.v)+6).attr('y',d=>y(d.n)+y.bandwidth()/2+4).attr('fill',d=>d.c).attr('font-size',11).text(d=>d.v+'%');
+  svg.selectAll('.pl').data(data).enter().append('text').attr('x',d=>m+4).attr('y',d=>y(d.n)+y.bandwidth()/2+4).attr('fill','#e8eaf0').attr('font-size',11).text(d=>d.n);
+})();
+// 四象限
+(function(){
+  var W=520,H=420,m=44;var svg=d3.select('#quad').append('svg').attr('width',W).attr('height',H);
+  var x0=m,x1=W-m,y0=m,y1=H-m,cx=(x0+x1)/2,cy=(y0+y1)/2;
+  svg.append('rect').attr('x',cx).attr('y',y0).attr('width',x1-cx).attr('height',cy-y0).attr('fill','rgba(52,199,123,.2)');
+  svg.append('rect').attr('x',x0).attr('y',y0).attr('width',cx-x0).attr('height',cy-y0).attr('fill','rgba(255,107,107,.1)');
+  svg.append('rect').attr('x',x0).attr('y',cy).attr('width',cx-x0).attr('height',y1-cy).attr('fill','rgba(255,107,107,.1)');
+  svg.append('rect').attr('x',cx).attr('y',cy).attr('width',x1-cx).attr('height',y1-cy).attr('fill','rgba(255,107,107,.1)');
+  svg.append('line').attr('x1',x0).attr('y1',cy).attr('x2',x1).attr('y2',cy).attr('stroke','#4a5568');
+  svg.append('line').attr('x1',cx).attr('y1',y0).attr('x2',cx).attr('y2',y1).attr('stroke','#4a5568');
+  svg.append('text').attr('x',x1-8).attr('y',cy-10).attr('fill','#6ea8ff').attr('font-size',13).attr('font-weight',700).text('女 →');
+  svg.append('text').attr('x',x0+6).attr('y',cy-10).attr('fill','#8b90a3').attr('font-size',13).text('← 男');
+  svg.append('text').attr('x',cx+10).attr('y',y0+18).attr('fill','#8b90a3').attr('font-size',13).text('↑ 热(高狂热)');
+  svg.append('text').attr('x',cx+10).attr('y',y1-8).attr('fill','#8b90a3').attr('font-size',13).text('↓ 冷(低狂热)');
+  svg.append('text').attr('x',cx+14).attr('y',cy-22).attr('fill','#34c77b').attr('font-size',13).attr('font-weight',700).text('只选: 女性向×高狂热');
+  svg.append('text').attr('x',x0+14).attr('y',cy-22).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男性向×高狂热');
+  svg.append('text').attr('x',x0+14).attr('y',y0+26).attr('fill','#8b90a3').attr('font-size',12).text('排除: 男×低狂热');
+  svg.append('text').attr('x',cx+14).attr('y',cy+30).attr('fill','#8b90a3').attr('font-size',12).text('排除: 女×低狂热');
+  svg.append('circle').attr('cx',cx+45).attr('cy',cy-42).attr('r',7).attr('fill','#34c77b');
+  svg.append('text').attr('x',cx+58).attr('y',cy-40).attr('fill','#34c77b').attr('font-size',11).attr('font-weight',700).text('我们的目标');
+})();
+// 四档
+(function(){
+  var data=[{n:'①代运营',m:'≥36万'},{n:'②IP+商品',m:'定价权'},{n:'③软硬件',m:'订阅'},{n:'④底座',m:'卖水人'}];
+  var W=700,H=160,m=20;var svg=d3.select('#execution').append('svg').attr('width',W).attr('height',H);var bw=(W-2*m)/4;
+  data.forEach(function(d,i){var x0=m+i*bw+8,h=70+i*14;svg.append('rect').attr('x',x0).attr('y',H-m-h).attr('width',bw-16).attr('height',h).attr('fill',['#6ea8ff','#34c77b','#c792ea','#ffb454'][i]).attr('rx',5).attr('fill-opacity',.8);
+  svg.append('text').attr('x',x0+(bw-16)/2).attr('y',H-m-h-6).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',12).attr('font-weight',700).text(d.n);
+  svg.append('text').attr('x',x0+(bw-16)/2).attr('y',H-m-h+18).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',10.5).text(d.m);if(i<3)svg.append('text').attr('x',x0+bw-8).attr('y',H-m-h-10).attr('fill','#8b90a3').attr('font-size',11).text('→');});
+})();
+// 现金流自转(方向)
+(function(){
+  var W=1000,H=220;var svg=d3.select('#direction').append('svg').attr('width',W).attr('height',H);
+  var steps=[{n:'第一笔现金流<p>代运营造血',c:'#6ea8ff'},{n:'建第二盈利点<p>IP+商品/软硬件',c:'#34c77b'},{n:'做大优势<p>4能力积累',c:'#c792ea'},{n:'下一利润源<p>AI工具/多收入',c:'#ffb454'},{n:'服务战略蓝图<p>垂类头部/底座',c:'#ff6b6b'}];
+  var sw=W/steps.length;
+  steps.forEach(function(d,i){var cx=i*sw+sw/2;var r=36;
+    svg.append('circle').attr('cx',cx).attr('cy',H/2).attr('r',r).attr('fill',d.c).attr('opacity',.85);
+    svg.append('text').attr('x',cx).attr('y',H/2-6).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',10.5).attr('font-weight',700).text(d.n.split('<')[0]);
+    svg.append('text').attr('x',cx).attr('y',H/2+12).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',8.5).text(d.n.split('<')[1]||'');
+    if(i<steps.length-1)svg.append('text').attr('x',cx+sw/2).attr('y',H/2+4).attr('fill','#8b90a3').attr('font-size',16).text('→');
+  });
+})();
+// 终局起承转合
+(function(){
+  var W=960,H=170;var svg=d3.select('#endgame').append('svg').attr('width',W).attr('height',H);
+  var st=[{n:'起·成都样板',c:'#6ea8ff'},{n:'承·换入场券',c:'#34c77b'},{n:'转·全平台',c:'#c792ea'},{n:'合·垂类头部',c:'#ffb454'}];
+  var sw=W/st.length;
+  st.forEach(function(d,i){var cx=i*sw+sw/2;
+    svg.append('rect').attr('x',cx-70).attr('y',H/2-22).attr('width',140).attr('height',44).attr('rx',8).attr('fill',d.c).attr('opacity',.85);
+    svg.append('text').attr('x',cx).attr('y',H/2-6).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',12).attr('font-weight',700).text(d.n.split('·')[0]);
+    svg.append('text').attr('x',cx).attr('y',H/2+10).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',9.5).text(d.n.split('·')[1]||'');
+    if(i<st.length-1)svg.append('text').attr('x',cx+sw/2).attr('y',H/2+4).attr('fill','#8b90a3').attr('font-size',16).text('→');
+  });
+})();
+// 资本节奏(三档)
+(function(){
+  var W=900,H=190;var svg=d3.select('#capital').append('svg').attr('width',W).attr('height',H);
+  var st=[{n:'档1 单城',m:'自转',c:'#6ea8ff'},{n:'档2 5城<br>Pre-A 2000-3000万',m:'现金流+少量',c:'#34c77b'},{n:'档3 10城<br>A轮3000-3700万',m:'里程碑融',c:'#c792ea'},{n:'档4 头部',m:'对赌/IPO',c:'#ffb454'}];
+  var sw=W/st.length;
+  st.forEach(function(d,i){var cx=i*sw+sw/2;
+    svg.append('rect').attr('x',cx-64).attr('y',H/2-26).attr('width',128).attr('height',52).attr('rx',8).attr('fill',d.c).attr('opacity',.85);
+    svg.append('text').attr('x',cx).attr('y',H/2-10).attr('text-anchor','middle').attr('fill','#fff').attr('font-size',11).attr('font-weight',700).text(d.n.split('<')[0]);
+    if(d.n.indexOf('<')>=0)svg.append('text').attr('x',cx).attr('y',H/2+4).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',8.5).text(d.n.split('<')[1].replace('<br>',''));
+    svg.append('text').attr('x',cx).attr('y',H/2+16).attr('text-anchor','middle').attr('fill','#e8eaf0').attr('font-size',9).text(d.m);
+  });
+})();
+</script>
+</body>
+</html>

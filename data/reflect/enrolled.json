@@ -1,0 +1,24 @@
+{
+ "version": 1,
+ "updated": "2026-09-10T20:53:27.321Z",
+ "tool": "dsh-plugin-reflect-enroll v1.3.0",
+ "entries": [
+  {
+   "proposal_id": "candidate-A-referential-integrity",
+   "date": "2026-09-11",
+   "decision": "approve",
+   "target": "philosophy",
+   "outcome": "enrolled",
+   "ts": "2026-09-10T20:53:27.133Z",
+   "ref": "phi-referential-integrity",
+   "philosophy_version": "2.6",
+   "reason": "用户裁定：同意入册为第 14 条哲学。三票支持单立（星桥/罗盘/HR），零反对。形态六级（②定为最低强制线）、两种表述并存、与 R030 互链 —— 均同意。",
+   "proposal_name": "指称完整性 · 所指须可解析",
+   "files": [
+    "data/blueprint/gallery/governance-philosophy.json",
+    "data/blueprint/gallery/governance-philosophy-changelog.md"
+   ],
+   "backup_stamp": "20260911-045327"
+  }
+ ]
+}

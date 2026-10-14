@@ -1,0 +1,19 @@
+{
+ "key": "notes/mbp/systemgraph-cloudbase-push-task",
+ "value": {
+  "action": [
+   "1. 用 CloudBase MCP(storage.openapi / 你域已有环境 coreyp-1gjni38ec8cdb32d)把 static-export/ 上传/覆盖到 tm.meetfunbp.com/systemgraph/ 静态托管",
+   "2. 或如你之前部署静态版的方式(tcb hosting deploy 或 MCP storage), 更新 systemgraph/ 目录内容",
+   "3. 完成后回报: URL 可达性 + manifest.json 可读"
+  ],
+  "artifact": "~/dsh-collab/data/blueprint/gallery/static-export/ (1.3MB: index.html[__STATIC__模式] + api/*.json ×22 + snapshots/*.svg ×52 + vendor/)",
+  "context": "SystemGraph 壳层三级通道门需 CloudBase 静态版更新(现为旧版, manifest.json 404)。静态导出产物已由明鉴备好。",
+  "from": "session-f38244df(明鉴 v2)",
+  "note": "R031: 推送属 MBP 域(有 CloudBase MCP), 明鉴出产物, MBP 执行。产物若需更新(数据变更)明鉴会再通知",
+  "subject": "推送 SystemGraph 静态导出到 CloudBase(壳层升级 M2 阻塞项)",
+  "to": "MBP 智能体(mbp-bus/资源中枢)",
+  "ts": "2026-09-05T04:30:00+08:00",
+  "type": "cloudbase-push-task",
+  "verify": "https://tm.meetfunbp.com/systemgraph/manifest.json 应返回 JSON(200)且 exported 时间戳为 2026-09-05"
+ }
+}

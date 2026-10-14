@@ -186,6 +186,23 @@ def render_concept(sources, excl_n, unreadable_n):
     return ok, len(deg)
 
 
+def terms_from(intent):
+    """★★★ 2026-10-15（D-398）：把意图拆成【检索词】—— ★ 且【剥掉前导连字符】。
+
+    ★★ 立据（本线亲测）：★ 意图里只要有**一个像旗标的词**（★ 如 `--selfcheck`、`--json`），
+      ★ 就会被 `local-registry.py` 当成**自己的选项** ⇒ ★★ **它转而打印 TCC 自检**（★ 那是 stdout 上的
+      非 JSON 文本）⇒ 本门的 `json.loads` 崩 ⇒ ★★ **门以 `exit 2` 拒绝**（★ 检索失败）。
+      ★★★ ⇒ **凡意图里提到任何 CLI 旗标，J44 就用不了** —— ★ 而本仓的意图里**极常**提到旗标。
+    ★ 修法：★ **剥掉前导 `-`**（★ `--selfcheck` ⇒ 检索词 `selfcheck`，★ **召回还不丢**）。
+    """
+    out = []
+    for w in intent.replace("，", " ").replace(",", " ").split():
+        w = w.lstrip("-").strip()
+        if len(w) >= 2:
+            out.append(w)
+    return out
+
+
 def search_local(terms, limit=12):
     """调 local-registry.py 检索本机资产。返回 (hits, err)。"""
     if not os.path.exists(SEARCH):
@@ -366,6 +383,12 @@ def selftest():
     c("执行件 local-registry.py 在位", os.path.exists(SEARCH))
     # 负例：查未留痕的东西 ⇒ 非 0
     c("未留痕查询 ⇒ 返回非 0", cmd_check("__never_built_zzz__") != 0, kind="neg")
+    # ★★★ 2026-10-15 补（D-398）：【检索词不得带前导连字符】必须是一条判据 ——
+    #   ★ 立据：意图含 `--selfcheck` ⇒ 被 local-registry 当旗标 ⇒ 打印自检 ⇒ 本门 JSONDecodeError ⇒ exit 2
+    #     ★★ **门因此对【提到任何 CLI 旗标】的意图完全不可用**（★ 本线亲测撞上）。
+    _t = terms_from("把 H5e 换成行为仪：实跑 --selfcheck 看退出码，并跑 --json")
+    c("意图含旗标 ⇒ 检索词不得带前导 '-'（★ D-398）",
+      bool(_t) and all(not x.startswith("-") for x in _t) and "selfcheck" in _t, kind="neg")
     # ★★★ 2026-10-15 补（D-392）：【台账读得出】本身也必须是一条判据 ——
     #   ★ 立据：92 条留痕里 50 条 `artifact` 字面为 `null` ⇒ 原 `cmd_list` 直接 `TypeError` 崩，
     #     ★★ 而本自证【一条都没覆盖它】⇒ 「门的留痕可核」这件事**从未被验过**（★ 崩了没人知道）。
@@ -404,7 +427,7 @@ def main():
     if not a.intent:
         ap.print_help(); return 2
 
-    terms = [w for w in a.intent.replace("，", " ").replace(",", " ").split() if len(w) >= 2]
+    terms = terms_from(a.intent)
     hits, err = search_local(terms)
     if err:
         print("★ 检索失败：%s" % err, file=sys.stderr)

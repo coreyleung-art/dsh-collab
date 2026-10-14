@@ -1,0 +1,22 @@
+{
+ "schema": "cloudbase-version-fingerprint/v2",
+ "deployed_at": "2026-09-28T09:48:37+08:00",
+ "deployed_by": "laodeng aa528267",
+ "entry_hash": "48268388e170bd03",
+ "entry_hash_full": "48268388e170bd03795145a2a140efee2bf861d5d4e2aa3699e7dd458998ada5",
+ "hash_spec": "sha256（_full=64位全量 / 无后缀=前16位）",
+ "charts_by_tab": null,
+ "charts_total": null,
+ "notes": "systemgraph fingerprint (post-takedown)",
+ "files": {
+  "index.html": {
+   "size": 150200,
+   "sha256_16": "48268388e170bd03"
+  },
+  "manifest.json": {
+   "size": 1720,
+   "sha256_16": "40bb7f99d64293a6"
+  }
+ },
+ "how_to_verify": "GET 本文件 → 比对 entry_hash（或 entry_hash_full）即可确认线上版本，不受 CDN 缓存影响；图表数看 charts_by_tab"
+}

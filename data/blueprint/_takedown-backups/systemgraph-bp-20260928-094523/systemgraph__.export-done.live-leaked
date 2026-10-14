@@ -1,0 +1,572 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T15:53:04",
+ "exported_by": "明鉴 a190c54c",
+ "note": "同步",
+ "entry": "bp/index.html",
+ "entry_hash": "ca24d469a7f1788f",
+ "entry_size": 1073814,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 150200,
+   "sha256_16": "470cd995f1c9ce10",
+   "chars": 0
+  },
+  "index.html.bak-20260910-061736": {
+   "size": 104559,
+   "sha256_16": "2eeaad1cdfe30d07",
+   "chars": 0
+  },
+  "manifest.json": {
+   "size": 1823,
+   "sha256_16": "4b682f42cf3cc516",
+   "chars": 0
+  },
+  "bp/capital.html": {
+   "size": 153083,
+   "sha256_16": "fe7d12d38616df02",
+   "chars": 0
+  },
+  "bp/index.html": {
+   "size": 1073814,
+   "sha256_16": "ca24d469a7f1788f",
+   "chars": 0
+  },
+  "bp/map.html": {
+   "size": 32135,
+   "sha256_16": "e10f72bde0b1dc82",
+   "chars": 0
+  },
+  "bp/plan.html": {
+   "size": 426099,
+   "sha256_16": "a0b93cfaf9d698ab",
+   "chars": 0
+  },
+  "bp/stakeholder.html": {
+   "size": 136011,
+   "sha256_16": "b715e2771278cb29",
+   "chars": 0
+  },
+  "bp/平台格局图.html": {
+   "size": 55411,
+   "sha256_16": "1fdcb85391b2111e",
+   "chars": 0
+  },
+  "bp/welcome/index.html": {
+   "size": 8903,
+   "sha256_16": "37d74254d62d7224",
+   "chars": 0
+  },
+  "bp/partner/index.html": {
+   "size": 131820,
+   "sha256_16": "93e291c2bdb18f63",
+   "chars": 0
+  },
+  "bp/taobao-brief/index.html": {
+   "size": 52290,
+   "sha256_16": "264cdabd497204ee",
+   "chars": 5
+  },
+  "snapshots/agent-network-arch-v1_2-20260902-234449.svg": {
+   "size": 9664,
+   "sha256_16": "e823340a4a7f0680",
+   "chars": 0
+  },
+  "snapshots/agent-network-arch-v1_3-20260904-021743.svg": {
+   "size": 10461,
+   "sha256_16": "201b1e3449a309d9",
+   "chars": 0
+  },
+  "snapshots/agent-network-fish-v1_2-20260902-234449.svg": {
+   "size": 20804,
+   "sha256_16": "df394332456faf1b",
+   "chars": 0
+  },
+  "snapshots/agent-network-fish-v1_3-20260904-021743.svg": {
+   "size": 20787,
+   "sha256_16": "218ced36ae24f32d",
+   "chars": 0
+  },
+  "snapshots/agent-network-tl-v1_2-20260902-234449.svg": {
+   "size": 4900,
+   "sha256_16": "7f4af8113c7e8b65",
+   "chars": 0
+  },
+  "snapshots/agent-network-tl-v1_3-20260904-021743.svg": {
+   "size": 4900,
+   "sha256_16": "7f4af8113c7e8b65",
+   "chars": 0
+  },
+  "snapshots/aistartup-arch-v1_0-20260902-234449.svg": {
+   "size": 4010,
+   "sha256_16": "b4ceb979d7d67875",
+   "chars": 0
+  },
+  "snapshots/aistartup-fish-v1_0-20260902-234449.svg": {
+   "size": 6688,
+   "sha256_16": "a2948f22a3488324",
+   "chars": 0
+  },
+  "snapshots/aistartup-tl-v1_0-20260902-234449.svg": {
+   "size": 1359,
+   "sha256_16": "2f361ef2da18712d",
+   "chars": 0
+  },
+  "snapshots/banking-arch-v1_2-20260902-234449.svg": {
+   "size": 4188,
+   "sha256_16": "6da1593f786b15e8",
+   "chars": 0
+  },
+  "snapshots/banking-fish-v1_2-20260902-234449.svg": {
+   "size": 7016,
+   "sha256_16": "05f914fc445d3969",
+   "chars": 0
+  },
+  "snapshots/banking-tl-v1_2-20260902-234449.svg": {
+   "size": 1347,
+   "sha256_16": "120924f773ee76fc",
+   "chars": 0
+  },
+  "snapshots/banking-v1_1-hist.svg": {
+   "size": 4188,
+   "sha256_16": "cbc451bcc509fed0",
+   "chars": 0
+  },
+  "snapshots/blueprint-platform-arch-v1_0_源自_v0_3_设计_-20260902-234449.svg": {
+   "size": 4016,
+   "sha256_16": "11ce980725e5e727",
+   "chars": 0
+  },
+  "snapshots/blueprint-platform-fish-v1_0_源自_v0_3_设计_-20260902-234449.svg": {
+   "size": 6335,
+   "sha256_16": "252ca0415ce149e9",
+   "chars": 0
+  },
+  "snapshots/blueprint-platform-tl-v1_0_源自_v0_3_设计_-20260902-234449.svg": {
+   "size": 1360,
+   "sha256_16": "550a04a33b75c865",
+   "chars": 0
+  },
+  "snapshots/distributed-agent-network-arch-20260909-000623.svg": {
+   "size": 5334,
+   "sha256_16": "fc7032365c5749a9",
+   "chars": 0
+  },
+  "snapshots/distributed-network-arch-v1_0-20260903-005111.svg": {
+   "size": 5055,
+   "sha256_16": "7ce5ca2a777e8226",
+   "chars": 0
+  },
+  "snapshots/distributed-network-arch-v1_1-20260909-001634.svg": {
+   "size": 3678,
+   "sha256_16": "f2247bf833ab482b",
+   "chars": 0
+  },
+  "snapshots/distributed-network-fish-v1_0-20260903-005111.svg": {
+   "size": 9538,
+   "sha256_16": "e8ad7ac83a20e050",
+   "chars": 0
+  },
+  "snapshots/distributed-network-fish-v1_1-20260909-001634.svg": {
+   "size": 5556,
+   "sha256_16": "f5575c6515eb8587",
+   "chars": 0
+  },
+  "snapshots/distributed-network-tl-v1_0-20260903-005111.svg": {
+   "size": 2017,
+   "sha256_16": "30e94740c4d3a98a",
+   "chars": 0
+  },
+  "snapshots/distributed-network-tl-v1_1-20260909-001634.svg": {
+   "size": 2337,
+   "sha256_16": "29af8ddc70f8828d",
+   "chars": 0
+  },
+  "snapshots/flowernet-arch-v2_3-20260902-234449.svg": {
+   "size": 6687,
+   "sha256_16": "c85e54d7453dfcae",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-arch-v1_1-20260908-133818.svg": {
+   "size": 2962,
+   "sha256_16": "f0b5602b608e22f3",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-arch-v1_2-20260909-030744.svg": {
+   "size": 3739,
+   "sha256_16": "c8a8fbfe93afeae8",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-fish-v1_1-20260908-133818.svg": {
+   "size": 2616,
+   "sha256_16": "a884ffe32aa6e80d",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-fish-v1_2-20260909-030744.svg": {
+   "size": 2616,
+   "sha256_16": "a884ffe32aa6e80d",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-tl-v1_1-20260908-133818.svg": {
+   "size": 1330,
+   "sha256_16": "e9debdc994a32355",
+   "chars": 0
+  },
+  "snapshots/flowernet-citywar-tl-v1_2-20260909-030744.svg": {
+   "size": 1330,
+   "sha256_16": "e9debdc994a32355",
+   "chars": 0
+  },
+  "snapshots/flowernet-erp-arch-v1_0-20260902-234449.svg": {
+   "size": 1953,
+   "sha256_16": "6e9ce76a70256489",
+   "chars": 0
+  },
+  "snapshots/flowernet-erp-fish-v1_0-20260902-234449.svg": {
+   "size": 2156,
+   "sha256_16": "191ea779ee24f0a5",
+   "chars": 0
+  },
+  "snapshots/flowernet-erp-tl-v1_0-20260902-234449.svg": {
+   "size": 1328,
+   "sha256_16": "1b0a2a4adeafc1d4",
+   "chars": 0
+  },
+  "snapshots/flowernet-fish-v2_3-20260902-234449.svg": {
+   "size": 12914,
+   "sha256_16": "78a89d5008871a87",
+   "chars": 0
+  },
+  "snapshots/flowernet-miniapp-arch-v1_0-20260902-234449.svg": {
+   "size": 1890,
+   "sha256_16": "9c209f3477fe74d9",
+   "chars": 0
+  },
+  "snapshots/flowernet-miniapp-fish-v1_0-20260902-234449.svg": {
+   "size": 2134,
+   "sha256_16": "8fa2fe07a1211a8f",
+   "chars": 0
+  },
+  "snapshots/flowernet-miniapp-tl-v1_0-20260902-234449.svg": {
+   "size": 1303,
+   "sha256_16": "d28363a00c4673dd",
+   "chars": 0
+  },
+  "snapshots/flowernet-ops-arch-v1_0-20260908-133818.svg": {
+   "size": 2905,
+   "sha256_16": "61aac555cabddcfc",
+   "chars": 0
+  },
+  "snapshots/flowernet-ops-fish-v1_0-20260908-133818.svg": {
+   "size": 2623,
+   "sha256_16": "073075c788c4ff53",
+   "chars": 0
+  },
+  "snapshots/flowernet-ops-tl-v1_0-20260908-133818.svg": {
+   "size": 1323,
+   "sha256_16": "68b398c355ce30ec",
+   "chars": 0
+  },
+  "snapshots/flowernet-platform-arch-v1_0_源自_v4_0_正式版_-20260902-234449.svg": {
+   "size": 7168,
+   "sha256_16": "b25398e1f0588bae",
+   "chars": 0
+  },
+  "snapshots/flowernet-platform-fish-v1_0_源自_v4_0_正式版_-20260902-234449.svg": {
+   "size": 13240,
+   "sha256_16": "c48994b5edf27953",
+   "chars": 0
+  },
+  "snapshots/flowernet-platform-tl-v1_0_源自_v4_0_正式版_-20260902-234449.svg": {
+   "size": 2392,
+   "sha256_16": "dd0b20acb685014e",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-arch-v1_2-20260908-133818.svg": {
+   "size": 3218,
+   "sha256_16": "274942849995f4c7",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-arch-v1_3-20260909-030744.svg": {
+   "size": 4663,
+   "sha256_16": "ff8c61111da330a5",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-fish-v1_2-20260908-133818.svg": {
+   "size": 3074,
+   "sha256_16": "c56b7f4b6b639ce2",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-fish-v1_3-20260909-030744.svg": {
+   "size": 3534,
+   "sha256_16": "df7b994ea89a5e3e",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-tl-v1_2-20260908-133818.svg": {
+   "size": 1342,
+   "sha256_16": "148d6be240b7c044",
+   "chars": 0
+  },
+  "snapshots/flowernet-supply-tl-v1_3-20260909-030744.svg": {
+   "size": 1342,
+   "sha256_16": "148d6be240b7c044",
+   "chars": 0
+  },
+  "snapshots/flowernet-tl-v2_3-20260902-234449.svg": {
+   "size": 2757,
+   "sha256_16": "a901ff2d5b306418",
+   "chars": 0
+  },
+  "snapshots/flowernet-website-arch-v1_0-20260902-234449.svg": {
+   "size": 1826,
+   "sha256_16": "ec662b84515984ed",
+   "chars": 0
+  },
+  "snapshots/flowernet-website-fish-v1_0-20260902-234449.svg": {
+   "size": 2126,
+   "sha256_16": "7704a7b80b6ddc76",
+   "chars": 0
+  },
+  "snapshots/flowernet-website-tl-v1_0-20260902-234449.svg": {
+   "size": 941,
+   "sha256_16": "3e981f459f4b3d8a",
+   "chars": 0
+  },
+  "snapshots/gene-bank-arch-v1_0-20260903-001756.svg": {
+   "size": 4341,
+   "sha256_16": "7fd54fd80ab7c17a",
+   "chars": 0
+  },
+  "snapshots/gene-bank-fish-v1_0-20260903-001756.svg": {
+   "size": 7696,
+   "sha256_16": "fa4468ff2cf7fc40",
+   "chars": 0
+  },
+  "snapshots/gene-bank-tl-v1_0-20260903-001756.svg": {
+   "size": 1686,
+   "sha256_16": "af2d7f65cf74ea05",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-arch-v1_0-20260903-100236.svg": {
+   "size": 1781,
+   "sha256_16": "c4a735c3c763570c",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-arch-v1_1-20260903-133112.svg": {
+   "size": 1781,
+   "sha256_16": "d74448f8cca16039",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-fish-v1_0-20260903-100236.svg": {
+   "size": 2157,
+   "sha256_16": "773b58bba4c75f33",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-fish-v1_1-20260903-133112.svg": {
+   "size": 2157,
+   "sha256_16": "773b58bba4c75f33",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-tl-v1_0-20260903-100236.svg": {
+   "size": 297,
+   "sha256_16": "e19a6d2b9e5ad780",
+   "chars": 0
+  },
+  "snapshots/laodeng-app-tl-v1_1-20260903-133112.svg": {
+   "size": 297,
+   "sha256_16": "e19a6d2b9e5ad780",
+   "chars": 0
+  },
+  "snapshots/memory-governance-arch-v1_0-20260902-234449.svg": {
+   "size": 8561,
+   "sha256_16": "f7e97958e30cef56",
+   "chars": 0
+  },
+  "snapshots/memory-governance-fish-v1_0-20260902-234449.svg": {
+   "size": 16054,
+   "sha256_16": "3d98e7ecd550d549",
+   "chars": 0
+  },
+  "snapshots/memory-governance-tl-v1_0-20260902-234449.svg": {
+   "size": 4272,
+   "sha256_16": "1c320fab29116496",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-arch-v1_0-20260908-133818.svg": {
+   "size": 1731,
+   "sha256_16": "aecfb65642b8f411",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-arch-v_-20260907-154714.svg": {
+   "size": 104,
+   "sha256_16": "2bf2a7db96353f42",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-fish-v1_0-20260908-133818.svg": {
+   "size": 2194,
+   "sha256_16": "cfcf19e607702927",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-fish-v_-20260907-154714.svg": {
+   "size": 104,
+   "sha256_16": "e6186310850ebab8",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-tl-v1_0-20260908-133818.svg": {
+   "size": 312,
+   "sha256_16": "7222323a7317f741",
+   "chars": 0
+  },
+  "snapshots/merchant-ops-ai-tl-v_-20260907-154714.svg": {
+   "size": 104,
+   "sha256_16": "e6186310850ebab8",
+   "chars": 0
+  },
+  "snapshots/mtm-arch-v1_0-20260903-100236.svg": {
+   "size": 1772,
+   "sha256_16": "74b0fb662668937b",
+   "chars": 0
+  },
+  "snapshots/mtm-fish-v1_0-20260903-100236.svg": {
+   "size": 2155,
+   "sha256_16": "c891790d7686cb21",
+   "chars": 0
+  },
+  "snapshots/mtm-tl-v1_0-20260903-100236.svg": {
+   "size": 297,
+   "sha256_16": "313792d91fc7e220",
+   "chars": 0
+  },
+  "snapshots/rule-judge-arch-v1_0-20260902-234449.svg": {
+   "size": 4768,
+   "sha256_16": "c230feedad8c2dbb",
+   "chars": 0
+  },
+  "snapshots/rule-judge-fish-v1_0-20260902-234449.svg": {
+   "size": 8175,
+   "sha256_16": "864a9e345a68d95a",
+   "chars": 0
+  },
+  "snapshots/rule-judge-tl-v1_0-20260902-234449.svg": {
+   "size": 1715,
+   "sha256_16": "7ebb5226b1fa55b1",
+   "chars": 0
+  },
+  "api/agent-graph.json": {
+   "size": 38475,
+   "sha256_16": "a3a2a3e6d275b2dc",
+   "chars": 0
+  },
+  "api/agents.json": {
+   "size": 53629,
+   "sha256_16": "ede6d735ec2ac42f",
+   "chars": 0
+  },
+  "api/assets.json": {
+   "size": 2097,
+   "sha256_16": "e6bce568fba349a2",
+   "chars": 0
+  },
+  "api/biz-assets.json": {
+   "size": 95535,
+   "sha256_16": "dd4c0eb432e27878",
+   "chars": 0
+  },
+  "api/blueprints.json": {
+   "size": 3867,
+   "sha256_16": "5952c41c3477a879",
+   "chars": 0
+  },
+  "api/hardware.json": {
+   "size": 14233,
+   "sha256_16": "7dcb1b1c956f8f30",
+   "chars": 0
+  },
+  "api/hwcomm.json": {
+   "size": 11517,
+   "sha256_16": "732047714dac3d84",
+   "chars": 0
+  },
+  "api/hwprobe.json": {
+   "size": 70,
+   "sha256_16": "3e886e1d0ef016b9",
+   "chars": 0
+  },
+  "api/islands.json": {
+   "size": 8481,
+   "sha256_16": "bd81668bc1ef64d3",
+   "chars": 0
+  },
+  "api/knowledge-graph.json": {
+   "size": 77613,
+   "sha256_16": "f0ccde02d61ec6b8",
+   "chars": 0
+  },
+  "api/mech-graph.json": {
+   "size": 8942,
+   "sha256_16": "179a834f217e3728",
+   "chars": 0
+  },
+  "api/mechanism.json": {
+   "size": 9518,
+   "sha256_16": "96815f548291e475",
+   "chars": 0
+  },
+  "api/original.json": {
+   "size": 10060,
+   "sha256_16": "26a6835acba76893",
+   "chars": 0
+  },
+  "api/overview.json": {
+   "size": 64387,
+   "sha256_16": "ea70d730647b227e",
+   "chars": 0
+  },
+  "api/philosophy.json": {
+   "size": 28492,
+   "sha256_16": "44e6273c2d3a679b",
+   "chars": 0
+  },
+  "api/plan-archive.json": {
+   "size": 88661,
+   "sha256_16": "198c7f4522c318f8",
+   "chars": 0
+  },
+  "api/relations.json": {
+   "size": 6859,
+   "sha256_16": "63939054c265b611",
+   "chars": 0
+  },
+  "api/rule-graph.json": {
+   "size": 30006,
+   "sha256_16": "0b9a4add7fd33651",
+   "chars": 0
+  },
+  "api/rules.json": {
+   "size": 64990,
+   "sha256_16": "58449773988f7486",
+   "chars": 0
+  },
+  "api/system-assets.json": {
+   "size": 12968,
+   "sha256_16": "ae60383113668be9",
+   "chars": 0
+  },
+  "api/versions.json": {
+   "size": 5954,
+   "sha256_16": "7150e4de41451eb9",
+   "chars": 0
+  },
+  "api/workflow.json": {
+   "size": 9458,
+   "sha256_16": "7e13583792198b7e",
+   "chars": 0
+  },
+  "vendor/d3.min.js": {
+   "size": 279706,
+   "sha256_16": "f2094bbf6141b359",
+   "chars": 0
+  }
+ }
+}

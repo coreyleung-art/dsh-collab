@@ -1,0 +1,47 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T13:53:06",
+ "exported_by": "明鉴 a190c54c",
+ "note": "最后一轮清理 + 扫描器精修(去误报)",
+ "entry": "index.html",
+ "entry_hash": "7ab6cfbc53ce7617",
+ "entry_size": 868080,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 868080,
+   "sha256_16": "7ab6cfbc53ce7617",
+   "chars": 26
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "db8ce6152d03cfec",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 139384,
+   "sha256_16": "84e8018b5f5fd8b7",
+   "chars": 6
+  },
+  "商业计划书.html": {
+   "size": 319972,
+   "sha256_16": "b89362992f8c274e",
+   "chars": 14
+  },
+  "平台格局图.html": {
+   "size": 32135,
+   "sha256_16": "e10f72bde0b1dc82",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 121913,
+   "sha256_16": "b8f0f319582e73b8",
+   "chars": 6
+  }
+ }
+}

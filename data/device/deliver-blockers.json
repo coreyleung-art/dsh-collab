@@ -1,0 +1,121 @@
+{
+  "name": "花联网/反思流水线 交付阻断项清单",
+  "version": "1.0",
+  "updated": "2026-09-11",
+  "note": "★ 阻断项 vs 报告项（HR 司库第⑤项）：本清单里的项未过 = **禁止交付**；清单外的检查器是「报告项」，发现即报告但不阻断。",
+  "banner": "交付被阻断",
+  "blockers": [
+    {
+      "kind": "script",
+      "name": "① 审计快照未过期（Φ13）",
+      "cmd": "python3 ~/dsh-collab/scripts/audit-snapshot.py check plugins-final",
+      "cwd": "~/dsh-collab",
+      "expect_exit": 0,
+      "why": "交付前必须确认「我引用的是当前状态，不是过期快照」—— 今天我因此被纠正 4 次"
+    },
+    {
+      "kind": "script",
+      "name": "② 线上=本地 逐字节一致",
+      "cmd": "python3 ~/dsh-collab/scripts/verify-deploy.py --map /tmp/deploy-map.json",
+      "cwd": "~/dsh-collab",
+      "expect_exit": 0,
+      "why": "只看 HTTP 200 会漏掉「服务的是旧版本」"
+    },
+    {
+      "kind": "script",
+      "name": "③ 全载体一致性（无残留旧值）",
+      "cmd": "python3 ~/dsh-collab/scripts/consistency-scan.py --facts /tmp/facts.json --roots ~/dsh-collab/data/industry",
+      "cwd": "~/dsh-collab",
+      "expect_exit": 0,
+      "why": "一个事实有多个载体，只改一处会漏"
+    },
+    {
+      "kind": "script",
+      "name": "④ 立场自检（16 项）",
+      "cmd": "python3 ~/dsh-collab/scripts/stance-auditor.py /tmp/target.md --audience shareholder",
+      "cwd": "~/dsh-collab",
+      "expect_exit": 0,
+      "why": "含元话语三件套 + P16 数字归属"
+    },
+    {
+      "kind": "manual",
+      "name": "⑤ 用户本人已看过内容（不可代判）",
+      "why": "★ 我今日犯过「没给用户看内容就部署」。此项**必须用户本人确认**，本工具不代判。"
+    }
+  ],
+  "declared_count": 5,
+  "declared_fingerprint": "9aecd3e6c58b91db",
+  "stamped_at": "2026-09-11T01:21:57",
+  "★_声明位说明": "陷阱①：阻断项清单本身也会漂移。declared_count/declared_fingerprint 是它的声明位 —— 总闸每次会核验，不符即拒绝运行（而不是安静地报全过）。改动清单后须同步更新这两个值。",
+  "completeness": "partial (5 blockers defined by 明鉴; coverage of 'things that should block delivery' not asserted complete)",
+  "_completeness_note": "★ **这 5 项是我想到的阻断项，不是「应该阻断的一切」** —— 存在我没想到的交付风险。 （★ 规则来源：HR 指出「合并/派生动作会丢边界声明」—— 形式化为「任何由若干子产物合并/派生而来的产物，其顶层必须继承并重述边界声明」。）",
+  "★_terminus_check": {
+    "规则来源": "HR：「**声明的递归，终止于「可执行」**」—— 判据：**当你从「我声明了 X」走到「我这条命令能验 X」，递归就停。**",
+    "自检结果": {
+      "✅ 已终止（1 处）": "`completeness` 声明 → 已有可执行检查（`assertion-set-consistency.py` 第④项检测空壳声明）",
+      "❌ 悬空（3 处，本次降级）": [
+        "「更新清单必须比忽略它更省事」—— **没有任何检查验证这件事**（没人测过 --stamp 是否真比手改省事）",
+        "「声明位被机械核验」若两人各写一遍的冲突 —— **无机制预测或检测**",
+        "「过宽 vs 过严」的权衡 —— **无检查验证门在两侧都对**（B/C 项是样本，不是全集）"
+      ]
+    },
+    "★_处置（按终止条件）": "**这三条从「规格」降为「设计说明」** —— 因为**它们不可执行，按终止条件不该以规格形式存在**。\n**若将来某条变得可执行（如「冲突概率」可用两处文本 diff 检验），再升回规格。**",
+    "为什么这个处置重要": "★ HR 的完整话是：「**无限递归的框架，最终会因为它太贵而没人用，那和不发明它是一样的结果。**」\n  —— **把不可执行的声明留在规格里，会让规格膨胀到没人读；而降为设计说明，既保留了意图，又不假装它可验收。**"
+  },
+  "design_notes": {
+    "说明": "★ **本节条目是「设计意图」而非「可验收规格」** —— 按递归终止条件（终止于可执行），不可执行的主张不以规格形式存在。",
+    "★_留痕规则": {
+      "字段": "`status: design-intent (not verifiable)`",
+      "为什么必须写": "★ HR：「**留在你脑子里的降级，读者看不见。他会以为那是规格，于是把它当可验收项去检查 —— 而它本来不可检查。**」",
+      "★ 为什么这仍满足终止条件": "**`status` 字段可机械核验** —— 断言「**规格类产物不得含 design-intent 条目**」是**可执行**的。（HR 指出）",
+      "可用判据": "★ 「**这条如果被违反，谁会知道？**」—— **答不出具体的知道方式，它就还不是规格。**"
+    },
+    "notes": [
+      {
+        "text": "更新清单必须比忽略它更省事（否则机制会被绕开）",
+        "status": "design-intent (not verifiable)",
+        "why": "无检查验证 --stamp 是否真比手改省事"
+      },
+      {
+        "text": "若同一条款被两人各写一遍，冲突概率非零",
+        "status": "design-intent (not verifiable)",
+        "why": "无机制预测或检测冲突"
+      },
+      {
+        "text": "门在「过宽」与「过严」两侧都应对",
+        "status": "design-intent (not verifiable)",
+        "why": "现有 B/C 项是样本，非全集"
+      }
+    ]
+  },
+  "pending_work_20260911": {
+    "note": "用户 2026-09-11 裁定的遗留项 —— 均为**新增能力**，按 R006 纪律须作为完整补课做（①gate ②selfcheck ③docs ④CHANGELOG），不夹带",
+    "items": [
+      {
+        "id": "B",
+        "what": "「昨日卡缺席」检查加到 collect（HR 提议：把「靠自觉触发」变成「缺席可检测」）",
+        "why_as_full_task": "它是 collect 的**新能力**（新增一个采集源/检查项）→ 须同步 gate 门、selfcheck 能力清单、docs、CHANGELOG",
+        "insertion_point": "lib/collect.js 的 collectBoard 附近（line 189 起）",
+        "status": "待做（完整补课）"
+      },
+      {
+        "id": "D",
+        "what": "第 0 类进 collect 采集器（采集时记录「谁用了什么手段、该手段是否可用」）",
+        "why_as_full_task": "同上 —— 它给每个事件新增字段（used_method / method_available）→ 须同步 schema 门与文档",
+        "status": "待做（完整补课）"
+      },
+      {
+        "id": "C",
+        "what": "HR 的 bb-write.py 立项补 R006（它补了接口，但整体未过：缺 ① 插件形态等）",
+        "owner": "HR 司库（它自己的工具）",
+        "status": "已通知"
+      },
+      {
+        "id": "A",
+        "what": "22:30 定时",
+        "decision": "先手动跑 5 天（守灯塔建议），暂不挂 launchd",
+        "status": "按裁定执行中（09-11 第 1 天）"
+      }
+    ]
+  }
+}

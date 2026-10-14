@@ -1,0 +1,170 @@
+[
+  {
+    "plugin": "dsh-plugin-agent-bus",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-agent-bus/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-agent-bus",
+    "pkg": "dsh-atomic-write",
+    "link": "/Users/coreyleung/dsh-plugin-agent-bus/node_modules/@deepseek-ai/dsh-atomic-write",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-atomic-write"
+  },
+  {
+    "plugin": "dsh-plugin-agent-bus",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-agent-bus/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-bb-card-send",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-bb-card-send/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-bb-card-send",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-bb-card-send/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-bus-queue-triage",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-bus-queue-triage/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-bus-queue-triage",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-bus-queue-triage/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-central-inbox",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-central-inbox/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-central-inbox",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-central-inbox/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-channel-gate",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-channel-gate/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-channel-gate",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-channel-gate/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-dock-cards",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-dock-cards/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-dock-cards",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-dock-cards/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-dock-cards",
+    "pkg": "dsh-typert-protocol",
+    "link": "/Users/coreyleung/dsh-plugin-dock-cards/node_modules/@deepseek-ai/dsh-typert-protocol",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-typert-protocol"
+  },
+  {
+    "plugin": "dsh-plugin-drift-scan",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-drift-scan/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-drift-scan",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-drift-scan/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-guard",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-guard/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-guard",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-guard/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-harness-updater",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-harness-updater/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-harness-updater",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-harness-updater/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-harness-updater",
+    "pkg": "schemastery",
+    "link": "/Users/coreyleung/dsh-plugin-harness-updater/node_modules/@deepseek-ai/schemastery",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/schemastery"
+  },
+  {
+    "plugin": "dsh-plugin-launchd-scan",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-launchd-scan/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-launchd-scan",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-launchd-scan/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-openchronicle",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-openchronicle/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-pstd",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-pstd/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-pstd",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-pstd/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  },
+  {
+    "plugin": "dsh-plugin-voice",
+    "pkg": "cordis",
+    "link": "/Users/coreyleung/dsh-plugin-voice/node_modules/@deepseek-ai/cordis",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/cordis"
+  },
+  {
+    "plugin": "dsh-plugin-wargame-sim",
+    "pkg": "dsh-tools",
+    "link": "/Users/coreyleung/dsh-plugin-wargame-sim/node_modules/@deepseek-ai/dsh-tools",
+    "old_target": "/Users/coreyleung/.dsh/profiles/node_modules/@deepseek-ai/dsh-tools"
+  }
+]

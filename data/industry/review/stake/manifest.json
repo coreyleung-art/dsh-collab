@@ -1,0 +1,23 @@
+{
+ "file": "FLOWERNET-STAKEHOLDER-DOC-v2.md",
+ "audience": "shareholder",
+ "total_units": 349,
+ "chunks": 3,
+ "chunk_files": [
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/stake/chunk-00.md",
+   "range": "L1-L199",
+   "units": 120
+  },
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/stake/chunk-01.md",
+   "range": "L201-L383",
+   "units": 120
+  },
+  {
+   "file": "/Users/coreyleung/dsh-collab/data/industry/review/stake/chunk-02.md",
+   "range": "L384-L533",
+   "units": 109
+  }
+ ]
+}

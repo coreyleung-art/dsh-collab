@@ -1,0 +1,62 @@
+{
+ "status": "done",
+ "exported_at": "2026-09-10T15:49:10",
+ "exported_by": "明鉴 a190c54c",
+ "note": "新增 Oscar 专用口令 + 预置 5 备用; 口令表20个; 6文件重加密",
+ "entry": "index.html",
+ "entry_hash": "68904dbc4704acb4",
+ "entry_size": 1073814,
+ "hash_method": "sha256 前16位 | wc -c 字节 | 文件名",
+ "files": {
+  "index.html": {
+   "size": 1073814,
+   "sha256_16": "68904dbc4704acb4",
+   "chars": 0
+  },
+  "manifest.json": {
+   "size": 413,
+   "sha256_16": "ca496bb307f67986",
+   "chars": 0
+  },
+  "robots.txt": {
+   "size": 26,
+   "sha256_16": "331ea9090db0c9f6",
+   "chars": 0
+  },
+  "启动资金与各轮计划.html": {
+   "size": 153083,
+   "sha256_16": "1291f53b98b2b48e",
+   "chars": 0
+  },
+  "商业计划书.html": {
+   "size": 426099,
+   "sha256_16": "e1c6ad4982299341",
+   "chars": 0
+  },
+  "平台格局图.html": {
+   "size": 675831,
+   "sha256_16": "d052242a56ecf177",
+   "chars": 0
+  },
+  "相关方文件.html": {
+   "size": 136011,
+   "sha256_16": "82d81cee2912f72a",
+   "chars": 0
+  },
+  "welcome/index.html": {
+   "size": 8903,
+   "sha256_16": "37d74254d62d7224",
+   "chars": 0
+  },
+  "partner/index.html": {
+   "size": 131820,
+   "sha256_16": "a9200f0ca734a91c",
+   "chars": 0
+  },
+  "taobao-brief/index.html": {
+   "size": 52033,
+   "sha256_16": "69a3c480efe60b66",
+   "chars": 5
+  }
+ }
+}

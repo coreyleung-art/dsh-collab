@@ -1,0 +1,16 @@
+{
+ "id": "proto-qc-echo-yanshi-20260906T225837872099",
+ "proto": "proto-qc-echo-yanshi",
+ "mode": "qc",
+ "from": "session-b193c782-f56a-4b1e-b943-f7a05dcbc853",
+ "to": "session-ffb7c3ab-e722-4ac2-8ee5-0309bc9bb1ea",
+ "action": "抽检最近 1 条已发送历史回复(质量/合规)",
+ "source": "qc-threshold",
+ "batch": 10,
+ "ts": "2026-09-06T22:58:37.872132",
+ "status": "new",
+ "channel": "blackboard",
+ "no_real_send": true,
+ "reason": "MOCK 沙箱试跑达阈值",
+ "notify_delivered": true
+}

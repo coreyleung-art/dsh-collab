@@ -1,0 +1,77 @@
+{
+ "window": {
+  "since": "2026-09-10T00:00:00",
+  "until": "2026-09-10T23:59:59"
+ },
+ "device": "rc-test",
+ "device_source": "flag",
+ "hostname": "CoreydeMac-mini.local",
+ "plugin_version": "1.1.0",
+ "collected_at": "2026-09-10T16:53:34.703Z",
+ "counts": {
+  "files": 0,
+  "board": 0,
+  "tools": 0,
+  "logs": 3,
+  "git": 0
+ },
+ "events": [
+  {
+   "source": "logs",
+   "ts": "2026-09-10T23:49:13+08:00",
+   "kind": "error-line",
+   "path": "dsh-collab/logs/dsh-plugin-reflect-enroll.log",
+   "file": "dsh-plugin-reflect-enroll.log",
+   "desc": "{\"ts\":\"2026-09-10T15:49:13.880Z\",\"tool\":\"dsh-plugin-reflect-enroll\",\"version\":\"1.0.0\",\"event\":\"apply.failed\",\"input\":{\"proposal_id\":\"P1\",\"decision\":\"approve\",\"target\":\"philosophy\"},\"judge\":{\"code\":\"VERIFY_FAILED\"},\"result\":{\"ok\":false,\"erro…",
+   "collected_at": "2026-09-10T16:53:34.703Z",
+   "origin_device": "rc-test",
+   "id": "E001"
+  },
+  {
+   "source": "logs",
+   "ts": "2026-09-10T23:49:13+08:00",
+   "kind": "error-line",
+   "path": "dsh-collab/logs/dsh-plugin-reflect-enroll.log",
+   "file": "dsh-plugin-reflect-enroll.log",
+   "desc": "{\"ts\":\"2026-09-10T15:49:13.880Z\",\"tool\":\"dsh-plugin-reflect-enroll\",\"version\":\"1.0.0\",\"event\":\"cli.failed\",\"input\":{\"ruling\":\"/tmp/enroll-test/collab/data/reflect/ruling-2026-09-10.json\",\"dryRun\":false},\"judge\":{\"code\":\"VERIFY_FAILED\"},\"res…",
+   "collected_at": "2026-09-10T16:53:34.703Z",
+   "origin_device": "rc-test",
+   "id": "E002"
+  },
+  {
+   "source": "logs",
+   "ts": "2026-09-10T23:49:29+08:00",
+   "kind": "error-line",
+   "path": "dsh-collab/logs/dsh-plugin-reflect-enroll.log",
+   "file": "dsh-plugin-reflect-enroll.log",
+   "desc": "{\"ts\":\"2026-09-10T15:49:29.119Z\",\"tool\":\"dsh-plugin-reflect-enroll\",\"version\":\"1.0.0\",\"event\":\"feedback.published\",\"input\":{\"date\":\"2026-09-10\",\"notify\":true,\"related_source\":\"explicit\",\"agents\":[\"mac-mini\",\"mbp\",\"i9\"]},\"judge\":{\"cardKey\":\"…",
+   "collected_at": "2026-09-10T16:53:34.703Z",
+   "origin_device": "rc-test",
+   "id": "E003"
+  }
+ ],
+ "errors": [
+  {
+   "source": "logs",
+   "kind": "limit",
+   "message": "node-bridge.log 2616481B > 1048576B，只读尾部；更早行未参与判定",
+   "collected_at": "2026-09-10T16:53:34.703Z",
+   "origin_device": "rc-test"
+  },
+  {
+   "source": "logs",
+   "kind": "limit",
+   "message": "logs 事件 32 条，按 --limit=3 截断",
+   "collected_at": "2026-09-10T16:53:34.703Z",
+   "origin_device": "rc-test"
+  }
+ ],
+ "secrets_redacted": 0,
+ "outPath": "/Users/coreyleung/dsh-collab/data/reflect/selftest-upload.json",
+ "sources": [
+  "logs"
+ ],
+ "version": "1.1.0",
+ "logFile": "/Users/coreyleung/dsh-collab/logs/dsh-plugin-reflect-collect.log",
+ "uploadKey": "data/reflect/events/rc-test/2026-09-10"
+}
