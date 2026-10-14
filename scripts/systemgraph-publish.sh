@@ -155,12 +155,15 @@ verify_online() {
     #   ★ 起因（本线负控暴露）：注入真差异后本地大小变了，若用「大小 != 本地大小」判截断
     #     ⇒ **真不一致会被误判成「不可判」**（假阴性）。
     #   ★★ 而「收到字节 == 服务器声明的 Content-Length」是【服务器自己的口径】⇒ 与内容差异无关。
-    #   ★★★ 坑（本线踩到）：**该服务器不支持 HEAD**（实测 `HEAD → 405 Method Not Allowed`）
+    #   ★★★ 坑 1（本线踩到）：**该服务器不支持 HEAD**（实测 `HEAD → 405 Method Not Allowed`）
     #     ⇒ 不能用 `curl -sI` 取长度。改为 **从同一次 GET 的响应头里取**（-D）。
+    #   ★★★ 坑 2（本线踩到）：**`awk 'BEGIN{IGNORECASE=1}'` 是 GNU 扩展，macOS 的 BSD awk 不支持**
+    #     ⇒ 它【静默无输出】⇒ 被判成「服务器声明未知」⇒ **全线 42 个文件全报「不可判」**（假阴性海啸）。
+    #     ⇒ 必须用可移植写法 `tolower($1)=="content-length:"`。
     meta=$(curl -s -m "$to" -D /tmp/sg-verify-$$.hdr -o /tmp/sg-verify-$$.bin \
              -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$f")" 2>/dev/null)
     code=${meta%% *}; got=${meta##* }
-    cl=$(awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' /tmp/sg-verify-$$.hdr 2>/dev/null | tail -1)
+    cl=$(awk 'tolower($1)=="content-length:"{gsub(/\r/,"");print $2}' /tmp/sg-verify-$$.hdr 2>/dev/null | tail -1)
     if [ "$code" != "200" ] || [ -z "$cl" ] || [ "$got" != "$cl" ]; then
       say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 服务器声明=${cl:-未知} ⇒ 下载未完成，★ 非「不一致」）"
       unk=$((unk+1))
@@ -253,7 +256,7 @@ if [ "$ASSET_N" -gt 0 ]; then
     pto=$(( 30 + (psz / 1048576) * 20 )); [ "$pto" -lt 20 ] && pto=20
     pmeta=$(curl -s -m "$pto" -D /tmp/sg-probe-$$.hdr -o /tmp/sg-probe-$$.bin -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$probe")" 2>/dev/null)
     pcode=${pmeta%% *}; pgot=${pmeta##* }
-    pcl=$(awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' /tmp/sg-probe-$$.hdr 2>/dev/null | tail -1)
+    pcl=$(awk 'tolower($1)=="content-length:"{gsub(/\r/,"");print $2}' /tmp/sg-probe-$$.hdr 2>/dev/null | tail -1)
     if [ "$pcode" != "200" ] || [ -z "$pcl" ] || [ "$pgot" != "$pcl" ]; then
       say "  ⚠️  取图 $probe 不可判（HTTP=$pcode 取到=$pgot 服务器声明=${pcl:-未知} ⇒ 下载未完成，★ 不判失败）"
     else
