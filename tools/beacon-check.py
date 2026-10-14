@@ -745,9 +745,13 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         _c = _sd["checks"]
         _mask = _c.get("H2c 归档掩盖") or {}
         # ★★★ 2026-10-15【H3 健康检查覆盖通讯通道】—★
-        #   ★ v6.1 §0.1.4 :238 原文：「健康检查须覆盖通讯通道 | 现覆盖 **0 条**」
-        #   ★ 而用户 2026-10-15 逐字：「能随时让你们看到状态，而不是每次遇到问题猜情况」—★
-        #   ★★ 故本判据 = **跑 health-manager 并查通讯通道部分是否全 OK**。
+        #   ★ v6.1 §0.1.4 :238 原文：「健康检查须覆盖通讯通道 | 现覆盖 **0 条**」—★
+        #     ★★ ⇒ 它要的是【**覆盖率**】，★ **不是「全绿」**。
+        #   ★★★ 2026-10-15 再修（D-346）—★ 因明鉴一句话而自查出一个真问题：
+        #     ★ 本纳原写成「**DEGRADED 也让 H3 变 FAIL**」—★
+        #     ★ 而 SSE :8803 与 :8792 同 pid 是【**长期已知状态**】（★ S-4 单点）—★
+        #     ★★ ⇒ **H3 会每次必红** ⇒ ★★★ 那正是「**狼来了**」。
+        #   ★ 修法：★ H3 只判【**覆盖率 N>0 且无 DOWN/UNDEC**】；★ DEGRADED 在 H3 里**不报红**（★ 因 S-4 已有自己的判据，不双报）。
         try:
             _hm = subprocess.run([sys.executable, str(ROOT / "tools" / "health-manager.py"), "--json", "--section", "channel"],
                                  capture_output=True, text=True, timeout=120)
@@ -756,13 +760,15 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
             _bad = [i for i in _items if i.get("verdict") in ("DOWN", "UNDECIDABLE")]
             _deg = [i for i in _items if i.get("verdict") == "DEGRADED"]
             if not _items:
-                skip("H3 健康检查覆盖通讯通道", "★ 无监控点 ⇒ 不可判")
+                check("H3 健康检查覆盖通讯通道（★ 新建）", False,
+                      "★★ **覆盖 0 条通道** ⇒ 正是 v6.1 :238 记的那个缺口")
             else:
                 check("H3 健康检查覆盖通讯通道（★ 新建）",
-                      not _bad and not _deg,
-                      "★ %d 条通道 · DOWN/UNDEC %d · DEGRADED %d%s"
-                      % (len(_items), len(_bad), len(_deg),
-                         ("：" + "; ".join("%s(%s)" % (i["name"], i["verdict"]) for i in (_bad + _deg)[:4])) if (_bad or _deg) else ""))
+                      not _bad,
+                      "★ 覆盖 **%d 条**通道 · DOWN/UNDEC %d%s（★ DEGRADED %d 不在本判据报红——★ S-4 已有自己的判据）"
+                      % (len(_items), len(_bad),
+                         ("：" + "; ".join("%s(%s)" % (i["name"], i["verdict"]) for i in _bad[:4])) if _bad else "",
+                         len(_deg)))
         except Exception as e:
             skip("H3 健康检查覆盖通讯通道", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
