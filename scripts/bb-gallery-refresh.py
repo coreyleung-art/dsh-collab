@@ -50,6 +50,14 @@ STEPS = [
     # ★★ 2026-10-13 实测修正：`--auto` 实际写的是 **`gallery/static-export/` 目录**
     #   （实测「✅ 导出完成 → …/gallery/static-export (6062 KB, 22 API)」），
     #   ★ 不是 gallery/ 根下的那几个 json ⇒ 第一版 produces 声明错 ⇒ 误报「无文件变化」。
+    # ★★ 2026-10-14（用户裁决「补生成器，也补元信息」）：
+    #   `hardware-nodes.json`（36 天）与 `workflow-standards.json`（35 天）此前
+    #   **从未接入任何自动更新路径**（★ 实测：mtime 完美双峰，中间态 0 个）。
+    #   ⇒ 用户裁决补生成器 + 补元信息 ⇒ 二者各建一个 core/派生 分工的生成器，并接入本流水线。
+    {"id": "hardware-nodes",  "script": "bb-hardware-nodes-gen.py",  "args": ["--go"],
+     "produces": ["hardware-nodes.json"], "desc": "硬件节点图（core 人工事实 + 探测可达性）"},
+    {"id": "workflow-standards", "script": "bb-workflow-standards-gen.py", "args": ["--go"],
+     "produces": ["workflow-standards.json"], "desc": "工作流标准（core 人工摘要 + 校验 tool 存在性）"},
     {"id": "export",          "script": "bb-gallery-export.py",     "args": ["--auto"],
      "produces": ["static-export"], "desc": "gallery 静态导出（★ 产物在 static-export/ 目录）"},
 ]

@@ -148,10 +148,13 @@ SRC_KINDS = {
     "business-entity-registry.json":  "curated",
     "device-links.json":              "curated",
     "entity-alias-map.json":          "curated",
-    #   ★ 剩下这 2 个【无任何人工元信息】（只有 nodes/relations/groups 或 version/workflows）
-    #     ⇒ 无法判定是「扫描产物停了」还是「手工维护但没写元信息」⇒ **保持 orphaned（诚实的不明）**
-    "hardware-nodes.json":            "orphaned",
-    "workflow-standards.json":        "orphaned",
+    #   ★★★ 2026-10-14 三修（★ 用户裁决「补生成器，也补元信息」）：
+    #     这 2 个已【各建生成器】并【接入 bb-gallery-refresh.py】⇒ **不再 orphaned，改判 generated**。
+    #     · bb-hardware-nodes-gen.py      ⇒ hardware-nodes.json（core 人工事实 + 探测可达性）
+    #     · bb-workflow-standards-gen.py  ⇒ workflow-standards.json（core 人工摘要 + 校验 tool）
+    #     ★ 两份都补了 version/updated/generatedAt/generatedBy/sourceOfTruth 元信息。
+    "hardware-nodes.json":            "generated",
+    "workflow-standards.json":        "generated",
 }
 _DEFAULT_KIND = "generated"   # ★ 未声明者按生成型（★ 保守：宁可报假也不漏报真）
 
