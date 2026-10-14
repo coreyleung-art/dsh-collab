@@ -133,6 +133,44 @@ def count_alert(ns, seg, archived_filter):
     return n, None
 
 
+def launchd_failed_full():
+    """★★★ 2026-10-14【H2 读者普查】—★ 列出失败终态 × 有无读者。
+
+    ★ 立据（D-339）：中枢 OOM 持续 11 天没被发现，而 bb-copy-staleness
+      早就在报「中枢写入失败」—★ 只是没人看。
+    ★ 故本判据：每个失败终态任务，都应能指出它的告警读者。
+    """
+    import subprocess as _sp
+    try:
+        r = _sp.run(["launchctl", "list"], capture_output=True, text=True, timeout=25)
+    except Exception as e:
+        return None, "%s: %s" % (type(e).__name__, str(e)[:60])
+    rows = []
+    for ln in r.stdout.split(chr(10)):
+        p = ln.split(chr(9))
+        if len(p) < 3:
+            continue
+        pid, status, label = p[0], p[1], p[2]
+        if not label.startswith("com.dsh."):
+            continue
+        if pid == "-" and status not in ("0", "-"):
+            rows.append({"label": label, "exit": status})
+    try:
+        ok, d, err = get("/data/ops/")
+        opkeys = list((d.get("list") or {}).keys()) if ok else []
+    except Exception:
+        opkeys = []
+    for row in rows:
+        short = row["label"].replace("com.dsh.", "")
+        tail = short.split(".")[-1]
+        hits = [k2 for k2 in opkeys if tail and tail in str(k2).lower()]
+        row["alert_keys"] = len(hits)
+        row["has_reader"] = len(hits) > 0
+        row["sample"] = [str(k2).split("/")[-2] for k2 in hits[:3]]
+    return rows, None
+
+
+
 def scan(segments=None):
     out = {"version": VERSION, "checks": {}}
     # ═══ ① launchd 失败终态 ═══
@@ -197,6 +235,19 @@ def scan(segments=None):
                 "why": ("★ **无掩盖**：各段归档前后同数且 >0" if pos
                         else "★ 全部段 n_all=0 ⇒ **不可判**（★ 空 ≠ 无）"),
                 "evidence": {"rows": rows[:20]}}
+    # ★★ ★ 2026-10-14（D-339）【失败终态 × 读者】—★ 每个失败都应有读者
+    _rows, _err = launchd_failed_full()
+    if _err:
+        out["checks"]["H2d 失败终态有读者"] = {"verdict": "UNDECIDABLE", "why": _err}
+    else:
+        _noread = [r for r in _rows if not r["has_reader"]]
+        out["checks"]["H2d 失败终态有读者"] = {
+            "verdict": "PASS" if not _noread else "FAIL",
+            "why": "★ 失败终态 %d 个 · **无读者 %d 个**%s"
+                   % (len(_rows), len(_noread),
+                      ("：" + ", ".join("%s(exit=%s)" % (r["label"].replace("com.dsh.", ""), r["exit"]) for r in _noread[:5]))
+                      if _noread else ""),
+            "evidence": {"rows": _rows}}
     vs = [c["verdict"] for c in out["checks"].values()]
     out["summary"] = {"PASS": vs.count("PASS"), "FAIL": vs.count("FAIL"),
                       "UNDECIDABLE": vs.count("UNDECIDABLE")}

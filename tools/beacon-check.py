@@ -749,6 +749,15 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
               "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))
         check("H2a launchd 失败终态", _ld.get("verdict") == "PASS",
               "★ %s — %s" % (_ld.get("verdict"), str(_ld.get("why"))[:130]))
+        # ★★ 2026-10-14（D-339）【H2d 失败终态有读者】—★
+        #   ★ 立据：中枢 OOM 持续 11 天没被发现，而 `bb-copy-staleness`
+        #     ★ 早就在报「中枢写入失败」—★ 只是没人看。
+        _rd = _c.get("H2d 失败终态有读者") or {}
+        if _rd.get("verdict") == "UNDECIDABLE":
+            skip("H2d 失败终态有读者", "★ 不可判")
+        else:
+            check("H2d 失败终态有读者（★ 新建）", _rd.get("verdict") == "PASS",
+                  "★ %s" % str(_rd.get("why"))[:150])
     except Exception as e:
         skip("H2 静默失败扫描", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
