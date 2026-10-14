@@ -50,7 +50,7 @@
 - 改名/转私有前先 gh api 备份元数据（json 留档）
 - 不在本规划内动：MBP 侧本地仓库（其域）、i9 侧
 
-## 六、裁判有条件通过的整改（2026-10-08）
+## 五、裁判有条件通过的整改（2026-10-08）
 
 ### 6.1 程序补正：R046 声明体
 见 audits/20261008/r048-repo-plan-claim.json（surface/surface_measured/surface_unmeasured/evidence_refs 齐备，经 acceptance-gate --check）。

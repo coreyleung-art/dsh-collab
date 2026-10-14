@@ -122,7 +122,7 @@ dsh-tools restart-guard <插件目录>...
 dsh-tools restart-guard <插件目录>... --checks-dir ~/dsh-collab/rust-tools/checks
 ```
 
-## 九、统一强制门 restart-gate（R011 v3 三级）
+## 八、统一强制门 restart-gate（R011 v3 三级）
 
 **重启前唯一入口**：一键跑完整验证链（隔离小样本 → 静态 → 动态压测），任一 FAIL 禁止重启。
 
@@ -143,7 +143,7 @@ dsh-tools restart-gate --skip-stress    # 跳过动态压测
 - 阶段 2: restart-stress-test 动态压测（隔离端口 boot 冒烟，自查门+注入+无崩溃，100% 才过）
 - exit 0 = 可重启；exit 1 = 禁止重启
 
-## 十、压测工具（restart-stress-test.py）
+## 九、压测工具（restart-stress-test.py）
 
 独立深度压测（restart-gate 阶段 2 调用，也可单独跑）：
 ```bash
