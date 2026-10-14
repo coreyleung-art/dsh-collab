@@ -40,3 +40,6 @@
 [dbg-notify] nodes/mac-mini/heartbeat seq=1791011007000002
 [dbg-bcast] nodes/mac-mini/heartbeat v53853
 [dbg-bcast] nodes/mac-mini/heartbeat v53853
+[blackboard] ⚠️ audit 持久化失败（数据将只存内存！）/Users/coreyleung/dsh-collab/token-monitor/blackboard/audit.jsonl: Too many open files (os error 24)
+[blackboard] ⚠️ audit 持久化失败（数据将只存内存！）/Users/coreyleung/dsh-collab/token-monitor/blackboard/audit.jsonl: Too many open files (os error 24)
+[blackboard] ⚠️ audit 持久化失败（数据将只存内存！）/Users/coreyleung/dsh-collab/token-monitor/blackboard/audit.jsonl: Too many open files (os error 24)
