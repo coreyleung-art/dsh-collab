@@ -211,7 +211,11 @@ def _with_mtime(obj, *rel_paths):
             with open(fp, encoding="utf-8") as _f:
                 _d = _json.load(_f)
             if isinstance(_d, dict):
-                for _k in ("updated", "generatedAt", "generated_at", "updatedAt", "date"):
+                # ★★★ 2026-10-15（E1）：补 `generated` —— ★ 实测 `agent-mapping.json` **自带了**
+                #   `"generated": "2026-09-02"` 与 `"by": "明鉴 v2"`，★ 而原字段表漏了它
+                #   ⇒ 它明明有权威时刻，却被当成「无自带字段」⇒ **读数为 mtime（口径更弱）**。
+                #   ★ 这是「口径要取权威那个」的又一实例。
+                for _k in ("updated", "generatedAt", "generated_at", "updatedAt", "generated", "date"):
                     if _d.get(_k):
                         decl[rp] = str(_d[_k])[:19]; break
         except Exception:

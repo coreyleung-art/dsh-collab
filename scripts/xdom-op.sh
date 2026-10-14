@@ -83,10 +83,34 @@ for lk in locks:
         continue
     if str(lk.get("resource")) != res:
         continue
-    exp = lk.get("expiresAt")
-    if exp and float(exp) < now:
-        continue                      # ★ 已过期 ⇒ 不算持有
-    holders.append(lk.get("holder") or lk.get("lockId") or "?")
+    # \u2605\u2605\u2605 2026-10-15\uff08D-365\uff09\u3010\u4fee\u4e24\u5904\u5b57\u6bb5\u4e0d\u5339\u914d\u3011\u2014\u2605 \u7531\u660e\u9274\u7528\u3010\u771f\u5b9e\u5de5\u5177\u6301\u9501\u3011\u6d4b\u51fa\u3002
+    #   \u2605 \u771f\u5b9e\u7ed3\u6784\uff08`~/.dsh/agent-bus.json` \u7684 `locks[]`\uff09\uff1a
+    #     \u2605 `holders`   \u662f **list**\uff08\u2605 \u591a\u6301\u6709\u8005\uff09\u2014\u2605 \u800c\u672c\u7eb3\u5199\u7684 `holder`\uff08\u5355\u6570\uff09**\u4e0d\u5b58\u5728**\uff1b
+    #     \u2605 `expiresAt` \u662f **dict**\uff08\u2605 \u6309 holder \u5206\u952e\uff09\u2014\u2605 \u800c\u672c\u7eb3 `float(exp)` \u21d2 **TypeError \u21d2 \u6574\u6bb5\u5d29**\u3002
+    #   \u2605\u2605 \u800c\u4e3a\u4f55\u672c\u7eb3\u81ea\u6d4b\u6ca1\u53d1\u73b0\uff1a\u2605 \u672c\u7eb3\u7528\u3010\u81ea\u5df1\u9020\u7684\u5047\u9501\u3011\u6d4b \u21d2 **\u5339\u914d\u4e86\u81ea\u5df1\u7684\u5047\u8bbe**\u3002
+    #   \u2605 \u4fee\u6cd5\uff1a\u2605 \u9010 holder \u53d6 `expiresAt`\uff1b\u2605 \u53d6\u4e0d\u5230\u5c31**\u4e0d\u7b97\u8fc7\u671f**\uff08\u2605 \u5b81\u53ef\u591a\u62a5\uff0c\u2605 \u4e0d\u53ef\u6f0f\u62a5\uff09\u3002
+    _hs = lk.get("holders")
+    if _hs is None:
+        _h1 = lk.get("holder")
+        _hs = [_h1] if _h1 else []
+    if not _hs:
+        _hs = [lk.get("lockId") or "?"]
+    _exp = lk.get("expiresAt")
+    _alive = []
+    for _h in _hs:
+        _e = None
+        if isinstance(_exp, dict):
+            _e = _exp.get(_h)
+        elif _exp is not None:
+            _e = _exp
+        if _e:
+            try:
+                if float(_e) < now:
+                    continue          # \u2605 \u8be5 holder \u5df2\u8fc7\u671f \u21d2 \u4e0d\u7b97\u6301\u6709
+            except (TypeError, ValueError):
+                pass                  # \u2605 \u89e3\u4e0d\u5f00 \u21d2 \u5f53\u4f5c\u672a\u8fc7\u671f\uff08\u2605 \u4fdd\u5b88\uff09
+        _alive.append(_h)
+    holders.extend(_alive)
 if holders:
     print("RED	持有者: %s" % ",".join(str(h)[:24] for h in holders)); sys.exit(1)
 # ★ 空 ⇒ GREEN（★ 但必须先确认无其他异常）
