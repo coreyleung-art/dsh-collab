@@ -58,8 +58,17 @@ STEPS = [
      "produces": ["hardware-nodes.json"], "desc": "硬件节点图（core 人工事实 + 探测可达性）"},
     {"id": "workflow-standards", "script": "bb-workflow-standards-gen.py", "args": ["--go"],
      "produces": ["workflow-standards.json"], "desc": "工作流标准（core 人工摘要 + 校验 tool 存在性）"},
+    # ★★★ 2026-10-14（用户批准的计划 A1）：
+    #   今晚为此【手动补了三次】发布（01:4x · 03:0x · 03:33）—— 每次 UI 改动都会重现滞后。
+    #   ★ 本步让【滞后可见】，而不自动上线（★ 自动发布会把不完整的中间态推上生产）。
+    #   ★★ 语义（三态 · 见 bb-publish-verify.py）：
+    #      rc=0 一致 · rc=1 滞后（★ 发现真问题，履行职责）· rc=2 不可判（★ 下载没取全）
+    #   ★★★ 它必须在 export 之后跑（要拿最新的导出与线上比）。
     {"id": "export",          "script": "bb-gallery-export.py",     "args": ["--auto"],
      "produces": ["static-export"], "desc": "gallery 静态导出（★ 产物在 static-export/ 目录）"},
+    {"id": "publish-verify",  "script": "bb-publish-verify.py",      "args": [],
+     "produces": [], "selfcheck": True,
+     "desc": "线上发布一致性（★ 只读比对；rc!=0 = 线上滞后或不可判，非工具失败）"},
 ]
 ALLOWED = frozenset(s["script"] for s in STEPS)   # ★ 命令白名单（冻结）
 

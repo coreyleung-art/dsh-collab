@@ -27,6 +27,8 @@ import argparse
 import collections
 import json
 import os
+import datetime
+import re
 import sys
 import urllib.request
 
@@ -77,8 +79,40 @@ def list_keys(base, ns, timeout=30):
     for k, v in lst.items():
         short = str(k).split("/")[-1]
         if isinstance(v, dict):
-            ts_map[short] = str(v.get("ts") or "")
+            # ★★★ 2026-10-15（D-354）【改用【内层 ts】判窗】—★ 外层 ts 是【板级元数据】会被【重新写入】污染。
+            #   ★ 立据（D-353）：补写 309 张后⇒ 外层 ts 全被刷成今天（★ `2026-10-15T02:04:46`）—★
+            #     ★ 而卡自带的【内层 ts】是原始写入时刻（★ `1791010914531`）。
+            #   ★ 原写法放弃内层的理由是「★ epoch 数字不可比」—★ **而那可以转**。
+            #   ★ 修法：★ 内层 ts 若是 epoch（ms 或 s）⇒ **转成 ISO** 后再比；★ 若非数字则原样用。
+            # ★★★ 2026-10-15（D-354）【取【内层】不是外层】—★ `v` 是【外层项】，
+            #   ★ 内层在 `v["value"]` 里 —★ 故 `v.get("ts")` 取的是板级元数据。
+            _vv = v.get("value")
+            _inner = _vv.get("ts") if isinstance(_vv, dict) else None
+            ts_map[short] = _norm_ts(_inner if _inner is not None else v.get("ts"))
     return True, set(ts_map.keys()), ts_map, None
+
+
+def _norm_ts(x):
+    """★★ 2026-10-15（D-354）：**把【内层 ts】归一为可比的 ISO 字符串**。
+
+    ★ 立据（D-353）：外层 ts 是板级元数据，补写会把它刷成今天 ⇒ 旧卡被算成新卡。
+    ★ 而卡自带 ts 是 epoch（ms 或 s）⇒ 转 ISO 后与 `since`（★ ISO 日期）可直接比。
+    """
+    if x is None:
+        return ""
+    s = str(x).strip()
+    if not s:
+        return ""
+    if re.fullmatch(r"\d{10,13}", s):
+        n = int(s)
+        if n > 10 ** 11:          # ★ ms
+            n = n / 1000.0
+        try:
+            return datetime.datetime.fromtimestamp(n).astimezone().isoformat()
+        except Exception:
+            return s
+    return s
+
 
 
 def within(ts_map, since=None):
