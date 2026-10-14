@@ -190,21 +190,38 @@ def main():
     body = json.dumps(val).encode()
     readbacks, legs = {}, {}
     failed = []
+    # ★★★ 2026-10-14【退避重试】—★ 授权：Corey 同日「授权你来负责到底」。
+    #   ★★ 立据（★ 实测）：H3 投递率从 96.7%（★ 10-13）降到 **65.8%**（★ 10-14）；
+    #     ★ 抽一个未达键：**本机 200 · 中枢 404**；★ 而中枢 /health 三次全 200（0.06s）
+    #     ★★ ⇒ **不是中枢挂了，是写卡时那一腿失败**。
+    #   ★ 原行为：记 failed + 打日志 + 写终态告警卡 + 返 2 —★ **但【不重试、不补写】**
+    #     ★★ ⇒ 那张卡**永远到不了中枢**。
+    #   ★ 修法：逐腿加**退避重试**（3 次 · 1s/2s/4s）；重试后仍失败 ⇒ 仍走原的终态告警路径（不遮盖）。
     for name, base in (("local", BB), ("central", CENTRAL)):
-        # ★ M4①c：认证头【按板构造】—— 缺它时中枢腿 401，且静默冻结 7.5 天。
-        try:
-            req = urllib.request.Request(base + "/" + key, data=body, method="PUT",
-                                         headers=board_headers(name))
-            with urllib.request.urlopen(req, timeout=8) as r:
-                st = r.status
-            with urllib.request.urlopen(base + "/" + key, timeout=8) as r:
-                readbacks[name] = json.loads(r.read())
-            print(f"[drift-cron] 告警卡 {name} PUT {st}", flush=True)
-            log("alert-card leg=%s ok=True http=%s" % (name, st))
-        except Exception as e:
+        # ★ M4①c：认证头【按板构造】—★ 缺它时中枢腿 401，且静默冻结 7.5 天。
+        _last = None
+        for _attempt in range(3):
+            try:
+                req = urllib.request.Request(base + "/" + key, data=body, method="PUT",
+                                             headers=board_headers(name))
+                with urllib.request.urlopen(req, timeout=8) as r:
+                    st = r.status
+                with urllib.request.urlopen(base + "/" + key, timeout=8) as r:
+                    readbacks[name] = json.loads(r.read())
+                print("[drift-cron] 告警卡 %s PUT %s%s" % (name, st,
+                      "" if _attempt == 0 else " (第 %d 次重试成功)" % (_attempt + 1)), flush=True)
+                log("alert-card leg=%s ok=True http=%s attempt=%d" % (name, st, _attempt + 1))
+                _last = None
+                break
+            except Exception as e:
+                _last = e
+                if _attempt < 2:
+                    log("alert-card leg=%s retry=%d after=%s" % (name, _attempt + 1, type(e).__name__))
+                    time.sleep(1 << _attempt)      # ★ 1s → 2s → 4s
+        if _last is not None:
             failed.append(name)
-            print(f"[drift-cron] ★ 告警卡 {name} 腿失败：{type(e).__name__}", flush=True)
-            log("alert-card leg=%s ok=False %s" % (name, type(e).__name__))
+            print("[drift-cron] ★ 告警卡 %s 腿失败（★ 已重试 3 次）：%s" % (name, type(_last).__name__), flush=True)
+            log("alert-card leg=%s ok=False %s after=3-attempts" % (name, type(_last).__name__))
     # ★ 回读一致性【只在两腿都成功时才可判】；一腿失败 ⇒ 不可判，不得报「不一致」。
     if len(readbacks) == 2:
         if readbacks["local"].get("value") != readbacks["central"].get("value"):
