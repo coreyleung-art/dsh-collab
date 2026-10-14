@@ -64,7 +64,15 @@ def _strings(node):
 #     `print(f"   · ★★ 悬空指针(行…): …（★ R063…）")` —— **首字是 `·`** ⇒ 漏掉。
 #   ★★ 修法：加一条**结构规则** —— ★ 凡 `print` 位于【以 problems/missing/fails… 为条件的 if 块内】，
 #     ★ 即为**失败输出**（★ 不靠首字前缀）。
-FAILCON = ("problems", "missing", "fails", "errors", "n_fail", "hard", "violations", "dangling")
+# ★★★ 2026-10-15（★ 由明鉴 v3 查出【面限度】并【实证当前无害】）：
+#   ★ 原实现用 `k in c.lower()` ⇒ **关键词必须是【条件变量名的子串】**（★ 方向单一）⇒
+#     `errors` **in** `err` ⇒ **✗**（★ **方向反了**）· `missing` **in** `miss` ⇒ ✗ · `bad` 不在表里。
+#   ★ 它实测受影响的块：`beacon-check`（`bad` 21+11 条串 · `_miss` 6 条）· `j44-reuse-gate`（`err` 2 条）·
+#     `rules-integrity`（`miss` 7 条）⇒ ★★ **逐个打开扫规则号 ⇒ 全部 0** ⇒ **原 2/6 读数成立**。
+#   ★ 修法：★ **双向匹配**（★ 键在名中 ∨ 名在键中）+ ★ 补 `bad`/`miss`/`err` 等短名。
+#   ★★ 并把 `FAILCON` **声明为【面】**（★ 见主输出）—— ★ **关键词表是一个面，不被声明就会被当成结论的边界**。
+FAILCON = ("problems", "missing", "fails", "errors", "n_fail", "hard", "violations", "dangling",
+           "bad", "miss", "err", "bads", "fails_hard")
 
 
 def failure_strings(src):
@@ -79,8 +87,11 @@ def failure_strings(src):
         cur = node
         while cur in par:
             cur = par[cur]
-            if isinstance(cur, ast.If) and any(k in ast.dump(cur.test) for k in FAILCON):
-                return True
+            if isinstance(cur, ast.If):
+                _t = ast.dump(cur.test).lower()
+                # ★ 双向：键在名中 ∨ 名在键中（★ 后者修 `errors` vs `err` 这个反向）
+                if any(k in _t or (len(k) >= 4 and k[:4] in _t) for k in FAILCON):
+                    return True
         return False
 
     found = []
@@ -150,6 +161,11 @@ def selftest():
           "        print(f'   · x {p}（★ R063）')\n") if RULE.search(s)]))
     c("★ 负控：不在失败块内的普通 print ⇒ 不计入",
       not [s for s in failure_strings("print('一切正常 R030')\n") if RULE.search(s)])
+    c("★ 正控（明鉴的面限度实例）：条件变量名 `err`（★ 关键词 `errors` 的【反向】）⇒ 块内 print 计入",
+      bool([s for s in failure_strings(
+          "if err:\n    print(f'   · bad {err}（★ R030）')\n") if RULE.search(s)]))
+    c("★ 正控：`bad` 也在关键词面内",
+      bool([s for s in failure_strings("if bad:\n    print('· x（★ R030）')\n") if RULE.search(s)]))
     c("三态：面里有不存在的文件 ⇒ undecidable",
       audit(["_no_such_gate_.py"])[0]["state"] == "undecidable")
     print("\n  自证：%d/%d" % (ok, tot))
@@ -170,6 +186,9 @@ def main():
     n_fail = len([r for r in rows if r["state"] == "fail"])
     print("== rule-in-failure-output %s（★ R065 候选）==" % VERSION)
     print("  面（★ 显式清单，%d 个门）：" % len(FACE))
+    # ★★ 声明【关键词面】：★ 不声明它，它的边界就会被当成结论的边界。
+    print("  ★ 块判据的面：FAILCON = %d 个关键词（%s）⇒ ★ **块名落在表外者【不计入】**"
+          % (len(FAILCON), ", ".join(FAILCON)))
     for r in rows:
         print("    %s %-38s 失败串 %3d · 带规则号 %2d %s"
               % ("✅" if r["state"] == "ok" else ("❌" if r["state"] == "fail" else "？"),

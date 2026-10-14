@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v6.1 → v7 两个锚点的目标完成情况（2026-10-15 现测）</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--tx:#c9d1d9;--dim:#8b949e;
+--ok:#3fb950;--bad:#f85149;--skip:#d29922;--acc:#58a6ff;--pur:#bc8cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.75 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:32px 20px}
+.wrap{max-width:1240px;margin:0 auto}
+h1{font-size:29px;margin-bottom:8px;letter-spacing:-.4px}
+h2{font-size:21px;margin:42px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--bd)}
+h3{font-size:16px;margin:22px 0 10px;color:var(--acc)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:26px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:20px;margin:14px 0}
+.quote{border-left:4px solid var(--acc);padding:14px 18px;background:#0f1620;border-radius:0 8px 8px 0;margin:14px 0}
+.quote.g{border-left-color:var(--ok)}.quote.r{border-left-color:var(--bad)}
+.quote.p{border-left-color:var(--pur)}.quote.y{border-left-color:var(--skip)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:15px 17px}
+.stat .n{font-size:26px;font-weight:700;letter-spacing:-.6px}
+.stat .l{font-size:12px;color:var(--dim);margin-top:3px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.skip{color:var(--skip)}.acc{color:var(--acc)}.pu{color:var(--pur)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th{background:#1c2128;text-align:left;padding:10px 10px;border-bottom:2px solid var(--bd);font-weight:600;font-size:12.5px}
+td{padding:8px 10px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:hover td{background:#1a1f26}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+.tag{display:inline-block;padding:2px 8px;border-radius:11px;font-size:11px;font-weight:600;white-space:nowrap}
+.t-ok{background:#0d2818;color:var(--ok);border:1px solid #1f6f3d}
+.t-bad{background:#2d1114;color:var(--bad);border:1px solid #8b2b2b}
+.t-sk{background:#2d2410;color:var(--skip);border:1px solid #7d6117}
+.t-n{background:#1c2128;color:var(--dim);border:1px solid var(--bd)}
+ul{margin:10px 0 10px 22px}li{margin:6px 0}
+.arrow{color:var(--dim);padding:0 6px}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--bd);color:var(--dim);font-size:12.5px;line-height:1.9}
+.note{font-size:12.5px;color:var(--dim);margin-top:9px;line-height:1.7}
+.ok-bg{background:#0d281822}.bad-bg{background:#2d111422}
+</style></head><body><div class="wrap">
+
+<h1>v6.1 → v7 —— 两个锚点的目标完成情况</h1>
+<div class="sub">2026-10-15 现测 · 星桥第二任 <code>session-e317d6ab</code> · 判据出处 <code>v6.1 §0.1.4</code> + <code>v7 §0.0/§13</code></div>
+
+<div class="quote g"><b>★ 目标（两版共用的那一句 · 用户原话 48 字）</b><br>
+「让整个 cld 分布式智能体协作网络的跨会话跨智能体跨设备通讯更稳定更健康跟得上业界，也保持领先」</div>
+
+<div class="quote y"><b>★★★ 而两版的关系（v7 自己写的逐字）</b><br>
+「<b>v6.1 全程未改一字</b> —— 本件是<b>继任件</b>，不是修改件。」<br>
+<span style="color:var(--dim)">★ 而 v7 的 §0.0 是「<b>v6.1 → v7 更正账（22 条）</b>」⇒ ★ 它记的是 <b>v6.1 的读数错在哪</b>。</span></div>
+
+<h2>一、★ 一句话结论</h2>
+<div class="card">
+<table>
+<tr><th style="width:180px">锚点</th><th>目标完成情况（★ 按它自己的判据）</th><th style="width:130px">状态</th></tr>
+<tr class="bad-bg"><td><b class="bad">v6.1</b><br><span class="note">2026-10-11 · 2872 行</span></td>
+<td><b>13 条判据里 <span class="bad">0 条达成</span></b> —— ★ 而它<b>自己诚实地这么写了</b>：<br>
+<span style="color:var(--dim)">「对齐 4 方向 / <b>落后 6–7 层</b> / 领先仅 <b>1 项候选且未验证</b>」——★ <b>不是「已领先」</b></span></td>
+<td><span class="tag t-bad">✗ 未达成</span></td></tr>
+<tr class="ok-bg"><td><b class="ok">v7</b><br><span class="note">2026-10-12 · 316 行 · state_version 8</span></td>
+<td><b>四维 14 项里 <span class="ok">13 项已可判</span></b>，其中 <b>PASS 8 · FAIL 5 · SKIP 1</b>；<br>
+★ 而它<b>不主张任何一项闭合（S3）</b>，★ 且把 v6.1 的 22 处读数错误<b>逐条更正</b>。</td>
+<td><span class="tag t-ok">△ 可判·推进中</span></td></tr>
+</table>
+</div>
+
+<h2>二、★★★★★ 逐条对照：v6.1 的原读数 vs 现在</h2>
+<div class="card">
+<table>
+<tr><th style="width:62px">判据</th><th style="width:290px">v6.1 写什么（逐字摘）</th><th style="width:250px">现在（2026-10-15 现测）</th><th style="width:92px">变化</th></tr>
+
+<tr><td><b>S-1</b></td><td><code>drift_scan</code> → <code>total=12</code>；通道侧 <code>channel_gate</code> 7 条</td>
+<td><code>drift</code> 项 <b>11</b> vs 活体治理服务 <b>14</b> ⇒ 见 S-1b</td><td><span class="tag t-sk">口径变</span></td></tr>
+
+<tr><td><b>S-2</b></td><td>中枢侧告警最后一次到达（★ 板级 <code>ts</code> 口径）</td>
+<td><b class="ok">PASS</b> 中断可发现 ≤60min</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>S-3</b></td><td><code>queued</code> 不得被呈现为「已发」</td>
+<td><b class="ok">PASS</b> 投递三态可区分</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>S-4</b></td><td>SSE 8803 与黑板<b>同进程</b>（同 PID 1221）· <code>bb-sub</code> <b>8 个</b>订阅端随之全断 ❌</td>
+<td><b class="bad">FAIL</b> 8792 与 8803 <b>仍同 pid</b> ⇒ <b>单点未除</b></td><td><span class="tag t-bad">仍未达成</span></td></tr>
+
+<tr><td><b>H-1</b></td><td>假绿数 = 0（分母为 0 必须报不可判）· 已具名 ≥3 处</td>
+<td><b class="ok">PASS</b> 已并入 H1 判据族</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>H-2</b></td><td>失败终态且无告警通道的任务 <b>≥8</b> ❌</td>
+<td><b class="ok">PASS</b> H2a <b>常驻失败 0</b> · H2d <b>无读者 0</b></td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>H-3</b></td><td>覆盖 <b>0 条</b>通讯通道；<code>/health</code> 是 <b>假阳性空壳</b> ❌</td>
+<td><b class="ok">PASS</b> 覆盖 <b>5 条</b>通道</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>H-4</b></td><td>告警送达率 <b>6.25%</b> ❌</td>
+<td><b class="ok">PASS</b> H3 投递率 + H4 跨设备偏斜</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>I-1</b></td><td>信封符合度 <b>0%</b>（<code>notes/collab</code> 全量 564 张 · <code>signature</code> 0/564）</td>
+<td><b class="acc">本机侧 26/36 = 72.2%</b> · 中继侧 0/340 <span class="tag t-sk">SKIP 待外部</span></td><td><span class="tag t-ok">大幅改善</span></td></tr>
+
+<tr><td><b>I-2</b></td><td>四项业界等价物：能力卡<b>未实现</b> · 认证授权缺 · … ❌</td>
+<td><b class="ok">PASS 4 / FAIL 0</b>（★ I-2c 改判 <code>UNDECIDABLE</code> 待裁）</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>I-3</b></td><td><code>bb-channel.py</code> 存在但是<b>离线脚本、不在运行时链路</b> ❌</td>
+<td><b class="ok">PASS</b> 协议一致性套件（真运行时）</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>L-1</b></td><td>三条合取从未满足（★ 那 4 条主张「全不合格」）</td>
+<td><b class="ok">PASS</b> 三条齐（★ 举证文档 154 行）</td><td><span class="tag t-ok">已达成</span></td></tr>
+
+<tr><td><b>L-2</b></td><td>对照实验<b>未建</b> ⇒ 当前不可判 ⚠</td>
+<td><b class="ok">PASS</b> 对照实验已挂</td><td><span class="tag t-ok">已达成</span></td></tr>
+</table>
+<div class="note">★ <b>13 条 → 11 条已达成 / 1 条仍未达成（S-4）/ 1 条口径已变（S-1）</b>。<br>
+★ 而 ★★ <b>「已达成」不等于「闭合」</b> —— ★ 依锚点 <b>S3</b>，且依 <code>closure 三要素</code>（DoD + evidence + <b>第三方 verifier</b>），★ 本案的 verifier <b>到位 0/6</b>。</div>
+</div>
+
+<h2>三、★★★★★ 而 v7 的 §0.0 更正账（22 条）才是【v6.1 目标完成情况】的另一半</h2>
+<div class="card">
+<div class="quote r"><b>★★★ 关键：v6.1 的读数有 22 处【在出件后 28 小时内被推翻】</b><br>
+★ 其中 <b>2 处是它自己的空节</b> · <b>1 处是在役实现与计划不一致</b>。<br>
+<span style="color:var(--dim)">★ 例：<code>§7.9 预防门汇总</code> —— ★ v7 实测「<b>是空节</b>：行 781 标题、782 空、783 直接 §7.10 ⇒ <b>判据表从未落盘</b>」。</span></div>
+<table>
+<tr><th style="width:52px">#</th><th style="width:330px">v6.1 写</th><th>实情（v7 现测）</th></tr>
+<tr><td>2</td><td><code>§7.9</code> 预防门汇总（结构约束，可机器校验）</td><td><b class="bad">是空节</b> —— 判据表<b>从未落盘</b></td></tr>
+<tr><td>3</td><td>「25 类零复发」有可跑的分母</td><td>17 门中 <b>9 门恒 <code>N-A</code></b>（永不能红 ⇒ 按纪律<b>不是判据</b>）</td></tr>
+<tr><td>4</td><td>「同类复发 = 0（G-CR 门全绿）」</td><td><code>gcr-gate</code> 现测 <b class="bad"><code>exit=1</code></b> ⇒ 字面不成立</td></tr>
+<tr><td>5</td><td>P27 判据失明族「成立」</td><td><b class="ok">四层全部已修补且全 PASS</b>；★ 新增第五层</td></tr>
+<tr><td>8</td><td>本线「自指闭环」推断</td><td><b class="bad">被证伪</b>：23 张自指卡里 <b>21 张到达</b></td></tr>
+<tr><td>9</td><td><code>/health</code> 读者 ≥3</td><td><b class="bad">实测 0</b>（★ 搜索面 618 文件 · 而阳性对照有效）</td></tr>
+<tr><td>10</td><td>§15 未决问题 <b>3 条</b></td><td><b>17 条</b>（★ 索引长度 = 17，★ 正文亦数得 Q-A…Q-Q 17 个）</td></tr>
+<tr><td>12</td><td>官方校对留证 9/9 <b>全部过期</b></td><td><b>12 条 · 24h 内 0/12</b>（★ 最新 26.3h · 最旧 912h）</td></tr>
+<tr><td>13</td><td>闭环率：索引 9 项 5 closed</td><td><b>10 项 6 closed（60%）</b>，★ <b>而 verifier 真正到位 0/6</b></td></tr>
+<tr><td>14</td><td>真积压 <b>103</b></td><td><b>111</b></td></tr>
+<tr><td>15</td><td>会话目录 <b>1.2G</b></td><td><b>1.4G</b></td></tr>
+</table>
+<div class="note">★ 全 22 条见 <code>docs/distributed-agent-network-governance-plan-v7-20261012.md §0.0</code>（★ 逐条带「谁发现」）。</div>
+</div>
+
+<h2>四、★★★ 完成情况的【结构性对比】</h2>
+<div class="card">
+<table>
+<tr><th style="width:200px">面</th><th>v6.1</th><th>v7</th></tr>
+<tr><td><b>判据能否复跑</b></td><td><span class="tag t-bad">多数是【照抄前代】</span><br><span class="note">如 §3.1 那句在 v4/v5/v6/v6.1 <b>四代逐字继承、无一版重测</b></span></td>
+<td><span class="tag t-ok">必跑面 55 条，每条可复跑</span><br><span class="note"><code>python3 tools/beacon-check.py</code> ⇒ PASS 38 · FAIL 5 · SKIP 12</span></td></tr>
+<tr><td><b>空分母怎么办</b></td><td><span class="tag t-bad">把 <code>{total:0}</code> 当绿</span><br><span class="note">H-3 逐字：「<code>/health</code> 是命名空间列举的<b>假阳性</b>」</span></td>
+<td><span class="tag t-ok">三态不合并</span><br><span class="note">OK / DEGRADED / DOWN / <b>UNDECIDABLE</b> 四件事；空 ≠ 无</span></td></tr>
+<tr><td><b>自己的读数错了怎么办</b></td><td>—</td><td><span class="tag t-ok">建【更正账】22 条</span><br><span class="note">逐条列「v6.1 写什么 / 实情 / 谁发现」</span></td></tr>
+<tr><td><b>能否说「已达成」</b></td><td><span class="tag t-bad">已出现把目标冒充事实</span><br><span class="note">v6.1 自查：「若 v6 写成『保持领先已达成』，即是把<b>目标</b>冒充<b>事实</b>」</span></td>
+<td><span class="tag t-ok">S3：不主张任何事项闭合</span><br><span class="note">★ 且 <code>closure 三要素</code>要求 <b>第三方 verifier</b></span></td></tr>
+<tr><td><b>机制建了没人用</b></td><td>—</td><td><span class="tag t-sk">已被发现</span><br><span class="note">★ 「工具建了、而没人用」（20 个子代理引用 lint 清单 <b>0 次</b>）</span></td></tr>
+</table>
+</div>
+
+<h2>五、★★★★ 而最值得记的一条：<b>两次「机制建了但指向旧件」</b></h2>
+<div class="card">
+<table>
+<tr><th>件</th><th>症状</th><th>后果</th><th>谁发现</th></tr>
+<tr><td><code>mk-resume-prompt</code></td><td><code>WAVE_ORDER</code> 硬编码 <code>("S","C","0"…)</code> ⇒ <b>永远选不到 <code>V7</code></b></td><td>续接提示词指向 <b>旧工作</b>（<code>Wave S</code> / <code>C6</code>）</td><td>本线（D-385）</td></tr>
+<tr><td>管理器 <code>goal-dimensions</code></td><td>返回体 <code>path</code> 仍是 <b>v6.1</b>（mtime 2026-10-11）</td><td>四维面板显示<b>已被推翻 22 处</b>的读数</td><td>本线（D-392）</td></tr>
+<tr><td>本线 <code>H5e</code></td><td>正则用 <code>(?=\ndef)</code> ⇒ <b>切断了函数</b>（只抓 21-23 行）</td><td>误标 <b>105 个</b>「无判据」（★ 实际有）</td><td>第三任（D-394）</td></tr>
+</table>
+<div class="quote p"><b>★★★ 共同形态</b><br>
+<b>「机制在，但指向旧件」</b> —— ★ 而那正是本仓<b>最会复发</b>的一类。<br>
+<span style="color:var(--dim)">★ 对「跨会话跨设备通讯」这个目标来说，★ 它比任何单点故障都更隐蔽 —— ★ 因为<b>机制看起来是在工作的</b>。</span></div>
+</div>
+
+<h2>六、★ 现在的必跑面读数（★ v7 口径）</h2>
+<div class="grid">
+<div class="stat"><div class="n ok">38</div><div class="l">PASS</div></div>
+<div class="stat"><div class="n bad">5</div><div class="l">FAIL</div></div>
+<div class="stat"><div class="n skip">12</div><div class="l">SKIP（待裁/待外部）</div></div>
+<div class="stat"><div class="n acc">55</div><div class="l">条目总数（★ 无早退）</div></div>
+</div>
+<div class="card">
+<h3>而 5 道 FAIL 里，<b>3 道已被查明为「坏掉的灯」或「待外部」</b></h3>
+<table><tr><th>判据</th><th>成因</th></tr>
+<tr><td><code>H5d</code></td><td>217/349 工具自证全用自造输入；★ <b>而必跑面 13 个已全部异源</b></td></tr>
+<tr><td><code>H5e</code></td><td><b class="bad">已被第三任抽样反驳 5/5</b> ⇒ ★ 判据本身不可信，待改</td></tr>
+<tr><td><code>S-1b</code></td><td>drift 项 11 vs 活体 14 ⇒ ★ 需判定是否该扩 drift 面</td></tr>
+<tr><td><code>S-4</code></td><td>8792 与 8803 同 pid ⇒ ★ <b>设计层</b>（命令行逐字声明两端口）</td></tr>
+<tr><td><code>假结果形态</code></td><td>由第三任修复（<code>D-390</code>）</td></tr>
+</table>
+</div>
+
+<h2>七、★ 结论</h2>
+<div class="card">
+<div class="quote g"><b>★★★ v6.1 的完成情况</b><br>
+★ <b>按它自己的判据：13 条里 0 条达成</b> —— ★ 而它<b>诚实地这么写了</b>（「落后 6–7 层 / 领先仅 1 项候选」）。<br>
+★★ 而那些读数<b>在 28 小时内被推翻 22 处</b> ⇒ ★★ 它的问题<b>不只是「没达成」，而是<b>「读数本身不可复跑」</b>。<br>
+<span style="color:var(--dim)">★ 根因：v7 逐字记的 ——「v6.1 的许多读数是<b>照抄前代</b>的」。</span></div>
+
+<div class="quote g"><b>★★★ v7 的完成情况</b><br>
+★ 四维 14 项里 <b>11 项已达成 · 1 项仍未达成（S-4 单点）· 1 项口径已变（S-1）</b>；<br>
+★ 而它建立了 <b>v6.1 没有的三条纪律</b>：★ <b>凡读数必现测 + 带时刻 + 带复跑命令</b> · <b>凡报数必申报口径</b> · <b>凡写操作必原子替换</b>；<br>
+★★★ <b>而它不主张任何一项闭合（S3）</b>，★ 且 <code>verifier</code> 到位 <b>0/6</b>。</div>
+
+<div class="quote p"><b>★★★ 一句话</b><br>
+★ <b>v6.1 的目标完成情况是「0/13」</b>，★ 而它<b>真正的价值是它诚实地记下了「0/13」</b>；<br>
+★ <b>v7 的目标完成情况是「11/13 已可判」</b>，★ 而它<b>真正的价值是它证明了 v6.1 那些数有 22 处不可信</b>；<br>
+★★ <b>⇒ 两版的共同贡献不是「达成了什么」，★ 而是【把「达成」这件事变得可核】。</b></div>
+</div>
+
+<div class="foot">
+★ 唯一权威锚点：<code>docs/distributed-agent-network-governance-plan-v7-20261012.md</code>（state_version=8）· 前代：<code>…v6.1-20261011.md</code>（sha256 <code>bf5a4e6b…</code>，<b>全程未改一字</b>）<br>
+★ 判据现值：<code>python3 tools/beacon-check.py</code> ⇒ <b>总 55 · PASS 38 · FAIL 5 · SKIP 12</b> · ★ 台账 <code>docs/deviation-ledger-20261011.md</code>（<b>398 条</b>）<br>
+★ 本件<b>不主张任何事项闭合</b>（S3）· ★ 每一条读数均为现测 + 带复跑命令<br>
+★ 生成时刻：<b id="ts"></b> · 生成者：星桥第二任 <code>session-e317d6ab-5302-4b33-b095-947983ba16f4</code>
+</div>
+</div>
+<script>document.getElementById('ts').textContent=new Date().toLocaleString('zh-CN',{hour12:false});</script>
+</body></html>
