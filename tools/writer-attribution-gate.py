@@ -37,7 +37,11 @@ DEFAULT_NS = [
 ]
 
 # ★ 署名类字段名（★ 任一存在即算有归属）
-SIGN_FIELDS = ("from_label", "writer", "writerLabel", "X-Writer", "x-writer", "session", "sessionId")
+# ★★★ 2026-10-15（D-369）【加 writerKind 与 writerNote】—★ 由明鉴的卡启发：
+#   ★ 实测卡逐字：`writerKind = "ui"`·`writerNote = "★ 由【管理器网页】触发…非智能体产出，本类【无会话身份】"`
+#   ★★ ⇒ 那是【**显式声明了写者类别**】—★ 而**对网页 UI 类要求 X-Writer 是【错的】**（★ 那个身份不存在）。
+SIGN_FIELDS = ("from_label", "writer", "writerLabel", "X-Writer", "x-writer", "session", "sessionId",
+               "writerKind", "writerNote")
 
 # ★ 会话身份形态
 SESSION_RX = re.compile(r"(?:^|\W)session-[0-9a-f]{6,}", re.I)
