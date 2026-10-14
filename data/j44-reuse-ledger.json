@@ -754,6 +754,14 @@
    "hits": 12,
    "note": "已有 tools/selftest-audit.py（会真跑每个 --selftest 并记 returncode + 四分类 + 串行复核）⇒ 复用其 runner，只补 AST 可失败路径判定与 --survey 落盘；不新建第二套 runner。旧基线 same-source-selftest-survey-20261015.json 全仓无生成器（grep 只命中 beacon-check.py）。",
    "at": "2026-10-15T04:12:30"
+  },
+  {
+   "intent": "新建一个门：检查本仓各门的【失败输出】字符串里是否带规则号（R065 候选的可机检实现）",
+   "artifact": "tools/rule-in-failure-output.py",
+   "verdict": "no-overlap",
+   "hits": 0,
+   "note": "已有 selftest-audit（查自证恒真）/ false-result-patterns（查假结果形态）/ rules-integrity（查账本），★ 都不做【失败分支字符串的规则号覆盖】；★ 本件是 R065 候选的实现，面显式写在 FACE 清单里。",
+   "at": "2026-10-15T04:44:08"
   }
  ]
 }
