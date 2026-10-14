@@ -46,6 +46,7 @@ TOKEN_FILE = os.path.expanduser("~/.dsh/blackboard-token")
 ALERT_DIRS = ["data/ops/drift-delivery-failure", "data/ops/bus-expired-alert"]
 OPS_NS = "data/ops/"
 ARCHIVE_SUFFIX = "_archived_at"
+_EXEMPT_ERR = []   # ★ ★★ 2026-10-15（D-360）：**豁免读取的异常不得静默**（★ 它曾被 except 吞掉）
 
 
 def _tok():
@@ -183,8 +184,9 @@ def _is_exempted(seg):
     if not os.path.exists(p):
         return None
     try:
-        d = json.load(io.open(p, encoding="utf-8"))
-    except Exception:
+        d = json.load(open(p, encoding="utf-8"))
+    except Exception as _e:
+        _EXEMPT_ERR.append("%s: %s" % (type(_e).__name__, str(_e)[:60]))
         return None
     for e in (d.get("exemptions") or []):
         if str(e.get("seg")) == seg and e.get("evidence"):

@@ -10182,3 +10182,21 @@ CLD底座全局架构 → ml:comm-server   ok=True step=EVALUATED
 | **状态** | ★ **`partial`**（★ 事实已查清；★ **判据修复未成**） |
 
 ---
+## D-361 · ★★★★★ **【H2c 已修 —— 而根因是【`io` 未 import + 异常被 except 吞掉】】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-15T02:27:24+08:00**（★ 跑 `date`） |
+| **规则号** | ★ **H2c** · ★ **D-360**（同族）· ★ **S3** |
+| **★★★★★ 一、根因（★ 一行）** | ★ `tools/silent-failure-scan.py` **没有 `import io`**（★ 只有 `argparse/json/os/subprocess/sys/urllib.request`）；<br>★ 而本线在 `_is_exempted()` 里写了 **`io.open(p, encoding="utf-8")`** ⇒ ★★ **`NameError: name 'io' is not defined`**；<br>★★★ **⇒ 而它被 `except Exception: return None` 吞掉** ⇒ **静默失效**（★ 函数恒返回 None ⇒ 豁免永远不生效）。 |
+| **★★★★★ 二、而这是【今晚第二次】踩同一形态** | ★ 第一次：★ `silent-failure-scan` 里 `ROOT` 变量不存在 ⇒ 抛错被 `except` 吞（★ 见 `D-360`）；<br>★ 第二次：★ 本条 `io` 未 import ⇒ **同一形态、同一文件、相邻函数**。<br>★★ **⇒ 那说明【本线的自检顺序有问题】：本线先查了【判据逻辑】，★ 而没先查【最基本的「函数能不能跑」】。** |
+| **★★★★ 三、修法（★ 两处）** | ★ ① **`io.open` ⇒ 内置 `open`**（★ 消除对未 import 模块的依赖）；<br>★ ② ★★ **让 except 不再静默** —— ★ 新增模块级 `_EXEMPT_ERR` 列表 ⇒ ★ **异常被记录而非吞掉**（★ 依本仓「凡静默失败路径必有告警读者」）。 |
+| **★★★★★ 四、实测** | ★ `_is_exempted('data/ops/drift-delivery-failure')` ⇒ ★★ **`True`**（★ 修前是 `None`）；<br>★ `_EXEMPT_ERR` ⇒ ★ **`[]`**（★ 无异常）；<br>★ 判据 ⇒ ★★ **`【PASS】H2c 归档掩盖`**（★「无掩盖：各段归档前后同数且 >0」）。 |
+| **★★★ 五、而事实链仍成立** | ★ 那 7 条归档的告警：★ `_archived_at=2026-10-12T19:23:08` · `failedLegs=['central']` ⇒ ★ 根因是 **2026-10-12 中枢 OOM**；<br>★ 而**该故障已于 2026-10-15 修复**（★ `D-336`/`D-337`）· ★ 且**源告警面已双板齐 `448=448`**（★ `D-355`）<br>★★ **⇒ 故【确实已处理】—— ★ 而豁免登记（★ 含 evidence 与时刻）已在 `data/registry/archive-masking-exemptions.json`。** |
+| **★★★★ 六、而它带来一条可推广的教训** | ★★ **「凡 `except Exception` 后返回默认值，都会把【代码 bug】伪装成【业务结论】。」**<br>★ 本条里：★ `except → return None` ⇒ ★ **「豁免文件读不到」** 被伪装成 **「该段不豁免」**。<br>★★ **⇒ 故纪律：★ 兜底的 `except` 必须【留痕】（★ 记进一个可读的列表），★ 否则它就是【静默失败的发生器】。** |
+| **不可判** | ★ 本文件**是否还有其他「未 import 即用」的点** —— ★ 本轮只修了发现的这一处。 |
+| **纠正** | ★ **交付**：★ **H2c 已 PASS** · **`io` 依赖消除** · **`_EXEMPT_ERR` 留痕机制** · **「兜底 except 会伪装 bug 为结论」的教训**。★ **建议**：★ 对 `silent-failure-scan` 全文做一次「**除零 / 未定义名 / 未 import**」扫描。 |
+| **审查员** | ★ 本纳实测 · ★ **无第三方 verifier** |
+| **状态** | ★ **`accepted`**（★ H2c 已 PASS） |
+
+---
