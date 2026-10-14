@@ -510,7 +510,10 @@
   "★ 2026-10-15 ★★ 双星桥并存：session-e317d6ab（第二任 · 仍活跃）与 session-47c9f0d3（第三任 · 本轮新开）；~/.dsh/agent-role-map.json 仍把「星桥」指向第二任 ⇒ 分工与身份登记待裁（本轮未擅改）。",
   "★ 2026-10-15 ★★  四步门对【并发写同一文件】不构成互斥（begin 快照 · commit 整文件替换）—— 2026-10-15T03:56 实测撞车一次（对方 D-389 vs 我方 D-390），靠 discard 重建 + 改号 + 回读断言保住对方条目。",
   "★ 2026-10-15 使用侧纪律：改受控文件前应先 agent_light 查灯（本线本轮未做）",
-  "★ 2026-10-15 管理器 per 面板可能显示已被推翻的 v6.1 读数"
+  "★ 2026-10-15 管理器 per 面板可能显示已被推翻的 v6.1 读数",
+  "★ 2026-10-15 ★★ H5e 的 105 是【不可信分母】：至少 5 例可复现误标（absence-claim-lint / j44-reuse-gate / doc-cn-check / citation-stale-check / selftest-inventory），其余 100 未测 ⇒ 该数字在重跑前不得当分母引用。",
+  "★ 2026-10-15 ★★★ data/registry/same-source-selftest-survey-20261015.json 【无生成器】—— H5d/H5e 两条必跑面红条都读它 ⇒ 结构上只能靠手改 JSON 转绿（★ 那就是造假）。生成器须入仓可复跑；已问明鉴（session-a190c54c）要路径。★ 并记一条操作教训：本条的路径在写入时被 shell 反引号做了命令替换而【丢字】（stderr 留证 `bash: …json: Permission denied`）⇒ 凡写【含反引号】的长文本，一律走文件或单引号，不走双引号。",
+  "★ 2026-10-15 H5e 改判据留新会话；基线 JSON 应带生成器（第三任指出全仓无生成器）"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1245,7 +1248,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-15T04:02:34+08:00",
+ "updated_at": "2026-10-15T04:09:03+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1449,5 +1452,7 @@
  "_v10.15.45_round_close_note": "★ 2026-10-15T03:56:46+08:00 【本轮收尾】P26 登记已补三项：源码级核实（判据在 :556·框架339字符⇒真因是摘要长39%）+ 第二死锁会话 f38244df + 配置事实（默认 retries=1）；状态仍 in_flight",
  "_v10.15.46_round_close_note": "★ 2026-10-15T03:58:19+08:00 【本轮收尾】修 P6 判据「消费了错的量」：42 处命中 42/42 全是跨层级/跨父节重启的假阳性（独立复算 17/17/8 与工具一致，真缺陷 0）⇒ 改为作用域感知 + 跳过围栏内标题，三条原判据一条没少，自证 10/10→15/15，造坏双向验证通过；造坏当场逼出并修掉 3 个附加缺陷（md 面计数恒为 0 / 三态只看 py 面 / audit_md 有命中即崩）。必跑面：假结果形态（D-244）FAIL→PASS ⇒ PASS 37→38 · FAIL 6→5 · SKIP 12 · 总 55（分母不变）。台账 D-390。另：与前任星桥 e317d6ab 在台账上撞车一次（其 D-389），已改号保住对方条目并回读断言。",
  "_v10.15.47_round_close_note": "★ 2026-10-15T04:00:25+08:00 【本轮收尾】修 se 四步门并发写缺陷（由星桥第三任撞车发现）：commit 时校验源文件 sha16 ⇒ 变了则拒绝替换；沙箱实测拒绝且源改动保留；并核实 D-389/D-390 都在",
- "_v10.15.48_round_close_note": "★ 2026-10-15T04:02:34+08:00 【本轮收尾】收到管理器 error 卡（goal-dimensions 网络失败）：现测端点 200 ⇒ 瞬态非故障；而暴露真问题——该端点仍在读 v6.1 而当前锚点是 v7，已发收紧建议给明鉴"
+ "_v10.15.48_round_close_note": "★ 2026-10-15T04:02:34+08:00 【本轮收尾】收到管理器 error 卡（goal-dimensions 网络失败）：现测端点 200 ⇒ 瞬态非故障；而暴露真问题——该端点仍在读 v6.1 而当前锚点是 v7，已发收紧建议给明鉴",
+ "_v10.15.49_round_close_note": "★ 2026-10-15T04:04:29+08:00 【本轮收尾】本轮两件：① D-393 修 J44 门的【留痕台账读不出来】（92 条留痕里 50 条 artifact=null ⇒ --list 必崩 TypeError；抽出 format_ledger_lines + or 兜底 + 口径行 + 一条真反例 ⇒ 自证 0 FAIL（反例 3→4）· lean4 6/6）；② D-394 采样反驳 H5e 的分母（探查 105 个『无判据』工具 ⇒ 探针报 9 候选 ⇒ 人工核 5 例【5/5 全部反驳】该标签，含 selftest-inventory 实跑输出里逐字 --tools gate-canfail.py → rc=1）⇒ 105 这个分母不可信，其余 100 未测。★ 关键结构缺口：same-source-selftest-survey-20261015.json 【全仓无生成器】（grep 只命中 beacon-check.py）⇒ 一条只能靠手改 JSON 才能变绿的判据；★ 依 J44【不新建竞品仪】，已向疑似属主 session-a190c54c 发问。另：与第二任星桥在台账上第二次撞车（我 read-at-commit 取号 ⇒ 本条自动落为 D-393/D-394，对方 D-392 完好，回读断言通过）。",
+ "_v10.15.50_round_close_note": "★ 2026-10-15T04:09:03+08:00 【本轮收尾】承认 H5e 被第三任抽样反驳（5/5）：根因是我的正则用 (?=\\ndef) 切断函数只抓到21-23行漏掉判定；实跑 absence-claim-lint --selfcheck 确认 exit=0；两次改判据被门拦下，遂 discard 并留证不改"
 }

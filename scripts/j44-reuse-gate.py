@@ -237,15 +237,42 @@ def cmd_check(artifact):
     return 0
 
 
+def format_ledger_lines(rs, limit=20):
+    """★ 台账渲染成行（★ 供 `cmd_list` 与【自证】共用）。
+
+    ★★★ 2026-10-15（D-392）：★ 抽成独立函数，是为了让【null artifact 不崩】**可被自证**——
+      ★ 原实现在 `cmd_list` 里内联，★ 而 `--selftest` 一条都没覆盖它。
+    """
+    return ["  %-20s %-10s hits=%-3s %s" % ((r.get("artifact") or "（未落产物）")[:20],
+                                            r.get("verdict"), r.get("hits"), r.get("at"))
+            for r in rs[-limit:]]
+
+
 def cmd_list(limit=20):
+    """★★ 列留痕台账。
+
+    ★★★ 2026-10-15 修（D-392）：原逐字 `r.get("artifact", "-")[:20]` ——
+      ★★ 而实测 **92 条留痕里 50 条的 `artifact` 字面为 `null`**（★ 那些是【只声意图·未落产物】的查询）
+      ⇒ `dict.get(k, 默认)` 的默认值**只在【键缺失】时生效** ⇒ 键在而值为 `None` ⇒ 返回 `None`
+      ⇒ `None[:20]` ⇒ **`TypeError` ⇒ `--list` 整条命令崩**。
+      ★★ 后果不是「少显示一行」，而是 ★★ **门的留痕台账【读不出来】⇒ 「查过没有」这件事无法核**。
+      ★ 修法：`or` 兜底 + 显式口径行（★ 未落产物的条数单独报，★ 不与产物留痕混计）。
+    """
     d = load_ledger()
     rs = d.get("records", [])
     print("== J44 留痕台账（共 %d 条）==" % len(rs))
-    for r in rs[-limit:]:
-        print("  %-20s %-10s hits=%-3s %s" % (r.get("artifact", "-")[:20],
-                                              r.get("verdict"), r.get("hits"), r.get("at")))
+    for ln in format_ledger_lines(rs, limit):
+        print(ln)
     if not rs:
         print("  （空）")
+    _noart = len([r for r in rs if not r.get("artifact")])
+    _vc = {}
+    for r in rs:
+        _vc[r.get("verdict")] = _vc.get(r.get("verdict"), 0) + 1
+    print("  ★ 口径：上文只列【后 %d 条】；★ 其中【未落产物（artifact 为空）】%d 条"
+          " ⇒ ★ 它们【不能】用 `--check <artifact>` 核（★ 那是【意图查询】不是【产物留痕】）"
+          % (min(limit, len(rs)), _noart))
+    print("  ★ verdict 分布：%s" % _vc)
     return 0
 
 
@@ -339,6 +366,17 @@ def selftest():
     c("执行件 local-registry.py 在位", os.path.exists(SEARCH))
     # 负例：查未留痕的东西 ⇒ 非 0
     c("未留痕查询 ⇒ 返回非 0", cmd_check("__never_built_zzz__") != 0, kind="neg")
+    # ★★★ 2026-10-15 补（D-392）：【台账读得出】本身也必须是一条判据 ——
+    #   ★ 立据：92 条留痕里 50 条 `artifact` 字面为 `null` ⇒ 原 `cmd_list` 直接 `TypeError` 崩，
+    #     ★★ 而本自证【一条都没覆盖它】⇒ 「门的留痕可核」这件事**从未被验过**（★ 崩了没人知道）。
+    _fake = [{"intent": "x", "artifact": None, "verdict": "no-overlap", "hits": 0, "note": "", "at": "t"},
+             {"intent": "y", "artifact": "z.py", "verdict": "reuse", "hits": 2, "note": "", "at": "t"}]
+    try:
+        _ln = format_ledger_lines(_fake, limit=5)
+        _ok = (len(_ln) == 2 and "未落产物" in _ln[0])
+    except Exception:
+        _ok = False
+    c("artifact 为 null 的留痕 ⇒ 渲染不得崩（★ D-392）", _ok, kind="neg")
     print("\n  selftest: %d FAIL ｜ 反例 %d 条 / 正例 %d 条" % (fails, neg, pos))
     return 0 if fails == 0 else 1
 
