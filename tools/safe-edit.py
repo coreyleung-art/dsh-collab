@@ -217,6 +217,27 @@ def commit(path, force=False):
     if not os.path.exists(dp):
         print("  ★★ 副本不存在 ⇒ 拒绝")
         return 2
+    # ★★★★★ 2026-10-15（D-391）【并发写护栏】—★ 由星桥第三任（session-47c9f0d3）实测撞车触发。
+    #   ★ 它逐字：★「★ 03:56:38 我 se begin 台账并先持 agent_lock 独占锁；
+    #     ★ 03:56:46 你在锁内写入 D-389。我的 draft 快照不含你的 D-389
+    #     ⇒ ★★ 照常 commit 会【整条抹掉你的 D-389】。」
+    #   ★★★ 而它的 lessons：★「★★ 【se 四步门对并发写同一文件不构成互斥】
+    #     （begin 快照 / commit 整文件替换）」
+    #   ★ 修法：★ **commit 时校验【源文件 sha】是否等于 begin 时** ⇒
+    #     ★★ 若已变 ⇒ **拒绝 commit**（★ 提示重新 begin）——★ 那正是「整文件替换」的风险闸。
+    _cur = sha(p)
+    if m.get("sha_before") and _cur and _cur != m["sha_before"]:
+        print("  ★★★ 【拒绝替换：源文件在 begin 之后被改过】")
+        print("     begin 时 sha16：%s" % m["sha_before"])
+        print("     现在     sha16：%s  ← ★★ 别人（或别的你会话）改过它" % _cur)
+        print()
+        print("     ★ 若照常替换 ⇒ ★★ **会【整条抹掉】那次改动**（★ 那是本仓 2026-10-15 实测过的真事故）。")
+        print("     ★★ 正确姿势：★ **丢弃当前副本，重新 begin**（★ 那样新快照会含别人的改动）：")
+        print("          se discard %s && se begin %s" % (os.path.basename(p), os.path.basename(p)))
+        print("     ★ 或若你确认要覆盖 ⇒ ★ **先把别人的改动并进副本**，★ 再用 --force。")
+        if not force:
+            return 1
+        print("     ★★ --force：★ 已确认覆盖（★ 备份仍在 %s）" % m["backup"])
     rc = check(path)
     if rc != 0 and not force:
         print()
