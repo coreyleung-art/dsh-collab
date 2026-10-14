@@ -27,6 +27,7 @@ import io
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -71,18 +72,30 @@ def plan(ns):
     return loc, cen, None
 
 
-def run(ns, limit=None, go=False, as_json=False):
+def run(ns, limit=None, go=False, as_json=False, reverse=False):
+    """★★★ 2026-10-15（D-356）【--reverse】—★ 反向：把【中枢独有】的键补回本机。
+
+    ★ 立据（D-355）：五面清零后实测发现 **中枢数量普遍略多于本机**
+      （★ 447 vs 446 · 655 vs 654 · 2840 vs 2827 · 1325 vs 1306）
+      ★★ ⇒ 说明【反向也有欠账】。
+    ★ 而本器原只管单向（★ 本机→中枢）⇒ 本旗标补反向。
+    ★ 安全纪律同前（★ dry-run 默认 · 先试 1 张 · 写完必回读 · 不覆盖）。
+    """
     loc, cen, err = plan(ns)
     if err:
         print("  ★★ %s" % err)
         return 1
-    only = sorted(loc - cen)
+    # ★ 方向：默认本机→中枢；--reverse 则中枢→本机
+    SRC, DST = (CENTRAL, BB) if reverse else (BB, CENTRAL)
+    sname, dname = ("中枢", "本机") if reverse else ("本机", "中枢")
+    only = sorted((cen - loc) if reverse else (loc - cen))
     n_todo = len(only) if limit is None else min(limit, len(only))
-    d = {"ns": ns, "local": len(loc), "central": len(cen), "missing": len(only),
+    d = {"ns": ns, "reverse": reverse, "local": len(loc), "central": len(cen), "missing": len(only),
          "will_write": n_todo, "go": go}
     print("══ 双板欠账补写器 %s ══" % VERSION)
     print("  面   = %s" % ns)
-    print("  本机 = %d · 中枢 = %d · ★ 仅本机 = %d" % (len(loc), len(cen), len(only)))
+    print("  本机 = %d · 中枢 = %d · ★ 仅%s = %d%s" % (len(loc), len(cen), sname, len(only),
+          ("（★ --reverse）" if reverse else "")))
     if not only:
         print("  ★ 无欠账 ⇒ 双板一致（★ 无需补写）")
         if as_json:
@@ -98,26 +111,40 @@ def run(ns, limit=None, go=False, as_json=False):
             print(json.dumps(d, ensure_ascii=False))
         return 0
 
+    # ★★★ 2026-10-15（D-356）【加退避重试】—★ 与 `drift-scan-cron.py` 同族。
+    #   ★ 立据：本器首次反向补写时 **2 处失败**，★ 而**重跑即成** ⇒ 那是【瞬态】。
+    #   ★★ ⇒ **单次失败 ≠ 永久失败**；★ 而无重试会把瞬态失败记成终态。
+    RETRY = 3
     ok = fail = 0
     for i, k in enumerate(only[:n_todo]):
         try:
-            st, body = req(BB + "/" + k, timeout=20)
+            st, body = req(SRC + "/" + k, timeout=20)
             v = json.loads(body).get("value")
             if not isinstance(v, dict):
                 print("    [%d] %s ⇒ value 非 dict，跳过" % (i + 1, str(k)[-40:]))
                 fail += 1
                 continue
             payload = json.dumps(v, ensure_ascii=False).encode()
-            req(CENTRAL + "/" + k, method="PUT", data=payload, timeout=25)
-            # ★ 写完必回读（★ 纪律 ③）
-            st2, body2 = req(CENTRAL + "/" + k, timeout=20)
-            got = json.loads(body2).get("value")
-            if got == v:
+            # ★ 退避重试（★ 1s → 2s）+ 每次重试后回读断言
+            _done = False
+            for _att in range(RETRY):
+                try:
+                    req(DST + "/" + k, method="PUT", data=payload, timeout=25)
+                    st2, body2 = req(DST + "/" + k, timeout=20)
+                    if json.loads(body2).get("value") == v:
+                        _done = True
+                        break
+                except Exception:
+                    pass
+                if _att < RETRY - 1:
+                    time.sleep(1 << _att)
+            if _done:
                 ok += 1
-                print("    [%d/%d] ✓ %s" % (i + 1, n_todo, str(k)[-40:]))
+                print("    [%d/%d] ✓ %s%s" % (i + 1, n_todo, str(k)[-40:],
+                      "" if _att == 0 else " (★ 第 %d 次重试成功)" % (_att + 1)))
             else:
                 fail += 1
-                print("    [%d/%d] ✗ 回读不等 %s" % (i + 1, n_todo, str(k)[-40:]))
+                print("    [%d/%d] ✗ %s 已重试 %d 次" % (i + 1, n_todo, str(k)[-40:], RETRY))
         except Exception as e:
             fail += 1
             print("    [%d/%d] ✗ %s %s" % (i + 1, n_todo, type(e).__name__, str(k)[-30:]))
@@ -127,7 +154,7 @@ def run(ns, limit=None, go=False, as_json=False):
     # ★ 复算（★ 补写后再取一次）
     loc2, cen2, e = plan(ns)
     if not e:
-        print("  【复算】本机 %d · 中枢 %d · ★ 仍缺 %d" % (len(loc2), len(cen2), len(loc2 - cen2)))
+        print("  【复算】本机 %d · 中枢 %d · ★ 仍缺 %d" % (len(loc2), len(cen2), len((cen2 - loc2) if reverse else (loc2 - cen2))))
         d.update({"after_central": len(cen2), "after_missing": len(loc2 - cen2)})
     if as_json:
         print(json.dumps(d, ensure_ascii=False))
@@ -172,6 +199,8 @@ def main():
     ap.add_argument("--ns", default=DEFAULT_NS)
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--go", action="store_true")
+    ap.add_argument("--reverse", action="store_true",
+                    help="★ 反向：把中枢独有的键补回本机")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--version", action="store_true")
@@ -180,7 +209,7 @@ def main():
         print("backfill-missing %s" % VERSION); return 0
     if a.selftest:
         return selftest()
-    return run(a.ns, a.limit, a.go, a.json)
+    return run(a.ns, a.limit, a.go, a.json, a.reverse)
 
 
 if __name__ == "__main__":

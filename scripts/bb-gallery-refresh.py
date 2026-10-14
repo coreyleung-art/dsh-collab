@@ -64,11 +64,11 @@ STEPS = [
     #   ★★ 语义（三态 · 见 bb-publish-verify.py）：
     #      rc=0 一致 · rc=1 滞后（★ 发现真问题，履行职责）· rc=2 不可判（★ 下载没取全）
     #   ★★★ 它必须在 export 之后跑（要拿最新的导出与线上比）。
-    {"id": "export",          "script": "bb-gallery-export.py",     "args": ["--auto"],
-     "produces": ["static-export"], "desc": "gallery 静态导出（★ 产物在 static-export/ 目录）"},
     {"id": "publish-verify",  "script": "bb-publish-verify.py",      "args": [],
      "produces": [], "selfcheck": True,
      "desc": "线上发布一致性（★ 只读比对；rc!=0 = 线上滞后或不可判，非工具失败）"},
+    {"id": "export",          "script": "bb-gallery-export.py",     "args": ["--auto"],
+     "produces": ["static-export"], "desc": "gallery 静态导出（★ 产物在 static-export/ 目录）"},
 ]
 ALLOWED = frozenset(s["script"] for s in STEPS)   # ★ 命令白名单（冻结）
 
