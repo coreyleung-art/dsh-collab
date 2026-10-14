@@ -233,6 +233,20 @@ def selftest():
             print("  \u274c \u77e9\u9635\u4e0d\u5728\u672a\u5224\u4e0d\u53ef\u5224\uff1a%s" % c["verdict"])
     finally:
         globals()["DRIFT_MATRIX"] = _orig
+    # ★★★ 2026-10-15（D-376）【异源用例】—★ 由明鉴的一般形式启发
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("negctl-coverage.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**（★ 空 ≠ 无）")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 

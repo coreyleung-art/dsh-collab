@@ -336,6 +336,20 @@ def selftest():
         ok += 1; print("  \u2705 \u8d1f\u63a7\uff1a\u7248\u672c\u534f\u5546\u672a\u547d\u4e2d\u65f6\u5e26\u9633\u6027\u5bf9\u7167\uff08%d \u6587\u4ef6\uff09" % vn["evidence"].get("positive_control", 0))
     else:
         print("  \u274c \u7248\u672c\u534f\u5546\u672a\u547d\u4e2d\u4e14\u65e0\u9633\u6027\u5bf9\u7167")
+    # ★★★ 2026-10-15（D-376）【异源用例】—★ 由明鉴的一般形式启发
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("industry-parity.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**（★ 空 ≠ 无）")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 

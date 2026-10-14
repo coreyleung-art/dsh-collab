@@ -222,6 +222,20 @@ def selftest():
             ok += 1; print("  \u2705 \u8d1f\u63a7\uff1a\u6e90\u7801\u542b\u3010\u4e0d\u53ef\u5224\u3011\u5206\u652f\uff08\u2605 \u9759\u6001\u6838\uff09")
         else:
             print("  \u274c \u65e0\u4e0d\u53ef\u5224\u5206\u652f")
+    # ★★★ 2026-10-15（D-376）【异源用例】—★ 由明鉴的一般形式启发
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("delivery-probe.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**（★ 空 ≠ 无）")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 

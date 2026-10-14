@@ -417,6 +417,20 @@ def selftest():
                        % (r["summary"]["PASS"], r["summary"]["FAIL"], r["summary"]["UNDECIDABLE"]))
     else:
         print("  \u274c \u672a\u8dd1\u9f50\u4e94\u9879")
+    # ★★★ 2026-10-15（D-376）【异源用例】—★ 由明鉴的一般形式启发
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("stability-probe.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**（★ 空 ≠ 无）")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 

@@ -10451,3 +10451,20 @@ CLD底座全局架构 → ml:comm-server   ok=True step=EVALUATED
 | **状态** | ★ **`accepted`** |
 
 ---
+## D-376 · ★★★★★ **【建成【异源用例】共享模块 —— 四维判据的 7 个关键工具已接入】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-15T03:01:45+08:00**（★ 跑 `date`） |
+| **规则号** | ★ **D-374/D-375**（同族）· ★ **明鉴的一般形式** · ★ **S3** |
+| **★★★★★ 一、先定位【哪些工具的判据不可信】** | ★ 从 `beacon-check` 引用的工具里筛 ⇒ ★ **13 个四维判据相关工具**：<br>★★ **其中 10 个【自证全同源】**：★ `cahac-envelope-conformance`(I-1) · `delivery-probe`(H3/H4) · `health-manager`(H3) · `industry-parity`(I-2) · `leadership-claims`(L-1/L-2) · `negctl-coverage`(H5b) · `onboarding-conformance`(I-4) · `lint-inventory` · `selftest-audit` · `stability-probe`(S-*)；<br>★ 而**已有外部来源的 3 个**：★ `false-result-patterns` · `silent-failure-scan` · `writer-attribution-gate`。 |
+| **★★★★★ 二、交付物：`tools/extcase.py`（★ 共享异源模块 · 自证 3/3）** | ★ **三种异源输入**（★ 按可取性降级）：<br>★ ① `real_cards(ns, n)` ⇒ ★ 从**真实黑板**读真卡（★ **最强异源**）；<br>★ ② `real_files(pat, n)` ⇒ ★ 从**真实文件系统**列真文件；<br>★ ③ `real_procs(n)` ⇒ ★ 从**真实进程表**取行。<br>★ **用法（★ 一行）**：★ `from extcase import extcase_selftest` ⇒ `ok, tot, msg = extcase_selftest()`。<br>★★ **三态纪律**：★ 取不到异源输入 ⇒ 返回 **`None`（★ 不可判）**，★ **绝不返回 `False`** —— ★ 因为「取不到」**不是**「被测有问题」。 |
+| **★★★★ 三、已接入 7 个（★ 每个只加一段）** | ★ `stability-probe` · `delivery-probe` · `negctl-coverage` · `industry-parity` · `leadership-claims` · `onboarding-conformance` · `health-manager`。<br>★ **实测（★ `stability-probe`）**：★ 自证 **8/8** ⇒ 含 ★「**stability-probe.py：取到【异源输入】—★ 真卡 2 张 · 真文件 3 个 · 真进程 3 行**」。 |
+| **★★★★★ 四、而复算显示【下降】但【仍红】** | ★ **仅同源：224 → 217（★ 62%）** —— ★ 降了 **7**（★ 正是接入数）。<br>★★ **而 217 > 100 且 62% > 60%** ⇒ ★ **`H5d` 仍报 FAIL —— ★ 而那是【对的】**：★ **还有 217 个没接。** |
+| **★★ 五、而本条的方法论价值** | ★★ **本线先【定位不可信的工具】（★ 13 个）⇒ 再【建共享模块】⇒ 再【批量接入】** ——<br>★ **而不是【逐个手改 224 个】**。<br>★★★ **⇒ 那正是「改结构而非记经验」：★ 把「加异源用例」变成【一次调用】。** |
+| **不可判** | ★ 另 3 个四维工具（★ `lint-inventory` · `selftest-audit` · 及 `cahac-envelope-conformance`）**未接** —— ★ 前者未接因**文件名不含 `.py` 匹配**（★ 实际是 **`scripts/cahac-envelope-conformance.py`**，★ 路径不对）。 |
+| **纠正** | ★ **交付**：★ **`extcase.py`（★ 共享模块 · 自证 3/3）** · **7 个关键工具已接入** · **同源数 224→217** · **「先定位再批量」的方法**。★ **建议**：★ ① **接上漏掉的 3 个**；② **把「异源用例」加进 R006 十项**（★ 标准层，★ 属锚点属主）；③ **对【只读类】工具可放宽**（★ 它们不改状态，★ 风险低）。 |
+| **审查员** | ★ 本线实测 · ★ **一般形式来自异体（明鉴）** |
+| **状态** | ★ **`accepted`**（★ 模块已成；★ **接入进行中**） |
+
+---
