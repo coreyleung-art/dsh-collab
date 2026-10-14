@@ -1189,6 +1189,20 @@ def check_same_source_selftest():
         return
     r = ss / tot
     # ★ 三态：★ 全部同源 ⇒ 真红；★ 超 80% ⇒ 真红（系统性）；★ 否则 PASS
+    # ★★★ 2026-10-15（D-377）【新增退化档：无判据】—★ 由明鉴建议（★ 它查了自己）。
+    #   ★ 它逐字：★「我那四个工具的 `--selfcheck` 是：**打印能力清单 → `return 0`**
+    #     ★ ⇒ ★★★ **它【永远不会失败】** —★ 它不是一个测试。」
+    #   ★★ 而它的分档建议：★ **「同源测试」至少【跑过】，而「无判据」【连跑都没跑】。**
+    _vac = d.get("vacuous_no_failable_criterion")
+    if _vac is None:
+        _vac = 0
+    if _vac > 0:
+        check("H5e 无判据退化档", False,
+              "★★★ **%d/%d 个工具的自证【没有任何可失败的判据】**"
+              "（★ 打印即 `return 0`）⇒ ★★ **它们连【跑过】都没有**（★ 比「同源」更弱）"
+              % (_vac, tot))
+    else:
+        check("H5e 无判据退化档", True, "★ 无退化档（★ 0 个）")
     ss_s = d.get("same_source_only_strict")
     if ss_s is None:
         ss_s = ss
