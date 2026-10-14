@@ -69,6 +69,26 @@ def get(path, timeout=25):
         return False, None, "%s: %s" % (type(e).__name__, str(e)[:60])
 
 
+def _is_periodic(label):
+    """★★★ 2026-10-15（D-363）【判【周期任务】】—★ 它们每次跑完就退出。
+
+    ★ 实测：`com.dsh.cron.bb-copy-staleness` runs=**61** · `com.dsh.health` runs=**31** ·
+      `com.dsh.hr.bb-request-watch` runs=**904**；★ 而它们在 `launchctl list` 里都表现为【失败终态】。
+    ★★ ⇒ 对周期任务而言，那是【**上次运行的退出码**】，★ **不是【服务状态】**。
+
+    ★ 判据：★ plist 里有 `StartInterval`/`StartCalendarInterval`，★ 或名字含 `.cron.`。
+    """
+    try:
+        p = os.path.expanduser("~/Library/LaunchAgents/%s.plist" % label)
+        if os.path.exists(p):
+            t = open(p, encoding="utf-8", errors="ignore").read()
+            if "StartInterval" in t or "StartCalendarInterval" in t:
+                return True
+    except Exception:
+        pass
+    return ".cron." in label
+
+
 def launchd_failed():
     """★ `launchctl list` 中 com.dsh.* 的失败终态"""
     try:
@@ -87,7 +107,9 @@ def launchd_failed():
         total += 1
         # ★ 失败终态：★ 无 pid（`-`）且退出码非 0
         if pid == "-" and status not in ("0", "-"):
-            failed.append({"label": label, "status": status})
+            # ★★★ 2026-10-15（D-363）【标【周期 vs 常驻】】—★ 周期任务每次跑完就退出，
+            #   ★ 故它的「失败终态」是【上次运行的退出码】而非【服务状态】。
+            failed.append({"label": label, "status": status, "periodic": _is_periodic(label)})
     return {"total": total, "failed": failed}, None
 
 
@@ -290,13 +312,14 @@ def scan(segments=None):
     if lerr:
         out["checks"]["H2a launchd 失败终态"] = {"verdict": "UNDECIDABLE", "why": lerr}
     else:
-        nf = len(ld["failed"])
+        nf = len([x for x in ld["failed"] if not x.get("periodic")])
         out["checks"]["H2a launchd 失败终态"] = {
-            "verdict": "FAIL" if nf else "PASS",
-            "why": "★ com.dsh.* 共 %d · **失败终态 %d 个**%s"
-                   % (ld["total"], nf,
-                      ("：" + ", ".join(x["label"].replace("com.dsh.", "") for x in ld["failed"][:6]))
-                      if nf else ""),
+            "verdict": "FAIL" if [x for x in ld["failed"] if not x.get("periodic")] else "PASS",
+            "why": "★ 共 %d · **常驻失败 %d** · 周期非零退出 %d%s"
+                   % (ld["total"], nf, len([x for x in ld["failed"] if x.get("periodic")]),
+                      ("：★常驻 " + ", ".join(x["label"].replace("com.dsh.", "")
+                                             for x in ld["failed"] if not x.get("periodic"))[:60])
+                      if nf else "（★ 周期任务的退出码不算服务状态）"),
             "evidence": ld}
     # ═══ ② data/ops 段面 ═══
     # ★★ 2026-10-13 修（★ 本纳自查）：**用【明确的告警面】，★ 不按「第三段」猜**
