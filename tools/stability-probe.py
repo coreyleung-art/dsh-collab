@@ -111,39 +111,142 @@ def check_s1a():
             "evidence": {"drift_items": len(items), "registered": reg}}
 
 
+# ★★★ 2026-10-15（D-395）【S-1b 的分母必须【先分类再数】】——
+#   ★ 立据：原实现把 `lsof -sTCP:LISTEN` 的**全部监听端口**当「活体通道」⇒ 实测 36 个里
+#     ★★ 含 Dropbox(17500/17600/17603) · Feishu(49210) · ARD(3283) · ControlCenter(5000/7000)
+#     · rapportd(49152) · AweSun(8908) · LM Studio(1234/41343) · Ollama/llama(11434/56689/56983)
+#     · lmlink(50353) —— ★★ **它们不可能、也不该各有 drift 探测**。
+#   ★★ ⇒ 那个「活体 36」是**类别错误的分母**（★ 与 P6 / H5e 同形：判据消费了错的量）。
+#   ★ 修法：★ 按【属主命令行】分三桶 —— A 本线治理服务 / B 面外（别人/系统/应用）/ C 不可判；
+#     ★★ 分母只用 **A**，且**必须同时点名缺口**（★ 计数比较是粗代理，覆盖才是原意）。
+#   ★★ 且 ★ **不因换分母就放它绿**：缺口非空 ⇒ 仍 FAIL —— ★ 红条要变成【可行动的】。
+GOV_OWNER_MARKERS = ("dsh-collab", "/.dsh/", "/.cld/", "dsh-tailnet-proxy",
+                     "rust-blackboard", "rust-genebank", "blackboard-mcp")
+
+
+def _proc_cwd(pid):
+    """★ 取进程工作目录（★ 供【相对路径命令行】兜底 —— ★ 见 classify_listener 的 D-395b）。"""
+    try:
+        r = subprocess.run(["lsof", "-a", "-p", str(pid), "-d", "cwd", "-Fn"],
+                           capture_output=True, text=True, timeout=10)
+        for ln in (r.stdout or "").split("\n"):
+            if ln.startswith("n"):
+                return ln[1:].strip()
+    except Exception:
+        pass
+    return ""
+
+
+def classify_listener(cmd, cwd=""):
+    """★ 按属主命令行把监听者分桶（★ 规则显式、可复核、可反驳）。
+
+    ★ 返回 ("A"|"B"|"C", 理由)：
+      · **A** = 命令行含【本线治理面】标记（本仓 / `~/.dsh` / `~/.cld`）⇒ ★ 计入分母；
+      · **B** = 有明确属主的**面外**服务（系统 / 第三方应用 / 另有项目归属）⇒ ★ **不计入**，
+        ★★ 但**必须列出**（★ 并由人裁它算不算本网通道 —— ★ 本判据不代裁）；
+      · **C** = 读不到命令行 ⇒ ★ **不可判**（★ 单列，★ 绝不静默丢弃 —— ★ 空 ≠ 无）。
+    """
+    c = (cmd or "").strip()
+    if not c:
+        return "C", "读不到命令行 ⇒ 不可判（★ 空 ≠ 无）"
+    for mk in GOV_OWNER_MARKERS:
+        if mk in c:
+            return "A", "命中治理面标记 %r（命令行）" % mk
+    # ★★★ 2026-10-15 补（D-395b）：★ **相对路径的命令行**里看不到本仓 ⇒ 第一轮会【漏】
+    #   ★ 立据（★ 本线自查抓到的假阴性）：`:8798` 命令行逐字是
+    #     `Python scripts/bb-blueprint-gallery.py --port 8798` —— ★★ 它是**本仓脚本**，
+    #     而命令行里**没有绝对路径** ⇒ 被误分到「面外」桶（★ 正是本判据要防的错）。
+    #   ★ 修法：★ 再看进程的**工作目录**（`lsof -a -p PID -d cwd`）。
+    # ★★ 而 cwd 兜底【不得过宽】—— 否则「在本仓目录里启动的 Dropbox」也会被判成治理服务
+    #   （★ 实测：把 cwd 一律传本仓 ⇒ 自证当场抓出 Dropbox/Ollama 两条负控被误判为 A）。
+    #   ★ 收紧条件：**只有【命令行里带了相对路径的脚本参数】** 才允许用 cwd 兜底。
+    _has_rel_script = re.search(r'(?:^|\s)(?![/-])(?:\.[/\\])?[\w.\-/]+\.(?:py|js|mjs|cjs|ts|sh)\b', c) is not None
+    if cwd and _has_rel_script:
+        for mk in GOV_OWNER_MARKERS:
+            if mk in cwd:
+                return "A", "命令行的脚本参数是相对路径，★ 且 cwd 命中治理面标记 %r" % mk
+    return "B", "属主不在治理面（★ 面外服务/系统/应用）"
+
+
+def _listeners():
+    """★ 枚举本机 TCP 监听者（★ 只读）：[{port, proc, pid, cmd}]。"""
+    r = subprocess.run(["lsof", "-nP", "-iTCP", "-sTCP:LISTEN"],
+                       capture_output=True, text=True, timeout=25)
+    seen, out = set(), []
+    for ln in r.stdout.split("\n")[1:]:
+        m = re.match(r'^(\S+)\s+(\d+)\s+\S+\s+\S+\s+\S+\s+.*?\s(?:\S*:)(\d{2,5})\s+\(LISTEN\)', ln)
+        if not m:
+            continue
+        proc, pid, port = m.group(1), m.group(2), m.group(3)
+        if (port, pid) in seen:
+            continue
+        seen.add((port, pid))
+        out.append({"port": port, "proc": proc, "pid": pid, "cmd": "", "cwd": ""})
+    cache = {}
+    for it in out:
+        if it["pid"] not in cache:
+            try:
+                pr = subprocess.run(["ps", "-p", it["pid"], "-o", "command="],
+                                    capture_output=True, text=True, timeout=10)
+                cache[it["pid"]] = (pr.stdout or "").strip()
+            except Exception:
+                cache[it["pid"]] = ""
+        it["cmd"] = cache[it["pid"]]
+    _cwd_cache = {}
+    for it in out:
+        if it["pid"] not in _cwd_cache:
+            _cwd_cache[it["pid"]] = _proc_cwd(it["pid"])
+        it["cwd"] = _cwd_cache[it["pid"]]
+    return sorted(out, key=lambda x: int(x["port"]))
+
+
 def check_s1b():
-    """★ S-1b：drift 检查项数 ≥ 活体通道数
-    ★★ 活体通道数的取法：★ 本机监听端口 + 已登记服务段（★ 实报，不手写）
+    """★ S-1b：`drift` 检查项数 **≥** 【本线活体治理通道数】 ∧ ★ **无未覆盖点**
+
+    ★★ 原意的准确形式（★ 锚点 §0.1.4 S-1 逐字）是：★「**每条**活体通道都有**可复跑探测**」
+      ⇒ ★ **覆盖**才是判据本体，★ 而「项数 ≥ 通道数」只是它的**粗代理**。
+    ★★★ 2026-10-15 修（D-395）：★ 分母改为【分类后的 A 桶】；★ 并**必须点名缺口**。
     """
     p = _matrix_path()
     n_items = None
+    matrix = {}
     if p:
         try:
-            m = json.load(io.open(p, encoding="utf-8")).get("matrix") or {}
-            n_items = len([k for k in m if not str(k).startswith("_")])
+            matrix = json.load(io.open(p, encoding="utf-8")).get("matrix") or {}
+            n_items = len([k for k in matrix if not str(k).startswith("_")])
         except Exception:
             n_items = None
     if n_items is None:
         return {"verdict": "UNDECIDABLE", "why": "★ 矩阵不在"}
-    # ★ 活体通道：★ 数本机监听端口（★ 只读）
-    live = None
     try:
-        r = subprocess.run(["lsof", "-nP", "-iTCP", "-sTCP:LISTEN"],
-                           capture_output=True, text=True, timeout=20)
-        ports = set()
-        for ln in r.stdout.split("\n")[1:]:
-            m2 = re.search(r":(\d{4,5})\s+\(LISTEN\)", ln)
-            if m2:
-                ports.add(m2.group(1))
-        live = len(ports)
-        ev_ports = sorted(ports)[:12]
+        lis = _listeners()
     except Exception as e:
-        return {"verdict": "UNDECIDABLE", "why": "lsof 失败 %s" % type(e).__name__}
-    v = "PASS" if n_items >= live else "FAIL"
+        return {"verdict": "UNDECIDABLE", "why": "lsof/ps 失败 %s" % type(e).__name__}
+    A, B, C = [], [], []
+    for it in lis:
+        k, why = classify_listener(it["cmd"], it.get("cwd") or "")
+        it["why"] = why
+        {"A": A, "B": B, "C": C}[k].append(it)
+    # ★ drift 矩阵里出现过的端口（★ 从 expect/probe 串里取）⇒ 用于判【覆盖】
+    covered = set()
+    for v in matrix.values():
+        if not isinstance(v, dict):
+            continue
+        blob = json.dumps(v, ensure_ascii=False)
+        for m in re.finditer(r':(\d{2,5})(?![0-9])', blob):
+            covered.add(m.group(1))
+    gap = [x for x in A if x["port"] not in covered]
+    cnt_ok = n_items >= len(A)
+    v = "PASS" if (cnt_ok and not gap) else "FAIL"
     return {"verdict": v,
-            "why": "★ drift 项 %d vs **活体监听端口 %d** ⇒ %s"
-                   % (n_items, live, "≥" if v == "PASS" else "<"),
-            "evidence": {"drift_items": n_items, "live_ports": live, "sample": ev_ports}}
+            "why": ("★ drift 项 %d vs **本线活体治理服务 %d**（★ 面外 %d · ★ 不可判 %d）⇒ %s；"
+                    "★ 未覆盖点 %d 个%s"
+                    % (n_items, len(A), len(B), len(C), "≥" if cnt_ok else "<", len(gap),
+                       ("：" + ", ".join(":%s(%s)" % (g["port"], g["proc"]) for g in gap[:8])) if gap else "")),
+            "evidence": {"drift_items": n_items, "governance_live": len(A),
+                         "off_scope": len(B), "undecidable": len(C),
+                         "gap_ports": [g["port"] for g in gap],
+                         "A_sample": [(x["port"], x["proc"]) for x in A[:10]]}}
 
 
 # ═══════════════════ S-2 ═══════════════════
@@ -430,6 +533,35 @@ def selftest():
             ok += _ec_tot; tot += _ec_tot
     except Exception as _eE:
         print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
+    # ★★★ 2026-10-15 补（D-395）：【分母分类】的两向控制 ——
+    #   ★ 立据：原实现把 Dropbox/Feishu/Ollama 等**全部监听**当「活体通道」⇒ 分母是类别错误。
+    # ★★ 每条控制自带 cwd（★ 首版把 cwd 一律传本仓 —— ★★ 而【负控】因此被误判成 A
+    #    ⇒ 自证当场报 12/14 —— ★ 那正是【控制之间互相污染】的形态，★ 已修：cwd 逐条给）。
+    _repo = os.path.expanduser("~/dsh-collab")
+    _c395 = [
+        ("正控", "rust-blackboard（本仓路径）⇒ 必须计入治理桶",
+         "/Users/coreyleung/dsh-collab/rust-blackboard/dist/rust-blackboard-macos-arm64-v0.6.18 --port 8792", "A", ""),
+        ("正控", "bus-bridge（~/.dsh）⇒ 必须计入治理桶",
+         "/opt/homebrew/bin/node /Users/coreyleung/.dsh/bus-bridge/bus-bridge.js", "A", ""),
+        ("负控", "Dropbox ⇒ 不得计入治理桶",
+         "/Applications/Dropbox.app/Contents/MacOS/Dropbox /firstrunupdate 1262", "B", _repo),
+        ("负控", "Ollama/llama-server ⇒ 不得计入治理桶",
+         "/Applications/Ollama.app/Contents/Resources/llama-server --model /x", "B", _repo),
+        ("负控", "读不到命令行 ⇒ 必须落【不可判】桶（★ 不得静默丢弃）", "", "C", _repo),
+        ("正控", "命令行为【相对路径】而 cwd 在本仓 ⇒ 必须计入治理桶（★ 防假阴性）",
+         "Python scripts/bb-blueprint-gallery.py --port 8798", "A", _repo),
+        ("负控", "相对路径但 cwd 在仓外 ⇒ 不得计入治理桶（★ 防 cwd 兜底过宽）",
+         "Python forum-server.py 8091", "B", "/System/Library/CoreServices"),
+    ]
+    for _k, _name, _cmd, _want, _cwd in _c395:
+        tot += 1
+        _got, _why = classify_listener(_cmd, cwd=_cwd)
+        if _got == _want:
+            ok += 1
+            print("  \u2705 %s\uff1a%s\uff08\u2605 D-395\uff09" % (_k, _name))
+        else:
+            print("  \u274c %s\uff1a%s\uff08\u2605 \u5b9e\u9645 %s\uff0c\u671f\u671b %s\uff09" % (_k, _name, _got, _want))
 
     print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
