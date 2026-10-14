@@ -58,17 +58,6 @@ STEPS = [
      "produces": ["hardware-nodes.json"], "desc": "硬件节点图（core 人工事实 + 探测可达性）"},
     {"id": "workflow-standards", "script": "bb-workflow-standards-gen.py", "args": ["--go"],
      "produces": ["workflow-standards.json"], "desc": "工作流标准（core 人工摘要 + 校验 tool 存在性）"},
-    # ★★★ 2026-10-14（用户批准的计划 A1）：
-    #   今晚为此【手动补了三次】发布（01:4x · 03:0x · 03:33）—— 每次 UI 改动都会重现滞后。
-    #   ★ 本步让【滞后可见】，而不自动上线（★ 自动发布会把不完整的中间态推上生产）。
-    #   ★★ 语义（三态 · 见 bb-publish-verify.py）：
-    #      rc=0 一致 · rc=1 滞后（★ 发现真问题，履行职责）· rc=2 不可判（★ 下载没取全）
-    #   ★★★ 它必须在 export 之后跑（要拿最新的导出与线上比）。
-    # ★★★ 2026-10-14/15（用户批准的计划 C1）：
-    #   今晚实测一起 **11 天**的故障：中央 comm-server 因 cgroup OOM 重启 **2041 次**，
-    #   ★★★ 而 `systemctl is-active` 全程返回 **active** —— **每 27 秒重启一次的服务，它判健康。**
-    #   ⇒ 本步把判据换成【**重启计数增量**】：★ 健康不是「活不活」，是「有没有在重启」。
-    #   ★ 三态：0 健康 · 1 退化（发现增量）· 2 不可判（★ 不把「读不到」读成「健康」）
     # ★★★ 2026-10-15（用户裁决「3 个 orphaned 派生图谱写生成器」· 经 J44 建前门【修正为 2 个】）：
     #   ★ `business-asset-map.json` **不建生成器** —— ★ 实测它【已有维护工具】
     #     `bb-asset-relations.py`（`--add`/`--add-asset`/`--del` · 人工逐条确认）
@@ -77,15 +66,31 @@ STEPS = [
     #     （★ knowledge 曾自报 89 而实有 92；★ mechanism 的 gate_health 基于 75 而账本已 79）
     #     ⇒ ★ 本步用【实际内容】重算派生字段 + 补元信息（★ 不增删任何策展内容）。
     {"id": "derived-graphs",  "script": "bb-derived-graphs-gen.py",  "args": ["--go"],
-     "produces": ["knowledge-graph.json", "mechanism.json"], "desc": "派生图谱派生字段重算（★ 只动派生计数与元信息）"},
+     "produces": ["knowledge-graph.json", "mechanism.json"],
+     "desc": "派生图谱派生字段重算（★ 只动派生计数与元信息）"},
+    # ★★★ 2026-10-14/15（用户批准的计划 C1）：
+    #   今晚实测一起 **11 天**的故障：中央 comm-server 因 cgroup OOM 重启 **2041 次**，
+    #   ★★★ 而 `systemctl is-active` 全程返回 **active** —— **每 27 秒重启一次的服务，它判健康。**
+    #   ⇒ 本步把判据换成【**重启计数增量**】：★ 健康不是「活不活」，是「有没有在重启」。
+    #   ★ 三态：0 健康 · 1 退化（发现增量）· 2 不可判（★ 不把「读不到」读成「健康」）
     {"id": "central-health",  "script": "bb-central-health.py",     "args": ["--json"],
      "produces": [], "selfcheck": True,
      "desc": "中枢黑板健康（★ NRestarts 增量判据；rc=1 退化 · rc=2 不可判）"},
-    {"id": "publish-verify",  "script": "bb-publish-verify.py",      "args": [],
-     "produces": [], "selfcheck": True,
-     "desc": "线上发布一致性（★ 只读比对；rc!=0 = 线上滞后或不可判，非工具失败）"},
     {"id": "export",          "script": "bb-gallery-export.py",     "args": ["--auto"],
      "produces": ["static-export"], "desc": "gallery 静态导出（★ 产物在 static-export/ 目录）"},
+    # ★★★ 2026-10-15（用户裁决 «A：每日自动发布»）：
+    #   ★ 实测证明 B（只加 verify）**会变成每日常驻告警** —— 因为每日 refresh 都重生数据
+    #     ⇒ 导出必然更新 ⇒ 每天都会报「线上滞后」⇒ ★ 按「每次必红 ≠ 这次变红」那条，
+    #     常驻告警会被忽略 ⇒ 故裁决 A：**让 refresh 的终点【一致】**。
+    #   ★★ 但【前置条件不得跳过】（计划 A3）：「自动发布会把不完整的中间态推上生产」
+    #     ⇒ 本步用 `bb-publish-apply.py`，它把「不比对不发布」做成【结构】：
+    #       ① **前验**：manifest 声明的哈希/字节 vs 实物 ⇒ ★ 不符即【拒绝发布】
+    #       ② **发布**：`systemgraph-publish.sh --go`（★ 自带上传→服务端逐文件比对→原子切换→失败回滚）
+    #       ③ **后验**：`bb-publish-verify.py` ⇒ ★ **只有一致才认「发布成功」**
+    #   ★★★ 故本步位置在 export **之后**（★ 发布刚导出的那份）。
+    {"id": "publish-apply",   "script": "bb-publish-apply.py",      "args": ["--go"],
+     "produces": [], "selfcheck": True,
+     "desc": "受门约束的自动发布（★ 前验→发布→后验；rc=2 不可判）"},
 ]
 ALLOWED = frozenset(s["script"] for s in STEPS)   # ★ 命令白名单（冻结）
 
