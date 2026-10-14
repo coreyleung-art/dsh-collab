@@ -101,7 +101,12 @@ key_files=(manifest.json index.html)
 #   · `snapshots/` 89 个文件【一个都不验】。
 #   ⇒ 改为：**全部 api/*.json** + **全部根级 *.html/json** + snapshots 抽样（见下）
 while IFS= read -r f; do key_files+=("$f"); done < <(cd "$LOCAL_DIR" && ls api/*.json 2>/dev/null)
-while IFS= read -r f; do case "$f" in */*) ;; *) key_files+=("$f");; esac; done < <(cd "$LOCAL_DIR" && ls *.html *.json 2>/dev/null)
+# ★ 根级文件：★ 排除已在 key_files 里的（manifest.json / index.html）—— 否则重复计入
+while IFS= read -r f; do
+  case "$f" in */*) continue;; esac
+  case " ${key_files[*]} " in *" $f "*) continue;; esac
+  key_files+=("$f")
+done < <(cd "$LOCAL_DIR" && ls *.html *.json 2>/dev/null)
 # ★ snapshots：数量大（89）⇒ 抽样 5 个 + ★ 全部计入【文件数】以便报出真实覆盖度
 while IFS= read -r f; do key_files+=("$f"); done < <(cd "$LOCAL_DIR" && ls snapshots/*.svg 2>/dev/null | head -5)
 # ★ 2026-09-28 补（明鉴 实测发现）：验收集必须**覆盖这次要交付的对象**。
@@ -168,8 +173,39 @@ verify_online() {
       say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 服务器声明=${cl:-未知} ⇒ 下载未完成，★ 非「不一致」）"
       unk=$((unk+1))
     else
-      rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
-      if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 线上=$rh"; bad=$((bad+1)); fi
+      # ★★★ 2026-10-14（本线实测的第二类假警）：**JSON 里的【生成类时间字段】每次导出都变**
+      #   （`manifest.json` 的 `exported` · 生成物的 `generatedAt`/`updated` · 注入的 `_srcMtime`）
+      #   ⇒ 若逐字节比，**任何一次 export 之后都必然报不一致** —— 而内容其实没变。
+      #   ★ 修法：对 `.json` **比对【归一化内容】**（抹掉生成类时间字段）；
+      #     HTML/二进制仍【逐字节】比（★ 不能归一化，那会掩盖真实改动）。
+      case "$f" in
+        *.json)
+          lhn=$(python3 -c "
+import json,re,sys,hashlib
+def n(p):
+    s=open(p,encoding='utf-8',errors='replace').read()
+    s=re.sub(r'\"(exported|generatedAt|updated|_srcMtime|_built|exportedAt|generatedBy)\"\s*:\s*\"[^\"]*\"', r'\"\\1\":\"<T>\"', s)
+    return hashlib.sha256(s.encode()).hexdigest()[:16]
+print(n(sys.argv[1]))" "$LOCAL_DIR/$f" 2>/dev/null)
+          rhn=$(python3 -c "
+import json,re,sys,hashlib
+def n(p):
+    s=open(p,encoding='utf-8',errors='replace').read()
+    s=re.sub(r'\"(exported|generatedAt|updated|_srcMtime|_built|exportedAt|generatedBy)\"\s*:\s*\"[^\"]*\"', r'\"\\1\":\"<T>\"', s)
+    return hashlib.sha256(s.encode()).hexdigest()[:16]
+print(n(sys.argv[1]))" /tmp/sg-verify-$$.bin 2>/dev/null)
+          if [ -n "$lhn" ] && [ "$lhn" = "$rhn" ]; then
+            say "  ✅ $f（★ 归一化后内容一致；逐字节差仅在生成时间字段）"
+          else
+            rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
+            say "  ❌ $f 本地=$lh 线上=$rh（★ 归一化后仍不同 ⇒ 真实内容滞后）"; bad=$((bad+1))
+          fi
+          ;;
+        *)
+          rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
+          if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 线上=$rh"; bad=$((bad+1)); fi
+          ;;
+      esac
     fi
     rm -f /tmp/sg-verify-$$.bin /tmp/sg-verify-$$.hdr
   done

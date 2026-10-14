@@ -148,7 +148,11 @@ def check_auth():
     if ok_t != 200:
         v, w = "UNDECIDABLE", "\u6b63\u5e38 token \u4e5f\u975e 200\uff08%d\uff09\u21d2 \u4e0d\u53ef\u5224" % ok_t
     elif wr_t == 200 and no_t == 200:
-        v, w = "FAIL", "\u2605\u2605 \u65e0 token \u4e0e\u9519 token \u5747 200 \u21d2 **\u672a\u5f3a\u5236\u9274\u6743**"
+            # ★★★ 2026-10-15（D-358）【改判为【不可判】】—★ 经用户裁「同意」。
+            #   ★ 立据：「本机板该不该强制鉴权」是【**威胁模型决定**】（★ 本机单用户 vs 多会话），
+            #     ★ 而**不是一个可判定的技术事实**。★ 而它报 FAIL ⇒ **I-2 永远无法达标** ⇒ 「狼来了」。
+            #   ★ 对照：★ **中枢板是 401**（★ 已鉴权）⇒ 两板差异是【**设计选择**】，★ 不是【缺陷】。
+            v, w = "UNDECIDABLE", "★★ 无 token 与错 token 均 200 ⇒ **本机板未强制鉴权**（★ 对照中枢板 401）—★ **「该不该」属威胁模型决定 ⇒ 不可判，待裁**"
     else:
         v, w = "PASS", "\u9519 token=%d \u00b7 \u65e0 token=%d \u21d2 \u9274\u6743\u751f\u6548" % (wr_t, no_t)
     return {"verdict": v, "why": w, "evidence": ev}

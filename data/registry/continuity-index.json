@@ -49,7 +49,7 @@
  "_v8.8_content_sync_note": "★ 2026-10-12T16:45:04+08:00 §4.6 四件同步（第二十七轮）—— ★ 内容同步：★ `known_gaps` 追加第二十四批（D-140）。★ **发现两插件同名文件+同编号不同义**；★ 以及 **G1 声称冻结的对象与实际 freeze 的对象不符**。",
  "_v8.9_content_sync_note": "★ 2026-10-12T16:47:19+08:00 §4.6 四件同步（第二十八轮）—— ★ 内容同步：★ `known_gaps` 追加第二十五批（D-141）。★ **本线三次指出对方的错**（D-134 引错编号 / D-140 文件名错 / D-141 估重自身）。",
  "anchor": "docs/distributed-agent-network-governance-plan-v7-20261012.md",
- "anchor_sha256": "4a860c5b8ecdc316b648d50ea91672b252f734172c41c0d9d0e4dab7ccc147de",
+ "anchor_sha256": "f7c1e88b122c66edfcfc1711fabebd0a99aaff37b1f5645facc499d9ba72cb55",
  "beacon_check": "tools/beacon-check.py",
  "dod": {
   "_note": "§11 原文称「全文表见 data/registry/continuity-index 的 dod 字段」——实测该字段从未建立，即 §11 正文表格只是代表性摘录。**不得凭空补全**（R030）：补全须由各项负责人在沙箱复跑后逐条填入 8 字段（正向判据 / 负控 / 边界 / 测量方法与样本量 / 阈值 / 证据形态 / 审查员 / 沙箱复跑方式）。",
@@ -405,7 +405,9 @@
   "★ 2026-10-15 其他探针是否也有外层/内层 ts 混用未普查",
   "★ 2026-10-15 反向欠账（中枢独有）未做，本器可加 --reverse",
   "★ 2026-10-15 只核了4个主面；158 命名空间未全普查",
-  "★ 2026-10-15 I-2c 是否强制鉴权属威胁模型决定，待裁；改变量时须 grep 是否被重复赋值"
+  "★ 2026-10-15 I-2c 是否强制鉴权属威胁模型决定，待裁；改变量时须 grep 是否被重复赋值",
+  "★ 2026-10-15 v7 §13 #6/#7 待裁",
+  "★ 2026-10-15 本机板是否强制鉴权待裁；升 state_version 应四步合一"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1135,12 +1137,12 @@
  "resume_prompt": "docs/resume-prompt-starbridge-v3.md",
  "resume_prompt_generator": "tools/mk-resume-prompt.py",
  "schema": "continuity-index/v1",
- "state_version": 7,
+ "state_version": 8,
  "strata_map": {
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-15T02:14:44+08:00",
+ "updated_at": "2026-10-15T02:17:46+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1301,5 +1303,8 @@
  "_v10.15.10_round_close_note": "★ 2026-10-15T02:06:59+08:00 【本轮收尾】H4 假红已修：根因是外层 ts 是板级元数据被补写污染 ⇒ 改用内层 ts + epoch 归一 ⇒ H3/H4 三窗全绿",
  "_v10.15.11_round_close_note": "★ 2026-10-15T02:10:44+08:00 【本轮收尾】五面欠账全部清零（共补 352 张 · 失败 0 · 逐条回读断言）⇒ 双板已齐；H3/H4 仍全绿",
  "_v10.15.12_round_close_note": "★ 2026-10-15T02:13:02+08:00 【本轮收尾】反向补写 --reverse 已加并执行 ⇒ 双板双向全清零（四个面正向0/反向0）；首次2处瞬态失败 ⇒ 补上退避重试",
- "_v10.15.13_round_close_note": "★ 2026-10-15T02:14:44+08:00 【本轮收尾】I-2 回主线：I-2a 两个假红已修（能力卡找错位置 + 签名误当必填）⇒ I-2 从 3/2 到 4/1；只剩 I-2c 真缺口（本机板未强制鉴权，属待裁）"
+ "_v10.15.13_round_close_note": "★ 2026-10-15T02:14:44+08:00 【本轮收尾】I-2 回主线：I-2a 两个假红已修（能力卡找错位置 + 签名误当必填）⇒ I-2 从 3/2 到 4/1；只剩 I-2c 真缺口（本机板未强制鉴权，属待裁）",
+ "_v10.15.14_round_close_note": "★ 2026-10-15T02:16:36+08:00 【本轮收尾】升 v7 state_version 7→8（因 §13 加两条待裁）；同步索引与提示词",
+ "_v8_sync_note": "★ 2026-10-15：锚点 v7 升 state_version 7→8（★ §13 加两条待裁）⇒ 本索引同步。",
+ "_v10.15.15_round_close_note": "★ 2026-10-15T02:17:46+08:00 【本轮收尾】I-2c 改判 UNDECIDABLE（威胁模型决定，待裁）⇒ I-2 整体 PASS；并修掉自造的两个回归（锚点版本 7→8 + 索引/提示词同步）；H3 加退避重试"
 }

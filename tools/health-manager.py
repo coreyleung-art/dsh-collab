@@ -158,7 +158,16 @@ def scan_boards():
     out = []
     tok = _tok()
     for nm, url in (("local", BB_LOCAL), ("central", BB_CENTRAL)):
-        st, body = _http(url + "/health", tok)
+        # ★★★ 2026-10-15（D-358）【加重试】—★ 实测：中枢偶发 DOWN（★ 而紧接着重跑即 OK）
+        #   ★★ ⇒ 单次探测失败就报 FAIL 会制造【狼来了】（★ 与 D-346/D-353 同族）。
+        st, body = None, ""
+        for _att in range(3):
+            st, body = _http(url + "/health", tok)
+            if st is not None:
+                break
+            if _att < 2:
+                import time as _t
+                _t.sleep(1 << _att)
         if st is None:
             out.append(item("board", "face", nm, DOWN, "不可达：%s" % body,
                             probe="curl %s/health" % url))
