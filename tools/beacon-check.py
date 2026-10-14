@@ -63,6 +63,32 @@ def skip(name: str, detail: str = ""):
     print(f"SKIP {name}" + (f"   << {detail}" if detail else ""))
 
 
+def check_i4_onboarding():
+    """★★★ 2026-10-15【I-4 接入契约合规度】—★ 依 D-350 的契约草案。
+
+    ★ 与 I-1 的分工：★ **I-1 问【结果】**（写完的卡合规吗）
+      · **I-4 问【责任】**（写卡的人举证了吗）。
+    ★ 故两者互补、不重叠。
+    """
+    try:
+        r = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / "onboarding-conformance.py"), "--json"],
+            capture_output=True, text=True, timeout=200)
+        d = json.loads(r.stdout)
+        t = d.get("tally") or {}
+        n_ok = t.get("OK", 0); n_dev = d.get("devices", 0); n_ev = d.get("evidence_cards", 0)
+        n_miss = t.get("MISSING", 0); n_stale = t.get("STALE", 0); n_und = t.get("UNDECIDABLE", 0)
+        if n_dev == 0:
+            skip("I-4 接入契约合规度（★ 新建）", "★ 无在册设备 ⇒ 不可判")
+            return
+        check("I-4 接入契约合规度（★ 新建）", n_ok == n_dev,
+              "★ 在册 %d 台 · 举证卡 %d 张 · OK %d · **未举证 %d** · 超期 %d · 不可判 %d"
+              % (n_dev, n_ev, n_ok, n_miss, n_stale, n_und))
+    except Exception as e:
+        skip("I-4 接入契约合规度（★ 新建）", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
+
+
 def pend(name: str, detail: str = ""):
     """**未验证 ≠ 已关闭。** 与 `skip()` 同理，必须与"通过"长得不一样。
 
@@ -791,6 +817,7 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         except Exception as e:
             skip("H3 健康检查覆盖通讯通道", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
+        check_i4_onboarding()   # ★ I-4 接入契约合规度（★ 与 I-1 互补：它问责任、I-1 问结果）
         _ld = _c.get("H2a launchd 失败终态") or {}
         check("H2c 归档掩盖（★ W4 核心形态）", _mask.get("verdict") == "PASS",
               "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))

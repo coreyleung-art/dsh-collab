@@ -73,7 +73,7 @@ for a in "$@"; do
     --dry-run)  MODE="dry" ;;
     --json)     JSON=1 ;;
     -h|--help)  sed -n '2,20p' "$0"; exit 0 ;;
-    *) echo "未知旗标: $a（--go / --verify / --dry-run / --json）" >&2; exit 2 ;;
+    *) echo "未知旗标: ${a}（--go / --verify / --dry-run / --json）" >&2; exit 2 ;;
   esac
 done
 
@@ -142,7 +142,7 @@ say "验收集: ${#key_files[@]} 个（含图库资产 $ASSET_N 个，由 api/as
 #   ★ 为什么关键：**带假阳性的判据接进自动链 = 自动化地制造「狼来了」**。
 verify_online() {
   local bad=0 n=0 unk=0
-  say "线上比对（$PUBLIC）:"
+  say "线上比对（${PUBLIC}）:"
   for f in "${key_files[@]}"; do
     [ -f "$LOCAL_DIR/$f" ] || continue
     n=$((n+1))
@@ -189,7 +189,7 @@ fi
 
 # ---------- 3) 计划 ----------
 say ""
-say "计划（目标: $SSH_USER@$SSH_HOST:$REMOTE_DIR）:"
+say "计划（目标: $SSH_USER@$SSH_HOST:${REMOTE_DIR}）:"
 say "  a. 服务端备份现有 $REMOTE_DIR → ${REMOTE_DIR}.bak-$TS"
 say "  b. rsync/scp 上传 $LOCAL_FILES 个文件"
 say "  c. **服务端**逐文件比对 sha256（与本地必须一致）"
@@ -226,7 +226,7 @@ for f in "${key_files[@]}"; do
   if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 服务端=$rh"; FAIL=1; fi
 done
 if [ "$FAIL" != 0 ]; then
-  say "  → 比对不一致：**不切换**，保留原目录（备份在 ${REMOTE_DIR}.bak-$TS）"
+  say "  → 比对不一致：**不切换**，保留原目录（备份在 ${REMOTE_DIR}.bak-${TS}）"
   ssh -i "$SSH_KEY" "$SSH_USER@$SSH_HOST" "sudo rm -rf ${REMOTE_DIR}.new"
   exit 1
 fi
