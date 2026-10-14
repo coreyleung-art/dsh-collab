@@ -1491,14 +1491,20 @@ function srcStamp(d){
      ★★ 而语义上：只有【生成型陈旧】才意味着「本该更新而没更新」。 */
   const _hasGen  = (d._srcHasGenerated===true);
   const _anyOrph = (d._srcAnyOrphaned===true);
+  /* ★ 2026-10-15 第四类：`on-server-start` = **服务端启动时才写**（实测：version-map.json
+     由 `render_all_snapshots()` 在服务启动时写）。★ 它【不是】周期性的，
+     所以既不能报「可能已停更」（★ 没有周期约定可违反），也不该归 orphaned（★ 它确实有人写）。
+     ⇒ 措辞：**「服务端启动时生成」**，★ 并给出与当前时刻的差。 */
+  const _onStart = (d._srcAllOnServerStart===true);
   const c = (age==null) ? '#8b90a3'
           : (_curated ? (age<=30 ? '#34c77b' : '#f5b942')
           : (_orphan  ? '#f5b942'
           : (age<=7 ? '#34c77b' : (age<=30 ? '#f5b942' : '#e06c75'))));
   const warn = (age!=null && age>30 && _hasGen) ? ' ⚠️ **可能已停更**（>30 天）'
              : ((_orphan || _anyOrph) ? ' · ★ **无自动更新路径**' : '');
-  const _label = _curated ? '🕒 最后策展于 '
-               : ((_orphan || !_hasGen) ? '🕒 最后更新于 ' : '🕒 数据截至 ');
+  const _label = _onStart ? '🕒 服务端启动时生成于 '
+               : (_curated ? '🕒 最后策展于 '
+               : ((_orphan || !_hasGen) ? '🕒 最后更新于 ' : '🕒 数据截至 '));
   // ★ 自带 updated 与 mtime 不一致时，报出两者之差（★ 与「板级 ts 报差」同一纪律）
   const _decl = d._srcDeclaredAgeDays;
   const _diff = (_decl!=null && age!=null && Math.abs(_decl-age)>=1) ? (' · 内容声明 '+_decl+' 天前，差 '+Math.abs(_decl-age)+' 天') : '';

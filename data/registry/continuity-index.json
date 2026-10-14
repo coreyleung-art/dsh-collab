@@ -410,7 +410,8 @@
   "★ 2026-10-15 本机板是否强制鉴权待裁；升 state_version 应四步合一",
   "★ 2026-10-15 C3 阴性强度不足（只搜 8 词 3 面）⇒ 判据 PASS 但不得宣布领先",
   "★ 2026-10-15 H2c 判据需重写：先查 ops_segments() 正确形态；_is_exempted 返回 None 原因未明",
-  "★ 2026-10-15 该文件可能有其他「未 import 即用」点未扫"
+  "★ 2026-10-15 该文件可能有其他「未 import 即用」点未扫",
+  "★ 2026-10-15 H2a 判据需单独立项修（周期 vs 常驻贯穿函数+两处调用+verdict）"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1145,7 +1146,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-15T02:27:24+08:00",
+ "updated_at": "2026-10-15T02:32:03+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1312,5 +1313,6 @@
  "_v10.15.15_round_close_note": "★ 2026-10-15T02:17:46+08:00 【本轮收尾】I-2c 改判 UNDECIDABLE（威胁模型决定，待裁）⇒ I-2 整体 PASS；并修掉自造的两个回归（锚点版本 7→8 + 索引/提示词同步）；H3 加退避重试",
  "_v10.15.16_round_close_note": "★ 2026-10-15T02:21:19+08:00 【本轮收尾】L 维两项达成：L-1 三条合取 PASS · L-2 对照实验 PASS（修法是让判据扫后续行 + 补齐 C1/C2/C3 举证）；必跑面 31/13→33/11",
  "_v10.15.17_round_close_note": "★ 2026-10-15T02:26:08+08:00 【本轮收尾】H2c 事实链已查清（7 条归档根因=10-12 中枢 OOM，已于 10-15 修复且已补写）⇒ 现读数为假红；而判据重写未成（三条路均未生效）",
- "_v10.15.18_round_close_note": "★ 2026-10-15T02:27:24+08:00 【本轮收尾】H2c 已修：根因是 io 未 import + except 吞异常（今晚第二次同形）⇒ 改用内置 open + 加 _EXEMPT_ERR 留痕 ⇒ H2c PASS"
+ "_v10.15.18_round_close_note": "★ 2026-10-15T02:27:24+08:00 【本轮收尾】H2c 已修：根因是 io 未 import + except 吞异常（今晚第二次同形）⇒ 改用内置 open + 加 _EXEMPT_ERR 留痕 ⇒ H2c PASS",
+ "_v10.15.19_round_close_note": "★ 2026-10-15T02:32:03+08:00 【本轮收尾】H2d 已 PASS：新建 launchd-fail-alert.py（自证5/5）⇒ 4 个失败终态全有读者（0 无读者）；H2a 查清是判据语义问题（4 个全是周期任务）但两次修改失败已恢复"
 }

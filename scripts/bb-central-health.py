@@ -81,7 +81,11 @@ def probe():
     cmd = ("systemctl show %s -p NRestarts -p MemoryCurrent -p MemoryMax -p ActiveState --no-pager; "
            "echo '---'; free -m | head -2; "
            "echo '---'; swapon --show --noheadings 2>/dev/null | wc -l; "
-           "echo '---'; journalctl -u %s --since '-30 min' --no-pager 2>/dev/null | grep -c oom-kill"
+           # ★★★ 坑（本线实测）：`grep -c` **计数为 0 时退出码=1**，而它是链末
+           #   ⇒ ssh 的 rc=1 ⇒ 被我的代码读成「探测失败」⇒ 明明数据正确却判「不可判」。
+           #   ★ 与今晚那条同族：**把「没匹配到」读成「命令失败」。**
+           #   ⇒ 修法：让远端链的退出码【只反映连通性】—— 计数命令加 `|| true`。
+           "echo '---'; (journalctl -u %s --since '-30 min' --no-pager 2>/dev/null | grep -c oom-kill || true)"
            ) % (SVC, SVC)
     out, err = ssh(cmd)
     if out is None:

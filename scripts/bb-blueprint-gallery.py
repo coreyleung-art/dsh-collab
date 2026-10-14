@@ -155,6 +155,22 @@ SRC_KINDS = {
     #     ★ 两份都补了 version/updated/generatedAt/generatedBy/sourceOfTruth 元信息。
     "hardware-nodes.json":            "generated",
     "workflow-standards.json":        "generated",
+    # ★★★ 2026-10-15 四修（★ 本线【实测推翻了自己的假设】）：
+    #   ★ 我上一轮把这 4 个判成「on-access（按访问生成）」，★ 依据是 `version-map.json` 的
+    #     mtime 落在我的 CDP 访问时段。
+    #   ★★ 而计划里就写了「B2 的预热步骤会顺带验证它」——★ 实测结果【推翻】：
+    #     依次 GET `/api/knowledge-graph` `/api/mechanism` `/api/biz-assets` `/api/versions`
+    #     ⇒ ★ **四个文件的 mtime 全部未变** ⇒ 它们【不是】按访问生成的。
+    #   ★★★ 重新查实（跨脚本+跨语言+精确写模式判据，扫描 10118 个 py）：
+    #     · `version-map.json` ⇒ ★ **由【服务端启动时】`render_all_snapshots()` 写**
+    #       （bb-blueprint-gallery.py:5277「启动前先渲染当前快照」）⇒ 触发点明确但【非周期性】
+    #     · `knowledge-graph.json` / `mechanism.json` / `business-asset-map.json`
+    #       ⇒ ★★ **未找到任何写入者**（island.rs 也只读）⇒ 回到 orphaned
+    #   ⇒ ★ 分类：version-map = on-server-start（新类）；其余三个 = orphaned
+    "version-map.json":               "on-server-start",
+    "knowledge-graph.json":           "orphaned",
+    "mechanism.json":                 "orphaned",
+    "business-asset-map.json":        "orphaned",
 }
 _DEFAULT_KIND = "generated"   # ★ 未声明者按生成型（★ 保守：宁可报假也不漏报真）
 
@@ -219,6 +235,8 @@ def _with_mtime(obj, *rel_paths):
     #   ★ 修法：**报警的充要条件是「至少一个来源是 generated」** —— 因为只有生成型陈旧
     #     才意味着「本该更新而没更新」。全部为 curated/orphaned 时，报警都是错的。
     out["_srcHasGenerated"] = any(v == "generated" for v in out["_srcKinds"].values()) if rel_paths else False
+    # ★ 2026-10-15：第四类汇总（★ 服务端启动时才写，非周期性）
+    out["_srcAllOnServerStart"] = all(v == "on-server-start" for v in out["_srcKinds"].values()) if rel_paths else False
     out["_srcAnyOrphaned"]  = any(v == "orphaned"  for v in out["_srcKinds"].values()) if rel_paths else False
     out["_srcMtime"] = max(vals) if vals else None
     if vals:

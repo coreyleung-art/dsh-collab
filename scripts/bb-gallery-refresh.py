@@ -64,6 +64,14 @@ STEPS = [
     #   ★★ 语义（三态 · 见 bb-publish-verify.py）：
     #      rc=0 一致 · rc=1 滞后（★ 发现真问题，履行职责）· rc=2 不可判（★ 下载没取全）
     #   ★★★ 它必须在 export 之后跑（要拿最新的导出与线上比）。
+    # ★★★ 2026-10-14/15（用户批准的计划 C1）：
+    #   今晚实测一起 **11 天**的故障：中央 comm-server 因 cgroup OOM 重启 **2041 次**，
+    #   ★★★ 而 `systemctl is-active` 全程返回 **active** —— **每 27 秒重启一次的服务，它判健康。**
+    #   ⇒ 本步把判据换成【**重启计数增量**】：★ 健康不是「活不活」，是「有没有在重启」。
+    #   ★ 三态：0 健康 · 1 退化（发现增量）· 2 不可判（★ 不把「读不到」读成「健康」）
+    {"id": "central-health",  "script": "bb-central-health.py",     "args": ["--json"],
+     "produces": [], "selfcheck": True,
+     "desc": "中枢黑板健康（★ NRestarts 增量判据；rc=1 退化 · rc=2 不可判）"},
     {"id": "publish-verify",  "script": "bb-publish-verify.py",      "args": [],
      "produces": [], "selfcheck": True,
      "desc": "线上发布一致性（★ 只读比对；rc!=0 = 线上滞后或不可判，非工具失败）"},
