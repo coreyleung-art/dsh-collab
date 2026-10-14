@@ -95,7 +95,15 @@ say "  文件数=$LOCAL_FILES · manifest.exported=$MANIFEST_EXPORTED"
 
 # ---------- 2) 校验模式：线上 vs 本地逐文件比对 ----------
 key_files=(manifest.json index.html)
-while IFS= read -r f; do key_files+=("$f"); done < <(cd "$LOCAL_DIR" && ls api/*.json 2>/dev/null | head -6)
+# ★★★ 2026-10-14 覆盖度修正（本线实测：原覆盖 19/126 = 15.1%）：
+#   · **原来只取 api/*.json 的前 6 个**（字母序）⇒ 22 个里 16 个从不被验
+#     ★ 负控实测：注入 api/overview.json **检不出**（因为 overview 不在前 6）——★ 假阴性。
+#   · `snapshots/` 89 个文件【一个都不验】。
+#   ⇒ 改为：**全部 api/*.json** + **全部根级 *.html/json** + snapshots 抽样（见下）
+while IFS= read -r f; do key_files+=("$f"); done < <(cd "$LOCAL_DIR" && ls api/*.json 2>/dev/null)
+while IFS= read -r f; do case "$f" in */*) ;; *) key_files+=("$f");; esac; done < <(cd "$LOCAL_DIR" && ls *.html *.json 2>/dev/null)
+# ★ snapshots：数量大（89）⇒ 抽样 5 个 + ★ 全部计入【文件数】以便报出真实覆盖度
+while IFS= read -r f; do key_files+=("$f"); done < <(cd "$LOCAL_DIR" && ls snapshots/*.svg 2>/dev/null | head -5)
 # ★ 2026-09-28 补（明鉴 实测发现）：验收集必须**覆盖这次要交付的对象**。
 #   原 key_files 只有 manifest.json / index.html / 前 6 个 api/*.json ⇒ **assets/ 一个都不验**
 #   ⇒ 图库载荷整目录没传上去，这条通道照样报「✅ 发布成功」——
@@ -146,8 +154,14 @@ verify_online() {
     meta=$(curl -s -m "$to" -o /tmp/sg-verify-$$.bin -w '%{http_code} %{size_download}' \
              "$PUBLIC/$(url_of "$f")" 2>/dev/null)
     code=${meta%% *}; got=${meta##* }
-    if [ "$code" != "200" ] || [ "$got" != "$lsz" ]; then
-      say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 本地=$lsz ⇒ 下载未完成，★ 非「不一致」）"
+    # ★★★ 完整性判据 = 【服务器自报的 Content-Length】，★ 不是本地文件大小！
+    #   ★ 起因（本线负控暴露）：注入真差异后，本地 2646 B / 线上 2441 B ⇒ 大小不符，
+    #     若用「大小 != 本地大小」判截断 ⇒ **真不一致会被误判成「不可判」**（假阴性）。
+    #   ★★ 而「收到字节 == Content-Length」是【服务器自己的口径】⇒ 完整/截断可判，且与内容差异无关。
+    cl=$(curl -sI -m 20 "$PUBLIC/$(url_of "$f")" 2>/dev/null \
+           | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' | tail -1)
+    if [ "$code" != "200" ] || [ -z "$cl" ] || [ "$got" != "$cl" ]; then
+      say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 服务器声明=${cl:-未知} ⇒ 下载未完成，★ 非「不一致」）"
       unk=$((unk+1))
     else
       rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
@@ -238,8 +252,10 @@ if [ "$ASSET_N" -gt 0 ]; then
     pto=$(( 30 + (psz / 1048576) * 20 )); [ "$pto" -lt 20 ] && pto=20
     pmeta=$(curl -s -m "$pto" -o /tmp/sg-probe-$$.bin -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$probe")" 2>/dev/null)
     pcode=${pmeta%% *}; pgot=${pmeta##* }
-    if [ "$pcode" != "200" ] || [ "$pgot" != "$psz" ]; then
-      say "  ⚠️  取图 $probe 不可判（HTTP=$pcode 取到=$pgot 本地=$psz ⇒ 下载未完成，★ 不判失败）"
+    pcl=$(curl -sI -m 20 "$PUBLIC/$(url_of "$probe")" 2>/dev/null \
+           | awk 'BEGIN{IGNORECASE=1} /^content-length:/{gsub(/\r/,"");print $2}' | tail -1)
+    if [ "$pcode" != "200" ] || [ -z "$pcl" ] || [ "$pgot" != "$pcl" ]; then
+      say "  ⚠️  取图 $probe 不可判（HTTP=$pcode 取到=$pgot 服务器声明=${pcl:-未知} ⇒ 下载未完成，★ 不判失败）"
     else
       rh=$(shasum -a 256 /tmp/sg-probe-$$.bin | cut -c1-16)
       if [ "$lh" = "$rh" ]; then say "  ✅ 取图 $probe → 字节一致"; else say "  ❌ 取图 $probe 本地=$lh HTTP取到=$rh"; OK=0; fi
