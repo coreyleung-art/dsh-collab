@@ -40,3 +40,4 @@ kb-health: {"ts": "2026-10-08T09:25:01", "idx_docs": 139, "summary_docs": null, 
 kb-health: {"ts": "2026-10-09T09:25:03", "idx_docs": 139, "summary_docs": null, "note": "KB embedded 状态由 knowledge_stats 查询（agent 侧），脚本侧验证索引文件一致性", "issues": []}
 kb-health: {"ts": "2026-10-12T09:25:05", "idx_docs": 139, "summary_docs": null, "note": "KB embedded 状态由 knowledge_stats 查询（agent 侧），脚本侧验证索引文件一致性", "issues": []}
 kb-health: {"ts": "2026-10-13T09:25:02", "idx_docs": 139, "summary_docs": null, "note": "KB embedded 状态由 knowledge_stats 查询（agent 侧），脚本侧验证索引文件一致性", "issues": []}
+kb-health: {"ts": "2026-10-14T09:25:05", "idx_docs": 139, "summary_docs": null, "note": "KB embedded 状态由 knowledge_stats 查询（agent 侧），脚本侧验证索引文件一致性", "issues": []}
