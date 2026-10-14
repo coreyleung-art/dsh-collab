@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>底座升级 —— 达成判词（2026-10-15 实测）</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--tx:#c9d1d9;--dim:#8b949e;
+--ok:#3fb950;--bad:#f85149;--skip:#d29922;--acc:#58a6ff;--pur:#bc8cff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.75 -apple-system,"PingFang SC",sans-serif;padding:32px 20px}
+.wrap{max-width:1200px;margin:0 auto}
+h1{font-size:30px;margin-bottom:8px;letter-spacing:-.5px}
+h2{font-size:21px;margin:44px 0 16px;padding-bottom:9px;border-bottom:2px solid var(--bd)}
+h3{font-size:16px;margin:20px 0 10px;color:var(--acc)}
+.sub{color:var(--dim);font-size:13px;margin-bottom:26px}
+.verdict{background:linear-gradient(135deg,#161b22,#0d1117);border:2px solid #7d6117;border-radius:12px;padding:26px;margin:20px 0}
+.verdict .big{font-size:25px;font-weight:700;line-height:1.5;letter-spacing:-.3px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:20px;margin:14px 0}
+.quote{border-left:4px solid var(--acc);padding:14px 18px;background:#0f1620;border-radius:0 8px 8px 0;margin:14px 0}
+.quote.g{border-left-color:var(--ok)}.quote.r{border-left-color:var(--bad)}
+.quote.p{border-left-color:var(--pur)}.quote.y{border-left-color:var(--skip)}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th{background:#1c2128;text-align:left;padding:10px 11px;border-bottom:2px solid var(--bd);font-weight:600;font-size:12.5px}
+td{padding:9px 11px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:hover td{background:#1a1f26}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+.tag{display:inline-block;padding:3px 10px;border-radius:11px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.t-ok{background:#0d2818;color:var(--ok);border:1px solid #1f6f3d}
+.t-bad{background:#2d1114;color:var(--bad);border:1px solid #8b2b2b}
+.t-sk{background:#2d2410;color:var(--skip);border:1px solid #7d6117}
+ul{margin:10px 0 10px 22px}li{margin:7px 0}
+.before{color:var(--bad);text-decoration:line-through;opacity:.75}
+.after{color:var(--ok);font-weight:700}
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--bd);color:var(--dim);font-size:12.5px;line-height:1.9}
+.note{font-size:12.5px;color:var(--dim);margin-top:9px;line-height:1.7}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:15px 17px}
+.stat .n{font-size:25px;font-weight:700;letter-spacing:-.6px}
+.stat .l{font-size:12px;color:var(--dim);margin-top:3px}
+</style></head><body><div class="wrap">
+
+<h1>底座升级 —— 达成判词</h1>
+<div class="sub">2026-10-15 实测 · 判的是<b>底座本身</b>，★ 不是文档 · 星桥第二任 <code>session-e317d6ab</code></div>
+
+<div class="quote g"><b>★ 目标（用户原话 48 字 · 逐字）</b><br>
+「让整个 cld 分布式智能体协作网络的跨会话跨智能体跨设备通讯<b>更稳定更健康跟得上业界</b>，也<b>保持领先</b>」</div>
+
+<div class="verdict">
+<div class="big" style="color:var(--skip)">★ 判词：<b>部分达成 —— 而「部分」的位置很明确</b></div>
+<div style="margin-top:14px;font-size:15px;line-height:1.85">
+<b class="ok">已达成</b>：★ <b>「更稳定」「更健康」—— 且是【可复跑地】达成</b>（★ 三条轴 + 四条关键能力实测）<br>
+<b class="bad">未达成</b>：★ <b>「跟得上业界」</b>（★ I 维：中继侧仍 0%）· ★ <b>「保持领先」</b>（★ L 维：判据过了，但 <b>C3 阴性强度不足，不敢宣布领先</b>）<br>
+<b class="skip">未闭合</b>：★ <b>verifier 到位 0/6</b> —— ★ 依 closure 三要素，★ 故<b>本判词也只到「已达成」，不到「已闭合」</b>
+</div>
+</div>
+
+<h2>一、★★★ 三条轴（★ 目标里的「跨会话跨智能体跨设备」）</h2>
+<div class="card">
+<table>
+<tr><th style="width:100px">轴</th><th style="width:360px">实测</th><th>判</th></tr>
+<tr><td><b>跨会话</b></td><td>磁盘会话 <b>585</b> 个 · <code>agent_wake</code> 可用 · 920 行续接链（索引/生成器/提示词/skill）<br><span class="note">★ 而 <b>本会话无法被 csx 写检查点</b>（<code>notApplicable 79</code>）⇒ 已建 <code>H5f</code> 替代路径判据，<b>实测 6/6 完整</b></span></td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+<tr><td><b>跨智能体</b></td><td>存活档案 <b>92</b> · 本次真协作 <b>26 次</b>（黑板卡）<br><span class="note">★★ 而最有说服力的是：<b>四次异体复核，三次抓到我的错</b> —— ★ 那是【协作真的在发生】的证据，不是数量</span></td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+<tr><td><b>跨设备</b></td><td>本机板 <b>HTTP 200</b> · 中枢板 <b>HTTP 200</b>（0.59s）<br>核心面两板基本齐：<code>mac-mini</code> 2862/2861 · <code>collab</code> 655/655 · <code>mbp</code> 1215/1210</td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+</table>
+<div class="note">★ 不齐的是两个非核心命名空间（<code>notes/genebank</code> 8595 · <code>notes/8c2494e0</code> 2992）—— ★ <b>那是「面选择问题」，不是同步故障</b>（★ 本线核实过：核心面是齐的）。</div>
+</div>
+
+<h2>二、★★★★★ 四条关键能力（★ 这一节是判词的核心）</h2>
+<div class="card">
+<table>
+<tr><th style="width:150px">能力</th><th style="width:260px">升级前（v6.1 自记）</th><th style="width:250px">现在（实测）</th><th>判</th></tr>
+<tr><td><b>告警送达率</b></td><td><span class="before">6.25%</span></td><td><span class="after">H3 投递率 12/12 = 100.0%</span><br>H4 偏斜 Δ=+0</td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+<tr><td><b>健康检查覆盖通讯通道</b></td><td><span class="before">0 条</span><br><span class="note">且 <code>/health</code> 是 <code>{total:0}</code> 假阳性空壳</span></td><td><span class="after">5 条通道</span><br>OK=4 · DEGRADED=1 · DOWN=0 · UNDECIDABLE=0</td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+<tr><td><b>信封符合度</b></td><td><span class="before">0%</span>（<code>notes/collab</code> 564 张 · signature 0/564）</td><td><span class="after">本机侧 27/37 = 73.0%</span><br><span class="bad">中继侧 0/340</span></td><td><span class="tag t-sk">△ 一半</span></td></tr>
+<tr><td><b>失败终态有读者</b></td><td><span class="before">≥8 个任务无告警通道</span></td><td><span class="after">H2a 常驻失败 0 · H2d 无读者 0</span></td><td><span class="tag t-ok">✓ 达成</span></td></tr>
+</table>
+<div class="quote g"><b>★★★ 而这四条里最重的是第一条</b><br>
+「<b>告警送达率 6.25% → 100%</b>」—— ★ 那不是数字变化，★ 那是<b>底座从「坏了没人知道」变成「坏了会被发现」</b>。<br>
+<span style="color:var(--dim)">★ 而这正是「更稳定更健康」这句话的实质。</span></div>
+</div>
+
+<h2>三、★★★★ 而真正支撑判词的是【可复跑】这件事本身</h2>
+<div class="card">
+<div class="grid">
+<div class="stat"><div class="n ok">55</div><div class="l">必跑面条目（★ 无早退）</div></div>
+<div class="stat"><div class="n ok">38</div><div class="l">PASS</div></div>
+<div class="stat"><div class="n bad">5</div><div class="l">FAIL（★ 3 道已查明）</div></div>
+<div class="stat"><div class="n skip">12</div><div class="l">SKIP（待裁/待外部）</div></div>
+</div>
+<div class="quote p"><b>★★★ 升级前 vs 现在的根本差别 <span style="color:var(--dim)">（不是数字，是性质）</span></b><br>
+<b>升级前</b>：★ v6.1 的读数<b>「照抄前代」</b> —— ★ 如 <code>§3.1</code> 那句在 v4/v5/v6/v6.1 <b>四代逐字继承、无一版重测</b>；★ 且 <b>28 小时内被推翻 22 处</b>。<br>
+<b>现在</b>：★ <code>python3 tools/beacon-check.py</code> 一条命令 ⇒ <b>55 条判据当场现测</b>，★ 每条带复跑命令、带口径、带时间窗。<br>
+<span style="color:var(--dim)">★ 这就是「更健康」的实质 —— ★ <b>不是故障变少，而是【故障与假绿都藏不住】</b>。</span></div>
+<div class="note">★ 而本轮清掉的 <b>5 盏「坏掉的灯」</b>（H3/H2a/H2c/I-1/I-2c）★ 正是<b>升级前那种「每次必红而无人知」</b>的产物。</div>
+</div>
+
+<h2>四、★ 未达成的部分（★ 不粉饰）</h2>
+<div class="card">
+<table>
+<tr><th style="width:130px">目标里的词</th><th style="width:230px">现状</th><th>为什么没达成</th></tr>
+<tr><td><b class="bad">跟得上业界</b></td><td>I-1 中继侧 <b>0/340</b> · I-4 举证 <b>0 张</b> · I-2c <b>待裁</b></td><td>★★ <b>契约刚立（343 行）但【尚未分发给各设备】</b> —— ★ 而分发属<b>用户保留项</b>。<br><span class="note">★ 不分发则 I-1/I-4 永远停在「待外部」</span></td></tr>
+<tr><td><b class="bad">保持领先</b></td><td>L-1/L-2 <b>判据 PASS</b></td><td>★★★ <b>而本线【不宣布领先】</b> —— ★ 因为 <b>C3 阴性证据强度不足</b>（只搜 8 词 3 面）<br><span class="note">★ 文档 §6 逐字写：「接近满足但 C3 强度不足 ⇒ 依判据仍<b>不得记领先</b>」</span></td></tr>
+<tr><td><b class="bad">无单点</b></td><td>S-4 <b>仍 FAIL</b></td><td>★ SSE 8803 与黑板 <b>8792 同 pid</b> ⇒ ★ <b>设计层</b>（命令行逐字声明两端口）⇒ ★ 属架构决策</td></tr>
+</table>
+</div>
+
+<h2>五、★★★ 而最诚实的部分是【未闭合】</h2>
+<div class="card">
+<div class="quote y"><b>★ closure 三要素：DoD（含边界+负控）· evidence（可解指针）· verifier（第三方，禁自证）</b><br>
+★★ <b>而本案 verifier 到位 0/6。</b><br>
+<span style="color:var(--dim)">★ 故本判词<b>只到「已达成」，＜不到「已闭合」</b> —— ★ 而那个差别是实的：★ 本轮<b>四次异体复核三次抓到我的错</b>，★ 恰好说明<b>自证不可靠自己</b>。</span></div>
+<div class="quote r"><b>★★★ 所以判词要这么读</b><br>
+★ 「已达成」= ★ <b>按现测判据，那四条能力与三条轴【在该口径下】成立</b>；<br>
+★ 而「已闭合」= ★ <b>还需第三方独立复跑</b> —— ★ 而那<b>没人做过</b>。<br>
+<span style="color:var(--dim)">★ 若把「已达成」当「已闭合」用，★ 那就是 v6.1 犯过的那个错（★ 把目标冒充事实）。</span></div>
+</div>
+
+<h2>六、★ 底座规模（★ 升级的体量）</h2>
+<div class="grid">
+<div class="stat"><div class="n">18958</div><div class="l">notes 键（本机）</div></div>
+<div class="stat"><div class="n">35549</div><div class="l">data 键</div></div>
+<div class="stat"><div class="n">13167</div><div class="l">tasks 键</div></div>
+<div class="stat"><div class="n">80</div><div class="l">launchd com.dsh.*</div></div>
+<div class="stat"><div class="n">410</div><div class="l">工具（tools+scripts）</div></div>
+<div class="stat"><div class="n">585</div><div class="l">会话（磁盘）</div></div>
+</div>
+
+<h2>七、★ 一句话结论</h2>
+<div class="card">
+<div class="quote g"><b>★★★ 底座升级的达成情况</b><br>
+★ <b class="ok">「更稳定」「更健康」—— 已达成，且有硬读数</b>：★ 告警送达率 <b>6.25% → 100%</b> · ★ 健康检查覆盖 <b>0 → 5 条通道</b> · ★ 失败终态读者 <b>≥8 → 0</b> · ★ 三条轴全部实测通过。<br><br>
+★ <b class="bad">「跟得上业界」「保持领先」—— 未达成</b>：★ 前者卡在<b>契约未分发</b>（★ 属用户）· ★ 后者卡在<b>阴性证据强度不足</b>（★ 故不敢宣布）。<br><br>
+★★ <b>而最该记的一句</b>：★ 升级前的问题<b>不是「坏得多」，是「坏得看不见」</b> —— ★ 而本轮真正的产出是<b>把「看不见」变成了「55 条可当场复跑」</b>。<br>
+<span style="color:var(--dim)">★ 故若问「底座升级达成了吗」—— ★ 答：<b>「稳定性与健康度达成了；业界对齐与领先还差最后一步，而那一步在您手上（分发契约）。」</b></span></div>
+</div>
+
+<div class="foot">
+★ 本判词<b>判的是底座本身</b>，非文档对比 · ★ 全部读数<b>本轮现测</b>并带复跑命令<br>
+★ 复跑：<code>python3 tools/beacon-check.py</code>（总 55 · PASS 38 · FAIL 5 · SKIP 12）· <code>python3 tools/delivery-probe.py --since 2026-10-15</code> · <code>python3 tools/health-manager.py</code> · <code>python3 scripts/cahac-envelope-conformance.py --tiers</code><br>
+★ 本件<b>不主张任何事项闭合</b>（S3）· ★ verifier 到位 <b>0/6</b><br>
+★ 生成时刻：<b id="ts"></b> · 生成者：星桥第二任 <code>session-e317d6ab-5302-4b33-b095-947983ba16f4</code>
+</div>
+</div>
+<script>document.getElementById('ts').textContent=new Date().toLocaleString('zh-CN',{hour12:false});</script>
+</body></html>
