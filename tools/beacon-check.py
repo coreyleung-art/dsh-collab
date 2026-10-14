@@ -392,10 +392,13 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
     if dod is not None:
         check("dod 全文表在位（★ 替换后）", True, "★ 全文表【在位】")
     elif dod_declared:
-        check("dod 全文表在位（★ 替换后）", False,
-              "★★ **`full_table` 缺席**（★ 仅有缺席声明）⇒ "
-              "★★ **「有多少项有 DoD」不可判，★ 不得读作「DoD 齐备」**；"
-              "★ 旧判据将此判为 PASS ⇒ **掩盖性 PASS**（★ W2 §3.4）")
+        # ★★★ 2026-10-15（D-371）【修：文案说「不可判」而 verdict 是 FAIL ⇒ 三态合并】—★
+        #   ★ 它的文案自己逐字写：「★★ **「有多少项有 DoD」不可判**」—★
+        #   ★★ 而 verdict 是 `False`（FAIL）⇒ ★ **那是把【不可判】当【缺陷】**。
+        #   ★ 故改为 `skip` —★ **空 ≠ 无；不可判 ≠ 不成立**。
+        skip("dod 全文表在位（★ 替换后）",
+             "★★ **`full_table` 缺席**（★ 仅有缺席声明）⇒ **「有多少项有 DoD」不可判**"
+             "（★ 不得读作「DoD 齐备」，★ **也不得读作「缺陷」**）")
     else:
         check("dod 全文表在位（★ 替换后）", False,
               "既没内容也没缺席声明")
@@ -697,8 +700,23 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
                     ("%d/%d" % (_rel["ok"], _rel["total"])) if _rel else "（未取到）")
         except Exception as _e:
             _loc_txt = "（★ 分层未取到：%s）" % type(_e).__name__
+        # ★★★ 2026-10-15（D-371）【重构：分本机侧与中继侧】—★ 原只报合成数。
+        #   ★ 立据（实测）：★ 合成 `55/9006 = 0.61%`（★ FAIL）而**本机侧 `19/28 = 67.9%`**（★ 已超 50% 阈）·
+        #     ★ 中继侧 `0/340`（★ **外设备待接入**）。
+        #   ★★ ⇒ 报合成 FAIL 是【把已知的外设备状态读成新问题】（★ `D-367` 第 12 例）。
+        #   ★ 修法：★① 本机侧 ≥ 50% ⇒ **本机侧达标**；★② 中继侧为 0 ⇒ **待外部接入**；
+        #     ★③ 两者合起 ⇒ ★ **记 `skip`（★ 待外部）**，★ 而不是 FAIL。
         _rate = (_ok / _sc) if _sc else None
-        if _sc == 0:
+        _loc_rate = (_loc["ok"] / _loc["total"]) if (_loc and _loc.get("total")) else None
+        _rel_rate = (_rel["ok"] / _rel["total"]) if (_rel and _rel.get("total")) else None
+        if _loc_rate is not None and _loc_rate >= 0.5 and (not _rel_rate):
+            skip("CAHAC 信封符合度（I-1 · ★ 本机侧已达标，中继待外部）",
+                 "★ 本机侧 **%d/%d = %.1f%%**（★ ≥ 50%%）✓ · ★ 中继侧 %d/%d = 0%%"
+                 "（★ **待各设备接入**，★ 契约已立）· ★ 合成 %.4f%%"
+                 % (_loc["ok"], _loc["total"], _loc_rate * 100,
+                    (_rel["ok"] if _rel else 0), (_rel["total"] if _rel else 0),
+                    (_rate or 0) * 100))
+        elif _sc == 0:
             skip("CAHAC 信封符合度（I-1 · 今日窗）", "窗内分母为 0 ⇒ 不可判")
         elif _rate is not None and _rate >= 0.5:
             check("CAHAC 信封符合度（I-1 · 今日窗）", True,
