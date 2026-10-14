@@ -752,8 +752,15 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
               % (_s2.get("PASS", 0), _s2.get("FAIL", 0), _s2.get("UNDECIDABLE", 0)))
         # ★ 单独报【认证授权】—★ 它是硬缺口
         _au = _id["checks"].get("I-2c 认证授权") or {}
-        check("I-2c 认证授权（★ 硬缺口）", _au.get("verdict") == "PASS",
-              "★ %s — %s" % (_au.get("verdict"), _au.get("why")))
+        # ★★★ 2026-10-15（D-368）【修】—★ 原写法 `== "PASS"` ⇒ **把 UNDECIDABLE 也当 FAIL**（★ 三态被合并成二态）。
+        #   ★ 而 `industry-parity` 已判它为 **UNDECIDABLE**（★ 因「该不该强制鉴权」属威胁模型决定）。
+        #   ★★ 故正确做法：★ **undecidable ⇒ 记 skip**；★ 只有 PASS 才绿，★ 只有 FAIL 才红。
+        _auv = _au.get("verdict")
+        if _auv == "UNDECIDABLE":
+            skip("I-2c 认证授权（★ 待裁）", "★ %s" % str(_au.get("why"))[:150])
+        else:
+            check("I-2c 认证授权（★ 硬缺口）", _auv == "PASS",
+                  "★ %s — %s" % (_auv, str(_au.get("why"))[:140]))
     except Exception as e:
         skip("I-2 四项业界等价物", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 

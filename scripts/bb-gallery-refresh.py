@@ -69,6 +69,15 @@ STEPS = [
     #   ★★★ 而 `systemctl is-active` 全程返回 **active** —— **每 27 秒重启一次的服务，它判健康。**
     #   ⇒ 本步把判据换成【**重启计数增量**】：★ 健康不是「活不活」，是「有没有在重启」。
     #   ★ 三态：0 健康 · 1 退化（发现增量）· 2 不可判（★ 不把「读不到」读成「健康」）
+    # ★★★ 2026-10-15（用户裁决「3 个 orphaned 派生图谱写生成器」· 经 J44 建前门【修正为 2 个】）：
+    #   ★ `business-asset-map.json` **不建生成器** —— ★ 实测它【已有维护工具】
+    #     `bb-asset-relations.py`（`--add`/`--add-asset`/`--del` · 人工逐条确认）
+    #     ⇒ ★ 分类改为 curated；★ 它在 refresh 里的那步是【只读 selfcheck】，设计如此。
+    #   ★ `knowledge-graph.json` 与 `mechanism.json` ⇒ 图内容是策展的，**而派生字段会自相矛盾**
+    #     （★ knowledge 曾自报 89 而实有 92；★ mechanism 的 gate_health 基于 75 而账本已 79）
+    #     ⇒ ★ 本步用【实际内容】重算派生字段 + 补元信息（★ 不增删任何策展内容）。
+    {"id": "derived-graphs",  "script": "bb-derived-graphs-gen.py",  "args": ["--go"],
+     "produces": ["knowledge-graph.json", "mechanism.json"], "desc": "派生图谱派生字段重算（★ 只动派生计数与元信息）"},
     {"id": "central-health",  "script": "bb-central-health.py",     "args": ["--json"],
      "produces": [], "selfcheck": True,
      "desc": "中枢黑板健康（★ NRestarts 增量判据；rc=1 退化 · rc=2 不可判）"},

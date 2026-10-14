@@ -168,9 +168,17 @@ SRC_KINDS = {
     #       ⇒ ★★ **未找到任何写入者**（island.rs 也只读）⇒ 回到 orphaned
     #   ⇒ ★ 分类：version-map = on-server-start（新类）；其余三个 = orphaned
     "version-map.json":               "on-server-start",
-    "knowledge-graph.json":           "orphaned",
-    "mechanism.json":                 "orphaned",
-    "business-asset-map.json":        "orphaned",
+    # ★★★ 2026-10-15 五修（★ 用户裁决「写生成器」· 经 J44 建前门【修正为 2 个】）：
+    #   ★ `business-asset-map.json` ⇒ ★★ **不建生成器** —— 实测它【已有维护工具】
+    #     `bb-asset-relations.py`（`:72 json.dump(MAP,"w")` · `--add`/`--add-asset`/`--del`
+    #     人工逐条确认 · `--suggest` 仅建议）⇒ ★ **它是【人工经工具策展】** ⇒ 改判 curated。
+    #     ★ 我早先测「跑 --selfcheck 文件没变」是【误判】：`--selfcheck` 按设计【只读】。
+    #   ★ `knowledge-graph.json` / `mechanism.json` ⇒ 图内容策展，**而派生字段会自相矛盾**
+    #     （★ knowledge 曾自报 89 而实有 92；★ mechanism 的 gate_health 基于 75 而账本已 79）
+    #     ⇒ ★ 已建 `bb-derived-graphs-gen.py` 接入 refresh ⇒ 改判 generated。
+    "knowledge-graph.json":           "generated",
+    "mechanism.json":                 "generated",
+    "business-asset-map.json":        "curated",
 }
 _DEFAULT_KIND = "generated"   # ★ 未声明者按生成型（★ 保守：宁可报假也不漏报真）
 
