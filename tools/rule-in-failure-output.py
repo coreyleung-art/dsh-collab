@@ -166,6 +166,12 @@ def selftest():
           "if err:\n    print(f'   · bad {err}（★ R030）')\n") if RULE.search(s)]))
     c("★ 正控：`bad` 也在关键词面内",
       bool([s for s in failure_strings("if bad:\n    print('· x（★ R030）')\n") if RULE.search(s)]))
+    # ★★★ 两条【钉子控制】（★ 明鉴 v3 建议：「面的声明可以容纳已知残余」）——
+    #   ★ 它们把【已声明的行为】钉住：★ 若将来收紧匹配，★ 这两条会红 ⇒ ★ 强制同步更新面声明。
+    c("★ 钉子（过匹配，已声明）：`if badge:` ⇒ 计入（★ 'bad' ⊂ 'badge' ⇒ 结果偏宽）",
+      bool(failure_strings("if badge:\n    print(f'   · x（★ R030）')\n")))
+    c("★ 钉子（复验明鉴的残余判断）：`if errs:` ⇒ **计入**（★ 它的「仍漏」预测被实测证伪）",
+      bool(failure_strings("if errs:\n    print(f'   · x（★ R030）')\n")))
     c("三态：面里有不存在的文件 ⇒ undecidable",
       audit(["_no_such_gate_.py"])[0]["state"] == "undecidable")
     print("\n  自证：%d/%d" % (ok, tot))
@@ -189,6 +195,15 @@ def main():
     # ★★ 声明【关键词面】：★ 不声明它，它的边界就会被当成结论的边界。
     print("  ★ 块判据的面：FAILCON = %d 个关键词（%s）⇒ ★ **块名落在表外者【不计入】**"
           % (len(FAILCON), ", ".join(FAILCON)))
+    # ★★★ 2026-10-15（★ 明鉴 v3 推「块名 errs ⇒ 仍漏」，★ 本线【实测证伪】，★ 并把【真残余】声明出来）：
+    #   ★ 匹配跑在 `ast.dump(test)` 的**文本**上，★ **不是标识符本身** ⇒ `'err'` ⊂ `…'errs'…` ⇒ **errs 命中**
+    #     （★ 实测：`if errs:` 计入 ⇒ **它的残余预测不成立**）。
+    #   ★★ 而【真的残余在反方向】：**短关键词过匹配** —— 实测 `if badge:` / `if badly:` **都计入**
+    #     （★ `'bad' ⊂ 'badge'`）⇒ ★★★ **结果是【偏宽】**：★ 可能把 **PASS 串当失败串** ⇒
+    #        ★★ 而那对 R065 是**危险方向**（★ 偏宽会让「失败输出无规则号」的门**混过去**）。
+    print("  ★ 已测残余（★ 面）：★ **过匹配** —— 短关键词 bad/err/miss 可匹配 badge/badly/errs 等"
+          "（★ 实测计入 ⇒ ★ 结果【偏宽】，★ 可能把 PASS 串当失败串）"
+          "；★ **欠匹配** —— 本轮已测用例（errs / error / misses / problems_count）**均命中** ⇒ **未发现**")
     for r in rows:
         print("    %s %-38s 失败串 %3d · 带规则号 %2d %s"
               % ("✅" if r["state"] == "ok" else ("❌" if r["state"] == "fail" else "？"),
