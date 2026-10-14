@@ -3351,7 +3351,22 @@ class Handler(BaseHTTPRequestHandler):
                         pass  # ★ 去重失败不阻断主流程
                 try:
                     _k="notes/mac-mini/manager-actions/%s" % datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
-                    _p={"ts":datetime.datetime.now().isoformat(),"from":"systemgraph-gui","level":_lv,
+                    # ★★★ 2026-10-15（星桥第二任「写者归属门」发现 · 明鉴处置）：
+                    #   ★ 它的 gate 报本端点写的卡 **28 张全部 `from=systemgraph-gui`**
+                    #     ⇒ 只署【组件名】⇒ 接收方看不出【谁】触发的。
+                    #   ★★ 而它建议「另加 `X-Writer` 或 `from_label` 带**会话身份**」——
+                    #     ★ 我【不采纳那个形式】，理由是：**本端点是【网页】，不是一个会话。**
+                    #     这些卡是【人在 UI 上点出来的】，★ **它们本来就【没有】会话身份**
+                    #     ⇒ 硬填一个 session 会是【编造读数】（★ 比不署更坏）。
+                    #   ★★★ 处置：**给「本来就没有身份」一个【位置】** ——
+                    #     ``writerKind`` 三态：`ui`（网页触发，无会话身份）· `agent`（智能体）· `unknown`
+                    #     ⇒ ★ 这样 gate 能【分得开】「UI 产出」与「真的没署名的智能体产出」。
+                    #     ★ 与今晚那条同构：**判据要能分开「每次必红」与「这次变红」。**
+                    _p={"ts":datetime.datetime.now().isoformat(),
+                        "from":"systemgraph-gui",
+                        "writerKind":"ui",
+                        "writerNote":"★ 由【管理器网页】触发（源=systemgraph-gui HTTP 端点）——★ 非智能体产出，本类【无会话身份】",
+                        "level":_lv,
                         "event":_ev,"detail":_act[:200]}
                     _bd=json.dumps(_p).encode()
                     _rq=urllib.request.Request("http://127.0.0.1:8792/"+_k,data=_bd,
