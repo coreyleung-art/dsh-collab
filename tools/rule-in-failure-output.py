@@ -172,6 +172,13 @@ def selftest():
       bool(failure_strings("if badge:\n    print(f'   · x（★ R030）')\n")))
     c("★ 钉子（复验明鉴的残余判断）：`if errs:` ⇒ **计入**（★ 它的「仍漏」预测被实测证伪）",
       bool(failure_strings("if errs:\n    print(f'   · x（★ R030）')\n")))
+    # ★★★ 2026-10-15（★ 明鉴 v3 的 6 个反例 · ★ 本线独立复核 6/6 成立）：
+    #   ★ 本线原声明写「欠匹配 ⇒ 未发现」—— ★★ **那是一句【不带面的】** ⇒ 读起来像「没有」。
+    #   ★ 修法：★ 收窄为「**本轮未在【本 6 门的面内】发现**」，★ 并把 6 个已知漏名**列进声明**。
+    #   ★★ 并加【钉子】：★ 这 6 名**当前全漏** ⇒ 若将来收紧匹配，本控制会红 ⇒ 强制同步更新声明。
+    c("★ 钉子（欠匹配，已声明的面外已知漏）：issues/invalid/defects/flaws/trouble/offenders 当前均【漏】",
+      not any(failure_strings("if %s:\n    print(f'   · x（★ R030）')\n" % n)
+              for n in ("issues", "invalid", "defects", "flaws", "trouble", "offenders")))
     c("三态：面里有不存在的文件 ⇒ undecidable",
       audit(["_no_such_gate_.py"])[0]["state"] == "undecidable")
     print("\n  自证：%d/%d" % (ok, tot))
@@ -203,7 +210,10 @@ def main():
     #        ★★ 而那对 R065 是**危险方向**（★ 偏宽会让「失败输出无规则号」的门**混过去**）。
     print("  ★ 已测残余（★ 面）：★ **过匹配** —— 短关键词 bad/err/miss 可匹配 badge/badly/errs 等"
           "（★ 实测计入 ⇒ ★ 结果【偏宽】，★ 可能把 PASS 串当失败串）"
-          "；★ **欠匹配** —— 本轮已测用例（errs / error / misses / problems_count）**均命中** ⇒ **未发现**")
+          "；★★ **欠匹配** —— ★★ 本线原写「未发现」，★ **被明鉴 v3 用 6 个反例推翻**"
+          "（★ `issues`/`invalid`/`defects`/`flaws`/`trouble`/`offenders` ⇒ ★ **实测 6/6 全漏**）"
+          "⇒ ★ 收窄为：**本轮未在【本 6 门的面内】发现**（★ 面外已知漏即上述 6 名）"
+          "（★ 且六门内实测 **0 处**使用这些块名 ⇒ ★ **当前不影响判决**）")
     for r in rows:
         print("    %s %-38s 失败串 %3d · 带规则号 %2d %s"
               % ("✅" if r["state"] == "ok" else ("❌" if r["state"] == "fail" else "？"),

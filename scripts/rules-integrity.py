@@ -143,8 +143,17 @@ def looks_like_pointer(tok):
     t = (tok or "").strip()
     if not t or " " in t or "\n" in t:
         return False
-    if t.startswith(("http://", "https://", "blackboard:", "agentsrc:", "§", "#")):
+    # ★★★ 2026-10-15（★ 由明鉴 v3 的建议【反查】出来）：★ 它建议「给样本集加一列【卡键】——
+    #   ★ 那一列会被你的 rules-integrity 指针门核」。★★ **实测：不会** ——
+    #   ★ 原实现在此**显式跳过** `blackboard:` 前缀 ⇒ ★ **而它正是本仓【证据指针的规范形】**
+    #   （★ `resolve_evidence()` 只认 `blackboard:`/`agentsrc:`/文件路径）
+    #   ⇒ ★★ **规范形反而【不被核】**（★ 只核了非规范写法）—— ★ 这是一个**倒置**。
+    #   ★ 修法：★ **接受 `blackboard:`**（★ 由 classify_pointer 走【板可达】分支）。
+    #   ★ 而 `http(s)` / `agentsrc:` / `§` / `#` 仍跳过（★ 声明在注释里）。
+    if t.startswith(("http://", "https://", "agentsrc:", "§", "#")):
         return False
+    if t.startswith("blackboard:"):
+        return True
     t = t.split("#")[0]
     if not t:
         return False
@@ -185,6 +194,13 @@ def classify_pointer(tok, net=False):
     import glob as _glob
     t = tok.strip().split("#")[0]
     t = re.sub(r':\d+(-\d+)?$', '', t)          # ★ 去掉 `:556` 这类【文件:行号】后缀
+    # ★★★ 2026-10-15：★ **`blackboard:` = 【明示为黑板键】** ⇒ 直接走板分支（★ 不做文件检查）。
+    if t.startswith("blackboard:"):
+        _key = t[len("blackboard:"):].strip()
+        if not net:
+            return "board-unchecked"             # ★ 未查板 ⇒ 不可判（★ 而【可见】，不再被静默跳过）
+        _r = _board_probe(_key)
+        return "board" if _r is True else ("missing" if _r is False else "undecided")
     if t.startswith("dsh-collab/"):              # ★ 归一化：把仓名当前缀的写法剥掉
         t = t[len("dsh-collab/"):]
     p = os.path.expanduser(t)
