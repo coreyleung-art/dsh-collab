@@ -271,6 +271,71 @@
    "note": "长会话不得依赖会话内压缩自救；必须在活跃窗口到达压缩器开销下界前主动交班。门未过不得继续推进工作。唯一保守保命机制 —— 但由人执行，未机器化（机器化=Q-L/C4）。规则正文见 rules-registry/RULES.md 的 ## R049",
    "state": "closed_with_evidence",
    "verifier": "待第三方复核（本件由外部第三方建立，按 S3「不可自审」须另找复核人；★ 是否维持 closed_with_evidence 由用户裁 —— 见 docs/pending-backlog.md B8/B9/B10 路由）"
+  },
+  {
+   "id": "I-1a",
+   "name": "★ I-1a 本机侧信封率（★ 拆分未成）",
+   "state": "open",
+   "evidence": [
+    "tools/beacon-check.py"
+   ],
+   "note": "★ 拆 I-1a/I-1b 于 D-383 未成（TypeError 未定位）已回退；★ 建议新会话重做"
+  },
+  {
+   "id": "H5d",
+   "name": "★ H5d 同源自证占比（217/349）",
+   "state": "open",
+   "evidence": [
+    "tools/extcase.py",
+    "data/registry/same-source-selftest-survey-20261015.json"
+   ],
+   "note": "★ 必跑面 13 个【已全部异源】；★ 全仓数多为 bb-* 类"
+  },
+  {
+   "id": "H5e",
+   "name": "★ H5e 无判据退化档（105/349）",
+   "state": "open",
+   "evidence": [
+    "tools/safe-edit.py"
+   ],
+   "note": "★ 必跑面退化档为 0"
+  },
+  {
+   "id": "S-1b",
+   "name": "★ S-1b drift 项 11 vs 活体端口 36",
+   "state": "open",
+   "evidence": [
+    "tools/negctl-drift-scan.mjs"
+   ],
+   "note": "★ 需判定是否该扩 drift 面"
+  },
+  {
+   "id": "S-4",
+   "name": "★ S-4 无单点（8792/8803 同 pid）",
+   "state": "open",
+   "evidence": [
+    "tools/beacon-check.py"
+   ],
+   "note": "★ 设计层；★ 命令行逐字声明两端口"
+  },
+  {
+   "id": "CONTRACT",
+   "name": "★ CAHAC 接入契约分发（★ 草案 343 行）",
+   "state": "open",
+   "evidence": [
+    "docs/cahac-onboarding-contract-v1-20261015.md"
+   ],
+   "note": "★ §7 通道版本 · §8 三类写者 · §9 签署登记板；★ 分发属用户保留项"
+  },
+  {
+   "id": "SAFEEDIT",
+   "name": "★ safe-edit 四步门（★ 已建并实战）",
+   "state": "closed",
+   "evidence": [
+    "tools/safe-edit.py",
+    "tools/safe-edit-guard.py"
+   ],
+   "note": "★ D-380/D-383：拦 3 次 + 回退 1 次"
   }
  ],
  "known_gaps": [
@@ -1237,6 +1302,12 @@
    "id": "5",
    "name": "长期（W5.1–W5.6，含 W5.5 会话改投影）",
    "state": "open"
+  },
+  {
+   "id": "V7",
+   "name": "★ v7 四维 14 判据（S 稳定 · H 健康 · I 对齐业界 · L 保持领先）",
+   "state": "open",
+   "note": "★★★ 2026-10-15（D-385）【登记】—★ 本线当前工作。★ 必跑面 = `python3 tools/beacon-check.py`（★ 总 54 条：PASS 35 · FAIL 7 · SKIP 12）。★ 警惕：本纳旧 wave/item（S/0/C）停在 v5/v6 四维计划，★★ 与 v7 四维 14 判据【不是同一套】。"
   }
  ],
  "writer": "外部第三方（Claude Code 会话 · CU 实验台线）· 经用户 2026-10-09 授权建立 · v3 由用户 2026-10-09 批准「写」时更新",
@@ -1354,5 +1425,6 @@
  "_v10.15.36_round_close_note": "★ 2026-10-15T03:13:55+08:00 【本轮收尾】§13 七条用户答复已落实：C4 移出closed(#1)·字段数记不可判采用14(#2)·三条纪律采纳(#3)·补口径(#4)·SLO记不可判(#5)·I-1语义详解(#6)·分发范围定义(#7)；另建成 safe-edit 四步门(自证6/6)",
  "_v10.15.37_round_close_note": "★ 2026-10-15T03:23:27+08:00 【本轮收尾】safe-edit 三方接入（别名 se + guard 门覆盖 11 个必跑面文件 + 三态验证）；答 I-1 更完善语义（拆 I-1a/I-1b·取消合成数·分设备·时间窗）与契约分发三问（旧通道计入分母·三类写者·签署登记板规格）",
  "_v10.15.38_round_close_note": "★ 2026-10-15T03:30:24+08:00 【本轮收尾】safe-edit 实战首秀：拦下3次污染+精确回退1次（源文件完好）；而 I-1 重构未成（引入未定位的 TypeError）已回退——如实记 partial",
- "_v10.15.39_round_close_note": "★ 2026-10-15T03:33:58+08:00 【本轮收尾】契约 §7 通道版本条款/§8 三类写者/§9 签署登记板（含回复范围限制）已加，+153 行零删除，全程走 safe-edit 门且直接放行"
+ "_v10.15.39_round_close_note": "★ 2026-10-15T03:33:58+08:00 【本轮收尾】契约 §7 通道版本条款/§8 三类写者/§9 签署登记板（含回复范围限制）已加，+153 行零删除，全程走 safe-edit 门且直接放行",
+ "_v7_registration_note": "★★★ 2026-10-15（D-385）【v7 四维判据已登记进索引】—★ 本线当前工作 = v7 四维 14 判据，★ 而旧 wave/item（S/0/C）停在 v5/v6。"
 }
