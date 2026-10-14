@@ -16,6 +16,7 @@
   P3 **恒真负例**（★ 见 `selftest-audit`，本门只检 `status` 与 `None` 两类）
   P4 **`grep` 型判据用长串**（★ 检测面窄的常见形态）—— ★ D-237
   P5 **硬编码时间戳**（★ 负控会过期）—— ★ D-225
+  P6 **长文档标题序号与【实际行号顺序】不一致**（★ 只在【同层级 + 同父节】内比对）—— ★ D-247/D-252/D-387
 
 三态：扫描面为空 ⇒ 「不可判」；无命中 ⇒ PASS；有 ⇒ FAIL（★ 列文件与行）。
 
@@ -25,6 +26,9 @@
     ★★ 则本门会**误报**那些 HTTP 的 `.status`。
   ★★ 要修需**逐处数据流分析**（★ 大工程）⇒ **故本门报的 P1 命中【必须人工核】**，★ 命中 ≠ 缺陷。
   ★ **P5（硬编码时间）多数是数据/日志行而非判据** —— ★ 同样须人工筛。
+  ★ **P6 的序号面**：★ 它**只认中文序号** `一、…十、`（★ `§1.2` 型阿拉伯编号【不在面内】）；
+    ★★ 并**必须作用域感知** —— ★ 修前（D-387）它把 H1–H3 拍平成一个序列，
+    ★★ 于是【凡每个父节各自重新编号的文档】一律误报：★ 实测全仓 **42 处命中 = 42 处假阳性 · 真缺陷 0**。
 """
 import io
 import os
@@ -74,48 +78,108 @@ CHECKS = [
 CN_NUM = "\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341"
 
 
+def _strip_fenced(src):
+    """★★ 把【围栏代码块】内的行挖空（★ 保留行号）—— ★ 里面的 `# ── 一、…` 是脚本注释，不是标题。
+
+    ★ 立据（D-387）：★ `docs/v7-external-review-request-audit-20261013-ext.md` 的复跑段
+      ★ 用 `# ── 一、核实「对的部分」 ──` 当 **bash 注释** ⇒ 原实现把它当 H1 标题 ⇒ 误报。
+    """
+    out, fence = [], None
+    for line in src.split("\n"):
+        m = re.match(r'^\s*(`{3,}|~{3,})', line)
+        if m:
+            ch = m.group(1)[0]
+            if fence is None:
+                fence = ch
+            elif fence == ch:
+                fence = None
+            out.append("")
+            continue
+        out.append("" if fence else line)
+    return out
+
+
+def _heading_seq(src):
+    """★ 取【带中文序号】的 H1–H3 标题，并算出它所属的【作用域】。
+
+    ★★ 作用域 = **(标题层级, 父节行号链)** —— ★ 立据（D-387）：
+      ★ 原实现把 H1–H3 **拍平成一个序列** ⇒ 凡「每个父节各自从『一、』重新编号」的文档
+      ★★ **必然被判乱序 + 重复**（★ 实测全仓 42 处命中 **42 处全是这一形态** ⇒ 假阳性率 100%）。
+      ★ 修法：★ 同层 + 同父链 才算同一序列；★ 更浅的新标题出现时，★ **更深层的序列自然另起**。
+    """
+    par = {1: (), 2: None, 3: None}
+    seq = []
+    for i, line in enumerate(_strip_fenced(src), 1):
+        hm = re.match(r'^(#{1,3}) ', line)
+        if not hm:
+            continue
+        lvl = len(hm.group(1))
+        # ★ 先按【本标题出现之前】的父链定作用域（★ 不含自己）
+        if lvl == 1:
+            scope = (1, ())
+        elif lvl == 2:
+            scope = (2, (par[1],))
+        else:
+            scope = (3, (par[1], par[2]))
+        # ★ 再更新父链
+        if lvl == 1:
+            par[1], par[2], par[3] = (i,), None, None
+        elif lvl == 2:
+            par[2] = i
+        else:
+            par[3] = i
+        # ★★★ 2026-10-13 修（D-319）：`[^\u4e00-\u9fff]{0,8}?` 允许 `## ★★ 二、…`（★ 两个星）。
+        m = re.match(r'^#{1,3} [^\u4e00-\u9fff]{0,8}?([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
+        if m and m.group(1) in CN_NUM:
+            seq.append({"line": i, "ch": m.group(1), "idx": CN_NUM.index(m.group(1)),
+                        "lvl": lvl, "scope": scope})
+    return seq
+
+
 def check_section_order(src):
     """★★ 检【标题里的中文序号】是否与【实际出现顺序】一致。
 
-    ★ 立据（D-247/D-252）：本纳一晚犯两次 —\u2605
-      ★ v7 正文：`§0.1.1` 被插在 `§0.2` 之后；
-      ★ 索引：`七` 被插在 `六` 之前。
-    ★★ ⇒ 标题序号只要不升序，就说明【插入时没重排】。
+    ★ 立据（D-247/D-252）：本纳一晚犯两次 —
+      ★ v7 正文：`§0.1.1` 被插在 `§0.2` 之后；★ 索引：`七` 被插在 `六` 之前。
+    ★★ ⇒ **同一作用域内**标题序号只要不升序，就说明【插入时没重排】。
+
+    ★★★ 2026-10-15 修（D-387）：★ 加【作用域感知】+ 【跳过围栏内标题】（★ 详见上面两个 helper）。
+      ★★ 修前的读数：★ 全仓 **42 处命中**；★ 独立复算（`_heading_seq` 扁平化的对照实现）⇒
+      ★★ **42 处 100% 是跨层级/跨父节的重启**，★ 同作用域真缺陷 **0**。
+      ★★ ⇒ 故本判据此前【消费了错的量】（★ v7 §11「判据消费了错的量」同形）。
+
+    ★★ 已知边界（★ 不掩盖）：★ 它**仍只认中文序号** `一、…十、` ——
+      ★ `§1.2` / `1.2` 型阿拉伯编号 **不在本判据面内**（★ 那一类须另立判据，★ 不得读作「已检」）。
     """
-    seq = []
-    for i, line in enumerate(src.split("\n"), 1):
-        # ★★★ 2026-10-13 修（D-319）：★ `\*?` 只允许【一个星】—★
-        #   ★ 实测：`## ★★ 二、…`（★ 两个星）匹配失败 ⇒ **误判跳号**（★ D-319 自查）。
-        m = re.match(r'^#{1,3} [^\u4e00-\u9fff]{0,8}?([\u4e00\u4e8c\u4e09\u56db\u4e94\u516d\u4e03\u516b\u4e5d\u5341]+)\u3001', line)
-        if m:
-            ch = m.group(1)
-            if ch in CN_NUM:
-                seq.append((i, ch, CN_NUM.index(ch)))
     bad = []
-    for k in range(1, len(seq)):
-        if seq[k][2] < seq[k-1][2]:
-            bad.append((seq[k-1], seq[k]))
-    # \u2605\u2605\u2605 2026-10-13 \u8865\uff08D-262\uff09\uff1a\u3010\u91cd\u590d\u5e8f\u53f7\u3011\u4e5f\u5fc5\u987b\u547d\u4e2d\u3002
-    #   \u2605 \u7acb\u636e\uff1a\u672c\u7eb3\u66f4\u65b0\u7d22\u5f15\u65f6\u5199\u51fa**\u4e24\u4e2a\u300c\u4e03\u300d**\uff0c
-    #     \u2605\u2605 \u800c P6 \u53ea\u6bd4\u5347\u5e8f \u21d2 **\u4e0d\u5347\u4e5f\u4e0d\u964d\u7684\u91cd\u590d\u3010\u4e0d\u547d\u4e2d\u3011**\u3002
-    #   \u2605\u2605 \u4fee\u6cd5\uff1a\u540c\u4e00\u5e8f\u53f7\u51fa\u73b0\u4e24\u6b21 \u21d2 \u4e5f\u7b97\u4e0d\u5347\u5e8f\u3002
-    _seen = {}
-    for item in seq:
-        if item[2] in _seen:
-            bad.append((_seen[item[2]], item))
-        else:
-            _seen[item[2]] = item
-    # ★★★ 2026-10-13 补（D-319）：【跳号】也必须命中。
-    #   ★ 立据：本纳修 `ext-open-work` 的重复序号后，序列变成
-    #     ★ 「〇一二三【五】六七八九十十一十二」 ⇒ 缺了「四」，
-    #     ★★ 而 P6【不报】⇒ 它只查「升序 + 重复」，★ **不查完整性**。
-    _nums = sorted({s[2] for s in seq})
-    _jumped = [( _nums[_k-1], _nums[_k]) for _k in range(1, len(_nums))
-               if _nums[_k] > _nums[_k-1] + 1]
-    if _jumped:
-        # ★ 用特殊标记回报（★ 该函数的返回形式是 bad 列表）
-        bad.append((("SEQ_JUMP", "", -1),
-                    ("缺序号：" + " · ".join("%d→%d" % j for j in _jumped), "", -1)))
+    by_scope = {}
+    for item in _heading_seq(src):
+        by_scope.setdefault(item["scope"], []).append(item)
+    for scope, items in by_scope.items():
+        for k in range(1, len(items)):
+            if items[k]["idx"] < items[k - 1]["idx"]:
+                bad.append({"kind": "DESC", "line": items[k]["line"],
+                            "cur": items[k]["ch"], "prev": items[k - 1]["ch"],
+                            "snippet": "序号 '%s' 出在 '%s' 之后（★ 同层级同父节）"
+                                       % (items[k]["ch"], items[k - 1]["ch"])})
+        _seen = {}
+        for it in items:
+            if it["idx"] in _seen:
+                bad.append({"kind": "DUP", "line": it["line"], "cur": it["ch"],
+                            "prev": _seen[it["idx"]]["ch"],
+                            "snippet": "重复序号 '%s'（★ 同一作用域内出现两次）" % it["ch"]})
+            else:
+                _seen[it["idx"]] = it
+        _nums = sorted({i["idx"] for i in items})
+        _jumped = [(_nums[k - 1], _nums[k]) for k in range(1, len(_nums))
+                   if _nums[k] > _nums[k - 1] + 1]
+        if _jumped:
+            first = items[0]
+            bad.append({"kind": "JUMP", "line": first["line"], "cur": "", "prev": "",
+                        "snippet": "★ 作用域（L%d · 起于第 %d 行）缺序号：%s"
+                                   % (first["lvl"], first["line"],
+                                      " · ".join("%d→%d" % j for j in _jumped))})
+    bad.sort(key=lambda d: d["line"])
     return bad
 
 
@@ -277,6 +341,28 @@ def discover(roots):
     return sorted(out)
 
 
+def discover_md(roots):
+    """★ 枚举 .md 文件（★ 原 `discover()` 只收 `.py` ⇒ **md 面永远数不到**）。
+
+    ★★★ 立据（D-387）：★ `main()` 原写 `files = discover(py_roots) + [p for p in
+      discover(md_roots) if p.endswith(".md")]` —— ★★ 而 `discover()` 里 `if fn.endswith(".py")`
+      ⇒ 后半段**恒为空** ⇒ ★ 打印的「扫描面 N 个 .py」**从不含 md**，
+      ★★ 且 `if not files` 的【不可判】分支只看 py 面 ⇒ ★ **只有 .md 的根会被误报「扫描面为空」**。
+    """
+    out = []
+    for d in roots:
+        base = os.path.join(ROOT, d)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, dirnames, filenames in os.walk(base):
+            dirnames[:] = [x for x in dirnames if not x.startswith(".")]
+            for fn in filenames:
+                if fn.endswith(".md"):
+                    out.append(os.path.relpath(os.path.join(dirpath, fn), ROOT))
+    return sorted(out)
+
+
+
 def audit_md(roots):
     """★★ 对 .md 跑 P6（标题序号核对）—★ D-252。"""
     hits = []
@@ -294,10 +380,10 @@ def audit_md(roots):
                     src = io.open(os.path.join(ROOT, rel), encoding="utf-8").read()
                 except Exception:
                     continue
-                for prev, cur in check_section_order(src):
-                    hits.append({"check": "P6", "file": rel, "line": cur[0],
-                                 "snippet": "序号 '%s' 出在 '%s' 之后" % (cur[1], prev[1]),
-                                 "why": "★★ 长文档标题序号不升序（★ 插新节后未重排）"})
+                for d in check_section_order(src):
+                    hits.append({"check": "P6", "file": rel, "line": d["line"],
+                                 "snippet": d["snippet"], "kind": d["kind"],
+                                 "why": "★★ 长文档标题序号不升序（★ 插新节后未重排；★ 只在【同层级 + 同父节】内比对）"})
     return hits
 
 
@@ -361,17 +447,43 @@ def selftest():
         print("  \u274c \u8d1f\u63a7\uff1a\u6b63\u5e8f\u88ab\u8bef\u4f24")
     # ★ 安全：无序号\u4e0d\u5f97\u62a5错
     tot += 1
-    tot += 1
     if check_section_order("## \u4e00\u3001A\n## \u4e8c\u3001B\n## \u4e8c\u3001C\n"):
         ok += 1
         print("  \u2705 \u6b63\u63a7\uff1a\u91cd\u590d\u5e8f\u53f7\uff08\u4e24\u4e2a\u300c\u4e8c\u300d\uff09\u547d\u4e2d\uff08\u2605 D-262\uff09")
     else:
         print("  \u274c \u6b63\u63a7\uff1a\u91cd\u590d\u5e8f\u53f7\u672a\u547d\u4e2d")
+    tot += 1
     if not check_section_order("# A\n## B\n### C\n"):
         ok += 1
         print("  \u2705 \u5b89\u5168\uff1a\u65e0\u5e8f\u53f7\u6807\u9898\u4e0d\u62a5\u9519")
     else:
         print("  \u274c \u5b89\u5168\uff1a\u65e0\u5e8f\u53f7\u88ab\u8bef\u62a5")
+
+    # ★★★ 2026-10-15 补（D-387）：【作用域感知】的双向控制 ——
+    #   ★ 立据：修前全仓 42 处 P6 命中【全是跨作用域重启】，同作用域真缺陷 0
+    #     ⇒ ★ 判据【消费了错的量】（★ v7 §11 同形）。
+    #   ★★ 故【两向都测】：★ 真形态仍须红（正控）· ★ 重启形态不得红（负控）。
+    _c387 = [
+        ("正控", "跳号（一→二→四）必命中",
+         "## 一、A\n## 二、B\n## 四、D\n", True),
+        ("正控", "同父同级内真乱序（二→一）必命中",
+         "## 一、A\n### 二、x\n### 一、y\n", True),
+        ("负控", "跨父节各自从『一、』重新编号不得命中",
+         "## 一、A\n### 一、a\n### 二、b\n## 二、B\n### 一、c\n### 二、d\n", False),
+        ("负控", "父级之后子级重新起『一』不得命中",
+         "## 二、A\n### 一、a\n### 二、b\n", False),
+        ("负控", "围栏内的『## 九、』不得命中（★ 那是代码不是标题）",
+         "## 一、A\n```bash\n## 九、cmd\n```\n## 二、B\n", False),
+    ]
+    for _k, _name, _src, _want in _c387:
+        tot += 1
+        _got = bool(check_section_order(_src))
+        if _got == _want:
+            ok += 1
+            print("  \u2705 %s：%s（★ D-387）" % (_k, _name))
+        else:
+            print("  \u274c %s：%s（★ 实际 %s）" % (_k, _name, _got))
+
 
     # ★ 三态：不存在的根 ⇒ 空
     tot += 1
@@ -409,7 +521,8 @@ def main():
     py_roots = [r for r in roots if r != "docs"] or ["tools", "scripts"]
     md_roots = [r for r in roots] if a.root else ["docs"]
     hits = audit(py_roots) + audit_md(md_roots)
-    files = discover(py_roots) + [p for p in discover(md_roots) if p.endswith(".md")]
+    py_files, md_files = discover(py_roots), discover_md(md_roots)
+    files = py_files + md_files
     if a.json:
         print(json.dumps({"scanned": len(files), "hits": hits}, ensure_ascii=False, indent=1))
         return 0
@@ -417,7 +530,10 @@ def main():
     if not files:
         print("  ★ 扫描面为空 ⇒ 【不可判】（★ 未抽到 ≠ 不存在）")
         return 2
-    print("  扫描面：%d 个 .py" % len(files))
+    _npy = len([x for x in files if x.endswith(".py")])
+    _nmd = len([x for x in files if x.endswith(".md")])
+    print("  扫描面：%d 个文件（★ %d .py + %d .md）"
+          % (len(files), len(py_files), len(md_files)))
     from collections import Counter
     by = Counter(h["check"] for h in hits)
     print("  命中：%d（★ 按类：%s）" % (len(hits), dict(by)))

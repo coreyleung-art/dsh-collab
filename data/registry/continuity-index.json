@@ -224,9 +224,11 @@
   },
   {
    "evidence": [
-    "docs/compaction-lowerbound-crash-20261009.md",
+    "tools/handoff-fallback-check.py",
     "docs/context-survival-conservative-plan-20261009.md",
-    "docs/distributed-agent-network-governance-plan-v4-20261009.md#7.8"
+    "docs/distributed-agent-network-governance-plan-v4-20261009.md#7.8",
+    "docs/compaction-lowerbound-crash-20261009.md",
+    "tools/compaction-deadlock-scan.py"
    ],
    "fixes_w0_1": "W0.1 判据「触发≥1 且体积降≥50%」须补负控：活跃窗口低于压缩器开销 ⇒ 必须判「不可用」并告警",
    "id": "P26",
@@ -250,7 +252,7 @@
     }
    ],
    "name": "会话硬死锁：compaction 下界 > 被遮内容（两机制）",
-   "note": "★ P0 解锁后同步（2026-10-10）：取证已由**推断**升级为**代码核实**（锚点 v2→v3 更正账①）；本机另有**独立取证**：全量 147 次压缩 / 100 次失败 / 37 次恰好相等（卡 `c7-half-fix-clause10-v2`）；★ **止血已部分落地**：P2 改四处活引用 + P3 改 central-inbox（`data/registry/p2p3-constrained-review-request`）；★ **风险仍在** ⇒ 状态不升 closed。点火源为**分布式**（watchdog/MBP/其它会话），本机改动只切一条。",
+   "note": "★ P0 解锁后同步（2026-10-10）：取证已由**推断**升级为**代码核实**（锚点 v2→v3 更正账①）；本机另有**独立取证**：全量 147 次压缩 / 100 次失败 / 37 次恰好相等（卡 `c7-half-fix-clause10-v2`）；★ **止血已部分落地**：P2 改四处活引用 + P3 改 central-inbox（`data/registry/p2p3-constrained-review-request`）；★ **风险仍在** ⇒ 状态不升 closed。点火源为**分布式**（watchdog/MBP/其它会话），本机改动只切一条。\n★★★ 2026-10-15（D-388/D-389）【本线补：源码级核实 + 全量扫描】——★\n  ★ 一、补上本条目 §4 自陈的缺口。原 §4 逐字：「★『压缩器下界导致永久失效』= **推断**（★ 未读压缩器源码，未见其常量定义）」。\n    ★★ 而本线【读了源码】：`@deepseek-ai/dsh-compaction-basic/lib/index.js:556`\n    ★ 判据逐字：`if (framedSummaryTokenCount >= prepared.shadowedTokenCount) throw new Error(\"summary is not smaller than the shadowed content (…)\")`\n    ★★ 框架常量实测（`frameSummary()` 用的三个）：`CHECKPOINT_PREAMBLE` **300** 字符 · `SUMMARY_OPEN_TAG` **19** · `SUMMARY_CLOSE_TAG` **20** ⇒ **合计 339 字符 ≈ 90 token**。\n    ★★★ ⇒ **核实推翻了「框架开销太大」的隐约暗示** —— ★ 真正的成因是【摘要生成得太大】：★ 摘要比它要压缩的东西【长 39%】（3430 / 2466 = 1.39）。\n  ★ 二、★★★【新发现：死锁会话是 2 个，不是 1 个】。全量扫描（581 个会话 · 支持 zstd 流式）：\n    ★ `session-fa1f9150-c949-401f-ba8c-d265f6221676` ⇒ 摘要 3433 ≥ 被遮 2466（**1.39×**）· ★ 命中 **108 次**（★ 本条原已登记）\n    ★★ `session-f38244df-9225-42ba-ba33-91d1e689edcf` ⇒ 摘要 2620 ≥ 被遮 1691（**1.55×**）· ★ 命中 **8 次**（★★ **本条原【未】登记**）\n    ★★ ⇒ 两者形态一致（★ 1.39× / 1.55×）⇒ **不是偶发，是同一个必然形态**：活跃窗口瘦到某条线以下 ⇒ 任何摘要都压不动。\n  ★ 三、配置事实（★ 解释为何两次都死）：★ 本机【无】compaction 配置 ⇒ 默认 `maxTokens=8192` · **`compactionRetries=1`** · `auto=true`\n    ⇒ ★★ 默认只重试 1 次 ⇒ 配合「自动压一次 + 手动压一次」⇒ **两次必然同形失败**（★ 与本条 §2 日志逐字相符）。\n  ★ 四、★ 根因判定：★ 判据本身【是对的】（摘要不该比原文长）；★★ **但【拒绝后的行为】是错的 —— 它只是 `throw`，没有【替代动作】**。\n    ⇒ 故【正确判断】导致【会话锁死】。★ 而那属 runtime 层，★ 本仓不改它。\n  ★ 五、★ 本仓可做的已做：`tools/compaction-deadlock-scan.py`（自证 **7/7** · ★ 防自指 · ★ zstd 流式）· `tools/handoff-fallback-check.py`（自证 6/6 · ★ 保证替代路径可核）。\n  ★ 六、★ 故本条状态【仍不升 closed】：★ ②（预防）属上游，★ 且第二个死锁会话【新增登记】。\n",
    "proposed_gates": [
     "G-CR16 请求前 token 预算门",
     "G-CR17 压缩有效性门"
@@ -259,7 +261,9 @@
    "severity": "高（会话级不可恢复；不崩，故不被现有崩溃监控捕获）",
    "state": "in_flight",
    "undercount_note": "dsh-token-meter/lib/index.js:15 CHARS_PER_TOKEN = 4（固定启发式，无配置）⇒ 中文重会话约 4× 低估 ⇒ 余量是虚的",
-   "updated": "2026-10-10T01:44:37+08:00"
+   "updated": "2026-10-10T01:44:37+08:00",
+   "_updated_at": "2026-10-15T03:56:39+08:00",
+   "_updated_by": "session-e317d6ab·D-389"
   },
   {
    "evidence": [
@@ -500,7 +504,8 @@
   "★ 2026-10-15 P26 的硬死锁正发生在本会话；本会话不主动 compact，需换会话则人工写续接",
   "★ 2026-10-15 P26 的 100 次失败根本原因（下界>被遮内容）仍未修，本条只保证有替代路径",
   "★ 2026-10-15 P26 的死锁根本原因仍未修，应登记给 csx 插件属主",
-  "★ 2026-10-15 第二死锁会话 f38244df 应补进 P26 登记；预防需改 runtime 拒绝后的行为（属上游）"
+  "★ 2026-10-15 第二死锁会话 f38244df 应补进 P26 登记；预防需改 runtime 拒绝后的行为（属上游）",
+  "★ 2026-10-15 预防属上游；第二死锁会话已登记"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1235,7 +1240,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-15T03:55:23+08:00",
+ "updated_at": "2026-10-15T03:56:46+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1434,5 +1439,7 @@
  "_v10.15.40_round_close_note": "★ 2026-10-15T03:43:04+08:00 【本轮收尾】修 pick_wave/next_item（WAVE_ORDER 硬编码致 V7 永远选不到，提示词指向旧工作）；并查清本会话 compact 状态：压力仅 47.2% 且 csx 写路径 notApplicable 79 次（表面序≠seq序）⇒ 不宜走 csx 式 compact",
  "_v10.15.41_round_close_note": "★ 2026-10-15T03:45:02+08:00 【本轮收尾】建成 H5f 判据（csx 不适用时的续接替代路径）：验 6 项，实测 6/6 完整 ⇒ 回答 P26 的核心问题——死锁存在但有替代路径且新鲜；已接必跑面（总 55）",
  "_v10.15.42_round_close_note": "★ 2026-10-15T03:46:10+08:00 【本轮收尾】交付新会话开工信息（可粘贴·88行·设计成自足：不引用本会话+自带三条补充+纪律五条+先复述钩子）；7件依赖全在位；compact 结论写入",
- "_v10.15.43_round_close_note": "★ 2026-10-15T03:55:23+08:00 【本轮收尾】P26 源码级核实（判据在 dsh-compaction-basic:556，框架仅339字符≈90token ⇒ 真因是摘要比被遮长39%）+ 建成 compaction-deadlock-scan（自证7/7·防自指·zstd流式）⇒ 全量扫描抓到 2 个死锁会话（P26 只记了 1 个）"
+ "_v10.15.43_round_close_note": "★ 2026-10-15T03:55:23+08:00 【本轮收尾】P26 源码级核实（判据在 dsh-compaction-basic:556，框架仅339字符≈90token ⇒ 真因是摘要比被遮长39%）+ 建成 compaction-deadlock-scan（自证7/7·防自指·zstd流式）⇒ 全量扫描抓到 2 个死锁会话（P26 只记了 1 个）",
+ "_v10.15.44_p26_update_note": "★★★ 2026-10-15（D-389）【P26 已补：源码级核实 + 第二个死锁会话 f38244df】",
+ "_v10.15.45_round_close_note": "★ 2026-10-15T03:56:46+08:00 【本轮收尾】P26 登记已补三项：源码级核实（判据在 :556·框架339字符⇒真因是摘要长39%）+ 第二死锁会话 f38244df + 配置事实（默认 retries=1）；状态仍 in_flight"
 }
