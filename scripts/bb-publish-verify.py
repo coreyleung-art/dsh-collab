@@ -63,6 +63,11 @@ def selfcheck():
     print("  · 标准库: subprocess/json/argparse · python %s" % sys.version.split()[0])
     print("  · 固定日志: %s" % LOG)
     print("  · 版本: %s" % VERSION)
+    # ★★★ 2026-10-15（应用 H5d）：加【能失败】的判据 —— 依赖缺失 ⇒ exit 1
+    if not os.path.exists(PUBLISH):
+        print("  ★ 自证失败：找不到 %s" % PUBLISH)
+        return 1
+    print("  ★ 自证判据：systemgraph-publish.sh 存在 ⇒ 可执行（★ 能失败，非声明）")
     return 0
 
 

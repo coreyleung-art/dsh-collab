@@ -58,6 +58,11 @@ def selfcheck():
     print("  · 标准库: socket/json/argparse/datetime · python %s" % sys.version.split()[0])
     print("  · 固定日志: %s" % LOG)
     print("  · 版本: %s" % VERSION)
+    # ★★★ 2026-10-15（应用 H5d）：加【能失败】的判据 —— core 缺失 ⇒ exit 1
+    if not os.path.exists(CORE):
+        print("  ★ 自证失败：找不到人工核心 %s" % CORE)
+        return 1
+    print("  ★ 自证判据：core 存在 ⇒ 可执行（★ 能失败，非声明）")
     return 0
 
 

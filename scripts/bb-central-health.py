@@ -61,6 +61,12 @@ def selfcheck():
     print("  · python %s" % sys.version.split()[0])
     print("  · 固定日志: %s" % LOG)
     print("  · 版本: %s" % VERSION)
+    # ★★★ 2026-10-15（应用 H5d）：加【能失败】的判据 —— ssh 不可用 ⇒ exit 1
+    import shutil as _sh
+    if not _sh.which("ssh"):
+        print("  ★ 自证失败：找不到 ssh（★ 声明的核心依赖）")
+        return 1
+    print("  ★ 自证判据：ssh 可执行 ⇒ 探测路径成立（★ 能失败，非声明）")
     return 0
 
 

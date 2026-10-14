@@ -69,6 +69,15 @@ def selfcheck():
     print("  · 标准库: json/os/argparse · python %s" % sys.version.split()[0])
     print("  · 固定日志: %s" % LOG)
     print("  · 版本: %s" % VERSION)
+    # ★★★ 2026-10-15（应用 H5d：自证须有【非作者自造】的输入）：
+    #   ★ 原实现只打印能力清单就 return 0 ⇒ **永远不会失败** ⇒ 跑它得到全绿
+    #     不能证明任何东西。⇒ ★ 加一个【能失败】的判据：**声明的依赖若缺失 ⇒ exit 1**。
+    missing = [n for n, p in (("knowledge-graph.json", KG), ("mechanism.json", MECH))
+               if not os.path.exists(p)]
+    if missing:
+        print("  ★ 自证失败：声明依赖缺失 %s" % missing)
+        return 1
+    print("  ★ 自证判据：两项声明依赖均存在 ⇒ 可执行（★ 这是【能失败】的判据，非声明）")
     return 0
 
 
