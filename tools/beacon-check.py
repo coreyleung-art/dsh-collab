@@ -855,6 +855,7 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         check_i4_onboarding()   # ★ I-4 接入契约合规度（★ 与 I-1 互补：它问责任、I-1 问结果）
         # ★★★ 2026-10-15（D-374）【同源自证判据】—★ 由明鉴的一般形式启发。
         check_same_source_selftest()
+        check_handoff_fallback()   # ★ H5f 续接替代路径（★ D-386）
         _ld = _c.get("H2a launchd 失败终态") or {}
         check("H2c 归档掩盖（★ W4 核心形态）", _mask.get("verdict") == "PASS",
               "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))
@@ -1219,6 +1220,39 @@ def check_same_source_selftest():
         check("H5d 同源自证占比", True,
               "★ %d/%d = %.0f%%（★ 低于 60%%）· 有外部来源 %d 个"
               % (ss_s, tot, r_s * 100, tot - ss_s))
+
+
+
+def check_handoff_fallback():
+    """★★★ 2026-10-15（D-386）【csx 不适用时的续接替代路径】—★
+
+    ★ 立据（`P26` + 本线实测）：
+      ★ `P26`「**会话硬死锁：compaction 下界 > 被遮内容**」—★
+        ★ 实测全量 **147 次压缩 / 100 次失败 / 37 次恰好相等**。
+      ★★ 而本会话 `csx_status`：★ token 压力 **47.2%** · ★ **`write.notApplicable = 79`**（本会话）—★
+        ★ 拒绝理由：**表面序 ≠ seq 序**（★ 该会话发生过「表面替换」）。
+      ★★★ ⇒ 故本条问：【当 csx 不适用时，续接靠什么 —★ 而它是否新鲜？】
+
+    ★ 三态：★ csx 可用 ⇒ PASS；★ 替代路径不完整 ⇒ FAIL；★ 读不到 ⇒ SKIP。
+    """
+    try:
+        _r = subprocess.run([sys.executable, str(ROOT / "tools" / "handoff-fallback-check.py"), "--json"],
+                            capture_output=True, text=True, timeout=200)
+        _d = json.loads([l for l in _r.stdout.split("\n") if l.startswith("{")][-1])
+        _v = _d.get("verdict")
+        if _v == "PASS":
+            check("续接替代路径（H5f）", True,
+                  "★ %s（★ %d/%d 项）" % (_d.get("csx_note", "")[:60],
+                                            _d.get("fallback_ok", 0), _d.get("fallback_total", 0)))
+        elif _v == "FAIL":
+            check("续接替代路径（H5f）", False,
+                  "★★ **替代路径不完整**（★ %d/%d）—★ 而 csx 不可用"
+                  "⇒ ★★ **续接会有断裂**"
+                  % (_d.get("fallback_ok", 0), _d.get("fallback_total", 0)))
+        else:
+            skip("续接替代路径（H5f）", "★ 取不到判定 ⇒ 不可判")
+    except Exception as _e:
+        skip("续接替代路径（H5f）", "★ 调用失败 %s ⇒ 不可判" % type(_e).__name__)
 
 
 
