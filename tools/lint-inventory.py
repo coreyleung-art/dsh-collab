@@ -165,6 +165,20 @@ def selfcheck():
         ok += 1; print("  ✅ 正控：--prompt 输出可直接粘用")
     else:
         print("  ❌ 正控：--prompt 输出异常")
+    # ★★★ 2026-10-15（D-378）【异源用例】—★ 四维判据相关工具补齐
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/tools")
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("lint-inventory.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n  自证：%d/%d" % (ok, tot))
     return 0 if ok == tot else 1
 

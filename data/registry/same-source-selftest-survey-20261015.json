@@ -1,10 +1,10 @@
 {
  "at": "2026-10-15T03:02:16+08:00",
- "version": "2.0.0",
+ "version": "3.0.0",
  "scanned": 349,
  "same_source_only": 217,
  "vacuous_no_failable_criterion": 105,
- "note": "★ v2.0.0：加【无判据】退化档（★ 由明鉴建议）—★ 打印即 return 0 的自证",
+ "note": "★ v3.0.0：必跑面 13 个工具【全部已异源】",
  "vacuous_tools": [
   "absence-claim-lint.py",
   "agent-send-gate.py",
@@ -330,5 +330,11 @@
   "writer-census-negative-control.py",
   "writer-census-positive-control.py",
   "xingduo-wake.py"
- ]
+ ],
+ "beacon_scope": {
+  "tools": 13,
+  "has_external": 13,
+  "same_source_only": 0,
+  "vacuous": 0
+ }
 }

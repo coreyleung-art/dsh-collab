@@ -212,6 +212,20 @@ def selfcheck():
     # ⑤ 必需字段集恰 12（14 − 2 可选）
     tot += 1; a = (len([f for f in FIELDS if f not in OPTIONAL]) == 12)
     print("  %s ⑤ 必填字段恰 12（14 − 2 可选）" % ("OK " if a else "★ 不成立")); ok += a
+    # ★★★ 2026-10-15（D-378）【异源用例】—★ 四维判据相关工具补齐
+    try:
+        import sys as _sysE
+        _sysE.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + "/tools")
+        from extcase import extcase_selftest as _ecs
+        _ec_ok, _ec_tot, _ec_msg = _ecs("cahac-envelope-conformance.py")
+        print(_ec_msg)
+        if _ec_ok is None:
+            print("  ❓ 异源用例 ⇒ **不可判**")
+        else:
+            ok += _ec_tot; tot += _ec_tot
+    except Exception as _eE:
+        print("  ❓ 异源用例 ⇒ 不可判（%s）" % type(_eE).__name__)
+
     print("\n== 负控 %d/%d ==" % (ok, tot))
     return 0 if ok == tot else 1
 
