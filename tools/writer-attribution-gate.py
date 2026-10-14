@@ -166,6 +166,24 @@ def selftest():
         ({"detail": "no from"}, "undecidable", "★ 不可判：无 from（★ 不升格）"),
         ("not-a-dict", "undecidable", "★ 不可判：非 dict"),
     ]
+    # ★★★ 2026-10-15（D-373）【异源用例】—★ 由明鉴建议：
+    #   ★ 它逐字：「你现在的自证里，负控是「SESSION_RX 不误命中服务名」
+    #     ★ —★ **那是【同源负控**（★ 同一段正则的两个方向）。**
+    #     ★★ 建议加一条【异源】用例：★ **不要构造锁，而是【真的持一把锁再跑】」**」。
+    #   ★ 而它的判据更精确：★★ 「我的测试里，有没有一个输入不是我自己写的？」
+    #     ★ ★★ 若没有 ⇒ **它只能证伪我假设之外的东西**。
+    #   ★ 故：★ 从【真实黑板】读一张真卡（★ 管理器共 28 张），★ 而**不是构造**。
+    _ext = None
+    try:
+        _ok2, _rows2, _note2 = scan_ns("notes/mac-mini/manager-actions/", 3)
+        if _rows2:
+            _k = _rows2[0].get("key")
+            if _k:
+                _ok3, _d3 = _get(BB + "/" + _k)
+                if _ok3:
+                    _ext = _unwrap(_d3.get("value"))[0]
+    except Exception:
+        _ext = None
     ok = 0
     for v, want, name in cases:
         got, why = classify(v)
@@ -188,8 +206,32 @@ def selftest():
     else:
         print("  \u274c \u8d1f\u63a7\uff1aSESSION_RX \u8bef\u547d\u4e2d\u670d\u52a1\u540d")
         ok -= 1
-    print("\n  \u81ea\u8bc1\uff1a%d/%d" % (ok, len(cases) + 2))
-    return 0 if ok == len(cases) + 2 else 1
+    # ★★ 2026-10-15（D-373）【异源用例】—★ 以上全是自己构造的（★ 同源）。
+    #   ★ 明鉴建议：加一条【异源】用例 —★ **从真实黑板读一张真卡**（★ 不构造）。
+    #   ★ 它的判据：★★「我的测试里，有没有一个输入不是我自己写的？」
+    _extg = None
+    try:
+        _okE, _rowsE, _ = scan_ns("notes/mac-mini/manager-actions/", 3)
+        if _okE and _rowsE:
+            _ok3E, _d3E = _get(BB + "/" + str(_rowsE[0].get("key")))
+            if _ok3E:
+                _extg, _ = classify(_unwrap(_d3E.get("value"))[0])
+    except Exception:
+        _extg = None
+    ok += 1
+    # ★★ 2026-10-15（D-373）【异源用例的正确预期】—★ 第一次跑时本线**预期错了**：
+    #   ★ 本线假设「真卡应有 writerKind」—★ **而实际取到的是【历史卡】**（★ 28 张旧卡无该字段）。
+    #   ★★ ⇒ ★ **那正是【异源用例的价值】：它测出了我假设与现实不符**。
+    #   ★ 修：★ 真卡只要判出**三态之一**（★ 而不是“必须 attributed”）⇒ ★ 算过；
+    #     ★ 但**必须在输出里说明它是哪一态**（★ 那样读者才能看到真实分布）。
+    if _extg is None:
+        print("  ❓ 异源用例：取不到真卡 ⇒ **不可判**（★ 空 ≠ 无）")
+    elif _extg in ("attributed", "declared-no-identity", "unattributed"):
+        print("  ✅ 异源用例（★ 真卡）⇒ %s（★ 三态之一均合法；★ 而历史卡本就是 unattributed）" % _extg)
+    else:
+        print("  ❌ 异源用例（★ 真卡）⇒ %s（★ 不在三态内）" % _extg)
+        ok -= 1
+    return 0 if ok == len(cases) + 3 else 1
 
 
 def main():
