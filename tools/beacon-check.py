@@ -853,6 +853,8 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
             skip("H3 健康检查覆盖通讯通道", "调用失败 %s ⇒ 不可判" % type(e).__name__)
 
         check_i4_onboarding()   # ★ I-4 接入契约合规度（★ 与 I-1 互补：它问责任、I-1 问结果）
+        # ★★★ 2026-10-15（D-374）【同源自证判据】—★ 由明鉴的一般形式启发。
+        check_same_source_selftest()
         _ld = _c.get("H2a launchd 失败终态") or {}
         check("H2c 归档掩盖（★ W4 核心形态）", _mask.get("verdict") == "PASS",
               "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))
@@ -1162,6 +1164,42 @@ def selftest() -> int:
     print()
     print("自证：", "全绿" if not fails else f"**有红**（{fails} 条）")
     return 1 if fails else 0
+
+
+def check_same_source_selftest():
+    """★★★ 2026-10-15（D-374）【同源自证判据】
+
+    ★ 立据（明鉴的一般形式）：
+      ★★★「夹具与被测共享【同一个前提】时，测试无法证伪那个前提。」
+      ★ 而它的判据：★★「我的测试里，有没有一个输入不是我自己写的？」
+    ★★ ⇒ 故本条判【自证里有无非自造输入】—★ **而不是看绿不绿**。
+
+    ★ 三态：★ 读不到基线 ⇒ SKIP；★ 仅同源占比 ≥ 80% ⇒ **WARN 级 FAIL**（★ 那是系统性的）；★ 否则 PASS。
+    """
+    p = ROOT / "data" / "registry" / "same-source-selftest-survey-20261015.json"
+    try:
+        d = json.loads(p.read_text(encoding="utf-8"))
+    except Exception as e:
+        skip("H5d 同源自证占比", "★ 基线读不到（%s）⇒ **不可判**（★ 空 ≠ 无）" % type(e).__name__)
+        return
+    tot = d.get("scanned") or 0
+    ss = d.get("same_source_only") or 0
+    if not tot:
+        skip("H5d 同源自证占比", "★ 扫面 0 ⇒ 不可判")
+        return
+    r = ss / tot
+    # ★ 三态：★ 全部同源 ⇒ 真红；★ 超 80% ⇒ 真红（系统性）；★ 否则 PASS
+    if r >= 0.80:
+        check("H5d 同源自证占比", False,
+              "★★ **%d/%d = %.0f%% 的工具【自证全用自造输入】**"
+              "（★ 无外部来源）⇒ ★★★ **它们的全绿不能证伪它们自己的前提**"
+              "（★ 修法：加一条【非自己写的】输入）"
+              % (ss, tot, r * 100))
+    else:
+        check("H5d 同源自证占比", True,
+              "★ %d/%d = %.0f%%（★ 低于 80%%）· 有外部来源 %d 个"
+              % (ss, tot, r * 100, tot - ss))
+
 
 
 def main():
