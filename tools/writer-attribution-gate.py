@@ -41,7 +41,9 @@ DEFAULT_NS = [
 #   ★ 实测卡逐字：`writerKind = "ui"`·`writerNote = "★ 由【管理器网页】触发…非智能体产出，本类【无会话身份】"`
 #   ★★ ⇒ 那是【**显式声明了写者类别**】—★ 而**对网页 UI 类要求 X-Writer 是【错的】**（★ 那个身份不存在）。
 SIGN_FIELDS = ("from_label", "writer", "writerLabel", "X-Writer", "x-writer", "session", "sessionId",
-               "writerKind", "writerNote")
+                 )   # ★ D-370：从 SIGN_FIELDS 移出 writerKind/writerNote（★ 它们走第三态）
+
+DECLARED_FIELDS = ("writerKind", "writerNote", "writer_kind", "identityDeclared")   # ★ D-370：类别声明（★ 非签名）
 
 # ★ 会话身份形态
 SESSION_RX = re.compile(r"(?:^|\W)session-[0-9a-f]{6,}", re.I)
@@ -80,7 +82,7 @@ def _unwrap(value, depth=3):
 
 
 def classify(value):
-    """★ 三态判一个卡的 value：'attributed' / 'unattributed' / 'undecidable'"""
+    """★ 三态判一个卡的 value：'attributed' / 'declared-no-identity' / 'unattributed' / 'undecidable'"""
     if not isinstance(value, dict):
         return "undecidable", "value 非 dict"
     value, _d = _unwrap(value)
@@ -93,6 +95,9 @@ def classify(value):
             return "attributed", "有署名类字段 %s" % f
     if SESSION_RX.search(str(fr)):
         return "attributed", "from 含 session 形态"
+    for f in DECLARED_FIELDS:   # ★ D-370：有类别声明 ⇒ 第三态（★ 合法）
+        if value.get(f):
+            return "declared-no-identity", "有类别声明 %s" % f
     return "unattributed", "from=%r 是服务/进程名，无任何会话身份" % str(fr)[:40]
 
 
@@ -125,7 +130,7 @@ def scan_ns(ns, limit=60):
 def run(namespaces=None, limit=60):
     namespaces = namespaces or DEFAULT_NS
     out = {"gate": "writer-attribution-gate", "namespaces": [], "summary": {}}
-    agg = {"attributed": 0, "unattributed": 0, "undecidable": 0, "readfail": 0}
+    agg = {"attributed": 0, "declared-no-identity": 0, "unattributed": 0, "undecidable": 0, "readfail": 0}   # ★ D-370 加第三态
     honest = []          # ★ 如实标注：空/读失败
     for ns in namespaces:
         ok, rows, note = scan_ns(ns, limit)

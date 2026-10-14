@@ -418,7 +418,8 @@
   "★ 2026-10-15 xdom-op.sh 的引号修复待验证；反向判据未接必跑面",
   "★ 2026-10-15 本仓还有多少判据属此形态未自查",
   "★ 2026-10-15 beacon-check 其他 ==PASS 二态读法未普查",
-  "★ 2026-10-15 28 张历史卡不追溯补署名，属预期"
+  "★ 2026-10-15 28 张历史卡不追溯补署名，属预期",
+  "★ 2026-10-15 输出行未显示第三态（仅显示问题）；28 张历史卡不追溯"
  ],
  "last_session": {
   "cause": "CONTEXT_WINDOW_EXCEEDED（超 3242 token，全来自 completion 预留）+ compaction 永久失效（摘要开销 3435/3450 ≥ 被遮内容 2466）",
@@ -1153,7 +1154,7 @@
   "file": "docs/repo-strata-map-20261012.md",
   "note": "★★ 治理检索的【必扫四层】：research/（圈二设计）· comm-server/（中枢早期设计）· erp-workspace/（门店业务）· 黑板 KV。★ 本线长期只扫 docs/（649 文件）而全仓其他层更大（cld-voice 8547 · erp-workspace 782 · research 749）。"
  },
- "updated_at": "2026-10-15T02:49:15+08:00",
+ "updated_at": "2026-10-15T02:51:50+08:00",
  "version_pointer_file": "~/.dsh/continuity-last-version",
  "waves": [
   {
@@ -1328,5 +1329,6 @@
  "_v10.15.23_round_close_note": "★ 2026-10-15T02:40:36+08:00 【本轮收尾】采纳明鉴建议建成反向判据 xdom-bypass-scan.py（自证 6/6，扫日志找没走门的跨机操作）；且拓出 xdom-op.sh 的引号缺陷（引号内 sudo 会被当只读放行）",
  "_v10.15.24_round_close_note": "★ 2026-10-15T02:42:16+08:00 【本轮收尾】归纳：今晚 9 处判据修复里 8 处是同一形态（判据把已知状态读成新问题）⇒ 新增判据纪律「对同一输入每次必红就不是判据，是坏掉的灯」",
  "_v10.15.25_round_close_note": "★ 2026-10-15T02:47:56+08:00 【本轮收尾】修掉三态合并 bug（beacon-check 用 ==PASS 判 I-2c ⇒ 把 UNDECIDABLE 当 FAIL）⇒ FAIL 8→7；顺带实测 I-1 本机侧已 57.9% 超阈值",
- "_v10.15.26_round_close_note": "★ 2026-10-15T02:49:15+08:00 【本轮收尾】明鉴已回应写者归属建议：加 writerKind/writerNote 声明写者类别（比要求 X-Writer 更对，因 UI 类无会话身份）⇒ 本次 SIGN_FIELDS 纳入该两字段，新卡算已署名"
+ "_v10.15.26_round_close_note": "★ 2026-10-15T02:49:15+08:00 【本轮收尾】明鉴已回应写者归属建议：加 writerKind/writerNote 声明写者类别（比要求 X-Writer 更对，因 UI 类无会话身份）⇒ 本次 SIGN_FIELDS 纳入该两字段，新卡算已署名",
+ "_v10.15.27_round_close_note": "★ 2026-10-15T02:51:50+08:00 【本轮收尾】采纳明鉴三态建议：新增 declared-no-identity（类别声明≠署名）· 四向验证 4/4；而它拒绝我的「加会话身份」建议是对的（UI 类无身份，硬填=编造读数）"
 }
