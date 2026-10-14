@@ -744,6 +744,28 @@ def run(root: Path = ROOT, *, net: bool = False, quiet: bool = False,
         _s2 = _sd.get("summary") or {}
         _c = _sd["checks"]
         _mask = _c.get("H2c 归档掩盖") or {}
+        # ★★★ 2026-10-15【H3 健康检查覆盖通讯通道】—★
+        #   ★ v6.1 §0.1.4 :238 原文：「健康检查须覆盖通讯通道 | 现覆盖 **0 条**」
+        #   ★ 而用户 2026-10-15 逐字：「能随时让你们看到状态，而不是每次遇到问题猜情况」—★
+        #   ★★ 故本判据 = **跑 health-manager 并查通讯通道部分是否全 OK**。
+        try:
+            _hm = subprocess.run([sys.executable, str(ROOT / "tools" / "health-manager.py"), "--json", "--section", "channel"],
+                                 capture_output=True, text=True, timeout=120)
+            _hd = json.loads(_hm.stdout)
+            _items = [i for s2 in _hd.get("sections", []) for i in s2.get("items", [])]
+            _bad = [i for i in _items if i.get("verdict") in ("DOWN", "UNDECIDABLE")]
+            _deg = [i for i in _items if i.get("verdict") == "DEGRADED"]
+            if not _items:
+                skip("H3 健康检查覆盖通讯通道", "★ 无监控点 ⇒ 不可判")
+            else:
+                check("H3 健康检查覆盖通讯通道（★ 新建）",
+                      not _bad and not _deg,
+                      "★ %d 条通道 · DOWN/UNDEC %d · DEGRADED %d%s"
+                      % (len(_items), len(_bad), len(_deg),
+                         ("：" + "; ".join("%s(%s)" % (i["name"], i["verdict"]) for i in (_bad + _deg)[:4])) if (_bad or _deg) else ""))
+        except Exception as e:
+            skip("H3 健康检查覆盖通讯通道", "调用失败 %s ⇒ 不可判" % type(e).__name__)
+
         _ld = _c.get("H2a launchd 失败终态") or {}
         check("H2c 归档掩盖（★ W4 核心形态）", _mask.get("verdict") == "PASS",
               "★ %s — %s" % (_mask.get("verdict"), str(_mask.get("why"))[:130]))

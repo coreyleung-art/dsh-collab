@@ -119,24 +119,54 @@ for e in es:
 fi
 say "验收集: ${#key_files[@]} 个（含图库资产 $ASSET_N 个，由 api/assets.json 派生）"
 
+# ═══ ★★★ 三态比对（2026-10-14 明鉴 · 修假阳性）═══
+#   ★ 实测缺陷（本线复现，铁证）：
+#     `assets/Memory-Governance-架构图.html` **3.57 MB**，完整下载实测 **32.0s / 32.5s / 51.4s**。
+#     而原实现用 `curl -s -m 20`（20 秒超时）⇒ **20s 内只下到 966,403 B / 3,572,936 B（27%）**，
+#     三次下载的 sha **每次不同**（截断位置随机）⇒ ★★ **该文件永远报「不一致」**。
+#     ★ 而手工取线上 = 本地 sha，逐字节相同 ⇒ **真相是「下载没下完」，不是「内容不一致」**。
+#   ⇒ ★★★ 同族：**把【测量装置的失败】读成【被测对象的属性】** ——
+#     与「is-active 读成健康（而它每 27 秒死一次）」是同一个框架缺口。
+#   ⇒ 修法：**三态**
+#     · 下载完整（HTTP 200 且字节数 == 本地）⇒ 比 sha ⇒ ✅ 一致 / ❌ 不一致
+#     · 下载不完整（超时截断 / 字节数不符）    ⇒ ⚠️ **不可判**（★ 不计入不一致）
+#     · 下载失败（HTTP 非 200 / 取不到）        ⇒ ⚠️ **不可判**
+#   ★ 为什么关键：**带假阳性的判据接进自动链 = 自动化地制造「狼来了」**。
 verify_online() {
-  local bad=0 n=0
+  local bad=0 n=0 unk=0
   say "线上比对（$PUBLIC）:"
   for f in "${key_files[@]}"; do
     [ -f "$LOCAL_DIR/$f" ] || continue
     n=$((n+1))
     lh=$(shasum -a 256 "$LOCAL_DIR/$f" | cut -c1-16)
-    rh=$(curl -s -m 20 "$PUBLIC/$(url_of "$f")" 2>/dev/null | shasum -a 256 | cut -c1-16)
-    if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 线上=$rh"; bad=$((bad+1)); fi
+    lsz=$(wc -c < "$LOCAL_DIR/$f" | tr -d ' ')
+    # ★ 超时按大小自适应（实测吞吐约 70–110 KB/s ⇒ 给 20s/MB + 30s 底，不依赖固定值）
+    to=$(( 30 + (lsz / 1048576) * 20 ))
+    [ "$to" -lt 20 ] && to=20
+    meta=$(curl -s -m "$to" -o /tmp/sg-verify-$$.bin -w '%{http_code} %{size_download}' \
+             "$PUBLIC/$(url_of "$f")" 2>/dev/null)
+    code=${meta%% *}; got=${meta##* }
+    if [ "$code" != "200" ] || [ "$got" != "$lsz" ]; then
+      say "  ⚠️  $f 不可判（HTTP=$code 取到=$got 本地=$lsz ⇒ 下载未完成，★ 非「不一致」）"
+      unk=$((unk+1))
+    else
+      rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
+      if [ "$lh" = "$rh" ]; then say "  ✅ $f"; else say "  ❌ $f 本地=$lh 线上=$rh"; bad=$((bad+1)); fi
+    fi
+    rm -f /tmp/sg-verify-$$.bin
   done
-  say "  比对 $n 个文件，不一致 $bad 个"
-  return $bad
+  say "  比对 $n 个文件，不一致 $bad 个，不可判 $unk 个"
+  [ "$unk" -gt 0 ] && say "  ★★ 不可判 ≠ 不一致：那是【下载没取全】，★ 请重跑或加大超时，勿据此判定线上有问题"
+  MISMATCH=$bad; UNKNOWN=$unk
+  [ "$bad" -eq 0 ] && [ "$unk" -eq 0 ] && return 0 || return 1
 }
 
 if [ "$MODE" = "verify" ]; then
+  MISMATCH=0; UNKNOWN=0
   verify_online; rc=$?
-  [ "$JSON" = 1 ] && echo "{\"mode\":\"verify\",\"public\":\"$PUBLIC\",\"mismatch\":$rc}"
-  exit $([ "$rc" = 0 ] && echo 0 || echo 1)
+  # ★ 三态暴露：mismatch（确认不一致）与 unknown（不可判）分开报 —— ★ 不合并
+  [ "$JSON" = 1 ] && echo "{\"mode\":\"verify\",\"public\":\"$PUBLIC\",\"mismatch\":$MISMATCH,\"unknown\":$UNKNOWN}"
+  exit $rc
 fi
 
 # ---------- 3) 计划 ----------
@@ -203,8 +233,18 @@ if [ "$ASSET_N" -gt 0 ]; then
   for f in "${key_files[@]}"; do case "$f" in assets/*) probe="$f"; break;; esac; done
   if [ -n "$probe" ] && [ -f "$LOCAL_DIR/$probe" ]; then
     lh=$(shasum -a 256 "$LOCAL_DIR/$probe" | cut -c1-16)
-    rh=$(curl -s -m 20 -f "$PUBLIC/$(url_of "$probe")" 2>/dev/null | shasum -a 256 | cut -c1-16)
-    if [ "$lh" = "$rh" ]; then say "  ✅ 取图 $probe → 字节一致"; else say "  ❌ 取图 $probe 本地=$lh HTTP取到=$rh"; OK=0; fi
+    # ★ 同款三态（★ 大图会被短超时截断而误报，见 verify_online 顶部注释）
+    psz=$(wc -c < "$LOCAL_DIR/$probe" | tr -d ' ')
+    pto=$(( 30 + (psz / 1048576) * 20 )); [ "$pto" -lt 20 ] && pto=20
+    pmeta=$(curl -s -m "$pto" -o /tmp/sg-probe-$$.bin -w '%{http_code} %{size_download}' "$PUBLIC/$(url_of "$probe")" 2>/dev/null)
+    pcode=${pmeta%% *}; pgot=${pmeta##* }
+    if [ "$pcode" != "200" ] || [ "$pgot" != "$psz" ]; then
+      say "  ⚠️  取图 $probe 不可判（HTTP=$pcode 取到=$pgot 本地=$psz ⇒ 下载未完成，★ 不判失败）"
+    else
+      rh=$(shasum -a 256 /tmp/sg-probe-$$.bin | cut -c1-16)
+      if [ "$lh" = "$rh" ]; then say "  ✅ 取图 $probe → 字节一致"; else say "  ❌ 取图 $probe 本地=$lh HTTP取到=$rh"; OK=0; fi
+    fi
+    rm -f /tmp/sg-probe-$$.bin
   fi
 fi
 rm -f /tmp/sg-publish-$TS.tgz
