@@ -1,5 +1,5 @@
 {
- "at": "2026-10-15T04:15:04+0800",
+ "at": "2026-10-15T04:17:23+0800",
  "version": "4.0.0-ast",
  "generator": "tools/selftest-audit.py",
  "_definition": {
@@ -7,9 +7,26 @@
   "same_source_only": "★ 本轮**未重算** ⇒ 沿用旧基线（★ 见 _carried_forward）"
  },
  "_carried_forward": {
-  "same_source_only": "2026-10-15T03:02:16+08:00",
-  "beacon_scope": "2026-10-15T03:02:16+08:00",
-  "note": "2026-10-15T03:02:16+08:00"
+  "same_source_only": {
+   "at": "2026-10-15T03:02:16+08:00",
+   "class": "carried_forward",
+   "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面 349 ≠ 本面 560）"
+  },
+  "same_source_only_strict": {
+   "at": null,
+   "class": "absent",
+   "decidability": "★ 旧基线无此字段 ⇒ 不可判（★ 空 ≠ 无）"
+  },
+  "beacon_scope": {
+   "at": "2026-10-15T03:02:16+08:00",
+   "class": "carried_forward",
+   "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面与 scanned 不同）"
+  },
+  "note": {
+   "at": "2026-10-15T03:02:16+08:00",
+   "class": "carried_forward",
+   "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面与 scanned 不同）"
+  }
  },
  "scanned": 560,
  "vacuous_no_failable_criterion": 213,
@@ -472,5 +489,25 @@
   "same_source_only": 0,
   "vacuous": 0
  },
- "note": "★ v3.0.0：必跑面 13 个工具【全部已异源】"
+ "note": "★ v3.0.0：必跑面 13 个工具【全部已异源】",
+ "_decidability": {
+  "recomputable": [
+   "vacuous_no_failable_criterion",
+   "vacuous_tools",
+   "scanned",
+   "failable_tools_n",
+   "no_entry_n",
+   "undecidable_n",
+   "_face"
+  ],
+  "carried_forward": [
+   "same_source_only",
+   "beacon_scope",
+   "note"
+  ],
+  "absent": [
+   "same_source_only_strict"
+  ],
+  "note": "★★ 两类字段【不可混用】：★ 现算项可复跑；★ 沿用项 ★ 不可复跑（★ 生成器已丢失）。★★★ 且沿用项的【面】与 scanned【不同】⇒ 二者相除【无意义】。"
+ }
 }

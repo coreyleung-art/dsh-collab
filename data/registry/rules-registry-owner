@@ -1,0 +1,26 @@
+{
+ "schema": "registry-owner/1",
+ "registry": "rules-registry/RULES.md",
+ "owner": {
+  "sessionId": "session-a190c54c-ca73-4845-9a65-9dc002d45044",
+  "displayName": "明鉴 v3",
+  "role": "蓝图主编 + 规则账本属主",
+  "node": "mac-mini"
+ },
+ "declaredAt": "2026-10-13",
+ "machineFileCreatedAt": "2026-10-15T04:29:04.118601",
+ "basis": "R061（每份账本必须有【可解析的在世属主】）",
+ "evidence": [
+  "规则账本第 7 行有【可解析】的属主声明段",
+  "规则账本第 10 行有【第一人称】变更记录（「我写入前声明已是 75 而实测 R 已 59…我一并补上」）",
+  "R032 标题含「明鉴提案」",
+  "J44 正文写明「新工具 → 同步明鉴（蓝图主编）」"
+ ],
+ "verification": "python3 scripts/rules-integrity.py（★ 只核计数）· python3 -c \"import json;json.load(open('data/registry/rules-registry-owner'))\"（★ 核可解析）",
+ "note": "★★ 2026-10-15 补建：此前【只有】人类可读的声明段（RULES.md 第 7-13 行），★ 而【机读同源文件不存在】⇒ ★ 即 RULES.md 里那句「机读同源：data/registry/rules-registry-owner」★ **指向了一个不存在的落盘物**。⇒ ★★ 本次补建 ⇒ ★ R061 在此账本上【机器可读那一半】才落实。★★ 而立据正是 R063（★ 装置维不可自证）：★ 声明「有据」不等于【据存在】—— ★ **指针必须回读确认**。",
+ "readBack": {
+  "how": "json.load 成功且 owner.sessionId 非空",
+  "by": "本卡作者自跑",
+  "at": "2026-10-15T04:29:04.118605"
+ }
+}

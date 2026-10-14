@@ -241,6 +241,8 @@ def check_s1b():
     return {"verdict": v,
             "why": ("★ drift 项 %d vs **本线活体治理服务 %d**（★ 面外 %d · ★ 不可判 %d）⇒ %s；"
                     "★ 未覆盖点 %d 个%s"
+                    "　★ 依 **R063**（三维修：面/判据/装置 —— ★ 分母是【分类后的 A 桶】，★ 不是全部监听）"
+                    "· ★ 依 **R030**（无验证不陈述）；★ 规范形：★ 缺口须【按端口点名】，★ 不得只报计数"
                     % (n_items, len(A), len(B), len(C), "≥" if cnt_ok else "<", len(gap),
                        ("：" + ", ".join(":%s(%s)" % (g["port"], g["proc"]) for g in gap[:8])) if gap else "")),
             "evidence": {"drift_items": n_items, "governance_live": len(A),
@@ -406,6 +408,8 @@ def check_s4():
                   if _has_both else "")
         return {"verdict": "FAIL",
                 "why": "★★ **8792 与 8803 同 pid=%s**（%s）⇒ **单点**：挂一个同时带走订阅面%s"
+                       "　★ 依 **R030**（无验证不陈述）；★ 规范形：★ 判「无单点」须【实读两端口 pid】"
+                       "（★ 不启停服务 ⇒ ★ 破坏性负控【不可判】，★ 不得据此判成立）"
                        % (pid, rows["8792"]["cmd"], _extra),
                 "evidence": ev}
     return {"verdict": "PASS",

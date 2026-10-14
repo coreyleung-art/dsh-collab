@@ -457,7 +457,18 @@ def survey(rows, out_path=None):
         for k in ("same_source_only", "same_source_only_strict"):
             if k in old:
                 out[k] = old[k]
-                out["_carried_forward"][k] = old.get("at")
+                # ★★★ 2026-10-15（D-400b）：★ 首版这里仍写 `old.get("at")`（★ 裸时间戳）
+                #   ⇒ ★★ **`_decidability.carried_forward` 里【漏了 `same_source_only`】**
+                #   —— ★ 而它正是明鉴指出的那一个字段（★ 同一形态：★ 标了别的、漏了主角）。
+                #   ★ 修法：★ 与另一处统一为【带等级的结构】。
+                out["_carried_forward"][k] = {
+                    "at": old.get("at"), "class": "carried_forward",
+                    "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面 %s ≠ 本面 %d）"
+                                    % (old.get("scanned"), len(rows))}
+            else:
+                out["_carried_forward"][k] = {
+                    "at": None, "class": "absent",
+                    "decidability": "★ 旧基线无此字段 ⇒ 不可判（★ 空 ≠ 无）"}
         if "same_source_tools" in old:
             out["same_source_tools"] = old["same_source_tools"]
         out["_legacy_vacuous"] = {"value": old.get("vacuous_no_failable_criterion"),
