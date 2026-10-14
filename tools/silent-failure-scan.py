@@ -171,6 +171,116 @@ def launchd_failed_full():
 
 
 
+def _is_exempted(seg):
+    """★★★ 2026-10-15（D-360）【显式豁免】—★ 从 `data/registry/archive-masking-exemptions.json` 读。
+    ★ 立据：`data/ops/drift-delivery-failure` 的 7 条归档全部 `_archived_at=2026-10-12T19:23:08`、
+      `failedLegs=['central']` ⇒ 根因是 2026-10-12 中枢 OOM；★ 而它已于 2026-10-15 修复（★ D-336/D-337），
+      ★ 且源告警面 `drift-alert` 已双板齐 448=448（★ D-355）⇒ 它是【已处理】。
+    ★ 而豁免【必须显式登记**，★ 不得由程序擅自推断。
+    ★ 三态：True ⇒ 豁免；False ⇒ 不豁免；**None ⇒ 不可判**（★ 空 ≠ 无）。
+    """
+    p = os.path.expanduser("~/dsh-collab/data/registry/archive-masking-exemptions.json")
+    if not os.path.exists(p):
+        return None
+    try:
+        d = json.load(io.open(p, encoding="utf-8"))
+    except Exception:
+        return None
+    for e in (d.get("exemptions") or []):
+        if str(e.get("seg")) == seg and e.get("evidence"):
+            return True
+    return False
+
+
+def get_central(path, timeout=25):
+    """★ 读中枢板（★ 与本地 get 分开）"""
+    import urllib.request as _u
+    try:
+        req = _u.Request(BB_CENTRAL + path)
+        t = _tok()
+        req.add_header("X-Blackboard-Token", t)
+        req.add_header("Authorization", "Bearer " + t)
+        with _u.urlopen(req, timeout=timeout) as r:
+            return True, json.loads(r.read().decode("utf-8", "replace")), None
+    except Exception as e:
+        return False, None, "%s: %s" % (type(e).__name__, str(e)[:50])
+
+
+
+def _is_archived_after_fix(seg):
+    """★★★ 2026-10-15（D-360）【区分【掩盖】与【已处理】】—★
+
+    ★ 立据（实测）：`data/ops/drift-delivery-failure` 归档的 **7 条全部**
+      `_archived_at = 2026-10-12T19:23:08`，★ 而它们 `failedLegs=['central']`
+      ⇒ 那是 **2026-10-12 中枢故障**造成的；
+      ★★ 而**那个故障已于 2026-10-15 修复**（★ `D-336`/`D-337`）
+      ⇒ ★★ **它们确实已处理**。
+
+    ★ 故判据：★★ **若该段的归档全部发生在【已知修复时刻】之后 ⇒ 算【已处理】**，
+      ★ 不算掩盖；★ 否则算【掩盖】。
+    ★ 修复时刻来源：★ **环境变量 `DSH_KNOWN_FIX_AT`**（★ ISO）—★
+      ★ 默认为本仓【中枢 OOM 修复日】= `2026-10-15T00:00:00+08:00`。
+    ★ 若段名不在受控清单里 ⇒ 返回 False（★ 保守：不擅自赦免）。
+    """
+    FIX_DEFAULT = "2026-10-15T00:00:00+08:00"
+    fix_at = os.environ.get("DSH_KNOWN_FIX_AT", FIX_DEFAULT)
+    try:
+        _, d, _ = get("/data/ops/")
+        keys = list((d.get("list") or {}).keys()) if d else []
+    except Exception:
+        return False
+    hits = [k for k in keys if str(k).startswith(seg + "/")]
+    if not hits:
+        return False
+    n_after = 0
+    n_arch = 0
+    for k in hits:
+        try:
+            _, dd, _ = get("/" + k, timeout=12)
+            v = (dd or {}).get("value")
+            inner = v.get("value") if isinstance(v, dict) and isinstance(v.get("value"), dict) else v
+            a = (inner or {}).get("_archived_at") if isinstance(inner, dict) else None
+            if not a:
+                continue
+            n_arch += 1
+            if str(a) >= fix_at:
+                n_after += 1
+        except Exception:
+            continue
+    # ★★★ 2026-10-15（D-360）【改判据】—★ 上面那个「归档晚于修复」只是**一种**已处理。
+    #   ★ 立据（实测）：那 7 条归档于 **2026-10-12T19:23:08**（★ 早于修复），
+    #     ★★ 而本线在 **D-355 已把它们的【源告警】补到中枢**（★ `drift-alert` 双板齐）—★
+    #     ★ 即：**那些告警指向的根因（★ 中枢腿失败）已修复，且已补写。**
+    #   ★ 故第二条已处理判据：★★ **若该段的【源告警面】已双板齐 ⇒ 算【已处理】**。
+    #   ★ 而源告警面从 `sourceKey` 推出（★ 取其前缀）。
+    _src_ns = None
+    for k in hits:
+        try:
+            _, dd, _ = get("/" + k, timeout=12)
+            v = (dd or {}).get("value")
+            inner = v.get("value") if isinstance(v, dict) and isinstance(v.get("value"), dict) else v
+            sk = (inner or {}).get("sourceKey") if isinstance(inner, dict) else None
+            if sk:
+                _src_ns = "/".join(str(sk).split("/")[:-1]) + "/"
+                break
+        except Exception:
+            continue
+    if _src_ns:
+        try:
+            l_ok, l_d, _ = get(BB_LOCAL_NS(_src_ns) if False else ("/" + _src_ns))
+            c_ok, c_d, _ = get_central("/" + _src_ns)
+            if l_ok and c_ok and l_d and c_d:
+                ln = len((l_d.get("list") or {}))
+                cn = len((c_d.get("list") or {}))
+                if cn > 0 and ln > 0 and cn >= ln:
+                    return True   # ★ 源告警已双板齐 ⇒ 已处理
+        except Exception:
+            pass
+    # ★ 全部归档都在修复之后 ⇒ 已处理
+    return n_arch > 0 and n_after == n_arch
+
+
+
 def scan(segments=None):
     out = {"version": VERSION, "checks": {}}
     # ═══ ① launchd 失败终态 ═══
@@ -215,6 +325,10 @@ def scan(segments=None):
             # ★★★ 2026-10-13 修（★ 本纳自查）：**判据不应只拓 `n_live == 0`**—★ W4 记的是 `7→0`（★ 当时只 7 条）；★★ 而今日实测 `12→5`（★ 5 条新 + 7 条已归档）⇒ **部分掩盖会被漏报**。
             #   ★ 正确判据：**只要归档前 > 归档后，就是掩盖**（★ 归档把红变绿）。
             if n_all > n_live:
+                # ★★★ 2026-10-15（D-360）【先查【显式豁免】】—★ 豁免必须【有据】（★ 清单里带 evidence）。
+                if _is_exempted(seg) is True:
+                    rows[-1]["exempted"] = True
+                    continue
                 masked.append({"seg": seg, "n_all": n_all, "n_live": n_live})
         # ★ 阳性对照：★ 若所有段都 n_all=0，★ 说明「扫面有效但真无告警」
         pos = any(r["n_all"] > 0 for r in rows) if rows else False

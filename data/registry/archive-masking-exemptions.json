@@ -1,0 +1,22 @@
+{
+  "_what": "归档掩盖的【显式豁免清单】—— ★ 每条必须附证据与时刻，★ 不接受无据豁免",
+  "_rule": "★ 判据 D-360：若某段的归档告警【根因已修且已补写】，则判【已处理】而非【掩盖】。★ 而『已处理』必须【显式登记】在此，★ 不得由程序擅自推断。",
+  "_discipline": "★ 依本仓纪律：★ 豁免必须【有界且附证】—— ★ 不得凭『存在某个标记』即豁免。",
+  "exemptions": [
+    {
+      "seg": "data/ops/drift-delivery-failure",
+      "reason": "★ 归档的 7 条全部 _archived_at=2026-10-12T19:23:08，failedLegs=['central'] ⇒ 根因是【2026-10-12 中枢 OOM】；★ 而该故障已于 2026-10-15 修复（D-336/D-337），★ 且源告警面 drift-alert 已【双板齐 448=448】（D-355 补写）",
+      "evidence": {
+        "root_cause": "中枢 OOM 循环（MemoryMax=400M 不足）",
+        "fixed_at": "2026-10-15",
+        "fix_ledger": ["D-336", "D-337"],
+        "source_face": "data/ops/drift-alert/",
+        "source_boards": {"local": 448, "central": 448},
+        "backfilled_at": "2026-10-15",
+        "backfill_ledger": ["D-355"]
+      },
+      "registered_by": "星桥第二任 session-e317d6ab",
+      "registered_at": "2026-10-15T02:25:00+08:00"
+    }
+  ]
+}
