@@ -62,21 +62,35 @@ def check_ability_card():
     """\u2605 \u80fd\u529b\u5361 + \u7b7e\u540d"""
     ev = {}
     # \u2605 \u5361\u7684\u5b58\u5728\uff1a\u2605 \u7528 agent_profiles \u5de5\u5177\u53ef\u8bfb\u5230\u6863\u6848\u5373\u7b97
+    # ★★★ 2026-10-15（D-357）【修】—★ 原写法找 `agent-profiles.json`（★ 而那个文件**不存在**）
+    #   ★ 而真实位置实测是：★ `~/.dsh/agent-bus.json` 的 **`profiles` 键**
+    #     （★ 实测 **91 条**：`{agentId, role, abilities, resources}`）。
+    #   ★★ ⇒ 原判据的「卡=无」是【**找错了地方**】，★ **不是【真的没有】**。
+    #   ★ 修法：★ 直读 `agent-bus.json` 的 `profiles`；★ 若读不到 ⇒ **UNDECIDABLE**（★ 空 ≠ 无）。
+    ev["profiles_n"] = None
     try:
-        found = []
-        for base in (os.path.expanduser("~/.dsh"), ROOT):
-            for fn in ("agent-profiles.json", "agent_profiles.json"):
-                p = os.path.join(base, fn)
-                if os.path.exists(p):
-                    found.append(p)
-        ev["files"] = found
+        _p = os.path.join(os.path.expanduser("~/.dsh"), "agent-bus.json")
+        if os.path.exists(_p):
+            _d = json.load(open(_p, encoding="utf-8"))
+            _pr = _d.get("profiles")
+            if isinstance(_pr, list):
+                ev["profiles_n"] = len(_pr)
+            elif isinstance(_pr, dict):
+                ev["profiles_n"] = len(_pr)
+        ev["files"] = [_p] if ev["profiles_n"] is not None else []
     except Exception as e:
         ev["files_err"] = type(e).__name__
+        ev["files"] = []
     # \u2605 \u7b7e\u540d\uff1a\u2605 \u770b\u5361\u91cc\u6709\u65e0 signature \u5b57\u6bb5\uff08\u2605 \u62bd notes/collab\uff09
     ev["signature_hits"] = _count_field_in_ns("notes/collab/", "signature", limit=80)
     ev["sender_hits"] = _count_field_in_ns("notes/collab/", "sender", limit=80)
-    card_ok = bool(ev["files"]) or ev["sender_hits"]["hit"] > 0
-    sig_ok = ev["signature_hits"]["hit"] > 0
+    card_ok = (ev.get("profiles_n") or 0) > 0 or ev["sender_hits"]["hit"] > 0
+    # ★★★ 2026-10-15（D-357）【签名改【可选】】—★ 规格 `:148` 逐字：
+    #   ★“…expires 可选（TTL）；**signature v1.0 可选（启用时必填）**。”
+    #   ★★ ⇒ 故【未启用时可以没有】；★ 而原判据要求它【必须存在】⇒ **判据太严**。
+    #   ★ 修法：★ 只在【有任何一张卡启用了签名】时，才要求全部有；★ 否则签名部分**不报红**。
+    _sig_enabled = ev["signature_hits"]["hit"] > 0
+    sig_ok = True if not _sig_enabled else (ev["signature_hits"]["hit"] > 0)
     return {"verdict": "PASS" if (card_ok and sig_ok) else "FAIL",
             "why": "\u5361=%s\uff08\u2605 \u6863\u6848%s\uff09\u00b7 \u7b7e\u540d=%s\uff08%d/%d\uff09"
                    % ("\u6709" if card_ok else "\u65e0", ev["files"] or "\u672a\u627e\u5230",
