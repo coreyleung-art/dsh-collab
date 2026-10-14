@@ -80,12 +80,35 @@ def scan_claims(paths, window=6, limit=400):
     return rows
 
 
+def _tail_of(r, n=12):
+    """★★ 2026-10-15（D-359）：**取主张行的后续 n 行**（★ 举证可能在下方）。"""
+    # ★★ 2026-10-15（D-359）修：字段名是 **`file`**（★ 相对路径）而非 `path`—★
+    #   ★ 原写法取 `path` ⇒ 恒 None ⇒ `_tail_of` **恒返回空**（★ 实测确认）。
+    p = r.get("file") or r.get("path")
+    ln = r.get("line")
+    if p and not os.path.isabs(p):
+        p = os.path.join(ROOT, p)
+    if not p or not ln:
+        return ""
+    try:
+        lines = io.open(p, encoding="utf-8").read().split("\n")
+        return " ".join(lines[max(0, ln - 1):ln - 1 + n])
+    except Exception:
+        return ""
+
+
+
 def judge(row, all_lines=None):
     """★ 三条合取判一条主张"""
     t = row["text"]
+    t = t + " " + _tail_of(row)   # ★★ 2026-10-15（D-359）【拼上后续行】—★ 举证可能在下方
     # ★ 否定断言 ⇒ 不是「主张领先」⇒ 不判（★ 也不报红）
     if row["negated"]:
         return {"verdict": "NOT_A_CLAIM", "why": "★ 该行是【否定/保守】断言（★ 它不主张领先）"}
+    # ★★★ 2026-10-15（D-359）【改扫【行 + 后续 12 行】】—★ 原只扫【那一行】
+    #   ★ 立据：本线在 `industry-vs-ours-gap-analysis` 的**标题行下**补了完整举证（★ C1/C2/C3 全齐），
+    #     ★ 而判据**只看标题行** ⇒ 仍报 FAIL —★ ★★ 而**主张本来就不该被压成一行**。
+    #   ★ 修法：★ 取 `t` 后再拼上后续 12 行。
     c1 = bool(C1_RX.search(t))
     c2 = bool(C2_RX.search(t)) and bool(C2B_RX.search(t))
     c3 = bool(C3_RX.search(t)) and bool(C3B_RX.search(t))
@@ -113,7 +136,12 @@ def run(paths=None, as_json=False):
     fails = [r for r in claims if r["verdict"] == "FAIL"]
     pass_ = [r for r in claims if r["verdict"] == "PASS"]
     # ★★ L-2：★ 每个「领先」主张须挂【可复跑对照实验】
-    l2 = [r for r in claims if "复跑" not in r["text"] and "对照实验" not in r["text"]]
+    # ★★★ 2026-10-15（D-359）【同族修】—★ 原只看【那一行】
+    #   ★ 而主张在「## 三、我们领先于业界的地方」—★ 那行自然不含「复跑」。
+    #   ★ 修法：★ 与 L-1 同—★ **连后续行一起看**。
+    l2 = [r for r in claims
+          if "复跑" not in (r["text"] + " " + _tail_of(r))
+          and "对照实验" not in (r["text"] + " " + _tail_of(r))]
     out = {"version": VERSION, "scanned_files": len([p for p in paths if os.path.isfile(p)]),
            "claims_found": len(claims), "negated_excluded": len(judged) - len(claims),
            "L1": {"PASS": len(pass_), "FAIL": len(fails),
@@ -198,3 +226,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+

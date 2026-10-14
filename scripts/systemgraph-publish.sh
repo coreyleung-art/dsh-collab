@@ -195,10 +195,10 @@ def n(p):
     return hashlib.sha256(s.encode()).hexdigest()[:16]
 print(n(sys.argv[1]))" /tmp/sg-verify-$$.bin 2>/dev/null)
           if [ -n "$lhn" ] && [ "$lhn" = "$rhn" ]; then
-            say "  ✅ $f（★ 归一化后内容一致；逐字节差仅在生成时间字段）"
+            say "  ✅ ${f}（★ 归一化后内容一致；逐字节差仅在生成时间字段）"
           else
             rh=$(shasum -a 256 /tmp/sg-verify-$$.bin | cut -c1-16)
-            say "  ❌ $f 本地=$lh 线上=$rh（★ 归一化后仍不同 ⇒ 真实内容滞后）"; bad=$((bad+1))
+            say "  ❌ $f 本地=$lh 线上=${rh}（★ 归一化后仍不同 ⇒ 真实内容滞后）"; bad=$((bad+1))
           fi
           ;;
         *)
