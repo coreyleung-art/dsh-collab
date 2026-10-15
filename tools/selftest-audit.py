@@ -533,7 +533,15 @@ def main():
     ap.add_argument("--selftest", action="store_true")
     ap.add_argument("--survey", action="store_true",
                     help="★★ 重算基线 JSON（★ H5d/H5e 读它）—— ★ vacuous 用 AST 判，★ same_source 沿用旧值并标注")
-    ap.add_argument("--out", default=None, help="★ 基线落盘路径（缺省 data/registry/same-source-selftest-survey-<今天>.json）")
+    # ★★★ 2026-10-15（D-432）【fail-closed：★ `--survey` 不得【静默覆盖活基线】】——
+    #   ★ 立据（★ 本线当晚实测的自伤）：★ 不带 `--out` 跑一次 `--survey` ⇒ ★★ **它把判据正在用的
+    #     活基线覆盖了**（面 349 · 退化档 105 ⇒ **563 · 213**）⇒ ★ 两条判据（H5d/H5e）的**分母当场改变**
+    #     （★ 判据打印的分母与文件里的 `scanned` 不一致才被发现）。★ 已从 git HEAD 恢复。
+    #   ★★ 修法：★ **缺省落【非活基线】路径**（`-ast` 后缀）★ 并显式打印「活基线未被触碰」；
+    #     ★★ 要写活基线 ⇒ ★ **必须显式 `--write-live`**（★ 危险动作须【明说】）。
+    ap.add_argument("--out", default=None, help="★ 基线落盘路径（★ 缺省落【-ast 非活基线】，★ 不碰判据在用的活基线）")
+    ap.add_argument("--write-live", action="store_true",
+                    help="★ 显式允许写【活基线】（★ 会改变 H5d/H5e 读到的面 —— ★ 默认禁止）")
     ap.add_argument("--version", action="store_true")
     a = ap.parse_args()
     if a.version:
@@ -543,7 +551,21 @@ def main():
         return selftest()
     rows = audit(a.root, run=a.run)
     if a.survey:
-        sv = survey(rows, a.out)
+        # ★★ D-432：★ 缺省【不写活基线】（★ 见 --write-live 的说明）
+        _out = a.out
+        if not _out:
+            _stamp = __import__("datetime").date.today().isoformat().replace("-", "")
+            _live = os.path.join(ROOT, "data", "registry", "same-source-selftest-survey-%s.json" % _stamp)
+            _out = os.path.join(ROOT, "data", "registry", "same-source-selftest-survey-%s-ast.json" % _stamp)
+            _touched = "★ 活基线【未被触碰】（★ 判据用的仍是它）：%s" % _live
+        else:
+            _touched = "★★ 已写指定路径（★ 若那正是活基线 ⇒ ★ 判据的分母会当场改变）：%s" % _out
+        if a.write_live:
+            _out = os.path.join(ROOT, "data", "registry", "same-source-selftest-survey-%s.json"
+                                % __import__("datetime").date.today().isoformat().replace("-", ""))
+            _touched = "★★★ 已写【活基线】（★ --write-live 显式允许）⇒ ★ H5d/H5e 的面已改变：%s" % _out
+        sv = survey(rows, _out)
+        print("  %s" % _touched)
         print("== selftest-audit 基线重算（★ v%s）==" % sv["version"])
         print("  扫描面：%d" % sv["scanned"])
         print("  ★★ 无判据（AST）：%d（★ 旧基线值 %s —— ★ 已知误标，只作对照）"

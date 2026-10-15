@@ -1,7 +1,7 @@
 {
- "at": "2026-10-15T04:17:23+0800",
+ "at": "2026-10-15T19:31:27+0800",
  "version": "4.0.0-ast",
- "generator": "tools/selftest-audit.py",
+ "generator": "tools/selftest-audit.py.draft",
  "_definition": {
   "vacuous_no_failable_criterion": "★ AST 判【入口函数及其被调函数里无非零出口】；★★ 静态 ⇒ 不等于行为证明（行为证据是 run_exit）",
   "same_source_only": "★ 本轮**未重算** ⇒ 沿用旧基线（★ 见 _carried_forward）"
@@ -10,7 +10,7 @@
   "same_source_only": {
    "at": "2026-10-15T03:02:16+08:00",
    "class": "carried_forward",
-   "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面 349 ≠ 本面 560）"
+   "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面 349 ≠ 本面 563）"
   },
   "same_source_only_strict": {
    "at": null,
@@ -28,7 +28,7 @@
    "decidability": "★ 不可复跑（★ 旧基线生成器已丢失 · ★ 且面与 scanned 不同）"
   }
  },
- "scanned": 560,
+ "scanned": 563,
  "vacuous_no_failable_criterion": 213,
  "vacuous_tools": [
   "scripts/agent-send-gate.py",
@@ -245,8 +245,8 @@
   "scripts/writer-census-positive-control.py",
   "scripts/xingduo-wake.py"
  ],
- "failable_tools_n": 172,
- "no_entry_n": 175,
+ "failable_tools_n": 174,
+ "no_entry_n": 176,
  "undecidable_n": 0,
  "same_source_only": 217,
  "same_source_tools": [
@@ -477,10 +477,10 @@
  "_face": {
   "roots": {
    "research": 46,
-   "scripts": 440,
-   "tools": 74
+   "scripts": 441,
+   "tools": 76
   },
-  "total": 560,
+  "total": 563,
   "note": "★ 本面 = selftest-audit 的默认根（tools/scripts/research）；★★ 与旧基线 349 的【面不同】⇒ 两个分母不可直接比（★ 旧面不可判 —— 它没有生成器）"
  },
  "beacon_scope": {
