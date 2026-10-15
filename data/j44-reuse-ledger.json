@@ -762,6 +762,14 @@
    "hits": 0,
    "note": "已有 selftest-audit（查自证恒真）/ false-result-patterns（查假结果形态）/ rules-integrity（查账本），★ 都不做【失败分支字符串的规则号覆盖】；★ 本件是 R065 候选的实现，面显式写在 FACE 清单里。",
    "at": "2026-10-15T04:44:08"
+  },
+  {
+   "intent": "新建一个 dsh 本地模型同步脚本 ollama lmstudio 模型列表 写入 settings.yaml llm-pi-ai providers",
+   "artifact": "dsh-local-models-sync.py",
+   "verdict": "no-overlap",
+   "hits": 12,
+   "note": "命中项经查均不重复：lmstudio-full-fix.sh/lmstudio-repair.sh 修的是 LM Studio harmony 推理引擎缺失+接入 Dify（脚本内 docker exec dify-api-1），与 DSH 模型目录无关；bb-*-model-*.py 是黑板卡片模型，非 LLM 模型。官方 providers.zh.md 是文档非脚本。本脚本职责=探测 Ollama/LM Studio 并把模型清单写进 DSH settings.yaml 的 llm-pi-ai 路由，本机无同类实现。",
+   "at": "2026-10-15T11:24:11"
   }
  ]
 }
