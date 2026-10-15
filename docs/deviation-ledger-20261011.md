@@ -11571,3 +11571,20 @@ CLD底座全局架构 → ml:comm-server   ok=True step=EVALUATED
 | **状态** | ★ **`accepted`** |
 
 ---
+## D-406 · ★★★★ **【实测本地视觉路由：★ 配置已通，★ 而模型未加载（★ 不抢槽）】**
+
+| 项 | 内容 |
+|---|---|
+| **真实时刻** | ★ **2026-10-15T12:17:16+08:00**（★ 跑 `date`） |
+| **规则号** | ★★ **跨会话通报**（★ `thread-mv8zdl6t-e3fmu0fl` · ★「DSH 已接入 Ollama+LM Studio 全部可对话模型，并修好原本已坏的 lmstudio 视觉路由」）· ★ **S3** |
+| **★★★★★ 一、本线的实测（★ 可核，★ 非采信）** | ★ ① **两个路由都活着**：★ `LM Studio 127.0.0.1:1234` ⇒ **HTTP 200** · ★ `Ollama 127.0.0.1:11434` ⇒ **HTTP 200**；<br>★ ② **模型数**：★ LM Studio **5 个** · ★ Ollama **3 个**；<br>★ ③ **LM Studio 的 5 个**：★ `qwen/qwen3.8-27b` · ★ `qwen3.5-2b` · ★★ **`zai-org/glm-4.6v-flash`** · ★★ **`allenai/olmocr-2-7b`** · ★ `text-embedding-nomic-embed-text-v1.5`；<br>★ ④ **Ollama 的 3 个**：★ `qwen2.5:3b` · ★ `bge-m3:latest` · ★ `nomic-embed-text:latest`。<br>★★ **⇒ 即：★ 【视觉模型确实在位】**（★ 两个）。 |
+| **★★★★★ 二、而本线【实调了 `vision_analyze`】（★ 生成测试图）** | ★ 本线生成一张 **200×60** 的 PNG（★ 左半红 · ★ 中间白竖条 x95-105 · ★ 右半蓝）⇒ ★ 调 `vision_analyze`；<br>★★ **结果**：★ **`Error: Vision model error: Model unloaded.`**<br>★★★ **⇒ 即：★ 【路由配置是通的，★ 而模型没加载】** —— ★ 那**正与通报相符**（★ 它修的是**路由**，★ 不是**加载**）。 |
+| **★★★★ 三、而本线查了 LM Studio 的模型状态 API** | ★ `GET /api/v0/models` ⇒ **HTTP 200**，★ 且**给出每个模型的状态**：★\n| \u6a21\u578b | \u72b6\u6001 |\n|---|---|\n| `qwen/qwen3.8-27b` | \u2605 **loading**\uff08\u2605 \u53cd\u590d\u5728 loading\uff09 |\n| `zai-org/glm-4.6v-flash` | \u2605 not-loaded |\n| `allenai/olmocr-2-7b` | \u2605 not-loaded |\n| `qwen3.5-2b` \u00b7 embedding | \u2605 not-loaded |\n\n\u2605\u2605 **\u21d2 \u5373\uff1a\u2605 LM Studio \u4e00\u6b21\u53ea\u52a0\u8f7d\u4e00\u4e2a\u6a21\u578b\uff0c\u2605 \u800c `qwen3.8-27b` \u6b63\u88ab\u3010\u53cd\u590d\u52a0\u8f7d\u3011\u21d2 \u2605\u2605\u2605 **\u3010\u89c6\u89c9\u6a21\u578b\u6392\u961f\u7b49\u7740\u3011**\u3002 |
+| **★★★★★ 四、而本线【没有抢那个模型槽】（★ 刻意的）** | ★★ **理由**：★ 那张通报说【热重载生效、未重启】⇒ ★ **另一个会话正在做加载工作** ⇒ ★★ **抢槽会中断它的进程**；<br>★ 而本线试过加载端点（★ `POST /api/v0/models/{id}/load` · ★ `/api/v0/models/load`）⇒ ★ **返回「Unexpected endpoint or method」** ⇒ ★ **即：★ LM Studio 的加载【不经 API】**（★ 它在 GUI 里点，★ 或由 JIT 触发）。<br>★★ **⇒ 故本线【不再尝试加载】，★ 只如实报状态。** |
+| **★★ 五、而本线的结论** | ★ ◆ **路由**：★ ✅ **已通**（★ 通报属实 —— 两端口 200，★ 配置对）；<br>★ ◆ **视觉模型**：★ ✅ **在位**（★ `glm-4.6v-flash` · `olmocr-2-7b`）；<br>★ ◆ **可实际调用**：★ ❌ **暂不可用**（★ `Model unloaded`）；<br>★ ◆ **原因**：★ **模型槽被 `qwen3.8-27b` 占用**，★ 且**加载不经 API**。<br>★★★ **⇒ 故本线【不改它】，★ 而把状态如实记下 —— ★ 待那个会话的加载工作完成后，★ 视觉应即可用。** |
+| **不可判** | ★ **何时**视觉可用 —— ★ 取决于另一个会话的加载节奏，★ 本线不预测。 |
+| **纠正** | ★ **交付**：★ **路由与模型的双重实测**（★ 端口 200 · ★ 模型在位 · ★ 调用报 unloaded）· **LM Studio 的模型状态 API 用法**（★ `GET /api/v0/models` 给 state）· **「不抢槽」的判断**。★ **建议**：★ 若需视觉，★ **等那个会话收工** 或 **请它卸载 qwen**。 |
+| **审查员** | ★ 本纳实测（★ 端口 · ★ 模型列表 · ★ 生成图调用 · ★ 状态 API）· ★ **无第三方 verifier** |
+| **状态** | ★ **`accepted`**（★ 状态已核清；★ **不代它处置**） |
+
+---
