@@ -65,6 +65,12 @@ ROUTE_OLLAMA = "ollama"
 ROUTE_LMSTUDIO = "lmstudio-local"
 ROUTE_VISION = "lmstudio"
 
+LMS_BIN = os.path.expanduser("~/.lmstudio/bin/lms")
+PROBE_CACHE = os.path.join(DSH_HOME, "local-models-probe.json")
+# 探测要真加载真推理，大模型一次一两分钟。结果按「模型体积」缓存，
+# 体积变了（重下/换量化）自动失效。
+PROBE_TTL_SECONDS = 7 * 24 * 3600
+
 # 本地服务不校验密钥，但 pi-ai 的 openai-completions 实现要求
 # 「有 key 或有 Authorization 头」二者之一，否则直接抛
 # `No API key for provider: <route>`。给个占位头即可。
@@ -111,39 +117,49 @@ def probe_ollama():
 
 
 def probe_lmstudio():
-    """返回 (models, error)。先试原生 /api/v0/models（带实际上下文），退回 /v1/models。"""
-    try:
-        data = _get_json(LMSTUDIO_BASE + "/api/v0/models")
-        rich = True
-    except Exception:
-        try:
-            data = _get_json(LMSTUDIO_BASE + "/v1/models")
-            rich = False
-        except Exception as exc:  # noqa: BLE001
-            return None, "{} 不可达：{}".format(LMSTUDIO_BASE, exc)
+    """返回 (models, error)。
 
-    out = []
-    for m in data.get("data") or []:
-        mid = m.get("id")
+    清单以 `lms ls --json` 为准：它是超集，且**唯一**带 `sizeBytes`
+    （体积既用于判断本设备装不装得下，也用作探测缓存的失效指纹）。
+    `/api/v0/models` 只留作补「已加载模型的实际上下文」。
+    """
+    if not os.path.exists(LMS_BIN):
+        return None, "找不到 lms CLI：{}".format(LMS_BIN)
+    rc, out = _run([LMS_BIN, "ls", "--json"], 60)
+    if rc != 0:
+        return None, "`lms ls --json` 失败：{}".format(_tail(out))
+    try:
+        data = json.loads(out[out.index("["):out.rindex("]") + 1])
+    except Exception as exc:  # noqa: BLE001
+        return None, "`lms ls --json` 输出解析失败：{}".format(exc)
+
+    loaded = {}
+    try:
+        for m in (_get_json(LMSTUDIO_BASE + "/api/v0/models").get("data") or []):
+            if m.get("loaded_context_length"):
+                loaded[m.get("id")] = m["loaded_context_length"]
+    except Exception:  # noqa: BLE001
+        pass
+
+    out_models = []
+    for m in data:
+        mid = m.get("modelKey") or m.get("path")
         if not mid:
             continue
-        mtype = (m.get("type") or "llm") if rich else "llm"
-        caps = m.get("capabilities") or []
-        out.append({
+        mtype = m.get("type") or "llm"
+        out_models.append({
             "id": mid,
-            "chat_capable": mtype != "embeddings",
+            "chat_capable": mtype != "embedding",
             "type": mtype,
-            "vision": mtype == "vlm",
-            "tools": "tool_use" in caps,
-            "model_max_ctx": m.get("max_context_length") or 0,
-            # 已加载的模型，LM Studio 会报它**实际**用多少上下文（按显存自动算）；
-            # 未加载时是 None —— 那时只能报模型上限。
-            "loaded_ctx": m.get("loaded_context_length"),
-            "state": m.get("state") or "",
-            "quantization": m.get("quantization") or "",
+            "vision": bool(m.get("vision")),
+            "tools": bool(m.get("trainedForToolUse")),
+            "model_max_ctx": m.get("maxContextLength") or 0,
+            "size_bytes": m.get("sizeBytes") or 0,
+            "loaded_ctx": loaded.get(mid),
+            "quantization": (m.get("quantization") or {}).get("name") or "",
             "publisher": m.get("publisher") or "",
         })
-    return out, None
+    return out_models, None
 
 
 def ollama_serving_ctx():
@@ -163,6 +179,143 @@ def ollama_serving_ctx():
     except Exception:  # noqa: BLE001
         pass
     return OLLAMA_DEFAULT_CTX
+
+
+# ───────────────────── 实跑探测：这机器到底跑不跑得动 ─────────────────────
+#
+# 「列在 API 里」≠「本设备跑得动」。实测反例：qwen/qwen3.8-27b 在 24GB M4 mini 上
+# 能加载（占 17.74GB），但每次推理都返回
+#   Engine protocol predict stream returned an error: {"code":500,"message":"Compute error."}
+# 换最小上下文（2048）重载照样失败 ⇒ 接进选单只会是个坏选项。
+# 所以候选模型一律先真加载、真推理一遍。
+
+def _run(cmd, timeout=900):
+    import subprocess
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+    except Exception as exc:  # noqa: BLE001
+        return 1, "{}".format(exc)
+
+
+def _tail(text, n=200):
+    flat = " ".join(str(text).split())
+    return flat[-n:]
+
+
+def _chat_once(url, model, timeout=420):
+    """发一次最小对话。返回 (ok, note)。这是「跑得动」的真正判据。"""
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": "hi"}],
+        "max_tokens": 16,
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        url + "/chat/completions", data=body,
+        headers={"Content-Type": "application/json", "Authorization": "Bearer local"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return False, "HTTP {}: {}".format(exc.code, _tail(exc.read().decode("utf-8", "replace")))
+    except Exception as exc:  # noqa: BLE001
+        return False, "请求失败：{}".format(_tail(exc))
+    if not data.get("choices"):
+        return False, "响应无 choices：{}".format(_tail(data))
+    return True, ""
+
+
+def run_probe_lmstudio(model_id):
+    """加载 → 读实际上下文 → 真推理一次 → 卸载。返回 (runnable, note, loaded_ctx)。"""
+    _run([LMS_BIN, "unload", "--all"], 180)
+    rc, out = _run([LMS_BIN, "load", model_id, "-y"], 1200)
+    if rc != 0:
+        return False, "加载失败：{}".format(_tail(out)), None
+
+    loaded_ctx = None
+    try:
+        for m in (_get_json(LMSTUDIO_BASE + "/api/v0/models").get("data") or []):
+            if m.get("id") == model_id:
+                loaded_ctx = m.get("loaded_context_length") or m.get("max_context_length")
+    except Exception:  # noqa: BLE001
+        pass
+
+    ok, note = _chat_once(LMSTUDIO_BASE + "/v1", model_id)
+    _run([LMS_BIN, "unload", "--all"], 180)
+    return ok, note, loaded_ctx
+
+
+def run_probe_ollama(model_id):
+    """Ollama 按需加载，直接发一次生成即可；顺带读回它实际用的上下文。"""
+    body = json.dumps({
+        "model": model_id, "prompt": "hi", "stream": False,
+        "options": {"num_predict": 8},
+    }).encode("utf-8")
+    req = urllib.request.Request(
+        OLLAMA_BASE + "/api/generate", data=body,
+        headers={"Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=600) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        return False, "HTTP {}: {}".format(exc.code, _tail(exc.read().decode("utf-8", "replace"))), None
+    except Exception as exc:  # noqa: BLE001
+        return False, "请求失败：{}".format(_tail(exc)), None
+    if not data.get("response") and not data.get("done"):
+        return False, "无输出：{}".format(_tail(data)), None
+    return True, "", None
+
+
+def _cache_key(model):
+    return "{}:{}:{}".format(model.get("kind"), model["id"], model.get("weight"))
+
+
+def load_probe_cache():
+    try:
+        with open(PROBE_CACHE, "r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def save_probe_cache(cache):
+    try:
+        with open(PROBE_CACHE, "w", encoding="utf-8") as fh:
+            json.dump(cache, fh, ensure_ascii=False, indent=1)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def probe_models(candidates, cache, force, verbose):
+    """对候选模型逐个真跑一遍，返回 {id: (runnable, note, loaded_ctx)}。
+
+    进度一律走 stderr：`--json` 的 stdout 必须是纯 JSON，否则调用方解析不了。
+    """
+    def say(msg):
+        if verbose:
+            print(msg, file=sys.stderr, flush=True)
+
+    out = {}
+    now = time.time()
+    for m in candidates:
+        ck = _cache_key(m)
+        hit = cache.get(ck)
+        if not force and hit and (now - hit.get("at", 0)) < PROBE_TTL_SECONDS:
+            out[m["id"]] = (hit["runnable"], hit.get("note", "") + "（缓存）", hit.get("loaded_ctx"))
+            say("   · {} … {}".format(m["id"], "可运行" if hit["runnable"] else "不可运行"))
+            continue
+        say("   · {} … 实测中（真加载+真推理，请稍候）".format(m["id"]))
+        if m["kind"] == "lmstudio":
+            runnable, note, ctx = run_probe_lmstudio(m["id"])
+        else:
+            runnable, note, ctx = run_probe_ollama(m["id"])
+        if ctx:
+            m["loaded_ctx"] = ctx
+        out[m["id"]] = (runnable, note, ctx)
+        cache[ck] = {"runnable": runnable, "note": note, "loaded_ctx": ctx, "at": now}
+        say("     → {}".format("✅ 可运行 (实际上下文 {})".format(ctx) if runnable
+                               else "❌ 不可运行 — " + note))
+    return out
 
 
 # ────────────────────────── 组装路由 YAML ──────────────────────────
@@ -223,7 +376,7 @@ def humanize(m, kind):
 
 
 def build_plan(args):
-    report = {"ok": True, "warnings": [], "routes": {}}
+    report = {"ok": True, "warnings": [], "routes": {}, "probe": {}}
 
     # ── Ollama ──
     ollama_models, ollama_err = probe_ollama()
@@ -231,15 +384,66 @@ def build_plan(args):
         report["warnings"].append("Ollama：" + ollama_err + "（跳过该路由，其余照常）")
         ollama_models = []
     serving = args.ollama_ctx or ollama_serving_ctx()
-    o_models = []
+    o_candidates = []
     excluded_o = []
     for m in ollama_models:
         if not m["chat_capable"]:
             excluded_o.append(m["id"])
             continue
+        m["kind"] = "ollama"
+        m["weight"] = m["model_max_ctx"]
+        o_candidates.append(m)
+
+    # ── LM Studio ──
+    lms_models, lms_err = probe_lmstudio()
+    if lms_err:
+        report["warnings"].append("LM Studio：" + lms_err + "（跳过该路由，其余照常）")
+        lms_models = []
+    l_candidates = []
+    excluded_l = []
+    for m in lms_models:
+        if not m["chat_capable"]:
+            excluded_l.append(m["id"])
+            continue
+        m["kind"] = "lmstudio"
+        m["weight"] = m["size_bytes"]
+        l_candidates.append(m)
+
+    # ── 实跑探测：跑不动的直接不进选单 ──
+    cache = load_probe_cache()
+    runnable = {}
+    if args.probe:
+        todo = o_candidates + l_candidates
+        if todo:
+            print("═══ 实跑探测（真加载 + 真推理）═══", file=sys.stderr, flush=True)
+            runnable = probe_models(todo, cache, args.reprobe, True)
+            save_probe_cache(cache)
+    else:
+        report["warnings"].append("已按 --no-probe 跳过实跑探测：本次不校验「本设备跑不跑得动」。")
+
+    # ★ 探测到的**实际**上下文必须回填到候选上 —— 否则缓存命中那一轮会退回模型上限，
+    #   写进 settings.yaml 就成了「这台机器装不下」的假数字（实测差值很大：27B 上限 262144、
+    #   实际只给到 8192；2B 上限 262144、实际 121088）。
+    for m in o_candidates + l_candidates:
+        res = runnable.get(m["id"])
+        if res and res[2]:
+            m["loaded_ctx"] = res[2]
+
+    def verdict(m):
+        if not args.probe:
+            return True, ""
+        return runnable.get(m["id"], (True, "未探测", None))[:2]
+
+    # ── Ollama 路由 ──
+    o_models = []
+    o_unrunnable = []
+    for m in o_candidates:
+        ok, note = verdict(m)
+        if not ok:
+            o_unrunnable.append((m["id"], note))
+            continue
         # 取「模型上限」与「Ollama 实际提供」的较小者：写大了 DSH 会以为装得下而静默截断。
-        cap = m["model_max_ctx"] or serving
-        ctx = min(cap, serving)
+        ctx = min(m["model_max_ctx"] or serving, serving)
         o_models.append({
             "id": m["id"],
             "name": humanize(m, "ollama"),
@@ -247,8 +451,7 @@ def build_plan(args):
             "max_tokens": max(512, min(8192, ctx // 2)),
             "vision": m["vision"],
         })
-    if o_models and serving < (min(x["model_max_ctx"] or serving for x in ollama_models if x["chat_capable"]) if any(
-            x["chat_capable"] for x in ollama_models) else serving):
+    if any(m["model_max_ctx"] > serving for m in o_candidates):
         report["warnings"].append(
             "Ollama 实际只提供 {} token 上下文（远小于模型上限）。若要放开，"
             "执行 `launchctl setenv OLLAMA_CONTEXT_LENGTH 32768` 后重启 Ollama，再重跑本脚本。".format(serving))
@@ -258,19 +461,19 @@ def build_plan(args):
         "models": o_models,
         "default_max_tokens": max(512, min(8192, serving // 2)),
         "excluded": excluded_o,
+        "unrunnable": o_unrunnable,
     }
 
-    # ── LM Studio ──
-    lms_models, lms_err = probe_lmstudio()
-    if lms_err:
-        report["warnings"].append("LM Studio：" + lms_err + "（跳过该路由，其余照常）")
-        lms_models = []
+    # ── LM Studio 路由 ──
     l_models = []
-    excluded_l = []
-    for m in lms_models:
-        if not m["chat_capable"]:
-            excluded_l.append(m["id"])
+    l_unrunnable = []
+    for m in l_candidates:
+        ok, note = verdict(m)
+        if not ok:
+            l_unrunnable.append((m["id"], note))
             continue
+        # 探测时真加载过，loaded_ctx 就是**这台机器**给它的实际上下文，优先用；
+        # 没探测时退回模型上限（会偏大，已在告警里说明）。
         ctx = m["loaded_ctx"] or m["model_max_ctx"] or 32768
         if args.lmstudio_ctx_cap:
             ctx = min(ctx, args.lmstudio_ctx_cap)
@@ -283,15 +486,15 @@ def build_plan(args):
         })
         if not m["loaded_ctx"]:
             report["warnings"].append(
-                "LM Studio「{}」当前未加载，contextWindow 取的是模型上限 {}；"
-                "LM Studio 载入时会按显存自动决定实际上下文".format(m["id"], ctx)
-                + "（可用 `~/.lmstudio/bin/lms ps` 查看实际值，加载后重跑本脚本即取实际值）。")
+                "LM Studio「{}」未取到实际上下文，contextWindow 用的是模型上限 {}；"
+                "实际载入值会按显存自动缩水".format(m["id"], ctx))
     report["routes"][ROUTE_LMSTUDIO] = {
         "display_name": "LM Studio 本地",
         "base_url": LMSTUDIO_BASE + "/v1",
         "models": l_models,
         "default_max_tokens": 8192,
         "excluded": excluded_l,
+        "unrunnable": l_unrunnable,
     }
     return report
 
@@ -454,8 +657,13 @@ def main():
     ap.add_argument("--ollama-ctx", type=int, default=0, help="覆盖 Ollama 实际提供的上下文长度")
     ap.add_argument("--lmstudio-ctx-cap", type=int, default=0, help="给 LM Studio 的 contextWindow 设上限")
     ap.add_argument("--no-vision-fix", action="store_true", help="不给 lmstudio 视觉路由补 Authorization 头")
+    ap.add_argument("--no-probe", action="store_true",
+                    help="跳过实跑探测（默认会真加载真推理；跳过后不保证本设备跑得动）")
+    ap.add_argument("--reprobe", action="store_true",
+                    help="无视缓存，强制对每个模型重新实跑一遍（大模型每个要一两分钟）")
     ap.add_argument("--settings", default=SETTINGS, help="settings.yaml 路径")
     args = ap.parse_args()
+    args.probe = not args.no_probe
 
     plan = build_plan(args)
 
@@ -463,16 +671,18 @@ def main():
         print(json.dumps(plan, ensure_ascii=False, indent=2))
         return 0 if plan["ok"] else 1
 
-    print("═══ 探测结果 ═══")
+    print("═══ 接入结果（只列本设备实跑通过的）═══")
     for key, spec in plan["routes"].items():
         print("\n[{}]  {}  ←  {}".format(key, spec["display_name"], spec["base_url"]))
         if spec["models"]:
             for m in spec["models"]:
-                print("   · {:<38} ctx={:<8} max={:<6} {}".format(
+                print("   ✅ {:<38} ctx={:<8} max={:<6} {}".format(
                     m["id"], m["context_window"], m["max_tokens"],
                     "图片" if m["vision"] else "纯文本"))
         else:
             print("   （无可用模型）")
+        for mid, note in spec.get("unrunnable") or []:
+            print("   ❌ {:<38} 本设备跑不动 — {}".format(mid, note))
         if spec["excluded"]:
             print("   ⊘ 已排除（仅能做 embedding，不能对话）：{}".format("、".join(spec["excluded"])))
 
