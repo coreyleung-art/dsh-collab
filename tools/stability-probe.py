@@ -200,6 +200,57 @@ def _listeners():
     return sorted(out, key=lambda x: int(x["port"]))
 
 
+# ★★★ 2026-10-15（★ 本线自查抓到的【面错误】· 用户指示「专心推红名单」后立即修正）——
+#   ★★ 立据：S-1b 的原文是「每条活体**【通道】**都有可复跑探测」（裁定①：★「『活体』是它的关键词」）。
+#     ★ 而本线先前把 A 桶（命令行命中治理面标记）**整个**当分母 ⇒ 其中混着
+#     **本机服务**（★ 不承载任何【消息】）：`rust-genebank`(8801 知识库) · `openchronicle`(8811 记忆)
+#     · `forum-server`(8091) · `asr_server`(8902-8904 语音后端) · `bb-blueprint-gallery`(8798 画廊)。
+#   ★★★ ⇒ 那 5 类**不该**要求「各有一条 drift 探测」—— ★ 它们是**服务**，不是**通道**
+#     （★ 依 R063：★ **面 = 判据命名的那个面**；★ 把服务算进「活体通道」是【面比对】）。
+#   ★★ 修法：★ A 桶再分 —— ★ **A1 通信通道**（★ 计入分母）· ★ **A2 本地服务**（★ **声明为面外**，
+#     ★ 逐条点名 + 给出理由，★ 且注明其**存活另立判据【未做】**）—— ★ 绝不静默丢弃。
+#   ★ 判据（★ 显式、可反驳）：★ 该监听者是否为【跨会话/跨设备**消息**】的通路 ——
+#     ★ 依 `docs/comm-channel-rules-v2-20261002.md §2`「消息类别 → 通道」的口径。
+LOCAL_SERVICE_MARKERS = (
+    ("rust-genebank", "知识库服务（★ 非消息通路）"),
+    ("openchronicle", "记忆/上下文服务（★ 非消息通路）"),
+    ("forum-server", "论坛站点（★ 非消息通路）"),
+    ("asr_server", "语音识别后端（★ 非消息通路）"),
+    ("bb-blueprint-gallery", "蓝图画廊站点（★ 非消息通路）"),
+    # ★★ 2026-10-15 追加：★ `cld-voice/backend/`（★ `asr_server.py` 与 `voice_service.py`）
+    #   —— ★ 实测它会**按需多开端口**（★ 本晚观测到 :8902/:8903/:8904/:8905/:8906 陆续出现）
+    #   ⇒ ★★ **按端口声明面外会随端口漂移而反复误判**，★ 故**按【标记】声明**（★ 稳定）。
+    ("cld-voice", "语音服务后端（★ 非消息通路）"),
+)
+
+
+def _local_service(cmd):
+    """★ 该 A 桶监听者是不是【本地服务】（★ 非通信通道）？⇒ 返回理由或 None。"""
+    c = cmd or ""
+    for mk, why in LOCAL_SERVICE_MARKERS:
+        if mk in c:
+            return "%s（★ 命中 %r）" % (why, mk)
+    return None
+
+
+def _expect_tokens(spec):
+    """★ 取条目 `expect` 里的【进程/端点标记】（★ 供【不带端口】的条目参与覆盖判定）。"""
+    if not isinstance(spec, dict):
+        return []
+    e = spec.get("expect")
+    out = []
+    if isinstance(e, str):
+        out.append(os.path.basename(e.split()[0]) if "/" in e else e)
+    elif isinstance(e, list):
+        for x in e:
+            if isinstance(x, str):
+                out.append(os.path.basename(x.split()[0]) if "/" in x else x)
+    p = spec.get("probe") or {}
+    if isinstance(p, dict) and isinstance(p.get("path"), str):
+        out.append(p["path"])
+    return [x for x in out if x and not x.startswith("http")]
+
+
 def check_s1b():
     """★ S-1b：`drift` 检查项数 **≥** 【本线活体治理通道数】 ∧ ★ **无未覆盖点**
 
@@ -229,26 +280,56 @@ def check_s1b():
         {"A": A, "B": B, "C": C}[k].append(it)
     # ★ drift 矩阵里出现过的端口（★ 从 expect/probe 串里取）⇒ 用于判【覆盖】
     covered = set()
+    # ★ 以及【不带端口】条目声明的进程标记（★ 见下方 D-429 注释）
+    cmd_markers = set()
     for v in matrix.values():
         if not isinstance(v, dict):
             continue
         blob = json.dumps(v, ensure_ascii=False)
         for m in re.finditer(r':(\d{2,5})(?![0-9])', blob):
             covered.add(m.group(1))
-    gap = [x for x in A if x["port"] not in covered]
-    cnt_ok = n_items >= len(A)
+        # ★★★ 2026-10-15（★ 本线自查抓到的【第二个面错误】）：★ 覆盖判据原先**只认带端口的条目**
+        #   ⇒ ★★ 而矩阵里有**合法的不带端口**的条目（`process-alive` / `process-argv` /
+        #   `launchd-loaded` / `tailscale-status`）—— ★ 它们**同样构成可复跑探测**。
+        #   ★ 立据：本线刚加的 `tailnet-proxy`（`process-alive` · `expect: dsh-tailnet-proxy.mjs`）
+        #     **确实**探测了 :3081，★ 而覆盖率仍报 :3081 未覆盖 ⇒ ★ **假缺口**（★ 典型的装置/判据错）。
+        #   ★ 修法：★ **覆盖 = 端口命中 ∨ 命令行命中该条目声明的进程标记**（★ 与 kind 无关）。
+        for v2 in [v]:
+            for tok in _expect_tokens(v2):
+                if len(tok) >= 6:
+                    cmd_markers.add(tok)
+    # ★★ A 桶再分：A1 = 通信通道（计入分母）· A2 = 本地服务（★ 面外，仅声明）
+    A1, A2 = [], []
+    for x in A:
+        why = _local_service(x["cmd"])
+        if why:
+            x["local_why"] = why
+            A2.append(x)
+        else:
+            A1.append(x)
+    def _covered(x):
+        if x["port"] in covered:
+            return True
+        c = x.get("cmd") or ""
+        return any(mk in c for mk in cmd_markers)
+    gap = [x for x in A1 if not _covered(x)]
+    cnt_ok = n_items >= len(A1)
     v = "PASS" if (cnt_ok and not gap) else "FAIL"
     return {"verdict": v,
-            "why": ("★ drift 项 %d vs **本线活体治理服务 %d**（★ 面外 %d · ★ 不可判 %d）⇒ %s；"
-                    "★ 未覆盖点 %d 个%s"
-                    "　★ 依 **R063**（三维修：面/判据/装置 —— ★ 分母是【分类后的 A 桶】，★ 不是全部监听）"
-                    "· ★ 依 **R030**（无验证不陈述）；★ 规范形：★ 缺口须【按端口点名】，★ 不得只报计数"
-                    % (n_items, len(A), len(B), len(C), "≥" if cnt_ok else "<", len(gap),
-                       ("：" + ", ".join(":%s(%s)" % (g["port"], g["proc"]) for g in gap[:8])) if gap else "")),
-            "evidence": {"drift_items": n_items, "governance_live": len(A),
-                         "off_scope": len(B), "undecidable": len(C),
+            "why": ("★ drift 项 %d vs **本线活体【通信通道】 %d**（★ 面外服务 %d · ★ 本地服务[面外] %d"
+                    " · ★ 不可判 %d）⇒ %s；★ 未覆盖点 %d 个%s%s"
+                    "　★ 依 **R063**（★ 分母是【判据命名的那个面】：★ **通道**，★ 不是「全部治理服务」）"
+                    "· ★ 依 **R030**；★ 规范形：★ 缺口须【按端口点名】，★ 面外的服务也须【点名】"
+                    % (n_items, len(A1), len(B), len(A2), len(C), "≥" if cnt_ok else "<", len(gap),
+                       ("：" + ", ".join(":%s(%s)" % (g["port"], g["proc"]) for g in gap[:8])) if gap else "",
+                       ("　★ 本地服务[面外·非通道]：" + ", ".join(":%s(%s)" % (x["port"], x["proc"]) for x in A2[:8])
+                        + "（★ 其存活另立判据 —— ★ **未做**）") if A2 else "")),
+            "evidence": {"drift_items": n_items, "channel_live": len(A1),
+                         "off_scope": len(B), "local_service_off_scope": len(A2),
+                         "local_service_list": [(x["port"], x["proc"], x.get("local_why", "")) for x in A2],
+                         "undecidable": len(C),
                          "gap_ports": [g["port"] for g in gap],
-                         "A_sample": [(x["port"], x["proc"]) for x in A[:10]]}}
+                         "A1_sample": [(x["port"], x["proc"]) for x in A1[:10]]}}
 
 
 # ═══════════════════ S-2 ═══════════════════
