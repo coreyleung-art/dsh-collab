@@ -1,0 +1,1490 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAHAC 接入契约 v2</title><style>body{background:#0d1117;color:#c9d1d9;font:15px/1.78 -apple-system,"PingFang SC",sans-serif;padding:34px 22px;margin:0}
+.wrap{max-width:1020px;margin:0 auto}
+h1{font-size:29px;padding-bottom:12px;border-bottom:3px solid #58a6ff;margin:0 0 16px}
+h2{font-size:21px;margin:40px 0 14px;padding:9px 13px;border-left:4px solid #58a6ff;background:#0f1620;border-radius:0 7px 7px 0}
+h3{font-size:16.5px;margin:22px 0 9px;color:#58a6ff}
+h4{font-size:15px;margin:16px 0 7px;color:#8b949e}
+hr{border:0;border-top:1px solid #30363d;margin:30px 0}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+pre{background:#0f1620;border:1px solid #30363d;border-radius:8px;padding:13px 15px;margin:12px 0;overflow-x:auto;font-size:12.5px;color:#8ddb8c;font-family:ui-monospace,Menlo,monospace;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin:13px 0;font-size:13.5px}
+td{padding:8px 10px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:first-child td{background:#1c2128;font-weight:600}
+tr:hover td{background:#1a1f26}
+.q{border-left:3px solid #d29922;padding:7px 13px;margin:7px 0;background:#141a20;border-radius:0 6px 6px 0;color:#d6c9a0}
+ul{margin:10px 0 10px 24px}li{margin:5px 0}b{color:#e6edf3}</style></head><body><div class="wrap"><h1>CAHAC 接入契约</h1>
+
+<p><b>契约版本</b>：v2（草案）</p>
+<p><b>日期</b>：2026-10-15</p>
+<p><b>信封版本</b>：本契约要求的信封版本以《CAHAC 协议规格》§3 为准（本契约不在正文写死版本号；规格升版时以规格为准）</p>
+
+<hr>
+
+<h2>摘要（Abstract）</h2>
+
+<p>本契约规定一个新的智能体接入本网络所需要满足的要求。读完本契约，你将能够：构造一条接收方能够路由、去重并按优先级处理的消息；对这条消息由谁产出、属于哪一类产出方作出声明，并知道该声明是自称而不是已经核验的事实；写出一份他人能独立复核的符合性声明，并对声明所覆盖的每一个接入面给出举证；判断另一个实现方接入了本契约的哪些面、哪些面没有接入、哪些面不可判。本契约只规定「要求是什么」与「凭什么算做到」，不规定你的内部实现方式、所用工具与目录结构。</p>
+
+<h2>本文档地位（Status of This Memo）</h2>
+
+<ul><li><b>状态</b>：草案（Draft）。本契约尚未生效，且不主张任何事项已经闭合。</li>
+<li><b>取代关系</b>：本契约不取代任何在先文档。本契约与《CAHAC 协议规格》在信封字段的语义上不一致时，以规格为准。</li>
+<li><b>本契约不规定</b>：本契约的核查者、发布流程与分发方式。</li>
+<li><b>规范性范围</b>：只有 §2.2 列出的引用是规范性引用；§2.3 列出的引用不读也能合规。</li>
+</ul>
+<h2>要求语言（Requirement Language）</h2>
+
+<p>本契约使用 RFC 2119 的五级关键词，其含义依 RFC 2119 解释：</p>
+
+<table>
+<tr><td>关键词</td><td>含义</td></tr>
+<tr><td>MUST / MUST NOT</td><td>绝对要求／绝对禁止。</td></tr>
+<tr><td>SHOULD / SHOULD NOT</td><td>强烈建议／强烈不建议。有正当理由时允许违反；违反的理由随符合性声明一并给出（见 §5、§6）。</td></tr>
+<tr><td>MAY</td><td>真正可选。</td></tr>
+</table>
+
+<ul><li>这些词以小写形式出现时，不构成要求。</li>
+<li>本契约不使用中文情态词（如「必须」「应当」「须」）表达要求级别，以免与关键词混淆；未使用关键词的句子是说明性文字，不构成要求。凡引述用语、关键词释义或反例原文中出现这些词，均不构成要求。</li>
+<li><b>本契约对自身的约束</b>：MUST 与 MUST NOT 只用于两种情形 ——（a）<b>互操作必需</b>：不这样写，接收方就无法路由、无法去重或无法正确解析；（b）<b>限制有害行为</b>：不这样写，会产生伪造、冒充或其他可造成损害的用法。MUST 与 MUST NOT 不用于强加内部实现方式、具体工具选择或目录结构，因为这些不影响互操作。</li>
+</ul>
+<h2>目录（Table of Contents）</h2>
+
+<ul><li><b>1. 引言</b></li>
+<li>1.1 本契约解决什么问题</li>
+<li>1.2 谁该读它</li>
+<li>1.3 范围</li>
+<li><b>2. 术语</b></li>
+<li>2.1 本契约定义的术语</li>
+<li>2.2 规范性引用</li>
+<li>2.3 参考性引用</li>
+<li><b>3. 参与者类别</b></li>
+<li>3.0 本节术语</li>
+<li>3.1 有身份的写入方</li>
+<li>3.2 无身份的产出方</li>
+<li>3.3 接收方</li>
+<li>3.4 不属于任何一类时怎么办</li>
+<li><b>4. 接入要求</b></li>
+<li>4.0 本节的组织方式</li>
+<li>4.1 产出要求</li>
+<li>4.2 声明要求</li>
+<li>4.3 能力要求</li>
+<li>4.4 各项要求的适用范围</li>
+<li><b>5. 符合性声明</b></li>
+<li>5.0 本节术语</li>
+<li>5.1 声明什么</li>
+<li>5.2 声明的形状</li>
+<li>5.3 声明的举证方式</li>
+<li><b>6. 周期与责任</b></li>
+<li>6.0 本节术语</li>
+<li>6.1 何时声明</li>
+<li>6.2 谁声明</li>
+<li>6.3 谁核</li>
+<li><b>7. 不符合与不可判</b></li>
+<li>7.0 本节术语</li>
+<li>7.1 四态</li>
+<li>7.2 总纪律</li>
+<li><b>8. 后果</b></li>
+<li>8.0 本节为什么存在，以及怎么读它</li>
+<li>8.1 不遵守 MUST 的后果</li>
+<li>8.2 不遵守 SHOULD 的后果</li>
+<li>8.3 为什么本契约不靠禁令</li>
+<li><b>9. 安全考量</b></li>
+<li>9.1 本契约的要求可能被如何滥用</li>
+<li>9.2 本契约不索取什么</li>
+<li>9.3 伪造身份的后果</li>
+<li><b>附录 A</b>：契约层字段表与改名对照</li>
+<li><b>附录 B</b>：复跑命令清单</li>
+<li><b>附录 C</b>：反例集</li>
+</ul>
+<hr>
+
+<h2>1. 引言</h2>
+
+<h3>1.1 本契约解决什么问题</h3>
+
+<p>一个新的智能体加入本网络时，会立刻遇到下列问题：</p>
+
+<ul><li><b>消息格式没有对外的定义。</b> 一条消息需要具备哪些字段、哪些字段允许省略、缺字段会导致什么，如果不存在可引用的定义，新实现方只能猜测，接收方收到不合形的对象也没有可依据的判断。</li>
+<li><b>来源不可判。</b> 接收方无法知道一条消息由谁产出、产出它的主体是人还是程序，也不知道这个身份是自称还是已经核验的事实。</li>
+<li><b>接入与否不可判。</b> 「尚未接入」与「接入了但不合规」在共享板上可能呈现为同一种样子：都没有可复核的痕迹。</li>
+<li><b>符合程度不可判。</b> 即使一方声称已接入，如果不存在「声明覆盖哪些面、如何举证、按什么口径计算符合程度」的规定，这个声称就无法被他人复核。</li>
+<li><b>要求级别不明。</b> 如果「必须」与「应该」混用，读者无法判断哪些不做就不算接入。</li>
+<li><b>术语不定义。</b> 如果文档直接使用本网络内部的概念而不予定义，新读者需要依赖文档之外的语境才能读懂，文档即不自足。</li>
+</ul>
+<h3>1.2 谁该读它</h3>
+
+<ul><li>要把一个新的智能体接入本网络的<b>实现者</b>，无论该实现由人操作还是由程序完成。</li>
+<li>已经在本网络内、需要与新的接入方<b>互操作</b>的实现者。</li>
+<li>需要判断某个实现方<b>是否已接入、符合到哪一步</b>的核查者。</li>
+</ul>
+<p><b>读者的前提假设</b>：读者能读写 JSON，能执行命令行，可能是人也可能是程序。本契约不假设读者知道本网络的任何内部概念，也不假设读者读过任何其他文件。本契约要求你额外读的文档只有 §2.2 列出的规格，且只在「信封字段的权威定义」这一点上需要它。</p>
+
+<h3>1.3 范围</h3>
+
+<p><b>本契约管什么</b></p>
+
+<ul><li>一条消息存放在共享板上时的最小形态：信封字段的存在性要求，以及本契约附加的署名与类别声明字段（§2.1、§4.1.3）。</li>
+<li>参与者的类别，以及不属于任何一类时怎么办（§3）。</li>
+<li>每一类参与者需要满足的接入要求，以及每一项「凭什么算做到」（§4）。</li>
+<li>符合性声明：声明什么、声明的形状、如何举证，以及符合程度按什么口径计算（§5）。</li>
+<li>何时声明、谁声明、谁核（§6）。</li>
+<li>不符合与不可判的记法（§7）。</li>
+<li>不遵守要求的具体后果（§8）。</li>
+<li>安全考量：本契约要求什么可能被滥用、本契约不索取什么（§9）。</li>
+</ul>
+<p><b>本契约不管什么</b></p>
+
+<ul><li>信封字段自身的权威语义 —— 以《CAHAC 协议规格》为准；本契约只引用，不重述，两者冲突时以规格为准。</li>
+<li>消息在设备之间如何中转的传输实现。</li>
+<li>智能体的内部实现方式、所用工具、目录结构、进程模型与存储引擎。</li>
+<li>任务如何拆解、编排与分配。</li>
+<li>身份声明的密码学校验方式与密钥管理；本契约只要求「作出声明」以及该声明可被他人复核。</li>
+<li>共享板的部署拓扑与容量。</li>
+<li>消息内容的业务语义与数据模型。</li>
+<li>本契约的核查者、发布流程与分发方式。</li>
+<li><b>取值字面量</b>：凡本契约未给出取值集合的字段，其取值集合与必填性一律以《CAHAC 协议规格》为准（§2.2）；本契约只为契约层字段给出取值（§4.1.3、附录 A.3），不为任何规格层字段给出合法取值。</li>
+</ul>
+<hr>
+
+<h2>2. 术语</h2>
+
+<h3>2.1 本契约定义的术语</h3>
+
+<p>本节的术语在本契约中只定义一次，后文引用时直接使用，不再重复定义。§1 引言是说明性文字，其中的用词与本节不一致时以本节为准。</p>
+
+<p>本节按「网络与存储 → 消息与信封 → 参与者角色 → 类别与身份 → 字段的层 → 接入与声明 → 举证与核查 → 判定与周期」排列；先出现的术语在解释后出现的术语时无需再次定义。</p>
+
+<p><b>网络与存储</b></p>
+
+<ul><li><b>本网络</b>：由多台设备上的多个智能体组成、通过共享板互相传递消息的集合。</li>
+<li><b>智能体</b>：本网络中的一个参与者，它可能是一个进程、一个会话或一个人工操作的客户端，能够向共享板写入消息或从共享板读取消息；它可以完全由程序驱动，也可以由人操作。</li>
+<li><b>设备</b>：运行一个或多个智能体的机器或宿主环境；每台参与设备各持有一份共享板的本地副本。</li>
+<li><b>共享板</b>：一块以「键—值」形式存放数据的共享存储，网络中的每个参与者都能用一个键存入或取出内容，每个键存放一条消息；各设备各自持有一份副本，存入某份副本的内容会在设备之间中转。本契约统一用「共享板」指称这块存储。《CAHAC 协议规格》的通道取值中含 <code>blackboard</code> 一项，其含义以规格为准。</li>
+<li><b>键</b>：共享板中用于定位一条消息的名称。<b>本契约不规定</b>键的取值规则。</li>
+<li><b>中转</b>：把一次发生在某设备本地副本上的写入，传播到其他设备所持有的副本的过程。</li>
+</ul>
+<p><b>消息与信封</b></p>
+
+<ul><li><b>消息</b>：一个 JSON 对象，由一组固定名称的「信封」字段与一个承载内容的负载字段组成；一条消息存放在共享板的一个键上。</li>
+<li><b>产出</b>：一次写入动作的产物 —— 一条由写入方写入共享板的消息。本契约中「消息」与「产出」指同一个对象：凡强调字段结构时用「消息」，凡强调「这是谁写出来的那一条」时用「产出」。</li>
+<li><b>信封</b>：消息中一组固定名称的字段的集合，其用途是让接收方在不理解消息内容的前提下完成路由、去重与优先级判断 —— 它描述的是这条消息自身（属于哪一版、由谁发出、发给谁、属于哪一类、如何判重、何时发生），而不是它的内容。信封字段的名称、必填性、取值与语义以《CAHAC 协议规格》§3 为准。</li>
+<li><b>信封版本</b>：一条消息所遵循的信封字段定义所属的规格版本；它标明一个信封的字段集合属于哪一版定义的取值，承载在信封的 <code>cahac</code> 字段中。其规范值以《CAHAC 协议规格》§3 为准；本契约不写死版本号，规格升版时以规格为准。</li>
+<li><b>必填字段</b>：一条消息缺少它就不构成本契约意义上的消息的信封字段。按《CAHAC 协议规格》§3，信封共 14 个字段：必填 12 个 —— <code>cahac</code>、<code>id</code>、<code>type</code>、<code>channel</code>、<code>sender</code>、<code>recipient</code>、<code>thread</code>、<code>priority</code>、<code>cost_cap</code>、<code>dedup_key</code>、<code>ts</code>、<code>payload</code>；可选 2 个 —— <code>expires</code>、<code>signature</code>。</li>
+<li><b>可选字段</b>：信封中允许省略的字段；省略表示「未提供」。</li>
+<li><b>规范值</b>：《CAHAC 协议规格》为某个字段规定的取值（例如信封版本的规范值）。凡本契约说「以规格为准」，即指以该规格所载的规范值为准。</li>
+<li><b>负载</b>（payload）：信封 <code>payload</code> 字段的值 —— 这条消息要传达的内容本身；其内部结构由写入方与其应用决定，<b>本契约不规定</b>。</li>
+<li><b>通道</b>（channel）：信封中用于指明消息经何种方式传递的字段，即一条消息所走的通信路径。其取值集合与各取值的含义以《CAHAC 协议规格》为准，本契约不重述。</li>
+<li><b>路由</b>：接收方或中转方依据信封字段判断「这条消息该由谁处理、该走哪条通道」的过程。</li>
+<li><b>去重</b>：接收方判断「这条消息与已经处理过的某条消息内容相同」并据此丢弃后者的过程。</li>
+<li><b>去重键</b>：信封中用于判定两条消息是否为同一内容的字段；其取值是对消息内容计算的内容指纹，其构造规则与判定窗口以《CAHAC 协议规格》为准。</li>
+<li><b>内容指纹</b>：对内容做哈希运算所得的定长字符串。<b>同一内容必得同一指纹；不同内容几乎必得不同指纹。</b></li>
+<li><b>去重窗口</b>：判定两条内容相同的产出是否为「重复」时所考察的时间范围；它以信封的时刻字段为基准。</li>
+</ul>
+<p><b>参与者角色</b></p>
+
+<ul><li><b>写入方</b>（writer）：把一条消息写入共享板的一方。它可能是人、程序，或人与程序的组合（也可以是定时器、脚本或图形界面）。</li>
+<li><b>接收方</b>（recipient）：一条消息所指向、从共享板取出并读取它、并依据信封判断是否处理它的一方。</li>
+<li><b>产出方</b>（producer）：一条消息的内容来源 —— 造成这条消息被写出的那一方或那一过程。产出方与写入方常常是同一方，但不必是。</li>
+<li><b>核查方</b>：对一条产出、一次声明或某一个接入面做核对并给出判定的一方。核查方不必是维护者；任何一方都可以核查任何一方。（「核验者」「认定方」为同一角色的别称。）</li>
+<li><b>维护者</b>（maintainer）：维护本契约、以及其所引用的共享板的命名与词汇的一方。新增参与者类别、或在既有类别之外遇到无法归类的情形，由其裁定。</li>
+<li><b>声明方</b>：写出符合性声明的那个智能体（人或程序）。声明方对其声明的真实性负责。</li>
+<li><b>异体</b>：一个既不是写入方、也不是声明方的智能体。</li>
+</ul>
+<p><b>类别与身份</b></p>
+
+<ul><li><b>稳定身份串</b>：一个在多次产出之间保持不变的字符串，用来在同一网络内指认同一个来源。（亦作「身份串」。）</li>
+<li><b>有身份的写入方</b>：能为其每一条产出提供一个稳定身份串的写入方（§3.1）。</li>
+<li><b>无身份的产出方</b>：产出的来源不是某一个智能体、因而本来就不带身份串的那一类产出方（§3.2）。</li>
+<li><b>身份状态</b>：一条产出所携带的、关于「产出方有无身份」的声明。形态上有三种：有身份、声明无身份、未声明；其中只有前两种是合法取值（§4.1.3、附录 A.3），<b>「未声明」是取值的缺失，不是第三种取值</b>。</li>
+<li><b>类别声明</b>：写入方关于自己属于哪一类（有身份／无身份）的那个字段，即 <code>producerCategory</code>。</li>
+</ul>
+<p><b>字段的层：规格层与契约层</b></p>
+
+<p>下表把两类字段并列，供读者分辨哪些字段的权威定义在规格里、哪些由本契约附加。本契约附加的字段位于消息对象顶层，且与规格层的任一字段均不同名。</p>
+
+<table>
+<tr><td>层</td><td>字段</td><td>一句话作用</td><td>必填性</td></tr>
+<tr><td>规格层</td><td><code>cahac</code></td><td>标明这条消息所遵循的信封版本。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>id</code></td><td>这条消息在本网络内的唯一标识。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>type</code></td><td>消息的类别，用于决定通道与是否需要应答。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>channel</code></td><td>消息传递所经的通道。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>sender</code></td><td>写入这条消息的一方。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>recipient</code></td><td>这条消息所指向的一方或其所属集合。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>thread</code></td><td>这条消息所属的会话级聚合标识。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>priority</code></td><td>处理优先级。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>cost_cap</code></td><td>处理这条消息的成本上限。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>dedup_key</code></td><td>用于判定两条消息是否为同一内容。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>ts</code></td><td>消息的产生时刻。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>payload</code></td><td>消息承载的内容。</td><td>必填</td></tr>
+<tr><td>规格层</td><td><code>expires</code></td><td>消息的失效时刻。</td><td>可选</td></tr>
+<tr><td>规格层</td><td><code>signature</code></td><td>消息的密码学签名。</td><td>可选</td></tr>
+<tr><td><b>契约层</b></td><td><b><code>producerIdentity</code></b></td><td><b>写入方对自己身份的声明。</b></td><td>见 §4.1.3</td></tr>
+<tr><td><b>契约层</b></td><td><b><code>producerCategory</code></b></td><td><b>写入方对「产出这条消息的主体属于哪一类」的声明。</b></td><td>见 §4.1.3</td></tr>
+<tr><td><b>契约层</b></td><td><b><code>producerNote</code></b></td><td><b>写入方附加的自由文本陈述，用于说明消息的来源或产出方式。</b></td><td>见 §4.1.3</td></tr>
+</table>
+
+<p><b>本表的地位</b>：规格层字段的权威定义以《CAHAC 协议规格》§3 为准，本表只是索引，冲突时以规格为准；契约层字段的权威定义在本契约。本表不构成对规格层字段语义的替代。</p>
+
+<p><b>两层不重叠</b>：契约层字段不修改、不顶替规格层字段；规格层字段的增删由规格方决定，本契约不作规定。除上表的三个字段外，<b>符合性声明及其字段与举证要求、判定四态、比例口径</b>同属契约层，由本契约定义（§5、§7）；规格层只含信封的字段集与其规范版本。</p>
+
+<p>承上表的术语：</p>
+
+<ul><li><b>规格层字段</b>：名称、必填性与语义由《CAHAC 协议规格》§3 定义的信封字段。</li>
+<li><b>契约层字段</b>：名称、必填性与语义由本契约定义、位于消息对象顶层、且不与规格层字段同名的字段。</li>
+<li><b>署名与类别声明</b>：本契约自行新增的一组三个契约层字段（<code>producerIdentity</code> · <code>producerCategory</code> · <code>producerNote</code>）。它们不在《CAHAC 协议规格》的任何字段表里，不是该规格的字段；它们与规格层的信封字段并列存在、互不覆盖。用途：声明「这条消息的内容是谁产出的，以及这一类产出方有没有身份」。</li>
+<li><b>写入方身份字段</b>（<code>producerIdentity</code>）：契约层字段，其值为写入方对自己身份的声明。它是一个<b>自称</b>；本契约不要求接收方把它当作已经核验的事实。</li>
+<li><b>写入方类别字段</b>（<code>producerCategory</code>）：契约层字段，其值为写入方对「产出这条消息的主体属于哪一类」的声明；取值集合见 §4.1.3。</li>
+<li><b>写入方陈述字段</b>（<code>producerNote</code>）：契约层字段，其值为写入方附加的自由文本陈述。<b>本契约不规定</b>其内容的格式、长度与语言。</li>
+</ul>
+<p><b>由本节术语直接推出的要求</b>：见 §4.1.2（信封必填字段）与 §4.1.3（署名与类别声明，含契约层字段 MUST NOT 与规格层字段同名、MUST NOT 冒用他人身份）。</p>
+
+<p><b>与规格层 <code>sender</code> 的关系</b>：<code>sender</code>（规格层：发送方标识，用于路由）与 <code>producerIdentity</code>（契约层：被声明出来的产出方身份，用于归属）<b>用途不同</b> —— 前者回答「这条消息从哪来」，后者回答「谁为它署名」。<b>两个方向都不是自动成立的</b>：有 <code>sender</code> 不等于有 <code>producerIdentity</code>；接收方也 <b>MUST NOT</b> 由 <code>sender</code> 推出 <code>producerIdentity</code>。（<b>限制有害行为</b>：按 <code>sender</code> 臆断产出方，会把归属记到并不产出该消息的一方名下。）</p>
+
+<p><b>接入与声明</b></p>
+
+<ul><li><b>写入路径</b>：一个具体的、可执行的发消息动作 —— 即「用某个程序、脚本、命令行或界面，把一个键与一段值写进共享板」这件事本身。<b>同一条消息用两个不同的写入路径发出，算两个不同的写入路径。</b></li>
+<li><b>接入面</b>：写入路径的<b>一个可以分别声明、分别判定的方面</b>（例如「写入消息」「读取消息」；也可以是一类可以单独判定的产出）。<b>接入面的权威枚举以《CAHAC 协议规格》的「管辖域声明」节（规格 §1.5）为准</b> —— 即该节列出的<b>在管辖内</b>的各承载，以及它<b>点名</b>的<b>管辖外</b>各承载，<b>一一对应一个接入面</b>。<b>不属于该节任何一项的写入路径，不构成接入面</b>，但<b>仍要在声明里显式点名</b>（§5.1.3）。本契约中「面」是「接入面」的简称。</li>
+<li><b>声明</b>：写入方对自身状态作出的、<b>可被他人复核</b>的陈述。本契约规定的声明只有一种形式：符合性声明。</li>
+<li><b>符合性声明</b>：声明方就<b>自己</b>的接入面，按 §5 规定的字段与举证要求，向共享板<b>写入</b>的一张<b>声明卡</b>；它写明声明方按本契约在哪几个面上接入、并对每个面给出举证。</li>
+<li><b>声明卡</b>：承载符合性声明的那一条共享板记录。其字段见 §5.2。</li>
+<li><b>已接入面</b>：声明方在声明中声明为已接入的接入面；<b>每一项都要附一个举证对象</b>（§5.1.2）。</li>
+<li><b>未接入面</b>：写入方<b>显式声明</b>尚未接入的那些接入面（§5.1.3）。</li>
+<li><b>未接入面清单</b>：符合性声明中显式列出未接入面的那一项，对应声明卡里的 <code>not_onboarded_surfaces</code>（§5.2.1、§5.2.3）；<b>确无未接入面时也要显式写出</b>。</li>
+<li><b>举证</b>：声明方为支持自己的声明而提交的、<b>可被他人独立重算</b>的材料 —— <b>一个东西 + 一条命令</b>（§5.3.1）。</li>
+<li><b>举证对象</b>：承载一次举证的一个 JSON 对象 —— 声明方为<b>某一个接入面</b>提交的<b>一件东西 + 一条命令</b>；其完整字段表见 §5.3.3。</li>
+</ul>
+<p><b>举证与核查</b></p>
+
+<ul><li><b>探测</b>：核查方<b>自己执行</b>的一次检查动作（一条命令 + 其原始输出 + 退出码）。<b>探测的结果有三种，缺一不可区分</b>：<b>有命中</b> · <b>确认无命中（有阳性对照证明检查具备检出能力）</b> · <b>取不到结果</b>。</li>
+<li><b>核查材料</b>：核查方为判定一个接入面而<b>实际取得</b>的东西 —— 包括：该面的<b>声明内容</b>、该面的<b>举证对象</b>、以及核查方<b>自己跑出的探测结果</b>。</li>
+<li><b>原始输出</b>：一条命令执行后<b>未经编辑</b>的输出文本（不是摘要、不是重述、不省略中间行）。</li>
+<li><b>阳性对照</b>：一条<b>在人为构造的、必定命中的样本上运行</b>同一检查的命令及其原始输出，用来证明该检查<b>具备检出能力</b>。</li>
+<li><b>回读</b>：写入之后，从共享板<b>按键重新取出</b>，并打印取回的内容。<b>写与读分两次</b>：同一次调用里既写又读，不算回读。</li>
+<li><b>可复跑</b>：每条命令都能在<b>首次发出之后</b>被<b>单独再跑一次</b>，并给出<b>同一形状</b>的输出；它<b>不依赖任何本次会话的临时状态</b>。</li>
+</ul>
+<p><b>判定与周期</b></p>
+
+<ul><li><b>判定</b>：对<b>某一个接入面</b>给出的<b>唯一</b>结论，取值<b>只</b>限于 OK 与 §7.1 的四态。<b>判定是【接入面级】的</b>，不是消息级的、也不是设备级或智能体级的。</li>
+<li><b>四态</b>：§7.1 的四个判定 —— <b>未接入</b>（<code>NOT_ONBOARDED</code>：该面确实存在，且声明方显式声明它现在未被接入）· <b>未举证</b>（<code>EVIDENCE_MISSING</code>：该面被声明为已接入，但没有提交合格的举证对象）· <b>超期</b>（<code>EVIDENCE_STALE</code>：曾经被合格地举证过，但当前声明已超出有效期）· <b>不可判</b>（<code>UNDECIDABLE</code>：核查方无法从可得材料确定该面的判定）。<b>四者互斥且穷尽</b>；<b>OK</b> 是唯一的通过态（§7.2.5）。</li>
+<li><b>棘轮</b>：§7.2.4 的分母规则 —— 一个面一旦被探测到在该写入路径下<b>确有产出</b>，就<b>进入分母</b>，此后不会因为它未被声明而退出。</li>
+<li><b>进入分母</b>：一个接入面<b>被计入符合性比例的基数</b>。<b>只有【OK】判定的面进入分子</b>；<b>分母由 §7.2.4 的棘轮口径决定。</b></li>
+<li><b>符合性比例</b>：<b>判为【OK】的接入面数 ÷ 进入分母的接入面数</b>（§7.2.4）。<b>它的基数是接入面，不看消息条数。</b></li>
+<li><b>达标比例 / 未达标比例</b>：另一组以<b>产出条数</b>为基数的读数（§8.1.2、附录 B 第 6 行）：<b>未达标比例</b> = 一个写入方在一段时间内<b>不符合本契约形式要求</b>的产出条数 ÷ 其同期产出总条数；<b>达标比例</b> = 1 − 未达标比例。<b>这两个读数与「符合性比例」不是同一个量</b>：前者的基数是产出条数，后者的基数是接入面。</li>
+<li><b>周期复核</b>：由<b>异体</b>对一个<b>当前声明</b>重新作出判定的动作。<b>复核不产生新声明</b> —— 声明只能由声明方自己发出。</li>
+<li><b>有效期</b>：一条当前声明<b>被当作仍有效</b>的时间跨度。<b>默认 30 天</b>（自 <code>declared_at</code> 起算），亦称<b>复核周期</b>；超出的判定见 §7.1 第 3 态。</li>
+<li><b>当前声明</b>：对<b>同一个 <code>applies_to</code></b> 而言，<code>declared_at</code> <b>最大</b>的那条<b>格式完整</b>的声明。</li>
+<li><b>不可归属</b>：产出本身可读，但其写入方无法被判定为任何一方。</li>
+<li><b>拒收</b>：接收方不接收某条产出（丢弃、退回或不予处理）。</li>
+<li><b>死信</b>：接收方无法路由、也没有任何一方去取的产出 —— 它们仍留在共享板上，但不会被处理。</li>
+</ul>
+
+<h3>2.2 规范性引用（Normative References）</h3>
+
+<p>本契约只有一件规范性引用。不读它，你无法判断自己的实现是否合规。</p>
+
+<ul><li><b>[规格]《CAHAC 协议规格》</b>（CAHAC Protocol Specification）<b>§3 消息信封</b>：信封字段的名称、必填性、取值与语义，以及信封版本的规范值，均以该节为准。本契约在需要指称信封版本处一律写「本契约要求的信封版本以《CAHAC 协议规格》§3 为准」，不在正文写死版本号。</li>
+<li>该规格的版本标识、获取方式与存放位置由该规格自身规定；<b>本契约不规定</b>。</li>
+<li>冲突处理：在信封字段的语义上，规格优先于本契约。</li>
+</ul>
+<h3>2.3 参考性引用（Informative References）</h3>
+
+<p>下列引用不读也能合规；列出它们是为了说明本契约的写法依据。</p>
+
+<ul><li><b>[RFC 2119]</b> *Key words for use in RFCs to Indicate Requirement Levels*。本契约的关键词依它解释。之所以把这项列为参考性引用，是因为本契约对每一处关键词都同时给出了它属于哪一类（互操作必需／限制有害行为／可选），因而不读 RFC 2119 也能判断每条要求的强度。</li>
+<li><b>[RFC 7322]</b> *RFC Style Guide*。本契约的文档结构（头部区、正文区、尾部区）依其 §4。</li>
+</ul><h2>3. 参与者类别（Conformance Classes）</h2>
+
+<h3>3.0 本节术语</h3>
+
+<p>本节用到的术语（共享板 · 消息 · 智能体 · 信封 · 信封版本 · 必填字段 · 负载 · 写入方 · 产出方 · 接收方 · 接入面 · 符合性声明 · 维护者 · 核查方）的定义见 §2.1；规范性引用与参考性引用的条目见 §2.2 与 §2.3。信封的 14 个字段（必填 12、可选 2）也列在 §2.1 的字段表中。</p>
+
+<p><b>类别是面，不是身份</b>：一个参与者可以同时属于多个类别（例如既是有身份的写入方，又是接收方）。符合性声明按<b>面</b>逐项给出，不按「我是哪一类人」给出。</p>
+
+<hr>
+
+<h3>3.1 有身份的写入方（Identified Writer）</h3>
+
+<p><b>有身份的写入方</b>：能为其每一条产出提供一个<b>稳定身份串</b>的写入方。</p>
+
+<p><b>声明方式</b>：在消息中带以下三个<b>契约层字段</b>（它们由本契约定义，不是《CAHAC 协议规格》信封字段表的一部分；两层的划分见 §2.1 的表）：</p>
+
+<table>
+<tr><td>层</td><td>字段</td><td>由谁定义</td></tr>
+<tr><td><b>规格层</b></td><td><code>cahac</code>、<code>id</code>、<code>type</code>、<code>channel</code>、<code>sender</code>、<code>recipient</code>、<code>thread</code>、<code>priority</code>、<code>cost_cap</code>、<code>dedup_key</code>、<code>ts</code>、<code>payload</code>（可选：<code>expires</code>、<code>signature</code>）</td><td>《CAHAC 协议规格》§3（规范性引用）</td></tr>
+<tr><td><b>契约层</b></td><td><code>producerIdentity</code>、<code>producerCategory</code>、<code>producerNote</code></td><td>本契约</td></tr>
+</table>
+
+<p><b>契约层字段的定义</b></p>
+
+<ul><li><b><code>producerIdentity</code></b>：产出方的稳定身份串（字符串）。<code>producerCategory</code> 为 <code>identified</code> 时必填。</li>
+<li><b><code>producerCategory</code></b>：本条消息的产出方属于哪一类（字符串，取值 <code>identified</code> 或 <code>unidentified</code>）。</li>
+<li><b><code>producerNote</code></b>：产出方的补充说明（字符串，可选）。</li>
+</ul>
+<p>三个字段<b>不改变</b>规格层任何字段的含义；它们回答的是规格层没有回答的问题：<b>这条消息的内容是谁产出的、以及这一类产出方有没有身份</b>。三个字段的名称与层归属见 §2.1；它们的必填性与取值要求见 §4.1.3。</p>
+
+<p><b>与规格层 <code>sender</code> 的关系</b>：当产出方就是投递方（即规格 <code>sender</code> 所指的那一方）时，<code>producerIdentity</code> 的值 <b>SHOULD</b> 与 <code>sender</code> 的值相同。<b>为什么允许不同</b>：存在正当的转投情形 —— 一方代为投递另一方的产出时，产出方与投递方本就不是同一方，此时二者不同是<b>正确</b>的，不是缺陷。二者不同时，接收方会看到两个不同的来源，<code>producerNote</code> 是说明这种关系的位置。两个字段的用途差异，以及「<b>MUST NOT</b> 由 <code>sender</code> 推出 <code>producerIdentity</code>」，见 §2.1。</p>
+
+<hr>
+
+<h3>3.2 无身份的产出方（Unidentified Producer）</h3>
+
+<p><b>无身份的产出方</b>：产出的来源<b>不是某一个智能体</b>的那一类产出方。典型情形：由人在网页上点出的一个操作、由定时任务触发的动作、由脚本跑出的结果。这一类产出<b>本来就没有</b>可与某个智能体对应的身份串 —— 这不是「身份丢了」，而是「这一类本来就不带身份」。</p>
+
+<p><b>这一类只适用于来源可被指认、且确实没有身份的产出</b> —— 即图形界面、定时器、脚本三类之一（§9.1 第 3 行）。</p>
+
+<p><b>声明方式</b>：<code>producerCategory</code> 取 <code>unidentified</code>；<code>producerIdentity</code> <b>不出现</b>（既不为空串，也不借用他方身份串）。</p>
+
+<p><code>producerNote</code> 是可用的位置，用来写明这一产出的实际来路（例如「由网页上的手工操作触发」「由每日定时任务触发」「由一次性脚本产生」）。写它不影响合规判定，只帮助接收方判断该如何处置。</p>
+
+<div class="q"><b>本节最重要的一条纪律：不是补一个身份，而是声明这一类本来就没有身份。</b></div>
+<p>&gt;</p>
+<div class="q">当一项产出的来源不属于任何智能体时，正确做法是声明这一类本来就没有身份，而<b>不是</b>设法让消息「字段齐整、来源明确」—— 为此而借用投递方（规格 <code>sender</code>）的身份串、借用某个组件的名字、临时编一个串、或把 <code>producerCategory</code> 改写成有身份的那一类，都是把「无身份」伪装成「有身份」（要求见 §4.1.3）。</div>
+<p>&gt;</p>
+<div class="q"><b>硬填一个不存在的身份就是编造读数，它比不署名更坏。</b> 不署名留下的是「无从判断」，接收方会去求证；而伪造的署名留下的是「一个确定的、错误的答案」—— 接收方会据此向<b>错误的来源</b>求证、把责任归给<b>错误的来源</b>、按<b>错误的来源</b>处置；而真正的产出方<b>无人可查</b>，纠错也没有入口。</div>
+<p>&gt;</p>
+<div class="q">正确的写法只有一种：<b><code>producerCategory</code> 声明这一类本身无身份，<code>producerIdentity</code> 留空（不出现）。</b></div>
+
+<hr>
+
+<h3>3.3 接收方（Receiver）</h3>
+
+<p><b>定义</b>：从共享板取出消息并阅读的一方。接收方<b>不必</b>写入消息；<b>只读也算接入</b>，只需在符合性声明中把「只读」写在已接入面里。</p>
+
+<p>接收方的义务：</p>
+
+<p><b>① 去重。</b> 接收方 <b>MUST</b> 按信封的 <code>dedup_key</code> 在去重窗口内判重，对同一窗口内内容相同的后到消息按重复处置（丢弃后者）。<b>为什么这是互操作必需</b>：《CAHAC 协议规格》把「同内容重投」与「合法重发」的判别放在<b>消费侧</b>（窗口内同内容记为重复，窗口外同内容视为合法重发），接收方不做这件事，这条区分在系统里就不存在。<b>不做会怎样</b>：一条承载任务委派的消息重投两次，同一个任务被执行两次，产生重复的副作用与重复的成本计费，而写入方<b>看到的一切读数都正常</b>。</p>
+
+<p><b>② 兼容附加字段。</b> 接收方 <b>MUST NOT</b> 仅仅因为一条消息多带了它不认识的键，就拒收整条消息。<b>为什么这是互操作必需</b>：本契约在规格的信封之外增加了三个契约层字段，属于附加式扩展；拒收即为把兼容的扩展变成不兼容。<b>不做会怎样</b>：同一条消息在旧接收方被<b>整条丢弃</b>，而写入方以为已经送达 —— 消息既没有被处理，也没有产生任何错误读数。</p>
+
+<div class="q">本条约束的是<b>附加字段</b>。对因<b>不符合本契约其它形式要求</b>而<b>拒收</b>该产出的做法，本契约另有一条 MUST NOT（见 §8.1.1 的要求表第 7 行与 §8.3.3 第 5 条）。</div>
+
+<p><b>③ 不代为推断类别。</b> <code>producerCategory</code> 缺失时，接收方 <b>MUST NOT</b> 替它推断一个类别。缺失就是缺失：把它记为<b>未声明</b>，而不是按「看起来像脚本」判成无身份、或按「有 <code>sender</code> 就一定有身份」判成有身份。这是<b>限制有害行为</b>的条款，理由与 §3.2 的纪律同一条：<b>没有读数就不能当有读数</b>。<b>不做会怎样</b>：接收方按一个猜出来的类别处置 —— 猜成有身份，就向一个并不存在的来源追责；猜成无身份，就把一条本可追责的正式动作降级为无来源。两种错的处置都发生在<b>下游已经生效之后</b>，无法回退。</p>
+
+<p><b>④ 只读。</b> 接收方 <b>MAY</b> 只读不写，不因只读而失去接入资格。</p>
+
+<hr>
+
+<h3>3.4 不属于任何一类时怎么办</h3>
+
+<p>若你的产出<b>既不能</b>提供一个稳定身份串，<b>又不属于</b>「来源不是某一个智能体」的那一类（例如来源是一个组织、是一段多方共享的流程、是若干方结果的合并），则：</p>
+
+<ul><li>你 <b>MUST NOT</b> 自行新增类别，也 <b>MUST NOT</b> 自行挑一个最近似的基础类别填进 <code>producerCategory</code>。</li>
+<li>你 <b>MUST</b> 向维护者提交登记请求，说明你的产出形态，由维护者裁定它归入哪一类，或新增一类。</li>
+</ul>
+<p><b>为什么由维护者定</b>：类别是<b>网络层面共享的词汇</b>。不同参与者若各自为自己新增取值，同一个取值在不同设备上就会指向不同的东西，接收方按取值处置时必然处置错。而<b>自行挑一个最近似的类别</b>，等于把「我这一类的语义与既有类其实不同」这件事藏起来 —— 接收方会用错的语义、且<b>没有任何读数提示他用错了</b>。这与 §3.2 是同一条纪律的另一种形态：<b>宁可声明「不属于任何一类」，也不要填一个近似但不成立的类。</b></p>
+
+<p><b>本契约不规定</b>登记请求的具体通道（各部署不同），只规定：<b>MUST NOT</b> 自行归类。</p>
+
+<hr>
+
+<h2>4. 接入要求（Requirements）</h2>
+
+<h3>4.0 本节的组织方式</h3>
+
+<p>本节的要求按<b>核验时机与证据类型</b>分成三组，不按「重要程度」分：</p>
+
+<table>
+<tr><td>组</td><td>核验对象</td><td>证据</td><td>什么时候核</td></tr>
+<tr><td><b>§4.1 产出要求</b></td><td><b>每一条消息</b></td><td>消息本身</td><td>每次产出</td></tr>
+<tr><td><b>§4.2 声明要求</b></td><td><b>接入整体</b></td><td>符合性声明本身</td><td>首次接入、以及声明内容变更时</td></tr>
+<tr><td><b>§4.3 能力要求</b></td><td><b>一个动作</b></td><td>一条命令的<b>实际输出</b></td><td>首次接入、以及声明内容变更时</td></tr>
+</table>
+
+<p><b>为什么这样分组</b>：三组的证据来源不同，因而<b>能否靠一句话满足</b>也不同 —— 产出要求看消息，声明要求看声明，<b>只有能力要求跑得出来才算数</b>。把这三件事混成一节，读者会以为「写一句声明」可以顶替「跑一条命令」。另外，<b>§4.1.3 是本契约自己加的一项</b>（不属于规格的信封字段），单独标出，避免读者误以为它来自规范性引用。</p>
+
+<p><b>每项统一格式</b>：<b>【要求】</b> + <b>【凭什么算做到】</b> + <b>【不做会怎样】</b> + <b>【复跑命令】</b>。</p>
+
+<p><b>关于本节给出的命令</b>：判据是文字（例如「12 个必填字段都出现且不为 <code>null</code>」），命令只是该判据的<b>一种可执行实现</b>，<b>不是对实现方式的指定</b> —— 你用任何等价方式核出同一结论都可以。命令用 Python 3 书写，只用标准库，因为它与「能读写 JSON」这一读者假设相称；若你的环境没有 Python 3，请用等价实现，判据不变。命令中出现 <code>&lt;...&gt;</code> 的位置是占位符，要替换成你自己的路径或命令。</p>
+
+<hr>
+
+<h3>4.1 产出要求（对每一条消息成立）</h3>
+
+<h4>4.1.1 信封版本取值</h4>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你写出的每一条消息，其信封 <code>cahac</code> 字段的值 <b>MUST</b> 等于《CAHAC 协议规格》§3 规定的<b>规范值</b>，逐字相同。</p>
+
+<div class="q"><b>本契约的正文不写死该版本号</b> —— 规格升版时本契约无需改动，读者也不必在两处维护同一个数。取值以规格 §3 为准。</div>
+
+<p><b>【凭什么算做到】</b> 从你的产出中任取一条消息，其 <code>cahac</code> 字段的值与规格 §3 的规范值<b>逐字比对相等</b>。本契约额外给出一个<b>不依赖该值本身</b>的<b>结构判据</b>：该值是一个 JSON 字符串，非空，且<b>不带版本前缀字母</b>（规范值形如 <code>1.2</code>，不形如 <code>v1.2</code>）。</p>
+
+<p><b>【不做会怎样】</b> 接收方无法判断该按哪一版解释这条消息的字段语义 ⇒ 同一个字段在不同接收方手里会被按不同版本解释（把某一版必填的字段当可选，或反之），而双方都认为自己在按规范做。更进一步：凡<b>以规范值逐字比对</b>的接收方或筛选器，都会把带前缀的值判为不匹配 ⇒ <b>这条消息对这些接收方等于不存在</b> —— 既不被处理，也不报错。</p>
+
+<p><b>【复跑命令】</b></p>
+
+<p><pre>python3 - &lt;&lt;&#x27;PY&#x27;
+import json
+# 把 &lt;消息文件&gt; 换成你所在设备上存放一条消息的 JSON 文件路径
+m = json.load(open(&quot;&lt;消息文件&gt;&quot;, encoding=&quot;utf-8&quot;))
+v = m.get(&quot;cahac&quot;)
+ok_struct = isinstance(v, str) and len(v) &gt; 0 and not v.startswith(&quot;v&quot;)
+print(&quot;cahac =&quot;, repr(v))
+print(&quot;结构判据（字符串 / 非空 / 无版本前缀字母）:&quot;, &quot;PASS&quot; if ok_struct else &quot;FAIL&quot;)
+print(&quot;取值判据：请把上面的值与《CAHAC 协议规格》§3 的规范值逐字比对&quot;)
+PY
+</pre></p>
+
+<p>取值判据本身是可机械执行的（逐字比对）；只是<b>期望值由读者从规格 §3 读出</b> —— 本契约不写死它。</p>
+
+<hr>
+
+<h4>4.1.2 完整信封</h4>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你写出的每一条消息 <b>MUST</b> 携带《CAHAC 协议规格》§3 规定的<b>全部 12 个必填信封字段</b>：<code>cahac</code>、<code>id</code>、<code>type</code>、<code>channel</code>、<code>sender</code>、<code>recipient</code>、<code>thread</code>、<code>priority</code>、<code>cost_cap</code>、<code>dedup_key</code>、<code>ts</code>、<code>payload</code>。可选字段 <code>expires</code> 与 <code>signature</code> 可以不带。</p>
+
+<p><b>【凭什么算做到】</b> 12 个必填字段逐一<b>存在且不为 <code>null</code></b>；其中 <code>cahac</code>、<code>id</code>、<code>type</code>、<code>channel</code>、<code>sender</code>、<code>recipient</code>、<code>priority</code>、<code>dedup_key</code>、<code>ts</code> 九项还 <b>MUST</b> 是<b>非空字符串</b> —— 这九项是标识、枚举或时刻，空串在其中没有含义。</p>
+
+<p>本契约<b>不</b>对以下三项下判断，因为规格未规定它们的非空性，本契约不发明：<code>cost_cap</code> 的取值（0 表示不限制，是合法值）、<code>payload</code> 的空对象、<code>thread</code> 的空串。</p>
+
+<p><b>【不做会怎样】</b> 逐字段说：</p>
+
+<ul><li>缺 <code>recipient</code>：消息无法路由到任何一方 ⇒ <b>无人读到</b>。</li>
+<li>缺 <code>dedup_key</code>：接收方无法判重 ⇒ 同一条消息被重复执行；若承载任务委派，<b>同一个任务被执行两次</b>，产生重复的副作用与重复的计费。</li>
+<li>缺 <code>id</code>：回执、审计与重放都无法定位到这条具体消息 ⇒ 出了事<b>无从指认是哪一条</b>。</li>
+<li>缺 <code>cost_cap</code>：这条消息的成本上限无从生效 ⇒ 预算约束在这条消息上<b>不存在</b>。</li>
+<li>缺 <code>cahac</code>：见 §4.1.1。</li>
+<li>缺 <code>type</code> 或 <code>channel</code>：接收方无法按类型与通道处置 ⇒ 例如把一次状态更新当成一项任务委派，触发一次本不该发生的执行。</li>
+</ul>
+<p><b>【复跑命令】</b></p>
+
+<p><pre>python3 - &lt;&lt;&#x27;PY&#x27;
+import json
+REQUIRED = [&quot;cahac&quot;, &quot;id&quot;, &quot;type&quot;, &quot;channel&quot;, &quot;sender&quot;, &quot;recipient&quot;, &quot;thread&quot;,
+            &quot;priority&quot;, &quot;cost_cap&quot;, &quot;dedup_key&quot;, &quot;ts&quot;, &quot;payload&quot;]
+TEXT     = [&quot;cahac&quot;, &quot;id&quot;, &quot;type&quot;, &quot;channel&quot;, &quot;sender&quot;, &quot;recipient&quot;,
+            &quot;priority&quot;, &quot;dedup_key&quot;, &quot;ts&quot;]
+m = json.load(open(&quot;&lt;消息文件&gt;&quot;, encoding=&quot;utf-8&quot;))
+missing = [k for k in REQUIRED if k not in m or m[k] is None]
+blank   = [k for k in TEXT if k in m and not (isinstance(m[k], str) and m[k].strip())]
+print(&quot;缺失或为 null 的必填字段 :&quot;, missing)
+print(&quot;非空字符串却为空         :&quot;, blank)
+print(&quot;PASS&quot; if not missing and not blank else &quot;FAIL&quot;)
+PY
+</pre></p>
+
+<hr>
+
+<h4>4.1.3 署名与类别声明（本契约新增项）</h4>
+
+<div class="q">本项<b>不属于</b>《CAHAC 协议规格》的信封字段表，是本契约在规格之上增加的<b>契约层要求</b>。二者分层见 §2.1 的字段表，改名对照见附录 A.1。</div>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你写出的每一条消息 <b>MUST</b> 带 <code>producerCategory</code> 字段，其取值只能是 <code>identified</code> 或 <code>unidentified</code> 之一（两个类别的定义见 §3.1、§3.2）。</p>
+
+<p><b>【要求 · MUST（互操作必需）】</b> <code>producerCategory</code> 为 <code>identified</code> 时，该消息 <b>MUST</b> 带 <code>producerIdentity</code>，其值为<b>非空字符串</b>（定义见 §3.1）。</p>
+
+<p><b>【要求 · MUST（互操作必需）】</b> <code>producerCategory</code> 为 <code>unidentified</code> 时，该产出的来源 <b>MUST</b> 可被指认为「图形界面 / 定时器 / 脚本」三类之一（§3.2）。</p>
+
+<p><b>【要求 · MUST NOT（限制有害行为）】</b> <code>producerCategory</code> 为 <code>unidentified</code> 时，该消息 <b>MUST NOT</b> 出现 <code>producerIdentity</code> 这个键；写入方 <b>MUST NOT</b> 用空串、占位串或他方身份串来「填满」这个位置（理由见 §3.2）。</p>
+
+<p><b>【要求 · MUST NOT（限制有害行为）】</b> 写入方 <b>MUST NOT</b> 在其身份声明中填写并非其自身的身份（理由见 §9.3.1）。</p>
+
+<p><b>【要求 · MUST NOT（互操作必需）】</b> 契约层字段 <b>MUST NOT</b> 与规格层字段同名（<b>互操作必需</b>：同名会使接收方无法判断以哪一份定义为权威，从而解析出不一致的字段含义）。</p>
+
+<p><b>【凭什么算做到】</b> 从你的产出中任取一条消息：<code>producerCategory</code> 存在，且取值属于上述两个之一；取值为 <code>identified</code> 时，<code>producerIdentity</code> 存在且为非空字符串；取值为 <code>unidentified</code> 时，<b><code>producerIdentity</code> 这个键不存在</b>；该产出的来源可被指认为图形界面 / 定时器 / 脚本之一。</p>
+
+<p><b>【不做会怎样】</b></p>
+
+<ul><li><b>缺 <code>producerCategory</code></b>：接收方分不清「这一类本来就没有身份」与「身份被省略、被剥离、或被中转丢失」这三种情况 —— 它们在字段上长得完全一样。接收方只能猜，而两种猜法都错（见 §3.3 第 ③ 条）。</li>
+<li><b>伪造 <code>producerIdentity</code></b>：接收方按一个<b>不存在的来源</b>去求证、去追责、去要求解释 ⇒ 真正的产出方<b>无人可查</b>，而错误的归属已经进入下游。</li>
+</ul>
+<p>这两种后果都<b>不可恢复</b>：消息一旦被处置，归属就已经被下游采纳。</p>
+
+<p><b>【复跑命令】</b></p>
+
+<p><pre>python3 - &lt;&lt;&#x27;PY&#x27;
+import json
+m = json.load(open(&quot;&lt;消息文件&gt;&quot;, encoding=&quot;utf-8&quot;))
+cls = m.get(&quot;producerCategory&quot;)
+ident_present = &quot;producerIdentity&quot; in m
+ident_ok = isinstance(m.get(&quot;producerIdentity&quot;), str) and bool(m.get(&quot;producerIdentity&quot;, &quot;&quot;).strip())
+if cls == &quot;identified&quot;:
+    verdict = &quot;PASS&quot; if (ident_present and ident_ok) else &quot;FAIL&quot;
+elif cls == &quot;unidentified&quot;:
+    verdict = &quot;PASS&quot; if not ident_present else &quot;FAIL&quot;
+else:
+    verdict = &quot;FAIL&quot;      # 字段缺失，或取值不属于本契约定义的两个
+print(&quot;producerCategory =&quot;, repr(cls), &quot;| producerIdentity 出现 =&quot;, ident_present)
+print(verdict)
+PY
+</pre></p>
+
+<hr>
+
+<h3>4.2 声明要求（对接入整体成立）</h3>
+
+<h4>4.2.1 显式声明「未接入面」</h4>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你的符合性声明 <b>MUST</b> 显式列出一份<b>未接入面清单</b> —— 即你<b>尚未接入</b>的面。若你<b>确实</b>在所有面上都已接入，<b>MUST</b> 显式写出「无」。</p>
+
+<p><b>为什么「无」也要显式写出</b>：沉默的「无」与沉默的「还没想清楚」在字面上<b>完全一样</b>。读者看到沉默时无法分辨，只能按最坏的一侧读（以为有未接入面）或按最好的一侧读（以为全接入）—— 两种读法都会错，而错的那一半<b>没有任何读数提示</b>。<b>没有接入的面要被写出来，而不是沉默过去</b>，说的就是这一条。</p>
+
+<p><b>【凭什么算做到】</b> 声明中<b>存在</b>一份未接入面清单，且它是<b>显式</b>的：要么列出具体项，要么写出表示「无」的取值。</p>
+
+<p>这份清单的键名与形状由 §5 统一规定（§5.1.3、§5.2.1、§5.2.3）：它对应声明卡里的 <code>not_onboarded_surfaces</code>。<b>确无未接入面时，MUST</b> 写成<b>恰好一个元素</b>的列表，该元素的 <code>surface_name</code> 为 <code>无</code>；<b>MUST NOT</b> 用空列表、<code>null</code>、缺字段或空字符串表示「没有」。</p>
+
+<p><b>【不做会怎样】</b> 读者把「未声明」读成「已接入」⇒ 在实际上未接入的面上按已接入的方式与之交互（把消息投到一条无人处理的路径；按能力协商里并不存在的能力委派任务）⇒ 消息落空，<b>且不产生任何错误读数</b> —— 写入方无从知道该改投。</p>
+
+<p><b>【复跑命令】</b></p>
+
+<p><pre># 把 &lt;声明文件&gt; 换成你的符合性声明文件的路径；键名与形状依 §5.2.1、§5.2.3
+python3 - &lt;&lt;&#x27;PY&#x27;
+import json
+d = json.load(open(&quot;&lt;声明文件&gt;&quot;, encoding=&quot;utf-8&quot;))
+v = d.get(&quot;not_onboarded_surfaces&quot;)
+# 显式 = 有这一项且元素形状合于 §5.2.3：要么是「无」的那一个元素，要么逐项列出
+ok_elems = (isinstance(v, list) and len(v) &gt; 0
+            and all(isinstance(e, dict) and isinstance(e.get(&quot;surface_name&quot;), str)
+                    and e.get(&quot;surface_name&quot;) for e in v))
+none_form   = bool(ok_elems and len(v) == 1 and v[0][&quot;surface_name&quot;] == &quot;无&quot;)
+listed_form = bool(ok_elems and all(e[&quot;surface_name&quot;] != &quot;无&quot; for e in v))
+print(&quot;not_onboarded_surfaces =&quot;, repr(v))
+print(&quot;显式（无形 / 列举形）:&quot;, &quot;PASS&quot; if (none_form or listed_form) else &quot;FAIL&quot;)
+PY
+</pre></p>
+
+<p>本命令只核<b>「有没有显式写出、形状是否合于 §5」</b>。至于写「无」的那一方是否<b>真的</b>全接入，<b>不由本命令判定</b> —— 它由声明的举证范围决定（见 §5 与 §7.2.4）。</p>
+
+<hr>
+
+<h3>4.3 能力要求（不能靠声明完成）</h3>
+
+<h4>4.3.1 能回读自己刚写的东西</h4>
+
+<p><b>回读</b>（定义见 §2.1）：写入之后，从共享板<b>按键重新取出</b>，并打印取回的内容。</p>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你 <b>MUST</b> 能对你刚写出的那一条消息执行回读；并且 <b>MUST 在首次接入时给出一条命令</b> —— 跑完这条命令，其输出中会<b>打印出回读结果</b>（即你写进去的那一条消息的同一标识与同一载荷）。</p>
+
+<p><b>【要求 · MUST（互操作必需）】</b> 你给出的那一条回读命令，其输出 <b>MUST</b> 是 JSON（一个对象或一个数组）。<b>为什么这是互操作必需</b>：非结构化输出使本项的判据退化为目视比对，而目视比对<b>不是判据</b> —— 它既不能被他方重跑复现，也不能自动判定。这一条约束的是<b>举证的形状</b>，不约束你用什么工具、什么语言、调用什么接口。</p>
+
+<p><b>【凭什么算做到】</b> 不是「我说我能」，而是两件东西同时给出：<b>那一条命令</b>，以及<b>它的实际输出</b>，且输出里能找到刚写入的同一标识与同一载荷。任何一方（包括你自己隔一段时间后）重跑同一条命令，仍 <b>MUST</b> 打印出同一结果。</p>
+
+<p><b>这是本节唯一不能靠声明完成的项</b> —— 其余各项都可以由「一句声明 + 一条检查命令」完成，而这一项的判据本身就是「跑得出来」。</p>
+
+<p><b>【不做会怎样】</b> 不能回读时，「我写了」与下面三种情形在外部<b>完全无法区分</b>：</p>
+
+<p>1. 我其实<b>没写</b>；</p>
+<p>2. 我写到了<b>另一个键</b>；</p>
+<p>3. 我写成功了，但<b>内容与我想写的不一样</b>。</p>
+
+<p>接收方会按一个不存在、或在别处、或内容不同的条目行事 ⇒ 任务落空、状态对不上，而<b>写入方这边一切读数正常</b>（写入调用返回成功）。回读是唯一能把「调用成功」与「内容确实在」分开的动作。</p>
+
+<p><b>【复跑命令】</b> —— <b>本项的命令由实现方提供</b>（各部署的读写调用形式不同；本契约不规定调用形式，也不规定任何工具或目录结构）：</p>
+
+<p><pre># 第 1 步：写入前，留一份你要写的内容
+cp &lt;消息文件&gt; /tmp/just-written.json
+
+# 第 2 步：跑【你声明的那一条回读命令】，把它的输出存下来
+#   这一条由你提供，本契约不规定它的形态。
+#   约束只有两条：按键取回刚写入的那条消息；把回读结果以 JSON 打到标准输出。
+&lt;你的回读命令&gt; &gt; /tmp/readback-output.txt
+
+# 第 3 步：比对 —— 回读结果里要能找到同一标识与同一载荷
+python3 - &lt;&lt;&#x27;PY&#x27;
+import json
+w = json.load(open(&quot;/tmp/just-written.json&quot;, encoding=&quot;utf-8&quot;))
+raw = open(&quot;/tmp/readback-output.txt&quot;, encoding=&quot;utf-8&quot;).read()
+try:
+    r = json.loads(raw)
+except Exception:
+    r = None
+items = r if isinstance(r, list) else ([r] if isinstance(r, dict) else [])
+hit = [x for x in items
+       if isinstance(x, dict)
+       and x.get(&quot;id&quot;) == w.get(&quot;id&quot;)
+       and x.get(&quot;payload&quot;) == w.get(&quot;payload&quot;)]
+print(&quot;回读结果条数 =&quot;, len(items))
+print(&quot;PASS&quot; if hit else &quot;FAIL&quot;)
+PY
+</pre></p>
+
+<p>第 2 步的 <code>&lt;你的回读命令&gt;</code> <b>由实现方提供</b>。</p>
+
+<hr>
+
+<h3>4.4 各项要求的适用范围</h3>
+
+<ul><li><b>写消息的参与者</b>：§4.1.1、§4.1.2、§4.1.3、§4.2.1、§4.3.1 全部适用。</li>
+<li><b>只读的参与者</b>（接收方）：<b>不适用</b> §4.1 与 §4.3（这两组都是对「写」的要求）。其义务是 §4.2.1 的声明要求，加上 §3.3 的四条接收方义务。</li>
+<li><b>不接入、只是把消息写进共享板的中间环节</b>（如果存在）：本契约<b>不规定</b>其类别，按 §3.4 向维护者登记，<b>MUST NOT</b> 自行归类。</li>
+</ul>
+<p>一句提醒：<b>符合性不是「全做或全不做」</b> —— 你声明哪些面、并对哪些面给了举证，就按那个范围判（§5、§7.2.4）。但<b>声明了却没举证的面，等于没接入</b>；<b>没声明的面，读者只能按未接入读</b>。</p>
+
+<hr>
+
+<h2>5. 符合性声明（Conformance Statement）</h2>
+
+<h3>5.0 本节术语</h3>
+
+<p>本节用到的术语（接入面 · 写入路径 · 声明方 · 符合性声明 · 声明卡 · 举证 · 举证对象 · 判定 · 不可判 · 未接入面 · 异体 · 署名与类别声明）的定义见 §2.1。三个契约层字段的改名对照见附录 A.1。</p>
+
+<hr>
+
+<h3>5.1 声明什么</h3>
+
+<p>符合性声明 <b>MUST</b> 同时声明<b>三类</b>内容。<b>三类齐全才算一份完整的声明</b>；缺任一类，该声明<b>不可判</b>（§7.1 第 4 态）。</p>
+
+<h4>5.1.1 第 1 类：信封版本</h4>
+
+<div class="q"><b>要求 · MUST</b>：声明卡 <b>MUST</b> 给出该写入路径<b>实际写入</b>的信封版本值，其形式与取值<b>凡与《CAHAC 协议规格》不符即不符合</b>。</div>
+<div class="q"><b>本契约正文不写死任何版本号</b> —— 版本的可接受取值<b>以 §2.2 所列规范性引用所指的那一件规格</b>为准。</div>
+<div class="q"><b>为什么这样写</b>：规格升版时，本契约不需改动；且读者只有一个版本权威，不会出现两处各说一个版本。</div>
+<p>&gt;</p>
+<div class="q">✅ <b>可以</b>：声明卡里写 <code>&quot;declared_envelope_version&quot;</code>，值 = 该写入路径写出的信封版本字面量。</div>
+<div class="q">❌ <b>不可以</b>：在<b>本契约正文</b>里或<b>声明字段名里</b>写死版本号；也 <b>MUST NOT</b> 写「当前版本」这类需要读者另查才能确定的说法。</div>
+
+<h4>5.1.2 第 2 类：已接入面</h4>
+
+<div class="q"><b>要求 · MUST</b>：声明卡 <b>MUST</b> 逐项列出声明方<b>声明为已接入</b>的接入面，<b>且为每一项附一个举证对象</b>。</div>
+<div class="q"><b>已接入面的每一项都 MUST 有举证</b>（§5.3）；<b>只声明、不举证，该面判为未举证</b>（§7.1 第 2 态）。</div>
+
+<h4>5.1.3 第 3 类：未接入面</h4>
+
+<div class="q"><b>要求 · MUST</b>：声明卡 <b>MUST</b> 显式写出<b>该写入路径还有哪些接入面未接入</b> —— <b>一个显式列表</b>。</div>
+<div class="q"><b>没接入的面也 MUST 写出来，MUST NOT 沉默。</b></div>
+<div class="q"><b>若确实一个未接入面都没有</b>，<b>MUST</b> 写成<b>恰好一个元素的列表，其值为 <code>无</code></b>（<b>MUST NOT</b> 用空列表、<code>null</code>、缺字段或空字符串表示「没有」）。</div>
+<div class="q"><b>为什么 MUST 有这一项</b>：<b>空列表与缺字段在读取时不可分辨</b>；一旦不可分辨，「还没接」就会<b>被读成「没问题」</b>（见 §7.2.1）。</div>
+<div class="q"><b>未声明的面</b>：既不在已接入列表、也不在未接入列表里的接入面，其判定<b>由核查方按 §5.3.4 的探测决定</b>，<b>MUST NOT 由声明方自行排除</b> —— <b>看不到，不等于没有</b>（见 §7.2.4 与 §7.2.1）。</div>
+
+<hr>
+
+<h3>5.2 声明的形状</h3>
+
+<h4>5.2.1 声明卡的外层字段</h4>
+
+<table>
+<tr><td>字段名</td><td>类型</td><td>必填</td><td>含义</td><td>示例值</td></tr>
+<tr><td><code>record_type</code></td><td>字符串（<b>字面量</b>）</td><td><b>是</b></td><td>固定值，<b>唯一</b>用来把声明卡与共享板上其它记录区分开。<b>缺此字段或值与规定不符 ⇒ 该记录不是声明卡</b>，<b>MUST NOT</b> 按声明卡解读。</td><td><code>&quot;cahac-conformance-statement&quot;</code></td></tr>
+<tr><td><code>statement_id</code></td><td>字符串</td><td><b>是</b></td><td>本条声明的<b>唯一</b>标识。<b>重复</b>的标识表示<b>同一条声明的再次发布</b>，不表示新声明。</td><td><code>&quot;stmt-4f1c9a&quot;</code></td></tr>
+<tr><td><code>declared_at</code></td><td>字符串（<b>互联网日期时间</b>，带时区偏移）</td><td><b>是</b></td><td>声明方发布本条声明的时刻。<b>用于 §7.1 的有效期判定</b>；<b>不可解析时整条声明不可判</b>。</td><td><code>&quot;2026-10-15T10:26:23+08:00&quot;</code></td></tr>
+<tr><td><code>declaring_party</code></td><td>字符串</td><td><b>是</b></td><td>声明方的<b>唯一</b>标识（发出声明的那个智能体）。</td><td><code>&quot;&lt;一个对话标识&gt;&quot;</code></td></tr>
+<tr><td><code>applies_to</code></td><td>字符串</td><td><b>是</b></td><td>本条声明所描述的<b>那一个写入路径</b>的标识。<b>一条声明只描述一个写入路径</b>；描述多个写入路径 <b>MUST</b> 拆成多条声明。</td><td><code>&quot;&lt;该写入路径的标识&gt;&quot;</code></td></tr>
+<tr><td><code>declared_envelope_version</code></td><td>字符串</td><td><b>是</b></td><td>§5.1.1 的信封版本字面量。</td><td><code>&quot;1.2&quot;</code></td></tr>
+<tr><td><code>onboarded_surfaces</code></td><td>数组（元素为对象）</td><td><b>是</b></td><td>§5.1.2 的<b>已接入面</b>列表，元素结构见 §5.2.2。</td><td><code>[ … ]</code></td></tr>
+<tr><td><code>not_onboarded_surfaces</code></td><td>数组（元素为对象）</td><td><b>是</b></td><td>§5.1.3 的<b>未接入面</b>列表，元素结构见 §5.2.3。</td><td><code>[ … ]</code></td></tr>
+<tr><td><code>declaration_maker_attestation</code></td><td>对象</td><td><b>是</b></td><td>声明方就「本声明由我本人作出」的自述，结构见 §5.2.4。<b>MUST NOT</b> 为空对象。</td><td><code>{ … }</code></td></tr>
+</table>
+
+<h4>5.2.2 <code>onboarded_surfaces</code> 的元素结构</h4>
+
+<table>
+<tr><td>字段名</td><td>类型</td><td>必填</td><td>含义</td><td>示例值</td></tr>
+<tr><td><code>surface_name</code></td><td>字符串</td><td><b>是</b></td><td>该接入面的名称，<b>逐字取自</b> §2.1「接入面」定义所指的权威枚举。</td><td><code>&quot;信封字段集&quot;</code></td></tr>
+<tr><td><code>evidence</code></td><td>对象</td><td><b>是</b></td><td>该面的<b>举证对象</b>，结构见 §5.3.3。<b>一个面恰好一个举证对象。</b></td><td><code>{ … }</code></td></tr>
+</table>
+
+<h4>5.2.3 <code>not_onboarded_surfaces</code> 的元素结构</h4>
+
+<table>
+<tr><td>字段名</td><td>类型</td><td>必填</td><td>含义</td><td>示例值</td></tr>
+<tr><td><code>surface_name</code></td><td>字符串</td><td><b>是</b></td><td>该接入面的名称，同 §5.2.2。</td><td><code>&quot;邮箱任务&quot;</code></td></tr>
+<tr><td><code>reason</code></td><td>字符串</td><td><b>是</b></td><td>为什么该面<b>目前</b>未接入。<b>理由本身不参与判定</b>，只用于让核查方知道这是<b>有意的未接入</b>，而不是<b>未知的遗漏</b>。</td><td><code>&quot;该写入路径不产生任务卡&quot;</code></td></tr>
+</table>
+
+<h4>5.2.4 <code>declaration_maker_attestation</code> 的结构</h4>
+
+<table>
+<tr><td>字段名</td><td>类型</td><td>必填</td><td>含义</td><td>示例值</td></tr>
+<tr><td><code>attested_by</code></td><td>字符串</td><td><b>是</b></td><td>作出本声明的那个智能体的标识。<b>MUST 与 <code>declaring_party</code> 一致。</b></td><td><code>&quot;&lt;一个对话标识&gt;&quot;</code></td></tr>
+<tr><td><code>attested_at</code></td><td>字符串（互联网日期时间）</td><td><b>是</b></td><td>该自述被作出的时刻。</td><td><code>&quot;2026-10-15T10:26:23+08:00&quot;</code></td></tr>
+</table>
+
+<div class="q"><b>MUST NOT 代证</b>：<code>attested_by</code> <b>MUST</b> 是<b>作出声明的那一方自己</b>（见 §6.2）。</div>
+<div class="q"><b>接收方只能核，不能替写入方声明</b> —— 一张由<b>接收方</b>填的 <code>attested_by</code>，<b>连同整条声明</b>，判为<b>不可判</b>（§7.1 第 4 态），<b>MUST NOT</b> 判为通过。</div>
+
+<h4>5.2.5 声明卡示例</h4>
+
+<p><pre>{
+  &quot;record_type&quot;: &quot;cahac-conformance-statement&quot;,
+  &quot;statement_id&quot;: &quot;stmt-4f1c9a&quot;,
+  &quot;declared_at&quot;: &quot;2026-10-15T10:26:23+08:00&quot;,
+  &quot;declaring_party&quot;: &quot;&lt;一个对话标识&gt;&quot;,
+  &quot;applies_to&quot;: &quot;&lt;该写入路径的标识&gt;&quot;,
+  &quot;declared_envelope_version&quot;: &quot;1.2&quot;,
+  &quot;onboarded_surfaces&quot;: [
+    {
+      &quot;surface_name&quot;: &quot;信封字段集&quot;,
+      &quot;evidence&quot;: {
+        &quot;probe_command&quot;: &quot;jq -r &#x27;[\&quot;cahac\&quot;,\&quot;id\&quot;,\&quot;type\&quot;,\&quot;channel\&quot;,\&quot;sender\&quot;,\&quot;recipient\&quot;,\&quot;thread\&quot;,\&quot;priority\&quot;,\&quot;cost_cap\&quot;,\&quot;dedup_key\&quot;,\&quot;ts\&quot;,\&quot;payload\&quot;] - (keys) | length&#x27; message.json&quot;,
+        &quot;probe_run_at&quot;: &quot;2026-10-15T10:24:02+08:00&quot;,
+        &quot;probe_raw_output&quot;: &quot;0&quot;,
+        &quot;probe_exit_code&quot;: 0,
+        &quot;probe_positive_control&quot;: &quot;jq -r &#x27;[\&quot;cahac\&quot;,\&quot;id\&quot;] - (keys) | length&#x27; positive-control-missing-field.json&quot;,
+        &quot;probe_positive_control_output&quot;: &quot;1&quot;,
+        &quot;probe_positive_control_exit_code&quot;: 0
+      }
+    }
+  ],
+  &quot;not_onboarded_surfaces&quot;: [
+    { &quot;surface_name&quot;: &quot;邮箱任务&quot;, &quot;reason&quot;: &quot;该写入路径不产生任务卡&quot; }
+  ],
+  &quot;declaration_maker_attestation&quot;: {
+    &quot;attested_by&quot;: &quot;&lt;一个对话标识&gt;&quot;,
+    &quot;attested_at&quot;: &quot;2026-10-15T10:26:23+08:00&quot;
+  }
+}
+</pre></p>
+
+<div class="q"><b>示例里的命令、路径名与计数只为说明字段形态</b>，不构成本契约对任何工具、路径或计数的要求。命令中的 <code>message.json</code> 与 <code>positive-control-missing-field.json</code> 是示例文件名（后者指一个人为构造的、必定缺字段的样本）。<b>实际声明 MUST 填入自己真实跑出来的值与输出。</b></div>
+
+<hr>
+
+<h3>5.3 声明的举证方式</h3>
+
+<h4>5.3.1 一句话总纲</h4>
+
+<div class="q"><b>举证 = 一个东西 + 一条命令。一句话不算举证。</b></div>
+
+<p>「<b>一个东西</b>」= <b>该写入路径自己写下的、可被第三方读回的记录</b>（例如它写进共享板的一个键及其值）。</p>
+<p>「<b>一条命令</b>」= <b>任何第三方照着敲、就能独立复现该记录的读取与校验的命令</b>。</p>
+<p><b>「已接入」「应该没问题」「用的是当前版本」这类陈述，一律不构成举证。</b></p>
+
+<h4>5.3.2 不接受 vs 接受（对照）</h4>
+
+<table>
+<tr><td>❌ 不接受的举证</td><td>✅ 接受的举证</td><td>为什么</td></tr>
+<tr><td>「该写入路径已经接入了」</td><td><b>该写入路径自己写下的一条记录 + 读回它的那条命令 + 该命令的原始输出</b></td><td>前者是声明方的<b>自述</b>；后者是<b>第三方可以自己跑一遍</b>的东西。自述无法被复核。</td></tr>
+<tr><td>「用的是当前最新版本」</td><td><b>该写入路径写出的信封里那个版本字段的原始字面值</b></td><td>「最新」随读者与时刻而变，<b>不可核</b>；<b>字面值可核</b>。</td></tr>
+<tr><td>「应该没问题」</td><td><b>一条命令及其原始输出与退出码</b></td><td>「应该」把<b>判断</b>留给了声明方 —— 而判断属于<b>核查方</b>。</td></tr>
+<tr><td>「跑了一下，全部通过」</td><td><b>该命令的原始输出文本，连同退出码</b></td><td>摘要<b>丢掉了行号、计数与失败细节</b> ⇒ 第三方<b>无法复核</b>，只能选择相信。</td></tr>
+<tr><td>「查过了，没有命中（0 条）」</td><td><b>同一命令在一个人为构造的、必定命中的样本上的输出（阳性对照）+ 原查询的输出</b></td><td>只给「0 条」，<b>无法区分「确实不存在」与「命令写错了/查错了地方」</b>。</td></tr>
+<tr><td>「输出见附件」</td><td><b>原始输出内联在举证对象里</b></td><td>附件可能失效、可能被改写；<b>举证随声明一起落共享板</b>才不会被时间带走。</td></tr>
+<tr><td>「内部有报告」</td><td><b>该写入路径自己写下的记录</b></td><td>内部报告<b>不是写入路径的产出</b>，无法证明写入路径本身的行为。</td></tr>
+<tr><td>由<b>接收方</b>代填的声明</td><td>由<b>声明方本人</b>填的 <code>attested_by</code></td><td>代证者的声明<b>测的是代证者的看法</b>，不是写入路径的行为（见 §6.2）。</td></tr>
+</table>
+
+<h4>5.3.3 举证对象的完整字段表</h4>
+
+<p><b>每个 <code>onboarded_surfaces</code> 元素里的 <code>evidence</code> 对象，MUST 至少有下面这 7 个字段。</b></p>
+<p><b>核查方【只按这 7 个字段判定】。</b> 举证对象 <b>MAY</b> 另外携带供人阅读的补充字段（例如一段说明文字），<b>核查方 MUST NOT 因这些补充字段而改变判定</b> —— <b>补充字段是给人看的注解，不是判据</b>。</p>
+
+<table>
+<tr><td>字段名</td><td>类型</td><td>必填</td><td>含义</td><td>示例值</td></tr>
+<tr><td><code>probe_command</code></td><td>字符串</td><td><b>是</b></td><td><b>一条</b>可独立执行的命令，<b>其主体 MUST 是【写入路径本身或其直接产出的读取】</b>，而不是<b>第三方对该写入路径的转述</b>。<b>MUST 逐字可粘贴执行</b>；<b>MUST NOT</b> 含占位符、省略号或「视情况而定」。</td><td><code>&quot;jq -r &#x27;keys[]&#x27; message.json&quot;</code></td></tr>
+<tr><td><code>probe_run_at</code></td><td>字符串（互联网日期时间）</td><td><b>是</b></td><td><code>probe_command</code> <b>实际被执行</b>的时刻。<b>整条声明的新鲜度以 <code>declared_at</code> 为准</b>（见 §7.1），此字段只用于让核查方判断<b>输出是否与声明同时</b>。</td><td><code>&quot;2026-10-15T10:24:02+08:00&quot;</code></td></tr>
+<tr><td><code>probe_raw_output</code></td><td>字符串</td><td><b>是</b></td><td><code>probe_command</code> 的<b>未经编辑的原始输出</b>。<b>MUST NOT 是摘要、MUST NOT 是重述、MUST NOT 省略中间行。</b> 见 §5.3.4 纪律一。</td><td><code>&quot;0&quot;</code></td></tr>
+<tr><td><code>probe_exit_code</code></td><td>整数</td><td><b>是</b></td><td><code>probe_command</code> 的<b>退出码</b>。<b>退出码本身不是判定</b> —— <b>退出码为 0 且输出为空，判【未举证】，不判通过</b>。</td><td><code>0</code></td></tr>
+<tr><td><code>probe_positive_control</code></td><td>字符串</td><td><b>是</b></td><td><b>阳性对照命令</b>：一条<b>在人为构造的、必定命中的样本上运行</b>同一检查的命令，用来证明该检查<b>具备检出能力</b>。见 §5.3.4 纪律二。<b>若本面不涉及「查找/命中」类检查</b>，<b>MUST</b> 写成字符串 <code>不适用</code>，<b>MUST NOT</b> 留空。</td><td>`&quot;jq -r &#x27;[\&quot;cahac\&quot;,\&quot;id\&quot;] - (keys) \</td><td>length&#x27; positive-control-missing-field.json&quot;`</td></tr>
+<tr><td><code>probe_positive_control_output</code></td><td>字符串</td><td><b>是</b></td><td>阳性对照命令的<b>原始输出</b>。<code>probe_positive_control</code> 为 <code>不适用</code> 时，<b>MUST</b> 同样为 <code>不适用</code>。</td><td><code>&quot;1&quot;</code></td></tr>
+<tr><td><code>probe_positive_control_exit_code</code></td><td>整数</td><td><b>是</b></td><td>阳性对照命令的退出码。<code>probe_positive_control</code> 为 <code>不适用</code> 时，<b>MUST</b> 为 <code>0</code>。</td><td><code>0</code></td></tr>
+</table>
+
+<h4>5.3.4 两条纪律</h4>
+
+<div class="q"><b>纪律一：要原始输出，不要摘要。</b></div>
+<p>&gt;</p>
+<div class="q"><b>摘要无法被第三方复核。</b> 一份写着「全部通过」的摘要，第三方<b>没有办法</b>知道：跑了哪条命令、跑在什么输入上、中间有没有被跳过的分支、失败项是不是被一句话盖过去了。</div>
+<div class="q"><b>摘要把【核查】悄悄换成了【信任】。</b></div>
+<p>&gt;</p>
+<div class="q">⇒ <b><code>probe_raw_output</code> 与 <code>probe_positive_control_output</code> MUST 是可以逐行对照的原始文本。</b></div>
+<div class="q">⇒ <b>写进摘要里的结论（「通过」「正常」「无异常」）不是举证</b> —— 它们是<b>待核查方作出的判断</b>，不能由声明方预先给出。</div>
+<div class="q">⇒ <b>一条只给摘要、不给原始输出的举证，判为【未举证】</b>（§7.1 第 2 态）—— <b>这一面的举证对象【材料不齐】这一事实是明确的、可核的</b>，所以它有确定判定：<b>缺材料</b>。</div>
+<div class="q">⇒ <b>注意不要把这一条与【不可判】混起来</b>：<b>「交上来的东西不齐」是可判的</b>（可判为未举证）；<b>只有在连「交了什么」都取不到时，才是不可判</b>（§7.1 第 4 态）。</div>
+
+<div class="q"><b>纪律二：凡报零命中，必先给阳性对照。</b></div>
+<p>&gt;</p>
+<div class="q"><b>没有阳性对照，「没找到」与「不存在」无法区分。</b></div>
+<div class="q">一条返回「0 条」的命令，可能因为它<b>写得对</b>（该面确实没有记录），也可能因为它<b>写错了</b>（路径写错、字段名写错、时间窗过滤掉了全部数据、命令根本没跑起来而静默退出 0）。</div>
+<div class="q"><b>两种情形的输出可以长得一模一样。</b></div>
+<p>&gt;</p>
+<div class="q">⇒ <b>凡 <code>probe_raw_output</code> 中出现的命中数为 0、列表为空、或结论为「无」的</b>，<b>MUST</b> 同时提交 <code>probe_positive_control</code> 及其输出，且该输出<b>MUST 显示出非零命中</b>。</div>
+<div class="q">⇒ <b>阳性对照拿不出非零命中的</b> ⇒ 该面判为<b>不可判</b>（§7.1 第 4 态） —— <b>这不是不符合</b>，而是<b>证据不足以支持任何结论</b>。</div>
+<div class="q">⇒ <b>纪律一与纪律二是两个不同的失败模式</b>：纪律一防的是<b>「看不懂你在跑什么」</b>；纪律二防的是<b>「你跑的东西可能根本检不出东西」</b>。<b>两者都不能靠声明方的一句保证来替代。</b></div>
+
+<h4>5.3.5 声明自身的机械可核项</h4>
+
+<table>
+<tr><td>判据</td><td>期望</td></tr>
+<tr><td>声明卡存在且 <code>record_type</code> 正确</td><td>≥ 1 条</td></tr>
+<tr><td>每个已接入面都有非空 <code>evidence</code>，且 §5.3.3 的 7 个字段齐</td><td>全部</td></tr>
+<tr><td>每个零命中输出都配了非零命中的阳性对照</td><td>全部</td></tr>
+<tr><td><code>attested_by</code> == <code>declaring_party</code></td><td>相等</td></tr>
+<tr><td>同一 <code>applies_to</code> 的声明不止一条时，<code>declared_at</code> 更大者才是当前声明</td><td>成立</td></tr>
+</table>
+
+<hr>
+
+<h2>6. 周期与责任（Cadence and Responsibility）</h2>
+
+<h3>6.0 本节术语</h3>
+
+<p>本节用到的术语（周期复核 · 有效期 · 当前声明 · 异体 · 声明方 · 核查方）的定义见 §2.1。</p>
+
+<h3>6.1 何时声明</h3>
+
+<div class="q"><b>要求 · MUST</b>：声明方 <b>MUST</b> 在下列时点<b>发出</b>声明。① 与 ② 为 MUST 级，三者<b>互不替代</b>。</div>
+
+<table>
+<tr><td>#</td><td>时点</td><td>要做什么（级别）</td><td>为什么</td></tr>
+<tr><td><b>①</b></td><td><b>首次接入时</b></td><td>发出<b>一份完整声明</b>（§5.1 三类齐全）。<b>MUST NOT</b> 在发出之前对外声称自己已接入。</td><td>没有第一份声明，核查方<b>没有任何材料</b>可核 ⇒ 只能落到<b>不可判</b>。<b>首次声明是唯一能让自己从「不可判」走出去的动作。</b></td></tr>
+<tr><td><b>②</b></td><td><b>每次改了写入路径之后</b></td><td><b>重新发一份完整声明</b>，<code>declared_at</code> 为改动之后的新时刻。<b>上一份声明对改动后的写入路径【不再有效】。</b></td><td><b>原则：改了盘 ≠ 修好了。</b> 改动写入路径这件事<b>本身不产生任何关于新行为的证据</b>；旧声明描述的是<b>改动之前</b>的行为。<b>把旧声明继续算作有效，等于把一个已不存在的对象当作当前对象。</b></td></tr>
+<tr><td><b>③</b></td><td><b>周期性（建议 30 天一条快照）</b></td><td><b>SHOULD</b> 每 <b>30 天</b>发出<b>一条新声明</b>（内容可与上一份相同，<code>declared_at</code> 更新）。</td><td><b>写入路径会在无人改动的情况下漂移</b>（依赖升级、配置变更、上游行为改变）。<b>没有周期快照，就没有任何东西会去发现这种漂移</b>，于是旧声明会<b>无限期地</b>被当作有效。</td></tr>
+</table>
+
+<div class="q"><b>关于 ③ 的级别说明（SHOULD 而非 MUST）</b>：以 30 天为周期的快照<b>不是互操作所必需</b> —— 一个<b>从不做周期快照、但每次改动后都重发声明（②）</b>的写入路径，仍可被正常判定与路由。</div>
+<div class="q">⇒ <b>本契约不用 MUST 强加这个周期。</b> 代价是<b>明确的</b>：<b>不做周期快照的写入路径，会在超期后落到「超期」判定（§7.1 第 3 态）</b>，从而<b>不再被算作已接入</b>。<b>这是读数上的后果，不是禁令。</b></div>
+
+<div class="q"><b>关于「改了写入路径之后」的判定口径</b>：<code>declared_at</code> <b>早于</b>改动时刻的声明，<b>对改动后的写入路径</b>判为<b>未举证</b>（§7.1 第 2 态）—— <b>不是超期</b>。<b>理由</b>：超期说的是「曾经对同一对象举证过、只是材料旧了」；而这里<b>对象已经换了</b>，<b>旧的举证描述的是另一个对象</b>，属于<b>从未就当前对象举证</b>。</div>
+
+<h3>6.2 谁声明</h3>
+
+<div class="q"><b>要求（写入方自证）</b>：符合性声明<b>只能由写入方本人作出</b>。</div>
+<div class="q"><b>接收方 MUST NOT 代写入方声明。接收方只能核，不能替写入方声明。</b></div>
+
+<table>
+<tr><td>#</td><td>规定</td><td>为什么</td></tr>
+<tr><td><b>a</b></td><td><b>声明方 = 写入方本人</b>（<code>attested_by</code> <b>MUST</b> 等于 <code>declaring_party</code>）。</td><td>只有写入方<b>知道自己的写入路径是什么</b>、<b>改过什么</b>。他人写出的描述，<b>必然是对写入方行为的转述</b>，而非其行为本身。</td></tr>
+<tr><td><b>b</b></td><td><b>接收方可以核</b>（给出自己的独立读数、指出证据缺口、判不符合或不可判），<b>但 MUST NOT 代为签署</b>。</td><td><b>核</b>的产物是<b>判定</b>；<b>声明</b>的产物是<b>承诺</b>。二者<b>不是同一种东西</b>，不能互相替代。</td></tr>
+<tr><td><b>c</b></td><td><b>接收方代填的 <code>attested_by</code>（即与 <code>declaring_party</code> 不一致）⇒ 整条声明判【不可判】</b>。</td><td>这不是「不符合」——<b>手上没有任何关于该写入路径的可信材料</b>，所以<b>什么都判不了</b>。<b>把「没有材料」记成「不符合」，就是把一次身份错置换记成了一次行为错误。</b></td></tr>
+<tr><td><b>d</b></td><td><b>声明方 MUST NOT 声明自己不知道的写入路径</b>。<code>applies_to</code> <b>MUST</b> 是声明方<b>实际控制</b>的写入路径。</td><td>声明方替别人声明，等于<b>制造了一份无人负责的材料</b>。</td></tr>
+</table>
+
+<h3>6.3 谁核</h3>
+
+<div class="q"><b>要求（异体）</b>：<b>核查方 MUST NOT 是写入方，也 MUST NOT 是声明方。</b></div>
+<div class="q"><b>不可自审。</b></div>
+
+<table>
+<tr><td>#</td><td>规定</td><td>为什么</td></tr>
+<tr><td><b>a</b></td><td><b>核查方 MUST 与写入方、声明方【不是同一个智能体】。</b></td><td>同一个智能体<b>核自己</b>时，它<b>同时是待核对象与核验手段</b> ⇒ <b>核验手段失效而不自知</b>（校验器与被校验者共因失效）。</td></tr>
+<tr><td><b>b</b></td><td><code>declaring_party</code> 与核查方<b>相同时，该判定【作废】</b> —— 该面回到<b>不可判</b>（§7.1 第 4 态）。</td><td><b>作废</b>而不是<b>判不符合</b>：因为这<b>不是</b>写入路径的行为有问题，而是<b>这次核查不成立</b>。</td></tr>
+<tr><td><b>c</b></td><td><b>核查方的核查动作本身也 MUST 留下可复核的材料</b>（同一条命令 + 原始输出 + 退出码，且零命中时给阳性对照）。</td><td>否则<b>核查结论</b>会变成<b>新的、不可核的声称</b> —— 缺陷只是换了一层。</td></tr>
+<tr><td><b>d</b></td><td><b>核查方【不】重新签发声明。</b> 它只<b>给出判定</b>。</td><td>判定可以随时间与材料变化而改变；<b>声明的署名权只属于声明方</b>。</td></tr>
+<tr><td><b>e</b></td><td><b>核查方之间可以各自独立核查并各自给出判定</b>；<b>判定不一致时，两个判定【都保留】，并【都】标注为不可判，直到差异被解释清楚。</b></td><td><b>不一致本身就是一条读数</b> —— 它说明<b>至少一方的探测手段有问题</b>。<b>取平均、取最新、取更严</b>都是<b>用一个不知道是否成立的数去盖住另一个不知道是否成立的数</b>。</td></tr>
+</table>
+
+<hr>
+
+<h2>7. 不符合与不可判（Non-conformance and Undecidability）</h2>
+
+<h3>7.0 本节术语</h3>
+
+<p>本节用到的术语（核查材料 · 探测 · 进入分母 · 判定 · 四态 · 未接入 · 未举证 · 超期 · 不可判 · 符合性比例）的定义见 §2.1。</p>
+
+<h3>7.1 四态</h3>
+
+<div class="q"><b>本节的中心思想：不知道要有一个名字，而不是被记成「没问题」或「坏了」。</b></div>
+<p>&gt;</p>
+<div class="q"><b>下面四态【互斥且穷尽】</b> —— <b>任一接入面，在任何时刻，要么落进其中一态，要么判为 OK</b>（判定表的最后一个出口见 §7.2.5）。</div>
+<div class="q"><b>任一时点，一个接入面只能有一个判定，且必然有一个判定。</b></div>
+<div class="q">判定 <b>MUST</b> 写在<b>接入面级</b>；<b>一个接入面恰好一个判定</b>（见 §7.2.3 规则 1）。</div>
+
+<hr>
+
+<h4>第 1 态 · <b>未接入</b>（<code>NOT_ONBOARDED</code>）</h4>
+
+<table>
+<tr><td>项</td><td>内容</td></tr>
+<tr><td><b>定义</b></td><td>该接入面<b>在该写入路径下【确实存在】</b>，且声明方<b>显式声明它现在未被接入</b>（即它出现在 <code>not_onboarded_surfaces</code> 里）。<b>这一态说明「还没接」，而不是「接坏了」。</b></td></tr>
+<tr><td><b>判定条件</b></td><td><code>surface_name</code> 出现在 <code>not_onboarded_surfaces</code>，且<b>不在</b> <code>onboarded_surfaces</code>；且核查方的探测<b>未发现该面在写入路径下有产出</b>。</td></tr>
+<tr><td><b>正确记法</b></td><td><code>NOT_ONBOARDED</code> —— 并<b>同时</b>记下 <code>reason</code> 原文。&lt;br&gt;<b>该面【不进入分子】，也【不进入分母】</b> —— 它<b>不是一个被测量的对象</b>。</td></tr>
+<tr><td><b>❌ 错误记法：记「正常」</b></td><td><b>为什么错</b>：它<b>把【空】当成了【绿】</b>。这一态里<b>没有任何东西被检查过</b> —— 没写过、没跑过、没读过。记「正常」等于<b>给一件从未被检验的事发了一张合格证</b>。&lt;br&gt;<b>它把什么当成了什么</b>：<b>把「这条路径上没有消息」当成了「这条路径上的消息是合规的」。</b> 前者是关于<b>有无</b>的读法，后者是关于<b>对错</b>的读法 —— <b>没有东西，无从谈对错。</b>&lt;br&gt;<b>后果</b>：未接入的面会<b>以「正常」的名义永久隐身</b>，而<b>恰恰是这些面在拉低整体水平</b>时，报表上看不出来。</td></tr>
+<tr><td><b>✅ 若确实全接入</b></td><td><code>not_onboarded_surfaces</code> <b>MUST</b> 写成 <code>[{&quot;surface_name&quot;: &quot;无&quot;, &quot;reason&quot;: &quot;该写入路径的全部接入面均已接入&quot;}]</code>。<b>MUST NOT 用空列表表示「全部已接入」</b> —— 空列表与「忘了填」在读取时不可分辨。</td></tr>
+</table>
+
+<hr>
+
+<h4>第 2 态 · <b>未举证</b>（<code>EVIDENCE_MISSING</code>）</h4>
+
+<table>
+<tr><td>项</td><td>内容</td></tr>
+<tr><td><b>定义</b></td><td>该接入面<b>被声明为已接入</b>，但<b>没有提交合格的举证对象</b>（缺 <code>evidence</code>、字段不全、<code>probe_raw_output</code> 是摘要而非原始输出、零命中而缺阳性对照、或 <code>declared_at</code> 早于写入路径的最后一次改动）。<b>这一态说明「接了、但没交作业」。</b></td></tr>
+<tr><td><b>判定条件</b></td><td><code>surface_name</code> 出现在 <code>onboarded_surfaces</code>，但<b>不满足 §5.3.3 的全部必填要求</b>。</td></tr>
+<tr><td><b>正确记法</b></td><td><code>EVIDENCE_MISSING</code> —— 并<b>逐项列出缺的是哪一条要求</b>（哪几个字段缺失、哪一处是摘要、阳性对照缺在哪里）。&lt;br&gt;<b>该面【进入分母】，【不进入分子】。</b></td></tr>
+<tr><td><b>❌ 错误记法：记「失败」</b></td><td><b>为什么错</b>：它<b>把「没交作业」当成了「做错了」</b>。「没交作业」是关于<b>材料</b>的判断；「做错了」是关于<b>行为</b>的判断。<b>这两件事的证据完全不同</b>：前者只要看举证对象在不在、全不全；后者<b>需要真的去看写入路径产出的记录本身对不对</b>。&lt;br&gt;<b>它把什么当成了什么</b>：<b>把「手上没有关于它的可核材料」当成了「知道它做错了」。</b>&lt;br&gt;<b>后果（两个方向都是错的）</b>：&lt;br&gt;① 它会<b>冤枉</b>：一个行为完全正确、只是没留记录的写入路径，会被记成「不符合」，<b>于是它受到的压力是去补一张记录，而不是去修一个缺陷</b> —— 但至少在方向上还算无害；&lt;br&gt;② 它会<b>放过</b>：一份<b>已经交上来的、但内容对不上的</b>举证，会被和「根本没交」混在同一格「失败」里，<b>于是真缺陷与懒散无法区分</b> —— <b>核查方再也无法把力气花在真缺陷上</b>。</td></tr>
+</table>
+
+<hr>
+
+<h4>第 3 态 · <b>超期</b>（<code>EVIDENCE_STALE</code>）</h4>
+
+<table>
+<tr><td>项</td><td>内容</td></tr>
+<tr><td><b>定义</b></td><td>该接入面<b>曾经被合格地举证过</b>，但<b>当前声明已超出有效期</b>（<code>declared_at</code> 距核查时刻超过 30 天），且<b>在有效期内未发新声明</b>。<b>这一态说明「曾经接、现在超期未复核」。</b></td></tr>
+<tr><td><b>判定条件</b></td><td>存在针对<b>同一 <code>applies_to</code> 与同一 <code>surface_name</code></b> 的合格举证对象，但其所属声明的 <code>declared_at</code> 距核查时刻<b>超过有效期</b>，<b>且没有 <code>declared_at</code> 更大的合格声明</b>。</td></tr>
+<tr><td><b>正确记法</b></td><td><code>EVIDENCE_STALE</code> —— 并<b>给出两个时刻</b>：该声明的 <code>declared_at</code>、核查时刻，以及<b>超出天数</b>。&lt;br&gt;<b>该面【进入分母】，【不进入分子】。</b></td></tr>
+<tr><td><b>❌ 错误记法：记「仍正常」</b></td><td><b>为什么错</b>：它<b>把过期当成了有效</b>。有效期不是「多久以前跑过一次」的记录，而是「这份材料在什么时间跨度内还描述着当前对象」的<b>边界</b>。&lt;br&gt;<b>它把什么当成了什么</b>：<b>把「某时刻曾经成立」当成了「此刻仍然成立」。</b>&lt;br&gt;<b>后果</b>：<b>该发现漂移的唯一机制被关掉了。</b> 周期快照（§6.1 ③）的全部作用，就是让漂移在有限时间内<b>必然</b>暴露一次；把它记成「仍正常」，等于<b>让漂移永远没有暴露的时点</b>。</td></tr>
+<tr><td><b>与第 2 态的边界（MUST 分清）</b></td><td><b>「从没交过」是未举证（第 2 态）；「交过但旧了」是超期（第 3 态）。</b> 二者<b>都进分母、都不进分子</b>，但<b>给出的整改动作不同</b>：前者要<b>补交材料</b>，后者要<b>重跑并重发声明</b>。<b>混为一谈就会发出错误的整改指令。</b></td></tr>
+</table>
+
+<hr>
+
+<h4>第 4 态 · <b>不可判</b>（<code>UNDECIDABLE</code>）</h4>
+
+<table>
+<tr><td>项</td><td>内容</td></tr>
+<tr><td><b>定义</b></td><td><b>核查方无法从可得材料确定该接入面的判定。</b> 典型情形（<b>非穷举</b>）：&lt;br&gt;① 读取声明卡或探测共享板<b>失败</b>（超时、不可达、权限不足）；&lt;br&gt;② <code>declared_at</code> <b>不可解析</b>；&lt;br&gt;③ 声明的两个列表<b>相互冲突</b>（同一个 <code>surface_name</code> 同时出现在 <code>onboarded_surfaces</code> 与 <code>not_onboarded_surfaces</code>）；&lt;br&gt;④ <code>attested_by</code> 与 <code>declaring_party</code> <b>不一致</b>（接收方代证）；&lt;br&gt;⑤ 核查方<b>就是</b>声明方（自审，见 §6.3 b）；&lt;br&gt;⑥ <b>两个异体核查方给出的判定互相矛盾且差异未被解释</b>（见 §6.3 e）；&lt;br&gt;⑦ 探测<b>返回零命中，而阳性对照也拿不出非零命中</b>（检查不具备检出能力）；&lt;br&gt;⑧ 该面<b>既不在已接入列表、也不在未接入列表</b>，<b>且核查方的探测本身也取不到结果</b>。&lt;br&gt;<b>这一态说明「无法判断」。</b></td></tr>
+<tr><td><b>判定条件</b></td><td>以上任情形成立，且<b>不存在</b>足以落到第 1–3 态或 OK 的材料。</td></tr>
+<tr><td><b>正确记法</b></td><td><code>UNDECIDABLE</code> —— 并<b>逐条写出【是哪一种取不到】</b>（读取失败 / 时间不可解析 / 列表冲突 / 代证 / 自审 / 判定矛盾 / 阳性对照失败 / 无材料）。<b>MUST NOT 把八种情形压成同一个词。</b>&lt;br&gt;<b>该面【进入分母】，【不进入分子】</b>，且<b>该面的读数【MUST NOT 对外作为符合性比例的一部分发布】</b> —— 只报「不可判的面数」，见 §7.2.4。</td></tr>
+<tr><td><b>❌ 错误记法：记成上三者之一</b></td><td><b>为什么错</b>：它<b>编造读数</b>。&lt;br&gt;· <b>记成未接入</b> ⇒ <b>把「没查出来」当成了「它没接」</b> —— 于是<b>把一个待查的问题关闭成了一条关于对方的事实</b>。&lt;br&gt;· <b>记成未举证</b> ⇒ <b>把「读不到」当成了「没交」</b> —— 于是<b>把一次读取故障记成了对方的失职</b>。&lt;br&gt;· <b>记成超期</b> ⇒ <b>把「时间字段读不出」当成了「时间过期」</b> —— 于是<b>凭一个没能解析的字段作出了一个关于时刻的断言</b>。&lt;br&gt;<b>共同形状</b>：<b>把「取不到」当成了「不存在」。</b>&lt;br&gt;<b>后果</b>：<b>不可判是唯一一个会【自己消失】的读数</b> —— 只要把它填成别的三态之一，它就再也不会被看见。而<b>它恰恰是最需要用力的那一态</b>：另外三态都说明了该做什么（去接、去补交、去重跑），<b>只有不可判说明「连该做什么都还不知道」</b>。</td></tr>
+</table>
+
+<hr>
+
+<h3>7.2 总纪律</h3>
+
+<h4>7.2.1 空 ≠ 无</h4>
+
+<div class="q"><b>「没读到」不等于「没有」；「不可判」不等于「不成立」。</b></div>
+
+<table>
+<tr><td>看似相同</td><td>实则不同</td><td>判法</td></tr>
+<tr><td>命令返回 0 条命中</td><td>该面确实没有产出</td><td><b>只有配了非零命中的阳性对照，才能判「确实没有」</b>；否则判<b>不可判</b>。</td></tr>
+<tr><td>共享板上没有某设备声明卡</td><td>该设备未接入</td><td>前者是<b>读取结果</b>，后者是<b>关于对方的判断</b>。<b>读取结果不足以支撑关于对方的判断时 ⇒ 不可判。</b></td></tr>
+<tr><td>字段值为空 / 字段缺失</td><td>该字段代表的性质不成立</td><td><b>空</b>说的是<b>手上有什么</b>；<b>不成立</b>说的是<b>对象是什么样</b>。<b>前者推不出后者。</b></td></tr>
+</table>
+
+<div class="q"><b>本纪律的机械形式</b>：<b>任何以「没找到」为结论的探测，若拿不出阳性对照，产出的是【不可判】，不是【无】。</b></div>
+<div class="q"><b>本纪律排除的</b>：把<b>缺席</b>（absence of evidence）当作<b>不存在的证据</b>（evidence of absence）。</div>
+
+<h4>7.2.2 判定的四态不许合并</h4>
+
+<table>
+<tr><td>记法</td><td>允许？</td></tr>
+<tr><td><code>NOT_ONBOARDED</code> · <code>EVIDENCE_MISSING</code> · <code>EVIDENCE_STALE</code> · <code>UNDECIDABLE</code> 四者<b>分开记</b></td><td>✅ <b>MUST</b></td></tr>
+<tr><td>把「未接入」与「未举证」合成一个「未完成」</td><td>❌ <b>MUST NOT</b> —— 二者的<b>整改动作不同</b>（去接 / 去补交）。</td></tr>
+<tr><td>把「未举证」与「超期」合成一个「不合格」</td><td>❌ <b>MUST NOT</b> —— 二者的<b>整改动作不同</b>（补交 / 重跑）。</td></tr>
+<tr><td>把任一态与 <code>UNDECIDABLE</code> 合并</td><td>❌ <b>MUST NOT</b> —— <b>合并后不可判就再也回不来了</b>。</td></tr>
+<tr><td>用一个自定义的第五种记法</td><td>❌ <b>MUST NOT</b> —— 断言了四态互斥且穷尽，<b>第五种记法只会是其中某一态的伪装</b>。</td></tr>
+</table>
+
+<h4>7.2.3 判定的三条不可动规则</h4>
+
+<div class="q"><b>规则 1 · 唯一</b>：<b>一个接入面，在同一时刻，恰好一个判定。</b></div>
+<p>&gt;</p>
+<div class="q"><b>规则 2 · 不覆盖</b>：<b>新的判定【追加】，不覆盖旧判定。</b> 旧的判定连同其时刻与材料<b>保留</b>。</div>
+<div class="q"><b>为什么</b>：<b>覆盖会把「曾经不符合」这一事实擦掉</b> —— 而趋势（在变好还是在变坏）<b>只能从两个保留下来的判定之间读出来</b>。<b>一个只保留最新值的读数表，永远看不出方向。</b></div>
+<p>&gt;</p>
+<div class="q"><b>规则 3 · 不平均</b>：<b>判定 MUST NOT 被平均、加权、四舍五入或用任何方式合成一个数。</b></div>
+<div class="q"><b>为什么</b>：判定<b>不是数值，是分类</b>。把「不可判」与「OK」平均出来的那个数，<b>不对应任何一个真实对象的状态</b> —— 它是<b>两个不同问题的答案被搅在一起</b>。</div>
+
+<h4>7.2.4 比例的口径（分母与棘轮）</h4>
+
+<div class="q"><b>比例 = 判为【OK】的接入面数 ÷ 进入分母的接入面数。</b></div>
+<div class="q"><b>本契约【不定义任何 OK 之外的分子的替代口径】</b> —— 「差不多通过」「主要面通过」等写法<b>一律不接受</b>。</div>
+
+<p><b>进入分母的接入面（棘轮口径）</b>：</p>
+
+<table>
+<tr><td>#</td><td>哪些面进入分母</td><td>认定规则</td></tr>
+<tr><td><b>①</b></td><td><b>声明为已接入的面</b> —— <b>无一例外</b>（无论其判定是 OK、未举证、超期还是不可判）。</td><td>由声明方<b>自己</b>的 <code>onboarded_surfaces</code> 确定。</td></tr>
+<tr><td><b>②</b></td><td><b>声明为未接入、但核查方探测到该面在该写入路径下【确实存在产出】的面</b> —— <b>同样无一例外</b>。</td><td>由核查方的探测确定。<b>这是棘轮：看不到，不等于没有。</b></td></tr>
+<tr><td><b>③</b></td><td><b>既未声明、探测也取不到结果的面</b></td><td><b>不进入分母</b>，判定为<b>不可判</b>，<b>并单独报出该面的数量</b>。<b>不可判的面 MUST NOT 被当作通过，也 MUST NOT 被当作不符合。</b></td></tr>
+</table>
+
+<div class="q"><b>为什么分母是这样定的：棘轮 + 举证的双向约束。</b></div>
+<p>&gt;</p>
+<div class="q"><b>若分母只看「声明为已接入的面」</b>，就存在一条<b>削弱性的策略</b>：<b>少声明</b> —— 只把最容易举证的一小部分面声明为已接入，其余一律不写（或塞进「未接入」）。<b>比例于是虚高。</b></div>
+<div class="q"><b>棘轮堵住这条路</b>：<b>你自己不声明，核查方会探测。探测到有产出，它就进分母。</b> 于是<b>沉默不能节省分母</b>。</div>
+<div class="q"><b>反之，少声明也不再有收益</b>：<b>每一个真正在产出的面，无论如何都会被计入。</b></div>
+<div class="q"><b>而分母【不看消息条数】</b>：<b>写一万条消息不会让分母变大，只会让同一批接入面的举证被反复引用。</b></div>
+
+<div class="q"><b>不可判的面怎么报</b>：<b>单独报数量与占比，不并入比例。</b></div>
+<div class="q"><b>理由</b>：<b>不可判的占比本身就是一条指标</b> —— 它衡量的是<b>这一网络的状况被知道得有多不清楚</b>。</div>
+<div class="q"><b>把它塞进比例，就把它变成了一条永远不会被追踪的数。</b></div>
+
+<div class="q"><b>与 §8 的另一组读数的区别</b>：§8.1.2 与附录 B 第 6 行另有一组以<b>产出条数</b>为基数的读数（未达标比例／达标比例）。<b>两组读数不是同一个量</b>：本节的比例以<b>接入面</b>为基数，§8 的比例以<b>产出条数</b>为基数；§7.2.4 的口径正是「分母不看消息条数」的那一个。</div>
+
+<h4>7.2.5 四态判定表（可直接机械执行）</h4>
+
+<p>对<b>每一个接入面</b>，<b>按此顺序</b>逐条问，<b>问到的第一条即为该面的判定</b>：</p>
+
+<table>
+<tr><td>顺序</td><td>问</td><td>是 ⇒ 判定</td><td>否 ⇒</td></tr>
+<tr><td>1</td><td>读取声明卡或探测<b>是否成功</b>？</td><td>—</td><td><b>不可判</b></td></tr>
+<tr><td>2</td><td><code>declared_at</code> <b>可解析</b> 且 <code>attested_by == declaring_party</code> 且 核查方<b>不是</b>声明方？</td><td>—</td><td><b>不可判</b></td></tr>
+<tr><td>3</td><td>该面在 <code>onboarded_surfaces</code> 与 <code>not_onboarded_surfaces</code> 中<b>是否同时出现</b>？</td><td><b>不可判</b></td><td>↓</td></tr>
+<tr><td>4</td><td>该面<b>是否出现在 <code>not_onboarded_surfaces</code></b> 且探测<b>未发现该面有产出</b>？</td><td><b>未接入</b></td><td>↓</td></tr>
+<tr><td>5</td><td>该面<b>是否有合格举证对象</b>（§5.3.3 七字段齐、原始输出、零命中配阳性对照、<code>declared_at</code> 不早于写入路径最后一次改动）？</td><td>↓</td><td><b>未举证</b></td></tr>
+<tr><td>6</td><td>该面所属声明的 <code>declared_at</code> <b>是否在有效期内</b>？</td><td><b>OK</b></td><td><b>超期</b></td></tr>
+</table>
+
+<div class="q"><b>表外情形</b>：<b>两个异体核查方判定相互矛盾且差异未解释</b> ⇒ <b>两方判定分别保留，且【都】改记【不可判】</b>（见 §6.3 e）。</div>
+<div class="q"><b>本表【完整覆盖】7.1 的四态与 OK</b>：<b>未接入 · 未举证 · 超期 · 不可判 · OK</b>，<b>无第五种出口，无落空分支。</b></div>
+<hr>
+
+<h2>8. 后果（Consequences）</h2>
+
+<h3>8.0 本节为什么存在，以及怎么读它</h3>
+
+<p>RFC 2119 §7 要求规范作者<b>花时间说明</b>不遵守要求或建议所带来的安全含义，理由是：<b>大多数实现者不会拥有产生该规范的那些经验与讨论</b>。</p>
+
+<p>⇒ 故本节<b>不写</b>「这件事很重要」「会影响互操作」这类抽象判断，而<b>逐条写出接收方一侧可观察到的事实</b>。</p>
+
+<p><b>本节的两条读法：</b></p>
+
+<p>1. <b>每一条「后果」都取接收方一侧可观察的事实。</b> 若某条要求被违反后，接收方<b>观察不到任何差别</b>，则这条要求<b>不属于它当前所处的级别</b> —— 它要么降级为可选，要么删除。</p>
+<p>2. <b>本节按要求的内容引用要求，不重复要求文字。</b> 各条要求的正式文字及其复跑命令见 §4（接入要求）。</p>
+
+<p><b>本节使用的记法与 §7 分列</b>：本节用「达标／未达标」记法，它是对<b>一条产出或一次举证</b>的读法；§7.1 用的是<b>接入面级</b>的判定记法。<b>两者不是同一套格子</b>，同一件事在两套记法里可以落在不同位置。本节每一行所引要求的<b>级别以该要求所在节为准</b>。</p>
+
+<hr>
+
+<h3>8.1 不遵守 MUST 的后果</h3>
+
+<h4>8.1.1 本节处理的 MUST 级要求</h4>
+
+<p>下列要求均为 <b>MUST / MUST NOT</b> 级（RFC 2119 §1、§2：绝对要求与绝对禁止）。</p>
+
+<p><b>它们全部属于 RFC 2119 §6 允许使用级词的两类之一</b> —— 即「互操作必需」或「限制有害行为」；<b>没有任何一条</b>用于强加内部实现方式、具体工具选择或目录结构。</p>
+
+<table>
+<tr><td>要求（内容）</td><td>级别</td><td>类别</td><td>条款位置</td></tr>
+<tr><td>每条<b>产出</b> <b>MUST</b> 写全规范性引用所指规范版本的全部<b>必填字段</b></td><td><b>MUST</b></td><td>互操作必需</td><td>§4.1.2</td></tr>
+<tr><td>一旦在某条产出上启用了某个可选字段，该字段即成为该条产出的必填字段</td><td><b>MUST</b></td><td>互操作必需</td><td>§2.2（规范性引用所指规格的字段规则）；后果见 §8.1.3</td></tr>
+<tr><td><b>写入方</b> <b>MUST</b> 在每条产出上声明其<b>身份状态</b></td><td><b>MUST</b></td><td>互操作必需</td><td>§4.1.3</td></tr>
+<tr><td>写入方 <b>MUST NOT</b> 在身份字段填入<b>非本写入方</b>的标识</td><td><b>MUST NOT</b></td><td>限制有害行为</td><td>§4.1.3、§9.3.1</td></tr>
+<tr><td><b>去重键</b> <b>MUST</b> 是对产出<b>内容</b>计算的<b>内容指纹</b></td><td><b>MUST</b></td><td>互操作必需</td><td>§2.2（规范性引用所指规格对去重键的裁定）；后果见 §8.1.2，判据见附录 B 第 4 行</td></tr>
+<tr><td>写入方 <b>MUST NOT</b> 在去重键填入与产出内容<b>无关的值</b></td><td><b>MUST NOT</b></td><td>限制有害行为</td><td>§2.2（同上）；判据见附录 B 第 4 行</td></tr>
+<tr><td><b>核查方</b> <b>MUST NOT</b> 因产出不符合本契约的形式要求而<b>拒收</b>该产出</td><td><b>MUST NOT</b></td><td>限制有害行为</td><td>§3.3 ②（兼容附加字段）；本条表述更宽，理由见 §8.3.3 第 5 条</td></tr>
+<tr><td>本契约的任何一步 <b>MUST NOT</b> 要求写入方交出凭证、秘密、写权限或代码改动</td><td><b>MUST NOT</b></td><td>限制有害行为</td><td>§9.2</td></tr>
+</table>
+
+<p>上表每一行的<b>级别</b>与<b>类别</b>均为该行的正式归类；本节其余部分只给出它们的<b>违反后果</b>。上表中有三行的要求在 §4 中没有独立条目：它们直接来自 §2.2 的规范性引用所指规格（信封的字段规则与去重键的裁定），本契约不重述规格的文字，只给出违反它们的后果（§8.1.2、§8.1.3）与机械判据（附录 B）。</p>
+
+<h4>8.1.2 不写全必填字段时的逐字段后果</h4>
+
+<p>下表逐字段说明：<b>该字段缺失或写错时，接收方一侧会出现什么事实。</b></p>
+
+<table>
+<tr><td>缺失或写错的字段</td><td>接收方一侧可观察到的事实</td></tr>
+<tr><td><b>版本声明字段</b></td><td>接收方<b>无法判定该产出属于哪个版本</b> ⇒ 只能按最低兼容路径处理 ⇒ 该产出<b>计入该写入方的未达标比例</b>（分母计入、分子不计）⇒ <b>该写入方的达标读数不上升</b></td></tr>
+<tr><td><b>标识字段</b>（该产出自身的唯一标识）</td><td>接收方<b>无法引用这一条</b> —— 回执、审计、去重记账都要按标识寻址 ⇒ 同一条产出被处理两次时，<b>无法判定它们是同一条</b> ⇒ <b>重复处理</b></td></tr>
+<tr><td><b>类型字段</b></td><td>通道选择无法进行 ⇒ 落到默认路径（逐条直接投递）⇒ 本应写入共享状态区的状态更新<b>被当成实质任务</b> ⇒ 每发一条<b>多唤醒一个参与者</b> ⇒ <b>该写入方的成本读数上升，而对方没有收到任何需要处理的东西</b></td></tr>
+<tr><td><b>通道字段</b>（或它与类型字段不相容）</td><td>接收方<b>按错误的通道取件</b> ⇒ 状态更新被投到逐条直接投递路径，而对端<b>只在共享状态区读状态</b> ⇒ <b>接收方收不到</b>（产出存在于共享板中，但没有任何一方会去取它）</td></tr>
+<tr><td><b>发送方字段</b></td><td>接收方<b>无法归属该产出</b> ⇒ 该产出被计入<b>不可归属</b> ⇒ 该写入方的达标比例<b>分母增大而分子不变</b>；并且<b>无法回信</b> —— 没有回信地址</td></tr>
+<tr><td><b>接收方字段</b></td><td><b>路由不到</b> —— 接收方不知道投给谁 ⇒ 该产出<b>被丢弃或进入死信</b></td></tr>
+<tr><td><b>会话聚合字段</b>（把多条产出聚合成一件事的那个标识）</td><td>接收方<b>无法把该产出并入既有会话</b> ⇒ 同一件事的多条产出<b>散成互不相关的独立条目</b> ⇒ 接收方<b>对每一件都重新处理一遍</b></td></tr>
+<tr><td><b>优先级字段</b></td><td>接收方<b>无法排序</b> ⇒ 高优任务<b>排到低优之后</b> ⇒ 时限内无法完成，而<b>没有任何一方收到「它被排后了」这一事实</b></td></tr>
+<tr><td><b>预算上限字段</b></td><td>接收方<b>无法判定该任务的成本上限</b> ⇒ 只能二选一：按无上限处理（<b>成本失控</b>）或直接不收（<b>任务丢失</b>）。⇒ 两种结果都是接收方单方面承担的</td></tr>
+<tr><td><b>去重键字段</b>（缺失，或不是内容指纹）</td><td><b>无法去重</b> ⇒ 同一内容的重投<b>被当成两件事</b> ⇒ <b>重复计数</b>（配额按两次计）· <b>重复执行</b>（同一个动作做两次）。⇒ 而对方<b>不会收到任何提示</b>：它只看到事情被做了两遍</td></tr>
+<tr><td><b>时刻字段</b>（缺失，或不是规范时刻串）</td><td><b>无法排序、无法判窗口</b> ⇒ <b>去重窗口</b>无法计算（窗口以该字段为基准）⇒ 只能二选一：<b>全部判为重复</b>（丢真产出）或<b>全都判为不重复</b>（重复执行）</td></tr>
+<tr><td><b>内容字段</b></td><td>该产出<b>没有内容</b> ⇒ 接收方<b>无物可处理</b> ⇒ 该产出<b>必被丢弃</b></td></tr>
+</table>
+
+<h4>8.1.3 启用可选字段时的后果</h4>
+
+<p>规范性引用所指规范版本把一部分字段列为<b>可选</b>。<b>它们的缺失本身不产生后果</b>；但<b>一旦在某条产出上启用了其中某一项，该项即成为该条产出的必填字段。</b></p>
+
+<p>以<b>签名</b>字段为例（<b>签名</b>：对该产出内容计算的、可被接收方验证的校验值，用于证明该产出在离开写入方之后未被改动）：</p>
+
+<table>
+<tr><td>情形</td><td>接收方一侧可观察到的事实</td></tr>
+<tr><td>写入方<b>未启用</b>签名，字段不出现</td><td>无后果。接收方按「该写入方不使用签名」处理</td></tr>
+<tr><td>写入方<b>启用了</b>签名，但字段缺失或值不符</td><td>接收方<b>无法区分</b>「发送方未启用签名」与「签名在途中被破坏了」 ⇒ <b>完整性检查失去判别力</b> ⇒ 接收方要么对<b>全部</b>产出放弃完整性检查，要么把<b>正常的未签名产出</b>一律判为可疑 ⇒ 两种结果都是<b>把可信的与不可信的混在一起</b></td></tr>
+</table>
+
+<p>⇒ 故「启用即必填」这条要求的意义是：<b>让「有没有签名」这一事实本身成为可判定的</b>。缺少它，接收方<b>无法知道该不该验</b>。</p>
+
+<h4>8.1.4 两类后果的区别（哪一类更重）</h4>
+
+<ul><li><b>单条后果</b>：那一条产出<b>丢了、错了或做重了</b>。它是<b>局部的</b>，且<b>通常会因为对方重发而自行消失</b>。</li>
+<li><b>累积后果</b>：该写入方的<b>达标比例不上升</b>。它是<b>持续的</b>，且<b>不会因为重发那一条而消失</b> —— 因为比例是按<b>全部产出</b>算的。</li>
+</ul>
+<p>⇒ <b>累积后果比单条后果重</b>：单条后果是<b>一次事故</b>，累积后果是<b>一个不下降的数</b>。而本契约的治理方式正是建在累积后果上（见 §8.3）。</p>
+
+<hr>
+
+<h3>8.2 不遵守 SHOULD 的后果</h3>
+
+<p>RFC 2119 §3 规定：<b>SHOULD</b> 级条目在特定情形下<b>可以</b>有正当理由不遵守，<b>但选择另一条路之前，必须理解并权衡全部含义。</b></p>
+
+<p>⇒ 故本节为每一条 SHOULD <b>同时给出</b>：不遵守的后果，以及<b>什么情形下不遵守是正当的</b>。</p>
+
+<p><b>下表「要求」一列的每一条按原文归属于 SHOULD 级</b>；它们<b>既不属于「互操作必需」，也不用于「限制有害行为」</b>，而属于第三类：<b>有正当理由可以不遵守的建议</b>（RFC 2119 §3）。⇒ 故<b>不遵守 SHOULD 不构成不合规</b>，本节给出的是它的<b>代价</b>。</p>
+<p><b>级别以后者为准</b>：若某一行所指的要求在 §4、§5 或 §6 中被定为 MUST／MUST NOT 级，则该行的义务由该处决定，本表给出的仍是不遵守它的代价。</p>
+
+<p><b>逐条后果：</b></p>
+
+<table>
+<tr><td>要求（内容）</td><td>不遵守时接收方一侧可观察到的事实</td><td>什么情形下不遵守是正当的</td></tr>
+<tr><td>写入方 <b>SHOULD</b> 显式声明未接入的面（§4.2.1 定为 MUST）</td><td>接收方<b>把沉默当成「已全部接入」</b> ⇒ 达标比例的<b>分母少算</b> ⇒ 读数<b>高于事实</b>，且<b>无法区分</b>「真的全部接入」与「未接入但没有说」。⇒ 注意：这不是「读数错」，而是<b>读数与事实脱钩</b>，且<b>外部看不出来</b></td><td>确实没有任何未接入的面时 —— 此时 <b>SHOULD</b> 写出 §5.1.3 与 §7.1 规定的那一个 <code>surface_name</code> 为 <code>无</code> 的元素，而<b>不是省略该字段</b>。省略字段<b>不等于</b>写出「无」</td></tr>
+<tr><td>写入方 <b>SHOULD</b> 在写入路径变更之后、以及距上次举证超过一个复核周期之后，重新举证（§6.1 ② 定为 MUST，§6.1 ③ 为 SHOULD）</td><td>读数<b>停留在旧值</b> ⇒ 出现「读数说达标、实际产出不达标」⇒ 接收方按旧读数<b>继续信任一个已经失效的声明</b>。⇒ 而<b>两件事之间看不出变化</b>，所以这个错误<b>不会自己暴露</b></td><td>变更尚未生效或尚未上线时 —— 此时 <b>SHOULD</b> 在声明里<b>注明该变更的状态</b>，而不是不提</td></tr>
+<tr><td>写入方 <b>SHOULD</b> 在举证对象中附上未编辑的原始输出（§5.3.3 定为必填字段，§5.3.4 纪律一）</td><td>只给摘要 ⇒ 接收方<b>无法确认命令真的执行过</b>、<b>无法确认跑的是被举证的那一条</b> ⇒ 记<b>不可判</b>。⇒ 而<b>不可判既不是达标也不是未达标</b> ⇒ 提交方<b>得不到分数</b>。⇒ 即：<b>省掉原始输出，损失的是提交方自己</b></td><td>输出中含秘密或个人数据时。此时 <b>SHOULD</b> 遮蔽后再附（见 §9.2），而<b>不是只给摘要</b> —— 遮蔽保留的是「这条是什么」，摘要丢掉的是「它是不是真的存在」</td></tr>
+<tr><td>写入方 <b>SHOULD</b> 由异体核验自己的声明</td><td>自证自核 ⇒ <b>单点错误无人可发现</b> ⇒ 一个错误声明会被当作事实<b>在此后所有核验里沿用</b> ⇒ 错误的<b>存活时间</b>由「该写入方自己什么时候发现」决定，而它<b>没有动机去发现</b></td><td>当时确实没有第二方可核时。此时 <b>SHOULD</b> 把该条<b>显式记为「仅自证」</b>，使其<b>看起来与已核的不同</b> —— 而不是让它看起来像已核</td></tr>
+<tr><td>写入方 <b>SHOULD</b> 使其举证覆盖其声明的全部面（§5.1.2 定为 MUST）</td><td>声明得多而举证少 ⇒ <b>达标比例低</b>。⇒ 因为比例是按<b>声明并举证的范围</b>算的（不是按「写了多少条产出」算） ⇒ <b>少声明不是策略</b>；只有「<b>声明清楚 + 举证完整</b>」才给出好读数</td><td>无正当例外。⇒ 但注意：<b>这不构成不合规</b> —— 比例低<b>不等于</b>未达标，它只是<b>读数不好看</b></td></tr>
+</table>
+
+<hr>
+
+<h3>8.3 为什么本契约不靠禁令</h3>
+
+<h4>8.3.1 禁令要求三个人工环节同时在场</h4>
+
+<p>一条禁令要真的改变行为，需要三件事<b>接连发生</b>：</p>
+
+<table>
+<tr><td>环节</td><td>禁令要求它</td><td>而它的难点是</td></tr>
+<tr><td><b>有人发现</b>某次违禁</td><td>专门去看</td><td>发现<b>不是收件的副产品</b> —— 收到一百条产出，<b>没有任何一条会自己喊出「这条违禁」</b>。发现需要一个<b>额外的动作</b></td></tr>
+<tr><td><b>有人判定</b>这次行为属于违禁</td><td>判明情形</td><td>判定通常需要<b>意图</b>：同一次「用了旧格式」，是疏忽、是不知道、还是明知故犯？三者的处置不同，而<b>意图不写在产出里</b></td></tr>
+<tr><td><b>有人执行</b>后果</td><td>施加代价</td><td>执行者若与被禁的一方同属一方，禁令就退化成自罚</td></tr>
+</table>
+
+<p>⇒ <b>三个环节任缺其一，禁令就退化成一句文字</b>：它<b>仍然写在文档里</b>，但<b>不再改变任何行为</b>。而这三个环节<b>都依赖人的持续在岗</b> —— 岗位会换人、会忙碌、会空缺。</p>
+
+<h4>8.3.2 读数不需要这三个人</h4>
+
+<p>本契约对「产出使用了旧版本信封」的处置如下。<b>这是一个具体例子</b>；<b>同一形状适用于本节列出的所有可数要求</b>：</p>
+
+<div class="q"><b>该产出【仍然被接收】。</b></div>
+<div class="q">它<b>不会被拒收、不会被丢弃、不会触发任何告警</b>。</div>
+<div class="q"><b>但它【计入该写入方的未达标比例】。</b></div>
+<div class="q">⇒ 于是<b>不用任何人执法，写入方自己会看到那个数不降。</b></div>
+
+<p>三个人工环节在读数下的对应物：</p>
+
+<table>
+<tr><td>环节</td><td>禁令需要什么</td><td>读数需要什么</td></tr>
+<tr><td><b>发现</b></td><td>有人专门去看</td><td><b>不需要</b> —— 计数是<b>收件流程的副产品</b>：接收方本来就要读这条产出，顺手数一个事实</td></tr>
+<tr><td><b>判定</b></td><td>判定意图（疏忽？不知？明知？）</td><td><b>不需要</b> —— <b>不判意图</b>，只数事实：这条<b>有没有</b>规范版本声明</td></tr>
+<tr><td><b>执行</b></td><td>一个在被禁一方之外的执行者</td><td><b>不需要</b> —— 后果由写入方<b>自己的读数</b>呈现，<b>没有谁需要被说服去执行什么</b></td></tr>
+</table>
+
+<h4>8.3.3 为什么读数比禁令更可靠（逐条对照）</h4>
+
+<p>1. <b>不依赖执法者在岗。</b> 读数的产生依赖的是<b>已经发生的收件动作</b>，而收件是网络的<b>日常运作</b> —— 它不需要任何人为这件事在岗。禁令依赖的是<b>一个额外的岗位</b>，而岗位是所有机制里<b>最容易中断</b>的一环。</p>
+
+<p>2. <b>不依赖判定意图。</b> 意图不可从产出中读出。<b>凡需要判意图的规则，都会在边界情形上失效</b> —— 而边界情形恰恰是最需要规则的地方。</p>
+
+<p>3. <b>不制造对抗。</b> 禁令把问题变成「<b>谁赢</b>」：被禁的一方有动机<b>隐藏</b>行为（改一个字段名、换一条路径），于是<b>违规从可见变成不可见</b> —— 结果是<b>治理能力下降</b>。读数把它变成「<b>这个数降不降</b>」：写入方<b>自己</b>有动机降它，而且<b>降它的每一步都是可见的</b>。</p>
+
+<p>4. <b>不可被绕过。</b> 一条禁令可以被<b>偷偷违反</b>。读数<b>没有「偷偷」一说</b> —— 产出只要被接收，就<b>已经</b>被计数；而<b>产出必然要被接收</b>（见下条）。⇒ 绕过一个读数的唯一方法是<b>真的把它改掉</b>。</p>
+
+<p>5. <b>不阻断，所以不制造更坏的问题。</b> 注意上文的处置是「<b>仍然被接收</b>」而不是「拒收」。<b>拒收一条产出，比收到一条格式不合规的产出更坏</b>：拒收<b>丢失信息</b>，而格式不合规<b>只是让读数不清</b>。⇒ 读数机制<b>不会为了治理一个指标而破坏通信本身</b> —— 这正是下列 MUST NOT 级要求的内容：</p>
+
+<div class="q"><b>核查方 MUST NOT 因产出不符合本契约的形式要求而拒收该产出。</b>（同上表 §8.1.1 第 7 行。）</div>
+
+<p>6. <b>可随时复跑，不依赖记忆与承诺。</b> 读数是<b>一个数</b>，<b>任何人可在任何时候重算</b>，且结果可被独立比对。禁令的效力则依赖<b>对「有没有人违规」的记忆</b> —— 而记忆<b>不可复跑</b>。</p>
+
+<p>7. <b>把合规从「守法」变成「改进」。</b> 禁令的成功条件是<b>违规次数为零</b> —— 一个几乎不可能达到、且<b>无法证明达到</b>的目标（因为不可见的违规不进计数）。读数的成功条件是<b>比例上升</b> —— 一个<b>可逐步达到</b>、且<b>每一步都可见</b>的目标。</p>
+
+<h4>8.3.4 读数做不到什么（如实说明）</h4>
+
+<p><b>读数只维持可数的要求。</b> 一条要求若<b>无法被计数</b>，本节的方法对它无效。</p>
+
+<p>此时只有两条路：</p>
+
+<ul><li>把它<b>改写成可数的形态</b>；或</li>
+<li>把它<b>降级为可选</b>。</li>
+</ul>
+<p>⇒ 而<b>MUST NOT 假装它在被执行</b>。「无法计数」与「不需要写」是两件事：<b>前者要改写，后者要删除</b>。</p>
+
+<p>⇒ 这就是本契约<b>不写</b>「禁止使用旧版本信封」、而写「<b>旧版本的信封计入未达标比例</b>」的原因。<b>同一形状</b>适用于本节列出的所有可数要求。</p>
+
+<hr>
+
+<h2>9. 安全考量（Security Considerations）</h2>
+
+<div class="q">本节依规范文档结构的要求设立（规范文档含安全考量一节）。</div>
+<div class="q">本节写三件事：<b>本契约的要求可能被如何滥用</b> · <b>本契约不索取什么</b> · <b>伪造身份的后果</b>。</div>
+<div class="q">一条贯穿全节的线索：<b>本节列出的每一项对策都不是「禁止」，而是「让它变成可核的事实」</b> —— 与 §8.3 同一形状。</div>
+
+<hr>
+
+<h3>9.1 本契约的要求可能被如何滥用</h3>
+
+<p>本节用到的术语（声明 · 稳定身份串 · 身份状态 · 类别声明）的定义见 §2.1。</p>
+
+<p>本契约的要求本身是中性的：它要求<b>声明</b>和<b>举证</b>。而这两件事<b>都可以被声称</b>。⇒ 故滥用点集中在<b>把声明当成事实</b>。</p>
+
+<p><b>逐条列出：</b></p>
+
+<table>
+<tr><td>滥用方式</td><td>怎么做</td><td>它造成什么</td><td>用什么让它变成可核的事实</td></tr>
+<tr><td><b>1. 伪造身份</b></td><td>在身份字段里填入<b>另一个写入方</b>的身份串</td><td>接收方把甲的产出归到<b>乙</b>名下 ⇒ <b>乙名下出现乙没有写过的产出</b>，而甲<b>不知情</b></td><td>乙的产出集合是<b>乙自己可枚举</b>的 ⇒ <b>乙能发现不属于自己的条目</b>。⇒ 注意：<b>不能靠凭据检查</b> —— 本契约<b>不索取凭证</b>（§9.2）⇒ 身份串<b>不携带凭据</b>，只能靠<b>来源与声明的矛盾</b>来核（§9.3）</td></tr>
+<tr><td><b>2. 冒用已出现过的身份串</b></td><td>抄一个在本网络中已经出现过的身份串</td><td>同第 1 条，且<b>更难被察觉</b>：冒用的身份串是「真实存在」的，按「身份串是否存在」做的检查<b>会全部通过</b></td><td><b>同一身份串对应两种不同来源，即构成一个可核的矛盾</b>。⇒ 判据是<b>来源的多样性</b>，不是<b>身份串的存在性</b></td></tr>
+<tr><td><b>3. 以「无身份」规避归属</b>（本契约最易被滥用的一点）</td><td>对一个<b>确实有身份</b>的写入方，声明为无身份</td><td><b>逃避归属</b>，同时<b>仍然享有「被接收」的待遇</b>（§8.3.2 的处置对它是照常适用的） ⇒ 它拿到读数的好处，<b>不承担归属的成本</b></td><td><b>类别声明 MUST 可被指认</b>（§4.1.3）：无身份这一取值<b>只适用于来源本身可指认、且确实没有身份的三类 —— 图形界面、定时器、脚本</b>。⇒ 一次声明为无身份的产出，若其来源<b>可被指认</b>为某个有身份的写入方，则<b>矛盾可核</b></td></tr>
+<tr><td><b>4. 用错版本却不声明</b></td><td>写一个<b>既不是规范值、也不是任何可识别值</b>的版本串</td><td>接收方<b>无法判定该产出属于哪个版本</b> ⇒ 只能按最低兼容路径处理；且该条<b>计入未达标</b></td><td>版本值 <b>MUST 从实际写入路径读出</b>，<b>MUST NOT 从声明里读出</b>（见附录 B 与 §5.1.1）。⇒ 于是「声明」与「写入路径」<b>是两个可分别回读的对象</b>，差异可核</td></tr>
+<tr><td><b>4b. 声明一个「看起来合法」的版本值，但与实际写入路径不符</b></td><td>声明里写规范值，而写入路径里写的是另一个值</td><td><b>声明与事实脱钩</b>，而<b>外观完全正常</b> —— 这是第 4 条里更坏的一种</td><td>同上：<b>回读写入路径</b>，而不是回读声明</td></tr>
+<tr><td><b>5. 只声明一个很小的面</b></td><td>让达标比例好看</td><td>依符合性声明的口径（<b>按声明并举证的范围算</b>），这确实会产出<b>高比例</b></td><td><b>未接入面 MUST 显式声明</b>（§4.2.1）⇒ 于是「少声明」<b>缩小了分母</b>，却<b>把未接入面从「沉默」变成白纸黑字</b> ⇒ 收益有限，而代价是<b>公开了一份未接入清单</b>。⇒ 这<b>不是一条可行的捷径</b></td></tr>
+<tr><td><b>6. 举证只给摘要</b></td><td>不给未编辑的原始输出</td><td>接收方<b>无法核</b> ⇒ 记<b>不可判</b> ⇒ <b>不可判不等于达标</b></td><td>⇒ 滥用者<b>拿不到分数</b> ⇒ 这条<b>自伤</b>，<b>不构成有效滥用</b></td></tr>
+<tr><td><b>7. 操纵时刻字段</b></td><td>把时刻写成未来或很久以前的值</td><td>去重窗口以该字段为基准 ⇒ 可让<b>真重复逃过窗口</b>（⇒ <b>重复执行</b>），或让<b>合法重发被误判为重复</b>（⇒ <b>丢真产出</b>）</td><td>该值<b>与接收时刻的偏移由接收方直接可观察</b>；持续的系统性偏移<b>是可数的</b></td></tr>
+<tr><td><b>8. 操纵去重键</b></td><td>把它写成与内容无关的<b>固定值</b>，或<b>每条都不同</b></td><td>前者让<b>不同内容被误判为重复</b>（⇒ <b>丢真产出</b>）；后者让<b>真重复逃过</b>（⇒ <b>重复执行</b>）</td><td>内容指纹的形态是<b>可机械判定的</b>，且<b>对同一内容重算必得同一值</b> ⇒ 这是一个<b>可复跑</b>的检查（见附录 B 第 4 行）</td></tr>
+</table>
+
+<p>⇒ <b>本表每一行的对策都不是「禁止」，而是「让它变成一个可核的事实」。</b> 这与 §8.3 的处置是同一形状。</p>
+
+<hr>
+
+<h3>9.2 本契约不索取什么</h3>
+
+<p><b>先给出规范性的约束：</b></p>
+
+<div class="q"><b>本契约的任何一步 MUST NOT 要求写入方交出凭证、秘密、写权限或代码改动。</b></div>
+
+<p><b>逐项列出本契约明确不索取的东西：</b></p>
+
+<table>
+<tr><td>不索取</td><td>含义</td></tr>
+<tr><td><b>不索取凭证</b></td><td>本契约<b>不要求</b>任何形式的密钥、令牌、口令或恢复码。<b>任何一步都不需要写入方交出秘密</b></td></tr>
+<tr><td><b>不索取写权限</b></td><td>本契约<b>不要求</b>写入方把它任何资源的写权限授予接收方或任何第三方。<b>举证由写入方自己执行、自己提交输出</b></td></tr>
+<tr><td><b>不要求改代码</b></td><td>本契约<b>不指定</b>工具、脚本、命令、目录结构或实现方式。它只规定<b>声明的形状</b>与<b>举证的形状</b></td></tr>
+<tr><td><b>不设强制期限</b></td><td>本契约<b>不设</b>截止日。周期性重新举证是<b>建议</b>级（SHOULD，见 §8.2 与 §6.1 ③），<b>不是期限</b></td></tr>
+</table>
+
+<p><b>关于原始输出中的敏感内容：</b> 写入方 <b>MAY</b> 在举证输出含秘密或个人数据时<b>遮蔽该部分</b>后再附上。但遮蔽 <b>SHOULD</b> 保留<b>足以判定该产出身份与字段齐备性</b>的部分 —— <b>遮蔽保留的是「这条是什么」，而只给摘要丢掉的是「它是不是真的存在」。</b></p>
+
+<h4>为什么「不索取」这件事本身是安全设计</h4>
+
+<p>1. <b>索取产生杠杆。</b> 任何「要求对方交出 X」的条款，都把 X 变成<b>可以据以判定对方不合规的筹码</b> —— 于是<b>拒绝交出的对方会被记成不合规</b>。⇒ 本契约<b>不索取任何东西</b> ⇒ <b>没有可被用作筹码的项</b>。</p>
+
+<p>2. <b>本契约只要「一句话的事实」。</b> 它要的<b>不是访问权</b>，而是一个<b>可核的事实陈述</b>（例如「这一条带规范版本声明」）。⇒ <b>事实陈述不能被用于越权</b>：拿到它，接收方<b>做不了</b>任何它本来做不到的事。</p>
+
+<p>3. <b>不索取 ⇒ 无可泄露。</b> 合规流程里<b>没有秘密在流动</b> ⇒ <b>不存在「合规即泄密」的路径</b> ⇒ 本契约的任何一步都<b>不值得被针对</b>。⇒ 这一点在<b>举证</b>环节尤其重要：如果合规要求提交凭证，那么<b>举证流程本身</b>就成了一个值得攻击的目标；而本契约的举证流程<b>没有任何值得拿的东西</b>。</p>
+
+<p>4. <b>不索取 ⇒ 声明「无身份」不付代价。</b> 一个写入方可以<b>无代价地</b>声明「这一条没有身份」「这一面尚未接入」，因为契约<b>没有从他那里拿走什么</b>。⇒ 于是<b>说实话是省的，编造是多余的</b>。⇒ 这一条把 §9.2 与 §9.3 串起来：<b>只有当诚实不需要付代价时，「宁可说实话」才是一个现实的要求，而不是一个道德的要求。</b></p>
+
+<p>5. <b>不设期限 ⇒ 不制造「赶工期造假」。</b> 期限会<b>系统性地生产假声明</b>：赶不上就编一个。⇒ 本契约不设期限 ⇒ <b>没有「因为来不及而只好编」的时刻</b>。</p>
+
+<p>6. <b>不要求改代码 ⇒ 不制造不可核的中间层。</b> 若契约要求某种实现方式，写入方就会在<b>实现层与声明层之间引入一个转述环节</b> —— 而<b>转述环节正是声明与事实脱钩的地方</b>。⇒ 不指定实现 ⇒ 声明只能<b>从实际写入路径读出</b>（附录 B） ⇒ 声明与事实之间<b>少一层可造假的空间</b>。</p>
+
+<hr>
+
+<h3>9.3 伪造身份的后果</h3>
+
+<h4>9.3.1 身份状态有且只有三种形态，且每一种都可核</h4>
+
+<table>
+<tr><td>身份状态</td><td>形态上如何表达</td><td>是否可核</td></tr>
+<tr><td><b>有身份</b></td><td>身份字段取值为<b>本写入方</b>的身份串</td><td><b>可核</b>：该写入方的产出集合<b>由它自己可枚举</b>，他人可与之比对</td></tr>
+<tr><td><b>声明无身份</b></td><td>类别字段取值为「无身份」+ 一个说明来源的字段（其来源可指认为<b>图形界面 / 定时器 / 脚本</b>之一）</td><td><b>可核</b>：<b>来源可被指认</b>，且<b>那一类来源确实没有身份</b>。⇒ 声明<b>可被证实，也可被证伪</b></td></tr>
+<tr><td><b>未声明</b></td><td>两个字段<b>都不出现</b></td><td><b>不可核</b></td></tr>
+</table>
+
+<p><b>⇒ 关于第三态的严格规定：</b></p>
+
+<div class="q"><b>写入方 MUST 在每条产出上声明其身份状态</b> —— 要求与其合法取值（只有前两种）见 §4.1.3。</div>
+<div class="q"><b>「未声明」不是第三种取值，而是「没有给出取值」。</b></div>
+<div class="q"><b>它使接收方无法区分「本来就没有身份」与「有身份但不写」。</b></div>
+<div class="q">⇒ 故「未声明」在形态上是<b>缺陷</b>，<b>不是类别</b>。</div>
+
+<p><b>同一条要求的安全侧：</b></p>
+
+<div class="q"><b>写入方 MUST NOT 在身份字段填入非本写入方的标识</b>（要求见 §4.1.3）。</div>
+
+<p><b>为什么这一条是 MUST NOT，而不只是一条互操作要求</b>：伪造身份<b>不会让接收方路由不到</b> —— 它让接收方<b>路由到错的地方</b>。而<b>「路由到错的地方」比「路由不到」更坏</b>，因为它<b>看起来是成功的</b>：消息被接收、被处理、被归属，<b>没有任何一步会失败</b>，于是<b>没有任何一步会报警</b>。</p>
+
+<p>⇒ 这正是 RFC 2119 §6 所说的「限制有害行为」场合。</p>
+
+<h4>9.3.2 为什么宁可声明「无身份」，也不该编造一个身份</h4>
+
+<p><b>核心判断：编造的身份无法被追溯；声明的「无身份」至少是一个可核的事实。</b></p>
+
+<p><b>逐层说明：</b></p>
+
+<p><b>第一层 · 两个东西各自携带什么。</b></p>
+
+<ul><li>一份<b>声明无身份</b>的产出，携带的是一个<b>具体的事实</b>：它的来源<b>可被指认</b>（哪一类图形界面、哪一个定时器、哪一个脚本），<b>而那一类来源本身确实没有身份</b>。⇒ 接收方或任何第三方<b>可以去看那个来源</b>，并<b>验证这个声明</b>。</li>
+<li>一份<b>编造了身份</b>的产出，携带的是一个<b>看起来像事实的字符串</b>。而<b>本契约不索取凭证</b>（§9.2）⇒ 身份串<b>不携带任何可验证的凭据</b> ⇒ 接收方<b>无法核它</b>，<b>只能相信它</b>。</li>
+</ul>
+<p><b>第二层 · 所以真正的差别不是「严重程度」，而是「可恢复性」。</b></p>
+
+<table>
+<tr><td></td><td>归属是<b>缺失但真实</b>的</td><td>归属是<b>存在但错误</b>的</td></tr>
+<tr><td><b>它把什么留给了将来</b></td><td>一个<b>空缺</b> —— 而空缺<b>总能被补上</b>：后来给该来源一个身份，<b>此前的产出仍可被重新归属</b>，因为<b>来源可考</b></td><td>一个<b>错误的连接</b> —— 甲的产出记在乙名下</td></tr>
+<tr><td><b>能不能改回来</b></td><td><b>能。</b> 缺失<b>不携带错误信息</b>，补上即可</td><td><b>不能。</b> 线索<b>已被合并</b>，而<b>产出里没有任何标记指示哪些条目是真的</b> ⇒ <b>没有任何办法把它们分开</b></td></tr>
+</table>
+
+<p>⇒ <b>声明无身份造成的是一处空缺；编造身份造成的是一处不可修复的错误。</b> 这两者的差别<b>不是程度，而是种类</b>。</p>
+
+<p><b>第三层 · 编造会传染。</b></p>
+
+<p>一旦某条线索上出现一个编造的归属，<b>该线索上的所有读数都不再可信</b> —— 因为<b>无法知道这一条底下还有多少条是编的</b>。</p>
+
+<p>⇒ 一个<b>假的身份声明</b>：<b>毁掉整条线索的读数</b>。</p>
+<p>⇒ 一个<b>「无身份」声明</b>：<b>只孤立地降低它自己那一条</b>（它使那一条不可归属，而不使别人那条错）。</p>
+
+<p><b>第四层 · 故本契约取的方向。</b></p>
+
+<div class="q"><b>宁可声明「无身份」，也不编造一个身份。</b></div>
+<div class="q"><b>因为「无身份」是一个可核的事实，而「编造的身份」是一个不可核的断言。</b></div>
+<div class="q"><b>契约要的不是「每一条产出都有身份」，而是「每一条产出的身份状态都被声明过」。</b></div>
+
+<p>⇒ 这也解释了本契约<b>为什么不要求「所有人都签署」</b>：<b>那会逼出一个编造的签名</b> —— 因为一个确实没有身份的来源，<b>除了编造，没有别的办法满足「必须有身份」</b>。而「无法签署」本身也是一条要被声明出来的事实（§4.1.3）。</p>
+
+<hr>
+
+<h2>附录 A：契约层字段表与改名对照</h2>
+
+<div class="q"><b>本附录只列本契约层（契约自身新增）的字段与取值。</b></div>
+<div class="q"><b>信封本身的字段</b>（含其成员、必填与可选的划分）由 §2.2 的规范性引用所指的规范版本处定义，本附录<b>不重复、不改写</b> —— 读者以 §2.1 的字段表为索引、以该规格为准。</div>
+<p>&gt;</p>
+<div class="q"><b>关于信封版本值</b>：本契约<b>不写死</b>信封版本号。凡涉及版本值的字段与示例，一律写「取 §2.2 的规范性引用所指规范版本处的规范值」。⇒ <b>规范升版时，本契约不需要改动。</b></div>
+<p>&gt;</p>
+<div class="q"><b>与 §5 的关系</b>：本附录与 §5（符合性声明）描述同一组字段。若两者的字段名或形状不一致，<b>以 §5 为准</b>（§5.2 给出声明卡的字段，§5.3.3 给出举证对象的字段）。</div>
+
+<h3>A.1 契约层三字段的改名对照表</h3>
+
+<p>本契约的署名与类别声明由<b>三个契约层字段</b>承载。它们<b>不在 §2.2 的规范性引用所指规范的信封字段表内</b> —— 它们是<b>本契约层的附加要求</b>。三个字段采用语义自明的名字：</p>
+
+<table>
+<tr><td>旧名</td><td>本契约采用的名字</td><td>为什么改</td></tr>
+<tr><td><code>X-Writer</code></td><td><code>producerIdentity</code></td><td>旧名带 <code>X-</code> 前缀且为代号，读者<b>猜不出用途</b>；新名是<b>完整单词的名词</b>，字面即「产出方身份」</td></tr>
+<tr><td><code>writerKind</code> / <code>writerCategory</code></td><td><code>producerCategory</code></td><td><code>kind</code> 比 <code>category</code> 更含糊，且旧名无主语（读者猜不出「谁的类别」）；同族字段改用<b>同一个完整名词</b></td></tr>
+<tr><td><code>producerCategoryNote</code></td><td><code>producerNote</code></td><td>旧名把「类别」重复写进字段名，看不出它是一段陈述；新名指明它是一段<b>说明性陈述</b></td></tr>
+<tr><td><code>declared_author_*</code>（族前缀）</td><td><code>producer*</code>（族前缀）</td><td>族前缀只用<b>完整单词</b>、不用代号前缀；同族三字段<b>命名同构</b></td></tr>
+</table>
+
+<p><b>命名原则（三条）</b>：</p>
+
+<p>1. 用<b>完整单词</b>，不用缩写；</p>
+<p>2. 用<b>名词</b>，不用代号（不用 <code>X-</code> 前缀）；</p>
+<p>3. <b>同族字段命名同构</b> —— 三个字段共用同一个词头。</p>
+
+<p><b>与规格层不冲突</b>：上述三个新名与 §2.2 的规范性引用所指规范版本的信封字段名<b>无一相同</b>（可逐字比对）。⇒ 这是<b>必需的</b>：契约层字段若与规格层字段同名，读者<b>无法分辨该字段由谁定义、以谁为准</b>（要求见 §4.1.3）。</p>
+
+<h3>A.2 类别取值的对照表</h3>
+
+<table>
+<tr><td>旧取值</td><td>本契约采用的取值</td><td>含义</td></tr>
+<tr><td><code>identity-bearing</code></td><td><code>identified</code></td><td>该产出方<b>有身份</b></td></tr>
+<tr><td><code>identity-absent</code></td><td><code>unidentified</code></td><td>该产出方<b>无身份</b>（图形界面 / 定时器 / 脚本三类之一）</td></tr>
+</table>
+
+<div class="q"><b>「未声明」不是取值。</b> 两个字段都不出现 ⇒ <b>违约</b>，且<b>不是</b>「无身份」。</div>
+<div class="q"><b>设计意图</b>：让「未声明」在形态上<b>不可表达为一个合法取值</b> —— 它<b>不是第三个选项</b>，而是<b>选项的缺失</b>（§4.1.3、§9.3.1）。</div>
+
+<h3>A.3 举证对象与声明卡的字段：以 §5 为准</h3>
+
+<p>承载署名与类别声明之外的契约层结构，其字段表由 §5 唯一规定：</p>
+
+<ul><li>声明卡的<b>外层字段</b> —— §5.2.1；</li>
+<li><b>已接入面</b>的元素结构 —— §5.2.2；</li>
+<li><b>未接入面</b>的元素结构 —— §5.2.3；</li>
+<li>声明方<b>自述</b>的结构 —— §5.2.4；</li>
+<li><b>举证对象的完整字段表（7 个字段）</b> —— §5.3.3。</li>
+</ul>
+<h3>A.4 被 §5 取代的同义字段名对照表</h3>
+
+<p>另有一组描述同一件事的字段名（旧名）；按本附录开头「与 §5 的关系」，<b>以 §5 为准</b>。下表的旧名在本契约正文的其他位置不再出现：</p>
+
+<table>
+<tr><td>旧名</td><td>本契约中对应的字段或位置</td></tr>
+<tr><td><code>evidenceType</code></td><td><code>record_type</code>（§5.2.1）</td></tr>
+<tr><td><code>contractVersion</code></td><td>本契约未在 §5 定义对应字段</td></tr>
+<tr><td><code>envelopeVersionDeclared</code></td><td><code>declared_envelope_version</code>（§5.2.1）</td></tr>
+<tr><td><code>declaredScope</code></td><td><code>onboarded_surfaces</code>（§5.2.2）</td></tr>
+<tr><td><code>undeclaredScope</code></td><td><code>not_onboarded_surfaces</code>（§5.2.3）</td></tr>
+<tr><td><code>evidenceCommand</code></td><td><code>probe_command</code>（§5.3.3）</td></tr>
+<tr><td><code>evidenceRawOutput</code></td><td><code>probe_raw_output</code>（§5.3.3）</td></tr>
+<tr><td><code>selfReadBack</code></td><td>本契约未在 §5 定义对应字段；回读的判据见 §4.3.1</td></tr>
+<tr><td><code>writtenAt</code></td><td>本契约未在 §5 定义对应字段；提交时刻见 §5.2.1 的 <code>declared_at</code></td></tr>
+<tr><td><code>supersedes</code></td><td>本契约未在 §5 定义对应字段；同一 <code>statement_id</code> 的再次发布即表示取代关系（§5.2.1）</td></tr>
+</table>
+
+<h3>A.5 通道取值的对照</h3>
+
+<table>
+<tr><td>旧取值</td><td>规范处的取值</td><td>含义</td></tr>
+<tr><td><code>point-to-point</code></td><td><code>p2p</code></td><td>逐条直接投递给一个接收方</td></tr>
+<tr><td><code>thread</code></td><td><code>thread</code></td><td>线程 —— 多轮协商聚合成一条会话</td></tr>
+<tr><td><code>shared-state</code></td><td><code>blackboard</code></td><td>共享状态区写入 —— 状态与确认走共享板的键，<b>不进消息流</b></td></tr>
+<tr><td><code>batch-queue</code></td><td><code>mailbox</code></td><td>批量队列（低优先级、异步）</td></tr>
+<tr><td><code>event-stream</code></td><td><code>eventbus</code></td><td>事件流（触发式通知，可重放）</td></tr>
+<tr><td><code>broadcast</code></td><td><code>broadcast</code></td><td>全员广播</td></tr>
+</table>
+
+<p><b>右列是规范处的取值</b>（见 §2.2 的规范性引用所指规格的<b>通道枚举</b>与<b>消息分类法、通道选择器</b>两节），<b>左列是旧取值</b>。⇒ <b>本契约不新增面，只要求逐面声明</b>；声明卡里 <code>surface_name</code> 的取值 <b>MUST 逐字取自</b> §2.1「接入面」定义所指的<b>权威枚举</b>（规格 §1.5 管辖域声明节）。</p>
+
+<hr>
+
+<h2>附录 B：复跑命令清单</h2>
+
+<div class="q"><b>本契约不指定工具、脚本、目录或路径</b>（见 §9.2）。故下表中的命令使用 <code>&lt;…&gt;</code> <b>占位符</b>表示由接入方自选的实现。<b>本契约只规定命令的形式与期望输出的形状。</b></div>
+<p>&gt;</p>
+<div class="q"><b>「可复跑」的定义</b>（见 §2.1）：每条命令都 <b>MUST</b> 能在<b>首次发出之后</b>被<b>单独再跑一次</b>，并给出<b>同一形状</b>的输出。⇒ 它 <b>MUST NOT</b> 依赖任何本次会话的临时状态。</div>
+<p>&gt;</p>
+<div class="q"><b>写与读分两次</b>：先写，再<b>单独</b>回读。<b>同一次调用里既写又读，不算回读。</b></div>
+<p>&gt;</p>
+<div class="q"><b>MUST 同时看返回值与成功状态码</b>：只看到返回值、而没有成功状态码时，<b>MUST NOT 记为已写入</b>。（返回值可以在写入被拒时<b>照常存在</b>。）</div>
+
+<table>
+<tr><td>#</td><td>用途</td><td>命令</td><td>期望输出形状</td></tr>
+<tr><td>1</td><td><b>回读一条产出的全部字段名</b></td><td><code>jq -r &#x27;keys[]&#x27; &lt;该产出的 JSON&gt;</code></td><td>每行一个字段名；<b>行数 = 字段数</b></td></tr>
+<tr><td>2</td><td><b>判定必填字段是否齐备</b></td><td>`jq -r &#x27;[&quot;cahac&quot;,&quot;id&quot;,&quot;type&quot;,&quot;channel&quot;,&quot;sender&quot;,&quot;recipient&quot;,&quot;thread&quot;,&quot;priority&quot;,&quot;cost_cap&quot;,&quot;dedup_key&quot;,&quot;ts&quot;,&quot;payload&quot;] - (keys) \</td><td>length&#x27; &lt;该产出的 JSON&gt;`</td><td><b>单个整数</b>。<code>0</code> = <b>齐备</b>；非 <code>0</code> = 缺该数个字段。⇒ 去掉 `\</td><td>length` 再跑一次即得<b>缺失字段清单</b></td></tr>
+<tr><td>3</td><td><b>读出该产出实际携带的版本值与身份状态</b></td><td><code>jq -r &#x27;.cahac, .producerCategory, .producerIdentity&#x27; &lt;该产出的 JSON&gt;</code></td><td><b>三行</b>。<code>.cahac</code> <b>MUST 逐字等于</b>规范值；<code>.producerCategory</code> <b>MUST</b> 为两个取值之一；取值为 <code>identified</code> 时第三行<b>非 <code>null</code></b></td></tr>
+<tr><td>4</td><td><b>判定去重键是否为内容指纹形态</b></td><td>`jq -r &#x27;.dedup_key&#x27; &lt;该产出的 JSON&gt; \</td><td>grep -cE &#x27;^[a-z0-9-]+:[0-9a-f]{64}$&#x27;`</td><td><code>1</code> = 形如「算法名:64 位十六进制」，<b>形态合规</b>；<code>0</code> = <b>非内容指纹形态</b></td></tr>
+<tr><td>5</td><td><b>从共享板独立回读同一条产出</b></td><td><code>curl -s -w &#x27;\n%{http_code}\n&#x27; &lt;共享板读取地址&gt;/&lt;键&gt;</code></td><td><b>一个 JSON 对象 + 一行状态码</b>。⇒ <b>两者 MUST 同时成立</b>：对象非空<b>且</b>状态码为成功。只看返回值、没有状态码 ⇒ <b>MUST NOT 记为已写入</b></td></tr>
+<tr><td>6</td><td><b>计数某写入方的达标比例</b></td><td><code>&lt;计数命令&gt;</code>：<b>分母</b> = 该写入方在该时间范围内的产出条数；<b>分子</b> = 其中带规范版本声明的条数</td><td><b>两个整数 + 一个比例 + 一个取值时刻</b>。⇒ <b>缺取值时刻则该数不可比</b>（不同时刻的两个数 <b>MUST NOT</b> 并列比较）</td></tr>
+<tr><td>7</td><td><b>判定一次举证是否可核</b></td><td>逐条走附录 C.1 的<b>四问</b></td><td>四问<b>全「是」</b> = 可核；<b>任一「否」</b> ⇒ 记<b>不可判</b>。⇒ <b>MUST NOT 记达标，也 MUST NOT 记未达标</b></td></tr>
+</table>
+
+<hr>
+
+<h2>附录 C：反例集 —— 什么是「不合格的举证」</h2>
+
+<div class="q"><b>本附录的「判定」列采用 §8 系列的记法</b>（达标／未达标／不可判）。接入面级的<b>四态记法</b>见 §7.1（<code>NOT_ONBOARDED</code> · <code>EVIDENCE_MISSING</code> · <code>EVIDENCE_STALE</code> · <code>UNDECIDABLE</code>）与其判定表（§7.2.5）。<b>两套记法不是同一套格子。</b></div>
+
+<h3>C.1 判据（四问）</h3>
+
+<p>一次举证<b>合格</b>，当且仅当下列四问<b>全为「是」</b>：</p>
+
+<table>
+<tr><td>#</td><td>四问</td><td>问的是什么</td></tr>
+<tr><td>1</td><td><b>可回读吗？</b></td><td>举证对象所指的<b>那一条产出</b>，<b>现在</b>还能被读出来吗？</td></tr>
+<tr><td>2</td><td><b>可复跑吗？</b></td><td>那条命令<b>现在单独再跑一次</b>，还给出<b>同一个形状</b>的输出吗？</td></tr>
+<tr><td>3</td><td><b>对象与命令对应吗？</b></td><td>命令的输出里，<b>出现了被举证对象自身的标识</b>吗？（⇒ 跑<b>全库统计不算</b>对应）</td></tr>
+<tr><td>4</td><td><b>身份状态已声明吗？</b></td><td>读者能<b>明确判定</b>这是三种身份状态形态中的<b>哪一种</b>吗？</td></tr>
+</table>
+
+<div class="q"><b>任一问为「否」⇒ 记「不可判」。</b></div>
+<div class="q"><b>「不可判」既不是达标，也不是未达标。</b> 它<b>不扣分，也不给分</b>。</div>
+<div class="q">⇒ 这一点是本节最重要的读法：<b>「不可判」不是「不合格」的同义词</b>，把两者混为一谈会得出错误的结论。</div>
+
+<h3>C.2 反例集（逐条说明缺了什么）</h3>
+
+<table>
+<tr><td>#</td><td>反例（原样）</td><td>它缺了什么</td><td>判定</td></tr>
+<tr><td>1</td><td>「<b>已接入。</b>」</td><td>缺<b>举证对象</b>（没有任何可回读的东西）· 缺<b>复跑命令</b></td><td><b>不可判</b></td></tr>
+<tr><td>2</td><td>「<b>举证卡在这里，格式你自己看。</b>」</td><td>缺<b>复跑命令</b> ⇒ 读数是<b>一次性的</b>，下次<b>无法重算</b></td><td><b>不可判</b></td></tr>
+<tr><td>3</td><td>「<b>跑过了，12/12 全过。</b>」</td><td>缺<b>原始输出</b> ⇒ 无法确认<b>命令真的执行过</b>、<b>跑的是哪一条</b></td><td><b>不可判</b></td></tr>
+<tr><td>4</td><td>命令打印的是<b>全库统计</b>（「库内共 N 条，其中合规 M 条」）</td><td>缺<b>对象与命令的对应</b> ⇒ 读者<b>无法把结论落回被举证的那一条</b></td><td><b>不可判</b></td></tr>
+<tr><td>5</td><td>举证对象里写规范版本值，而<b>实际写入路径</b>里写的是另一个值</td><td>缺<b>声明与事实的一致性</b> ⇒ 命令 <b>MUST 从实际写入路径读出</b>，<b>MUST NOT 从声明里读出</b></td><td><b>未达标</b></td></tr>
+<tr><td>6</td><td>只列出已接入的面，<b>没有列出未接入的面</b></td><td>缺<b>未接入面的显式声明</b> ⇒ 读者把<b>沉默</b>当成「已全部接入」 ⇒ <b>分母少算 ⇒ 读数虚高于事实</b>。⇒ 注意：<b>省略该字段不等于写出「无」</b></td><td><b>未达标</b>（读数虚高）</td></tr>
+<tr><td>7</td><td>声明为「无身份」，但该产出<b>实际来自一个有身份的写入方</b></td><td>缺<b>类别声明的事实依据</b> ⇒ 「无身份」<b>只适用于来源可指认且确实无身份的三类</b></td><td><b>未达标</b>（且属 §9.1 的滥用）</td></tr>
+<tr><td>8</td><td>身份字段与类别字段<b>都不出现</b></td><td>缺<b>身份状态的声明</b> ⇒ <b>「未声明」不是「无身份」</b>：读者<b>无法区分</b>「本来就没有」与「有但不写」</td><td><b>未达标</b></td></tr>
+<tr><td>9</td><td>时刻字段填了一个<b>与提交时刻无关</b>的值</td><td>缺<b>可核性</b>；且该值会<b>污染去重窗口</b>的判据（窗口以它为基准）</td><td><b>不可判</b></td></tr>
+<tr><td>10</td><td>声称「已写入」，但<b>没有给出成功状态码</b></td><td>缺<b>成功状态码</b> ⇒ 写入被拒时<b>返回值照常存在</b> ⇒ 只看返回值<b>不足以</b>判定已写入</td><td><b>不可判</b></td></tr>
+</table>
+
+<h3>C.3 三处易混（它们<b>不是</b>不合格的举证）</h3>
+
+<p>下列三种情形常被误记为「不合格」。<b>它们不是。</b> 把它们误记为不合格，会<b>惩罚正确的做法</b>。</p>
+
+<table>
+<tr><td>情形</td><td>为什么<b>不是</b>不合格</td></tr>
+<tr><td><b>声明了一个很小的面，但对该面举证完整</b></td><td>这是<b>合格</b>的举证。达标比例按<b>声明并举证的范围</b>算 ⇒ 比例<b>高</b>。⇒ 它<b>不违反契约</b>，但<b>不划算</b>：少声明<b>不缩小已明示的未接入清单</b>（见 §9.1 第 5 条）</td></tr>
+<tr><td><b>原始输出中遮蔽了含秘密或个人数据的部分</b></td><td>这是<b>合格</b>的举证 —— 本契约<b>不索取秘密</b>（§9.2）。⇒ 判据是<b>是否保留了足以判定该产出身份与字段齐备性的部分</b>。<b>遮蔽 ≠ 只给摘要</b>：遮蔽保留的是「这条是什么」，摘要丢掉的是「它是不是真的存在」</td></tr>
+<tr><td><b>一份「仅自证」的举证</b></td><td>这是<b>合格</b>的举证 —— 异体核验是<b>建议</b>级（SHOULD，见 §8.2）。⇒ 但只要它<b>显式记为「仅自证」</b>，它使读者<b>能看出它与已核的不同</b>。⇒ 不合格的是<b>让仅自证的看起来像已核的</b></td></tr>
+</table>
+
+<h3>C.4 一个合格的举证长什么样</h3>
+
+<p><pre>{
+  &quot;evidenceType&quot;: &quot;cahac-onboarding-evidence&quot;,
+  &quot;contractVersion&quot;: &quot;v2&quot;,
+  &quot;producerCategory&quot;: &quot;identified&quot;,
+  &quot;producerIdentity&quot;: &quot;writer-example-0001&quot;,
+  &quot;envelopeVersionDeclared&quot;: &quot;&lt;取规范性引用所指规范版本处的规范值&gt;&quot;,
+  &quot;declaredScope&quot;: [&quot;point-to-point&quot;, &quot;shared-state&quot;],
+  &quot;undeclaredScope&quot;: [&quot;broadcast&quot;],
+  &quot;evidenceCommand&quot;: &quot;jq -r &#x27;[\&quot;cahac\&quot;,\&quot;id\&quot;,\&quot;type\&quot;,\&quot;channel\&quot;,\&quot;sender\&quot;,\&quot;recipient\&quot;,\&quot;thread\&quot;,\&quot;priority\&quot;,\&quot;cost_cap\&quot;,\&quot;dedup_key\&quot;,\&quot;ts\&quot;,\&quot;payload\&quot;] - (keys) | length&#x27; &lt;该产出的 JSON&gt;&quot;,
+  &quot;evidenceRawOutput&quot;: &quot;0\n&lt;退出状态码：0&gt;&quot;,
+  &quot;selfReadBack&quot;: {&quot;present&quot;: 12, &quot;required&quot;: 12},
+  &quot;writtenAt&quot;: &quot;2030-01-01T00:00:00Z&quot;,
+  &quot;supersedes&quot;: null
+}
+</pre></p>
+
+<p><b>示例中的 <code>writer-example-0001</code> 与 <code>2030-01-01T00:00:00Z</code> 均为占位示例</b>，不指向任何实际对象。本示例保留旧字段名，其与 §5 的对应关系见附录 A.4。</p>
+
+<p><b>它为什么合格（对照 C.1 的四问）：</b></p>
+
+<table>
+<tr><td>四问</td><td>本例的答案</td></tr>
+<tr><td><b>可回读</b></td><td>是 —— <code>evidenceCommand</code> 指向一条<b>具体的产出</b>，任何人现在都能再读它</td></tr>
+<tr><td><b>可复跑</b></td><td>是 —— 命令<b>不依赖任何临时状态</b>，单独再跑给出同一形状</td></tr>
+<tr><td><b>对象与命令对应</b></td><td>是 —— 命令的输出是<b>那一条产出自身</b>的字段齐备数（<code>0</code> = 不缺字段），<b>不是全库统计</b></td></tr>
+<tr><td><b>身份状态已声明</b></td><td>是 —— <code>producerCategory</code> 取值为 <code>identified</code>，且<b>同时</b>携带了 <code>producerIdentity</code></td></tr>
+</table>
+
+<p>并且它<b>示范了「显式声明未接入面」</b>：<code>undeclaredScope</code> <b>存在</b>，取值 <code>[&quot;broadcast&quot;]</code> —— 即该写入方<b>明说</b>它尚未接入全员广播这一面。⇒ <b>把未接入的一面说出来，不会使它不合格；把它藏起来，才会使读数虚高。</b></p>
+</div></body></html>
