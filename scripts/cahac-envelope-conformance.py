@@ -76,12 +76,45 @@ def card_value(ns, key):
         return None
 
 
+WINDOW_STATS = {}          # ★ D-431：最近一次过窗的三态计数（★ 供 `--window-stats` 读取，★ 不改 JSON 主输出形状）
+
+
+def _window_admit(inner_ts, outer_ts, since):
+    """★★★ 2026-10-15（D-431）【时间窗判据：★ 必须读【内层 value.ts】，★ 不能只读板级 ts】——
+
+    ★ 立据（★ 本线实测的因果链，★ 不是推演）：★ 本线回填 28 张 `manager-actions` 旧卡的署名声明
+      （★ 内容原样保留、★ 只加两格）⇒ ★★ **板级 ts 被这次重写顶到当天**
+      ⇒ ★ 本判据按【外层 ts】过窗 ⇒ 那 28 张**旧卡**被算进「今日窗」
+      ⇒ ★ 本机侧分母 **37 → 65**、符合度 **73% → 41.5%** ⇒ ★★ **跌破 50% 阈 ⇒ 判据由 SKIP 转 FAIL**
+      （★ 一条红被我【合法但无关】的动作带出来了）。
+    ★★ 而本仓对此**早有纪律**：★ **R062②** 逐字 —— ★「板级 `ts` 会被归档覆盖 ⇒ 凡按板级 ts
+      计龄/排序的读者**必须同时读内层 `value.ts` 并报两者之差**」。★ 本判据当时**没照做**。
+    ★ 故本函数给出【三态】判读（★ 纯函数 ⇒ 可单测）：
+      · `inner` ≥ since ⇒ **in**（★ 真·窗内卡）；
+      · `inner` 缺失 ⇒ 回退外层 ⇒ **in_outer_fallback**（★ 如实标注口径）；
+      · 外层 ≥ since **而** 内层 < since ⇒ **bumped_out**（★ **被重写顶进窗口的旧卡** ⇒ ★ 不计入）；
+      · 其余 ⇒ **out**。
+    ★★ 声明的面限度：★ 本函数只在【外层已过窗】的候选上做内层精判 ⇒ ★ **外层旧、内层新**的卡
+      不会被捞回（★ 那是另一种形态，★ 本条未覆盖 —— 见 `D-431`）。
+    """
+    i = (inner_ts or "").strip()
+    o = (outer_ts or "").strip()
+    if i and i >= since:
+        return "in", "内层 value.ts 在窗内"
+    if i and i < since and o >= since:
+        return "bumped_out", "★ 外层 ts 在窗内而内层不在 ⇒ 疑为重写顶入的旧卡"
+    if not i and o >= since:
+        return "in_outer_fallback", "★ 无内层 ts ⇒ 回退外层（★ 口径如实标注）"
+    return "out", "不在窗内"
+
+
 def measure(namespaces, since=None):
     # ★★ 2026-10-13【时间窗】（★ I-1 分层）—★
     #   ★ 立据：分母是【历史全量 642 张】⇒ ★★ **改工具不会让读数立刻变**。
     #   ★ 故加 `--since <时刻缓存串>`（★ 如 `2026-10-13`）⇒ 只算时间窗内的卡。
     since = (since or "").strip() or None
     seen = collections.Counter()          # 字段出现次数
+    window_stats = {}                     # ★ D-431：过窗三态计数（in / in_outer_fallback / bumped_out）
     scanned = 0                           # ★ 真扫过的卡数（分母）
     with_payload = 0
     envelope_ok = 0
@@ -89,9 +122,24 @@ def measure(namespaces, since=None):
     errs = []
     for ns in namespaces:
         keys, ts_map, err = list_ns(ns)
-        # ★ 2026-10-13（I-1 分层）：用【外层 ts】过窗（★ ISO 格式，★ 可直接比）
+        # ★ 2026-10-13（I-1 分层）：用【外层 ts】过窗 —— ★★ 2026-10-15（D-431）**改为内层优先**：
+        #   ★ 外层只作【候选初筛】，★ 命中的候选再读**内层 `value.ts`** 精判（★ 依 R062②）。
         if since:
             keys = [k for k in keys if str(ts_map.get(k) or '') >= since]
+            _kept = []
+            for k in keys:
+                _v = card_value(ns, k)
+                _iv = None
+                _vv = _v
+                for _ in range(3):                    # ★ 兼收双层包裹的卡形
+                    if isinstance(_vv, dict) and isinstance(_vv.get("ts"), str):
+                        _iv = _vv["ts"]; break
+                    _vv = _vv.get("value") if isinstance(_vv, dict) else None
+                _adm, _whyw = _window_admit(_iv, str(ts_map.get(k) or ""), since)
+                window_stats[_adm] = window_stats.get(_adm, 0) + 1
+                if _adm in ("in", "in_outer_fallback"):
+                    _kept.append(k)
+            keys = _kept
         if err:
             errs.append(err); per_ns[ns] = "ERR"; continue
         per_ns[ns] = len(keys)
@@ -117,7 +165,8 @@ def measure(namespaces, since=None):
             if all(f in v for f in req) and _val_ok:
                 envelope_ok += 1
     return dict(seen=seen, scanned=scanned, with_payload=with_payload,
-                envelope_ok=envelope_ok, per_ns=per_ns, errs=errs)
+                envelope_ok=envelope_ok, per_ns=per_ns, errs=errs,
+                window_stats=window_stats)          # ★ D-431：把口径与「顶入」计数报出来
 
 
 def report(namespaces, as_json=False, since=None):
@@ -262,6 +311,7 @@ def lean4_check():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tiers", action="store_true")   # ★★ 2026-10-15（D-349）只输出分层
+    ap.add_argument("--window-stats", action="store_true")  # ★ D-431：只报过窗口径（in/回退/顶入被排除）
     # ★★★ 2026-10-13 修（D-324）：**默认改为扫【全部 `notes/`】**—★
     #   ★ 立据：原默认只扫 `notes/collab`（★ 653 锠），
     #     ★★ 而 `notes/` 共 **18825** 锠 ⇒ **`collab` 只占 3.5%**—★
@@ -274,6 +324,13 @@ def main():
     ap.add_argument("--lean4-check", action="store_true")
     ap.add_argument("--version", action="store_true")
     a = ap.parse_args()
+    if getattr(a, "window_stats", False):
+        split_tiers(a.since)
+        print(json.dumps({"window_stats": WINDOW_STATS, "since": a.since,
+                          "★ 判据": "in=内层 ts 在窗内 · in_outer_fallback=无内层 ts 故回退外层 · "
+                                  "bumped_out=外层在窗内而内层不在（★ 疑为重写顶入的旧卡，★ 已排除）· out=初筛出局"},
+                         ensure_ascii=False, indent=1))
+        return 0
     if getattr(a, "tiers", False):
         import json as _j
         _out = split_tiers(a.since)
@@ -304,8 +361,34 @@ def split_tiers(since=None):
             if isinstance(tm, dict):
                 _tsmap.update(tm)
     # ★★ 2026-10-15（D-348）：**必须带窗**（★ 否则分层与上方总数口径不同）—★
+    # ★★★ 2026-10-15（D-431）：★ **本函数原先【只读板级 ts】** ⇒ ★★ 而板级 ts 会被【重写】顶到当天
+    #   ⇒ ★ 本线回填 28 张旧卡后，它们被算进「今日窗」⇒ 本机侧分母 37 → 65、符合度 73% → 41.5%
+    #   ⇒ **跌破 50% 阈 ⇒ 判据 SKIP → FAIL**（★ 一条红被【合法但无关】的动作带出）。
+    #   ★★ 依 **R062②**：★「板级 `ts` 会被归档覆盖 ⇒ 凡按板级 ts 计龄/排序者**必须同时读内层
+    #     `value.ts`** 并报两者之差」⇒ ★ 本函数**当时没照做**。★ 现改为【外层初筛 + 内层精判】，
+    #     ★ 并把三态计数落到模块级 `WINDOW_STATS`（★ 不改进本函数的返回形状 —— ★ 它是 beacon 解析的 JSON）。
+    global WINDOW_STATS
+    _wstats = {}
     if since:
-        keys = [k for k in keys if str(_tsmap.get(str(k)) or "")[:10] >= str(since)[:10]]
+        _s10 = str(since)[:10]
+        _kept = []
+        for k in keys:
+            _o = str(_tsmap.get(str(k)) or "")[:10]
+            if _o < _s10:
+                _wstats["out"] = _wstats.get("out", 0) + 1
+                continue
+            _v0 = card_value("/".join(str(k).split("/")[:2]) + "/", k)
+            _iv, _vv = None, _v0
+            for _ in range(3):
+                if isinstance(_vv, dict) and isinstance(_vv.get("ts"), str):
+                    _iv = _vv["ts"][:10]; break
+                _vv = _vv.get("value") if isinstance(_vv, dict) else None
+            _adm, _why = _window_admit(_iv, _o, _s10)
+            _wstats[_adm] = _wstats.get(_adm, 0) + 1
+            if _adm in ("in", "in_outer_fallback"):
+                _kept.append(k)
+        keys = _kept
+    WINDOW_STATS = _wstats
     a_loc = b_loc = a_rel = b_rel = 0
     for k in keys:
         ns = "/".join(str(k).split("/")[:2]) + "/"

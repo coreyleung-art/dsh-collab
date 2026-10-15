@@ -1,0 +1,231 @@
+{
+ "ns": "notes/mac-mini/manager-actions/",
+ "n": 28,
+ "cards": {
+  "notes/mac-mini/manager-actions/20260906143337441485": {
+   "_via": "comm-central",
+   "detail": "æµè¯äºæ­¥é¨å»ºè¾¹AâB",
+   "event": "connect-executed",
+   "from": "systemgraph-gui",
+   "level": "important",
+   "ts": "2026-09-06T14:33:37.441510"
+  },
+  "notes/mac-mini/manager-actions/20260906165116864473": {
+   "_via": "comm-central",
+   "detail": "æµè¯",
+   "event": "connect-executed",
+   "from": "systemgraph-gui",
+   "level": "important",
+   "ts": "2026-09-06T16:51:16.864496"
+  },
+  "notes/mac-mini/manager-actions/20260906221653952904": {
+   "_via": "comm-central",
+   "detail": "API 404 /api/definitely-not-exist → 前端可观测(自动上报)",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-06T22:16:53.952935"
+  },
+  "notes/mac-mini/manager-actions/20260906222125733267": {
+   "_via": "comm-central",
+   "detail": "API 500 /sg/api/workflow → 前端可观测(自动上报)",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-06T22:21:25.733326"
+  },
+  "notes/mac-mini/manager-actions/20260906222212667046": {
+   "_via": "comm-central",
+   "detail": "五步门建边 session-ffb7 ↔ session-b193",
+   "event": "connect-executed",
+   "from": "systemgraph-gui",
+   "level": "important",
+   "ts": "2026-09-06T22:22:12.667074"
+  },
+  "notes/mac-mini/manager-actions/20260907205347326117": {
+   "_via": "comm-central",
+   "detail": "API 500 /sg/api/workflow → 前端可观测(自动上报)",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-07T20:53:47.326770"
+  },
+  "notes/mac-mini/manager-actions/20260908150200933906": {
+   "_via": "comm-central",
+   "detail": "API 500 /sg/api/workflow → 前端可观测(自动上报)",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-08T15:02:00.934164"
+  },
+  "notes/mac-mini/manager-actions/20260908175001788779": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/hwprobe signal is aborted without reason",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-08T17:50:01.788860"
+  },
+  "notes/mac-mini/manager-actions/20260920135241067629": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/health Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-20T13:52:41.067656"
+  },
+  "notes/mac-mini/manager-actions/20260920135249100452": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/health Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-20T13:52:49.100522"
+  },
+  "notes/mac-mini/manager-actions/20260920135837199375": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/knowledge-graph Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-20T13:58:37.199430"
+  },
+  "notes/mac-mini/manager-actions/20260920135859725924": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/knowledge-graph Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-20T13:58:59.725970"
+  },
+  "notes/mac-mini/manager-actions/20260920140235939812": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/cap-view Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-20T14:02:35.939868"
+  },
+  "notes/mac-mini/manager-actions/20260922175054211894": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/bpinfo/flowernet Failed to fetch",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-22T17:50:54.212043"
+  },
+  "notes/mac-mini/manager-actions/20260922175218701854": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/cap-view signal is aborted without reason",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-09-22T17:52:18.701899"
+  },
+  "notes/mac-mini/manager-actions/20261008042901441228": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /sg/api/health Failed to fetch",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-08T04:29:01.441241"
+  },
+  "notes/mac-mini/manager-actions/20261012033741336558": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/blueprints Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-12T03:37:41.336579"
+  },
+  "notes/mac-mini/manager-actions/20261013013224323324": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/hwcomm Load failed",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T01:32:24.323353"
+  },
+  "notes/mac-mini/manager-actions/20261013020917868506": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/hwprobe Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T02:09:17.868535"
+  },
+  "notes/mac-mini/manager-actions/20261013025421226502": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/hwprobe Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T02:54:21.226528"
+  },
+  "notes/mac-mini/manager-actions/20261013030747632310": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/hwprobe Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T03:07:47.632336"
+  },
+  "notes/mac-mini/manager-actions/20261013035527612087": {
+   "_via": "comm-central",
+   "detail": "API 网络失败 /api/hwprobe Fetch is aborted",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T03:55:27.612112"
+  },
+  "notes/mac-mini/manager-actions/20261013044711224788": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:47:11.224818"
+  },
+  "notes/mac-mini/manager-actions/20261013044711262762": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:47:11.262799"
+  },
+  "notes/mac-mini/manager-actions/20261013044711294802": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:47:11.294817"
+  },
+  "notes/mac-mini/manager-actions/20261013044711328364": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-B-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:47:11.328385"
+  },
+  "notes/mac-mini/manager-actions/20261013044811230399": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-C-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:48:11.230495"
+  },
+  "notes/mac-mini/manager-actions/20261013044811343467": {
+   "_via": "comm-central",
+   "detail": "TEST-DEDUP-D-20261013",
+   "event": "error",
+   "from": "systemgraph-gui",
+   "level": "info",
+   "ts": "2026-10-13T04:48:11.343496"
+  }
+ },
+ "why": "D-287 回填前快照（回滚点）"
+}
