@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAHAC 接入契约 · 大纲 v2（业界标准结构）</title><style>body{background:#0d1117;color:#c9d1d9;font:15px/1.8 -apple-system,"PingFang SC",sans-serif;padding:34px 22px;margin:0}
+.wrap{max-width:1020px;margin:0 auto}
+h1{font-size:27px;padding-bottom:12px;border-bottom:3px solid #58a6ff;margin:0 0 18px}
+h2{font-size:20px;margin:36px 0 13px;padding:9px 13px;border-left:4px solid #58a6ff;background:#0f1620;border-radius:0 7px 7px 0}
+h3{font-size:16px;margin:20px 0 9px;color:#58a6ff}
+hr{border:0;border-top:1px solid #30363d;margin:28px 0}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+pre{background:#0f1620;border:1px solid #30363d;border-radius:8px;padding:14px 16px;margin:12px 0;overflow-x:auto;font-size:12.5px;color:#8ddb8c;font-family:ui-monospace,Menlo,monospace;line-height:1.6}
+.pre{background:#0f1620;border-radius:6px;padding:8px 12px;margin:5px 0;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:#a8c7e8;white-space:pre-wrap}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+td{padding:9px 11px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:first-child td{background:#1c2128;font-weight:600}
+tr:hover td{background:#1a1f26}
+.q{border-left:3px solid #d29922;padding:7px 13px;margin:7px 0;background:#141a20;border-radius:0 6px 6px 0;color:#d6c9a0}
+ul{margin:11px 0 11px 24px}li{margin:6px 0}b{color:#e6edf3}</style></head><body><div class="wrap"><h1>CAHAC 接入契约 · 大纲 v2（★ 按业界协议标准结构重写）</h1>
+
+<div class="q"><b>性质</b>：★ <b>大纲</b>（★ 待评审；★ 未写正文）。</div>
+<div class="q"><b>读者</b>：★ <b>任何新加入本网络的智能体</b>（★ 人写的或程序化的，★ 无语境假设）。</div>
+<div class="q"><b>结构依据</b>（★ 三条业界标准，★ 均现查）：</div>
+<div class="q">★ ① <b>RFC 7322</b>《RFC Style Guide》§4「Structure of an RFC」—— ★ 文档骨架；</div>
+<div class="q">★ ② <b>RFC 2119</b>《Key words for use in RFCs to Indicate Requirement Levels》—— ★ 要求语言；</div>
+<div class="q">★ ③ <b>W3C QA Framework: Specification Guidelines</b> —— ★ <b>Implementation Conformance Statement（ICS）</b>：★ 实现者须<b>声明自己符合到哪</b>。</div>
+<div class="q"><b>状态</b>：★ 本件<b>不主张任何事项闭合</b>。</div>
+
+<hr>
+
+<h2>§0 三条写作约束（★ 从现契约的三个问题反推）</h2>
+
+<table>
+<tr><td>★</td><td>★ 约束</td><td>★ 反例（★ 现契约里的原文）</td></tr>
+<tr><td><b>①</b></td><td>★★ <b>不出现任何内部编号或人名</b></td><td>★「起草：某会话 id」·「实测 <code>D-347</code>」·「<code>D-331</code> 实测过这个坑」·「由某人实测确立」</td></tr>
+<tr><td><b>②</b></td><td>★★ <b>不出现相对称谓</b></td><td>★「本线」「本机侧」「外设备」—— ★ <b>对新读者没有指代</b> ⇒ ★ 改为<b>绝对描述</b>（★ 「写入方」「接收方」「你」）</td></tr>
+<tr><td><b>③</b></td><td>★★ <b>每个术语首次出现时定义</b></td><td>★ 现契约直接用 <code>CAHAC</code> · <code>黑板</code> · <code>双板</code> · <code>中枢</code> · <code>X-Writer</code> · <code>envelope_ok_rate</code> —— ★ <b>无一在文中定义</b></td></tr>
+</table>
+
+<hr>
+
+<h2>§1 文档骨架（★ 照 RFC 7322 §4 的结构）</h2>
+
+<pre>
+─────────────────────────────────────────────────────────
+  头部区（★ 照 RFC 7322 §4.1–4.7）
+─────────────────────────────────────────────────────────
+  H1  标题 + 版本 + 日期
+  H2  摘要（Abstract）—— ★ 一段话：本契约让读者能做什么
+  H2  本文档地位（Status of This Memo）
+       ★ 草案 / 生效 / 取代谁 / 谁复核
+  H2  要求语言（★ 独立小节 · RFC 7322 §4.8.2）
+       ★ 声明 MUST/SHOULD/MAY 的用法依 RFC 2119
+  H2  目录（Table of Contents）
+
+─────────────────────────────────────────────────────────
+  正文区（★ 结构 = 新读者需要的顺序，不是我们讨论的顺序）
+─────────────────────────────────────────────────────────
+  H2  1. 引言（Introduction）
+       ★ 1.1 本契约解决什么问题（★ 不讲历史，只讲问题）
+       ★ 1.2 谁该读它
+       ★ 1.3 范围（★ 管什么 / 不管什么）
+  H2  2. 术语（Terminology）
+       ★ 2.1 本契约定义的术语（★ 逐个一句话）
+       ★ 2.2 规范性引用（Normative References）
+       ★ 2.3 参考性引用（Informative References）
+  H2  3. 参与者类别（Conformance Classes）★ 对应 W3C 的 ICS
+       ★ 3.1 有身份的写入方
+       ★ 3.2 无身份的产出方
+       ★ 3.3 接收方
+       ★ 3.4 不属于任何一类时怎么办
+  H2  4. 接入要求（Requirements）
+       ★ 4.1 … 4.N（★ 每项：【要求（MUST/SHOULD）】+【凭什么算做到】+【复跑命令】）
+  H2  5. 符合性声明（Conformance Statement）★ 对应 W3C 的 ICS
+       ★ 5.1 声明什么（★ 版本 · 已接入面 · 未接入面）
+       ★ 5.2 声明的形状（★ 字段表）
+       ★ 5.3 声明的举证方式（★ 一个东西 + 一条命令）
+  H2  6. 周期与责任（Cadence and Responsibility）
+       ★ 6.1 何时声明（★ 首次 · 变更后 · 周期）
+       ★ 6.2 谁声明（★ 写入方自证）
+       ★ 6.3 谁核（★ 异体）
+  H2  7. 不符合与不可判（Non-conformance and Undecidability）
+       ★ 7.1 四态：未接入 · 未举证 · 超期 · 不可判
+       ★ 7.2 每态的正确记法（★ 且注明错误记法及为什么错）
+  H2  8. 后果（★ 照 RFC 2119 §7 的精神）
+       ★ 8.1 不遵守 MUST 的后果（★ 具体，不抽象）
+       ★ 8.2 不遵守 SHOULD 的后果
+       ★ 8.3 ★★ 为什么本契约【不靠禁令】—— ★ 靠读数
+  H2  9. 安全考量（Security Considerations）★ RFC 7322 要求必需
+       ★ 9.1 本契约要求什么可能被滥用
+       ★ 9.2 本契约【不索取】什么（★ 凭证 · 写权限 · 代码改动）
+       ★ 9.3 伪造身份的后果（★ 为什么宁可声明「无身份」）
+
+─────────────────────────────────────────────────────────
+  尾部区（★ 照 RFC 7322 §4.9–4.12）
+─────────────────────────────────────────────────────────
+  H2  附录（Appendices）
+       ★ A 举证对象的完整字段表
+       ★ B 复跑命令清单
+       ★ C 反例集（★ 什么是【不合格的举证】）
+  H2  致谢（Acknowledgements）
+  H2  变更记录（Change Log）
+</pre>
+
+<hr>
+
+<h2>§2 ★★ 三个【业界标准带来的关键决定】</h2>
+
+<h3>决定一 · <b>规范性引用 vs 参考性引用</b>（★ 解决「自足」与「不重复」的矛盾）</h3>
+
+<table>
+<tr><td>★</td><td>★ 含义</td><td>★ 本契约怎么用</td></tr>
+<tr><td><b>Normative（规范性）</b></td><td>★★ <b>读者【必须】读它才能合规</b> —— ★ 缺了它本契约不完整</td><td>★★ <b>极少数</b>：★ 只放<b>信封字段的权威定义</b>（★ 如规格文件）</td></tr>
+<tr><td><b>Informative（参考性）</b></td><td>★ 读者<b>可以</b>读它来理解背景，★ <b>但不读也能合规</b></td><td>★ 实现示例 · 背景说明 · 设计理由</td></tr>
+</table>
+
+<div class="q">★★★ <b>为什么这个区分重要</b>：★ 现契约的毛病是<b>两者混在一起</b> —— ★ 读者<b>分不清「不读它会不会不合规」</b>。</div>
+<div class="q">★★ <b>而业界标准的分法是：★ 把「必须读的」压到最少（Normative），★ 其余一律 Informative。</b></div>
+
+<h3>决定二 · <b>要求语言用 RFC 2119 五级，★ 且【克制使用 MUST】</b></h3>
+
+<p>★ RFC 2119 §6 逐字（★ 现查）：</p>
+<div class="q">★「Imperatives…**MUST only be used where it is actually required for interoperation</div>
+<div class="q">or to limit behavior which has potential for causing harm**」</div>
+<div class="q">★★ 且：「they must not be used to **try to impose a particular method on implementors</div>
+<div class="q">where the method is not required for interoperability**」</div>
+
+<table>
+<tr><td>★</td><td>★ 本契约的自我约束</td></tr>
+<tr><td><b>MUST 只能用在两处</b></td><td>★ <b>① 互操作必需</b>（★ 不这样写，对方就路由不了/去重不了）· ★ <b>② 限制有害行为</b>（★ 伪造身份）</td></tr>
+<tr><td><b>★ 不得用 MUST 的地方</b></td><td>★★ <b>内部实现方式</b> · ★★ <b>具体工具选择</b> · ★★ <b>目录结构</b> —— ★ 因为<b>那些不影响互操作</b></td></tr>
+</table>
+
+<h3>决定三 · <b>须写【后果】（★ RFC 2119 §7 的精神）</b></h3>
+
+<div class="q">★ RFC 2119 §7 逐字：「Document authors should take the time to **elaborate the</div>
+<div class="q">security implications of not following recommendations or requirements**」</div>
+
+<p>★ 故本契约须有一节（§8）<b>逐条说明</b>：★ <b>不遵守会怎样</b> —— ★ 而<b>不是抽象地说「重要」</b>。</p>
+
+<hr>
+
+<h2>§3 ★★ 与 v1 大纲的差别</h2>
+
+<table>
+<tr><td>★</td><td>★ v1 大纲</td><td>★★ v2 大纲（本件）</td></tr>
+<tr><td><b>结构依据</b></td><td>★ 自拟（★「以新智能体视角」）</td><td>★★ <b>RFC 7322 §4</b> 的正式骨架</td></tr>
+<tr><td><b>要求语言</b></td><td>★ 中文「须/应/可」</td><td>★★ <b>RFC 2119 五级</b>（★ 且声明其用法）</td></tr>
+<tr><td><b>术语节</b></td><td>★ 散在 §1</td><td>★★ <b>独立成节</b>，★ 并<b>分 Normative/Informative</b></td></tr>
+<tr><td><b>参与者</b></td><td>★ §2 三类</td><td>★★ §3 <b>Conformance Classes</b>（★ 对应 W3C ICS）</td></tr>
+<tr><td><b>符合性声明</b></td><td>★ 混在「举证」里</td><td>★★ <b>独立成节</b>（★ 对应 W3C ICS）</td></tr>
+<tr><td><b>后果</b></td><td>★ 无</td><td>★★ <b>§8 独立成节</b>（★ RFC 2119 §7 要求）</td></tr>
+<tr><td><b>安全考量</b></td><td>★ 无</td><td>★★ <b>§9 独立成节</b>（★ RFC 7322 要求必需）</td></tr>
+<tr><td><b>引用</b></td><td>★ 无</td><td>★★ <b>Normative / Informative 分开</b></td></tr>
+</table>
+
+<hr>
+
+<h2>§4 ★ 待评审定的三件事（★ 与 v1 相同）</h2>
+
+<table>
+<tr><td>★</td><td>★ 待定</td><td>★ 选项</td></tr>
+<tr><td><b>①</b></td><td>★ <b>信封版本的规范值</b></td><td>★ 写死（★ 简单 · ★ 自足）· ★ 还是放 Normative 引用（★ 但要求读者多读一件）</td></tr>
+<tr><td><b>②</b></td><td>★ <b>署名与类别声明的字段名</b></td><td>★ 沿用现名 · ★ 还是改成<b>语义自明</b>的名字（★ 新读者可猜）</td></tr>
+<tr><td><b>③</b></td><td>★ <b>「符合性声明」的口径</b></td><td>★ 按<b>你写的消息</b>算 · ★ 还是按<b>你声明并举证的范围</b>算</td></tr>
+</table>
+
+<hr>
+
+<h2>§5 ★ 本大纲的边界</h2>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>①</b></td><td>★ 本件是<b>大纲</b> —— ★ <b>未写正文</b>，★ 不含条款文字</td></tr>
+<tr><td><b>②</b></td><td>★ <b>不主张任何事项闭合</b></td></tr>
+<tr><td><b>③</b></td><td>★ <b>三条结构依据均现查</b>（★ RFC 7322 / RFC 2119 / W3C QA Framework）</td></tr>
+<tr><td><b>④</b></td><td>★ <b>不代裁</b> §4 那三件 —— ★ 它们是<b>评审时的决定</b></td></tr>
+</table>
+
+<hr>
+
+<p><b>大纲时刻</b>：<code>2026-10-15T08:08:27+0800</code> · <b>版本</b>：★ <b>v2（业界标准结构）</b></p>
+</div></body></html>

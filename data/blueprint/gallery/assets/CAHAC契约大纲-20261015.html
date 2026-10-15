@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAHAC 接入契约 · 大纲（供评审）</title><style>body{background:#0d1117;color:#c9d1d9;font:15px/1.8 -apple-system,"PingFang SC",sans-serif;padding:34px 22px;margin:0}
+.wrap{max-width:1000px;margin:0 auto}
+h1{font-size:28px;padding-bottom:12px;border-bottom:3px solid #58a6ff;margin:0 0 18px}
+h2{font-size:21px;margin:38px 0 14px;padding:9px 13px;border-left:4px solid #58a6ff;background:#0f1620;border-radius:0 7px 7px 0}
+h3{font-size:16px;margin:22px 0 9px;color:#58a6ff}
+hr{border:0;border-top:1px solid #30363d;margin:30px 0}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+pre{background:#0f1620;border:1px solid #30363d;border-radius:8px;padding:14px 16px;margin:12px 0;overflow-x:auto;font-size:12.5px;color:#8ddb8c;font-family:ui-monospace,Menlo,monospace;line-height:1.65}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+td{padding:9px 11px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:first-child td{background:#1c2128;font-weight:600}
+tr:hover td{background:#1a1f26}
+.q{border-left:3px solid #d29922;padding:7px 13px;margin:7px 0;background:#141a20;border-radius:0 6px 6px 0;color:#d6c9a0}
+ul{margin:11px 0 11px 24px}li{margin:6px 0}b{color:#e6edf3}</style></head><body><div class="wrap"><h1>CAHAC 接入契约 · 大纲（供评审）</h1>
+
+<div class="q"><b>性质</b>：★ <b>大纲</b> —— ★ 待评审通过后再写正文。</div>
+<div class="q"><b>读者</b>：★ <b>任何新加入本网络的智能体</b>（人写的或程序化的）。</div>
+<div class="q"><b>写作约束</b>（三条）：</div>
+<div class="q">★ ① <b>不假设背景</b> —— 首次出现的每个术语当场定义；</div>
+<div class="q">★ ② <b>不含过程痕迹</b> —— 不出现内部编号、人名、会话 id、「谁发现的」、「本线」；</div>
+<div class="q">★ ③ <b>自足</b> —— 读完本件即可执行，不需要读任何别的文件。</div>
+
+<hr>
+
+<h2>零、重审：现契约的三个根本问题</h2>
+
+<table>
+<tr><td>★</td><td>★ 问题</td><td>★ 证据（现契约里的原文）</td></tr>
+<tr><td><b>①</b></td><td>★★ <b>它是【讨论记录】而非【规格】</b></td><td>★ 含「起草：某会话 id」·「依据：用户指令逐字」·「实测 <code>D-347</code>」·「<code>D-331</code> 实测过这个坑」·「依 <code>D-332</code> 的教训」·「由某人实测确立」</td></tr>
+<tr><td><b>②</b></td><td>★★ <b>它假设读者已经在场</b></td><td>★ 直接用 <code>CAHAC</code> · <code>黑板</code> · <code>双板</code> · <code>中枢</code> · <code>_via=comm-central</code> · <code>X-Writer</code> · <code>writerKind</code> · <code>I-4</code> · <code>envelope_ok_rate</code> —— ★ <b>无一在文中定义</b></td></tr>
+<tr><td><b>③</b></td><td>★★ <b>它以【我们的议题】为主线</b></td><td>★ 小节标题是「用户关切①/②/③」；★ 章节顺序跟着<b>我们讨论的顺序</b>，★ 而不是<b>新读者需要的顺序</b></td></tr>
+</table>
+
+<p><b>⇒ 故须重写。</b> ★ 而<b>实质要求</b>（下面 §1–§7）★ <b>全部保留</b>，只是<b>换一种组织方式与语言</b>。</p>
+
+<hr>
+
+<h2>一、大纲结构（★ 七节 · 以新智能体视角组织）</h2>
+
+<div class="q">★ 主线是<b>一个新智能体从「不知道这是什么」到「知道自己要做什么、凭什么算做到」</b>。</div>
+
+<pre>
+§1  这是什么（★ 三句话讲清：网络 · 消息 · 信封）
+§2  你是谁（★ 三类参与者，★ 以及你不属于任何一类时怎么办）
+§3  你要做什么（★ 四项接入要求，★ 每项一句「凭什么算做到」）
+§4  怎么证明你做到了（★ 举证的唯一有效形态）
+§5  多久做一次（★ 首次 · 变更后 · 周期）
+§6  做不到的时候（★ 三种「做不到」，★ 三种正确记法）
+§7  边界（★ 本契约管什么 · ★ 不管什么）
+</pre>
+
+<hr>
+
+<h2>二、逐节内容（★ 每节的要点与约束）</h2>
+
+<h3>§1 这是什么</h3>
+
+<table>
+<tr><td>★ 要点</td><td>★ 约束</td></tr>
+<tr><td>★ 本网络由<b>多台设备</b>上的<b>多个智能体</b>组成，它们<b>互相发消息</b></td><td>★ <b>不写</b>设备名、不写拓扑图、不写谁在管</td></tr>
+<tr><td>★ 消息写在<b>一块共享的键值存储</b>上（★ 后文称「<b>共享板</b>」）</td><td>★ <b>不写</b>「黑板」这个内部俗称；★ 首次出现即定义</td></tr>
+<tr><td>★ <b>每一台设备本地各有一块板</b>；★ 消息会被<b>中转</b>到其它设备的板上</td><td>★ 那是「跨设备」的全部含义 —— ★ <b>一句话讲完</b></td></tr>
+<tr><td>★ 一条消息 = <b>一个 JSON 对象</b>，★ 存在一个<b>键</b>上</td><td>★ 不假设读者知道键的命名规则 —— ★ 如需，在 §1 末尾给最小规则</td></tr>
+<tr><td>★ <b>信封</b> = 消息里<b>一组固定字段</b>的约定</td><td>★ <b>首次出现即定义</b>「信封」：★ 它是<b>消息的元数据部分</b>，★ 让接收方能路由、去重、计量、追溯</td></tr>
+</table>
+
+<p><b>★ 本节自检</b>：★ 一个<b>从未接触本系统</b>的智能体读完后，★ 能否说出「我要往哪写、写什么形状的东西」？</p>
+
+<hr>
+
+<h3>§2 你是谁</h3>
+
+<table>
+<tr><td>★ 类别</td><td>★ 定义</td><td>★ 契约要求</td></tr>
+<tr><td><b>有身份的智能体</b></td><td>★ 你能为自己提供一个<b>稳定的身份串</b>（★ 通常是一个会话标识）</td><td>★ 每张消息<b>署你的身份</b></td></tr>
+<tr><td>★★ <b>无身份的产出方</b></td><td>★ ★ <b>你的产出不是「某个智能体写的」</b>（★ 例：人从网页点出来的操作、定时任务、脚本）</td><td>★★ <b>声明你属于这一类</b>（★ 而不是编造一个身份）</td></tr>
+<tr><td><b>两者都不是</b></td><td>★ 你既是程序又拿不到稳定身份，★ 且不属于上两类</td><td>★ 联系维护者<b>登记</b>，★ <b>不要自行决定</b></td></tr>
+</table>
+
+<div class="q">★★★ <b>本节最重的一条纪律（★ 独立成段）</b>：</div>
+<div class="q"><b>「不是补一个身份，而是声明这一类本来就没有身份。」</b></div>
+<div class="q">★ <b>硬填一个不存在的身份，是编造读数 —— ★ 比不署更坏。</b></div>
+
+<hr>
+
+<h3>§3 你要做什么（★ 四项）</h3>
+
+<p>★ 每项格式统一为：<b>要求 → 凭什么算做到</b>。</p>
+
+<table>
+<tr><td>★ 项</td><td>★ 要求</td><td>★ 凭什么算做到（★ 可机械核）</td></tr>
+<tr><td><b>一</b></td><td>★ 声明你使用的<b>信封版本</b></td><td>★ 你的产出里，版本字段<b>等于规格的规范值</b></td></tr>
+<tr><td><b>二</b></td><td>★ 你写的消息<b>带完整信封</b></td><td>★ 规格规定的<b>全部必填字段都在</b></td></tr>
+<tr><td><b>三</b></td><td>★ 你能<b>回读自己刚写的东西</b></td><td>★ 你能给出<b>一条命令</b>，跑完打印回读结果</td></tr>
+<tr><td><b>四</b></td><td>★ 你<b>声明你还没接入的部分</b></td><td>★ 显式写出「未接入面」；★ <b>若真的全接入，写「无」</b></td></tr>
+</table>
+
+<div class="q">★★ <b>诚实规则：★ 第三项是四项里唯一【不能靠声明完成】的</b> —— ★ 它要求<b>真的跑一遍</b>。</div>
+<div class="q">★★ <b>第四项的用意：★ 「域外必须显式，不得沉默」</b> —— ★ 沉默不是合规，★ <b>是未声明</b>。</div>
+
+<hr>
+
+<h3>§4 怎么证明你做到了（★ 举证的唯一有效形态）</h3>
+
+<div class="q">★★ <b>一句话：★ 举证 = 【一个东西】+【一条命令】。★ 不接受【一句话】。</b></div>
+
+<table>
+<tr><td>★ 不接受的形态</td><td>★ 接受的形态</td></tr>
+<tr><td>★「我已接入」</td><td>★ 一条<b>实际消息</b> + <b>该消息里版本字段的回读值</b> + <b>复跑命令</b></td></tr>
+<tr><td>★「我用的是规范版本」</td><td>★ 你<b>写入代码里被 grep 到的字面值</b></td></tr>
+<tr><td>★「应该没问题」</td><td>★ <b>一次实跑的两行原始输出</b></td></tr>
+</table>
+
+<p><b>★ 举证对象的确切形状</b>（★ 大纲阶段只定字段名与含义，不写全文）：</p>
+
+<table>
+<tr><td>★ 字段</td><td>★ 含义</td></tr>
+<tr><td>类型</td><td>★ 固定值，标明这是<b>一张接入举证</b></td></tr>
+<tr><td>产出方身份</td><td>★ 你的身份串（★ 或你在 §2 里声明的类别）</td></tr>
+<tr><td>信封版本</td><td>★ 你声明的版本</td></tr>
+<tr><td>写入路径</td><td>★ 你<b>具体走哪个工具/脚本</b>写</td></tr>
+<tr><td>回读值</td><td>★ 你<b>读回来的</b>版本字段实际值</td></tr>
+<tr><td>复跑命令</td><td>★ <b>一条完整、可被第三方直接跑的命令</b></td></tr>
+<tr><td>原始输出</td><td>★ 那命令的<b>未编辑</b>输出</td></tr>
+<tr><td>未接入面</td><td>★ 见 §3 第四项</td></tr>
+<tr><td>时刻</td><td>★ 真实时刻</td></tr>
+</table>
+
+<div class="q">★★★ <b>两条纪律（★ 独立成段）</b>：</div>
+<div class="q">★ ① <b>「要原始输出，不要摘要」</b> —— ★ 摘要无法被第三方复核；</div>
+<div class="q">★ ② <b>「凡报零命中，必先给阳性对照」</b> —— ★ 否则「没找到」与「不存在」无法区分。</div>
+
+<hr>
+
+<h3>§5 多久做一次</h3>
+
+<table>
+<tr><td>★ 时机</td><td>★ 要求</td></tr>
+<tr><td>★ <b>首次接入</b></td><td>★ 须举证</td></tr>
+<tr><td>★★ <b>每次改了写入路径之后</b></td><td>★ 须<b>重新举证</b> —— ★ <b>改了盘 ≠ 修好了</b></td></tr>
+<tr><td>★ <b>周期性</b></td><td>★ 每 <b>30 天</b>一条快照（★ 可由自动化挂载）</td></tr>
+</table>
+
+<hr>
+
+<h3>§6 做不到的时候（★ 三种，★ 三种正确记法）</h3>
+
+<div class="q">★★★ <b>本节的中心思想：★ 不知道要有一个名字，★ 而不是被记成「没问题」或「坏了」。</b></div>
+
+<table>
+<tr><td>★ 情形</td><td>★ 正确记法</td><td>★ 错误记法（★ 及为什么错）</td></tr>
+<tr><td>★ <b>还没接</b></td><td>★ <b>未接入</b></td><td>★ 记「正常」⇒ <b>把空当绿</b></td></tr>
+<tr><td>★ <b>接了但没举证</b></td><td>★ <b>未举证</b></td><td>★ 记「失败」⇒ <b>把「没交作业」当「做错了」</b></td></tr>
+<tr><td>★ <b>无法判断</b></td><td>★ <b>不可判</b></td><td>★ 记成上两者之一 ⇒ <b>编造读数</b></td></tr>
+<tr><td>★ <b>曾经接、现在超期未复核</b></td><td>★ <b>超期</b></td><td>★ 记「仍正常」⇒ <b>把过期当有效</b></td></tr>
+</table>
+
+<div class="q">★★ <b>总纪律</b>：★ <b>「空 ≠ 无」</b> —— ★ <b>「没读到」不等于「没有」</b>；★ <b>「不可判」不等于「不成立」</b>。</div>
+
+<hr>
+
+<h3>§7 边界</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td>★ <b>管什么</b></td><td>★ 你<b>怎么接入</b>、★ 你<b>怎么举证</b>、★ 你<b>怎么声明做不到</b></td></tr>
+<tr><td>★★ <b>不管什么</b></td><td>★ <b>不规定</b>你的内部实现 · ★ <b>不要求</b>你改代码 · ★ <b>不索取</b>任何凭证 · ★ <b>不设</b>强制执行——★ 靠<b>读数</b>而非<b>禁令</b></td></tr>
+<tr><td>★★ <b>为什么靠读数</b></td><td>★ <b>禁令需要有人执法；★ 读数自动生效。</b> ★ 例：★ <b>用了旧版本的产出，仍然被接收，但会计入你的「未达标比例」</b> —— ★ 于是<b>不用任何人执法，你自己会看到那个数不降</b></td></tr>
+</table>
+
+<hr>
+
+<h2>三、★ 三条写作约束（★ 写正文时必须遵守）</h2>
+
+<table>
+<tr><td>★</td><td>★ 约束</td><td>★ 反例（★ 现契约里的）</td></tr>
+<tr><td><b>①</b></td><td>★ <b>不出现任何内部编号</b></td><td>★ 「<code>D-347</code>」「<code>D-331</code>」「<code>D-332</code>」</td></tr>
+<tr><td><b>②</b></td><td>★ <b>不出现「谁说的」「谁发现的」</b></td><td>★ 「由某人实测确立」「依据：用户指令逐字」</td></tr>
+<tr><td><b>③</b></td><td>★ <b>不出现「本线」「本机侧」「外设备」这类相对称谓</b></td><td>★ 因为它们<b>对新读者没有指代</b> —— ★ 应改为<b>绝对描述</b>（★ 如「写入方」「接收方」「你」）</td></tr>
+</table>
+
+<p>★ <b>另加一条</b>：★ <b>每个术语首次出现时，用一句话定义</b>；★ <b>全文不依赖任何外部文件</b>。</p>
+
+<hr>
+
+<h2>四、★ 评审时需要定的三件事</h2>
+
+<table>
+<tr><td>★</td><td>★ 待定</td><td>★ 选项</td></tr>
+<tr><td><b>①</b></td><td>★ <b>信封版本的规范值</b></td><td>★ 写死一个值（★ 简单）· ★ 还是引用规格文件（★ 但那破坏「自足」）</td></tr>
+<tr><td><b>②</b></td><td>★ <b>署名与类别声明的字段名</b></td><td>★ 沿用现名 · ★ 还是改成<b>语义自明</b>的名字（★ 新读者可猜）</td></tr>
+<tr><td><b>③</b></td><td>★ <b>「未达标比例」的口径</b></td><td>★ 按<b>你写的消息</b>算 · ★ 还是按<b>你举证的范围</b>算</td></tr>
+</table>
+
+<hr>
+
+<h2>五、★ 本大纲与现契约的关系</h2>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td>★ <b>保留</b></td><td>★ 四项接入要求 · 举证形态 · 三种「做不到」· 靠读数不靠禁令 · 边界</td></tr>
+<tr><td>★ <b>重写</b></td><td>★ 全部<b>组织方式</b>与<b>语言</b> —— ★ 从「我们讨论到什么」改为「你需要做什么」</td></tr>
+<tr><td>★ <b>删除</b></td><td>★ 全部<b>内部编号/人名/会话 id</b> · 全部<b>「谁发现的」</b> · 全部<b>相对称谓</b></td></tr>
+<tr><td>★ <b>新增</b></td><td>★ §1 的<b>术语定义</b> · §2 的<b>三类参与者</b>（★ 现契约无此节）· §3 的<b>「凭什么算做到」统一格式</b></td></tr>
+</table>
+
+<hr>
+
+<p><b>大纲时刻</b>：<code>2026-10-15T08:03:37+0800</code> · <b>状态</b>：★ <b>待评审</b>（★ 未写正文）</p>
+</div></body></html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAHAC 接入契约 v1.0 草案</title><style>:root{--bg:#0d1117;--card:#161b22;--bd:#30363d;--tx:#c9d1d9;--dim:#8b949e;--acc:#58a6ff;--skip:#d29922}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.8 -apple-system,"PingFang SC",sans-serif;padding:34px 22px}
+.wrap{max-width:960px;margin:0 auto}
+h1{font-size:28px;margin-bottom:6px;padding-bottom:12px;border-bottom:3px solid var(--acc)}
+h2{font-size:21px;margin:38px 0 14px;padding:9px 0 9px 13px;border-left:4px solid var(--acc);background:#0f1620;border-radius:0 7px 7px 0}
+h3{font-size:16px;margin:22px 0 9px;color:var(--acc)}
+hr{border:0;border-top:1px solid var(--bd);margin:30px 0}
+p{margin:9px 0}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+pre{background:#0f1620;border:1px solid var(--bd);border-radius:8px;padding:14px 16px;margin:12px 0;overflow-x:auto;font-size:12.5px;color:#8ddb8c;font-family:ui-monospace,Menlo,monospace;line-height:1.65}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+td{padding:9px 11px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:first-child td{background:#1c2128;font-weight:600;font-size:13px}
+tr:hover td{background:#1a1f26}
+.q{border-left:3px solid var(--skip);padding:7px 13px;margin:7px 0;background:#141a20;border-radius:0 6px 6px 0;color:#d6c9a0}
+ul{margin:11px 0 11px 24px}li{margin:6px 0}
+b{color:#e6edf3}
+.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--bd);color:var(--dim);font-size:12.5px;line-height:1.9}</style></head><body><div class="wrap"><h1>CAHAC 接入契约（Onboarding Contract）· v1.0 草案</h1>
+
+<div class="q"><b>起草</b>：星桥第二任 <code>session-e317d6ab-5302-4b33-b095-947983ba16f4</code></div>
+<div class="q"><b>起草时刻</b>：<code>2026-10-15</code>（★ 真实时刻见文末 <code>date</code>）</div>
+<div class="q"><b>依据</b>：用户指令 <code>2026-10-15</code> 逐字 —— ★「<b>如果是外部问题，是不是可以把契约协议更新，也纳入我们的总计划，作为目标任务之一来？</b>」</div>
+<div class="q"><b>上位规格</b>：<code>research/cost-governance/cahac-protocol-v1.2.md</code>（720 行 · §1.5 管辖域 · §11 Agent Card）</div>
+<div class="q"><b>现有接入清单</b>：<code>docs/agent-comm-portal-20261002.md</code> §5「接入新设备/新会话自检清单」</div>
+<div class="q"><b>状态</b>：★ <b>草案</b>（★ 待属主与各设备复核；★ 本件不宣布任何事项已闭合）</div>
+
+<hr>
+
+<h2>0. 为什么需要这一份（★ 立据是实测，不是设计欲）</h2>
+
+<p><b>实测（<code>D-347</code>，2026-10-15）：</b></p>
+
+<table>
+<tr><td>层</td><td>信封符合度（今日窗）</td><td>本机可修？</td></tr>
+<tr><td>① 本机侧（<code>notes/mac-mini</code>）</td><td><b>3/3 = 100%</b></td><td>✓ 已达标</td></tr>
+<tr><td>② 跨设备中继侧（<code>_via=comm-central</code> / <code>i9</code>）</td><td><b>0/334 = 0%</b></td><td>✗ 写点在外设备</td></tr>
+</table>
+
+<p>⇒ <b>合成数 <code>0.46%</code> 全是【外设备未接入】造成的</b>，而本机侧<b>已无缺陷可修</b>。</p>
+
+<p><b>而更深的一层（<code>D-347</code> 搜索结论）</b>：本机<b>没有</b>写 <code>_via=comm-central</code> 的代码点</p>
+<p>（全盘搜 <code>scripts/</code> <code>tools/</code> <code>devices/</code> <code>dsh-plugin-*/</code>，唯一命中是文档说明）</p>
+<p>⇒ <b>写点在 MBP / i9</b>。</p>
+
+<p><b>⇒ 故「外设备不接入 ⇒ I-1 永远红 ⇒ 该判据对本机失去判别力」。</b></p>
+<p><b>⇒ 契约化是唯一能把这件事变成【可推进任务】的路径。</b></p>
+
+<hr>
+
+<h2>1. 契约的三件事（★ 缺一不可）</h2>
+
+<table>
+<tr><td>#</td><td>契约项</td><td>现状</td><td>缺口</td></tr>
+<tr><td><b>①</b></td><td><b>接入清单</b>（新设备/新会话要做什么）</td><td>✅ 有：portal §5</td><td>❌ <b>未含 CAHAC 信封条款</b></td></tr>
+<tr><td><b>②</b></td><td><b>举证方式</b>（凭什么算接入了）</td><td>⚠️ 部分：Agent Card 有 <code>cahac_version</code></td><td>❌ <b>未要求上报、无复跑命令</b></td></tr>
+<tr><td><b>③</b></td><td><b>举证责任与周期</b>（谁举、多久一次）</td><td>❌ <b>完全没有</b></td><td>❌ <b>契约的核心空白</b></td></tr>
+</table>
+
+<hr>
+
+<h2>2. ① 接入清单（★ 在 portal §5 之上【增补】CAHAC 条款）</h2>
+
+<div class="q">★ <b>不改 portal §5 已有条目</b>；★ <b>只增补</b>。★ portal 属主为协调者。</div>
+
+<h3>2.1 新设备接入时【必须】完成的 CAHAC 项</h3>
+
+<table>
+<tr><td>#</td><td>动作</td><td>判据（可机械核）</td></tr>
+<tr><td><b>C-1</b></td><td>声明 <code>cahac_version</code></td><td>Agent Card 里 <b>有</b> <code>cahac_version</code> 字段，<b>且值 = 规格规范值</b>（★ 当前 <code>&quot;1.2&quot;</code>，★ <b>注意不是 <code>&quot;v1.2&quot;</code></b> —— <code>D-331</code> 实测过这个坑）</td></tr>
+<tr><td><b>C-2</b></td><td>写卡带完整信封</td><td>该设备写的卡，<b>12 必填字段全在</b>：<code>cahac</code> <code>id</code> <code>type</code> <code>channel</code> <code>sender</code> <code>recipient</code> <code>thread</code> <code>priority</code> <code>cost_cap</code> <code>dedup_key</code> <code>ts</code> <code>payload</code></td></tr>
+<tr><td><b>C-3</b></td><td>留可复跑的举证</td><td>该设备能给出<b>一条命令</b>，跑完后<b>回读自己写的卡</b>并打印字段齐备情况</td></tr>
+<tr><td><b>C-4</b></td><td>声明【未接入面】</td><td>该设备<b>显式写出</b>它还有哪些面<b>未接入</b>（★ 依 §1.5.2「域外必须显式，不得沉默」）</td></tr>
+</table>
+
+<h3>2.2 判据（★ 可机械核 · 每条都给复跑命令）</h3>
+
+<pre>
+# ── C-1 值必须是规范值 &quot;1.2&quot;（★ 不是 &quot;v1.2&quot;）──
+grep -c &#x27;&quot;cahac&quot;: *&quot;1.2&quot;&#x27; &lt;设备侧写入代码&gt;        # ⇒ ≥1
+grep -c &#x27;&quot;cahac&quot;: *&quot;v1.2&quot;&#x27; &lt;设备侧写入代码&gt;       # ⇒ 【必须为 0】（★ D-331 的坑）
+
+# ── C-2 12 必填字段（★ 本机侧工具已有，可复用）──
+python3 ~/dsh-collab/scripts/cahac-envelope-conformance.py --tiers
+#   期望：① 本机侧 = 100%
+
+# ── C-3 举证：回读自己刚写的卡 ──
+#   该设备须提供：写一张测试卡 → 回读 → 打印 12 字段齐备
+
+# ── C-4 未接入面清单存在且非空 ──
+grep -c &#x27;未接入&#x27; &lt;该设备的接入卡&gt;                  # ⇒ ≥1（★ 若真的全接入，须写「无」）
+</pre>
+
+<hr>
+
+<h2>3. ② 举证方式（★ 从「声称」变为「实证」）</h2>
+
+<h3>3.1 举证必须是【卡 + 复跑命令】，不得是【声称】</h3>
+
+<p>★ 依本仓纪律：<b>「凡报未搜到必先给阳性对照」</b>、<b>「要原始输出，不要摘要」</b>。</p>
+
+<table>
+<tr><td>★ 不接受的举证</td><td>★ 接受的举证</td></tr>
+<tr><td>★「我们已接入 CAHAC」</td><td>★ <b>一张卡 + 该卡自身的 <code>cahac</code> 回读值 + 复跑命令</b></td></tr>
+<tr><td>★「我们用的是 v1.2」</td><td>★ <b>写入代码里 <code>grep</code> 到的字面值</b></td></tr>
+<tr><td>★「应该没问题」</td><td>★ <b><code>--tiers</code> 输出的两行数</b></td></tr>
+</table>
+
+<h3>3.2 举证卡的最小形态</h3>
+
+<pre>
+{
+  &quot;type&quot;: &quot;cahac-onboarding-evidence&quot;,
+  &quot;from&quot;: &quot;&lt;设备/session id&gt;&quot;,
+  &quot;cahac&quot;: &quot;1.2&quot;,
+  &quot;cahac_version_declared&quot;: &quot;1.2&quot;,
+  &quot;write_path&quot;: &quot;&lt;该设备写卡走哪个工具/脚本&gt;&quot;,
+  &quot;evidence&quot;: {
+    &quot;self_read_cahac&quot;: &quot;1.2&quot;,
+    &quot;probe_command&quot;: &quot;&lt;一条可复跑的完整命令&gt;&quot;,
+    &quot;probe_raw_output&quot;: &quot;&lt;未编辑的原始输出&gt;&quot;
+  },
+  &quot;not_onboarded&quot;: [&quot;&lt;未接入的面&gt;&quot;],
+  &quot;at&quot;: &quot;&lt;真实时刻&gt;&quot;
+}
+</pre>
+
+<hr>
+
+<h2>4. ③ 举证责任与周期（★ 契约的核心空白）</h2>
+
+<table>
+<tr><td>#</td><td>项</td><td>规定</td></tr>
+<tr><td><b>R-1</b></td><td><b>谁举证</b></td><td>★ <b>写入方自证</b> —— ★ 不得由接收方代证（★ 接收方只能核，不能替写方声明）</td></tr>
+<tr><td><b>R-2</b></td><td><b>何时举证</b></td><td>★ <b>① 首次接入时</b>；★ <b>② 每次改了写入路径后</b>（★ 依 <code>D-332</code> 的教训：改了盘 ≠ 修好了）</td></tr>
+<tr><td><b>R-3</b></td><td><b>周期复核</b></td><td>★ <b>建议每 30 天</b>一条快照（★ 可挂到健康管理器的 <code>--publish</code>）</td></tr>
+<tr><td><b>R-4</b></td><td><b>谁核</b></td><td>★ <b>异体</b>（★ 依 S3「不可自审」）—— ★ <b>本机侧由本线核；设备侧由协调者或另一设备核</b></td></tr>
+<tr><td><b>R-5</b></td><td><b>不举证怎么记</b></td><td>★ <b>记 <code>UNDECIDABLE</code>（不可判），★ 不得记 OK，★ 也不得记 FAIL</b> —— ★ 依纪律「空 ≠ 无」</td></tr>
+</table>
+
+<hr>
+
+<h2>5. 与总计划的挂接（★ 用户要求的「纳入总计划」）</h2>
+
+<h3>5.1 新增目标任务（★ 建议编号 <code>I-4</code>）</h3>
+
+<div class="q">★★ <b><code>I-4 · 接入契约合规度</code></b> —— ★ 判据：<b>每台在册设备都有一张【未过期】的举证卡</b></div>
+<div class="q">★ 复跑：★ <b><code>python3 tools/onboarding-conformance.py</code></b>（★ <b>已建</b> —— 2026-10-15 · 自证 <b>8/8</b>）</div>
+<div class="q">★ 已接进必跑面：★ <code>beacon-check</code> 的 <b>「I-4 接入契约合规度（★ 新建）」</b>（★ 2026-10-15 · <code>D-352</code>）</div>
+<div class="q">★ 状态：★ <b><code>open</code></b>（★ 判据已机械；★ <b>各设备尚未举证</b>）</div>
+
+<p>#### 5.1.1 ★★★ 设备【必须登记自己】（★ 2026-10-15 新增 · 立据是实测）</p>
+
+<p><b>为什么需要</b>：★ 本器（<code>onboarding-conformance.py</code>）<b>要枚举「在册设备」</b> ——</p>
+<p>★ 而实测发现：★ <code>~/dsh-collab/devices/</code> 目录<b>混有四类非设备</b>：</p>
+
+<table>
+<tr><td>★ 混入的类</td><td>★ 实例</td><td>★ 为什么不是设备</td></tr>
+<tr><td>★ 插件</td><td>★ <code>dsh-plugin-reflect-collect</code> 等 <b>19 个</b></td><td>★ 它们是<b>插件</b>，不是<b>节点</b></td></tr>
+<tr><td>★ 版本目录</td><td>★ <code>cldvoice-v0.4.8</code> / <code>v0.4.9</code> / <code>v0.5.0</code></td><td>★ 它们是<b>同一件的多版本</b></td></tr>
+<tr><td>★ 文件目录</td><td>★ <code>lessons</code> · <code>skill-replicas</code></td><td>★ 它们是<b>内容</b>，不是节点</td></tr>
+<tr><td>★ 运行物</td><td>★ <code>launchd-replicas</code></td><td>★ 同上</td></tr>
+</table>
+
+<p>⇒ ★ 本线<b>连续过滤三次仍未干净</b>（★ 分母虚肿到 <b>19 台</b>、★ 后到 <b>3 台</b>都不对）。</p>
+
+<div class="q">★★ <b>故规定（可机械核）</b>：★★ <b>一台设备算「在册」，当且仅当它满足以下二者之一</b>：</div>
+<div class="q">★ <b>① 在本仓 <code>devices/</code> 下有【节点目录】</b>（★ 目录名<b>不含版本号</b>、<b>不以 <code>dsh-</code> 开头</b>）；</div>
+<div class="q">★ <b>② 在 <code>DSH_ENROLLED_DEVICES</code> 环境变量里显式声明</b>（★ 逗号分隔）。</div>
+<p>&gt;</p>
+<div class="q">★★ <b>判据</b>：★ 该设备<b>必须能被 <code>enrolled_devices()</code> 枚举到</b>；</div>
+<div class="q">★ 若某设备自认在役、却<b>枚举不到</b> ⇒ ★★ <b>那是【设备的登记缺失】，★ 不是【判据的漏扫】。</b></div>
+
+<p>★ <b>复跑</b>：</p>
+<pre>
+# ① 环境变量登记（推荐 —— 不依赖目录结构）
+DSH_ENROLLED_DEVICES=&quot;mac-mini,mbp,i9&quot; python3 tools/onboarding-conformance.py | grep 在册
+# ② 目录登记
+ls -d ~/dsh-collab/devices/*/ | grep -vE &#x27;dsh-|-[0-9]+\.[0-9]+&#x27;
+</pre>
+
+<h3>5.2 与既有判据的关系（★ 不重复报）</h3>
+
+<table>
+<tr><td>★ 既有判据</td><td>★ 它问的</td><td>★ <code>I-4</code> 问的</td></tr>
+<tr><td><b><code>I-1</code></b></td><td>★ <b>写完的卡</b>合规吗</td><td>★ <b>写卡的人</b>举证了吗</td></tr>
+<tr><td><b><code>I-4</code></b></td><td>—</td><td>★ <b>举证卡在不在、新不新</b></td></tr>
+</table>
+
+<p>★ <b>⇒ 两者互补，不重叠</b>：★ <code>I-1</code> 是<b>结果</b>，★ <code>I-4</code> 是<b>责任</b>。</p>
+
+<h3>5.3 待建件（★ 登记为任务，不卡住）</h3>
+
+<table>
+<tr><td>#</td><td>件</td><td>说明</td></tr>
+<tr><td><b>①</b></td><td>★ <code>tools/onboarding-conformance.py</code></td><td>★ 扫各设备的举证卡 ⇒ 出「已举证 / 未举证 / 已过期」三态</td></tr>
+<tr><td><b>②</b></td><td>★ 接入契约【正式化】</td><td>★ 本件是草案 ⇒ ★ 需经<b>上位规格属主</b>与<b>各设备属主</b>复核</td></tr>
+<tr><td><b>③</b></td><td>★ 通知各设备</td><td>★ 把 §2.1 的 C-1…C-4 发给 MBP / i9 / star-bridge</td></tr>
+</table>
+
+<hr>
+
+<h2>6. 本件的边界（★ 不粉饰）</h2>
+
+<table>
+<tr><td>★</td><td>★ 边界</td></tr>
+<tr><td><b>①</b></td><td>★ 本件是<b>草案</b> —— ★ <b>不改</b> <code>cahac-protocol-v1.2.md</code>（★ 那是<b>上位规格</b>，★ 属主不在本线）</td></tr>
+<tr><td><b>②</b></td><td>★ 本件<b>不代裁</b>设备侧该不该接入 —— ★ 只把<b>契约写清</b>，★ 让接入变成<b>可推进的任务</b></td></tr>
+<tr><td><b>③</b></td><td>★ 本件<b>不主张已闭合</b>（★ S3）</td></tr>
+<tr><td><b>④</b></td><td>★ 本件的判据<b>尚未机械化</b>（★ §5.3 的 ① 未建）</td></tr>
+</table>
+
+<hr>
+
+<p><b>真实时刻</b>：<code>2026-10-15T01:48:54+0800</code>（★ 由 <code>date</code> 取）</p>
+<p><b>起草者</b>：星桥第二任 · <code>session-e317d6ab-5302-4b33-b095-947983ba16f4</code></p>
+<p><b>关联台账</b>：<code>D-347</code>（分层真相）· <code>D-348</code>（分层输出）· <code>D-349</code>（必跑面改读分层）</p>
+
+<hr>
+
+<h2>7. 通道版本条款（★ 用户 2026-10-15 关切①）</h2>
+
+<div class="q">★ 用户的担忧逐字：★<b>「旧通道是否也应该挂上去？避免那些设备或者会话还一直用旧通道？」</b></div>
+
+<h3>7.1 为什么要这一条</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>若不挂旧通道</b></td><td>★ 设备可以继续用旧格式发卡 ⇒ ★★ <b>信封率永远上不去</b> ⇒ ★ <b>契约变成【一份没人执行的文档】</b></td></tr>
+<tr><td><b>★★ 本线的做法</b></td><td>★★ <b>把「旧格式」也纳入统计</b> —— ★ <b>让【继续用旧通道】有【代价】</b></td></tr>
+</table>
+
+<h3>7.2 条款（★ 四句）</h3>
+
+<pre>
+★ ① v1.2 信封是【唯一被推荐】的格式（★ 自本契约生效日起）
+★ ② 旧格式卡【仍可读】—— ★ 不破坏既有数据，★ 不要求回溯修改
+★★ ③ 但【旧格式卡计入信封率的分母】⇒ 于是「继续用旧通道」会【自动拉低自己的信封率】
+★ ④ 弃用日：★ 自弃用日起，旧格式卡【只读不回】（★ 仍可查、★ 不再参与新业务）
+</pre>
+
+<h3>7.3 ★★ 为什么用【读数】而不是【禁令】</h3>
+
+<div class="q">★★★ <b>禁令需要人去执行；★ 而读数【自动生效】。</b></div>
+<div class="q">★★ 故本条不写「禁止使用旧通道」，★ 而写「<b>旧通道的卡计入分母</b>」——</div>
+<div class="q">★ <b>于是不用任何人执法，★ 用旧通道的人自己会看到自己的信封率低。</b></div>
+
+<h3>7.4 判据（★ 可机械核）</h3>
+
+<pre>
+# ★ 看某个面的信封率（★ 分子 = 带 cahac 的卡；★ 分母 = 全部卡）
+python3 scripts/cahac-envelope-conformance.py --json --since &lt;YYYY-MM-DD&gt;
+#   期望：envelope_ok_rate 持续上升；★ 若用旧通道 ⇒ 该数不升
+</pre>
+
+<hr>
+
+<h2>8. 三类写者（★ 用户 2026-10-15 关切②）</h2>
+
+<div class="q">★ 用户的担忧逐字：★<b>「或者无法签署？」</b></div>
+
+<h3>8.1 ★★★ 关键区分（★ 由明鉴 2026-10-15 实测确立）</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>实例</b></td><td>★ 管理器网页写的卡 ⇒ 显示为 <code>unattributed(systemgraph-gui)</code></td></tr>
+<tr><td><b>★ 真相</b></td><td>★★ <b>那类卡【本来就没有会话身份】</b>（★ 人在网页上点出来的）</td></tr>
+<tr><td><b>★★ 处置原则</b></td><td>★★ <b>「不是补一个身份，而是【声明这一类本来就没有身份】」</b></td></tr>
+<tr><td><b>★★★ 若硬填一个 session</b></td><td>★★★ <b>那是【编造读数】—— ★ 比不署更坏</b></td></tr>
+</table>
+
+<h3>8.2 条款（★ 三种写者）</h3>
+
+<table>
+<tr><td>★ 写者类别</td><td>★ <code>writerKind</code></td><td>★ 契约要求</td></tr>
+<tr><td><b>智能体会话</b></td><td>★ <code>agent</code></td><td>★ <b>须带 <code>X-Writer</code>（会话 id）</b></td></tr>
+<tr><td>★★ <b>无身份的写者</b>（★ UI / 定时器 / 脚本）</td><td>★★ <code>ui</code> / <code>cron</code> / <code>script</code></td><td>★★ <b>须带【类别声明】<code>writerKind</code> + <code>writerNote</code></b></td></tr>
+<tr><td><b>两者都无</b></td><td>★ —</td><td>★★ <b>违约</b> ⇒ ★ <b>计入违约数</b></td></tr>
+</table>
+
+<h3>8.3 ★★ 为什么契约不该要求「所有人都签署」</h3>
+
+<div class="q">★★★ <b>那会【逼出一个编造的签名】。</b></div>
+<div class="q">★★ <b>而「无法签署」本身</b>就是一个<b>必须声明的事实</b> ——</div>
+<div class="q">★ <b>契约要的不是「所有卡都有会话身份」，★ 而是「★ 每张卡的写者身份状态【被声明过】」。</b></div>
+
+<h3>8.4 判据（★ 可机械核 · ★ 已实现）</h3>
+
+<pre>
+python3 tools/writer-attribution-gate.py --json
+#   期望三态：★ attributed · declared-no-identity · unattributed
+#   ★ 前两者【合法】；★ 只有 unattributed 是缺陷
+</pre>
+
+<hr>
+
+<h2>9. 签署登记板规格（★ 用户 2026-10-15 关切③）</h2>
+
+<div class="q">★ 用户的担忧逐字：★<b>「有没有一个【签署登记板的逻辑】强制要求回复，并限制回复范围？」</b></div>
+
+<h3>9.1 ★ 本仓已有全部零件（★ 缺的是【串成一条链】）</h3>
+
+<table>
+<tr><td>★ 零件</td><td>★ 状态</td><td>★ 位置</td></tr>
+<tr><td>★ 登记板</td><td>★ ✅</td><td>★ <code>data/registry/</code></td></tr>
+<tr><td>★ 卡必带收件人</td><td>★ ✅</td><td>★ <code>bb_card_send</code> 的 <code>to</code> <b>必填</b></td></tr>
+<tr><td>★ 回复范围</td><td>★ ✅</td><td>★ 本契约 <code>§4</code> 的 <b>R-1…R-5</b></td></tr>
+<tr><td>★ 三态归属</td><td>★ ✅</td><td>★ <code>writer-attribution-gate</code></td></tr>
+<tr><td>★ 超期检测</td><td>★ ✅</td><td>★ <code>onboarding-conformance</code>（★ <code>STALE_DAYS=30</code>）</td></tr>
+</table>
+
+<h3>9.2 登记键（★ 一设备一签一卡）</h3>
+
+<pre>
+data/onboarding/&lt;device&gt;/&lt;yyyymmdd&gt;-signoff
+</pre>
+
+<h3>9.3 卡内必填（★ 缺一即视为【未签】）</h3>
+
+<table>
+<tr><td>★ 字段</td><td>★ 含义</td></tr>
+<tr><td><code>device</code></td><td>★ 设备名（★ <b>须与 §5.1.1 的登记一致</b>）</td></tr>
+<tr><td><code>contractVersion</code></td><td>★ 签署的契约版本（★ 如 <code>&quot;v1&quot;</code>）</td></tr>
+<tr><td><code>signedAt</code></td><td>★ 时刻</td></tr>
+<tr><td><code>writerKind</code></td><td>★ <code>agent</code> / <code>ui</code> / <code>script</code>（★ 见 §8）</td></tr>
+<tr><td><code>X-Writer</code></td><td>★ <b>若 <code>writerKind==&quot;agent&quot;</code> ⇒ 【必填】</b></td></tr>
+<tr><td><code>evidence</code></td><td>★ 举证（★ 复跑命令 + 输出摘要）</td></tr>
+<tr><td><code>scope</code></td><td>★★ <b>回复范围声明</b>（★ 见 §9.5）</td></tr>
+</table>
+
+<h3>9.4 强制回复（★ 三层 · ★ 不靠门）</h3>
+
+<table>
+<tr><td>★ 层</td><td>★ 手段</td><td>★ 需谁配合</td></tr>
+<tr><td><b>① 读数</b></td><td>★ 未签 ⇒ <code>I-4</code> 报 <code>SKIP</code>/<code>FAIL</code></td><td>★★ <b>不需要任何人</b></td></tr>
+<tr><td><b>② 代价</b></td><td>★ 未签设备的信封率上不去（★ 见 §7）</td><td>★★ <b>自动</b></td></tr>
+<tr><td><b>③ 门</b></td><td>★ 对未签设备加提示</td><td>★ 要改别人的工具（★ <b>本线不倾向</b>）</td></tr>
+</table>
+
+<div class="q">★★ <b>★ 重要：★ 「收到 ≠ 签了」—— ★ 只有【登记键出现】才算签。</b></div>
+<div class="q">★ <b>超期（默认 30 日）⇒ <code>onboarding-conformance</code> 报 <code>STALE</code>。</b></div>
+
+<h3>9.5 ★★ 回复范围限制（★ 您问的核心）</h3>
+
+<pre>
+★ 契约对签署卡的【回复】规定：
+  ★ ① 只接受【同为 signoff 形态】的卡（★ 不接受自由文本）
+  ★ ② 回复须引【被签的登记键】（★ 防伪造对签）
+  ★★ ③ 回复【不得】要求对方改代码 / 给凭证 —— ★ 那是【越界】
+⇒ ★★★ 即：★【回复通道是窄的，★ 只够确认签或不签】。
+</pre>
+
+<h3>9.6 为什么【限制回复范围】是必要的</h3>
+
+<div class="q">★★★ <b>因为【开放回复】会把这套机制变成【另一个讨论通道】</b> ——</div>
+<div class="q">★ 而讨论通道<b>已经有</b>（★ 黑板 + 线程）。</div>
+<div class="q">★★ <b>签署板的唯一职责是：★ 「签了没有」—— ★ 一个二值事实。</b></div>
+
+<h3>9.7 判据（★ 可机械核）</h3>
+
+<pre>
+python3 tools/onboarding-conformance.py --json
+#   期望：devices · evidence_cards · OK · MISSING · STALE · UNDECIDABLE
+#   ★ 未签的设备会出现在 MISSING；★ 超期的出现在 STALE
+</pre>
+
+<hr>
+
+<h2>10. 三条的边界（★ 不粉饰）</h2>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>①</b></td><td>★ <b>§7/§8/§9 均为【契约条款草案】</b> —— ★ <b>不代裁</b>各设备是否接受</td></tr>
+<tr><td><b>②</b></td><td>★ <b>§7 的弃用日【未定】</b> —— ★ 那属<b>用户保留项</b></td></tr>
+<tr><td><b>③</b></td><td>★ <b>§9 的签署板【尚未建】</b> —— ★ 本线只给<b>规格</b>；★ 建板需<b>先分发契约</b></td></tr>
+<tr><td><b>④</b></td><td>★ <b>三条均【不主张已闭合】</b>（★ S3）</td></tr>
+</table>
+<div class="foot">★ 源件：<code>docs/cahac-onboarding-contract-v1-20261015.md</code>（343 行）<br>★ 渲染时刻：2026-10-15T07:52:20+08:00 · 渲染者：星桥第二任 <code>session-e317d6ab</code><br>★ 本件为<b>草案</b>：★ 实际分发属用户保留项 · ★ 不主张任何事项闭合（S3）</div></div></body></html>
