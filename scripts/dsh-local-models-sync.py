@@ -71,6 +71,16 @@ PROBE_CACHE = os.path.join(DSH_HOME, "local-models-probe.json")
 # 体积变了（重下/换量化）自动失效。
 PROBE_TTL_SECONDS = 7 * 24 * 3600
 
+# DSH 每次请求的**基线提示词**在这台机器上实测为 34316 token
+# （系统提示词 4731 + 153 个工具约 29585；算法：把会话日志里 request/header 的
+#  system + tools 原样发给 qwen3.5-2b，读 usage.prompt_tokens）。
+# ⇒ 一个模型光「跑得动」不够，它的**实际上下文**必须装得下这 34k，否则 DSH 一发请求就报
+#   “The number of tokens to keep from the initial prompt is greater than the context length”
+#   （glm-4.6v-flash 在 8192 下的实测报错原文）。
+DSH_BASELINE_TOKENS = 34316
+# 基线之外还要留给对话本身，取基线 + 约 20% 余量并向上取整。
+DEFAULT_MIN_CTX = 40960
+
 # 本地服务不校验密钥，但 pi-ai 的 openai-completions 实现要求
 # 「有 key 或有 Authorization 头」二者之一，否则直接抛
 # `No API key for provider: <route>`。给个占位头即可。
@@ -442,8 +452,12 @@ def build_plan(args):
         if not ok:
             o_unrunnable.append((m["id"], note))
             continue
-        # 取「模型上限」与「Ollama 实际提供」的较小者：写大了 DSH 会以为装得下而静默截断。
+        # Ollama 的实际上下文由服务端 OLLAMA_CONTEXT_LENGTH 决定，不看模型上限。
         ctx = min(m["model_max_ctx"] or serving, serving)
+        if ctx < args.min_ctx:
+            o_unrunnable.append((m["id"], "实际上下文 {} token < DSH 基线提示词 {} token".format(
+                ctx, DSH_BASELINE_TOKENS)))
+            continue
         o_models.append({
             "id": m["id"],
             "name": humanize(m, "ollama"),
@@ -477,6 +491,12 @@ def build_plan(args):
         ctx = m["loaded_ctx"] or m["model_max_ctx"] or 32768
         if args.lmstudio_ctx_cap:
             ctx = min(ctx, args.lmstudio_ctx_cap)
+        if ctx < args.min_ctx:
+            l_unrunnable.append((m["id"], (
+                "实际上下文 {} token < DSH 基线提示词 {} token —— LM Studio 的按模型配置里"
+                " llm.load.contextLength 可以调大（见文档「抬高 LM Studio 上下文」）").format(
+                    ctx, DSH_BASELINE_TOKENS)))
+            continue
         l_models.append({
             "id": m["id"],
             "name": humanize(m, "lmstudio"),
@@ -601,6 +621,8 @@ def splice(original_text, plan, fix_vision=True):
     out_chunks = []
     seen = set()
     vision_fixed = False
+    dropped = []
+    managed = {ROUTE_OLLAMA, ROUTE_LMSTUDIO}
     for name, body in chunks:
         if name is None:
             out_chunks.append(strip_trailing_blank(body))
@@ -608,6 +630,11 @@ def splice(original_text, plan, fix_vision=True):
         if name in rendered:
             out_chunks.append(rendered[name])
             seen.add(name)
+            continue
+        # 托管路由若本次一个模型都没通过（空模型列表会被适配器判为非法），
+        # 就把旧条目**整条删掉**，而不是留一份过期清单在文件里。
+        if name in managed:
+            dropped.append(name)
             continue
         if name == ROUTE_VISION and fix_vision and not any(
                 v for k, v in rendered.items() if k == ROUTE_VISION):
@@ -630,7 +657,7 @@ def splice(original_text, plan, fix_vision=True):
         block += c
 
     new_lines = lines[:start] + block + [""] + lines[end:]
-    return "\n".join(new_lines), vision_fixed
+    return "\n".join(new_lines), vision_fixed, dropped
 
 
 # ────────────────────────────── 写盘 ──────────────────────────────
@@ -656,6 +683,9 @@ def main():
     ap.add_argument("--json", action="store_true", help="只输出探测结果 JSON")
     ap.add_argument("--ollama-ctx", type=int, default=0, help="覆盖 Ollama 实际提供的上下文长度")
     ap.add_argument("--lmstudio-ctx-cap", type=int, default=0, help="给 LM Studio 的 contextWindow 设上限")
+    ap.add_argument("--min-ctx", type=int, default=DEFAULT_MIN_CTX,
+                    help="模型实际上下文低于此值就不接入（默认 {}，即 DSH 基线 {} token + 余量）".format(
+                        DEFAULT_MIN_CTX, DSH_BASELINE_TOKENS))
     ap.add_argument("--no-vision-fix", action="store_true", help="不给 lmstudio 视觉路由补 Authorization 头")
     ap.add_argument("--no-probe", action="store_true",
                     help="跳过实跑探测（默认会真加载真推理；跳过后不保证本设备跑得动）")
@@ -698,7 +728,9 @@ def main():
     with open(path, "r", encoding="utf-8") as fh:
         original = fh.read()
 
-    new_text, vision_fixed = splice(original, plan, fix_vision=not args.no_vision_fix)
+    new_text, vision_fixed, dropped = splice(original, plan, fix_vision=not args.no_vision_fix)
+    if dropped:
+        print("\n  ℹ 以下托管路由本次无模型通过，已整条移除：{}".format("、".join(dropped)))
     if vision_fixed:
         print("\n  ℹ 已给 `{}` 视觉路由补上缺失的 Authorization 头（原缺失会让该路由每次请求都报 "
               "No API key for provider）".format(ROUTE_VISION))
