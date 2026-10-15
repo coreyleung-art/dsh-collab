@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAHAC 契约 v2 · 待裁 18 条</title><style>body{background:#0d1117;color:#c9d1d9;font:15px/1.78 -apple-system,"PingFang SC",sans-serif;padding:34px 22px;margin:0}
+.wrap{max-width:1020px;margin:0 auto}
+h1{font-size:28px;padding-bottom:12px;border-bottom:3px solid #d29922;margin:0 0 16px}
+h2{font-size:20px;margin:38px 0 13px;padding:9px 13px;border-left:4px solid #d29922;background:#1a1608;border-radius:0 7px 7px 0}
+h3{font-size:16px;margin:20px 0 9px;color:#e3b341}
+hr{border:0;border-top:1px solid #30363d;margin:28px 0}
+code{background:#1c2128;padding:2px 6px;border-radius:4px;font-size:12.5px;color:#79c0ff;font-family:ui-monospace,Menlo,monospace}
+pre{background:#0f1620;border:1px solid #30363d;border-radius:8px;padding:13px 15px;margin:12px 0;overflow-x:auto;font-size:12.5px;color:#8ddb8c;font-family:ui-monospace,Menlo,monospace;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin:13px 0;font-size:13.5px}
+td{padding:8px 10px;border-bottom:1px solid #21262d;vertical-align:top}
+tr:first-child td{background:#1c2128;font-weight:600}
+tr:hover td{background:#1a1f26}
+.q{border-left:3px solid #58a6ff;padding:7px 13px;margin:7px 0;background:#0f1620;border-radius:0 6px 6px 0;color:#a8c7e8}
+ul{margin:10px 0 10px 24px}li{margin:5px 0}b{color:#e6edf3}</style></head><body><div class="wrap"><h1>CAHAC 接入契约 v2 · 合并待裁事项（一页 · 18 条）</h1>
+
+<div class="q"><b>整理时刻</b>：<code>2026-10-15T11:19:40+0800</code></div>
+<div class="q"><b>上游</b>：<code>docs/cahac-onboarding-contract-v2-20261015.md</code>（1441 行 · 六道门已过）</div>
+<div class="q"><b>来源</b>：合并者如实标出的 18 条 —— 四段<b>并行撰写</b>在接口处留下的冲突</div>
+<div class="q"><b>性质</b>：★ <b>本页只整理与建议，不代裁</b></div>
+
+<hr>
+
+<h2>★ 速览：按严重度分三档</h2>
+
+<table>
+<tr><td>★ 档</td><td>★ #</td><td>★ 特征</td></tr>
+<tr><td><b>★ 必须裁</b>（★ 影响契约成立）</td><td><b>① ⑤ ⑥ ⑦</b></td><td>★ 它们决定<b>契约的基础概念</b>或<b>判定的口径</b></td></tr>
+<tr><td><b>★★ 建议裁</b>（★ 影响一致性）</td><td><b>② ③ ④ ⑧ ⑨ ⑩ ⑪ ⑫ ⑮</b></td><td>★ 段间级别/取值/枚举不一致</td></tr>
+<tr><td><b>★ 可缓</b>（★ 措辞与示例）</td><td><b>⑬ ⑭ ⑯ ⑰ ⑱</b></td><td>★ 不影响条款效力</td></tr>
+</table>
+
+<hr>
+
+<h2>第一档 · 必须裁（★ 4 条）</h2>
+
+<h3>① 产出方定义冲突</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ A 段：「<b>产出方</b> = <b>不声明自身身份</b>的一方」；★ B 段：「<b>产出方</b> = <b>消息的内容来源</b>，★ 可与写入方不同」</td></tr>
+<tr><td><b>合并者的处置</b></td><td>★ 取 <b>B</b>（★ 理由：★ 与 §3.1「有身份的写入方」自洽）</td></tr>
+<tr><td><b>为什么严重</b></td><td>★★ <b>它是【§3 参与者类别】的基础定义</b> —— ★ A 的说法会让「有身份的写入方」与「产出方」成为<b>互斥</b>概念，★ 而 §3.1 要求<b>有身份的写入方也有产出方身份</b></td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>取 B</b>。★ 理由：★ <b>A 的定义让 §3.1 自相矛盾</b>（★ 一个「有身份」的写入方按 A 就不是「产出方」了）</td></tr>
+</table>
+
+<h3>⑤ 身份状态「三种」的内部不可能 ★ 已被修正</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>原文</b></td><td>★ D 段：「写入方 <b>MUST</b> 在每条产出上声明其<b>身份状态</b>（上述<b>三种</b>之一）」</td></tr>
+<tr><td><b>为什么不可能</b></td><td>★★ <b>「未声明」不能被【声明】</b> —— ★ 若「未声明」是一个可选值，★ 那么<b>选了它本身就是一种声明</b>，★ 它就不是「未声明」了</td></tr>
+<tr><td><b>合并者的处置</b></td><td>★ 改写为：「★ <b>MUST</b> 声明身份状态；★ <b>合法取值只有前两种</b>（★ 有身份 / 声明无身份）；★ <b>未声明是【取值缺失】</b>」</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>采纳该修正</b>。★ 而它<b>不改变 D 的本意</b> —— ★ D 的原意正是「<b>未声明是缺陷，不是类别</b>」</td></tr>
+</table>
+
+<h3>⑥ 比例口径冲突（★ 您已裁过，此处需确认落实）</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ C 段：★ 基数 = <b>接入面</b>（★ 明确「分母不看消息条数」）；★ D 段：★ 基数 = <b>产出条数</b></td></tr>
+<tr><td><b>您的裁决（2026-10-15）</b></td><td>★★★ <b>「按声明并举证的范围算」</b> ⇒ ★ <b>即取 C</b></td></tr>
+<tr><td><b>合并者的处置</b></td><td>★ <b>保留为两组读数并各标基数</b>，★ 并声明「<b>不是同一个量</b>」—— ★ <b>没有硬合成一个</b></td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>确认取 C</b>（★ 按接入面），★ 而 <b>D 的产出条数读数可保留为【另一种读数】</b>，★ 但<b>须明确标注它不参与符合性判定</b></td></tr>
+</table>
+
+<h3>⑦ 判定记法冲突</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ C 段：★ <b>四态</b>（★ <code>OK</code> / <code>NOT_ONBOARDED</code> / <code>EVIDENCE_MISSING</code> / <code>EVIDENCE_STALE</code> / <code>UNDECIDABLE</code>）· ★ 接入面级；★ D 段：★ <b>达标 / 未达标 / 不可判</b> · 产出/举证级</td></tr>
+<tr><td><b>合并者的处置</b></td><td>★ <b>未强行统一</b> —— ★ 附录 C 仍用 D 的记法（★ 例 5–8 记「未达标」，★ 而按 C 部分应记「不可判」或「未举证」）</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>统一取 C 的四态</b>。★ 理由：★ ① <b>四态是可机械执行的</b>（★ C 给了有序判定表）；★ ② <b>D 的「未达标」把「未举证」与「真错」压成一格</b> —— ★★ <b>而那正是您指定要分开的</b>（★ 「未举证」应独立成一态）&lt;br&gt;★ 具体：★ 附录 C 的「应记」列按 C 的四态改写</td></tr>
+</table>
+
+<hr>
+
+<h2>第二档 · 建议裁（★ 9 条）</h2>
+
+<h3>② A 的逃生条款是否保留</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ A：「无法声明身份时 <b>SHOULD</b> 显式表达无身份；★ <b>若只能产出最小信封，允许省略，并在声明中说明理由</b>」；★ B §4.1.3：「<b>MUST</b> 带 <code>producerCategory</code>（★ 取值只两个）」</td></tr>
+<tr><td><b>合并者的处置</b></td><td>★ 取 <b>MUST</b>（★ <b>A 的逃生口未保留</b>）</td></tr>
+<tr><td><b>我的建议</b></td><td>★ <b>取 MUST 且不保留逃生口</b> —— ★ 理由：★ <b>逃生口会让「未声明」合法化</b>，★ 而那正是四态要区分的；★ 若某实现真的只能产最小信封，★ <b>它应在符合性声明里记为「未接入」</b>，★ 而不是<b>在消息上省略字段</b></td></tr>
+</table>
+
+<h3>③ 第三个字段名</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ D 用 <code>producerCategoryNote</code>；★ A/B/C 用 <code>producerNote</code></td></tr>
+<tr><td><b>处置</b></td><td>★ 已统一为 <b><code>producerNote</code></b>（★ 旧名入附录 A.1）</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>确认</b> —— ★ <code>producerNote</code> 与同族两字段<b>命名同构</b>（★ 都是 <code>producer</code> + 单名词）</td></tr>
+</table>
+
+<h3>④ 类别取值</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ B/C：<code>identified</code> / <code>unidentified</code>；★ D：<code>identity-bearing</code> / <code>identity-absent</code></td></tr>
+<tr><td><b>处置</b></td><td>★ 取 B/C（★ §4.1.3 的 MUST 只认这两个值）</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>确认取 <code>identified</code>/<code>unidentified</code></b> —— ★ 更短、★ 更接近自然语言</td></tr>
+</table>
+
+<h3>⑧⑨⑩ 三处<b>级别冲突</b>（★ 同形，★ 一起看）</h3>
+
+<table>
+<tr><td>★</td><td>★ D 记</td><td>★ B/C 记</td><td>★ 合并处置</td></tr>
+<tr><td><b>⑧</b></td><td>★ 显式声明未接入面 · <b>SHOULD</b></td><td>★ <b>MUST</b></td><td>★ 保留 D 行文 + 加「级别以条款所在节为准」</td></tr>
+<tr><td><b>⑨</b></td><td>★ 附原始输出 · <b>SHOULD</b></td><td>★ <b>MUST</b>（§5.3.3 必填 + 纪律一）</td><td>★ 同上</td></tr>
+<tr><td><b>⑩</b></td><td>★ 举证覆盖全部面 · <b>SHOULD</b></td><td>★ <b>MUST</b></td><td>★ 同上</td></tr>
+</table>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>为什么冲突</b></td><td>★★ <b>D 段是从【后果】角度写的</b>（★「不做会怎样」），★ 所以它把「有正当理由可违反」的写成 SHOULD；★ <b>而 B/C 是从【要求】角度写的</b>（★「必须做到」），★ 故写 MUST</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>三处都取 MUST</b>，★ 而把 D 段那些「什么情形下不遵守是正当的」<b>保留为【说明】</b>（★ 不是级别）&lt;br&gt;★ 理由：★ <b>同一件事在两个节里级别不同，★ 读者无法判断该守哪个</b></td></tr>
+</table>
+
+<h3>⑪ D §8.2 第 1 行的「正当例外」与 §5.1.3 冲突</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ D 说「确实没有任何未接入的面时，<b>应写空数组</b>」；★ C §5.1.3/§7.1：「<b>MUST</b> 写成恰好一个元素 <code>surface_name=&quot;无&quot;</code>；★ <b>MUST NOT 用空列表</b>」</td></tr>
+<tr><td><b>处置</b></td><td>★ 已<b>按 C 改正</b></td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>确认按 C</b>。★ 理由：★ <b>空数组与「字段缺失」在字面上不可分辨</b> ⇒ ★ 那正是「域外必须显式」要防的</td></tr>
+</table>
+
+<h3>⑫ 「面」的枚举轴不同</h3>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>冲突</b></td><td>★ C：★「面」= <b>规格 §1.5 管辖域声明的承载</b>（★ in-domain 6 行 + 点名域外 3 行）；★ D：★ 给了 <b>6 个通道取值</b>（★ 且是<b>仿写名</b>）</td></tr>
+<tr><td><b>处置</b></td><td>★ 以 <b>C 为权威枚举</b>；★ D 的降为附录 A.5「通道取值对照」</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>确认取 C</b> —— ★ 且<b>规格的 6 个通道真值是</b>：★ <code>p2p</code> / <code>blackboard</code> / <code>mailbox</code> / <code>eventbus</code> / <code>broadcast</code> / <code>thread</code>（★ <b>D 的是仿写，★ 不能直接用</b>）</td></tr>
+</table>
+
+<h3>⑮ C 段三处内部不一致</h3>
+
+<table>
+<tr><td>★</td><td>★</td><td>★</td></tr>
+<tr><td><b>①</b></td><td>★ §7.1 说「四态互斥且穷尽」，★ 而 §7.2.5 有<b>第 5 出口 <code>OK</code></b></td><td>★ 已改为「要么落进四态之一，要么判为 OK」</td></tr>
+<tr><td><b>②</b></td><td>★ §7.2.2 标题「三态」★ 而表内<b>四态</b></td><td>★ 标题已改「四态」</td></tr>
+<tr><td><b>③</b></td><td>★ §7.2.4 用 <code>OK</code> 定义比例</td><td>★ 保留并明确 <b><code>OK</code> 是通过态</b></td></tr>
+</table>
+
+<table>
+<tr><td>★</td><td>★</td></tr>
+<tr><td><b>我的建议</b></td><td>★★ <b>采纳全部三处修正</b> —— ★ 而<b>①的实质是【四态 + 一个通过态 = 五格】</b>，★ 需在正文<b>讲清</b>（★ 否则读者会以为「四态穷尽」与「有 OK」矛盾）</td></tr>
+</table>
+
+<hr>
+
+<h2>第三档 · 可缓（★ 5 条）</h2>
+
+<table>
+<tr><td>★</td><td>★ 事项</td><td>★ 建议</td></tr>
+<tr><td><b>⑬</b></td><td>★ §8.1.1 三行要求在 §4 无独立条目（★ 启用即必填 · 去重键=内容指纹 · 去重键不得填无关值）</td><td>★ 已标「§2.2（★ 规范性引用所指规格的字段规则）」★ <b>可保留</b> —— ★ 因为它们<b>本来就是规格的要求</b>，★ 契约只是引用</td></tr>
+<tr><td><b>⑭</b></td><td>★ 示例字面（★ <code>邮箱任务</code> / <code>信封字段集</code> / <code>stmt-4f1c9a</code>）是否须逐字取自规格枚举</td><td>★ <b>建议：★ 示例可自由，★ 但须标注「示例值，★ 不构成要求」</b>（★ 现已如此）</td></tr>
+<tr><td><b>⑯</b></td><td>★ D 的四个字段（★ <code>contractVersion</code> / <code>selfReadBack</code> / <code>writtenAt</code> / <code>supersedes</code>）在 §5 无对应</td><td>★ <b>建议：★ 删除或补进 §5</b> —— ★ 而<b>当前选择是「删除并标 A.4」</b>，★ 可接受</td></tr>
+<tr><td><b>⑰</b></td><td>★ RFC 2119 的引用级别（★ A 列为<b>参考性</b>）</td><td>★ <b>建议：★ 维持参考性</b> —— ★ 因为<b>契约对每处关键词都给了类别</b>，★ 不读 RFC 也能判断强度</td></tr>
+<tr><td><b>⑱</b></td><td>★ 附录 A 由「完整字段表」改为「字段表与改名对照」</td><td>★ <b>建议：★ 接受</b> —— ★ 因为<b>字段表唯一承载于 §5.3.3</b>，★ 附录 A 若并行复制会<b>产生两份会漂移的定义</b></td></tr>
+</table>
+
+<hr>
+
+<h2>★ 一页汇总裁决表</h2>
+
+<table>
+<tr><td>★ #</td><td>★ 事项</td><td>★ 我的建议</td><td>★ 需您</td></tr>
+<tr><td><b>①</b></td><td>★ 产出方定义</td><td>★★ <b>取 B</b>（内容来源）</td><td>★ 确认</td></tr>
+<tr><td><b>⑤</b></td><td>★ 身份状态「三种」</td><td>★★ <b>采纳修正</b>（两取值 + 未声明是缺失）</td><td>★ 确认不改变本意</td></tr>
+<tr><td><b>⑥</b></td><td>★ 比例口径</td><td>★★ <b>取 C</b>（接入面）</td><td>★ 确认</td></tr>
+<tr><td><b>⑦</b></td><td>★ 判定记法</td><td>★★ <b>统一取 C 的四态</b></td><td>★ 确认</td></tr>
+<tr><td><b>②</b></td><td>★ A 的逃生条款</td><td>★ <b>不保留</b></td><td>★ 确认</td></tr>
+<tr><td><b>③</b></td><td>★ 第三字段名</td><td>★ <b><code>producerNote</code></b></td><td>★ 确认</td></tr>
+<tr><td><b>④</b></td><td>★ 类别取值</td><td>★ <b><code>identified</code>/<code>unidentified</code></b></td><td>★ 确认</td></tr>
+<tr><td><b>⑧⑨⑩</b></td><td>★ 三处级别</td><td>★★ <b>三处都取 MUST</b>（D 的「正当理由」保留为说明）</td><td>★ 确认</td></tr>
+<tr><td><b>⑪</b></td><td>★ 空数组 vs 「无」</td><td>★ <b>按 C</b></td><td>★ 确认</td></tr>
+<tr><td><b>⑫</b></td><td>★ 「面」的枚举轴</td><td>★ <b>取 C</b>（★ 规格 6 通道真值已给出）</td><td>★ 确认</td></tr>
+<tr><td><b>⑮</b></td><td>★ C 三处内部不一致</td><td>★★ <b>采纳三处修正 + 讲清「四态 + 通过态」</b></td><td>★ 确认</td></tr>
+<tr><td><b>⑬⑭⑯⑰⑱</b></td><td>★ 五条措辞/示例</td><td>★ <b>按现处置接受</b></td><td>★ 可略</td></tr>
+</table>
+
+<hr>
+
+<h2>★ 而这一页值得记的一句</h2>
+
+<div class="q">★★★ <b>18 条里，【没有一条是「有人写错了」】—— 全部是【接口处的默认分歧】。</b></div>
+<p>&gt;</p>
+<div class="q">★★ <b>同一个决定（如「级别」「取值」「份额」）在四段里各自成立，</b></div>
+<div class="q">★ <b>而【放在一起才冲突】。</b></div>
+<p>&gt;</p>
+<div class="q">★★★ <b>⇒ 而那正是【并行的代价】，★ 也是【合并这一步不能省】的理由。</b></div>
+
+<hr>
+
+<p><b>整理时刻</b>：<code>2026-10-15T11:19:40+0800</code> · <b>状态</b>：★ <b>待裁决</b></p>
+</div></body></html>
