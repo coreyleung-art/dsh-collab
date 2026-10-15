@@ -41,9 +41,10 @@ DEFAULT_NS = [
 #   ★ 实测卡逐字：`writerKind = "ui"`·`writerNote = "★ 由【管理器网页】触发…非智能体产出，本类【无会话身份】"`
 #   ★★ ⇒ 那是【**显式声明了写者类别**】—★ 而**对网页 UI 类要求 X-Writer 是【错的】**（★ 那个身份不存在）。
 SIGN_FIELDS = ("from_label", "writer", "writerLabel", "X-Writer", "x-writer", "session", "sessionId",
-                 )   # ★ D-370：从 SIGN_FIELDS 移出 writerKind/writerNote（★ 它们走第三态）
+               "producerIdentity")   # ★ 2026-10-15：契约改名后新名（★ 旧名保留作兼容）
 
-DECLARED_FIELDS = ("writerKind", "writerNote", "writer_kind", "identityDeclared")   # ★ D-370：类别声明（★ 非签名）
+DECLARED_FIELDS = ("writerKind", "writerNote", "writer_kind", "identityDeclared",
+                   "producerCategory", "producerNote")   # ★ 2026-10-15：契约改名后新名   # ★ D-370：类别声明（★ 非签名）
 
 # ★ 会话身份形态
 SESSION_RX = re.compile(r"(?:^|\W)session-[0-9a-f]{6,}", re.I)

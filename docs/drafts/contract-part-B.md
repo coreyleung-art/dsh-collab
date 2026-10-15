@@ -47,12 +47,12 @@
 | 层 | 字段 | 由谁定义 |
 |---|---|---|
 | **规格层** | `cahac`、`id`、`type`、`channel`、`sender`、`recipient`、`thread`、`priority`、`cost_cap`、`dedup_key`、`ts`、`payload`（可选：`expires`、`signature`） | 《CAHAC 协议规格》§3（规范性引用） |
-| **契约层** | `producerIdentity`、`producerClass`、`producerNote` | 本契约 |
+| **契约层** | `producerIdentity`、`producerCategory`、`producerNote` | 本契约 |
 
 **契约层字段的定义**
 
-- **`producerIdentity`**：产出方的稳定身份串（字符串）。`producerClass` 为 `identified` 时必填。
-- **`producerClass`**：本条消息的产出方属于哪一类（字符串，取值 `identified` 或 `unidentified`）。
+- **`producerIdentity`**：产出方的稳定身份串（字符串）。`producerCategory` 为 `identified` 时必填。
+- **`producerCategory`**：本条消息的产出方属于哪一类（字符串，取值 `identified` 或 `unidentified`）。
 - **`producerNote`**：产出方的补充说明（字符串，可选）。
 
 三个字段**不改变规格层任何字段的含义**；它们回答的是规格层没有回答的问题：**这条消息的内容是谁产出的、以及这一类产出方有没有身份**。
@@ -65,17 +65,17 @@
 
 **无身份的产出方**：产出的来源**不是某一个智能体**的那一类产出方。典型情形：由人在网页上点出的一个操作、由定时任务触发的动作、由脚本跑出的结果。这一类产出**本来就没有**可与某个智能体对应的身份串 —— 这不是「身份丢了」，而是「这一类本来就不带身份」。
 
-**声明方式**：`producerClass` 取 `unidentified`；`producerIdentity` **不出现**（既不为空串，也不借用他方身份串）。
+**声明方式**：`producerCategory` 取 `unidentified`；`producerIdentity` **不出现**（既不为空串，也不借用他方身份串）。
 
 `producerNote` 是可用的位置，用来写明这一产出的实际来路（例如「由网页上的手工操作触发」「由每日定时任务触发」「由一次性脚本产生」）。写它不影响合规判定，只帮助接收方判断该如何处置。
 
 > **本节最重要的一条纪律：不是补一个身份，而是声明这一类本来就没有身份。**
 >
-> 当一项产出的来源不属于任何智能体时，**不得**为了让消息「字段齐整、来源明确」而给它填一个身份串 —— 不得借用投递方（规格 `sender`）的身份串，不得借用某个组件的名字，不得临时编一个串，也不得为了绕开这个问题而把 `producerClass` 改写成有身份的那一类。
+> 当一项产出的来源不属于任何智能体时，**不得**为了让消息「字段齐整、来源明确」而给它填一个身份串 —— 不得借用投递方（规格 `sender`）的身份串，不得借用某个组件的名字，不得临时编一个串，也不得为了绕开这个问题而把 `producerCategory` 改写成有身份的那一类。
 >
 > **硬填一个不存在的身份就是编造读数，它比不署名更坏。** 不署名留下的是「无从判断」，接收方会去求证；而伪造的署名留下的是「一个确定的、错误的答案」—— 接收方会据此向**错误的来源**求证、把责任归给**错误的来源**、按**错误的来源**处置；而真正的产出方**无人可查**，纠错也没有入口。
 >
-> 正确的写法只有一种：**`producerClass` 声明这一类本身无身份，`producerIdentity` 留空（不出现）。**
+> 正确的写法只有一种：**`producerCategory` 声明这一类本身无身份，`producerIdentity` 留空（不出现）。**
 
 ---
 
@@ -89,7 +89,7 @@
 
 **② 兼容附加字段。** 接收方 **MUST NOT** 仅仅因为一条消息多带了它不认识的键，就拒收整条消息。**为什么这是互操作必需**：本契约在规格的信封之外增加了三个契约层字段，属于附加式扩展；拒收即为把兼容的扩展变成不兼容。**不做会怎样**：同一条消息在旧接收方被**整条丢弃**，而写入方以为已经送达 —— 消息既没有被处理，也没有产生任何错误读数。
 
-**③ 不得推断类别。** `producerClass` 缺失时，接收方 **MUST NOT** 替它推断一个类别。缺失就是缺失：应当把它记为**未声明**，而不是按「看起来像脚本」判成无身份、或按「有 `sender` 就一定有身份」判成有身份。这是**限制有害行为**的条款，理由与 §3.2 的纪律同一条：**没有读数就不能当有读数**。**不做会怎样**：接收方按一个猜出来的类别处置 —— 猜成有身份，就向一个并不存在的来源追责；猜成无身份，就把一条本可追责的正式动作降级为无来源。两种错的处置都发生在**下游已经生效之后**，无法回退。
+**③ 不得推断类别。** `producerCategory` 缺失时，接收方 **MUST NOT** 替它推断一个类别。缺失就是缺失：应当把它记为**未声明**，而不是按「看起来像脚本」判成无身份、或按「有 `sender` 就一定有身份」判成有身份。这是**限制有害行为**的条款，理由与 §3.2 的纪律同一条：**没有读数就不能当有读数**。**不做会怎样**：接收方按一个猜出来的类别处置 —— 猜成有身份，就向一个并不存在的来源追责；猜成无身份，就把一条本可追责的正式动作降级为无来源。两种错的处置都发生在**下游已经生效之后**，无法回退。
 
 **④ 只读。** 接收方 **MAY** 只读不写，不因只读而失去接入资格。
 
@@ -99,7 +99,7 @@
 
 若你的产出**既不能**提供一个稳定身份串，**又不属于**「来源不是某一个智能体」的那一类（例如来源是一个组织、是一段多方共享的流程、是若干方结果的合并），则：
 
-- 你 **MUST NOT** 自行新增类别，也 **MUST NOT** 自行挑一个最近似的基础类别填进 `producerClass`。
+- 你 **MUST NOT** 自行新增类别，也 **MUST NOT** 自行挑一个最近似的基础类别填进 `producerCategory`。
 - 你 **MUST** 向维护者提交登记请求，说明你的产出形态，由维护者裁定它归入哪一类，或新增一类。
 
 **为什么必须由维护者定**：类别是**网络层面共享的词汇**。不同参与者若各自为自己新增取值，同一个取值在不同设备上就会指向不同的东西，接收方按取值处置时必然处置错。而**自行挑一个最近似的类别**，等于把「我这一类的语义与既有类其实不同」这件事藏起来 —— 接收方会用错的语义、且**没有任何读数提示他用错了**。这与 §3.2 是同一条纪律的另一种形态：**宁可声明「不属于任何一类」，也不要填一个近似但不成立的类。**
@@ -200,17 +200,17 @@ PY
 
 > 本项**不属于**《CAHAC 协议规格》的信封字段表，是本契约在规格之上增加的**契约层要求**。二者分层见 §3.1 的表格。
 
-**【要求 · MUST（互操作必需）】** 你写出的每一条消息 **MUST** 带 `producerClass` 字段，其取值只能是 `identified` 或 `unidentified` 之一（两个类别的定义见 §3.1、§3.2）。
+**【要求 · MUST（互操作必需）】** 你写出的每一条消息 **MUST** 带 `producerCategory` 字段，其取值只能是 `identified` 或 `unidentified` 之一（两个类别的定义见 §3.1、§3.2）。
 
-**【要求 · MUST（互操作必需）】** `producerClass` 为 `identified` 时，该消息 **MUST** 带 `producerIdentity`，其值为**非空字符串**（定义见 §3.1）。
+**【要求 · MUST（互操作必需）】** `producerCategory` 为 `identified` 时，该消息 **MUST** 带 `producerIdentity`，其值为**非空字符串**（定义见 §3.1）。
 
-**【要求 · MUST NOT（限制有害行为）】** `producerClass` 为 `unidentified` 时，该消息 **MUST NOT** 出现 `producerIdentity` 这个键；写入方 **MUST NOT** 用空串、占位串或他方身份串来「填满」这个位置（理由见 §3.2）。
+**【要求 · MUST NOT（限制有害行为）】** `producerCategory` 为 `unidentified` 时，该消息 **MUST NOT** 出现 `producerIdentity` 这个键；写入方 **MUST NOT** 用空串、占位串或他方身份串来「填满」这个位置（理由见 §3.2）。
 
-**【凭什么算做到】** 从你的产出中任取一条消息：`producerClass` 存在，且取值属于上述两个之一；取值为 `identified` 时，`producerIdentity` 存在且为非空字符串；取值为 `unidentified` 时，**`producerIdentity` 这个键不存在**。
+**【凭什么算做到】** 从你的产出中任取一条消息：`producerCategory` 存在，且取值属于上述两个之一；取值为 `identified` 时，`producerIdentity` 存在且为非空字符串；取值为 `unidentified` 时，**`producerIdentity` 这个键不存在**。
 
 **【不做会怎样】**
 
-- **缺 `producerClass`**：接收方分不清「这一类本来就没有身份」与「身份被省略、被剥离、或被中转丢失」这三种情况 —— 它们在字段上长得完全一样。接收方只能猜，而两种猜法都错（见 §3.3 第 ③ 条）。
+- **缺 `producerCategory`**：接收方分不清「这一类本来就没有身份」与「身份被省略、被剥离、或被中转丢失」这三种情况 —— 它们在字段上长得完全一样。接收方只能猜，而两种猜法都错（见 §3.3 第 ③ 条）。
 - **伪造 `producerIdentity`**：接收方按一个**不存在的来源**去求证、去追责、去要求解释 ⇒ 真正的产出方**无人可查**，而错误的归属已经进入下游。
 
 这两种后果都**不可恢复**：消息一旦被处置，归属就已经被下游采纳。
@@ -221,7 +221,7 @@ PY
 python3 - <<'PY'
 import json
 m = json.load(open("<消息文件>", encoding="utf-8"))
-cls = m.get("producerClass")
+cls = m.get("producerCategory")
 ident_present = "producerIdentity" in m
 ident_ok = isinstance(m.get("producerIdentity"), str) and bool(m.get("producerIdentity", "").strip())
 if cls == "identified":
@@ -230,7 +230,7 @@ elif cls == "unidentified":
     verdict = "PASS" if not ident_present else "FAIL"
 else:
     verdict = "FAIL"      # 字段缺失，或取值不属于本契约定义的两个
-print("producerClass =", repr(cls), "| producerIdentity 出现 =", ident_present)
+print("producerCategory =", repr(cls), "| producerIdentity 出现 =", ident_present)
 print(verdict)
 PY
 ```

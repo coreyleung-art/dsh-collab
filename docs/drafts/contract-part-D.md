@@ -341,9 +341,9 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 
 | 旧名 | 新名 | 为什么改 |
 |---|---|---|
-| `X-Writer` | `writerIdentity` | 旧名带 `X-` 前缀且为代号，读者**猜不出用途**；新名是**完整单词的名词**，字面即「写入方身份」 |
-| `writerKind` | `writerCategory` | `kind` 比 `category` 更含糊；同族字段改用**同一个完整名词** |
-| `writerNote` | `writerCategoryNote` | 旧名看不出「说明的是什么」；新名指明它说明的是**类别** |
+| `X-Writer` | `producerIdentity` | 旧名带 `X-` 前缀且为代号，读者**猜不出用途**；新名是**完整单词的名词**，字面即「写入方身份」 |
+| `writerKind` | `producerCategory` | `kind` 比 `category` 更含糊；同族字段改用**同一个完整名词** |
+| `producerNote` | `producerCategoryNote` | 旧名看不出「说明的是什么」；新名指明它说明的是**类别** |
 
 **命名原则（三条）：**
 
@@ -359,9 +359,9 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 |---|---|---|---|---|
 | `evidenceType` | 字符串 | **必填** | 本对象的种类标识。固定取值，用于把它与消息、任务卡区分开 | `"cahac-onboarding-evidence"` |
 | `contractVersion` | 字符串 | **必填** | 本次举证所依据的《CAHAC 接入契约》的版本 | `"v2"` |
-| `writerCategory` | 字符串（枚举） | **必填** | 写入方类别。取值见 A.3 | `"identity-bearing"` |
-| `writerIdentity` | 字符串 | **条件必填**：`writerCategory` 为「有身份」时**必填**；否则**不得出现** | 该写入方的身份串 | `"writer-example-0001"` |
-| `writerCategoryNote` | 字符串 | **条件必填**：`writerCategory` 为「无身份」时**必填**；否则**不得出现** | 说明该来源**是哪一类、以及如何指认**（须为图形界面 / 定时器 / 脚本之一） | `"定时器：每个周期触发的一次性写入"` |
+| `producerCategory` | 字符串（枚举） | **必填** | 写入方类别。取值见 A.3 | `"identity-bearing"` |
+| `producerIdentity` | 字符串 | **条件必填**：`producerCategory` 为「有身份」时**必填**；否则**不得出现** | 该写入方的身份串 | `"writer-example-0001"` |
+| `producerCategoryNote` | 字符串 | **条件必填**：`producerCategory` 为「无身份」时**必填**；否则**不得出现** | 说明该来源**是哪一类、以及如何指认**（须为图形界面 / 定时器 / 脚本之一） | `"定时器：每个周期触发的一次性写入"` |
 | `envelopeVersionDeclared` | 字符串 | **必填** | 该写入方**从实际写入路径读出**的信封版本值。须**逐字等于**规范性引用所指规范版本处的规范值（不得带前缀字母、不得为大写变体） | ★ **取规范处所载的规范值**（本附录不写死） |
 | `declaredScope` | 字符串数组 | **必填**（**不得为空数组**） | 本次声明**声称已接入**的面。取值见 A.4 | `["point-to-point", "shared-state"]` |
 | `undeclaredScope` | 字符串数组 | **必填**（确无者为**空数组**，**不得省略该字段**） | 本次**显式列出的未接入面** | `["broadcast"]` |
@@ -373,12 +373,12 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 
 ★ **示例中的 `writer-example-0001` 与 `2030-01-01T00:00:00Z` 均为占位示例**，不指向任何实际对象。
 
-### A.3 `writerCategory` 的取值（枚举）
+### A.3 `producerCategory` 的取值（枚举）
 
 | 取值 | 含义 | 同时必须携带 |
 |---|---|---|
-| `identity-bearing` | 该写入方**有身份** | `writerIdentity` |
-| `identity-absent` | 该写入方**无身份**（图形界面 / 定时器 / 脚本三类之一） | `writerCategoryNote` |
+| `identity-bearing` | 该写入方**有身份** | `producerIdentity` |
+| `identity-absent` | 该写入方**无身份**（图形界面 / 定时器 / 脚本三类之一） | `producerCategoryNote` |
 
 > ★★ **「未声明」不是取值。**
 > 两个字段都不出现 ⇒ **违约**，且**不是**「无身份」。
@@ -413,7 +413,7 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 |---|---|---|---|
 | 1 | **回读一条产出的全部字段名** | `jq -r 'keys[]' <该产出的 JSON>` | 每行一个字段名；**行数 = 字段数** |
 | 2 | **判定必填字段是否齐备** | `jq -r '["cahac","id","type","channel","sender","recipient","thread","priority","cost_cap","dedup_key","ts","payload"] - (keys) \| length' <该产出的 JSON>` | **单个整数**。`0` = **齐备**；非 `0` = 缺该数个字段。⇒ 去掉 `\| length` 再跑一次即得**缺失字段清单** |
-| 3 | **读出该产出实际携带的版本值与身份状态** | `jq -r '.cahac, .writerCategory, .writerIdentity' <该产出的 JSON>` | **三行**。`.cahac` 须**逐字等于**规范值；`.writerCategory` 须为两个取值之一；取值为「有身份」时第三行**非 `null`** |
+| 3 | **读出该产出实际携带的版本值与身份状态** | `jq -r '.cahac, .producerCategory, .producerIdentity' <该产出的 JSON>` | **三行**。`.cahac` 须**逐字等于**规范值；`.producerCategory` 须为两个取值之一；取值为「有身份」时第三行**非 `null`** |
 | 4 | **判定去重键是否为内容指纹形态** | `jq -r '.dedup_key' <该产出的 JSON> \| grep -cE '^[a-z0-9-]+:[0-9a-f]{64}$'` | `1` = 形如「算法名:64 位十六进制」，**形态合规**；`0` = **非内容指纹形态** |
 | 5 | **从共享存储独立回读同一条产出** | `curl -s -w '\n%{http_code}\n' <共享存储读取地址>/<键>` | **一个 JSON 对象 + 一行状态码**。⇒ **两者须同时成立**：对象非空**且**状态码为成功。只看返回值、没有状态码 ⇒ **不得记为已写入** |
 | 6 | **计数某写入方的达标比例** | `<计数命令>`：**分母** = 该写入方在该时间范围内的产出条数；**分子** = 其中带规范版本声明的条数 | **两个整数 + 一个比例 + 一个取值时刻**。⇒ **缺取值时刻则该数不可比**（不同时刻的两个数**不得并列比较**） |
@@ -469,8 +469,8 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 {
   "evidenceType": "cahac-onboarding-evidence",
   "contractVersion": "v2",
-  "writerCategory": "identity-bearing",
-  "writerIdentity": "writer-example-0001",
+  "producerCategory": "identity-bearing",
+  "producerIdentity": "writer-example-0001",
   "envelopeVersionDeclared": "<取规范性引用所指规范版本处的规范值>",
   "declaredScope": ["point-to-point", "shared-state"],
   "undeclaredScope": ["broadcast"],
@@ -489,6 +489,6 @@ RFC 2119 §3 规定：**SHOULD** 级条目在特定情形下**可以**有正当�
 | **可回读** | 是——`evidenceCommand` 指向一条**具体的产出**，任何人现在都能再读它 |
 | **可复跑** | 是——命令**不依赖任何临时状态**，单独再跑给出同一形状 |
 | **对象与命令对应** | 是——命令的输出是**那一条产出自身**的字段齐备数（`0` = 不缺字段），**不是全库统计** |
-| **身份状态已声明** | 是——`writerCategory` 取值「有身份」，且**同时**携带了 `writerIdentity` |
+| **身份状态已声明** | 是——`producerCategory` 取值「有身份」，且**同时**携带了 `producerIdentity` |
 
 ★ 并且它**示范了「显式声明未接入面」**：`undeclaredScope` **存在**，取值 `["broadcast"]`——即该写入方**明说**它尚未接入全员广播这一面。⇒ **把未接入的一面说出来，不会使它不合格；把它藏起来，才会使读数虚高。**
